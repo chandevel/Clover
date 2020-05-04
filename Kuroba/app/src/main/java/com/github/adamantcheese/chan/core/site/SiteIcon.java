@@ -51,28 +51,30 @@ public class SiteIcon {
     private SiteIcon() {
     }
 
-    public void get(SiteIconResult result) {
+    public void get(final SiteIconResult result) {
         if (drawable != null) {
-            result.onSiteIcon(SiteIcon.this, drawable);
+            result.onSiteIcon(drawable);
         } else if (url != null) {
             instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
                 @Override
                 public void onResponse(ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
                         Drawable drawable = new BitmapDrawable(getRes(), response.getBitmap());
-                        result.onSiteIcon(SiteIcon.this, drawable);
+                        SiteIcon.this.drawable = drawable;
+                        result.onSiteIcon(drawable);
                     }
                 }
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Logger.e(SiteIcon.this, "Error loading favicon", error);
+                    drawable = null;
                 }
             }, FAVICON_SIZE, FAVICON_SIZE);
         }
     }
 
     public interface SiteIconResult {
-        void onSiteIcon(SiteIcon siteIcon, Drawable icon);
+        void onSiteIcon(Drawable icon);
     }
 }

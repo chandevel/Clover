@@ -46,7 +46,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ArchiveController
         extends Controller

@@ -48,7 +48,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -194,12 +193,12 @@ public class ThreadListLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int cardWidth = getDimen(R.dimen.grid_card_width);
+        int cardWidth = getDimen(getContext(), R.dimen.grid_card_width);
         int gridCountSetting = ChanSettings.boardGridSpanCount.get();
         boolean compactMode;
         if (gridCountSetting > 0) {
             spanCount = gridCountSetting;
-            compactMode = (getMeasuredWidth() / spanCount) < dp(120);
+            compactMode = (getMeasuredWidth() / spanCount) < dp(getContext(), 120);
         } else {
             spanCount = Math.max(1, Math.round((float) getMeasuredWidth() / cardWidth));
             compactMode = false;
@@ -638,8 +637,8 @@ public class ThreadListLayout
     }
 
     @Override
-    public void showImageReencodingWindow(boolean supportsReencode) {
-        threadListLayoutCallback.showImageReencodingWindow(supportsReencode);
+    public void showImageReencodingWindow() {
+        threadListLayoutCallback.showImageReencodingWindow();
     }
 
     public int[] getIndexAndTop() {
@@ -789,15 +788,11 @@ public class ThreadListLayout
         return -1;
     }
 
-    private Bitmap hat;
+    private Bitmap hat = BitmapFactory.decodeResource(getResources(), R.drawable.partyhat);
 
     private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            if (hat == null) {
-                hat = BitmapFactory.decodeResource(getResources(), R.drawable.partyhat);
-            }
-
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {
@@ -831,8 +826,8 @@ public class ThreadListLayout
         recyclerView.removeItemDecoration(PARTY);
     }
 
-    public void onImageOptionsApplied(Reply modifiedReply, boolean filenameRemoved) {
-        reply.onImageOptionsApplied(modifiedReply, filenameRemoved);
+    public void onImageOptionsApplied() {
+        reply.onImageOptionsApplied();
     }
 
     public void onImageOptionsComplete() {
@@ -852,7 +847,7 @@ public class ThreadListLayout
 
         Toolbar getToolbar();
 
-        void showImageReencodingWindow(boolean supportsReencode);
+        void showImageReencodingWindow();
 
         boolean threadBackPressed();
 

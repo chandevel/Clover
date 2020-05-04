@@ -17,4 +17,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <View xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="4dp"
-    android:background="?attr/post_last_seen_color" />
+    android:background="?colorAccent" />

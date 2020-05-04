@@ -17,31 +17,34 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.SiteRegistry;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
-import com.github.adamantcheese.chan.ui.layout.SiteAddLayout;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -52,11 +55,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class SitesSetupController
         extends StyledToolbarNavigationController
@@ -77,7 +79,7 @@ public class SitesSetupController
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
                 @Override
                 public boolean onMove(
-                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                        RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target
                 ) {
                     int from = viewHolder.getAdapterPosition();
                     int to = target.getAdapterPosition();
@@ -88,7 +90,7 @@ public class SitesSetupController
                 }
 
                 @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                public void onSwiped(ViewHolder viewHolder, int direction) {
                 }
             };
 
@@ -122,7 +124,6 @@ public class SitesSetupController
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);
-        ThemeHelper.getTheme().applyFabColor(addButton);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -172,18 +173,17 @@ public class SitesSetupController
     @Override
     public void showAddDialog() {
         @SuppressLint("InflateParams")
-        final SiteAddLayout dialogView = (SiteAddLayout) inflate(context, R.layout.layout_site_add, null);
+        final ListView dialogView = new ListView(context);
+        SitePreviewAdapter adapter = new SitePreviewAdapter();
+        if (adapter.sites.isEmpty()) {
+            showToast(context, "All sites added!");
+            return;
+        }
+        dialogView.setAdapter(adapter);
 
-        dialogView.setPresenter(presenter);
-
-        final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
-                .setTitle(R.string.setup_sites_add_title)
-                .setPositiveButton(R.string.add, (dialog1, which) -> dialogView.onPositiveClicked())
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-
-        dialogView.setDialog(dialog);
+        final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView).create();
         dialog.show();
+        adapter.setDialog(dialog);
     }
 
     @Override
@@ -241,7 +241,6 @@ public class SitesSetupController
         public void onBindViewHolder(@NonNull SiteCell holder, int position) {
             SiteBoardCount site = sites.get(position);
             holder.setSite(site.site);
-            holder.setSiteIcon(site.site);
             holder.text.setText(site.site.name());
 
             String descriptionText = getQuantityString(R.plurals.board, site.boardCount, site.boardCount);
@@ -265,12 +264,11 @@ public class SitesSetupController
     }
 
     private class SiteCell
-            extends RecyclerView.ViewHolder
+            extends ViewHolder
             implements View.OnClickListener {
         private ImageView image;
         private TextView text;
         private TextView description;
-        private SiteIcon siteIcon;
         private ImageView removeSite;
         private ImageView settings;
 
@@ -292,17 +290,6 @@ public class SitesSetupController
             itemView.setOnClickListener(this);
             removeSite.setOnClickListener(this);
 
-            setRoundItemBackground(settings);
-            setRoundItemBackground(removeSite);
-            ThemeHelper.getTheme().settingsDrawable.apply(settings);
-            ThemeHelper.getTheme().clearDrawable.apply(removeSite);
-
-            Drawable drawable = context.getDrawable(R.drawable.ic_reorder_black_24dp);
-            assert drawable != null;
-            Drawable drawableMutable = DrawableCompat.wrap(drawable).mutate();
-            DrawableCompat.setTint(drawableMutable, getAttrColor(context, R.attr.text_color_hint));
-            reorder.setImageDrawable(drawableMutable);
-
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                     itemTouchHelper.startDrag(this);
@@ -313,16 +300,7 @@ public class SitesSetupController
 
         private void setSite(Site site) {
             this.site = site;
-        }
-
-        private void setSiteIcon(Site site) {
-            siteIcon = site.icon();
-            siteIcon.get((siteIcon, icon) -> {
-                if (SiteCell.this.siteIcon == siteIcon) {
-                    image.setImageDrawable(icon);
-                    image.getDrawable().setTintList(null);
-                }
-            });
+            site.icon().get(image::setImageDrawable);
         }
 
         @Override
@@ -332,6 +310,66 @@ public class SitesSetupController
             } else if (v == itemView) {
                 onSiteCellSettingsClicked(site);
             }
+        }
+    }
+
+    private class SitePreviewAdapter
+            extends BaseAdapter {
+
+        @Inject
+        SiteRepository siteRepository;
+
+        private List<Class<? extends Site>> sites;
+        private AlertDialog dialog;
+
+        public SitePreviewAdapter() {
+            inject(this);
+            sites = new ArrayList<>();
+            List<String> addedSites = new ArrayList<>();
+            for (Site s : siteRepository.all().getAll()) {
+                addedSites.add(s.getClass().getSimpleName());
+            }
+            for (int i = 0; i < SiteRegistry.SITE_CLASSES.size(); i++) {
+                Class<? extends Site> s = SiteRegistry.SITE_CLASSES.valueAt(i);
+                if (!addedSites.contains(s.getSimpleName())) {
+                    sites.add(s);
+                }
+            }
+        }
+
+        public void setDialog(AlertDialog dialog) {
+            this.dialog = dialog;
+        }
+
+        @Override
+        public int getCount() {
+            return sites.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return sites.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Site s = siteRepository.instantiateSiteClass(sites.get(position));
+            s.initialize(0, new SiteConfig(), new JsonSettings());
+            LinearLayout previewCell = (LinearLayout) inflate(context, R.layout.layout_site_preview);
+            ImageView favicon = previewCell.findViewById(R.id.site_icon);
+            TextView siteName = previewCell.findViewById(R.id.site_name);
+            s.icon().get(favicon::setImageDrawable);
+            siteName.setText(s.name());
+            previewCell.setOnClickListener((v -> {
+                presenter.onAddClicked(sites.get(position));
+                dialog.dismiss();
+            }));
+            return previewCell;
         }
     }
 }

@@ -21,6 +21,7 @@ import android.text.TextUtils
 import com.github.adamantcheese.chan.utils.*
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
 import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
+import com.github.adamantcheese.chan.utils.JavaUtils.stringMD5hash
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
@@ -62,7 +63,7 @@ class CacheHandler(
         private val fileManager: FileManager,
         private val cacheDirFile: RawFile,
         private val chunksCacheDirFile: RawFile,
-        private val autoLoadThreadImages: Boolean
+        autoLoadThreadImages: Boolean
 ) {
     private val executor = Executors.newSingleThreadExecutor()
 
@@ -347,7 +348,7 @@ class CacheHandler(
     }
 
     fun deleteCacheFileByUrl(url: String): Boolean {
-        return deleteCacheFile(hashUrl(url))
+        return deleteCacheFile(stringMD5hash(url))
     }
 
     @Synchronized
@@ -556,14 +557,14 @@ class CacheHandler(
     private fun getCacheFileInternal(url: String): RawFile {
         createDirectories()
 
-        val fileName = formatCacheFileName(hashUrl(url))
+        val fileName = formatCacheFileName(stringMD5hash(url))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
     private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: String): RawFile {
         createDirectories()
 
-        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, hashUrl(url))
+        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, stringMD5hash(url))
         return chunksCacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
@@ -571,12 +572,8 @@ class CacheHandler(
         createDirectories()
 
         // AbstractFile expects all file names to have extensions
-        val fileName = formatCacheFileMetaName(hashUrl(url))
+        val fileName = formatCacheFileMetaName(stringMD5hash(url))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
-    }
-
-    internal fun hashUrl(url: String): String {
-        return HashingUtil.stringHash(url)
     }
 
     private fun formatChunkCacheFileName(

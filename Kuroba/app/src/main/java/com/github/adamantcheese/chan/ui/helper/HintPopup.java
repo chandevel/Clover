@@ -35,8 +35,10 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 
 public class HintPopup {
@@ -93,6 +95,7 @@ public class HintPopup {
 
         TextView textView = popupView.findViewById(R.id.text);
         textView.setText(text);
+        textView.setTextColor(getContrastColor(getAttrColor(context, R.attr.colorAccent)));
 
         popupWindow = new PopupWindow(popupView, WRAP_CONTENT, WRAP_CONTENT);
         popupWindow.setOutsideTouchable(true);

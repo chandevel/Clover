@@ -23,7 +23,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -39,22 +38,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class SitesSetupPresenter
         implements Observer {
     private Context context;
-    private final SiteService siteService;
     private final SiteRepository siteRepository;
     private final BoardManager boardManager;
 
     private Callback callback;
-    private AddCallback addCallback;
 
     private SiteRepository.Sites sites;
     private List<Site> sitesShown = new ArrayList<>();
 
     @Inject
     public SitesSetupPresenter(
-            Context context, SiteService siteService, SiteRepository siteRepository, BoardManager boardManager
+            Context context, SiteRepository siteRepository, BoardManager boardManager
     ) {
         this.context = context;
-        this.siteService = siteService;
         this.siteRepository = siteRepository;
         this.boardManager = boardManager;
     }
@@ -98,39 +94,14 @@ public class SitesSetupPresenter
         updateSitesInUi();
     }
 
-    public void bindAddDialog(AddCallback addCallback) {
-        this.addCallback = addCallback;
-    }
-
-    public void unbindAddDialog() {
-        this.addCallback = null;
-    }
-
     public void onShowDialogClicked() {
         callback.showAddDialog();
     }
 
-    public void onAddClicked(String url) {
-        siteService.addSite(url, new SiteService.SiteAddCallback() {
-            @Override
-            public void onSiteAdded(Site site) {
-                siteAdded(site);
-                if (addCallback != null) {
-                    addCallback.dismissDialog();
-                }
-            }
+    public void onAddClicked(Class<? extends Site> siteClass) {
+        Site newSite = siteRepository.createFromClass(siteClass);
 
-            @Override
-            public void onSiteAddFailed(String message) {
-                if (addCallback != null) {
-                    addCallback.showAddError(message);
-                }
-            }
-        });
-    }
-
-    private void siteAdded(Site site) {
-        sitesShown.add(site);
+        sitesShown.add(newSite);
         saveOrder();
 
         updateSitesInUi();
@@ -141,7 +112,7 @@ public class SitesSetupPresenter
     }
 
     private void saveOrder() {
-        siteService.updateOrdering(sitesShown);
+        siteRepository.updateSiteOrderingAsync(sitesShown);
     }
 
     private void updateSitesInUi() {
@@ -163,7 +134,7 @@ public class SitesSetupPresenter
         }
     }
 
-    public class SiteBoardCount {
+    public static class SiteBoardCount {
         public Site site;
         public int boardCount;
 
@@ -183,11 +154,5 @@ public class SitesSetupPresenter
         void openSiteConfiguration(Site site);
 
         void onSiteDeleted(Site site);
-    }
-
-    public interface AddCallback {
-        void showAddError(String error);
-
-        void dismissDialog();
     }
 }

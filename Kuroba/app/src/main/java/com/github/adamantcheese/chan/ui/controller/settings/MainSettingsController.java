@@ -268,7 +268,7 @@ public class MainSettingsController
             new AlertDialog.Builder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
                     crashLogsCount
             ))
-                    .setMessage(R.string.settings_report_suggest_sending_logs_message)
+                    .setMessage(R.string.settings_report_suggest_sending_logs)
                     .setPositiveButton(R.string.settings_report_review_button_text,
                             (dialog, which) -> navigationController.pushController(new ReviewCrashLogsController(context))
                     )

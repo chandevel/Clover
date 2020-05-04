@@ -26,6 +26,7 @@ import android.text.style.UnderlineSpan;
 
 import androidx.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -55,6 +56,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -279,7 +281,7 @@ public class CommentParser {
 
         // Overrides the text (possibly) parsed by child nodes.
         return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
-                new ForegroundColorSpanHashed(theme.inlineQuoteColor),
+                new ForegroundColorSpanHashed(getAttrColor(theme, R.attr.post_inline_quote_color)),
                 new AbsoluteSizeSpanHashed(sp(12f))
         );
     }

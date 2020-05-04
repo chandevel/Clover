@@ -7,7 +7,6 @@ import android.graphics.Matrix;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.math.MathUtils;
 import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -22,17 +21,10 @@ import java.util.Random;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
-import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_IS;
-import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_JPEG;
-import static com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter.ReencodeType.AS_PNG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
-    private static final int MIN_QUALITY = 1;
-    private static final int MAX_QUALITY = 100;
-    private static final int MIN_REDUCE = 0;
-    private static final int MAX_REDUCE = 100;
     private static final int PIXEL_DIFF = 5;
     private static final String TEMP_FILE_EXTENSION = ".tmp";
     private static final String TEMP_FILE_NAME = "temp_file_name";
@@ -42,63 +34,51 @@ public class BitmapUtils {
     private static final byte[] JPEG_HEADER = new byte[]{-1, -40};
 
     private static final Random random = new Random();
+    private static BitmapFactory.Options options = new BitmapFactory.Options();
+
+    static {
+        options.inMutable = true;
+    }
 
     public static File reencodeBitmapFile(
             @NonNull File inputBitmapFile,
-            boolean fixExif,
-            boolean removeMetadata,
-            boolean changeImageChecksum,
-            @Nullable ImageReencodingPresenter.ReencodeSettings reencodeSettings
+            @NonNull ImageReencodingPresenter.ImageOptions imageOptions,
+            @Nullable CompressFormat newFormat
     )
             throws IOException {
-        int quality = MAX_QUALITY;
-        int reduce = MIN_REDUCE;
-        ImageReencodingPresenter.ReencodeType reencodeType = AS_IS;
+        if (imageOptions.areOptionsInvalid()) throw new IllegalArgumentException("Image options not formatted correctly.");
+        Bitmap bitmap = BitmapFactory.decodeFile(inputBitmapFile.getAbsolutePath(), options);
+        Matrix matrix = new Matrix();
 
-        if (reencodeSettings != null) {
-            quality = reencodeSettings.getReencodeQuality();
-            reduce = reencodeSettings.getReducePercent();
-            reencodeType = reencodeSettings.getReencodeType();
-        }
+        //slightly change one pixel of the image to change it's checksum
+        if (imageOptions.changeImageChecksum) {
+            int randomX = Math.abs(random.nextInt()) % bitmap.getWidth();
+            int randomY = Math.abs(random.nextInt()) % bitmap.getHeight();
 
-        quality = MathUtils.clamp(quality, MIN_QUALITY, MAX_QUALITY);
-        reduce = MathUtils.clamp(reduce, MIN_REDUCE, MAX_REDUCE);
+            // one pixel is enough to change the checksum of an image
+            int pixel = bitmap.getPixel(randomX, randomY);
 
-        //all parameters are default - do nothing
-        if (quality == MAX_QUALITY && reduce == MIN_REDUCE && reencodeType == AS_IS && !fixExif && !removeMetadata
-                && !changeImageChecksum) {
-            return inputBitmapFile;
-        }
-
-        Bitmap bitmap = null;
-        CompressFormat compressFormat = getImageFormat(inputBitmapFile);
-
-        if (reencodeType == AS_JPEG) {
-            compressFormat = JPEG;
-        } else if (reencodeType == AS_PNG) {
-            compressFormat = PNG;
-        }
-
-        try {
-            BitmapFactory.Options opt = new BitmapFactory.Options();
-            opt.inMutable = true;
-
-            bitmap = BitmapFactory.decodeFile(inputBitmapFile.getAbsolutePath(), opt);
-            Matrix matrix = new Matrix();
-
-            //slightly change one pixel of the image to change it's checksum
-            if (changeImageChecksum) {
-                changeBitmapChecksum(bitmap);
+            // NOTE: apparently when re-encoding jpegs, changing a pixel by 1 is sometimes not enough
+            // due to the jpeg's compression algorithm (it may even out this pixel with surrounding
+            // pixels like it wasn't changed at all) so we have to increase the difference a little bit
+            if (pixel - PIXEL_DIFF >= 0) {
+                pixel -= PIXEL_DIFF;
+            } else {
+                pixel += PIXEL_DIFF;
             }
 
-            //scale the image down
-            if (reduce != MIN_REDUCE) {
-                float scale = (100f - (float) reduce) / 100f;
-                matrix.setScale(scale, scale);
-            }
+            bitmap.setPixel(randomX, randomY, pixel);
+        }
 
-            //fix exif
-            if (compressFormat == JPEG && fixExif) {
+        //scale the image down
+        if (imageOptions.reducePercent > 0) {
+            float scale = (100f - (float) imageOptions.reducePercent) / 100f;
+            matrix.setScale(scale, scale);
+        }
+
+        //fix exif
+        if (imageOptions.fixExif) {
+            try {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
                 int orientation =
                         exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -116,36 +96,33 @@ public class BitmapUtils {
                         matrix.postRotate(0);
                         break;
                 }
+            } catch (Exception ignored) {}
+        }
+
+        Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        bitmap.recycle();
+
+        File tempFile = null;
+
+        try {
+            tempFile = getTempFilename();
+
+            try (FileOutputStream output = new FileOutputStream(tempFile)) {
+                newBitmap.compress(newFormat, imageOptions.reencodeQuality, output);
+            } catch (Exception e) {
+                Logger.d("BitmapUtils", "test");
             }
 
-            Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+            return tempFile;
+        } catch (Throwable error) {
+            File[] list = new File[1];
+            list[0] = tempFile;
+            deleteOldTempFiles(list);
 
-            File tempFile = null;
-
-            try {
-                tempFile = getTempFilename();
-
-                try (FileOutputStream output = new FileOutputStream(tempFile)) {
-                    newBitmap.compress(compressFormat, quality, output);
-                }
-
-                return tempFile;
-            } catch (Throwable error) {
-                if (tempFile != null) {
-                    if (!tempFile.delete()) {
-                        Logger.w(TAG, "Could not delete temp image file: " + tempFile.getAbsolutePath());
-                    }
-                }
-
-                throw error;
-            } finally {
-                if (newBitmap != null) {
-                    newBitmap.recycle();
-                }
-            }
+            throw error;
         } finally {
-            if (bitmap != null) {
-                bitmap.recycle();
+            if (newBitmap != null) {
+                newBitmap.recycle();
             }
         }
     }
@@ -172,28 +149,8 @@ public class BitmapUtils {
         }
     }
 
-    private static void changeBitmapChecksum(Bitmap bitmap) {
-        int randomX = Math.abs(random.nextInt()) % bitmap.getWidth();
-        int randomY = Math.abs(random.nextInt()) % bitmap.getHeight();
-
-        // one pixel is enough to change the checksum of an image
-        int pixel = bitmap.getPixel(randomX, randomY);
-
-        // NOTE: apparently when re-encoding jpegs, changing a pixel by 1 is sometimes not enough
-        // due to the jpeg's compression algorithm (it may even out this pixel with surrounding
-        // pixels like it wasn't changed at all) so we have to increase the difference a little bit
-        if (pixel - PIXEL_DIFF >= 0) {
-            pixel -= PIXEL_DIFF;
-        } else {
-            pixel += PIXEL_DIFF;
-        }
-
-        bitmap.setPixel(randomX, randomY, pixel);
-    }
-
     public static boolean isFileSupportedForReencoding(File file) {
-        CompressFormat imageFormat = getImageFormat(file);
-        return imageFormat == JPEG || imageFormat == PNG;
+        return getImageFormat(file) != null;
     }
 
     public static CompressFormat getImageFormat(File file) {

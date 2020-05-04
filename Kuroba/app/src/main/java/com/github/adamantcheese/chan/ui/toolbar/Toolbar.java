@@ -43,9 +43,9 @@ import java.util.List;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class Toolbar
         extends LinearLayout
@@ -109,8 +109,7 @@ public class Toolbar
         arrowMenuView.setScaleType(ImageView.ScaleType.CENTER);
         arrowMenuDrawable = new ArrowMenuDrawable();
         arrowMenuView.setImageDrawable(arrowMenuDrawable);
-
-        setRoundItemBackground(arrowMenuView);
+        arrowMenuView.setBackgroundResource(R.drawable.ripple_item_background);
 
         int toolbarSize = getDimen(R.dimen.toolbar_height);
         FrameLayout.LayoutParams leftButtonContainerLp =
@@ -126,6 +125,8 @@ public class Toolbar
         if (getElevation() == 0f) {
             setElevation(dp(4f));
         }
+
+        setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
     }
 
     @Override
@@ -320,7 +321,7 @@ public class Toolbar
             return false;
         }
 
-        int firstVisibleElement = -1;
+        int firstVisibleElement;
 
         if (layoutManager instanceof GridLayoutManager) {
             firstVisibleElement = ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();

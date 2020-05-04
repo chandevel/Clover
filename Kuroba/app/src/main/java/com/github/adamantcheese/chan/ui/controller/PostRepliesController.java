@@ -17,13 +17,11 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -39,7 +37,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -123,14 +121,6 @@ public class PostRepliesController
 
         View repliesClose = dataView.findViewById(R.id.replies_close);
         repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
-
-        Drawable backDrawable = ThemeHelper.getTheme().backDrawable.makeDrawable(context);
-        Drawable doneDrawable = ThemeHelper.getTheme().doneDrawable.makeDrawable(context);
-
-        TextView repliesBackText = dataView.findViewById(R.id.replies_back_icon);
-        TextView repliesCloseText = dataView.findViewById(R.id.replies_close_icon);
-        repliesBackText.setCompoundDrawablesWithIntrinsicBounds(backDrawable, null, null, null);
-        repliesCloseText.setCompoundDrawablesWithIntrinsicBounds(doneDrawable, null, null, null);
 
         ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
             @Override

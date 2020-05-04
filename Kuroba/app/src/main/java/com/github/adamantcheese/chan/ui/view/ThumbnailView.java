@@ -18,7 +18,9 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -47,12 +49,9 @@ import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -83,29 +82,31 @@ public class ThumbnailView
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
 
-    @Inject
-    public ImageLoaderV2 imageLoaderV2;
-
     public ThumbnailView(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public ThumbnailView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public ThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
 
-    private void init() {
-        textPaint.setColor(ThemeHelper.getTheme().textPrimary);
-        textPaint.setTextSize(sp(14));
+        textPaint.setColor(getAttrColor(context, android.R.attr.textColor));
+        textPaint.setTextSize(sp(context, 14));
 
-        inject(this);
+        // for Android Studio to display some sort of bitmap in preview windows
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ThumbnailView);
+        try {
+            if (a.getBoolean(R.styleable.ThumbnailView_test_bitmap, false)) {
+                setImageBitmap(BitmapFactory.decodeResource(context.getResources(),
+                        android.R.drawable.ic_menu_gallery
+                ));
+            }
+        } finally {
+            a.recycle();
+        }
     }
 
     public void setUrl(String url, int maxWidth, int maxHeight) {
@@ -114,7 +115,7 @@ public class ThumbnailView
         }
 
         if (container != null) {
-            imageLoaderV2.cancelRequest(container);
+            instance(ImageLoaderV2.class).cancelRequest(container);
             container = null;
             error = false;
             setImageBitmap(null);
@@ -132,7 +133,7 @@ public class ThumbnailView
 
     public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
         animate().cancel();
-        container = imageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
+        container = instance(ImageLoaderV2.class).getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
     }
 
     public void setCircular(boolean circular) {

@@ -38,7 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <Button
             android:id="@+id/select_all"
-            style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="@string/setup_board_select_all" />

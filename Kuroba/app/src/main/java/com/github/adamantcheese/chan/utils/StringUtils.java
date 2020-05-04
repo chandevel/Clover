@@ -154,6 +154,23 @@ public class StringUtils {
         );
     }
 
+    public static String caseAndSpace(String input, String delimiter) {
+        String[] parts;
+        if (delimiter != null) {
+            parts = input.split(delimiter);
+        } else {
+            parts = new String[1];
+            parts[0] = input;
+        }
+        StringBuilder properCaseString = new StringBuilder();
+        for (String part : parts) {
+            part = part.toLowerCase(Locale.ENGLISH);
+            part = part.substring(0, 1).toUpperCase(Locale.ENGLISH) + part.substring(1);
+            properCaseString.append(part).append(' ');
+        }
+        return properCaseString.deleteCharAt(properCaseString.length() - 1).toString();
+    }
+
     public static String getCurrentDateAndTimeUTC() {
         return REPORT_DATE_TIME_PRINTER.print(DateTime.now());
     }

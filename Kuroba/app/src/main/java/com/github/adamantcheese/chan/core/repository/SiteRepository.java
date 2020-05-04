@@ -49,6 +49,12 @@ public class SiteRepository {
         databaseManager.runTask(databaseManager.getDatabaseSiteManager().updateId(siteModel, id));
     }
 
+    public void updateUserSettings(Site site, JsonSettings jsonSettings) {
+        SiteModel siteModel = byId(site.id());
+        if (siteModel == null) throw new NullPointerException("siteModel == null");
+        updateSiteUserSettingsAsync(siteModel, jsonSettings);
+    }
+
     public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
         siteModel.storeUserSettings(jsonSettings);
         databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().update(siteModel));
@@ -150,7 +156,7 @@ public class SiteRepository {
         return instantiateSiteClass(clazz);
     }
 
-    private Site instantiateSiteClass(Class<? extends Site> clazz) {
+    public Site instantiateSiteClass(Class<? extends Site> clazz) {
         Site site;
         try {
             site = clazz.newInstance();
@@ -207,11 +213,7 @@ public class SiteRepository {
         private SparseArray<Site> sitesById = new SparseArray<>();
 
         public Site forId(int id) {
-            Site s = sitesById.get(id);
-            if (s == null) {
-                throw new IllegalArgumentException("No site with id (" + id + ")");
-            }
-            return s;
+            return sitesById.get(id);
         }
 
         public List<Site> getAll() {

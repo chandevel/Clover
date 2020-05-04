@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="36dp"
         android:layout_gravity="top|right"
         android:padding="6dp"
+        android:src="@drawable/ic_refresh_themed_24dp"
+        android:background="@drawable/ripple_item_background"
         tools:ignore="ContentDescription" />
 
 </FrameLayout>

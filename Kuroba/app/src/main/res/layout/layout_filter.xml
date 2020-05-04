@@ -14,178 +14,186 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<com.github.adamantcheese.chan.ui.layout.FilterLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    tools:background="?backcolor">
 
-    <LinearLayout
+    <com.github.adamantcheese.chan.ui.layout.FilterLayout
+        android:id="@+id/filter_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:textColor="?attr/text_color_secondary">
-
-        <CheckBox
-            android:id="@+id/enabled"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/filter_enabled" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:id="@+id/help"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/item_background"
-            android:paddingLeft="4dp"
-            android:paddingTop="4dp"
-            android:paddingRight="4dp"
-            android:paddingBottom="4dp" />
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp"
-        android:text="@string/filter_filter"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/type"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawablePadding="8dp"
-            android:paddingLeft="4dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp" />
-
-        <TextView
-            android:id="@+id/boards"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="12dp"
-            android:drawablePadding="8dp" />
-
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp"
-        android:text="@string/filter_action"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawablePadding="8dp"
-            android:paddingLeft="4dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp" />
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <LinearLayout
-            android:id="@+id/color_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:textColor="?attr/backcolor_secondary">
+
+            <CheckBox
+                android:id="@+id/enabled"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/filter_enabled" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_item_background"
+                android:padding="4dp"
+                android:src="@drawable/ic_help_outline_white_24dp"
+                android:tint="?attr/themeDrawableColor" />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingTop="8dp"
+            android:text="@string/filter_filter"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="16sp" />
+
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <View
-                android:id="@+id/color_preview"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp" />
+            <TextView
+                android:id="@+id/type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:paddingLeft="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:text="Types (1)" />
+
+            <TextView
+                android:id="@+id/boards"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:drawablePadding="8dp"
+                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:text="Boards (All)" />
 
         </LinearLayout>
 
-    </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="8dp"
+            android:paddingLeft="4dp"
+            android:paddingTop="8dp"
+            android:text="@string/filter_action"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="16sp" />
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/apply_to_replies_checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/apply_to_replies"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/only_on_op_checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/only_on_op"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
+            <TextView
+                android:id="@+id/action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:paddingLeft="4dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:text="Hide post" />
 
-    <androidx.appcompat.widget.AppCompatCheckBox
-        android:id="@+id/apply_to_saved_checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/apply_to_saved"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
+            <LinearLayout
+                android:id="@+id/color_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp"
-        android:text="@string/filter_pattern"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
+                <View
+                    android:id="@+id/color_preview"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="4dp" />
 
-    <EditText
-        android:id="@+id/pattern"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/filter_pattern"
-        android:textSize="14sp"
-        tools:ignore="TextFields" />
+            </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp"
-        android:text="@string/filter_match_test"
-        android:textColor="?attr/text_color_secondary"
-        android:textSize="16sp" />
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/pattern_preview_status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="4dp"
-        android:paddingTop="8dp" />
+        <CheckBox
+            android:id="@+id/apply_to_replies_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/apply_to_replies" />
 
-    <EditText
-        android:id="@+id/pattern_preview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/filter_preview"
-        android:textSize="14sp" />
+        <CheckBox
+            android:id="@+id/only_on_op_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/only_on_op" />
 
-</com.github.adamantcheese.chan.ui.layout.FilterLayout>
+        <CheckBox
+            android:id="@+id/apply_to_saved_checkbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/apply_to_saved" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingTop="8dp"
+            android:text="@string/filter_pattern"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/pattern"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/filter_pattern"
+            android:textSize="14sp"
+            tools:ignore="TextFields" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingTop="8dp"
+            android:text="@string/filter_match_test"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/pattern_preview_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="4dp"
+            android:paddingTop="8dp"
+            tools:text="Does not match" />
+
+        <EditText
+            android:id="@+id/pattern_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/filter_preview"
+            android:textSize="14sp" />
+
+
+    </com.github.adamantcheese.chan.ui.layout.FilterLayout>
+</ScrollView>

@@ -90,7 +90,7 @@ public class AlbumViewCell
                 || heightMode == MeasureSpec.AT_MOST)) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
-            int height = width + dp(32);
+            int height = width + dp(getContext(), 32);
 
             super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         } else {

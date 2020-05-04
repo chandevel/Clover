@@ -16,219 +16,137 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 /**
- * A Theme<br>
- * Used for setting the toolbar color, and passed around {@link PostParser} to give the spans the correct color.<br>
- * Technically should the parser not do UI, but it is important that the spans do not get created on an UI thread for performance.
+ * A Theme object, a wrapper around a Android theme<br>
+ * Used for setting the toolbar color, and passed around {@link PostParser} to give spans their correct colors.<br>
+ * Technically the parser should not do UI, but it is important that spans do not get created on a UI thread for performance.
  */
 public class Theme {
-    public final String displayName;
+    /**
+     * The display name of the theme
+     */
     public final String name;
+    /**
+     * The style resource id associated with the theme
+     */
     public final int resValue;
-    public boolean isLightTheme = true;
-    public boolean altFontIsMain = false;
-    public ThemeHelper.PrimaryColor primaryColor;
-    public ThemeHelper.PrimaryColor accentColor;
-    public Typeface mainFont;
-    public Typeface altFont;
+    /**
+     * This is the main color for the theme, use primaryColorStyleId from it to retrieve R.attr.colorPrimary
+     */
+    public MaterialColorStyle primaryColor;
+    /**
+     * This is the color for any accented items (FABs, etc.); use accentStyleId from it to retrieve R.attr.colorAccent
+     */
+    public MaterialColorStyle accentColor;
 
-    public int textPrimary;
-    public int textSecondary;
-    public int textHint;
-    public int quoteColor;
-    public int highlightQuoteColor;
-    public int linkColor;
-    public int spoilerColor;
-    public int inlineQuoteColor;
+    private MaterialColorStyle defaultPrimary;
+    private MaterialColorStyle defaultAccent;
+
+    public Typeface mainFont = ROBOTO_MEDIUM;
+    public Typeface altFont = ROBOTO_CONDENSED;
+    public boolean altFontIsMain = false;
+    public boolean isLightTheme;
+
+    // Span colors, kept here for performance reasons
     public int subjectColor;
     public int nameColor;
-    public int idBackgroundLight;
-    public int idBackgroundDark;
-    public int capcodeColor;
     public int detailsColor;
-    public int highlightedColor;
-    public int savedReplyColor;
-    public int selectedColor;
-    public int textColorRevealSpoiler;
-    public int backColor;
-    public int backColorSecondary;
-    public int highlightedPinViewHolderColor;
-    public int pinPostsNotWatchingColor;
-    public int pinPostsHasRepliesColor;
-    public int pinPostsNormalColor;
-
-    public ThemeDrawable settingsDrawable = new ThemeDrawable(R.drawable.ic_settings_white_24dp, 0.54f);
-    public ThemeDrawable imageDrawable = new ThemeDrawable(R.drawable.ic_image_white_24dp, 0.54f);
-    public ThemeDrawable sendDrawable = new ThemeDrawable(R.drawable.ic_send_white_24dp, 0.54f);
-    public ThemeDrawable clearDrawable = new ThemeDrawable(R.drawable.ic_clear_white_24dp, 0.54f);
-    public ThemeDrawable backDrawable = new ThemeDrawable(R.drawable.ic_arrow_back_white_24dp, 0.54f);
-    public ThemeDrawable doneDrawable = new ThemeDrawable(R.drawable.ic_done_white_24dp, 0.54f);
-    public ThemeDrawable historyDrawable = new ThemeDrawable(R.drawable.ic_history_white_24dp, 0.54f);
-    public ThemeDrawable helpDrawable = new ThemeDrawable(R.drawable.ic_help_outline_white_24dp, 0.54f);
-    public ThemeDrawable refreshDrawable = new ThemeDrawable(R.drawable.ic_refresh_white_24dp, 0.54f);
 
     private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
     private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
 
     public Theme(
-            String displayName, String name, int resValue, ThemeHelper.PrimaryColor primaryColor
+            String displayName, int resValue, MaterialColorStyle primaryColor, boolean lightTheme
     ) {
-        this.displayName = displayName;
-        this.name = name;
+        this.name = displayName;
         this.resValue = resValue;
         this.primaryColor = primaryColor;
-        this.mainFont = ROBOTO_MEDIUM;
-        this.altFont = ROBOTO_CONDENSED;
-        accentColor = ThemeHelper.PrimaryColor.TEAL;
+        defaultPrimary = primaryColor;
+        this.accentColor = primaryColor;
+        defaultAccent = primaryColor;
+        isLightTheme = lightTheme;
 
-        resolveSpanColors();
-        resolveDrawables();
+        // Span color setup
+        subjectColor = getAttrColor(this, R.attr.post_subject_color);
+        nameColor = getAttrColor(this, R.attr.post_name_color);
+        detailsColor = getAttrColor(this, R.attr.post_details_color);
     }
 
     public Theme(
             String displayName,
-            String name,
             int resValue,
-            ThemeHelper.PrimaryColor primaryColor,
+            MaterialColorStyle primaryColor,
             Typeface mainFont,
-            Typeface altFont
+            Typeface altFont,
+            boolean lightTheme
     ) {
-        this.displayName = displayName;
-        this.name = name;
-        this.resValue = resValue;
-        this.primaryColor = primaryColor;
+        this(displayName, resValue, primaryColor, lightTheme);
         this.mainFont = mainFont;
         this.altFont = altFont;
-        accentColor = ThemeHelper.PrimaryColor.TEAL;
-
-        resolveSpanColors();
-        resolveDrawables();
     }
 
-    public void resolveDrawables() {
-        settingsDrawable.tint = Color.BLACK;
-        imageDrawable.tint = Color.BLACK;
-        sendDrawable.tint = Color.BLACK;
-        clearDrawable.tint = Color.BLACK;
-        backDrawable.tint = Color.BLACK;
-        doneDrawable.tint = Color.BLACK;
-        historyDrawable.tint = Color.BLACK;
-        helpDrawable.tint = Color.BLACK;
-        refreshDrawable.tint = Color.BLACK;
+    public void reset() {
+        primaryColor = defaultPrimary;
+        accentColor = defaultAccent;
     }
 
-    public void applyFabColor(FloatingActionButton fab) {
-        fab.setBackgroundTintList(ColorStateList.valueOf(accentColor.color));
-        fab.getDrawable().setTint(Color.WHITE);
+    @NonNull
+    @Override
+    public String toString() {
+        return name + "," + primaryColor.name() + "," + accentColor.name();
     }
 
-    @SuppressWarnings("ResourceType")
-    private void resolveSpanColors() {
-        Resources.Theme theme = getRes().newTheme();
-        theme.applyStyle(R.style.Chan_Theme, true);
-        theme.applyStyle(resValue, true);
+    public enum MaterialColorStyle {
+        // Use UPPER_CASE_SNAKE_CASE for any new items added to this enum; settings saving and display names depend on it
+        RED(R.style.PrimaryRed, R.style.AccentRed),
+        PINK(R.style.PrimaryPink, R.style.AccentPink),
+        PURPLE(R.style.PrimaryPurple, R.style.AccentPurple),
+        DEEP_PURPLE(R.style.PrimaryDeepPurple, R.style.AccentDeepPurple),
+        INDIGO(R.style.PrimaryIndigo, R.style.AccentIndigo),
+        BLUE(R.style.PrimaryBlue, R.style.AccentBlue),
+        LIGHT_BLUE(R.style.PrimaryLightBlue, R.style.AccentLightBlue),
+        CYAN(R.style.PrimaryCyan, R.style.AccentCyan),
+        TEAL(R.style.PrimaryTeal, R.style.AccentTeal),
+        GREEN(R.style.PrimaryGreen, R.style.AccentGreen),
+        LIGHT_GREEN(R.style.PrimaryLightGreen, R.style.AccentLightGreen),
+        LIME(R.style.PrimaryLime, R.style.AccentLime),
+        YELLOW(R.style.PrimaryYellow, R.style.AccentYellow),
+        AMBER(R.style.PrimaryAmber, R.style.AccentAmber),
+        ORANGE(R.style.PrimaryOrange, R.style.AccentOrange),
+        DEEP_ORANGE(R.style.PrimaryDeepOrange, R.style.AccentDeepOrange),
+        BROWN(R.style.PrimaryBrown, R.style.AccentBrown),
+        GREY(R.style.PrimaryGrey, R.style.AccentGrey),
+        BLUE_GREY(R.style.PrimaryBlueGrey, R.style.AccentBlueGrey),
 
-        //@formatter:off
-        TypedArray ta = theme.obtainStyledAttributes(new int[]{
-            R.attr.post_quote_color,
-            R.attr.post_highlight_quote_color,
-            R.attr.post_link_color,
-            R.attr.post_spoiler_color,
-            R.attr.post_inline_quote_color,
-            R.attr.post_subject_color,
-            R.attr.post_name_color,
-            R.attr.post_id_background_light,
-            R.attr.post_id_background_dark,
-            R.attr.post_capcode_color,
-            R.attr.post_details_color,
-            R.attr.post_highlighted_color,
-            R.attr.post_saved_reply_color,
-            R.attr.post_selected_color,
-            R.attr.text_color_primary,
-            R.attr.text_color_secondary,
-            R.attr.text_color_hint,
-            R.attr.text_color_reveal_spoiler,
-            R.attr.backcolor,
-            R.attr.backcolor_secondary,
-            R.attr.highlighted_pin_view_holder_color,
-            R.attr.pin_posts_not_watching_color,
-            R.attr.pin_posts_has_replies_color,
-            R.attr.pin_posts_normal_color
-        });
-        //@formatter:on
-        quoteColor = ta.getColor(0, 0);
-        highlightQuoteColor = ta.getColor(1, 0);
-        linkColor = ta.getColor(2, 0);
-        spoilerColor = ta.getColor(3, 0);
-        inlineQuoteColor = ta.getColor(4, 0);
-        subjectColor = ta.getColor(5, 0);
-        nameColor = ta.getColor(6, 0);
-        idBackgroundLight = ta.getColor(7, 0);
-        idBackgroundDark = ta.getColor(8, 0);
-        capcodeColor = ta.getColor(9, 0);
-        detailsColor = ta.getColor(10, 0);
-        highlightedColor = ta.getColor(11, 0);
-        savedReplyColor = ta.getColor(12, 0);
-        selectedColor = ta.getColor(13, 0);
-        textPrimary = ta.getColor(14, 0);
-        textSecondary = ta.getColor(15, 0);
-        textHint = ta.getColor(16, 0);
-        textColorRevealSpoiler = ta.getColor(17, 0);
-        backColor = ta.getColor(18, 0);
-        backColorSecondary = ta.getColor(19, 0);
-        highlightedPinViewHolderColor = ta.getColor(20, 0);
-        pinPostsNotWatchingColor = ta.getColor(21, 0);
-        pinPostsHasRepliesColor = ta.getColor(22, 0);
-        pinPostsNormalColor = ta.getColor(23, 0);
+        DARK(R.style.PrimaryDark, R.style.AccentDark),
+        BLACK(R.style.PrimaryBlack, R.style.AccentBlack);
 
-        ta.recycle();
-    }
+        /**
+         * This style contains colorPrimary and colorVariant
+         */
+        public final int primaryColorStyleId;
+        /**
+         * This style containscolorAccent
+         */
+        public final int accentStyleId;
 
-    public static class ThemeDrawable {
-        public int drawable;
-        public int intAlpha;
-        public int tint = -1;
-
-        public ThemeDrawable(int drawable, float alpha) {
-            this.drawable = drawable;
-            intAlpha = Math.round(alpha * 0xff);
+        MaterialColorStyle(int primaryColorStyleId, int accentStyleId) {
+            this.primaryColorStyleId = primaryColorStyleId;
+            this.accentStyleId = accentStyleId;
         }
 
-        public void setAlpha(float alpha) {
-            intAlpha = Math.round(alpha * 0xff);
-        }
-
-        public void apply(ImageView imageView) {
-            imageView.setImageResource(drawable);
-            // Use the int one!
-            imageView.setImageAlpha(intAlpha);
-            if (tint != -1) {
-                imageView.getDrawable().setTint(tint);
-            }
-        }
-
-        public Drawable makeDrawable(Context context) {
-            Drawable d = context.getDrawable(drawable).mutate();
-            d.setAlpha(intAlpha);
-            if (tint != -1) {
-                d.setTint(tint);
-            }
-            return d;
+        public String prettyName() {
+            return StringUtils.caseAndSpace(name(), "_");
         }
     }
 }

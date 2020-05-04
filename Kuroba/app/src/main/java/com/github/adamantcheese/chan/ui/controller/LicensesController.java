@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LicensesController
         extends Controller {

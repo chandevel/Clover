@@ -26,6 +26,7 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
@@ -39,6 +40,8 @@ import org.jsoup.nodes.Element;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class StyleRule {
     public enum ForegroundColor {
@@ -271,9 +274,9 @@ public class StyleRule {
     private int getForegroundColor(Theme theme, ForegroundColor foregroundColor) {
         switch (foregroundColor) {
             case INLINE_QUOTE:
-                return theme.inlineQuoteColor;
+                return getAttrColor(theme, R.attr.post_inline_quote_color);
             case QUOTE:
-                return theme.quoteColor;
+                return getAttrColor(theme, android.R.attr.textColorLink);
             case RED:
                 return Color.RED;
             default:
@@ -283,7 +286,7 @@ public class StyleRule {
 
     private int getBackgroundColor(Theme theme, BackgroundColor backgroundColor) {
         if (backgroundColor == BackgroundColor.CODE) {
-            return theme.backColorSecondary;
+            return getAttrColor(theme, R.attr.backcolor_secondary);
         }
         return 0;
     }

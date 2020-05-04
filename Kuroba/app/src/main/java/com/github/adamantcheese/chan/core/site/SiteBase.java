@@ -23,6 +23,7 @@ import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettingsProvider;
@@ -65,10 +66,10 @@ public abstract class SiteBase
         httpCallManager = instance(HttpCallManager.class);
         requestQueue = instance(RequestQueue.class);
         boardManager = instance(BoardManager.class);
-        SiteService siteService = instance(SiteService.class);
+        SiteRepository siteRepository = instance(SiteRepository.class);
 
         settingsProvider =
-                new JsonSettingsProvider(userSettings, () -> siteService.updateUserSettings(this, userSettings));
+                new JsonSettingsProvider(userSettings, () -> siteRepository.updateUserSettings(this, userSettings));
 
         initializeSettings();
 

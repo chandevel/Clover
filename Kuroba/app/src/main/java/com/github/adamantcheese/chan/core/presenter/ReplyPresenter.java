@@ -418,7 +418,7 @@ public class ReplyPresenter
         highlightQuotes();
     }
 
-    public boolean fileNameLongClicked() {
+    public boolean filenameNewClicked(boolean showToast) {
         String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
         if (currentExt == null) {
             currentExt = "";
@@ -427,6 +427,9 @@ public class ReplyPresenter
         }
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);
+        if (showToast) {
+            showToast(context, "Filename changed.");
+        }
         return true;
     }
 
@@ -481,7 +484,7 @@ public class ReplyPresenter
             ExifInterface exif = new ExifInterface(file.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
             if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
-                callback.openMessage(getString(R.string.file_has_exif_data));
+                callback.openMessage(getString(R.string.file_has_orientation_exif_data));
             }
         } catch (Exception ignored) {}
         showPreview(name, file);
@@ -605,13 +608,7 @@ public class ReplyPresenter
         }
     }
 
-    /**
-     * Applies the new file and filename if they have been changed. They may change when user
-     * re-encodes the picked image file (they may want to scale it down/remove metadata/change quality etc.)
-     */
-    public void onImageOptionsApplied(Reply reply) {
-        draft.file = reply.file;
-        draft.fileName = reply.fileName;
+    public void onImageOptionsApplied() {
         showPreview(draft.fileName, draft.file);
     }
 

@@ -677,11 +677,11 @@ public class MultiImageView
 
     private void setOther(Loadable loadable, PostImage image) {
         if (image.type == PostImage.Type.PDF) {
-            cancellableToast.showToast(R.string.pdf_not_viewable);
+            cancellableToast.showToast(getContext(), R.string.pdf_not_viewable);
             //this lets the user download the PDF, even though we haven't actually downloaded anything
             callback.onDownloaded(image);
         } else if (image.type == PostImage.Type.SWF) {
-            cancellableToast.showToast(R.string.swf_not_viewable);
+            cancellableToast.showToast(getContext(), R.string.swf_not_viewable);
             callback.onDownloaded(image);
         }
     }
@@ -779,23 +779,23 @@ public class MultiImageView
                 exception.getMessage()
         );
 
-        cancellableToast.showToast(message);
+        cancellableToast.showToast(getContext(), message);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onNotFoundError() {
-        cancellableToast.showToast(R.string.image_not_found);
+        cancellableToast.showToast(getContext(), R.string.image_not_found);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onOutOfMemoryError() {
-        cancellableToast.showToast(R.string.image_preview_failed_oom);
+        cancellableToast.showToast(getContext(), R.string.image_preview_failed_oom);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            cancellableToast.showToast(R.string.image_failed_big_image);
+            cancellableToast.showToast(getContext(), R.string.image_failed_big_image);
             callback.hideProgress(MultiImageView.this);
         }
     }

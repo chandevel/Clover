@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_background"
+    android:background="@drawable/ripple_item_background"
     android:orientation="vertical">
 
     <LinearLayout
@@ -38,20 +38,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:paddingLeft="16dp"
-                android:paddingRight="16dp"
                 android:paddingTop="8dp"
+                android:paddingRight="16dp"
                 android:singleLine="true"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="/filter/" />
 
             <TextView
                 android:id="@+id/subtext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
-                android:textColor="?text_color_secondary"
-                android:textSize="12sp" />
+                android:paddingBottom="8dp"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                tools:text="1 type - All boards - Hide post" />
 
         </LinearLayout>
 
@@ -60,10 +62,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
-            android:paddingBottom="4dp"
             android:paddingLeft="4dp"
-            android:paddingRight="4dp"
             android:paddingTop="4dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="4dp"
+            android:src="@drawable/ic_reorder_white_24dp"
+            android:tint="?android:textColorSecondary"
             tools:ignore="ContentDescription" />
 
     </LinearLayout>
@@ -72,6 +76,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/divider_color" />
+        android:background="?attr/highlight_divider_color" />
 
 </LinearLayout>

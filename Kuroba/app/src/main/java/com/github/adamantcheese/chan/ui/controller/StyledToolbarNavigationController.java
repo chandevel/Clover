@@ -23,9 +23,9 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainerLayout;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class StyledToolbarNavigationController
         extends ToolbarNavigationController {
@@ -43,7 +43,7 @@ public class StyledToolbarNavigationController
         nav.setNavigationController(this);
         nav.setSwipeEnabled(ChanSettings.controllerSwipeable.get());
         toolbar = view.findViewById(R.id.toolbar);
-        toolbar.setBackgroundColor(ThemeHelper.getTheme().primaryColor.color);
+        toolbar.setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
         toolbar.setCallback(this);
     }
 

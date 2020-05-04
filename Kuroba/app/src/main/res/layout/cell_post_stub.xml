@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/item_background"
+    android:background="@drawable/ripple_item_background"
     android:orientation="horizontal"
     tools:ignore="UseCompoundDrawables,ContentDescription">
 
@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_toLeftOf="@id/options"
         android:gravity="center_vertical"
         android:singleLine="true"
-        android:textColor="?attr/text_color_secondary" />
+        android:textColor="?android:textColorSecondary" />
 
     <ImageView
         android:id="@+id/options"
@@ -45,8 +45,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingRight="2dp"
         android:paddingBottom="2dp"
         android:src="@drawable/ic_overflow"
-        android:tint="?attr/text_color_secondary"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        android:tint="?android:textColorSecondary"
+        android:background="@drawable/ripple_item_background"
+        tools:ignore="ContentDescription" />
 
     <View
         android:id="@+id/divider"
@@ -56,6 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:background="?attr/divider_color" />
+        android:background="?attr/highlight_divider_color" />
 
 </com.github.adamantcheese.chan.ui.cell.PostStubCell>

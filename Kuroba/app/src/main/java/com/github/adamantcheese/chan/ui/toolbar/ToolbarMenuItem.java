@@ -164,7 +164,9 @@ public class ToolbarMenuItem {
         List<FloatingMenuItem> floatingMenuItems = new ArrayList<>();
         List<ToolbarMenuSubItem> subItems = new ArrayList<>(this.subItems);
         for (ToolbarMenuSubItem subItem : subItems) {
-            floatingMenuItems.add(new FloatingMenuItem(subItem.id, subItem.text, subItem.enabled));
+            if(subItem.enabled) {
+                floatingMenuItems.add(new FloatingMenuItem(subItem));
+            }
         }
 
         FloatingMenu overflowMenu = new FloatingMenu(view.getContext(), view, floatingMenuItems);

@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.view.Gravity;
@@ -23,7 +24,6 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -59,10 +59,9 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -240,7 +239,6 @@ public class DrawerController
                 String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
                 Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
                 snackbar.setGestureInsetBottomIgnored(true);
-                fixSnackbarText(context, snackbar);
                 snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
                 snackbar.show();
             }
@@ -250,7 +248,6 @@ public class DrawerController
                     : R.string.drawer_pins_non_cleared_try_all;
             Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
             snackbar.setGestureInsetBottomIgnored(true);
-            fixSnackbarText(context, snackbar);
             snackbar.show();
         }
     }
@@ -276,7 +273,6 @@ public class DrawerController
             );
         }
         snackbar.setGestureInsetBottomIgnored(true);
-        fixSnackbarText(context, snackbar);
         snackbar.show();
     }
 

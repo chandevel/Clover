@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -34,9 +35,9 @@ import java.util.Locale;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class PostHelper {
-    public static CharSequence prependIcon(CharSequence total, Bitmap bitmap, int height) {
+    public static CharSequence prependIcon(Context context, CharSequence total, Bitmap bitmap, int height) {
         SpannableString string = new SpannableString("  ");
-        ImageSpan imageSpan = new ImageSpan(getAppContext(), bitmap);
+        ImageSpan imageSpan = new ImageSpan(context, bitmap);
 
         int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
 

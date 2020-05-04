@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.settings;
 
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -182,7 +181,7 @@ public class ChanSettings {
 
     //region APPEARANCE
     // Theme
-    private static final StringSetting theme;
+    public static final StringSetting theme;
 
     // Layout
     public static final OptionsSetting<LayoutMode> layoutMode;
@@ -337,7 +336,7 @@ public class ChanSettings {
 
             //region APPEARANCE
             // Theme
-            theme = new StringSetting(p, "preference_theme", "yotsuba");
+            theme = new StringSetting(p, "preference_theme", "Yotsuba,RED,RED");
 
             //Layout
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
@@ -505,32 +504,6 @@ public class ChanSettings {
         }
     }
 
-    public static ThemeColor getThemeAndColor() {
-        String themeRaw = ChanSettings.theme.get();
-
-        String theme = themeRaw;
-        String color = null;
-        String accentColor = null;
-
-        String[] splitted = themeRaw.split(",");
-        if (splitted.length >= 2) {
-            theme = splitted[0];
-            color = splitted[1];
-            if (splitted.length == 3) {
-                accentColor = splitted[2];
-            }
-        }
-
-        return new ThemeColor(theme, color, accentColor);
-    }
-
-    public static void setThemeAndColor(ThemeColor themeColor) {
-        if (TextUtils.isEmpty(themeColor.color) || TextUtils.isEmpty(themeColor.accentColor)) {
-            throw new IllegalArgumentException();
-        }
-        ChanSettings.theme.setSync(themeColor.theme + "," + themeColor.color + "," + themeColor.accentColor);
-    }
-
     /**
      * Returns a {@link Proxy} if a proxy is enabled, <tt>null</tt> otherwise.
      *
@@ -646,18 +619,6 @@ public class ChanSettings {
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             outputStream.write(settings.getBytes());
             outputStream.flush();
-        }
-    }
-
-    public static class ThemeColor {
-        public String theme;
-        public String color;
-        public String accentColor;
-
-        public ThemeColor(String theme, String color, String accentColor) {
-            this.theme = theme;
-            this.color = color;
-            this.accentColor = accentColor;
         }
     }
 

@@ -14,62 +14,54 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:background="@drawable/item_background">
+    android:background="@drawable/ripple_item_background"
+    tools:background="?backcolor">
 
     <com.github.adamantcheese.chan.ui.view.ThumbnailView
         android:id="@+id/thumb"
         android:layout_width="56dp"
         android:layout_height="48dp"
-        android:paddingLeft="8dp"
-        android:paddingTop="4dp"
-        android:paddingRight="8dp"
-        android:paddingBottom="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:test_bitmap="true"
+        android:padding="4dp" />
 
     <TextView
         android:id="@+id/text"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:ellipsize="end"
         android:gravity="center_vertical"
         android:paddingLeft="8dp"
         android:paddingRight="16dp"
         android:singleLine="true"
-        android:textColor="?text_color_primary"
         android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="@id/info_container"
-        app:layout_constraintStart_toEndOf="@id/thumb"
         tools:ellipsize="end"
-        tools:text="This is a test pin title that will display in the design window" />
+        tools:text="Test pin title" />
 
     <LinearLayout
         android:id="@+id/info_container"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_margin="4dp"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:layout_margin="4dp">
 
         <TextView
             android:id="@+id/watch_count"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:background="?android:attr/selectableItemBackground"
+            android:background="@drawable/ripple_item_background"
             android:gravity="center"
             android:minWidth="32dp"
             android:padding="4dp"
             android:singleLine="true"
-            android:textColor="?text_color_primary"
             android:textSize="14sp"
             tools:ignore="HardcodedText"
             tools:text="9999/9999" />
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/thread_download_icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -77,9 +69,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_margin="4dp"
             android:src="@drawable/ic_download_anim0"
             android:visibility="gone"
-            tools:ignore="RtlHardcoded"
             tools:visibility="visible" />
 
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

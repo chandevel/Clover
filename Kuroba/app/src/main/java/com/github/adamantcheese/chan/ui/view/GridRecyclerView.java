@@ -17,45 +17,45 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.adamantcheese.chan.R;
+
 /**
  * A RecyclerView with a GridLayoutManager that manages the span count by dividing the width of the
- * view with the value set by {@link #setSpanWidth(int)}.
+ * view with the value set by the maxSpanWidth attribute.
  */
 public class GridRecyclerView
         extends RecyclerView {
     private GridLayoutManager gridLayoutManager;
-    private int spanWidth;
+    private float spanWidth;
     private int realSpanWidth;
 
     public GridRecyclerView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public GridRecyclerView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public GridRecyclerView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-    }
 
-    public void setLayoutManager(GridLayoutManager gridLayoutManager) {
-        this.gridLayoutManager = gridLayoutManager;
-        super.setLayoutManager(gridLayoutManager);
-    }
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        setLayoutManager(gridLayoutManager);
+        setHasFixedSize(true);
 
-    /**
-     * Set the width of each span in pixels.
-     *
-     * @param spanWidth width of each span in pixels.
-     */
-    public void setSpanWidth(int spanWidth) {
-        this.spanWidth = spanWidth;
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.GridRecyclerView);
+        try {
+            spanWidth = a.getDimension(R.styleable.GridRecyclerView_spanWidth, Float.MAX_VALUE);
+        } finally {
+            a.recycle();
+        }
     }
 
     public int getRealSpanWidth() {
@@ -65,12 +65,8 @@ public class GridRecyclerView
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
-        int spanCount = Math.max(1, getMeasuredWidth() / spanWidth);
-        gridLayoutManager.setSpanCount(spanCount);
-        int oldRealSpanWidth = realSpanWidth;
+        int spanCount = Math.max(1, (int) (getMeasuredWidth() / spanWidth));
         realSpanWidth = getMeasuredWidth() / spanCount;
-        if (realSpanWidth != oldRealSpanWidth) {
-            getAdapter().notifyDataSetChanged();
-        }
+        gridLayoutManager.setSpanCount(spanCount);
     }
 }

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    tools:ignore="RtlHardcoded,RtlSymmetry,NotSibling">
+    tools:ignore="RtlSymmetry,NotSibling">
 
     <View
         android:id="@+id/filter_match_color"
@@ -42,7 +42,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_view" />
+            android:layout_toRightOf="@+id/thumbnail_view"
+            tools:text="Title for the thread"
+            tools:textColor="?post_details_color" />
 
         <view
             android:id="@+id/icons"
@@ -62,7 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/icons"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
-            android:textColor="?attr/text_color_primary" />
+            tools:text="@string/lorem_ipsum" />
 
         <com.github.adamantcheese.chan.ui.text.FastTextView
             android:id="@+id/replies"
@@ -71,8 +73,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
             android:layout_toRightOf="@+id/thumbnail_view"
+            android:background="@drawable/ripple_item_background"
             app:singleLine="true"
-            app:textColor="?attr/text_color_secondary" />
+            app:textColor="?android:textColorSecondary"
+            tools:text="2 replies" />
 
         <View
             android:id="@+id/replies_additional_area"
@@ -90,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
-            android:background="?attr/divider_color" />
+            android:background="?attr/highlight_divider_color" />
 
         <ImageView
             android:id="@+id/options"
@@ -98,11 +102,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
+            android:background="@drawable/ripple_item_background"
             android:paddingTop="2dp"
             android:paddingRight="2dp"
             android:paddingBottom="2dp"
             android:src="@drawable/ic_overflow"
-            android:tint="?attr/text_color_secondary"
+            android:tint="?android:textColorSecondary"
             tools:ignore="ContentDescription" />
 
     </RelativeLayout>

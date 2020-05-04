@@ -85,6 +85,8 @@ public abstract class CommonSite
         super.initialize(id, config, userSettings);
         setup();
 
+        if ("App Setup".equals(name)) return; // for this special site, we don't need any of the rest of the items
+
         if (name == null) {
             throw new NullPointerException("setName not called");
         }

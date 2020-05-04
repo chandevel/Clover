@@ -15,338 +15,445 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <resources>
-    <color name="primary">#4caf50</color>
-    <color name="primary_dark">#388e3c</color>
-    <color name="accent">#009688</color>
-    
-    <color name="gestures_zone_view_background">#5038FFB2</color>
-    <color name="gestures_zone_view_added_zones">#50FFB55B</color>
-    <color name="gestures_zone_view_current_zone">#50FF4C82</color>
-
-    <color name="new_apk_update_icon_color">#009000</color>
-    <color name="new_crash_log_icon_color">#E54545</color>
-
-    <!-- Main light theme -->
-    <style name="Chan.Theme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorAccent">#009688</item>
-
-        <item name="android:windowBackground">@drawable/ic_splash_screen</item>
+    <!-- region THEMES -->
+    <!-- region Theme bases; do NOT modify unless you know what you're doing -->
+    <style name="Chan.Theme.BaseLight" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
 
-        <item name="dropDownListViewStyle">@style/ToolbarDropDownListViewStyle</item>
+        <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
+        <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.Light.ListView.DropDown</item>
+        <item name="radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
+        <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
 
+        <item name="colorControlNormal">@color/textColorSecondary</item>
+        <item name="themeDrawableColor">@color/md_grey_600</item>
+        <item name="highlight_divider_color">#20000000</item>
         <item name="setting_description_top">@drawable/setting_description_top</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom</item>
+    </style>
 
-        <item name="backcolor">#ffffff</item>
-        <item name="backcolor_secondary">#f5f5f5</item>
+    <style name="Chan.Theme.BaseDark" parent="Theme.AppCompat.NoActionBar">
+        <item name="windowActionModeOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
 
-        <item name="android:textColor">#DE000000</item>
-        <item name="text_color_primary">#DE000000</item>
-        <item name="text_color_secondary">#89000000</item>
-        <item name="text_color_hint">#42000000</item>
-        <item name="text_color_reveal_spoiler">#ffffff</item>
+        <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
+        <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
+        <item name="dropDownListViewStyle">@style/Widget.AppCompat.ListView.DropDown</item>
+        <item name="radioButtonStyle">@style/Widget.AppCompat.CompoundButton.RadioButton</item>
+        <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
+        <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
+
+        <item name="colorControlNormal">@color/textColorSecondary</item>
+        <item name="themeDrawableColor">@color/white</item>
+        <item name="highlight_divider_color">#20FFFFFF</item>
+        <item name="setting_description_top">@drawable/setting_description_top_dark</item>
+        <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
+    </style>
+
+    <style name="ChanStartup" parent="Chan.Theme.BaseDark">
+        <item name="android:statusBarColor">@color/black</item>
+        <item name="android:windowBackground">@drawable/ic_splash_screen</item>
+    </style>
+    <!-- endregion -->
+    <!-- Regular themes -->
+    <!-- GUIDE -->
+
+    <!--
+        1) Make your new theme:
+        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseLight">
+        or
+        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseDark">
+
+        2) Override any of the following:
+        backColor (your main background color)
+        backColor_secondary (for some views, a slightly darker (for light themes) or brighter (for dark themes) color compared to backColor)
+
+        android:textColorPrimary (your main text color; should look good on backColor)
+        android:textColorSecondary (a secondary text color, for smaller text next to your main text; should follow the rules for backColor_secondary)
+        android:textColorHint (hint color, for some input dialogs; follows after textColorSecondary with the same rules)
+
+        post_name_color (the name color on posts)
+        post_subject_color (the subject color on posts)
+        post_details_color (the details color on posts; should be close to textColorSecondary)
+        post_inline_quote_color (the greentext color)
+        post_spoiler_color (the spoiler block color; the text's color inside is dynamically changed between black and white for visibility)
+        android:textColorLink (the color of all linkables, including >>quotes)
+
+        3) Go to ThemeHelper to finish adding your theme.
+    -->
+
+    <!-- The regular Light theme, which is used as a base for all other "Light" themes -->
+    <style name="Chan.Theme.Light" parent="Chan.Theme.BaseLight">
+        <item name="backcolor">@color/white</item>
+        <item name="backcolor_secondary">@color/md_grey_100</item>
+
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/md_grey_600</item>
+        <item name="android:textColorHint">@color/md_grey_400</item>
 
         <item name="post_name_color">#117743</item>
         <item name="post_subject_color">#0F0C5D</item>
-        <item name="post_details_color">#646464</item>
-        <item name="post_quote_color">#DD0000</item>
-        <item name="post_highlight_quote_color">#950000</item>
+        <item name="post_details_color">@color/md_grey_700</item>
         <item name="post_inline_quote_color">#789922</item>
-        <item name="post_link_color">#0000B4</item>
-        <item name="post_spoiler_color">#000000</item>
-        <item name="post_capcode_color">#ff0000</item>
-        <item name="post_last_seen_color">#ff0000</item>
-
-        <item name="post_id_background_light">#636363</item>
-        <item name="post_id_background_dark">#00000000</item>
-        <item name="post_saved_reply_color">#FFBCBCBC</item>
-        <item name="post_highlighted_color">#FFD6BAD0</item>
-        <item name="post_selected_color">#20000000</item>
-
-        <item name="divider_color">#1e000000</item>
-        <item name="divider_split_color">#e1e1e1</item>
-
-        <item name="dropdown_light_color">#ffffff</item>
-        <item name="dropdown_light_pressed_color">#88ffffff</item>
-        <item name="dropdown_dark_color">#757575</item>
-        <item name="dropdown_dark_pressed_color">#887d7d7d</item>
-
-        <item name="highlighted_pin_view_holder_color">#22000000</item>
-
-        <item name="pin_posts_not_watching_color">#898989</item>
-        <item name="pin_posts_has_replies_color">#ff4444</item>
-        <item name="pin_posts_normal_color">#33B5E5</item>
+        <item name="post_spoiler_color">@color/black</item>
+        <item name="android:textColorLink">#DD0000</item>
     </style>
 
-    <style name="Chan.Theme.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="dropdown_dark_color">#ffffff</item>
-        <item name="dropdown_dark_pressed_color">#88ffffff</item>
+    <!-- The regular Dark theme, which is used as a base for all other "Dark" themes -->
+    <style name="Chan.Theme.Dark" parent="Chan.Theme.BaseDark">
+        <item name="backcolor">@color/md_grey_900</item>
+        <item name="backcolor_secondary">@color/md_grey_850</item>
 
-        <item name="setting_description_top">@drawable/setting_description_top_dark</item>
-        <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/md_grey_400</item>
+        <item name="android:textColorHint">@color/md_grey_700</item>
 
-        <item name="backcolor">#232323</item>
-        <item name="backcolor_secondary">#303030</item>
-
-        <item name="android:textColor">#ffffff</item>
-        <item name="text_color_primary">#ffffff</item>
-        <item name="text_color_secondary">#b2ffffff</item>
-        <item name="text_color_hint">#4cffffff</item>
-
-        <item name="divider_color">#1effffff</item>
-        <item name="divider_split_color">#3d3d3d</item>
-
-        <item name="post_saved_reply_color">#5C5C5C</item>
-        <item name="post_highlighted_color">#444444</item>
+        <item name="post_name_color">#e0e0ff</item>
         <item name="post_subject_color">#625cff</item>
-        <item name="post_details_color">#c5c8c6</item>
-        <item name="post_link_color">#625cff</item>
-        <item name="post_spoiler_color">#000000</item>
-        <item name="post_id_background_light">#00000000</item>
-        <item name="post_id_background_dark">#C6C6C6</item>
+        <item name="post_details_color">@color/md_grey_375</item>
+        <item name="post_inline_quote_color">#789922</item>
+        <item name="post_spoiler_color">@color/black</item>
+        <item name="android:textColorLink">#625cff</item>
     </style>
 
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
-        <item name="backcolor">#000000</item>
-        <item name="backcolor_secondary">#212121</item>
+        <item name="backcolor">@color/black</item>
 
-        <item name="post_spoiler_color">#2c2c2c</item>
-
-        <item name="highlighted_pin_view_holder_color">#282828</item>
+        <item name="post_spoiler_color">@color/md_grey_900</item>
     </style>
 
-    <style name="Chan.Theme.YotsubaB">
+    <style name="Chan.Theme.YotsubaB" parent="Chan.Theme.Light">
         <item name="backcolor">#d6daf0</item>
         <item name="backcolor_secondary">#eef2ff</item>
-
-        <item name="android:textColor">#000000</item>
-        <item name="text_color_primary">#000000</item>
-        <item name="text_color_secondary">#89000000</item>
-
-        <item name="post_subject_color">#0F0C5D</item>
-        <item name="post_quote_color">#dd0000</item>
-        <item name="post_link_color">#dd0000</item>
-        <item name="post_highlight_quote_color">#6d0000</item>
     </style>
 
-    <style name="Chan.Theme.Yotsuba">
+    <style name="Chan.Theme.Yotsuba" parent="Chan.Theme.Light">
         <item name="backcolor">#f0e0d6</item>
-        <item name="backcolor_secondary">#ffffee</item>
+        <item name="backcolor_secondary">@color/md_yellow_50</item>
 
-        <item name="android:textColor">#800000</item>
-        <item name="text_color_primary">#800000</item>
-        <item name="text_color_secondary">#89800000</item>
-
-        <item name="divider_split_color">#FFD4C6BD</item>
+        <item name="android:textColorPrimary">#800000</item>
 
         <item name="post_subject_color">#cc1105</item>
-        <item name="post_quote_color">#000080</item>
-        <item name="post_link_color">#000080</item>
-        <item name="post_highlight_quote_color">#000039</item>
+        <item name="android:textColorLink">#000080</item>
     </style>
 
-    <style name="Chan.Theme.Photon">
-        <item name="backcolor">#eeeeee</item>
+    <style name="Chan.Theme.Photon" parent="Chan.Theme.Light">
+        <item name="backcolor">@color/md_grey_200</item>
 
         <item name="post_name_color">#004A99</item>
-        <item name="post_quote_color">#FF6600</item>
-        <item name="post_link_color">#FF6600</item>
-        <item name="post_highlight_quote_color">#ac5a00</item>
-        <item name="post_subject_color">#111111</item>
-        <item name="post_details_color">#333333</item>
-        <item name="post_inline_quote_color">#789922</item>
+        <item name="post_subject_color">@color/md_grey_950</item>
+        <item name="post_details_color">@color/md_grey_850</item>
+        <item name="android:textColorLink">@color/md_orange_A700</item>
     </style>
 
     <style name="Chan.Theme.Tomorrow" parent="Chan.Theme.Dark">
-        <item name="backcolor">#282a2e</item>
-        <item name="backcolor_secondary">#1d1f21</item>
+        <item name="backcolor">@color/md_grey_875</item>
+        <item name="backcolor_secondary">@color/md_grey_900</item>
 
-        <item name="android:textColor">#c5c8c6</item>
-        <item name="text_color_primary">#c5c8c6</item>
-        <item name="text_color_secondary">#89c5c8c6</item>
+        <item name="android:textColorPrimary">@color/md_grey_375</item>
+        <item name="android:textColorSecondary">@color/md_grey_575</item>
 
-        <item name="post_name_color">#c5c8c6</item>
-        <item name="post_quote_color">#5F89AC</item>
-        <item name="post_link_color">#5F89AC</item>
-        <item name="post_highlight_quote_color">#2b435a</item>
-        <item name="post_subject_color">#b294bb</item>
+        <item name="post_name_color">@color/md_grey_375</item>
+        <item name="post_subject_color">@color/md_deep_purple_200</item>
         <item name="post_inline_quote_color">#b5bd68</item>
+        <item name="android:textColorLink">#5F89AC</item>
 
     </style>
 
     <style name="Chan.Theme.TomorrowBlack" parent="Chan.Theme.Tomorrow">
-        <item name="backcolor">#000000</item>
-        <item name="backcolor_secondary">#212121</item>
+        <item name="backcolor">@color/black</item>
+        <item name="backcolor_secondary">@color/md_grey_850</item>
 
-        <item name="post_spoiler_color">#2c2c2c</item>
-
-        <item name="highlighted_pin_view_holder_color">#282828</item>
+        <item name="post_spoiler_color">@color/md_grey_900</item>
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
-        <item name="colorAccent">#5f89ac</item>
-
-        <item name="backcolor">#222222</item>
-        <item name="backcolor_secondary">#343434</item>
-
-        <item name="android:textColor">#9e9e9e</item>
-        <item name="text_color_primary">#9e9e9e</item>
-        <item name="text_color_secondary">#9e9e9e</item>
-        <item name="text_color_hint">#9e9e9e</item>
-        <item name="text_color_reveal_spoiler">#9e9e9e</item>
+        <item name="android:textColorPrimary">@color/md_grey_500</item>
+        <item name="android:textColorSecondary">@color/md_grey_500</item>
+        <item name="android:textColorHint">@color/md_grey_500</item>
 
         <item name="post_name_color">#566e78</item>
         <item name="post_subject_color">#567861</item>
-        <item name="post_details_color">#444444</item>
-        <item name="post_quote_color">#7e949e</item>
-        <item name="post_highlight_quote_color">#81a2be</item>
+        <item name="post_details_color">@color/md_grey_650</item>
         <item name="post_inline_quote_color">#a4a987</item>
-        <item name="post_link_color">#81a2be</item>
-        <item name="post_spoiler_color">#242424</item>
-        <item name="post_capcode_color">#9e9e9e</item>
-        <item name="post_last_seen_color">#9e9e9e</item>
-
-        <item name="post_id_background_light">#00000000</item>
-        <item name="post_id_background_dark">#00000000</item>
-        <item name="post_saved_reply_color">#1d1d1d</item>
-        <item name="post_highlighted_color">#1d1d1d</item>
-        <item name="post_selected_color">#1d1d1d</item>
-
-        <item name="divider_color">#00222222</item>
-        <item name="divider_split_color">#00222222</item>
-
-        <item name="dropdown_light_color">#ffffff</item>
-        <item name="dropdown_light_pressed_color">#ffffff</item>
-        <item name="dropdown_dark_color">#ffffff</item>
-        <item name="dropdown_dark_pressed_color">#ffffff</item>
+        <item name="android:textColorLink">#7e949e</item>
     </style>
 
     <style name="Chan.Theme.Gruvbox" parent="Chan.Theme.Dark">
-        <item name="colorAccent">#ebdbb2</item>
-
-        <item name="backcolor">#282828</item>
+        <item name="backcolor">@color/md_grey_875</item>
         <item name="backcolor_secondary">#3c3836</item>
 
-        <item name="android:textColor">#ebdbb2</item>
-        <item name="text_color_primary">#ebdbb2</item>
-        <item name="text_color_secondary">#d5c4a1</item>
-        <item name="text_color_hint">#bdae93</item>
-        <item name="text_color_reveal_spoiler">#282828</item>
+        <item name="android:textColorPrimary">#ebdbb2</item>
+        <item name="android:textColorSecondary">#d5c4a1</item>
+        <item name="android:textColorHint">#bdae93</item>
 
         <item name="post_name_color">#427b58</item>
         <item name="post_subject_color">#458588</item>
         <item name="post_details_color">#a89984</item>
-        <item name="post_quote_color">#9d0006</item>
-        <item name="post_highlight_quote_color">#cc241d</item>
         <item name="post_inline_quote_color">#79740e</item>
-        <item name="post_link_color">#458588</item>
-        <item name="post_spoiler_color">#ebdbb2</item>
-        <item name="post_capcode_color">#9d0006</item>
-        <item name="post_last_seen_color">#9d0006</item>
-
-        <item name="post_id_background_light">#ebdbb2</item>
-        <item name="post_saved_reply_color">#3c3836</item>
-        <item name="post_highlighted_color">#3c3836</item>
-        <item name="post_selected_color">#3c3836</item>
-
-        <item name="dropdown_dark_color">#ffffff</item>
-        <item name="dropdown_dark_pressed_color">#ffffff</item>
+        <item name="post_spoiler_color">@color/md_grey_825</item>
+        <item name="android:textColorLink">#B03337</item>
     </style>
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
-        <item name="colorAccent">#999999</item>
-
-        <item name="backcolor">#222222</item>
-        <item name="backcolor_secondary">#343434</item>
-
-        <item name="android:textColor">#888888</item>
-        <item name="text_color_primary">#cccccc</item>
-        <item name="text_color_secondary">#dddddd</item>
-        <item name="text_color_hint">#808080</item>
-        <item name="text_color_reveal_spoiler">#282828</item>
+        <item name="android:textColorPrimary">@color/md_grey_550</item>
+        <item name="android:textColorSecondary">@color/md_grey_300</item>
+        <item name="android:textColorHint">@color/md_grey_575</item>
 
         <item name="post_name_color">#669900</item>
         <item name="post_subject_color">#33b5e5</item>
-        <item name="post_details_color">#888888</item>
-        <item name="post_quote_color">#33b5e5</item>
-        <item name="post_highlight_quote_color">#0099cc</item>
+        <item name="post_details_color">@color/md_grey_550</item>
         <item name="post_inline_quote_color">#99cc00</item>
-        <item name="post_link_color">#0099cc</item>
-        <item name="post_spoiler_color">#bbbbbb</item>
-        <item name="post_capcode_color">#00ddff</item>
-        <item name="post_last_seen_color">#00ddff</item>
-
-        <item name="post_id_background_light">#6633b5e5</item>
-        <item name="post_saved_reply_color">#333333</item>
-        <item name="post_highlighted_color">#282828</item>
-        <item name="post_selected_color">#282828</item>
-
-        <item name="divider_color">#999999</item>
-        <item name="divider_split_color">#999999</item>
-
-        <item name="dropdown_dark_color">#6633b5e5</item>
-        <item name="dropdown_dark_pressed_color">#6633b5e5</item>
+        <item name="post_spoiler_color">@color/md_grey_850</item>
+        <item name="android:textColorLink">#33b5e5</item>
     </style>
 
     <style name="Chan.Theme.SolarizedDark" parent="Chan.Theme.Dark">
-        <item name="colorAccent">#999999</item>
-
         <item name="backcolor">#002b36</item>
         <item name="backcolor_secondary">#073642</item>
 
-        <item name="android:textColor">#888888</item>
-        <item name="text_color_primary">#839496</item>
-        <item name="text_color_secondary">#586e75</item>
-        <item name="text_color_hint">#808080</item>
-        <item name="text_color_reveal_spoiler">#282828</item>
+        <item name="android:textColorPrimary">@color/md_grey_500</item>
+        <item name="android:textColorSecondary">#586e75</item>
+        <item name="android:textColorHint">@color/md_grey_500</item>
+
         <item name="post_name_color">#d30102</item>
         <item name="post_subject_color">#b58900</item>
         <item name="post_details_color">#586e75</item>
-        <item name="post_quote_color">#d33682</item>
-        <item name="post_highlight_quote_color">#6c71c4</item>
         <item name="post_inline_quote_color">#2aa198</item>
-        <item name="post_link_color">#268bd2</item>
-        <item name="post_spoiler_color">#cb4b16</item>
-        <item name="post_capcode_color">#00ddff</item>
-        <item name="post_last_seen_color">#00ddff</item>
-
-        <item name="post_id_background_light">#6633b5e5</item>
-        <item name="post_saved_reply_color">#073642</item>
-        <item name="post_highlighted_color">#073642</item>
-        <item name="post_selected_color">#073642</item>
-
-        <item name="divider_color">#999999</item>
-        <item name="divider_split_color">#999999</item>
-
-        <item name="dropdown_dark_color">#6633b5e5</item>
-        <item name="dropdown_dark_pressed_color">#6633b5e5</item>
+        <item name="post_spoiler_color">#A23C12</item>
+        <item name="android:textColorLink">#d33682</item>
     </style>
 
     <style name="Chan.Theme.Holo" parent="Chan.Theme.Dark">
         <item name="backcolor">#654c4f</item>
         <item name="backcolor_secondary">#4a3335</item>
 
-        <item name="android:textColor">#fffde8</item>
-        <item name="text_color_primary">#fffde8</item>
-        <item name="text_color_secondary">#89fffde8</item>
+        <item name="android:textColorPrimary">#fffde8</item>
+        <item name="android:textColorSecondary">#b7aba1</item>
 
         <item name="post_subject_color">#666ec0</item>
-        <item name="post_quote_color">#d06448</item>
-        <item name="post_link_color">#d06448</item>
-        <item name="post_highlight_quote_color">#ac653b</item>
-        <item name="post_details_color">#ffffff</item>
+        <item name="post_details_color">@color/white</item>
+        <item name="android:textColorLink">@color/md_red_700</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region PRIMARY COLORS -->
+    <!-- For the toolbar/navbar -->
+    <style name="PrimaryRed">
+        <item name="colorPrimary">@color/md_red_500</item>
+        <item name="colorPrimaryDark">@color/md_red_700</item>
     </style>
 
-    <!-- For FloatingMenu -->
-    <style name="ToolbarDropDownListViewStyle" parent="Widget.AppCompat.ListView.DropDown">
-        <item name="android:background">#ffffff</item>
+    <style name="PrimaryPink">
+        <item name="colorPrimary">@color/md_pink_500</item>
+        <item name="colorPrimaryDark">@color/md_pink_700</item>
     </style>
+
+    <style name="PrimaryPurple">
+        <item name="colorPrimary">@color/md_purple_500</item>
+        <item name="colorPrimaryDark">@color/md_purple_700</item>
+    </style>
+
+    <style name="PrimaryDeepPurple">
+        <item name="colorPrimary">@color/md_deep_purple_500</item>
+        <item name="colorPrimaryDark">@color/md_deep_purple_700</item>
+    </style>
+
+    <style name="PrimaryIndigo">
+        <item name="colorPrimary">@color/md_indigo_500</item>
+        <item name="colorPrimaryDark">@color/md_indigo_700</item>
+    </style>
+
+    <style name="PrimaryBlue">
+        <item name="colorPrimary">@color/md_blue_500</item>
+        <item name="colorPrimaryDark">@color/md_blue_700</item>
+    </style>
+
+    <style name="PrimaryLightBlue">
+        <item name="colorPrimary">@color/md_light_blue_500</item>
+        <item name="colorPrimaryDark">@color/md_light_blue_700</item>
+    </style>
+
+    <style name="PrimaryCyan">
+        <item name="colorPrimary">@color/md_cyan_500</item>
+        <item name="colorPrimaryDark">@color/md_cyan_700</item>
+    </style>
+
+    <style name="PrimaryTeal">
+        <item name="colorPrimary">@color/md_teal_500</item>
+        <item name="colorPrimaryDark">@color/md_teal_700</item>
+    </style>
+
+    <style name="PrimaryGreen">
+        <item name="colorPrimary">@color/md_green_500</item>
+        <item name="colorPrimaryDark">@color/md_green_700</item>
+    </style>
+
+    <style name="PrimaryLightGreen">
+        <item name="colorPrimary">@color/md_light_green_500</item>
+        <item name="colorPrimaryDark">@color/md_light_green_700</item>
+    </style>
+
+    <style name="PrimaryLime">
+        <item name="colorPrimary">@color/md_lime_500</item>
+        <item name="colorPrimaryDark">@color/md_lime_700</item>
+    </style>
+
+    <style name="PrimaryYellow">
+        <item name="colorPrimary">@color/md_yellow_500</item>
+        <item name="colorPrimaryDark">@color/md_yellow_700</item>
+    </style>
+
+    <style name="PrimaryAmber">
+        <item name="colorPrimary">@color/md_amber_500</item>
+        <item name="colorPrimaryDark">@color/md_amber_700</item>
+    </style>
+
+    <style name="PrimaryOrange">
+        <item name="colorPrimary">@color/md_orange_500</item>
+        <item name="colorPrimaryDark">@color/md_orange_700</item>
+    </style>
+
+    <style name="PrimaryDeepOrange">
+        <item name="colorPrimary">@color/md_deep_orange_500</item>
+        <item name="colorPrimaryDark">@color/md_deep_orange_700</item>
+    </style>
+
+    <style name="PrimaryBrown">
+        <item name="colorPrimary">@color/md_brown_500</item>
+        <item name="colorPrimaryDark">@color/md_brown_700</item>
+    </style>
+
+    <style name="PrimaryGrey">
+        <item name="colorPrimary">@color/md_grey_500</item>
+        <item name="colorPrimaryDark">@color/md_grey_700</item>
+    </style>
+
+    <style name="PrimaryBlueGrey">
+        <item name="colorPrimary">@color/md_blue_grey_500</item>
+        <item name="colorPrimaryDark">@color/md_blue_grey_700</item>
+    </style>
+
+    <style name="PrimaryDark">
+        <item name="colorPrimary">@color/md_grey_900</item>
+        <item name="colorPrimaryDark">@color/black</item>
+    </style>
+
+    <style name="PrimaryBlack">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryDark">@color/black</item>
+    </style>
+    <!-- endregion -->
+
+    <!-- region ACCENT COLORS -->
+    <!-- For various UI elements -->
+    <style name="AccentRed">
+        <item name="colorAccent">@color/md_red_A700</item>
+    </style>
+
+    <style name="AccentPink">
+        <item name="colorAccent">@color/md_pink_A400</item>
+    </style>
+
+    <style name="AccentPurple">
+        <item name="colorAccent">@color/md_purple_A700</item>
+    </style>
+
+    <style name="AccentDeepPurple">
+        <item name="colorAccent">@color/md_deep_purple_A700</item>
+    </style>
+
+    <style name="AccentIndigo">
+        <item name="colorAccent">@color/md_indigo_A700</item>
+    </style>
+
+    <style name="AccentBlue">
+        <item name="colorAccent">@color/md_blue_A700</item>
+    </style>
+
+    <style name="AccentLightBlue">
+        <item name="colorAccent">@color/md_light_blue_A700</item>
+    </style>
+
+    <style name="AccentCyan">
+        <item name="colorAccent">@color/md_cyan_A700</item>
+    </style>
+
+    <style name="AccentTeal">
+        <item name="colorAccent">@color/md_teal_A700</item>
+    </style>
+
+    <style name="AccentGreen">
+        <item name="colorAccent">@color/md_green_A700</item>
+    </style>
+
+    <style name="AccentLightGreen">
+        <item name="colorAccent">@color/md_light_green_A700</item>
+    </style>
+
+    <style name="AccentLime">
+        <item name="colorAccent">@color/md_lime_A700</item>
+    </style>
+
+    <style name="AccentYellow">
+        <item name="colorAccent">@color/md_yellow_A700</item>
+    </style>
+
+    <style name="AccentAmber">
+        <item name="colorAccent">@color/md_amber_A700</item>
+    </style>
+
+    <style name="AccentOrange">
+        <item name="colorAccent">@color/md_orange_A700</item>
+    </style>
+
+    <style name="AccentDeepOrange">
+        <item name="colorAccent">@color/md_deep_orange_A400</item>
+    </style>
+
+    <style name="AccentBrown">
+        <item name="colorAccent">@color/md_brown_700</item>
+    </style>
+
+    <style name="AccentGrey">
+        <item name="colorAccent">@color/md_grey_600</item>
+    </style>
+
+    <style name="AccentBlueGrey">
+        <item name="colorAccent">@color/md_blue_grey_700</item>
+    </style>
+
+    <style name="AccentDark">
+        <item name="colorAccent">@color/md_grey_800</item>
+    </style>
+
+    <style name="AccentBlack">
+        <item name="colorAccent">@color/black</item>
+    </style>
+    <!-- endregion -->
 
     <declare-styleable name="FastTextView">
         <attr name="textColor" format="color" />
         <attr name="textSize" format="dimension" />
         <attr name="singleLine" format="boolean" />
+        <attr name="text" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="MaxWidthLinearLayout">
+        <attr name="maxWidth" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="ThumbnailView">
+        <attr name="test_bitmap" format="boolean" />
+    </declare-styleable>
+
+    <declare-styleable name="GridRecyclerView">
+        <attr name="spanWidth" format="dimension" />
     </declare-styleable>
 
 </resources>

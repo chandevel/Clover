@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_gravity="start"
-                android:background="@drawable/item_background"
+                android:background="@drawable/ripple_item_background"
                 android:elevation="8dp"
                 android:orientation="horizontal">
 

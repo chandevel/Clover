@@ -29,7 +29,7 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp">
 
-        <androidx.appcompat.widget.AppCompatCheckBox
+        <CheckBox
             android:id="@+id/cell_crashlog_send_checkbox"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

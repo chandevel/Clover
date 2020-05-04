@@ -16,12 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -35,7 +34,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -69,12 +67,10 @@ import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
-import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.vdurmont.emoji.EmojiParser;
@@ -94,7 +90,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ReplyLayout
@@ -125,6 +120,7 @@ public class ReplyLayout
     private EditText flag;
     private EditText options;
     private EditText fileName;
+    private ImageView filenameNew;
     private LinearLayout nameOptions;
     private Button commentQuoteButton;
     private Button commentSpoilerButton;
@@ -143,7 +139,6 @@ public class ReplyLayout
     private TextView validCaptchasCount;
     private ImageView more;
     private ImageView submit;
-    private DropdownArrowDrawable moreDropdown;
     @Nullable
     private HintPopup hintPopup = null;
 
@@ -194,13 +189,14 @@ public class ReplyLayout
         inject(this);
 
         // Inflate reply input
-        replyInputLayout = AndroidUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
+        replyInputLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
         message = replyInputLayout.findViewById(R.id.message);
         name = replyInputLayout.findViewById(R.id.name);
         subject = replyInputLayout.findViewById(R.id.subject);
         flag = replyInputLayout.findViewById(R.id.flag);
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
+        filenameNew = replyInputLayout.findViewById(R.id.filename_new);
         nameOptions = replyInputLayout.findViewById(R.id.name_options);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
@@ -220,14 +216,11 @@ public class ReplyLayout
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
 
-        progressLayout = AndroidUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
+        progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
-        spoiler.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        spoiler.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-
         // Setup reply layout views
-        fileName.setOnLongClickListener(v -> presenter.fileNameLongClicked());
+        filenameNew.setOnClickListener(v -> presenter.filenameNewClicked(false));
         commentQuoteButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
         commentCodeButton.setOnClickListener(this);
@@ -244,19 +237,11 @@ public class ReplyLayout
         setupCommentContextMenu();
 
         previewHolder.setOnClickListener(this);
+        previewHolder.setOnLongClickListener(v -> presenter.filenameNewClicked(true));
 
-        moreDropdown = new DropdownArrowDrawable(dp(16),
-                dp(16),
-                !ChanSettings.moveInputToBottom.get(),
-                getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-        );
-        more.setImageDrawable(moreDropdown);
-        setRoundItemBackground(more);
+        more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
         more.setOnClickListener(this);
 
-        ThemeHelper.getTheme().imageDrawable.apply(attach);
-        setRoundItemBackground(attach);
         attach.setOnClickListener(this);
         attach.setOnLongClickListener(v -> {
             presenter.onAttachClicked(true);
@@ -264,11 +249,8 @@ public class ReplyLayout
         });
 
         ImageView captchaImage = replyInputLayout.findViewById(R.id.captcha);
-        setRoundItemBackground(captchaImage);
         captcha.setOnClickListener(this);
 
-        ThemeHelper.getTheme().sendDrawable.apply(submit);
-        setRoundItemBackground(submit);
         submit.setOnClickListener(this);
         submit.setOnLongClickListener(v -> {
             presenter.onSubmitClicked(true);
@@ -276,15 +258,15 @@ public class ReplyLayout
         });
 
         // Inflate captcha layout
-        captchaContainer = (FrameLayout) AndroidUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
+        captchaContainer = (FrameLayout) LayoutUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
         captchaHardReset = captchaContainer.findViewById(R.id.reset);
 
         // Setup captcha layout views
         captchaContainer.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
-        ThemeHelper.getTheme().refreshDrawable.apply(captchaHardReset);
-        setRoundItemBackground(captchaHardReset);
         captchaHardReset.setOnClickListener(this);
+
+        captchaHolder.setListener(this);
 
         setView(replyInputLayout);
 
@@ -311,11 +293,9 @@ public class ReplyLayout
             captcha.setVisibility(GONE);
         }
         presenter.bindLoadable(loadable);
-        captchaHolder.setListener(this);
     }
 
     public void cleanup() {
-        captchaHolder.removeListener();
         presenter.unbindLoadable();
         removeCallbacks(closeMessageRunnable);
     }
@@ -354,7 +334,15 @@ public class ReplyLayout
             presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {
             attach.setClickable(false); // prevent immediately removing the file
-            callback.showImageReencodingWindow(presenter.isAttachedFileSupportedForReencoding());
+            if (presenter.isAttachedFileSupportedForReencoding()) {
+                callback.showImageReencodingWindow();
+            } else {
+                showToast(
+                        getContext(),
+                        "Image doesn't support re-encoding. You can change the filename by long pressing the preview image.",
+                        Toast.LENGTH_LONG
+                );
+            }
         } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
@@ -415,7 +403,7 @@ public class ReplyLayout
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1:
-                    authenticationLayout = (LegacyCaptchaLayout) AndroidUtils.inflate(getContext(),
+                    authenticationLayout = (LegacyCaptchaLayout) LayoutUtils.inflate(getContext(),
                             R.layout.layout_captcha_legacy,
                             captchaContainer,
                             false
@@ -471,7 +459,7 @@ public class ReplyLayout
 
     @Override
     public void setPage(ReplyPresenter.Page page) {
-        Logger.d(TAG, "Switching to page " + page.name());
+        Logger.d(this, "Switching to page " + page.name());
         switch (page) {
             case LOADING:
                 setWrappingMode(false);
@@ -494,11 +482,6 @@ public class ReplyLayout
         if (page != ReplyPresenter.Page.AUTHENTICATION) {
             destroyCurrentAuthentication();
         }
-    }
-
-    @Override
-    public void resetAuthentication() {
-        authenticationLayout.reset();
     }
 
     @Override
@@ -635,19 +618,9 @@ public class ReplyLayout
     @Override
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
-
         comment.setMaxLines(expanded ? 500 : 6);
-
         previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(150) : dp(100)));
-
-        float startRotation = ChanSettings.moveInputToBottom.get() ? 1f : 0f;
-        float endRotation = ChanSettings.moveInputToBottom.get() ? 0f : 1f;
-        ValueAnimator animator =
-                ValueAnimator.ofFloat(expanded ? startRotation : endRotation, expanded ? endRotation : startRotation);
-        animator.setInterpolator(new DecelerateInterpolator(2f));
-        animator.setDuration(400);
-        animator.addUpdateListener(animation -> moreDropdown.setRotation((float) animation.getAnimatedValue()));
-        animator.start();
+        more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
     }
 
     @Override
@@ -698,6 +671,7 @@ public class ReplyLayout
     @Override
     public void openFileName(boolean open) {
         fileName.setVisibility(open ? VISIBLE : GONE);
+        filenameNew.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override
@@ -709,8 +683,7 @@ public class ReplyLayout
     @Override
     public void updateCommentCount(int count, int maxCount, boolean over) {
         commentCounter.setText(count + "/" + maxCount);
-        //noinspection ResourceAsColor
-        commentCounter.setTextColor(over ? 0xffff0000 : getAttrColor(getContext(), R.attr.text_color_secondary));
+        commentCounter.setTextColor(over ? Color.RED : getAttrColor(getContext(), android.R.attr.textColorSecondary));
     }
 
     public void focusComment() {
@@ -731,13 +704,13 @@ public class ReplyLayout
         previewHolder.setClickable(false);
         if (show) {
             ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
-            ThemeHelper.getTheme().clearDrawable.apply(attach);
+            attach.setImageResource(R.drawable.ic_clear_themed_24dp);
         } else {
             spoiler.setVisibility(GONE);
             previewHolder.setVisibility(GONE);
             previewMessage.setVisibility(GONE);
             callback.updatePadding();
-            ThemeHelper.getTheme().imageDrawable.apply(attach);
+            attach.setImageResource(R.drawable.ic_image_themed_24dp);
         }
         // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
         // only allow the preview to be clicked if it is fully visible
@@ -916,15 +889,8 @@ public class ReplyLayout
         return callback.getThread();
     }
 
-    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
-        if (filenameRemoved) {
-            fileName.setText(reply.fileName); //update edit field with new filename
-        } else {
-            //update reply with existing filename (may have been changed by user)
-            reply.fileName = fileName.getText().toString();
-        }
-
-        presenter.onImageOptionsApplied(reply);
+    public void onImageOptionsApplied() {
+        presenter.onImageOptionsApplied();
     }
 
     public void onImageOptionsComplete() {
@@ -961,7 +927,7 @@ public class ReplyLayout
     @Override
     public void onCaptchaCountChanged(int validCaptchaCount) {
         if (validCaptchaCount == 0) {
-            validCaptchasCount.setVisibility(INVISIBLE);
+            validCaptchasCount.setVisibility(GONE);
         } else {
             validCaptchasCount.setVisibility(VISIBLE);
         }
@@ -980,7 +946,7 @@ public class ReplyLayout
 
         ChanThread getThread();
 
-        void showImageReencodingWindow(boolean supportsReencode);
+        void showImageReencodingWindow();
 
         void updatePadding();
     }

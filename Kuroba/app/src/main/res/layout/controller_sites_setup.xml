@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?attr/backcolor"
-    tools:ignore="ContentDescription,RtlHardcoded">
+    tools:ignore="ContentDescription">
 
     <com.github.adamantcheese.chan.ui.view.CrossfadeView
         android:id="@+id/crossfade"

@@ -45,14 +45,14 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,8 +60,8 @@ import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -123,8 +123,8 @@ public class AndroidUtils {
         return getRes().getQuantityString(res, quantity, formatArgs);
     }
 
-    public static CharSequence getApplicationLabel() {
-        return application.getPackageManager().getApplicationLabel(application.getApplicationInfo());
+    public static String getApplicationLabel() {
+        return application.getPackageManager().getApplicationLabel(application.getApplicationInfo()).toString();
     }
 
     public static String getAppFileProvider() {
@@ -226,7 +226,7 @@ public class AndroidUtils {
 
         if (openWithCustomTabs) {
             CustomTabsIntent tabsIntent =
-                    new CustomTabsIntent.Builder().setToolbarColor(ThemeHelper.getTheme().primaryColor.color).build();
+                    new CustomTabsIntent.Builder().setToolbarColor(getAttrColor(context, R.attr.colorPrimary)).build();
             try {
                 tabsIntent.launchUrl(context, Uri.parse(link));
             } catch (ActivityNotFoundException e) {
@@ -255,11 +255,35 @@ public class AndroidUtils {
         }
     }
 
+    public static int resolveColor(int themeId, int colorId) {
+        TypedValue typedValue = new TypedValue();
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
+        wrapper.getTheme().resolveAttribute(colorId, typedValue, true);
+        return typedValue.data;
+    }
+
     public static int getAttrColor(Context context, int attr) {
-        TypedArray typedArray = context.getTheme().obtainStyledAttributes(new int[]{attr});
+        return getAttrColor(context.getTheme(), attr);
+    }
+
+    public static int getAttrColor(Theme theme, int attr) {
+        return getAttrColor(ThemeHelper.createTheme(theme), attr);
+    }
+
+    public static int getAttrColor(Resources.Theme theme, int attr) {
+        TypedArray typedArray = theme.obtainStyledAttributes(new int[]{attr});
         int color = typedArray.getColor(0, 0);
         typedArray.recycle();
         return color;
+    }
+
+    public static int getColor(int colorId) {
+        return getRes().getColor(colorId);
+    }
+
+    public static int getContrastColor(int color) {
+        double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000f;
+        return y >= 128.0 ? Color.BLACK : Color.WHITE;
     }
 
     public static Drawable getAttrDrawable(Context context, int attr) {
@@ -277,6 +301,10 @@ public class AndroidUtils {
         return getRes().getDimensionPixelSize(dimen);
     }
 
+    public static int getDimen(Context context, int dimen) {
+        return context.getResources().getDimensionPixelSize(dimen);
+    }
+
     public static File getAppDir() {
         return application.getFilesDir().getParentFile();
     }
@@ -285,8 +313,16 @@ public class AndroidUtils {
         return (int) (dp * getRes().getDisplayMetrics().density);
     }
 
+    public static int dp(Context context, float dp) {
+        return (int) (dp * context.getResources().getDisplayMetrics().density);
+    }
+
     public static int sp(float sp) {
         return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
+    }
+
+    public static int sp(Context context, float sp) {
+        return (int) (sp * context.getResources().getDisplayMetrics().scaledDensity);
     }
 
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
@@ -457,10 +493,6 @@ public class AndroidUtils {
         }
     }
 
-    public static void setRoundItemBackground(View view) {
-        view.setBackgroundResource(R.drawable.item_background);
-    }
-
     public static List<View> findViewsById(ViewGroup root, int id) {
         List<View> views = new ArrayList<>();
         int childCount = root.getChildCount();
@@ -487,11 +519,6 @@ public class AndroidUtils {
         }
     }
 
-    public static void fixSnackbarText(Context context, Snackbar snackbar) {
-        ((TextView) snackbar.getView().findViewById(R.id.snackbar_text)).setTextColor(Color.WHITE);
-        snackbar.setActionTextColor(getAttrColor(context, R.attr.colorAccent));
-    }
-
     public static boolean isConnected(int type) {
         ConnectivityManager connectivityManager =
                 (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -499,11 +526,28 @@ public class AndroidUtils {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    /**
+     * @return the display size of the full display, no subtractions
+     */
     public static Point getDisplaySize() {
         Point displaySize = new Point();
         WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getRealSize(displaySize);
         return displaySize;
+    }
+
+    /**
+     * @return the display size of the window, minus rendered nav/status bars
+     */
+    public static Point getWindowSize() {
+        Point windowSize = new Point();
+        Point windowSize2 = new Point();
+        WindowManager windowManager = (WindowManager) application.getSystemService(Activity.WINDOW_SERVICE);
+        windowManager.getDefaultDisplay().getCurrentSizeRange(windowSize, windowSize2);
+
+        int windowWidth = getScreenOrientation() == ORIENTATION_PORTRAIT ? windowSize.x : windowSize2.y;
+        int windowHeight = getScreenOrientation() == ORIENTATION_PORTRAIT ? windowSize2.x : windowSize.y;
+        return new Point(windowWidth, windowHeight);
     }
 
     /**
@@ -574,18 +618,6 @@ public class AndroidUtils {
 
     public static AudioManager getAudioManager() {
         return (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
-    }
-
-    public static View inflate(Context context, int resId, ViewGroup root) {
-        return LayoutInflater.from(context).inflate(resId, root);
-    }
-
-    public static View inflate(Context context, int resId, ViewGroup root, boolean attachToRoot) {
-        return LayoutInflater.from(context).inflate(resId, root, attachToRoot);
-    }
-
-    public static ViewGroup inflate(Context context, int resId) {
-        return (ViewGroup) LayoutInflater.from(context).inflate(resId, null);
     }
 
     public static void postToEventBus(Object message) {

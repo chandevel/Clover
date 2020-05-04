@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -48,6 +48,7 @@ public class PostAdapter
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
     private RecyclerView recyclerView;
+    private int marked = -1;
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
@@ -138,7 +139,7 @@ public class PostAdapter
                         false,
                         highlight,
                         post.no == selectedPost,
-                        -1,
+                        marked,
                         true,
                         postViewMode,
                         compact,
@@ -360,6 +361,10 @@ public class PostAdapter
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         return loadable != null && loadable.isThreadMode();
+    }
+
+    public void setMarkedForThemeController(int markedNo) {
+        marked = markedNo;
     }
 
     //region Holders

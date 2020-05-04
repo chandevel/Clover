@@ -22,6 +22,7 @@ import android.text.style.BackgroundColorSpan;
 
 import androidx.annotation.AnyThread;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -32,6 +33,7 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.Jsoup;
@@ -44,6 +46,8 @@ import org.jsoup.parser.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -132,17 +136,15 @@ public class DefaultPostParser
 
         if (!TextUtils.isEmpty(builder.posterId)) {
             idSpan = new SpannableString("  ID: " + builder.posterId + "  ");
-
-            int idBgColor = builder.isLightColor ? theme.idBackgroundLight : theme.idBackgroundDark;
-
-            idSpan.setSpan(new ForegroundColorSpanHashed(builder.idColor), 0, idSpan.length(), 0);
-            idSpan.setSpan(new BackgroundColorSpan(idBgColor), 0, idSpan.length(), 0);
+            idSpan.setSpan(new ForegroundColorSpanHashed(getContrastColor(builder.idColor)), 0, idSpan.length(), 0);
+            idSpan.setSpan(new BackgroundColorSpan(builder.idColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
-            capcodeSpan = new SpannableString("Capcode: " + builder.moderatorCapcode);
-            capcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.capcodeColor), 0, capcodeSpan.length(), 0);
+            capcodeSpan = new SpannableString(StringUtils.caseAndSpace(builder.moderatorCapcode, null));
+            int accentColor = resolveColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
+            capcodeSpan.setSpan(new ForegroundColorSpanHashed(accentColor), 0, capcodeSpan.length(), 0);
             capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, capcodeSpan.length(), 0);
         }
 

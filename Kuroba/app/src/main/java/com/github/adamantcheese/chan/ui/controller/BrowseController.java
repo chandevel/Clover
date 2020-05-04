@@ -228,7 +228,7 @@ public class BrowseController
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    refreshView.setBackgroundResource(R.drawable.item_background);
+                    refreshView.setBackgroundResource(R.drawable.ripple_item_background);
                 }
 
                 @Override

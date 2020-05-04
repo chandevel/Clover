@@ -17,9 +17,10 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;
@@ -36,9 +37,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.AppCompatCheckBox;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -48,12 +46,10 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +60,9 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class FilterLayout
         extends LinearLayout
@@ -80,9 +78,9 @@ public class FilterLayout
     private TextView actionText;
     private LinearLayout colorContainer;
     private View colorPreview;
-    private AppCompatCheckBox applyToReplies;
-    private AppCompatCheckBox onlyOnOP;
-    private AppCompatCheckBox applyToSaved;
+    private CheckBox applyToReplies;
+    private CheckBox onlyOnOP;
+    private CheckBox applyToSaved;
 
     @Inject
     BoardManager boardManager;
@@ -148,50 +146,23 @@ public class FilterLayout
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
         help = findViewById(R.id.help);
-        ThemeHelper.getTheme().helpDrawable.apply(help);
-        help.setOnClickListener(this);
         colorContainer = findViewById(R.id.color_container);
-        colorContainer.setOnClickListener(this);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
         onlyOnOP = findViewById(R.id.only_on_op_checkbox);
         applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
+        Drawable dropdownDrawable = getRes().getDrawable(R.drawable.ic_arrow_drop_down_white_24dp);
+        dropdownDrawable.setTint(getAttrColor(getContext(), android.R.attr.textColorSecondary));
+        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
+        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
+        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
+
+        colorContainer.setOnClickListener(this);
+        help.setOnClickListener(this);
         typeText.setOnClickListener(this);
-        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
-                dp(12),
-                dp(12),
-                true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-        ), null);
-
         boardsSelector.setOnClickListener(this);
-        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
-                dp(12),
-                dp(12),
-                true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-        ), null);
-
         actionText.setOnClickListener(this);
-        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, new DropdownArrowDrawable(
-                dp(12),
-                dp(12),
-                true,
-                getAttrColor(getContext(), R.attr.dropdown_dark_color),
-                getAttrColor(getContext(), R.attr.dropdown_dark_pressed_color)
-        ), null);
-
-        enabled.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        enabled.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        applyToReplies.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        applyToReplies.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        onlyOnOP.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        onlyOnOP.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        applyToSaved.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        applyToSaved.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
     }
 
     public void setFilter(Filter filter) {
@@ -225,7 +196,7 @@ public class FilterLayout
         if (v == typeText) {
             @SuppressWarnings("unchecked")
             final SelectLayout<FilterType> selectLayout =
-                    (SelectLayout<FilterType>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
+                    (SelectLayout<FilterType>) LayoutUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
@@ -256,7 +227,7 @@ public class FilterLayout
             @SuppressLint("InflateParams")
             @SuppressWarnings("unchecked")
             final SelectLayout<Board> selectLayout =
-                    (SelectLayout<Board>) AndroidUtils.inflate(getContext(), R.layout.layout_select, null);
+                    (SelectLayout<Board>) LayoutUtils.inflate(getContext(), R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
@@ -340,7 +311,8 @@ public class FilterLayout
 
             new AlertDialog.Builder(getContext()).setTitle(R.string.filter_help_title)
                     .setMessage(message)
-                    .setPositiveButton(R.string.ok, null)
+                    .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
+                    .setPositiveButton(R.string.close, null)
                     .show();
         } else if (v == colorContainer) {
             final ColorPickerView colorPickerView = new ColorPickerView(getContext());

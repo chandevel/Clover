@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.View;
@@ -25,9 +26,6 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -37,7 +35,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
@@ -60,25 +57,22 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class AlbumDownloadController
         extends Controller
-        implements View.OnClickListener, ImageSaver.BundledDownloadTaskCallbacks {
+        implements View.OnClickListener {
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
     private List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
 
-    @Nullable
-    private LoadingViewController loadingViewController;
-
     @Inject
     ImageSaver imageSaver;
 
-    private CompositeDisposable compositeDisposable;
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private boolean allChecked = true;
 
     public AlbumDownloadController(Context context) {
@@ -98,35 +92,16 @@ public class AlbumDownloadController
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
-        ThemeHelper.getTheme().applyFabColor(download);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setSpanWidth(dp(90));
 
         AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
-
-        imageSaver.setBundledTaskCallback(this);
-        compositeDisposable = new CompositeDisposable();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         compositeDisposable.dispose();
-        imageSaver.removeBundleTaskCallback();
-    }
-
-    @Override
-    public boolean onBack() {
-        if (loadingViewController != null) {
-            loadingViewController.stopPresenting();
-            loadingViewController = null;
-            return true;
-        }
-        return super.onBack();
     }
 
     @Override
@@ -157,7 +132,7 @@ public class AlbumDownloadController
                     }
 
                     if (item.checked) {
-                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, true);
+                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, true, false);
                         if (subFolder != null) {
                             imageTask.setSubFolder(subFolder);
                         }
@@ -174,14 +149,13 @@ public class AlbumDownloadController
     }
 
     private void startAlbumDownloadTask(List<ImageSaveTask> tasks) {
-        showLoadingView();
-
         Disposable disposable = imageSaver.startBundledTask(context, tasks)
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorReturnItem(ImageSaver.BundledImageSaveResult.UnknownError)
                 .subscribe(this::onResultEvent);
 
         compositeDisposable.add(disposable);
+        navigationController.popController();
     }
 
     private void onResultEvent(ImageSaver.BundledImageSaveResult result) {
@@ -203,49 +177,6 @@ public class AlbumDownloadController
                 showToast(context, R.string.album_download_could_not_save_one_or_more_images);
                 break;
         }
-
-        // Only hide in case of an error. If everything is fine the loading view will be hidden when
-        // onBundleDownloadCompleted() is called
-        hideLoadingView();
-    }
-
-    @Override
-    public void onImageProcessed(int downloaded, int failed, int total) {
-        BackgroundUtils.ensureMainThread();
-
-        if (loadingViewController != null) {
-            String message =
-                    getString(R.string.album_download_batch_image_processed_message, downloaded, total, failed);
-
-            loadingViewController.updateWithText(message);
-        }
-    }
-
-    @Override
-    public void onBundleDownloadCompleted() {
-        BackgroundUtils.ensureMainThread();
-        hideLoadingView();
-
-        //extra pop to get out of this controller
-        navigationController.popController();
-    }
-
-    private void hideLoadingView() {
-        BackgroundUtils.ensureMainThread();
-
-        if (loadingViewController != null) {
-            loadingViewController.stopPresenting();
-            loadingViewController = null;
-        }
-    }
-
-    private void showLoadingView() {
-        BackgroundUtils.ensureMainThread();
-        hideLoadingView();
-
-        loadingViewController = new LoadingViewController(context, false);
-        loadingViewController.enableBack();
-        navigationController.presentController(loadingViewController);
     }
 
     private void onCheckAllClicked(ToolbarMenuItem menuItem) {

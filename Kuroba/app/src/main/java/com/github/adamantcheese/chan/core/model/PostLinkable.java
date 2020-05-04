@@ -22,16 +22,19 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.BOARD;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
+import static android.graphics.Color.BLACK;
+import static android.graphics.Color.WHITE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.THREAD;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
@@ -49,7 +52,8 @@ public class PostLinkable
         SEARCH
     }
 
-    public final Theme theme;
+    private final int markedColorBlend;
+    private final int spoilerColor;
     public final CharSequence key;
     public final Object value;
     public final Type type;
@@ -58,7 +62,8 @@ public class PostLinkable
     private int markedNo = -1;
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
-        this.theme = theme;
+        markedColorBlend = theme.isLightTheme ? BLACK : WHITE;
+        spoilerColor = getAttrColor(theme, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
         this.type = type;
@@ -75,27 +80,19 @@ public class PostLinkable
 
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
-        if (type == QUOTE || type == LINK || type == THREAD || type == BOARD || type == Type.SEARCH) {
-            if (type == QUOTE) {
-                if (value instanceof Integer && ((int) value) == markedNo) {
-                    ds.setColor(theme.highlightQuoteColor);
-                } else {
-                    ds.setColor(theme.quoteColor);
-                }
-            } else if (type == LINK) {
-                ds.setColor(theme.linkColor);
-            } else {
-                ds.setColor(theme.quoteColor);
-            }
-
+        if (type != SPOILER) {
+            ds.setColor(ds.linkColor);
             ds.setUnderlineText(true);
-        } else if (type == SPOILER) {
-            ds.bgColor = theme.spoilerColor;
+            if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
+                ds.setColor(ColorUtils.blendARGB(ds.linkColor, markedColorBlend, 0.15f));
+            }
+        } else {
+            ds.bgColor = spoilerColor;
             ds.setUnderlineText(false);
             if (!spoilerVisible) {
-                ds.setColor(theme.spoilerColor);
+                ds.setColor(spoilerColor);
             } else {
-                ds.setColor(theme.textColorRevealSpoiler);
+                ds.setColor(getContrastColor(spoilerColor));
             }
         }
     }

@@ -1,21 +1,19 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatCheckBox;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.graphics.ColorUtils;
 
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
@@ -25,7 +23,6 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -39,7 +36,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class RemovedPostsController
         extends BaseFloatingController
@@ -51,8 +48,8 @@ public class RemovedPostsController
 
     private ConstraintLayout viewHolder;
     private ListView postsListView;
-    private AppCompatButton restorePostsButton;
-    private AppCompatButton selectAllButton;
+    private Button restorePostsButton;
+    private Button selectAllButton;
 
     @Nullable
     private RemovedPostAdapter adapter;
@@ -76,9 +73,6 @@ public class RemovedPostsController
         viewHolder.setOnClickListener(this);
         restorePostsButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
-
-        selectAllButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
-        restorePostsButton.setBackgroundColor(ColorUtils.setAlphaComponent(ThemeHelper.getTheme().textPrimary, 32));
     }
 
     @Override
@@ -196,16 +190,14 @@ public class RemovedPostsController
             }
 
             LinearLayout viewHolder = convertView.findViewById(R.id.removed_post_view_holder);
-            AppCompatTextView postNo = convertView.findViewById(R.id.removed_post_no);
-            AppCompatTextView postComment = convertView.findViewById(R.id.removed_post_comment);
-            AppCompatCheckBox checkbox = convertView.findViewById(R.id.removed_post_checkbox);
-            AppCompatImageView postImage = convertView.findViewById(R.id.post_image);
+            TextView postNo = convertView.findViewById(R.id.removed_post_no);
+            TextView postComment = convertView.findViewById(R.id.removed_post_comment);
+            CheckBox checkbox = convertView.findViewById(R.id.removed_post_checkbox);
+            ImageView postImage = convertView.findViewById(R.id.post_image);
 
             postNo.setText(String.format(Locale.ENGLISH, "No. %d", removedPost.postNo));
             postComment.setText(removedPost.comment);
             checkbox.setChecked(removedPost.isChecked());
-            checkbox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-            checkbox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
 
             if (removedPost.images.size() > 0) {
                 // load only the first image

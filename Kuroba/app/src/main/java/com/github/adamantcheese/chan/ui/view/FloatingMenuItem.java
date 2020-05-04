@@ -16,52 +16,33 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FloatingMenuItem {
     private Object id;
     private String text;
-    private boolean enabled;
 
     public FloatingMenuItem(Object id, int text) {
         this(id, getString(text));
     }
 
-    public FloatingMenuItem(Object id, int text, boolean enabled) {
-        this(id, getString(text), enabled);
-    }
-
     public FloatingMenuItem(Object id, String text) {
-        this(id, text, true);
-    }
-
-    public FloatingMenuItem(Object id, String text, boolean enabled) {
         this.id = id;
         this.text = text;
-        this.enabled = enabled;
+    }
+
+    public FloatingMenuItem(ToolbarMenuSubItem item) {
+        id = item.id;
+        text = item.text;
     }
 
     public Object getId() {
         return id;
     }
 
-    public void setId(Object id) {
-        this.id = id;
-    }
-
     public String getText() {
         return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

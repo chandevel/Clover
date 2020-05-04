@@ -110,7 +110,9 @@ public class ListSettingView<T>
     public void onClick(View v) {
         List<FloatingMenuItem> menuItems = new ArrayList<>(items.size());
         for (Item item : items) {
-            menuItems.add(new FloatingMenuItem(item.key, item.name, item.enabled));
+            if(item.enabled) {
+                menuItems.add(new FloatingMenuItem(item.key, item.name));
+            }
         }
 
         FloatingMenu menu = new FloatingMenu(v.getContext());

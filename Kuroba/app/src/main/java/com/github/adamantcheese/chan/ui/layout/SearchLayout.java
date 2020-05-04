@@ -59,8 +59,8 @@ public class SearchLayout
         searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
         searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
         searchView.setHint(getString(R.string.search_hint));
-        searchView.setHintTextColor(getAttrColor(getContext(), R.attr.text_color_hint));
-        searchView.setTextColor(getAttrColor(getContext(), R.attr.text_color_primary));
+        searchView.setHintTextColor(getAttrColor(getContext(), android.R.attr.textColorHint));
+        searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColor));
         searchView.setSingleLine(true);
         searchView.setBackgroundResource(0);
         searchView.setPadding(0, 0, 0, 0);
@@ -103,7 +103,7 @@ public class SearchLayout
 
         clearButton.setAlpha(0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
-        clearButton.getDrawable().setTint(getAttrColor(getContext(), R.attr.text_color_primary));
+        clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColor));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             searchView.setText("");

@@ -32,7 +32,7 @@ import com.github.adamantcheese.chan.core.saver.FileWatcher;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class FilesAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -80,7 +80,7 @@ public class FilesAdapter
                 } else {
                     fileViewHolder.image.setVisibility(VISIBLE);
                     Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_folder_black_24dp));
-                    DrawableCompat.setTint(drawable, getAttrColor(context, R.attr.text_color_secondary));
+                    DrawableCompat.setTint(drawable, getAttrColor(context, android.R.attr.textColorSecondary));
                     fileViewHolder.image.setImageDrawable(drawable);
                 }
 
@@ -88,7 +88,7 @@ public class FilesAdapter
                 if (highlighted) {
                     fileViewHolder.itemView.setBackgroundColor(0x0e000000);
                 } else {
-                    fileViewHolder.itemView.setBackgroundResource(R.drawable.item_background);
+                    fileViewHolder.itemView.setBackgroundResource(R.drawable.ripple_item_background);
                 }
 
                 break;

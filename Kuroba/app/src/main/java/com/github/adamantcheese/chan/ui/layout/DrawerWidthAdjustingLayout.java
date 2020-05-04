@@ -46,7 +46,7 @@ public class DrawerWidthAdjustingLayout
 
         View drawer = findViewById(R.id.drawer);
 
-        int width = Math.min(widthSize - dp(56), dp(56) * 6);
+        int width = Math.min(widthSize - dp(getContext(), 56), dp(getContext(), 56) * 6);
         if (drawer.getLayoutParams().width != width) {
             drawer.getLayoutParams().width = width;
         }

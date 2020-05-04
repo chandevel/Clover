@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:baselineAligned="false"
     android:minHeight="124dp"
     android:orientation="horizontal"
-    tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
+    tools:ignore="ContentDescription,RtlSymmetry">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:baselineAligned="false"
         android:minHeight="124dp"
         android:orientation="horizontal"
-        tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
+        tools:background="?backcolor"
+        tools:ignore="ContentDescription,RtlSymmetry">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -49,8 +50,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="8dp"
-                android:textColor="#fff44336"
+                android:textColor="@color/md_red_500"
                 android:visibility="gone"
+                tools:text="Notifications go here when they appear."
                 tools:visibility="visible" />
 
             <LinearLayout
@@ -126,95 +128,83 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
                     android:paddingRight="8dp"
-                    android:textColor="?text_color_secondary"
+                    android:textColor="?android:textColorSecondary"
                     android:textSize="12sp"
-                    tools:ignore="RelativeOverlap" />
+                    tools:ignore="RelativeOverlap"
+                    tools:text="0/2000" />
 
             </RelativeLayout>
 
             <LinearLayout
                 android:id="@+id/comment_buttons"
-                style="?android:attr/buttonBarStyle"
+                style="@style/Widget.AppCompat.ButtonBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                tools:ignore="SpUsage">
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/comment_quote"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_quote"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/comment_spoiler"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_spoiler_tag"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/comment_code"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_code_tag"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/comment_eqn"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_eqn_tag"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/comment_math"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="50dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_math_tag"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
                 <Button
                     android:id="@+id/comment_sjis"
-                    style="?android:attr/buttonBarButtonStyle"
+                    style="@style/Widget.AppCompat.Button.Borderless"
                     android:layout_width="50dp"
                     android:layout_height="40dp"
                     android:layout_margin="0dp"
                     android:padding="0dp"
                     android:text="@string/reply_comment_button_sjis_tag"
-                    android:textAllCaps="false"
-                    android:textSize="15dp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
@@ -237,7 +227,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:visibility="gone"
                 tools:visibility="visible">
 
-                <View
+                <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
@@ -246,9 +236,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/preview"
                     android:layout_width="128dp"
                     android:layout_height="match_parent"
+                    android:layout_weight="2"
                     android:scaleType="fitCenter" />
 
-                <View
+                <Space
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1" />
@@ -263,15 +254,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <EditText
-                android:id="@+id/file_name"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/reply_file_name"
-                android:singleLine="true"
-                android:textSize="16sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/file_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:hint="@string/reply_file_name"
+                    android:singleLine="true"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@id/filename_new"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/filename_new"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="8dp"
+                    android:src="@drawable/ic_refresh_themed_24dp"
+                    android:visibility="gone"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
@@ -284,15 +297,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <ImageView
                 android:id="@+id/more"
+                android:background="@drawable/ripple_item_background"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
-                android:padding="10dp" />
+                android:padding="6dp"
+                android:scaleX="1.25"
+                android:scaleY="1.25"
+                android:src="@drawable/ic_expand_more_white_24dp"
+                android:tint="?attr/themeDrawableColor" />
 
             <ImageView
                 android:id="@+id/attach"
                 android:layout_width="36dp"
+                android:background="@drawable/ripple_item_background"
                 android:layout_height="36dp"
-                android:padding="6dp" />
+                android:padding="6dp"
+                android:src="@drawable/ic_image_themed_24dp" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/captcha_container"
@@ -304,6 +324,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:padding="6dp"
+                    android:background="@drawable/ripple_item_background"
                     android:src="@drawable/ic_captcha" />
 
                 <TextView
@@ -314,17 +335,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:gravity="center"
                     android:textColor="#fff"
                     android:textSize="12sp"
+                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="99+" />
+                    tools:text="99+"
+                    tools:visibility="visible"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ImageView
                 android:id="@+id/submit"
                 android:layout_width="36dp"
+                android:background="@drawable/ripple_item_background"
                 android:layout_height="36dp"
-                android:padding="6dp" />
+                android:padding="6dp"
+                android:src="@drawable/ic_send_themed_24dp" />
 
         </LinearLayout>
 

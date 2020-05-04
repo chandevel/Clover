@@ -12,7 +12,7 @@ class JsCaptchaCookiesEditorController(context: Context) :
         super.onCreate()
         inject(this)
 
-        navigation.setTitle(R.string.js_captcha_cookies_editor_controller_title)
+        navigation.setTitle(R.string.settings_js_captcha_cookies_title)
         view = JsCaptchaCookiesEditorLayout(context).apply {
             onReady(this@JsCaptchaCookiesEditorController)
         }

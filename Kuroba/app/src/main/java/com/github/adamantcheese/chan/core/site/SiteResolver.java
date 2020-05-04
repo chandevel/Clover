@@ -22,8 +22,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
@@ -75,38 +73,7 @@ public class SiteResolver {
         return null;
     }
 
-    public SiteResolverResult resolveSiteForUrl(String url) {
-        List<SiteUrlHandler> siteUrlHandlers = SiteRegistry.URL_HANDLERS;
-
-        HttpUrl httpUrl = sanitizeUrl(url);
-
-        if (httpUrl == null) {
-            for (SiteUrlHandler siteUrlHandler : siteUrlHandlers) {
-                if (siteUrlHandler.matchesName(url)) {
-                    return new SiteResolverResult(SiteResolverResult.Match.BUILTIN,
-                            siteUrlHandler.getSiteClass(),
-                            null
-                    );
-                }
-            }
-
-            return new SiteResolverResult(SiteResolverResult.Match.NONE, null, null);
-        }
-
-        if (!httpUrl.scheme().equals("https")) {
-            httpUrl = httpUrl.newBuilder().scheme("https").build();
-        }
-
-        for (SiteUrlHandler siteUrlHandler : siteUrlHandlers) {
-            if (siteUrlHandler.respondsTo(httpUrl)) {
-                return new SiteResolverResult(SiteResolverResult.Match.BUILTIN, siteUrlHandler.getSiteClass(), null);
-            }
-        }
-
-        return new SiteResolverResult(SiteResolverResult.Match.EXTERNAL, null, httpUrl);
-    }
-
-    public LoadableResult resolveLoadableForUrl(String url) {
+    public Loadable resolveLoadableForUrl(String url) {
         final HttpUrl httpUrl = sanitizeUrl(url);
 
         if (httpUrl == null) {
@@ -121,7 +88,7 @@ public class SiteResolver {
 
                     if (resolved != null) {
                         resolved.markedNo = resolvedLoadable.markedNo;
-                        return new LoadableResult(resolved);
+                        return resolved;
                     }
                 }
             }
@@ -144,31 +111,5 @@ public class SiteResolver {
             }
         }
         return httpUrl;
-    }
-
-    public static class SiteResolverResult {
-        enum Match {
-            NONE,
-            BUILTIN,
-            EXTERNAL
-        }
-
-        Match match;
-        Class<? extends Site> builtinResult;
-        HttpUrl externalResult;
-
-        public SiteResolverResult(Match match, Class<? extends Site> builtinResult, HttpUrl externalResult) {
-            this.match = match;
-            this.builtinResult = builtinResult;
-            this.externalResult = externalResult;
-        }
-    }
-
-    public static class LoadableResult {
-        public final Loadable loadable;
-
-        public LoadableResult(Loadable loadable) {
-            this.loadable = loadable;
-        }
     }
 }

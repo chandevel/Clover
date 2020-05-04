@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:icon="@mipmap/ic_launcher"
         android:label="${appName}"
         android:requestLegacyExternalStorage="true"
-        android:theme="@style/Chan.Theme"
+        android:theme="@style/ChanStartup"
         android:usesCleartextTraffic="${devBuild}">
 
         <uses-library

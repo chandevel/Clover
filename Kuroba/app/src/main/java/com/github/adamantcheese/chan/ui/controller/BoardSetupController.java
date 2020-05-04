@@ -17,8 +17,8 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,8 +28,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +39,6 @@ import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.layout.BoardAddLayout;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -56,11 +53,9 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class BoardSetupController
         extends Controller
@@ -139,7 +134,6 @@ public class BoardSetupController
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
 
         add.setOnClickListener(this);
-        ThemeHelper.getTheme().applyFabColor(add);
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -194,7 +188,6 @@ public class BoardSetupController
                 Snackbar.LENGTH_LONG
         );
         snackbar.setGestureInsetBottomIgnored(true);
-        fixSnackbarText(context, snackbar);
 
         snackbar.setAction(R.string.undo, v -> presenter.undoRemoveBoard(board));
         snackbar.show();
@@ -209,7 +202,6 @@ public class BoardSetupController
                 Snackbar.LENGTH_LONG
         );
         snackbar.setGestureInsetBottomIgnored(true);
-        fixSnackbarText(context, snackbar);
         snackbar.show();
     }
 
@@ -279,12 +271,6 @@ public class BoardSetupController
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             ImageView reorder = itemView.findViewById(R.id.reorder);
-
-            Drawable drawable = context.getDrawable(R.drawable.ic_reorder_black_24dp);
-            assert drawable != null;
-            Drawable drawableMutable = DrawableCompat.wrap(drawable).mutate();
-            DrawableCompat.setTint(drawableMutable, getAttrColor(context, R.attr.text_color_hint));
-            reorder.setImageDrawable(drawableMutable);
 
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {

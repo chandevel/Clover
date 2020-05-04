@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.di;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Provides;
@@ -33,12 +32,5 @@ public class SiteModule {
     public SiteResolver provideSiteResolver(SiteRepository siteRepository, DatabaseManager databaseManager) {
         Logger.d(AppModule.DI_TAG, "Site resolver");
         return new SiteResolver(siteRepository, databaseManager);
-    }
-
-    @Provides
-    @Singleton
-    public SiteService provideSiteService(SiteRepository siteRepository, SiteResolver siteResolver) {
-        Logger.d(AppModule.DI_TAG, "Site service");
-        return new SiteService(siteRepository, siteResolver);
     }
 }

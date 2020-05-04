@@ -118,7 +118,7 @@ public class FilesLayout
         backLayout.setEnabled(enabled);
         Drawable wrapped = DrawableCompat.wrap(backImage.getDrawable());
         backImage.setImageDrawable(wrapped);
-        int color = getAttrColor(getContext(), enabled ? R.attr.text_color_primary : R.attr.text_color_hint);
+        int color = getAttrColor(getContext(), enabled ? android.R.attr.textColor : android.R.attr.textColorHint);
         DrawableCompat.setTint(wrapped, color);
         backText.setEnabled(enabled);
         backText.setTextColor(color);
@@ -146,7 +146,7 @@ public class FilesLayout
         }
     }
 
-    private class FileItemHistory {
+    private static class FileItemHistory {
         int index, top;
         FileWatcher.FileItem clickedItem;
     }

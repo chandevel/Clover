@@ -80,16 +80,14 @@
                 android:layout_marginBottom="8dp"
                 android:orientation="vertical">
 
-                <androidx.appcompat.widget.AppCompatCheckBox
+                <CheckBox
                     android:id="@+id/report_controller_attach_logs_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:checked="true"
                     android:paddingStart="4dp"
                     android:paddingEnd="4dp"
-                    android:text="@string/report_controller_attach_logs"
-                    android:textColor="?attr/text_color_primary"
-                    android:textSize="18sp" />
+                    android:text="@string/report_controller_attach_logs" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -116,25 +114,14 @@
 
     </ScrollView>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/report_controller_send_report"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1" />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/report_controller_send_report"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="4dp"
-            android:text="@string/report_controller_send_report" />
-
-    </LinearLayout>
+        android:layout_gravity="right"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:text="@string/report_controller_send_report" />
 
 </LinearLayout>

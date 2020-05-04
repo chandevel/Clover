@@ -45,7 +45,6 @@ import java.util.List;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class CardPostCell
         extends CardView
@@ -90,7 +89,6 @@ public class CardPostCell
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
         options = findViewById(R.id.options);
-        setRoundItemBackground(options);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
         setOnClickListener(this);

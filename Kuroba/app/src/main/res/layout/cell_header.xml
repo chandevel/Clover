@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:singleLine="true"
-        android:textColor="?text_color_primary"
+        android:text="@string/drawer_pinned"
         android:textSize="14sp" />
 
     <ImageView
@@ -41,6 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
         android:scaleType="center"
+        android:background="@drawable/ripple_item_background"
+        android:src="@drawable/ic_clear_themed_24dp"
         tools:ignore="ContentDescription" />
 
 </LinearLayout>

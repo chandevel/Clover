@@ -16,17 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.History;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -53,7 +52,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class HistoryController
         extends Controller
@@ -93,7 +92,7 @@ public class HistoryController
                 .build()
                 .build();
 
-        SwitchCompat historyEnabledSwitch = new SwitchCompat(context);
+        Switch historyEnabledSwitch = new Switch(context);
         historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
         historyEnabledSwitch.setOnCheckedChangeListener(this);
         navigation.setRightView(historyEnabledSwitch);
@@ -267,10 +266,7 @@ public class HistoryController
             subtext = itemView.findViewById(R.id.subtext);
             delete = itemView.findViewById(R.id.delete);
 
-            ThemeHelper.getTheme().clearDrawable.apply(delete);
-
             delete.setOnClickListener(this);
-
             itemView.setOnClickListener(this);
         }
 

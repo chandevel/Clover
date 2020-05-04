@@ -87,7 +87,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
@@ -1315,10 +1315,6 @@ public class ThreadPresenter
         }
     }
 
-    public void showImageReencodingWindow(boolean supportsReencode) {
-        threadPresenterCallback.showImageReencodingWindow(loadable, supportsReencode);
-    }
-
     public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
         Set<Post> posts = new HashSet<>();
 
@@ -1457,8 +1453,6 @@ public class ThreadPresenter
         void hideThread(Post post, int threadNo, boolean hide);
 
         void showNewPostsNotification(boolean show, int more);
-
-        void showImageReencodingWindow(Loadable loadable, boolean supportsReencode);
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 

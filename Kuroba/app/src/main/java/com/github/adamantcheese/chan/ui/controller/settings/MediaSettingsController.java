@@ -346,13 +346,13 @@ public class MediaSettingsController
     @Override
     public void onFilesBaseDirectoryReset() {
         BackgroundUtils.ensureMainThread();
-        showToast(context, R.string.media_settings_base_dir_reset_message);
+        showToast(context, R.string.media_settings_base_dir_reset);
     }
 
     @Override
     public void onLocalThreadsBaseDirectoryReset() {
         BackgroundUtils.ensureMainThread();
-        showToast(context, R.string.media_settings_base_dir_reset_message);
+        showToast(context, R.string.media_settings_base_dir_reset);
     }
 
     @Override

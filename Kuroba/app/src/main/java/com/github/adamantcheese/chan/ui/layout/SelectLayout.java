@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -32,8 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -136,7 +134,7 @@ public class SelectLayout<T>
 
         @Override
         public BoardSelectViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new BoardSelectViewHolder(AndroidUtils.inflate(parent.getContext(),
+            return new BoardSelectViewHolder(LayoutUtils.inflate(parent.getContext(),
                     R.layout.cell_select,
                     parent,
                     false
@@ -209,9 +207,6 @@ public class SelectLayout<T>
             description = itemView.findViewById(R.id.description);
 
             checkBox.setOnCheckedChangeListener(this);
-            checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-            checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-
             itemView.setOnClickListener(this);
         }
 

@@ -25,6 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:gravity="center"
         android:padding="8dp"
-        android:textColor="?text_color_secondary" />
+        android:textColor="?android:textColorSecondary" />
 
 </com.github.adamantcheese.chan.ui.cell.ThreadStatusCell>

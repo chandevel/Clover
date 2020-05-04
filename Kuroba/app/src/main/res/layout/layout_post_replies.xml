@@ -16,11 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/loadview"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.github.adamantcheese.chan.ui.layout.PostRepliesContainer
+    <com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,7 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:elevation="4dp"
         android:minWidth="320dp"
         android:orientation="vertical"
-        tools:ignore="UselessParent">
+        android:padding="4dp"
+        app:maxWidth="600dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -46,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/item_background">
+                android:background="@drawable/ripple_item_background">
 
                 <TextView
                     android:id="@+id/replies_back_icon"
@@ -54,11 +56,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:drawableLeft="@drawable/ic_arrow_back_themed_24dp"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/back"
-                    android:textColor="?text_color_primary" />
+                    android:text="@string/back" />
             </FrameLayout>
 
             <FrameLayout
@@ -67,7 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/item_background">
+                android:background="@drawable/ripple_item_background">
 
                 <TextView
                     android:id="@+id/replies_close_icon"
@@ -75,19 +77,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:drawableLeft="@drawable/ic_done_themed_24dp"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/close"
-                    android:textColor="?text_color_primary" />
+                    android:text="@string/close" />
             </FrameLayout>
         </LinearLayout>
 
         <ListView
             android:id="@+id/post_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            tools:layout_height="340dp"
+            tools:listitem="@layout/cell_post" />
 
-    </com.github.adamantcheese.chan.ui.layout.PostRepliesContainer>
+    </com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout>
 
 </FrameLayout>

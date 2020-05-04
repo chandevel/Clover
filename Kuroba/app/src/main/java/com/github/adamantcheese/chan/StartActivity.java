@@ -50,7 +50,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
@@ -84,10 +83,10 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class StartActivity
         extends AppCompatActivity
@@ -112,9 +111,7 @@ public class StartActivity
     @Inject
     DatabaseManager databaseManager;
     @Inject
-    SiteResolver siteResolver;
-    @Inject
-    SiteService siteService;
+    SiteRepository siteRepository;
     @Inject
     FileChooser fileChooser;
 
@@ -127,8 +124,7 @@ public class StartActivity
             return;
         }
 
-        instance(ThemeHelper.class).setupContext(this);
-
+        ThemeHelper.setupContext(this);
         fileChooser.setCallbacks(this);
         imagePickDelegate = new ImagePickDelegate(this);
         runtimePermissionsHelper = new RuntimePermissionsHelper(this);
@@ -143,10 +139,6 @@ public class StartActivity
 
         setContentView(drawerController.view);
         pushController(drawerController);
-
-        // Prevent overdraw
-        // Do this after setContentView, or the decor creating will reset the background to a default non-null drawable
-        getWindow().setBackgroundDrawable(null);
 
         NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
         if (adapter != null) {
@@ -180,7 +172,7 @@ public class StartActivity
     }
 
     private void restoreFresh() {
-        if (!siteService.areSitesSetup()) {
+        if (siteRepository.all().getAll().isEmpty()) {
             browseController.showSitesNotSetup();
         } else {
             browseController.loadWithDefaultBoard();
@@ -188,23 +180,20 @@ public class StartActivity
     }
 
     private boolean restoreFromUrl() {
-        boolean handled = false;
-
         final Uri data = getIntent().getData();
         // Start from an url launch.
         if (data != null) {
-            final SiteResolver.LoadableResult loadableResult = siteResolver.resolveLoadableForUrl(data.toString());
+            final Loadable loadableResult = instance(SiteResolver.class).resolveLoadableForUrl(data.toString());
 
             if (loadableResult != null) {
-                handled = true;
                 loadedFromURL = true;
 
-                Loadable loadable = loadableResult.loadable;
-                browseController.setBoard(loadable.board);
+                browseController.setBoard(loadableResult.board);
 
-                if (loadable.isThreadMode()) {
-                    browseController.showThread(loadable, false);
+                if (loadableResult.isThreadMode()) {
+                    browseController.showThread(loadableResult, false);
                 }
+                return true;
             } else {
                 new AlertDialog.Builder(this).setMessage(getString(R.string.open_link_not_matched,
                         getApplicationLabel()
@@ -214,7 +203,7 @@ public class StartActivity
             }
         }
 
-        return handled;
+        return false;
     }
 
     private boolean restoreFromSavedState(Bundle savedInstanceState) {

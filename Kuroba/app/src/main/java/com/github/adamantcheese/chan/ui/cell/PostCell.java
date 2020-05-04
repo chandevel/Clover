@@ -103,7 +103,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -187,9 +186,6 @@ public class PostCell
 
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
-
-        setRoundItemBackground(replies);
-        setRoundItemBackground(options);
 
         RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
         dividerParams.leftMargin = paddingPx;
@@ -335,8 +331,6 @@ public class PostCell
 
         setPostLinkableListener(post, true);
 
-        options.setColorFilter(theme.textSecondary);
-
         replies.setClickable(threadMode);
         repliesAdditionalArea.setClickable(threadMode);
 
@@ -344,16 +338,12 @@ public class PostCell
             replies.setBackgroundResource(0);
         }
 
-        if (highlighted) {
-            setBackgroundColor(getAttrColor(getContext(), R.attr.post_highlighted_color));
-        } else if (post.isSavedReply) {
-            setBackgroundColor(getAttrColor(getContext(), R.attr.post_saved_reply_color));
-        } else if (selected) {
-            setBackgroundColor(getAttrColor(getContext(), R.attr.post_selected_color));
+        if (highlighted || post.isSavedReply || selected) {
+            setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_divider_color));
         } else if (threadMode) {
             setBackgroundResource(0);
         } else {
-            setBackgroundResource(R.drawable.item_background);
+            setBackgroundResource(R.drawable.ripple_item_background);
         }
 
         if (post.filterHighlightedColor != 0) {
@@ -461,8 +451,6 @@ public class PostCell
         if (theme.altFontIsMain) {
             comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
         }
-
-        comment.setTextColor(theme.textPrimary);
 
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);

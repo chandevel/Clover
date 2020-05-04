@@ -1,8 +1,5 @@
 package com.github.adamantcheese.chan.ui.captcha;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +20,6 @@ public class CaptchaHolder {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private AtomicBoolean running = new AtomicBoolean(false);
 
-    private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
     private Timer timer;
 
     @Nullable
@@ -33,14 +29,7 @@ public class CaptchaHolder {
     private final List<CaptchaInfo> captchaQueue = new ArrayList<>();
 
     public void setListener(CaptchaValidationListener listener) {
-        mainThreadHandler.post(() -> {
-            captchaValidationListener = listener;
-            notifyListener();
-        });
-    }
-
-    public void removeListener() {
-        mainThreadHandler.post(() -> captchaValidationListener = null);
+        captchaValidationListener = listener;
     }
 
     public void addNewToken(String token, long tokenLifetime) {
@@ -121,9 +110,8 @@ public class CaptchaHolder {
 
                     Logger.d(
                             this,
-                            "Captcha token expired, now = " + sdf.format(now) + ", token validUntil = "
-                                    + sdf.format(captchaInfo.getValidUntil()) + ", token = "
-                                    + trimToken(captchaInfo.getToken())
+                            "Captcha token expired, now = " + sdf.format(now) + ", token validUntil = " + sdf.format(
+                                    captchaInfo.getValidUntil()) + ", token = " + trimToken(captchaInfo.getToken())
                     );
                 }
             }
@@ -139,17 +127,11 @@ public class CaptchaHolder {
     }
 
     private void notifyListener() {
-        mainThreadHandler.post(() -> {
-            int count = 0;
-
-            synchronized (captchaQueue) {
-                count = captchaQueue.size();
-            }
-
+        synchronized (captchaQueue) {
             if (captchaValidationListener != null) {
-                captchaValidationListener.onCaptchaCountChanged(count);
+                captchaValidationListener.onCaptchaCountChanged(captchaQueue.size());
             }
-        });
+        }
     }
 
     private class CheckCaptchaFreshnessTask

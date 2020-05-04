@@ -83,7 +83,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
@@ -304,8 +304,7 @@ public class ImageViewerController
 
             shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false);
-            task.setShare(share);
+            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false, true);
             if (ChanSettings.saveBoardFolder.get()) {
                 String subFolderName;
 

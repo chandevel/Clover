@@ -43,9 +43,9 @@ public class FastTextView
     private static LruCache<FastTextViewItem, StaticLayout> textCache = new LruCache<>(75);
 
     private TextPaint paint;
-    private boolean singleLine = false;
+    private boolean singleLine;
 
-    private CharSequence text;
+    private CharSequence text = "";
 
     private boolean update = false;
     private StaticLayout layout;
@@ -65,13 +65,17 @@ public class FastTextView
 
         paint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         paint.setColor(0xff000000);
-        paint.setTextSize(sp(15));
+        paint.setTextSize(sp(context, 15));
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FastTextView);
         try {
             setTextColor(a.getColor(R.styleable.FastTextView_textColor, 0xff000000));
             setTextSize(a.getDimensionPixelSize(R.styleable.FastTextView_textSize, 15));
             singleLine = a.getBoolean(R.styleable.FastTextView_singleLine, false);
+            String attributeText = a.getString(R.styleable.FastTextView_text);
+            if(attributeText != null) {
+                setText(attributeText);
+            }
         } finally {
             a.recycle();
         }
@@ -88,7 +92,7 @@ public class FastTextView
     }
 
     public void setTextSize(float size) {
-        int sizeSp = sp(size);
+        int sizeSp = sp(getContext(), size);
         if (paint.getTextSize() != sizeSp) {
             paint.setTextSize(sizeSp);
             update = true;

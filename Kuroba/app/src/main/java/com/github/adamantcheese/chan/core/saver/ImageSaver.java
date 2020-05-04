@@ -64,6 +64,8 @@ import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Canceled;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.BaseDirectoryDoesNotExist;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.NoWriteExternalStoragePermission;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.Ok;
@@ -100,12 +102,6 @@ public class ImageSaver {
      * Amount of images we couldn't download
      */
     private AtomicInteger failedTasks = new AtomicInteger(0);
-    /**
-     * Callbacks to show and update the LoadingViewController with the album download information
-     * (downloaded/total to download/failed to download images)
-     */
-    @Nullable
-    private BundledDownloadTaskCallbacks callbacks;
 
     private FileManager fileManager;
     /**
@@ -149,16 +145,14 @@ public class ImageSaver {
                 .flatMapSingle((t) -> Single.just(t)
                         .observeOn(workerScheduler)
                         .flatMap((task) -> {
-                            boolean isStillActive = false;
-
                             synchronized (activeDownloads) {
-                                isStillActive = activeDownloads.contains(task.getPostImageUrl());
-                            }
+                                boolean isStillActive = activeDownloads.contains(task.getPostImageUrl());
 
-                            // If the download is not present in activeDownloads that means that
-                            // it wat canceled, so exit immediately
-                            if (!isStillActive) {
-                                return Single.just(BundledDownloadResult.Canceled);
+                                // If the download is not present in activeDownloads that means that
+                                // it wat canceled, so exit immediately
+                                if (!isStillActive) {
+                                    return Single.just(Canceled);
+                                }
                             }
 
                             return task.run();
@@ -188,7 +182,7 @@ public class ImageSaver {
 
         requestPermission(context, granted -> {
             if (!granted) {
-                callbacks.onError(getString(R.string.image_saver_no_write_permission_message));
+                callbacks.onError(getString(R.string.image_saver_no_write_permission));
                 return;
             }
 
@@ -313,10 +307,6 @@ public class ImageSaver {
             activeDownloads.remove(task.getPostImageUrl());
         }
 
-        if (callbacks != null) {
-            callbacks.onImageProcessed(doneTasks.get(), failedTasks.get(), totalTasks.get());
-        }
-
         if (checkBatchCompleted()) {
             onBatchCompleted();
         }
@@ -324,7 +314,7 @@ public class ImageSaver {
         Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImageUrl()));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
-        cancellableToast.showToast(errorMessage, Toast.LENGTH_LONG);
+        cancellableToast.showToast(getAppContext(), errorMessage, Toast.LENGTH_LONG);
     }
 
     private void imageSaveTaskFinished(ImageSaveTask task, BundledDownloadResult result) {
@@ -335,55 +325,36 @@ public class ImageSaver {
             activeDownloads.remove(task.getPostImageUrl());
         }
 
-        if (callbacks != null) {
-            callbacks.onImageProcessed(doneTasks.get(), failedTasks.get(), totalTasks.get());
-        }
-
         Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImageUrl()));
-        boolean wasAlbumSave = false;
+        boolean wasAlbumSave = totalTasks.get() > 1;
 
         if (checkBatchCompleted()) {
-            wasAlbumSave = totalTasks.get() > 1 && failedTasks.get() == 0;
             onBatchCompleted();
         }
 
         updateNotification();
 
         // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
-        if (result == BundledDownloadResult.Success && !task.getShare()) {
-            String text = getText(task, wasAlbumSave);
-            cancellableToast.showToast(text, Toast.LENGTH_LONG);
-        } else if (result == BundledDownloadResult.Canceled) {
-            cancellableToast.showToast(R.string.image_saver_canceled_by_user_message, Toast.LENGTH_LONG);
+        // Also don't show the toast if the task was a share, or if this is an album save task
+        if (result == Success && !task.isShareTask()) {
+            if (totalTasks.get() == 0) {
+                cancellableToast.showToast(getAppContext(), getText(task, wasAlbumSave), Toast.LENGTH_LONG);
+            }
+        } else if (result == Canceled) {
+            cancellableToast.showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
         }
     }
 
     private boolean checkBatchCompleted() {
-        if (doneTasks.get() + failedTasks.get() > totalTasks.get()) {
-            throw new IllegalStateException(
-                    "Amount of downloaded and failed tasks is greater than total! " + "(done = " + doneTasks.get()
-                            + ", failed = " + failedTasks.get() + ", total = " + totalTasks.get() + ")");
-        }
-
-        return doneTasks.get() + failedTasks.get() == totalTasks.get();
+        return doneTasks.get() + failedTasks.get() >= totalTasks.get();
     }
 
     private void onBatchCompleted() {
-        BackgroundUtils.ensureMainThread();
-        Logger.d(this,
-                "onBatchCompleted " + "downloaded = " + doneTasks.get() + ", " + "failed = " + failedTasks.get() + ", "
-                        + "total = " + totalTasks.get()
-        );
-
         totalTasks.set(0);
         doneTasks.set(0);
         failedTasks.set(0);
 
         updateNotification();
-
-        if (callbacks != null) {
-            callbacks.onBundleDownloadCompleted();
-        }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -435,8 +406,8 @@ public class ImageSaver {
             activeDownloads.clear();
         }
 
-        updateNotification();
-        cancellableToast.showToast(R.string.image_saver_canceled_by_user_message, Toast.LENGTH_LONG);
+        onBatchCompleted();
+        cancellableToast.showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
     }
 
     private void updateNotification() {
@@ -448,6 +419,7 @@ public class ImageSaver {
         } else {
             if (BackgroundUtils.isInForeground()) {
                 service.putExtra(SavingNotification.DONE_TASKS_KEY, doneTasks.get());
+                service.putExtra(SavingNotification.FAILED_TASKS_KEY, failedTasks.get());
                 service.putExtra(SavingNotification.TOTAL_TASKS_KEY, totalTasks.get());
                 ContextCompat.startForegroundService(getAppContext(), service);
             } else {
@@ -465,7 +437,7 @@ public class ImageSaver {
             AbstractFile locationFile = getSaveLocation(task);
 
             if (locationFile == null) {
-                location = getString(R.string.image_saver_unknown_location_message);
+                location = getString(R.string.image_saver_unknown_location);
             } else {
                 location = locationFile.getFullPath();
             }
@@ -478,21 +450,8 @@ public class ImageSaver {
         return text;
     }
 
-    /**
-     * @param isFileName is used to figure out what characters are allowed and what are not.
-     *                   If set to false, then we additionally remove all '.' characters because
-     *                   directory names should not have '.' characters (well they actually can but
-     *                   let's filter them anyway). If it's false then it is implied that the "name"
-     *                   param is a directory segment name.
-     */
-    private String filterName(String name, boolean isFileName) {
-        String filteredName;
-
-        if (isFileName) {
-            filteredName = StringUtils.fileNameRemoveBadCharacters(name);
-        } else {
-            filteredName = StringUtils.dirNameRemoveBadCharacters(name);
-        }
+    private String filterName(String name) {
+        String filteredName = StringUtils.fileNameRemoveBadCharacters(name);
 
         String extension = StringUtils.extractFileNameExtension(filteredName);
 
@@ -505,15 +464,7 @@ public class ImageSaver {
         // filteredName.length() == 0 will only be true when "name" parameter does not have an
         // extension
         if (filteredName.length() == 0 || isOnlyExtensionLeft) {
-            String appendExtension;
-
-            if (extension != null) {
-                // extractFileNameExtension returns an extension without the '.' symbol
-                appendExtension = "." + extension;
-            } else {
-                appendExtension = "";
-            }
-
+            String appendExtension = extension != null ? "." + extension : "";
             filteredName = System.currentTimeMillis() + appendExtension;
         }
 
@@ -525,15 +476,15 @@ public class ImageSaver {
         String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
 
         //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
-        String fileName = filterName(name + (task.getShare() ? "_shared" : "") + "." + postImage.extension, true);
+        String fileName = filterName(name + "." + postImage.extension);
         AbstractFile saveFile = saveLocation.clone(new FileSegment(fileName));
 
         //shared files don't need deduplicating
-        while (fileManager.exists(saveFile) && !task.getShare()) {
+        while (fileManager.exists(saveFile) && !task.isShareTask()) {
             String currentTimeHash = Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX);
             String resultFileName = name + "_" + currentTimeHash + "." + postImage.extension;
 
-            fileName = filterName(resultFileName, true);
+            fileName = filterName(resultFileName);
             saveFile = saveLocation.clone(new FileSegment(fileName));
         }
 
@@ -541,25 +492,13 @@ public class ImageSaver {
     }
 
     private boolean hasPermission(Context context) {
-        BackgroundUtils.ensureMainThread();
-
         return ((StartActivity) context).getRuntimePermissionsHelper()
                 .hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
-        BackgroundUtils.ensureMainThread();
-
         ((StartActivity) context).getRuntimePermissionsHelper()
                 .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
-    }
-
-    public void setBundledTaskCallback(BundledDownloadTaskCallbacks callbacks) {
-        this.callbacks = callbacks;
-    }
-
-    public void removeBundleTaskCallback() {
-        this.callbacks = null;
     }
 
     public enum BundledDownloadResult {
@@ -577,11 +516,5 @@ public class ImageSaver {
 
     public interface DownloadTaskCallbacks {
         void onError(String message);
-    }
-
-    public interface BundledDownloadTaskCallbacks {
-        void onImageProcessed(int downloaded, int failed, int total);
-
-        void onBundleDownloadCompleted();
     }
 }

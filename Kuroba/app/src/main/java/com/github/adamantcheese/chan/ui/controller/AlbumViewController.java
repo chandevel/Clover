@@ -22,7 +22,6 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -38,9 +37,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class AlbumViewController
         extends Controller
@@ -63,12 +61,8 @@ public class AlbumViewController
         // View setup
         view = inflate(context, R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setHasFixedSize(true);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
-        recyclerView.setLayoutManager(gridLayoutManager);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setSpanWidth(dp(120));
         recyclerView.setItemAnimator(null);
+
         AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
         recyclerView.setAdapter(albumAdapter);
         recyclerView.scrollToPosition(targetIndex);
@@ -208,6 +202,7 @@ public class AlbumViewController
 
         public AlbumItemCellHolder(View itemView) {
             super(itemView);
+            itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             cell = (AlbumViewCell) itemView;
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(this);

@@ -226,7 +226,7 @@ public class ExperimentalSettingsController
                 })
                 .setNegativeButton(R.string.remove, ((dialog, which) -> {
                     exclusionZonesHolder.removeZone(orientation, attachSide);
-                    showToast(context, R.string.setting_exclusion_zones_zone_remove_message);
+                    showToast(context, R.string.setting_exclusion_zones_zone_removed);
                     dialog.dismiss();
                 }))
                 .create()

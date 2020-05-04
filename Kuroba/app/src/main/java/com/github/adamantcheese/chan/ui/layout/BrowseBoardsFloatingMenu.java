@@ -21,8 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -47,21 +45,17 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
-import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.inject.Inject;
-
-import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -70,7 +64,6 @@ import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.I
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -149,46 +142,7 @@ public class BrowseBoardsFloatingMenu
                 @Override
                 public void setup() {
                     setName("App Setup");
-                    Drawable setupIcon = ThemeHelper.getTheme().settingsDrawable.makeDrawable(getAppContext());
-                    setupIcon.setColorFilter(ThemeHelper.getTheme().textPrimary, PorterDuff.Mode.SRC_IN);
-                    setIcon(SiteIcon.fromDrawable(setupIcon));
-                    setBoardsType(BoardsType.STATIC);
-                    setConfig(new CommonConfig() {});
-                    setResolvable(new CommonSiteUrlHandler() {
-                        @Override
-                        public HttpUrl getUrl() {
-                            return null;
-                        }
-
-                        @Override
-                        public String[] getMediaHosts() {
-                            return new String[0];
-                        }
-
-                        @Override
-                        public String[] getNames() {
-                            return new String[0];
-                        }
-
-                        @Override
-                        public Class<? extends Site> getSiteClass() {
-                            return null;
-                        }
-                    });
-                    setEndpoints(new CommonEndpoints(null) {
-                        @Override
-                        public HttpUrl pages(Board board) {
-                            return null;
-                        }
-                    });
-                    setActions(new CommonActions(null) {});
-                    setParser(new CommentParser());
-                }
-
-                @NonNull
-                @Override
-                public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-                    throw new RuntimeException("Shouldn't be called");
+                    setIcon(SiteIcon.fromDrawable(getContext().getDrawable(R.drawable.ic_settings_themed_24dp)));
                 }
             };
             setupSite.setup();
@@ -367,15 +321,15 @@ public class BrowseBoardsFloatingMenu
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == SEARCH.typeId) {
-                return new InputViewHolder(AndroidUtils.inflate(getContext(),
+                return new InputViewHolder(LayoutUtils.inflate(getContext(),
                         R.layout.cell_browse_input,
                         parent,
                         false
                 ));
             } else if (viewType == SITE.typeId) {
-                return new SiteViewHolder(AndroidUtils.inflate(getContext(), R.layout.cell_browse_site, parent, false));
+                return new SiteViewHolder(LayoutUtils.inflate(getContext(), R.layout.cell_browse_site, parent, false));
             } else if (viewType == BOARD.typeId) {
-                return new BoardViewHolder(AndroidUtils.inflate(getContext(),
+                return new BoardViewHolder(LayoutUtils.inflate(getContext(),
                         R.layout.cell_browse_board,
                         parent,
                         false
@@ -458,7 +412,6 @@ public class BrowseBoardsFloatingMenu
         TextView text;
 
         Site site;
-        SiteIcon icon;
 
         public SiteViewHolder(View itemView) {
             super(itemView);
@@ -479,16 +432,7 @@ public class BrowseBoardsFloatingMenu
 
             divider.setVisibility(getAdapterPosition() == 0 ? GONE : VISIBLE);
 
-            icon = site.icon();
-
-            image.setTag(icon);
-            image.setImageDrawable(null);
-            icon.get((siteIcon, drawable) -> {
-                if (image.getTag() == siteIcon) {
-                    image.setImageDrawable(drawable);
-                    image.getDrawable().setTintList(null);
-                }
-            });
+            site.icon().get(image::setImageDrawable);
 
             text.setText(site.name());
         }

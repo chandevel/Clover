@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:gravity="center"
         android:padding="8dp"
         android:singleLine="true"
-        android:textColor="?text_color_secondary"
+        android:textColor="?android:textColorSecondary"
         android:visibility="gone"
         tools:ignore="UnusedAttribute" />
 

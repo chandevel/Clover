@@ -44,12 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="?divider_color" />
-
     </com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>
 
 </com.github.adamantcheese.chan.ui.layout.DrawerWidthAdjustingLayout>

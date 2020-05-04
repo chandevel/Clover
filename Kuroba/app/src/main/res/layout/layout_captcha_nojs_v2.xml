@@ -8,7 +8,7 @@
     android:background="?attr/backcolor"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <TextView
         android:id="@+id/captcha_layout_v2_title"
         android:layout_width="match_parent"
         android:layout_height="40dp"
@@ -18,7 +18,6 @@
         android:padding="4dp"
         android:singleLine="true"
         android:text=""
-        android:textColor="?attr/text_color_primary"
         android:textSize="18sp"
         tools:text="Select all images with something" />
 
@@ -43,7 +42,7 @@
         android:background="?attr/backcolor_secondary"
         tools:layout_editor_absoluteY="40dp">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/captcha_layout_v2_use_old_captcha_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -51,13 +50,12 @@
             android:clickable="true"
             android:focusable="true"
             android:text="@string/captcha_layout_v2_use_old_captcha"
-            android:textColor="?attr/text_color_primary"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_reload_button"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/captcha_layout_v2_reload_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -65,13 +63,12 @@
             android:clickable="true"
             android:focusable="true"
             android:text="@string/action_reload"
-            android:textColor="?attr/text_color_primary"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_use_old_captcha_button"
             app:layout_constraintTop_toTopOf="@+id/captcha_layout_v2_verify_button" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/captcha_layout_v2_verify_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -80,7 +77,6 @@
             android:enabled="false"
             android:focusable="true"
             android:text="@string/captcha_layout_v2_verify_button_text"
-            android:textColor="?attr/text_color_primary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/captcha_layout_v2_reload_button"

@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import android.graphics.Color;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
@@ -337,7 +339,6 @@ public class Post
         public String moderatorCapcode = "";
 
         public int idColor;
-        public boolean isLightColor;
 
         public int filterHighlightedColor;
         public boolean filterStub;
@@ -457,14 +458,13 @@ public class Post
             this.posterId = posterId;
 
             // Stolen from the 4chan extension
-            int hash = this.posterId.hashCode();
+            int hash = this.posterId.hashCode() >>> 8;
 
-            int r = (hash >> 24) & 0xff;
-            int g = (hash >> 16) & 0xff;
-            int b = (hash >> 8) & 0xff;
+            int r = (hash & Color.RED) << 16;
+            int g = (hash & Color.GREEN) << 8;
+            int b = hash & Color.BLUE;
 
-            this.idColor = (0xff << 24) + (r << 16) + (g << 8) + b;
-            this.isLightColor = (r * 0.299f) + (g * 0.587f) + (b * 0.114f) > 125f;
+            this.idColor = Color.BLACK + r + g + b;
 
             return this;
         }

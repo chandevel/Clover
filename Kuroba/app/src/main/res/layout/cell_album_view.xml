@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
         android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        tools:test_bitmap="true" />
 
     <TextView
         android:id="@+id/text"
@@ -35,8 +36,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:maxLines="2"
         android:paddingLeft="8dp"
         android:paddingRight="8dp"
-        android:textColor="#ffffffff"
+        android:textColor="@color/white"
         android:textSize="10sp"
-        tools:ignore="SmallSp" />
+        tools:ignore="SmallSp"
+        tools:text="Test file info" />
 
 </com.github.adamantcheese.chan.ui.cell.AlbumViewCell>

@@ -207,7 +207,7 @@ public class BehaviourSettingsController
             other.add(new BooleanSettingView(this,
                     ChanSettings.showCopyApkUpdateDialog,
                     R.string.settings_show_copy_apk_dialog_title,
-                    R.string.settings_show_copy_apk_dialog_message
+                    R.string.settings_show_copy_apk_dialog
             ));
 
             groups.add(other);

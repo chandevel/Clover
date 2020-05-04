@@ -17,31 +17,39 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import com.github.adamantcheese.chan.R;
 
-public class PostRepliesContainer
+public class MaxWidthLinearLayout
         extends LinearLayout {
-    public PostRepliesContainer(Context context) {
-        super(context);
+    private float maxWidth;
+
+    public MaxWidthLinearLayout(Context context) {
+        this(context, null);
     }
 
-    public PostRepliesContainer(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public MaxWidthLinearLayout(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
-    public PostRepliesContainer(Context context, AttributeSet attrs, int defStyleAttr) {
+    public MaxWidthLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MaxWidthLinearLayout);
+        try {
+            maxWidth = a.getDimension(R.styleable.MaxWidthLinearLayout_maxWidth, Integer.MAX_VALUE);
+        } finally {
+            a.recycle();
+        }
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int maxWidth = dp(600);
-
         if (MeasureSpec.getSize(widthMeasureSpec) > maxWidth) {
-            widthMeasureSpec = MeasureSpec.makeMeasureSpec(maxWidth, MeasureSpec.getMode(widthMeasureSpec));
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec((int) maxWidth, MeasureSpec.getMode(widthMeasureSpec));
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

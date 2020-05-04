@@ -2,30 +2,21 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="?backcolor">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_margin="16dp">
 
         <TextView
-            android:text="@string/js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:gravity="center_horizontal"
-            android:textColor="?attr/text_color_primary"
-            android:textSize="24sp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:text="@string/js_captcha_cookies_editor_format_hint_message"
-            android:textColor="?attr/text_color_primary"
-            android:layout_marginTop="16dp"/>
+            android:text="@string/js_captcha_cookies_editor_format_hint" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
@@ -38,7 +29,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/hsid_cookie_text"
                 android:importantForAutofill="no"
-                android:maxLines="4" />
+                android:maxLines="4"
+                tools:text="@string/lorem_ipsum"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -53,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/ssid_cookie_text"
                 android:importantForAutofill="no"
-                android:maxLines="4" />
+                android:maxLines="4"
+                tools:text="@string/lorem_ipsum"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -68,7 +61,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/sid_cookie_text"
                 android:importantForAutofill="no"
-                android:maxLines="4" />
+                android:maxLines="4"
+                tools:text="@string/lorem_ipsum"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,7 +77,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/nid_cookie_text"
                 android:importantForAutofill="no"
-                android:maxLines="4" />
+                android:maxLines="4"
+                tools:text="@string/lorem_ipsum"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -95,7 +90,7 @@
             android:layout_marginEnd="8dp"
             android:layout_marginTop="32dp">
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/js_captcha_cookies_editor_reset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -107,12 +102,12 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/js_captcha_cookies_editor_save_and_apply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/js_captcha_cookies_editor_save_and_apply_text" />
+                android:text="@string/save" />
 
         </LinearLayout>
 

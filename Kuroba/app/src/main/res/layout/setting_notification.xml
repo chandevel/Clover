@@ -7,7 +7,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical">
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/setting_notification_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -15,7 +15,7 @@
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <androidx.appcompat.widget.AppCompatTextView
+        <TextView
             android:id="@+id/setting_notification_total_count"
             android:layout_width="16dp"
             android:layout_height="16dp"
@@ -28,7 +28,8 @@
             app:layout_constraintStart_toStartOf="@+id/setting_notification_icon"
             app:layout_constraintTop_toTopOf="@+id/setting_notification_icon"
             tools:text="13"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            tools:ignore="SmallSp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

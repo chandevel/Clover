@@ -45,6 +45,7 @@ public class ThreadStatusCell
         implements View.OnClickListener {
     private static final int UPDATE_INTERVAL = 1000;
     private static final int MESSAGE_INVALIDATE = 1;
+    public static final String SPECIAL = "__SPECIAL__";
 
     private Callback callback;
 
@@ -67,7 +68,7 @@ public class ThreadStatusCell
     public ThreadStatusCell(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        setBackgroundResource(R.drawable.item_background);
+        setBackgroundResource(R.drawable.ripple_item_background);
     }
 
     @Override
@@ -93,7 +94,11 @@ public class ThreadStatusCell
     @SuppressLint("SetTextI18n")
     public boolean update() {
         if (error != null) {
-            text.setText(error + "\n" + getString(R.string.thread_refresh_bar_inactive));
+            if (error.startsWith(SPECIAL)) {
+                text.setText(error.substring(SPECIAL.length()));
+            } else {
+                text.setText(error + "\n" + getString(R.string.thread_refresh_bar_inactive));
+            }
             return false;
         } else {
             ChanThread chanThread = callback.getChanThread();
@@ -223,6 +228,10 @@ public class ThreadStatusCell
 
     @Override
     public void onClick(View v) {
+        if (error != null && error.startsWith(SPECIAL)) {
+            callback.onListStatusClicked();
+            return;
+        }
         error = null;
         if (callback.getChanThread() != null && !callback.getChanThread().isArchived()) {
             callback.onListStatusClicked();

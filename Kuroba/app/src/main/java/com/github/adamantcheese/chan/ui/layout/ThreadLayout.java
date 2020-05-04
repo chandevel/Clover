@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -49,10 +48,9 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
-import com.github.adamantcheese.chan.ui.helper.ImageOptionsHelper;
+import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -62,6 +60,7 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -71,7 +70,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.fixSnackbarText;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -87,8 +85,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ThreadLayout
         extends CoordinatorLayout
         implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback,
-                   ImageOptionsHelper.ImageReencodingHelperCallback, RemovedPostsHelper.RemovedPostsCallbacks,
-                   View.OnClickListener, ThreadListLayout.ThreadListLayoutCallback {
+                   RemovedPostsHelper.RemovedPostsCallbacks, View.OnClickListener,
+                   ThreadListLayout.ThreadListLayoutCallback, ImageOptionsController.ImageOptionsControllerCallback {
     private enum Visible {
         EMPTY,
         LOADING,
@@ -115,7 +113,6 @@ public class ThreadLayout
     private TextView errorText;
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
-    private ImageOptionsHelper imageReencodingHelper;
     private RemovedPostsHelper removedPostsHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
@@ -146,21 +143,20 @@ public class ThreadLayout
 
         // Inflate ThreadListLayout
         threadListLayout =
-                (ThreadListLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_list, this, false);
+                (ThreadListLayout) LayoutUtils.inflate(getContext(), R.layout.layout_thread_list, this, false);
 
         // Inflate error layout
-        errorLayout = (LinearLayout) AndroidUtils.inflate(getContext(), R.layout.layout_thread_error, this, false);
+        errorLayout = (LinearLayout) LayoutUtils.inflate(getContext(), R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
 
         // Inflate thread loading layout
-        progressLayout = AndroidUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
+        progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
 
         // View setup
         presenter.setContext(getContext());
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
-        imageReencodingHelper = new ImageOptionsHelper(getContext(), this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
         errorText.setTypeface(ThemeHelper.getTheme().mainFont);
         errorRetryButton.setOnClickListener(this);
@@ -172,7 +168,6 @@ public class ThreadLayout
         } else {
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
-            ThemeHelper.getTheme().applyFabColor(replyButton);
         }
 
         presenter.create(this);
@@ -238,11 +233,6 @@ public class ThreadLayout
     @Override
     public Toolbar getToolbar() {
         return callback.getToolbar();
-    }
-
-    @Override
-    public void showImageReencodingWindow(boolean supportsReencode) {
-        presenter.showImageReencodingWindow(supportsReencode);
     }
 
     @Override
@@ -502,10 +492,8 @@ public class ThreadLayout
     @Override
     public void confirmPostDelete(final Post post) {
         @SuppressLint("InflateParams")
-        final View view = AndroidUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
+        final View view = LayoutUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
         CheckBox checkBox = view.findViewById(R.id.image_only);
-        checkBox.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-        checkBox.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
         new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
                 .setView(view)
                 .setNegativeButton(R.string.cancel, null)
@@ -550,7 +538,6 @@ public class ThreadLayout
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(postHide));
             presenter.refreshUI();
         }).show();
-        fixSnackbarText(getContext(), snackbar);
     }
 
     @Override
@@ -582,7 +569,6 @@ public class ThreadLayout
             databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(hideList));
             presenter.refreshUI();
         }).show();
-        fixSnackbarText(getContext(), snackbar);
     }
 
     @Override
@@ -614,7 +600,6 @@ public class ThreadLayout
                 Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.show();
-        fixSnackbarText(getContext(), snackbar);
     }
 
     @Override
@@ -629,7 +614,6 @@ public class ThreadLayout
                     presenter.onNewPostsViewClicked();
                     dismissSnackbar();
                 }).show();
-                fixSnackbarText(getContext(), newPostsNotification);
             } else {
                 dismissSnackbar();
             }
@@ -647,7 +631,7 @@ public class ThreadLayout
 
     @Override
     public Loadable getLoadable() {
-        return getPresenter().getLoadable();
+        return presenter.getLoadable();
     }
 
     @Override
@@ -657,13 +641,13 @@ public class ThreadLayout
     }
 
     @Override
-    public void showImageReencodingWindow(Loadable loadable, boolean supportsReencode) {
+    public void showImageReencodingWindow() {
         if (this.getFocusedChild() != null) {
             View currentFocus = this.getFocusedChild();
             hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
-        imageReencodingHelper.showController(loadable, supportsReencode);
+        presentController(new ImageOptionsController(getContext(), getLoadable(), this));
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
@@ -754,12 +738,13 @@ public class ThreadLayout
 
     @SuppressLint("InflateParams")
     private View inflateEmptyView() {
-        View view = AndroidUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
+        View view = LayoutUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // This unicode symbol crashes app on APIs below 23
-            tv.setText(R.string.thread_empty_setup_feature);
+            //😴 sleeping face emoji
+            tv.setText("\uD83D\uDE34");
         }
 
         return view;
@@ -771,8 +756,8 @@ public class ThreadLayout
     }
 
     @Override
-    public void onImageOptionsApplied(Reply reply, boolean filenameRemoved) {
-        threadListLayout.onImageOptionsApplied(reply, filenameRemoved);
+    public void onImageOptionsApplied() {
+        threadListLayout.onImageOptionsApplied();
     }
 
     @Override

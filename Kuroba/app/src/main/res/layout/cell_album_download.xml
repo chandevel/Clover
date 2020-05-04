@@ -18,13 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    tools:ignore="ContentDescription,RtlHardcoded,RtlSymmetry">
+    tools:ignore="RtlSymmetry"
+    tools:layout_height="90dp">
 
     <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
         android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="5dp" />
+        android:padding="5dp"
+        tools:test_bitmap="true" />
 
     <ImageView
         android:id="@+id/checkbox"
@@ -32,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="left|top"
         android:paddingLeft="7dp"
-        android:paddingTop="7dp" />
+        android:paddingTop="7dp"
+        tools:src="@drawable/ic_blue_checkmark_24dp" />
 
 </FrameLayout>

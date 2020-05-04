@@ -2,7 +2,8 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.site.SiteResolver
-import com.github.adamantcheese.chan.utils.HashingUtil
+import com.github.adamantcheese.chan.utils.JavaUtils
+import com.github.adamantcheese.chan.utils.JavaUtils.inputStreamMD5hash
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -112,7 +113,7 @@ internal class ChunkMerger(
 
     private fun compareFileHashes(url: String, output: AbstractFile, expectedFileHash: String) {
         fileManager.getInputStream(output)?.use { inputStream ->
-            val actualFileHash = HashingUtil.inputStreamHash(inputStream)
+            val actualFileHash = inputStreamMD5hash(inputStream)
 
             if (!expectedFileHash.equals(actualFileHash, ignoreCase = true)) {
                 throw FileCacheException.FileHashesAreDifferent(

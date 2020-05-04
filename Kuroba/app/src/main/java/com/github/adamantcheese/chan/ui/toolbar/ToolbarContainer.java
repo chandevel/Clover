@@ -23,10 +23,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -42,7 +39,6 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
-import com.github.adamantcheese.chan.ui.theme.DropdownArrowDrawable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -50,10 +46,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.text.TextUtils.isEmpty;
+import static android.view.Gravity.CENTER_VERTICAL;
+import static android.view.Gravity.RIGHT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
@@ -444,7 +441,7 @@ public class ToolbarContainer
         private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
             @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
-            menu.setGravity(Gravity.CENTER_VERTICAL);
+            menu.setGravity(CENTER_VERTICAL);
 
             FrameLayout titleContainer = menu.findViewById(R.id.title_container);
 
@@ -452,21 +449,13 @@ public class ToolbarContainer
             final TextView titleView = menu.findViewById(R.id.title);
             titleView.setTypeface(theme != null ? theme.mainFont : ThemeHelper.getTheme().mainFont);
             titleView.setText(item.title);
-            titleView.setTextColor(Color.WHITE);
 
             // Middle title with arrow and callback
             if (item.middleMenu != null) {
-                int arrowColor = getAttrColor(getContext(), R.attr.dropdown_light_color);
-                int arrowPressedColor = getAttrColor(getContext(), R.attr.dropdown_light_pressed_color);
-                final Drawable arrowDrawable =
-                        new DropdownArrowDrawable(dp(12), dp(12), true, arrowColor, arrowPressedColor);
-                arrowDrawable.setBounds(0, 0, arrowDrawable.getIntrinsicWidth(), arrowDrawable.getIntrinsicHeight());
                 ImageView dropdown = new ImageView(getContext());
-                dropdown.setImageDrawable(arrowDrawable);
-                titleContainer.addView(
-                        dropdown,
-                        new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, Gravity.CENTER_VERTICAL | Gravity.RIGHT)
-                );
+                dropdown.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
+                titleContainer.addView(dropdown, new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER_VERTICAL | RIGHT));
+                titleContainer.setTranslationY(dp(3));
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
             }
 
@@ -477,10 +466,9 @@ public class ToolbarContainer
                 titleParams.height = WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
-                subtitleView.setTextColor(Color.WHITE);
                 updatePaddings(titleView, -1, -1, dp(5f), -1);
             } else {
-                titleContainer.removeView(subtitleView);
+                subtitleView.setVisibility(GONE);
             }
 
             // Possible view shown at the right side.

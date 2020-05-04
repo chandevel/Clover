@@ -57,7 +57,7 @@ public class AppearanceSettingsController
 
             appearance.add(new LinkSettingView(this,
                     getString(R.string.setting_theme),
-                    ThemeHelper.getTheme().displayName,
+                    ThemeHelper.getTheme().name,
                     v -> navigationController.pushController(new ThemeSettingsController(context))
             ));
 

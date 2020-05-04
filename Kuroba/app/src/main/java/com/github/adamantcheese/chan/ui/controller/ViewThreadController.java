@@ -73,10 +73,10 @@ import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ViewThreadController
         extends ThreadController
@@ -158,7 +158,9 @@ public class ViewThreadController
         }
 
         if (!ChanSettings.textOnly.get()) {
-            menuBuilder.withItem(R.drawable.ic_image_white_24dp, this::albumClicked);
+            Drawable imageWhite = context.getDrawable(R.drawable.ic_image_themed_24dp);
+            imageWhite.setTint(Color.WHITE);
+            menuBuilder.withItem(-1, imageWhite, this::albumClicked);
         }
         menuBuilder.withItem(PIN_ID, R.drawable.ic_bookmark_border_white_24dp, this::pinClicked);
 

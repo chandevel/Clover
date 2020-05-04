@@ -45,16 +45,16 @@ public class PopupControllerContainer
 
         FrameLayout.LayoutParams child = (LayoutParams) getChildAt(0).getLayoutParams();
 
-        if (widthMode == MeasureSpec.EXACTLY && widthSize < dp(600)) {
+        if (widthMode == MeasureSpec.EXACTLY && widthSize < dp(getContext(), 600)) {
             child.width = widthSize;
         } else {
-            child.width = dp(600);
+            child.width = dp(getContext(), 600);
         }
 
-        if (heightMode == MeasureSpec.EXACTLY && heightSize < dp(600)) {
+        if (heightMode == MeasureSpec.EXACTLY && heightSize < dp(getContext(), 600)) {
             child.height = heightSize;
         } else {
-            child.height = dp(600);
+            child.height = dp(getContext(), 600);
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

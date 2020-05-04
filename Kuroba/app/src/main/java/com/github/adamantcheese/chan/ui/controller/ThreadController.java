@@ -46,7 +46,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public abstract class ThreadController

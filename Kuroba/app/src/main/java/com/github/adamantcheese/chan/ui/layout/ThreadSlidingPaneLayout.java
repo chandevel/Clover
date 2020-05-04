@@ -86,11 +86,11 @@ public class ThreadSlidingPaneLayout
         ViewGroup.LayoutParams leftParams = leftPane.getLayoutParams();
         ViewGroup.LayoutParams rightParams = rightPane.getLayoutParams();
 
-        if (width < dp(500)) {
-            leftParams.width = width - dp(30);
+        if (width < dp(getContext(), 500)) {
+            leftParams.width = width - dp(getContext(), 30);
             rightParams.width = width;
         } else {
-            leftParams.width = width - dp(60);
+            leftParams.width = width - dp(getContext(), 60);
             rightParams.width = width;
         }
 

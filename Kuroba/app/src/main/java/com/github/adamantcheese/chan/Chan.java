@@ -35,8 +35,8 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.SiteService;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
@@ -69,7 +69,7 @@ public class Chan
     DatabaseManager databaseManager;
 
     @Inject
-    SiteService siteService;
+    SiteRepository siteRepository;
 
     @Inject
     BoardManager boardManager;
@@ -123,7 +123,7 @@ public class Chan
         //Needs to happen before any sites are processed, in case they request archives
         feather.instance(ArchivesManager.class);
 
-        siteService.initialize();
+        siteRepository.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
 

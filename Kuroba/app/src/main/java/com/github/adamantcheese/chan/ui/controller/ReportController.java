@@ -33,7 +33,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ReportController
         extends Controller {

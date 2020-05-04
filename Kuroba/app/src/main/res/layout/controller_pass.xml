@@ -76,7 +76,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/setting_pass_authenticated"
-                android:textColor="?text_color_primary"
                 android:textSize="20sp" />
 
         </com.github.adamantcheese.chan.ui.view.CrossfadeView>
@@ -93,7 +92,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:paddingTop="16dp"
-            android:textColor="?text_color_primary"
             android:textSize="14sp" />
 
     </LinearLayout>

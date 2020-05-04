@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,8 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 public class BoardAddLayout
         extends LinearLayout
@@ -137,7 +135,7 @@ public class BoardAddLayout
 
         @Override
         public SuggestionCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SuggestionCell(AndroidUtils.inflate(parent.getContext(),
+            return new SuggestionCell(LayoutUtils.inflate(parent.getContext(),
                     R.layout.cell_board_suggestion,
                     parent,
                     false
@@ -171,9 +169,6 @@ public class BoardAddLayout
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
             check.setOnCheckedChangeListener(this);
-            check.setButtonTintList(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-            check.setTextColor(ColorStateList.valueOf(ThemeHelper.getTheme().textPrimary));
-
             itemView.setOnClickListener(this);
         }
 

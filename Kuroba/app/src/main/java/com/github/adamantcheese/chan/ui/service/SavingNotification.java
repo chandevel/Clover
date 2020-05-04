@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -38,14 +37,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 public class SavingNotification
         extends Service {
     public static final String DONE_TASKS_KEY = "done_tasks";
+    public static final String FAILED_TASKS_KEY = "failed_tasks";
     public static final String TOTAL_TASKS_KEY = "total_tasks";
     private static final String CANCEL_KEY = "cancel";
 
     private static String NOTIFICATION_ID_STR = "3";
     private int NOTIFICATION_ID = 3;
-
-    private int doneTasks;
-    private int totalTasks;
 
     public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -75,7 +72,6 @@ public class SavingNotification
         getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
-    @SuppressLint("NewApi")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //start with a blank notification, to ensure it is made within 5 seconds
@@ -87,10 +83,11 @@ public class SavingNotification
                 stopSelf();
                 return START_NOT_STICKY;
             } else {
-                doneTasks = extras.getInt(DONE_TASKS_KEY);
-                totalTasks = extras.getInt(TOTAL_TASKS_KEY);
+                int doneTasks = extras.getInt(DONE_TASKS_KEY);
+                int failedTasks = extras.getInt(FAILED_TASKS_KEY);
+                int totalTasks = extras.getInt(TOTAL_TASKS_KEY);
                 //replace the notification with the generated one
-                startForeground(NOTIFICATION_ID, getNotification());
+                startForeground(NOTIFICATION_ID, getNotification(doneTasks, failedTasks, totalTasks));
                 return START_STICKY;
             }
         }
@@ -98,7 +95,7 @@ public class SavingNotification
         return START_NOT_STICKY;
     }
 
-    private Notification getNotification() {
+    private Notification getNotification(int done, int failed, int total) {
         Intent intent = new Intent(this, SavingNotification.class);
         intent.putExtra(CANCEL_KEY, true);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -107,8 +104,8 @@ public class SavingNotification
         builder.setSmallIcon(R.drawable.ic_stat_notify)
                 .setContentTitle(getString(R.string.image_save_notification_downloading))
                 .setContentText(getString(R.string.image_save_notification_cancel))
-                .setProgress(totalTasks, doneTasks, false)
-                .setContentInfo(doneTasks + "/" + totalTasks)
+                .setProgress(total, done + failed, false)
+                .setContentInfo(done + "/" + failed + "/" + total)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true);
 

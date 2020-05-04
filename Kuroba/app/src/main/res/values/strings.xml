@@ -195,7 +195,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="thread_view_archive">Archive</string>
     <string name="thread_show_archives">Archives</string>
-    <string name="thread_empty_setup_feature" translatable="false">&#128564;</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
     <string name="thread_empty_setup_hint">Add a site here</string>
@@ -203,8 +202,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
 
     <string name="setup_sites_empty">No sites added</string>
     <string name="setup_sites_add_hint">Add a site here</string>
-    <string name="setup_sites_add_title">Add site</string>
-    <string name="setup_sites_description">Add a site by its URL or name</string>
+    <string name="setup_sites_add_title">Add a site by its URL or name</string>
 
     <string name="setup_sites_site_description">%s added</string>
     <string name="setup_sites_add_boards_hint">Tap to add boards</string>
@@ -257,9 +255,30 @@ If the pattern matches, then the post can be hidden, removed, highlighted, or au
     <i>foo bar</i> will match, but <i>foo</i> will not.<br>
     <br>
     3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
+    You can use Regex101 for more comprehensive explanations of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br>
 </p>
+For country code filtering, troll country codes should be prepended with <tt>t_</tt>. A country code filter automatically implies the case insensitive flag for regex.<br>
 <br>
-Note that for country code filtering, troll country codes should be prepended with "t_". In addition, a country code filter automatically implies the case insensitive flag for regex.
+Actions do the following:<br>
+<b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>
+<b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>
+<b>Remove:</b> Remove this post. It won\'t be visible at all.<br>
+<b>Watch:</b> If you have the thread watcher enabled and background watching on, catalogs will be periodically checked based on your interval setting
+and any OP that matches the filter will be put into your bookmarks. Any catalogs loaded by the you navigating to them from the board select popup will also be checked.<br>
+<br>
+Enabled filters have priority from top to bottom in your list. Filter precedence for actions is as follows:<br>
+<p>
+    1) Capcode or sticky<br>
+    2) OP<br>
+    3) Saved replies (your posts)<br>
+    4) Tripcode<br>
+    5) Name<br>
+    6) Comment<br>
+    7) ID<br>
+    8) Subject<br>
+    9) Country Code<br>
+    10) Filename<br>
+</p>
 ]]>
     </string>
     <string name="filter_tripcode">Tripcode</string>
@@ -558,9 +577,10 @@ Re-enable this permission in the app settings if you permanently disabled it."
     <string name="new_folder_hint">Folder name</string>
     <string name="setting_theme_explanation">
 "Swipe to change the theme.
-Tap the toolbar menu to change its color."
+Tap the toolbar menu to change its color.
+Tap the checkmark button when done."
     </string>
-    <string name="setting_theme_accent">Tap here to change the FAB color.</string>
+    <string name="setting_theme_accent">Tap to change the accent color.</string>
     <string name="settings_open_logs">View logs</string>
     <string name="settings_enable_verbose_logs">Enable verbose logs</string>
     <string name="settings_disable_verbose_logs">Disable verbose logs</string>
@@ -597,13 +617,10 @@ Don't have a 4chan Pass?<br>
     <string name="scale_reduce">Reduce: %1$dx%2$d to %3$dx%4$d (%5$d%%)</string>
     <string name="could_not_decode_image_bitmap">Could not decode image bitmap</string>
     <string name="could_not_apply_image_options">Could not apply new image options (error message is %1$s)</string>
-    <string name="image_options_remove_filename">Remove filename</string>
     <string name="image_options_change_image_checksum">Change image checksum</string>
     <string name="image_options_fix_exif">Fix EXIF orientation</string>
-    <string name="image_options_remove_metadata">Remove metadata</string>
     <string name="image_options_re_encode">Re-encode</string>
-    <string name="reencode_image_re_encode_image_text">Re-encode image</string>
-    <string name="reencode_image_as_is">AS IS (%1$s)</string>
+    <string name="reencode_image_re_encode_image_text">Re-encode %s image</string>
     <string name="reencode_image_as_jpeg">AS JPEG</string>
     <string name="reencode_image_as_png">AS PNG</string>
     <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
@@ -667,7 +684,6 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_remove_site_error_message">Could not remove site %1$s (error message: %2$s)</string>
 
     <string name="reply_comment_empty">Comment body is empty.</string>
-    <string name="image_reencode_format_error">Something is wrong with this file</string>
     <string name="setting_bookmark_short_info">Short bookmark info</string>
     <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
@@ -767,11 +783,10 @@ Don't have a 4chan Pass?<br>
     <string name="settings_captcha_setup_description">Captcha settings are per-site configurable. Tap for site setup.</string>
     <string name="settings_concurrent_file_downloading_name">Concurrent chunked file downloading</string>
     <string name="settings_concurrent_file_downloading_description">Split file downloads into chunks and download them concurrently, when possible; makes loading times shorter when viewing them in the gallery. Determines the number of chunks to split files into.</string>
-    <string name="image_saver_canceled_by_user_message">Canceled by user</string>
-    <string name="image_saver_unknown_location_message">Unknown location</string>
+    <string name="image_saver_canceled_by_user">Canceled by user</string>
+    <string name="image_saver_unknown_location">Unknown location</string>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason: %s</string>
-    <string name="image_saver_no_write_permission_message">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
-    <string name="album_download_batch_image_processed_message">Downloaded %1$d out of %2$d (%3$d failed)</string>
+    <string name="image_saver_no_write_permission">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
     <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
     <string name="setting_image_viewer_gestures">Image Viewer gestures</string>
@@ -784,25 +799,21 @@ Don't have a 4chan Pass?<br>
     <string name="report_controller_report_an_error_problem">Report an error/crash/other problem</string>
     <string name="report_controller_i_have_a_problem_with">I have a problem with:</string>
     <string name="report_controller_problem_description">Problem description:</string>
-    <string name="report_controller_attach_logs">Attach logs (You can remove some parts of them you don\'t want to send):</string>
+    <string name="report_controller_attach_logs">Attach logs (you can remove parts you don\'t want to send)</string>
     <string name="report_controller_no_logs">No logs</string>
-    <string name="report_controller_cancel">Cancel</string>
     <string name="report_controller_send_report">Send report</string>
     <string name="report_controller_title_cannot_be_empty_error">Title cannot be empty!</string>
     <string name="report_controller_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
     <string name="report_controller_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
-    <string name="report_controller_sending_report_message">Sending report…</string>
-    <string name="report_controller_report_sent_message">Sent \;)</string>
+    <string name="report_controller_sending_report">Sending report…</string>
+    <string name="report_controller_report_sent">Sent \;)</string>
     <string name="report_controller_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 
     <string name="hsid_cookie_text">HSID</string>
     <string name="ssid_cookie_text">SSID</string>
     <string name="sid_cookie_text">SID</string>
     <string name="nid_cookie_text">NID</string>
-    <string name="js_captcha_cookies_editor_save_and_apply_text">Save and apply</string>
-    <string name="js_captcha_cookies_editor_make_sure_to_double_check_all_the_parameters_message">Make sure to double check all parameters! (And symbols like periods)</string>
-    <string name="js_captcha_cookies_editor_format_hint_message">Enter the values. No need to prepend them with \"HSID=…\", \"SSID=…\" etc.</string>
-    <string name="js_captcha_cookies_editor_controller_title">JS Captcha cookies editor</string>
+    <string name="js_captcha_cookies_editor_format_hint">Do not prepend values with \"HSID=…\", \"SSID=…\" etc.</string>
     <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
     <string name="settings_js_captcha_cookies_description">By inputting your desktop browser captcha cookies, captcha solving may become easier</string>
     <string name="cookies_editor_bad_cookie">%1$s cookie is not set!</string>
@@ -815,27 +826,27 @@ Don't have a 4chan Pass?<br>
     <string name="settings_collect_crash_logs_description">By enabling this setting, the app will start collecting crash logs. They are NOT uploaded automatically. Crash logs only collect the stacktrace itself, app version and basic OS information. You can review and upload them manually (or delete) by clicking the \"Report\" setting.</string>
     <string name="review_crashlogs_controller_title">Review crash logs</string>
     <string name="settings_report_suggest_sending_logs_title">You have %1$d collected crash logs</string>
-    <string name="settings_report_suggest_sending_logs_message">Would you like to review and maybe send them to developers?</string>
+    <string name="settings_report_suggest_sending_logs">Would you like to review and maybe send them to developers?</string>
     <string name="settings_report_review_button_text">Review crash logs</string>
     <string name="settings_report_review_later_button_text">Review later</string>
     <string name="settings_report_delete_all_crash_logs">Delete all crash logs</string>
     <string name="deleted_n_crashlogs">Deleted %1$d crash log(s)</string>
     <string name="sent_n_crashlogs">Sent %1$d crash log(s)</string>
 
-    <string name="media_settings_base_dir_reset_message">Base directory reset to default</string>
+    <string name="media_settings_base_dir_reset">Base directory reset to default</string>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>
 
     <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
     <string name="could_not_start_saving_no_permissions">Could not start downloading images, no WRITE_ACCESS permission was granted</string>
     <string name="update_manager_copy_apk_title">Copy apk?</string>
-    <string name="update_manager_copy_apk_message">Would you like to store this apk?</string>
+    <string name="update_manager_copy_apk">Would you like to store this apk?</string>
     <string name="update_manager_could_not_convert_uri">Couldn\'t convert uri (%1$s) into an ExternalFile</string>
     <string name="update_manager_input_file_does_not_exist">Input apk file (%1$s) does not exist</string>
     <string name="update_manager_output_file_does_not_exist">Output file (%1$s) does not exist</string>
     <string name="update_manager_could_not_copy_apk">Couldn\'t copy file contents from file (%1$s) into (%2$s)</string>
     <string name="update_manager_apk_copied">Apk successfully copied</string>
     <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
-    <string name="settings_show_copy_apk_dialog_message">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
+    <string name="settings_show_copy_apk_dialog">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
 
     <string name="could_not_initialized_captcha">Couldn\'t initialize captcha, reason: %1$s</string>
     <string name="fail_reason_webview_is_not_installed">WebView is not installed</string>
@@ -856,12 +867,12 @@ Don't have a 4chan Pass?<br>
     <string name="setting_exclusion_zones_actions_dialog_title">Android 10 exclusion zones actions</string>
     <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option.</string>
     <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
-    <string name="setting_exclusion_zones_zone_remove_message">Zone removed. Restart the app for the changes to kick in.</string>
-    <string name="setting_exclusion_zones_zone_added_message">New exclusion zone added. Restart the app for the changes to kick in.</string>
+    <string name="setting_exclusion_zones_zone_removed">Zone removed. Restart the app for the changes to kick in.</string>
+    <string name="setting_exclusion_zones_zone_added">New exclusion zone added. Restart the app for the changes to kick in.</string>
 
     <string name="setting_allow_okhttp_http2">Allow OkHttp to use HTTP/2 protocol</string>
     <string name="setting_allow_okhttp_ipv6">Allow OkHttp to use IPv6</string>
     <string name="setting_allow_okhttp_http2_ipv6_description">Disabling this setting may resolve issues with images not loading whatsoever in some rare cases. Try disabling this setting if images refuse to start loading.</string>
-    
-    <string name="file_has_exif_data">This file has exif data. Consider re-encoding it before posting.</string>
+
+    <string name="file_has_orientation_exif_data">This file has orientation data. Consider re-encoding it before posting.</string>
 </resources>

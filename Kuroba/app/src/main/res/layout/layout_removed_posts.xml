@@ -20,77 +20,56 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:id="@+id/removed_posts_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#88000000"
     android:clickable="true"
-    android:focusable="true"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintLeft_toLeftOf="parent"
-    app:layout_constraintRight_toRightOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    android:focusable="true">
 
-    <com.github.adamantcheese.chan.ui.layout.PostRepliesContainer
+    <com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout
         android:id="@+id/container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="?backcolor"
+        android:background="?backcolor_secondary"
         android:elevation="4dp"
         android:minWidth="320dp"
         android:orientation="vertical"
+        android:padding="4dp"
+        app:maxWidth="600dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="UselessParent">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <androidx.cardview.widget.CardView
+        <ListView
+            android:id="@+id/removed_posts_posts_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:layout_height="340dp"
+            tools:listitem="@layout/cell_post" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/removed_posts_select_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_all" />
+
+            <Space
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:clickable="true"
-                android:focusable="true"
-                android:orientation="vertical">
+                android:layout_weight="1" />
 
-                <ListView
-                    android:id="@+id/removed_posts_posts_list"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:padding="8dp" />
+            <Button
+                android:id="@+id/removed_posts_restore_posts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/restore_posts" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginBottom="16dp">
+        </LinearLayout>
 
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/removed_posts_select_all"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/select_all" />
-
-                    <androidx.appcompat.widget.AppCompatButton
-                        android:id="@+id/removed_posts_restore_posts"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:text="@string/restore_posts" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
-    </com.github.adamantcheese.chan.ui.layout.PostRepliesContainer>
+    </com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -21,6 +21,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
@@ -34,6 +35,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -47,7 +49,9 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -65,12 +69,13 @@ public class ImageSaveTask
     private boolean success = false;
     private SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
 
-    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean isBatchDownload) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean isBatchDownload, boolean share) {
         inject(this);
 
         this.loadable = loadable;
         this.postImage = postImage;
         this.isBatchDownload = isBatchDownload;
+        this.share = share;
         this.imageSaveTaskAsyncResult = SingleSubject.create();
     }
 
@@ -102,11 +107,7 @@ public class ImageSaveTask
         return destination;
     }
 
-    public void setShare(boolean share) {
-        this.share = share;
-    }
-
-    public boolean getShare() {
+    public boolean isShareTask() {
         return share;
     }
 
@@ -179,11 +180,15 @@ public class ImageSaveTask
         success = true;
         if (destination instanceof RawFile) {
             String[] paths = {destination.getFullPath()};
+            final Uri uriForFile = FileProvider.getUriForFile(getAppContext(),
+                    getAppFileProvider(),
+                    new File(destination.getFullPath())
+            );
 
             MediaScannerConnection.scanFile(getAppContext(),
                     paths,
                     null,
-                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> afterScan(uri))
+                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> afterScan(uriForFile))
             );
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
@@ -194,23 +199,27 @@ public class ImageSaveTask
     }
 
     private boolean copyToDestination(RawFile source) {
-        boolean result = false;
-
         try {
-            AbstractFile createdDestinationFile = fileManager.create(destination);
-            if (createdDestinationFile == null) {
-                throw new IOException("Could not create destination file, path = " + destination.getFullPath());
-            }
+            if (share) {
+                // for a shared file, the downloaded file is already in the file cache as a temp file
+                destination = source;
+                return true;
+            } else {
+                AbstractFile createdDestinationFile = fileManager.create(destination);
+                if (createdDestinationFile == null) {
+                    throw new IOException("Could not create destination file, path = " + destination.getFullPath());
+                }
 
-            if (fileManager.isDirectory(createdDestinationFile)) {
-                throw new IOException("Destination file is already a directory");
-            }
+                if (fileManager.isDirectory(createdDestinationFile)) {
+                    throw new IOException("Destination file is already a directory");
+                }
 
-            if (!fileManager.copyFileContents(source, createdDestinationFile)) {
-                throw new IOException("Could not copy source file into destination");
-            }
+                if (!fileManager.copyFileContents(source, createdDestinationFile)) {
+                    throw new IOException("Could not copy source file into destination");
+                }
 
-            result = true;
+                return true;
+            }
         } catch (Throwable e) {
             boolean exists = fileManager.exists(destination);
             boolean canWrite = fileManager.canWrite(destination);
@@ -222,7 +231,7 @@ public class ImageSaveTask
             );
         }
 
-        return result;
+        return false;
     }
 
     private void afterScan(final Uri uri) {

@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setRoundItemBackground;
 
 public class PostStubCell
         extends RelativeLayout
@@ -72,7 +71,6 @@ public class PostStubCell
 
         title = findViewById(R.id.title);
         ImageView options = findViewById(R.id.options);
-        setRoundItemBackground(options);
         divider = findViewById(R.id.divider);
 
         int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());

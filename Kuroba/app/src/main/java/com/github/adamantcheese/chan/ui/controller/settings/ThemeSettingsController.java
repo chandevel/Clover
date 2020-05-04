@@ -17,13 +17,10 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,9 +54,11 @@ import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -74,17 +73,18 @@ import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ThemeSettingsController
-        extends Controller
-        implements View.OnClickListener {
+        extends Controller {
 
     private Board dummyBoard = new Board();
     private Loadable dummyLoadable = Loadable.emptyLoadable();
@@ -159,11 +159,10 @@ public class ThemeSettingsController
 
     private ViewPager pager;
     private FloatingActionButton done;
-    private TextView textView;
 
     private List<Theme> themes;
-    private List<ThemeHelper.PrimaryColor> selectedPrimaryColors = new ArrayList<>();
-    private ThemeHelper.PrimaryColor selectedAccentColor;
+    private MaterialColorStyle currentPrimaryColor;
+    private MaterialColorStyle currentAccentColor;
 
     public ThemeSettingsController(Context context) {
         super(context);
@@ -175,79 +174,91 @@ public class ThemeSettingsController
 
         navigation.setTitle(R.string.settings_screen_theme);
         navigation.swipeable = false;
+        navigation.buildMenu().withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked).build();
         view = inflate(context, R.layout.controller_theme);
 
-        themes = instance(ThemeHelper.class).getThemes();
+        themes = ThemeHelper.getThemes();
+        Theme currentTheme = ThemeHelper.getTheme();
+        // restore these if the user pressed back instead of the default theme color
+        currentPrimaryColor = currentTheme.primaryColor;
+        currentAccentColor = currentTheme.accentColor;
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
-        done.setOnClickListener(this);
+        done.setOnClickListener(v -> saveTheme());
 
-        textView = view.findViewById(R.id.text);
-
-        SpannableString changeAccentColor = new SpannableString(getString(R.string.setting_theme_accent));
-        changeAccentColor.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(View widget) {
-                showAccentColorPicker();
-            }
-        }, 0, changeAccentColor.length(), 0);
-
-        textView.setText(TextUtils.concat(getString(R.string.setting_theme_explanation), "\n", changeAccentColor));
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
-
-        Adapter adapter = new Adapter();
-        pager.setAdapter(adapter);
-
-        ChanSettings.ThemeColor currentSettingsTheme = ChanSettings.getThemeAndColor();
+        pager.setAdapter(new Adapter());
+        pager.setPageMargin(dp(6));
         for (int i = 0; i < themes.size(); i++) {
             Theme theme = themes.get(i);
-            ThemeHelper.PrimaryColor primaryColor = theme.primaryColor;
-
-            if (theme.name.equals(currentSettingsTheme.theme)) {
+            if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
+                break;
             }
-            selectedPrimaryColors.add(primaryColor);
         }
-        selectedAccentColor = ThemeHelper.getTheme().accentColor;
-        done.setBackgroundTintList(ColorStateList.valueOf(selectedAccentColor.color));
     }
 
     @Override
-    public void onClick(View v) {
-        if (v == done) {
-            saveTheme();
-        }
+    public boolean onBack() {
+        ThemeHelper.resetThemes();
+        ThemeHelper.getTheme().primaryColor = currentPrimaryColor;
+        ThemeHelper.getTheme().accentColor = currentAccentColor;
+        return super.onBack();
+    }
+
+    private Theme getViewedTheme() {
+        return themes.get(pager.getCurrentItem());
     }
 
     private void saveTheme() {
-        int currentItem = pager.getCurrentItem();
-        Theme selectedTheme = themes.get(currentItem);
-        ThemeHelper.PrimaryColor selectedColor = selectedPrimaryColors.get(currentItem);
-        instance(ThemeHelper.class).changeTheme(selectedTheme, selectedColor, selectedAccentColor);
+        ChanSettings.theme.setSync(getViewedTheme().toString());
         ((StartActivity) context).restartApp();
+    }
+
+    private void helpClicked(ToolbarMenuItem item) {
+        final AlertDialog dialog = new AlertDialog.Builder(context).setTitle("Help")
+                .setMessage(R.string.setting_theme_explanation)
+                .setPositiveButton("Close", null)
+                .show();
+        dialog.setCanceledOnTouchOutside(true);
     }
 
     private void showAccentColorPicker() {
         List<FloatingMenuItem> items = new ArrayList<>();
         FloatingMenuItem selected = null;
-        for (ThemeHelper.PrimaryColor color : instance(ThemeHelper.class).getColors()) {
-            FloatingMenuItem floatingMenuItem =
-                    new FloatingMenuItem(new ColorsAdapterItem(color, color.color), color.displayName);
+        for (MaterialColorStyle color : MaterialColorStyle.values()) {
+            FloatingMenuItem floatingMenuItem = new FloatingMenuItem(color, color.prettyName());
             items.add(floatingMenuItem);
-            if (color == selectedAccentColor) {
+            if (color == getViewedTheme().accentColor) {
                 selected = floatingMenuItem;
             }
         }
 
-        FloatingMenu menu = getColorsMenu(items, selected, textView);
+        FloatingMenu menu = getColorsMenu(items, selected, done, true);
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                ColorsAdapterItem colorItem = (ColorsAdapterItem) item.getId();
-                selectedAccentColor = colorItem.color;
-                done.setBackgroundTintList(ColorStateList.valueOf(selectedAccentColor.color));
+                MaterialColorStyle color = (MaterialColorStyle) item.getId();
+                for (int i = 0; i < themes.size(); i++) {
+                    Theme theme = themes.get(i);
+                    theme.accentColor = color;
+                }
+                done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(color.accentStyleId,
+                        R.attr.colorAccent
+                )));
+                //forcibly refresh all items
+                Theme currentTheme = getViewedTheme();
+                pager.setAdapter(null);
+                pager.setAdapter(new Adapter());
+                for (int i = 0; i < themes.size(); i++) {
+                    Theme theme = themes.get(i);
+                    if (theme.name.equals(currentTheme.name)) {
+                        // Current theme
+                        pager.setCurrentItem(i, false);
+                        break;
+                    }
+                }
             }
 
             @Override
@@ -259,13 +270,15 @@ public class ThemeSettingsController
         menu.show();
     }
 
-    private FloatingMenu getColorsMenu(List<FloatingMenuItem> items, FloatingMenuItem selected, View anchor) {
+    private FloatingMenu getColorsMenu(
+            List<FloatingMenuItem> items, FloatingMenuItem selected, View anchor, boolean useAccentColors
+    ) {
         FloatingMenu menu = new FloatingMenu(context);
 
         menu.setItems(items);
-        menu.setAdapter(new ColorsAdapter(items));
+        menu.setAdapter(new ColorsAdapter(items, useAccentColors));
         menu.setSelectedItem(selected);
-        menu.setAnchor(anchor, Gravity.CENTER, 0, dp(5));
+        menu.setAnchor(anchor, Gravity.CENTER, 0, 0);
         return menu;
     }
 
@@ -275,15 +288,11 @@ public class ThemeSettingsController
         }
 
         @Override
-        public CharSequence getPageTitle(int position) {
-            return super.getPageTitle(position);
-        }
-
-        @Override
         public View getView(final int position, ViewGroup parent) {
             final Theme theme = themes.get(position);
 
             Context themeContext = new ContextThemeWrapper(context, theme.resValue);
+            themeContext.getTheme().setTo(createTheme(theme));
 
             CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
@@ -295,17 +304,24 @@ public class ThemeSettingsController
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .subject("Lorem ipsum")
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
-                            + "Phasellus consequat semper sodales. Donec dolor lectus, aliquet nec mollis vel, rutrum vel enim.<br>"
-                            + "<span class=\"quote\">&gt;Nam non hendrerit justo, venenatis bibendum arcu.</span>");
+                            + "This text is normally colored.<br>"
+                            + "<span class=\"spoiler\">This text is spoilered.</span><br>"
+                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
+                    .id(9001);
+            builder1.idColor = Color.WHITE;
             Post post1 = postParser.parse(theme, builder1, parserCallback);
             post1.repliesFrom.add(234567890);
 
             Post.Builder builder2 = new Post.Builder().board(dummyBoard)
                     .id(234567890)
                     .opId(123456789)
+                    .name("W.T. Snacks")
+                    .tripcode("!TcT.PTG1.2")
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
-                    .comment("<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a><br>"
-                            + "Lorem ipsum dolor sit amet, consectetur adipiscing elit.")
+                    .comment(
+                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
+                                    + "<a href=\\\"#p111111111\\\" class=\\\"quotelink\\\">&gt;&gt;111111111</a><br>"
+                                    + "This post is highlighted.")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
                             BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
                             .thumbnailUrl(HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
@@ -319,7 +335,7 @@ public class ThemeSettingsController
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.setBackgroundColor(theme.backColor);
+            linearLayout.setBackgroundColor(resolveColor(theme.resValue, R.attr.backcolor));
 
             RecyclerView postsView = new RecyclerView(themeContext);
             LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
@@ -358,38 +374,42 @@ public class ThemeSettingsController
 
                 @Override
                 public void onListStatusClicked() {
+                    showAccentColorPicker();
                 }
             }, theme);
             adapter.setThread(dummyLoadable, posts, false);
+            adapter.highlightPost(post2);
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
+            adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
+            adapter.setMarkedForThemeController(123456789);
             postsView.setAdapter(adapter);
 
             final Toolbar toolbar = new Toolbar(themeContext);
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem> items = new ArrayList<>();
                 FloatingMenuItem selected = null;
-                for (ThemeHelper.PrimaryColor color : instance(ThemeHelper.class).getColors()) {
-                    FloatingMenuItem floatingMenuItem =
-                            new FloatingMenuItem(new ColorsAdapterItem(color, color.color500), color.displayName);
+                for (MaterialColorStyle color : MaterialColorStyle.values()) {
+                    FloatingMenuItem floatingMenuItem = new FloatingMenuItem(color, color.prettyName());
                     items.add(floatingMenuItem);
-                    if (color == selectedPrimaryColors.get(position)) {
+                    if (color == theme.primaryColor) {
                         selected = floatingMenuItem;
                     }
                 }
 
-                FloatingMenu menu = getColorsMenu(items, selected, toolbar);
+                FloatingMenu menu = getColorsMenu(items, selected, toolbar, false);
                 menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                     @Override
                     public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        ColorsAdapterItem colorItem = (ColorsAdapterItem) item.getId();
-                        selectedPrimaryColors.set(position, colorItem.color);
-                        toolbar.setBackgroundColor(colorItem.color.color);
+                        MaterialColorStyle color = (MaterialColorStyle) item.getId();
+                        theme.primaryColor = color;
+                        toolbar.setBackgroundColor(resolveColor(color.primaryColorStyleId, R.attr.colorPrimary));
                     }
 
                     @Override
                     public void onFloatingMenuDismissed(FloatingMenu menu) {
                     }
                 });
+                menu.setPopupHeight(dp(300));
                 menu.show();
             };
             toolbar.setCallback(new Toolbar.ToolbarCallback() {
@@ -406,12 +426,12 @@ public class ThemeSettingsController
                 public void onSearchEntered(NavigationItem item, String entered) {
                 }
             });
-            toolbar.setBackgroundColor(theme.primaryColor.color);
             final NavigationItem item = new NavigationItem();
-            item.title = theme.displayName;
+            item.title = theme.name;
             item.hasBack = false;
             toolbar.setNavigationItem(false, true, item, theme);
             toolbar.setOnClickListener(colorClick);
+            toolbar.setTag(theme.name);
 
             linearLayout.addView(toolbar, new LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height)));
             linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
@@ -425,12 +445,14 @@ public class ThemeSettingsController
         }
     }
 
-    private class ColorsAdapter
+    private static class ColorsAdapter
             extends BaseAdapter {
         private List<FloatingMenuItem> items;
+        private boolean useAccentColors;
 
-        public ColorsAdapter(List<FloatingMenuItem> items) {
+        public ColorsAdapter(List<FloatingMenuItem> items, boolean useAccentColors) {
             this.items = items;
+            this.useAccentColors = useAccentColors;
         }
 
         @Override
@@ -440,13 +462,13 @@ public class ThemeSettingsController
             textView.setText(getItem(position));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
-            ColorsAdapterItem color = (ColorsAdapterItem) items.get(position).getId();
+            MaterialColorStyle color = (MaterialColorStyle) items.get(position).getId();
 
-            textView.setBackgroundColor(color.bg);
-            boolean lightColor =
-                    (Color.red(color.bg) * 0.299f) + (Color.green(color.bg) * 0.587f) + (Color.blue(color.bg) * 0.114f)
-                            > 125f;
-            textView.setTextColor(lightColor ? Color.BLACK : Color.WHITE);
+            int colorForItem = useAccentColors
+                    ? resolveColor(color.accentStyleId, R.attr.colorAccent)
+                    : resolveColor(color.primaryColorStyleId, R.attr.colorPrimary);
+            textView.setBackgroundColor(colorForItem);
+            textView.setTextColor(getContrastColor(colorForItem));
 
             return textView;
         }
@@ -464,16 +486,6 @@ public class ThemeSettingsController
         @Override
         public long getItemId(int position) {
             return position;
-        }
-    }
-
-    private static class ColorsAdapterItem {
-        public ThemeHelper.PrimaryColor color;
-        public int bg;
-
-        public ColorsAdapterItem(ThemeHelper.PrimaryColor color, int bg) {
-            this.color = color;
-            this.bg = bg;
         }
     }
 }

@@ -25,7 +25,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.inflate;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ImageViewerNavigationController
         extends ToolbarNavigationController {
