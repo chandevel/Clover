@@ -497,13 +497,14 @@ public class Post
                 boolean onlyOnOp,
                 boolean filterSaved
         ) {
+            // for any filter effect, or it with any previous filters; the highlighted color will be the last one in the list
             filterHighlightedColor = highlightedColor;
-            filterStub = stub;
-            filterRemove = remove;
-            filterWatch = watch;
-            this.filterReplies = filterReplies;
-            filterOnlyOP = onlyOnOp;
-            this.filterSaved = filterSaved;
+            filterStub = filterStub | stub;
+            filterRemove = filterRemove | remove;
+            filterWatch = filterWatch | watch;
+            this.filterReplies = this.filterReplies | filterReplies;
+            filterOnlyOP = filterOnlyOP | onlyOnOp;
+            this.filterSaved = this.filterSaved | filterSaved;
             return this;
         }
 
