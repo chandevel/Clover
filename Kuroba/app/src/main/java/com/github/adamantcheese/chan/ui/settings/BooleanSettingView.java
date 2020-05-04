@@ -18,8 +18,7 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 import android.widget.CompoundButton;
-
-import androidx.appcompat.widget.SwitchCompat;
+import android.widget.Switch;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.Setting;
@@ -30,7 +29,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class BooleanSettingView
         extends SettingView
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-    private SwitchCompat switcher;
+    private Switch switcher;
     private Setting<Boolean> setting;
     private String description;
     private boolean building = true;

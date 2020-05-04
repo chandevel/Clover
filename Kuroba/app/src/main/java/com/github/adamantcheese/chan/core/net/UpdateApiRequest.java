@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static android.text.Html.FROM_HTML_MODE_LEGACY;
+
 public class UpdateApiRequest
         extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
     public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener, Response.ErrorListener errorListener) {
@@ -90,7 +92,7 @@ public class UpdateApiRequest
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Node updateLog = Parser.builder().build().parse(reader.nextString());
                         response.body =
-                                Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog));
+                                Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog), FROM_HTML_MODE_LEGACY);
                     } else {
                         response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
                                 + " Your Android API is too low to properly render the changelog from the site, as a result of libraries used on the project.");

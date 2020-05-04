@@ -1,7 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 
+import android.app.AlertDialog
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -31,7 +31,7 @@ class SaveLocationSetupDelegate(
         BackgroundUtils.ensureMainThread()
 
         callbacks.runWithWritePermissionsOrShowErrorToast(Runnable {
-            val dialog = AlertDialog.Builder(context)
+            AlertDialog.Builder(context)
                     .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
                     .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
                     .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
@@ -52,8 +52,7 @@ class SaveLocationSetupDelegate(
                         onSaveLocationUseOldApiClicked()
                     }
                     .create()
-
-            dialog.show()
+                    .show()
         })
     }
 

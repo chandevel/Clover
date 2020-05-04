@@ -254,7 +254,7 @@ public class ThreadSaveManager {
     }
 
     public boolean isThereAtLeastOneActiveDownload() {
-        boolean hasActiveDownloads = false;
+        boolean hasActiveDownloads;
 
         synchronized (activeDownloads) {
             hasActiveDownloads = !activeDownloads.isEmpty();

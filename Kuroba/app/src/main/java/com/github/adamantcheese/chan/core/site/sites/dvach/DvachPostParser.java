@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import android.graphics.Color;
-import android.text.SpannableString;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.model.Post;

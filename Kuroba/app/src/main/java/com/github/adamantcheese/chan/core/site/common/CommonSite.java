@@ -219,7 +219,7 @@ public abstract class CommonSite
         return api;
     }
 
-    public abstract class CommonConfig {
+    public abstract static class CommonConfig {
         @CallSuper
         public boolean siteFeature(SiteFeature siteFeature) {
             return siteFeature == SiteFeature.IMAGE_FILE_HASH;
@@ -576,7 +576,7 @@ public abstract class CommonSite
         }
     }
 
-    public abstract class CommonRequestModifier
+    public abstract static class CommonRequestModifier
             implements SiteRequestModifier {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {

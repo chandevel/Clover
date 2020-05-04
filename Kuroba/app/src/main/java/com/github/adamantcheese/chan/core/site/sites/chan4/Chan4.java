@@ -503,9 +503,10 @@ public class Chan4
         return "4chan";
     }
 
+    private final SiteIcon icon = SiteIcon.fromFavicon(HttpUrl.parse("https://s.4cdn.org/image/favicon.ico"));
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromFavicon(HttpUrl.parse("https://s.4cdn.org/image/favicon.ico"));
+        return icon;
     }
 
     @Override

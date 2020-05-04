@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -29,7 +30,6 @@ import android.view.KeyEvent;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -111,8 +112,6 @@ public class StartActivity
     @Inject
     DatabaseManager databaseManager;
     @Inject
-    WatchManager watchManager;
-    @Inject
     SiteResolver siteResolver;
     @Inject
     SiteService siteService;
@@ -160,6 +159,9 @@ public class StartActivity
         if (ChanSettings.fullUserRotationEnable.get()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
+
+        //startup this here, so it runs its whatever in the background
+        instance(FilterWatchManager.class);
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
@@ -216,8 +218,6 @@ public class StartActivity
     }
 
     private boolean restoreFromSavedState(Bundle savedInstanceState) {
-        boolean handled = false;
-
         // Restore the activity state from the previously saved state.
         ChanState chanState = savedInstanceState.getParcelable(STATE_KEY);
         if (chanState == null) {
@@ -226,17 +226,16 @@ public class StartActivity
             Pair<Loadable, Loadable> boardThreadPair = resolveChanState(chanState);
 
             if (boardThreadPair.first != null) {
-                handled = true;
-
                 browseController.setBoard(boardThreadPair.first.board);
 
                 if (boardThreadPair.second != null) {
                     browseController.showThread(boardThreadPair.second, false);
                 }
+                return true;
             }
         }
 
-        return handled;
+        return false;
     }
 
     private Pair<Loadable, Loadable> resolveChanState(ChanState state) {
@@ -319,9 +318,9 @@ public class StartActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
         // Handle WatchNotification clicks
         if (intent.getExtras() != null) {
+            WatchManager watchManager = instance(WatchManager.class);
             int pinId = intent.getExtras().getInt("pin_id", -2);
             if (pinId != -2 && mainNavigationController.getTop() instanceof BrowseController) {
                 if (pinId == -1) {

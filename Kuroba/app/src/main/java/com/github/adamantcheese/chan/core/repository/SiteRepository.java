@@ -257,7 +257,7 @@ public class SiteRepository {
         }
     }
 
-    private class SiteConfigSettingsHolder {
+    private static class SiteConfigSettingsHolder {
         Site site;
         SiteConfig config;
         JsonSettings settings;

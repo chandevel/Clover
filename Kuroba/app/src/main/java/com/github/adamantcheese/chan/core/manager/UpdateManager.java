@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.manager;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -30,7 +31,6 @@ import android.text.TextUtils;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.FileProvider;
 
 import com.android.volley.RequestQueue;

@@ -110,7 +110,7 @@ public class Chan4PagesRequest
         }
     }
 
-    public class Page {
+    public static class Page {
         public final int page;
         public final List<ThreadNoTimeModPair> threads;
 
@@ -120,7 +120,7 @@ public class Chan4PagesRequest
         }
     }
 
-    public class ThreadNoTimeModPair {
+    public static class ThreadNoTimeModPair {
         public final int no;
         public final long modified;
 

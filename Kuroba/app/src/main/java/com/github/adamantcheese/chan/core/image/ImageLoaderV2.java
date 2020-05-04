@@ -104,7 +104,7 @@ public class ImageLoaderV2 {
     ) {
         BackgroundUtils.ensureMainThread();
 
-        ImageLoader.ImageContainer container = null;
+        ImageLoader.ImageContainer container;
 
         try {
             @SuppressWarnings("JavaReflectionMemberAccess")

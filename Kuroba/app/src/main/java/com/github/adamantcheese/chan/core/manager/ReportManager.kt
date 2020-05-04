@@ -10,7 +10,7 @@ import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
-import com.github.adamantcheese.chan.utils.TimeUtils.getCurrentDateAndTimeUTC
+import com.github.adamantcheese.chan.utils.StringUtils.getCurrentDateAndTimeUTC
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.reactivex.Completable
@@ -262,12 +262,12 @@ class ReportManager(
         // Collect and create reports on a background thread because logs may wait quite a lot now
         // and it may lag the UI.
         return Completable.fromAction {
-                    BackgroundUtils.ensureBackgroundThread()
+            BackgroundUtils.ensureBackgroundThread()
 
-                    crashLogs
-                            .mapNotNull { crashLog -> createReportRequest(crashLog) }
-                            .forEach { request -> crashLogSenderQueue.onNext(request) }
-                }
+            crashLogs
+                    .mapNotNull { crashLog -> createReportRequest(crashLog) }
+                    .forEach { request -> crashLogSenderQueue.onNext(request) }
+        }
                 .subscribeOn(senderScheduler)
     }
 

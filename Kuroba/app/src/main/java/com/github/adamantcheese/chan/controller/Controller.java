@@ -184,6 +184,9 @@ public abstract class Controller {
         return false;
     }
 
+    /**
+     * @return true if the back press was handled by the controller, false to pass it on
+     */
     public boolean onBack() {
         for (int i = childControllers.size() - 1; i >= 0; i--) {
             Controller controller = childControllers.get(i);

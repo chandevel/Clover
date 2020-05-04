@@ -7,9 +7,9 @@ import android.view.View
 import android.view.View.inflate
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Button
 import android.widget.RelativeLayout
 import androidx.annotation.RequiresApi
-import androidx.appcompat.widget.AppCompatButton
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.features.gesture_editor.AdjustAndroid10GestureZonesView
@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils.*
 class AdjustAndroid10GestureZonesController(context: Context) : Controller(context) {
     private lateinit var viewRoot: RelativeLayout
     private lateinit var adjustZonesView: AdjustAndroid10GestureZonesView
-    private lateinit var addZoneButton: AppCompatButton
+    private lateinit var addZoneButton: Button
 
     private var presenting = false
     private var attachSide: AttachSide? = null

@@ -36,7 +36,6 @@ import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -392,7 +391,7 @@ public class CommentParser {
         return result;
     }
 
-    public class Link {
+    public static class Link {
         public PostLinkable.Type type;
         public CharSequence key;
         public Object value;

@@ -44,19 +44,6 @@ public class LoadingViewController
     }
 
     /**
-     * Shows a progress bar with percentage in the center (cannot be used with indeterminate)
-     */
-    public void updateProgress(int percent) {
-        if (indeterminate) {
-            return;
-        }
-
-        textView.setVisibility(VISIBLE);
-        progressBar.setVisibility(VISIBLE);
-        textView.setText(String.valueOf(percent > 0 ? percent : "0"));
-    }
-
-    /**
      * Hide a progress bar and instead of percentage any text may be shown
      * (cannot be used with indeterminate)
      */

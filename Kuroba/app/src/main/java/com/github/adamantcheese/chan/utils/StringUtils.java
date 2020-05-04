@@ -7,6 +7,11 @@ import androidx.annotation.Nullable;
 
 import com.vdurmont.emoji.EmojiParser;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.DateTimeFormatterBuilder;
+import org.joda.time.format.ISODateTimeFormat;
+
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +23,14 @@ public class StringUtils {
     private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[]/'\\\\\\s";
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
     private static final String RESERVED_CHARACTERS_FILE = "[" + RESERVED_CHARACTERS + "]";
+
+    private static DateTimeFormatter REPORT_DATE_TIME_PRINTER =
+            new DateTimeFormatterBuilder().append(ISODateTimeFormat.date())
+                    .appendLiteral(' ')
+                    .append(ISODateTimeFormat.hourMinuteSecond())
+                    .appendLiteral(" UTC")
+                    .toFormatter()
+                    .withZoneUTC();
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -139,5 +152,9 @@ public class StringUtils {
                 e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
                         + ": "
         );
+    }
+
+    public static String getCurrentDateAndTimeUTC() {
+        return REPORT_DATE_TIME_PRINTER.print(DateTime.now());
     }
 }

@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -180,16 +180,14 @@ public class ImportExportSettingsController
 
         String fullMessage = String.format("%s %s", messagePartOne, messagePartTwo);
 
-        AlertDialog alertDialog =
-                new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
-                        .setMessage(fullMessage)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> {
-                            dialog.dismiss();
-                            showCreateNewOrOverwriteDialog();
-                        })
-                        .create();
-
-        alertDialog.show();
+        new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
+                .setMessage(fullMessage)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    dialog.dismiss();
+                    showCreateNewOrOverwriteDialog();
+                })
+                .create()
+                .show();
     }
 
     /**
@@ -202,12 +200,11 @@ public class ImportExportSettingsController
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
+        new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
                 .setPositiveButton(positiveButtonId, (dialog, which) -> overwriteExisting())
                 .setNegativeButton(negativeButtonId, (dialog, which) -> createNew())
-                .create();
-
-        alertDialog.show();
+                .create()
+                .show();
     }
 
     /**

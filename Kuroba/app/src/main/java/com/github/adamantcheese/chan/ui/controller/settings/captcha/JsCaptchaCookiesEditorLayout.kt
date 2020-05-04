@@ -1,8 +1,8 @@
 package com.github.adamantcheese.chan.ui.controller.settings.captcha
 
 import android.content.Context
+import android.widget.Button
 import android.widget.FrameLayout
-import androidx.appcompat.widget.AppCompatButton
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -24,8 +24,8 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
     private val ssidCookieEditText: TextInputEditText
     private val sidCookieEditText: TextInputEditText
     private val nidCookieEditText: TextInputEditText
-    private val saveAndApplyButton: AppCompatButton
-    private val resetButton: AppCompatButton
+    private val saveAndApplyButton: Button
+    private val resetButton: Button
 
     init {
         inject(this)
@@ -40,7 +40,7 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
 
             var prevCookiesJar = JsCaptchaCookiesJar.empty()
             try {
-                prevCookiesJar = gson.fromJson<JsCaptchaCookiesJar>(
+                prevCookiesJar = gson.fromJson(
                         ChanSettings.jsCaptchaCookies.get(),
                         JsCaptchaCookiesJar::class.java
                 )
@@ -48,24 +48,21 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
                 showToast(context, R.string.cookies_editor_failed_parse);
             }
 
-            if (prevCookiesJar.hsidCookie.isNotEmpty()) {
-                hsidCookieEditText.setText(prevCookiesJar.hsidCookie)
-            }
-            if (prevCookiesJar.ssidCookie.isNotEmpty()) {
-                ssidCookieEditText.setText(prevCookiesJar.ssidCookie)
-            }
-            if (prevCookiesJar.sidCookie.isNotEmpty()) {
-                sidCookieEditText.setText(prevCookiesJar.sidCookie)
-            }
-            if (prevCookiesJar.nidCookie.isNotEmpty()) {
-                nidCookieEditText.setText(prevCookiesJar.nidCookie)
-            }
+            hsidCookieEditText.setText(prevCookiesJar.hsidCookie)
+            ssidCookieEditText.setText(prevCookiesJar.ssidCookie)
+            sidCookieEditText.setText(prevCookiesJar.sidCookie)
+            nidCookieEditText.setText(prevCookiesJar.nidCookie)
 
             saveAndApplyButton.setOnClickListener {
                 onSaveAndApplyClicked()
             }
             resetButton.setOnClickListener {
-                onResetClicked()
+                hsidCookieEditText.setText("")
+                ssidCookieEditText.setText("")
+                sidCookieEditText.setText("")
+                nidCookieEditText.setText("")
+
+                ChanSettings.jsCaptchaCookies.set(EMPTY_JSON)
             }
         }
     }
@@ -78,41 +75,34 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
         this.callbacks = null
     }
 
-    private fun onResetClicked() {
-        hsidCookieEditText.setText("")
-        ssidCookieEditText.setText("")
-        sidCookieEditText.setText("")
-        nidCookieEditText.setText("")
-
-        ChanSettings.jsCaptchaCookies.set(EMPTY_JSON)
-        callbacks?.onFinished()
-    }
-
     private fun onSaveAndApplyClicked() {
         val hsidCookie = hsidCookieEditText.text?.toString() ?: ""
         val ssidCookie = ssidCookieEditText.text?.toString() ?: ""
         val sidCookie = sidCookieEditText.text?.toString() ?: ""
         val nidCookie = nidCookieEditText.text?.toString() ?: ""
+        var notComplete = false
 
         if (hsidCookie.isEmpty()) {
             hsidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, hsidCookieEditText.hint)
-            return
+            notComplete = true
         }
 
         if (ssidCookie.isEmpty()) {
             ssidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, ssidCookieEditText.hint)
-            return
+            notComplete = true
         }
 
         if (sidCookie.isEmpty()) {
             sidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, sidCookieEditText.hint)
-            return
+            notComplete = true
         }
 
         if (nidCookie.isEmpty()) {
             nidCookieEditText.error = getString(R.string.cookies_editor_bad_cookie, nidCookieEditText.hint)
-            return
+            notComplete = true
         }
+
+        if (notComplete) return
 
         val cookiesJar = JsCaptchaCookiesJar(
                 hsidCookie = hsidCookie,

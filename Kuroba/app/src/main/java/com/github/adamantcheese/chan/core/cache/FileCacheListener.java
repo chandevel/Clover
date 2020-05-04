@@ -65,7 +65,6 @@ public abstract class FileCacheListener {
      * cancel) a download then you probably should override this.
      */
     public void onStop(AbstractFile file) {
-
     }
 
     /**

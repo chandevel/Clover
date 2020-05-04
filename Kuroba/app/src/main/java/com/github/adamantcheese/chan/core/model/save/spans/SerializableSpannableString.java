@@ -44,7 +44,7 @@ public class SerializableSpannableString {
         @SerializedName("span_type")
         private int spanType;
         @SerializedName("span_data")
-        @Expose(serialize = true, deserialize = false)
+        @Expose(deserialize = false)
         @Nullable
         private String spanData;
 

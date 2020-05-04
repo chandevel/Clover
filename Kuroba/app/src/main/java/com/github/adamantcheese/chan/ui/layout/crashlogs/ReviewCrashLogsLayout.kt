@@ -1,9 +1,9 @@
 package com.github.adamantcheese.chan.ui.layout.crashlogs
 
 import android.content.Context
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ListView
-import androidx.appcompat.widget.AppCompatButton
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
@@ -24,8 +24,8 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
     private lateinit var compositeDisposable: CompositeDisposable
     private var callbacks: ReviewCrashLogsLayoutCallbacks? = null
     private val crashLogsList: ListView
-    private val deleteCrashLogsButton: AppCompatButton
-    private val sendCrashLogsButton: AppCompatButton
+    private val deleteCrashLogsButton: Button
+    private val sendCrashLogsButton: Button
 
     init {
         inject(this)

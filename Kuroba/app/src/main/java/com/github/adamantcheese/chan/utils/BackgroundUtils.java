@@ -27,7 +27,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 

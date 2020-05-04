@@ -1,12 +1,12 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -177,8 +177,8 @@ public class ExperimentalSettingsController
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private void onOptionClicked(int selectedIndex) {
-        AttachSide attachSide = null;
-        int orientation = -1;
+        AttachSide attachSide;
+        int orientation;
 
         if (in(selectedIndex, PORTRAIT_ORIENTATION_INDEXES)) {
             orientation = Configuration.ORIENTATION_PORTRAIT;

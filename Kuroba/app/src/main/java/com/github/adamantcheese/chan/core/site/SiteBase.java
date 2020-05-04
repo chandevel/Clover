@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
@@ -135,5 +136,13 @@ public abstract class SiteBase
         public Boards(List<Board> boards) {
             this.boards = boards;
         }
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) return false;
+        // sites are equal if their class names are equal (not classes directly, as those don't have a proper equals implementation)
+        if (!(obj.getClass().getSimpleName().equals(this.getClass().getSimpleName()))) return false;
+        return ((Site) obj).name().equals(this.name());
     }
 }

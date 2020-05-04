@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.di.RepositoryModule;
 import com.github.adamantcheese.chan.core.di.SiteModule;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -127,10 +126,6 @@ public class Chan
         siteService.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
-
-        //create these classes here even if they aren't explicitly used, so they do their background startup tasks
-        //and so that they're available for feather later on for archives/filter watch waking
-        feather.instance(FilterWatchManager.class);
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

@@ -18,8 +18,7 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.widget.CompoundButton;
-
-import androidx.appcompat.widget.SwitchCompat;
+import android.widget.Switch;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -69,7 +68,7 @@ public class WatchSettingsController
 
         crossfadeView.toggle(enabled, false);
 
-        SwitchCompat globalSwitch = new SwitchCompat(context);
+        Switch globalSwitch = new Switch(context);
         globalSwitch.setChecked(enabled);
         globalSwitch.setOnCheckedChangeListener(this);
         navigation.setRightView(globalSwitch);

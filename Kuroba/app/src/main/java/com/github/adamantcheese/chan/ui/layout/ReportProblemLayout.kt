@@ -1,9 +1,9 @@
 package com.github.adamantcheese.chan.ui.layout
 
 import android.content.Context
+import android.widget.Button
+import android.widget.CheckBox
 import android.widget.FrameLayout
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatCheckBox
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.base.ModularResult
@@ -28,9 +28,9 @@ class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProble
 
     private val reportActivityProblemTitle: TextInputEditText
     private val reportActivityProblemDescription: TextInputEditText
-    private val reportActivityAttachLogsButton: AppCompatCheckBox
+    private val reportActivityAttachLogsButton: CheckBox
     private val reportActivityLogsText: TextInputEditText
-    private val reportActivitySendReport: AppCompatButton
+    private val reportActivitySendReport: Button
 
     init {
         inject(this)

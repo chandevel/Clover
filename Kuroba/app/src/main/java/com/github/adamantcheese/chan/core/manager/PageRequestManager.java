@@ -23,7 +23,6 @@ import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.ThreadNoTimeModPair;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Collections;

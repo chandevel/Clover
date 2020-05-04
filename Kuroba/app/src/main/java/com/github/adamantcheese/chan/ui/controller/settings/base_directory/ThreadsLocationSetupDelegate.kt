@@ -1,7 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 
+import android.app.AlertDialog
 import android.content.Context
-import androidx.appcompat.app.AlertDialog
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
@@ -49,29 +49,28 @@ class ThreadsLocationSetupDelegate(
                 return@Runnable
             }
 
-            val alertDialog = AlertDialog.Builder(context)
-                    .setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
-                    .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
-                    .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
-                        presenter.onLocalThreadsLocationUseSAFClicked()
-                    }
-                    .setNeutralButton(R.string.reset) { _, _ ->
-                        presenter.resetLocalThreadsBaseDir()
+            AlertDialog.Builder(context)
+                .setTitle(R.string.media_settings_use_saf_for_local_threads_location_dialog_title)
+                .setMessage(R.string.media_settings_use_saf_for_local_threads_location_dialog_message)
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
+                    presenter.onLocalThreadsLocationUseSAFClicked()
+                }
+                .setNeutralButton(R.string.reset) { _, _ ->
+                    presenter.resetLocalThreadsBaseDir()
 
-                        val defaultBaseDirFile = File(ChanSettings.localThreadLocation.fileApiBaseDir.get())
-                        if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
-                            callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
-                            return@setNeutralButton
-                        }
-
-                        callbacks.onLocalThreadsBaseDirectoryReset()
+                    val defaultBaseDirFile = File(ChanSettings.localThreadLocation.fileApiBaseDir.get())
+                    if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
+                        callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
+                        return@setNeutralButton
                     }
-                    .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
-                        onLocalThreadsLocationUseOldApiClicked()
-                    }
-                    .create()
 
-            alertDialog.show()
+                    callbacks.onLocalThreadsBaseDirectoryReset()
+                }
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
+                    onLocalThreadsLocationUseOldApiClicked()
+                }
+                .create()
+                .show()
         })
     }
 

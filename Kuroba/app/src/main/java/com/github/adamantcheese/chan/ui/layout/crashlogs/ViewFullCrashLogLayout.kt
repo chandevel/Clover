@@ -2,9 +2,9 @@ package com.github.adamantcheese.chan.ui.layout.crashlogs
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.widget.Button
+import android.widget.EditText
 import android.widget.FrameLayout
-import androidx.appcompat.widget.AppCompatButton
-import androidx.appcompat.widget.AppCompatEditText
 import com.github.adamantcheese.chan.R
 
 @SuppressLint("ViewConstructor")
@@ -12,8 +12,8 @@ class ViewFullCrashLogLayout(context: Context, private val crashLog: CrashLog) :
 
     private var callbacks: ViewFullCrashLogLayoutCallbacks? = null
 
-    private val crashLogText: AppCompatEditText
-    private val save: AppCompatButton
+    private val crashLogText: EditText
+    private val save: Button
 
     init {
         inflate(context, R.layout.layout_view_full_crashlog, this).apply {

@@ -178,7 +178,10 @@ public class MultiImageView
         hasContent = false;
         waitForMeasure(this, view -> {
             if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
-                Logger.e(MultiImageView.this, "getWidth() or getHeight() returned 0, or view not laid out, not loading");
+                Logger.e(
+                        MultiImageView.this,
+                        "getWidth() or getHeight() returned 0, or view not laid out, not loading"
+                );
                 return false;
             }
             switch (newMode) {

@@ -5,8 +5,8 @@ import android.view.HapticFeedbackConstants;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -59,7 +59,7 @@ public class CaptchaNoJsV2Adapter
         if (convertView == null) {
             convertView = inflate(parent.getContext(), R.layout.layout_captcha_challenge_image, parent, false);
 
-            AppCompatImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
+            ImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
             ConstraintLayout blueCheckmarkHolder =
                     convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 

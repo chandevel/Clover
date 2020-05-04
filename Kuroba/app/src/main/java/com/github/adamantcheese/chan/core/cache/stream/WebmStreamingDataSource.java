@@ -29,8 +29,8 @@ import java.util.List;
  */
 public class WebmStreamingDataSource
         extends BaseDataSource {
-    class PartialFileCache {
-        class RegionStats {
+    static class PartialFileCache {
+        static class RegionStats {
             final List<Range<Long>> cachedRanges;
             final List<Range<Long>> missingRanges;
 

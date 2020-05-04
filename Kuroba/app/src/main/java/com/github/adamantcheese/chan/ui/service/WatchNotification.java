@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
-import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -138,7 +137,6 @@ public class WatchNotification
         getNotificationManager().cancel(NOTIFICATION_ID);
     }
 
-    @SuppressLint("NewApi")
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         setupChannel();

@@ -21,10 +21,9 @@ import android.content.res.Configuration;
 import android.graphics.PorterDuff;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import androidx.appcompat.widget.AppCompatImageView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -207,7 +206,7 @@ public class SettingsController
     protected void updateSettingNotificationIcon(
             SettingNotificationType settingNotificationType, ViewGroup preferenceView
     ) {
-        AppCompatImageView notificationIcon = preferenceView.findViewById(R.id.setting_notification_icon);
+        ImageView notificationIcon = preferenceView.findViewById(R.id.setting_notification_icon);
         if (notificationIcon == null) return; // no notification icon for this view
 
         updatePaddings(notificationIcon, dp(16), dp(16), -1, -1);

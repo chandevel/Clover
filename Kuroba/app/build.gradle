@@ -128,7 +128,6 @@ android {
             // otherwise the app will not work)
             manifestPlaceholders = [
                     appName              : "Kuroba",
-                    iconLoc              : "@mipmap/ic_launcher",
                     fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
                     devBuild             : false
             ]
@@ -147,7 +146,6 @@ android {
             // The same as in stable flavor
             manifestPlaceholders = [
                     appName              : "Kuroba-dev",
-                    iconLoc              : "@mipmap/ic_launcher",
                     fileProviderAuthority: "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
                     devBuild             : true
             ]
@@ -250,7 +248,7 @@ dependencies {
     implementation 'me.xdrop:fuzzywuzzy:1.2.0'
     implementation 'org.codejargon.feather:feather:1.0'
     implementation 'com.vladsch.flexmark:flexmark:0.61.16'
-    implementation ('com.vdurmont:emoji-java:5.1.1') {
+    implementation('com.vdurmont:emoji-java:5.1.1') {
         exclude group: 'org.json', module: 'json'
     }
     implementation 'io.reactivex.rxjava2:rxjava:2.2.19'

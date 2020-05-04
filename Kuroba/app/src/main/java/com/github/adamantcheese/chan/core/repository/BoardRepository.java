@@ -161,7 +161,7 @@ public class BoardRepository
         savedBoards.notifyObservers();
     }
 
-    public class SitesBoards
+    public static class SitesBoards
             extends Observable {
         private List<SiteBoards> siteBoards = new ArrayList<>();
 
@@ -175,7 +175,7 @@ public class BoardRepository
         }
     }
 
-    public class SiteBoards {
+    public static class SiteBoards {
         public final Site site;
         public final List<Board> boards;
 

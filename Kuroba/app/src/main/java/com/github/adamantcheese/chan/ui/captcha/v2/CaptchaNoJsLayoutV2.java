@@ -26,15 +26,15 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.appcompat.widget.AppCompatTextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -61,9 +61,9 @@ public class CaptchaNoJsLayoutV2
         implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
-    private AppCompatTextView captchaChallengeTitle;
+    private TextView captchaChallengeTitle;
     private GridView captchaImagesGrid;
-    private AppCompatButton captchaVerifyButton;
+    private Button captchaVerifyButton;
 
     private CaptchaNoJsV2Adapter adapter;
     private CaptchaNoJsPresenterV2 presenter;
@@ -98,8 +98,8 @@ public class CaptchaNoJsLayoutV2
         captchaChallengeTitle = view.findViewById(R.id.captcha_layout_v2_title);
         captchaImagesGrid = view.findViewById(R.id.captcha_layout_v2_images_grid);
         captchaVerifyButton = view.findViewById(R.id.captcha_layout_v2_verify_button);
-        AppCompatButton useOldCaptchaButton = view.findViewById(R.id.captcha_layout_v2_use_old_captcha_button);
-        AppCompatButton reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
+        Button useOldCaptchaButton = view.findViewById(R.id.captcha_layout_v2_use_old_captcha_button);
+        Button reloadCaptchaButton = view.findViewById(R.id.captcha_layout_v2_reload_button);
 
         captchaVerifyButton.setOnClickListener(v -> sendVerificationResponse());
         useOldCaptchaButton.setOnClickListener(v -> callback.onFallbackToV1CaptchaView(isAutoReply));

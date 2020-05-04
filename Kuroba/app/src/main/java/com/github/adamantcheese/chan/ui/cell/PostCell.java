@@ -111,7 +111,6 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 public class PostCell
         extends LinearLayout
         implements PostCellInterface {
-    private static final String TAG = "PostCell";
     private static final int COMMENT_MAX_LENGTH_BOARD = 350;
 
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
@@ -122,7 +121,6 @@ public class PostCell
     private TextView comment;
     private FastTextView replies;
     private View repliesAdditionalArea;
-    private ImageView options;
     private View divider;
     private View filterMatchColor;
 
@@ -169,7 +167,7 @@ public class PostCell
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
         repliesAdditionalArea = findViewById(R.id.replies_additional_area);
-        options = findViewById(R.id.options);
+        ImageView options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
@@ -825,7 +823,7 @@ public class PostCell
      * This version is for the {@link FastTextView}.<br>
      * See {@link PostLinkable} for more information.
      */
-    private class PostViewFastMovementMethod
+    private static class PostViewFastMovementMethod
             implements FastTextViewMovementMethod {
         @Override
         public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull MotionEvent event) {
