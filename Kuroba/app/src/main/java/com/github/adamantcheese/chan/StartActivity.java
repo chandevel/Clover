@@ -486,7 +486,7 @@ public class StartActivity
             if (!exitFlag) {
                 showToast(this, R.string.action_confirm_exit);
                 exitFlag = true;
-                BackgroundUtils.runOnMainThread(() -> exitFlag = false, 650);
+                BackgroundUtils.runOnMainThread(() -> exitFlag = false, 750);
             } else {
                 exitFlag = false;
                 StartActivity.super.onBackPressed();

@@ -164,7 +164,7 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="open_link_failed">No applications were found to open this link</string>
     <string name="open_file_picker_failed">No file picker applications were found</string>
     <string name="image_pick_delegate_select_file_picker">Select a file picker to open a file…</string>
-    <string name="action_confirm_exit">Tap back again to exit</string>
+    <string name="action_confirm_exit">Press back twice quickly to exit</string>
 
     <string name="thumbnail_load_failed_network">Error</string>
     <string name="image_preview_failed">Failed to show image</string>
