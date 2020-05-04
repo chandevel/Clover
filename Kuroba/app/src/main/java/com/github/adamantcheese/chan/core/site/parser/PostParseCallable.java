@@ -89,6 +89,7 @@ class PostParseCallable
                         break;
                     case WATCH:
                         post.filter(0, false, false, true, false, true, false);
+                        break;
                 }
             }
         }

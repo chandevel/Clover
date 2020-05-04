@@ -497,7 +497,7 @@ public class Post
                 boolean onlyOnOp,
                 boolean filterSaved
         ) {
-            // for any filter effect, or it with any previous filters; the highlighted color will be the last one in the list
+            // for any filter effect, OR it with any previous filters; the highlighted color will be the last one in the list
             filterHighlightedColor = highlightedColor;
             filterStub = filterStub | stub;
             filterRemove = filterRemove | remove;
