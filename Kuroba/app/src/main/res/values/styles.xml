@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.BaseLight" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
+        <item name="android:navigationBarColor">@color/black</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
         <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
@@ -39,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.BaseDark" parent="Theme.AppCompat.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
+        <item name="android:navigationBarColor">@color/black</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
         <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
@@ -57,6 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="ChanStartup" parent="Chan.Theme.BaseDark">
         <item name="android:statusBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@drawable/ic_splash_screen</item>
     </style>
     <!-- endregion -->

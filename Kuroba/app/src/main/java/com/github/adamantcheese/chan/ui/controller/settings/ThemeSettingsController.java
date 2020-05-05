@@ -182,6 +182,11 @@ public class ThemeSettingsController
         // restore these if the user pressed back instead of the default theme color
         currentPrimaryColor = currentTheme.primaryColor;
         currentAccentColor = currentTheme.accentColor;
+        // setup all themes to contain the current accent color
+        for (int i = 0; i < themes.size(); i++) {
+            Theme theme = themes.get(i);
+            theme.accentColor = currentAccentColor;
+        }
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
