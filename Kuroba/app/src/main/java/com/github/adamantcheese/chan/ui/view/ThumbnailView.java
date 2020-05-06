@@ -62,7 +62,6 @@ public class ThumbnailView
 
     private boolean circular = false;
     private int rounding = 0;
-    private boolean clickable = false;
 
     private boolean calculate;
     private Bitmap bitmap;
@@ -133,6 +132,7 @@ public class ThumbnailView
 
     public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
         animate().cancel();
+        setImageBitmap(null);
         container = instance(ImageLoaderV2.class).getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
     }
 
@@ -146,10 +146,8 @@ public class ThumbnailView
 
     @Override
     public void setClickable(boolean clickable) {
-        super.setClickable(clickable);
-
-        if (clickable != this.clickable) {
-            this.clickable = clickable;
+        if (clickable != isClickable()) {
+            super.setClickable(clickable);
 
             foregroundCalculate = clickable;
             if (clickable) {
@@ -169,6 +167,8 @@ public class ThumbnailView
             }
             requestLayout();
             invalidate();
+        } else {
+            super.setClickable(clickable);
         }
     }
 
