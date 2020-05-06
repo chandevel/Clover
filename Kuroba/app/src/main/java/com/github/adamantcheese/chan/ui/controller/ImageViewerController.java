@@ -304,7 +304,7 @@ public class ImageViewerController
 
             shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false, true);
+            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false, share);
             if (ChanSettings.saveBoardFolder.get()) {
                 String subFolderName;
 
