@@ -396,17 +396,17 @@ public class DrawerAdapter
         }
 
         if (savedThread == null || !savedThread.isFullyDownloaded) {
-            holder.image.setUrl(pin.thumbnailUrl);
+            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
             return;
         }
 
         String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
         if (filename == null || filename.isEmpty()) {
-            holder.image.setUrl(pin.thumbnailUrl);
+            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
             return;
         }
 
-        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(40), dp(40));
+        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(48), dp(48));
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {
