@@ -23,10 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <com.github.adamantcheese.chan.ui.view.ThumbnailView
         android:id="@+id/thumb"
-        android:layout_width="56dp"
+        android:layout_width="48dp"
         android:layout_height="48dp"
         tools:test_bitmap="true"
-        android:padding="4dp" />
+        android:padding="4dp"
+        android:layout_marginLeft="4dp"/>
 
     <TextView
         android:id="@+id/text"
