@@ -115,7 +115,7 @@ public class ThumbnailView
         }
 
         if (container != null) {
-            instance(ImageLoaderV2.class).cancelRequest(container);
+            container.cancelRequest();
             container = null;
             error = false;
             setImageBitmap(null);

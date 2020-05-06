@@ -236,11 +236,6 @@ public class ImageLoaderV2 {
         });
     }
 
-    public void cancelRequest(ImageLoader.ImageContainer container) {
-        BackgroundUtils.ensureMainThread();
-        container.cancelRequest();
-    }
-
     public ImageLoader.ImageContainer get(String requestUrl, ImageListener listener) {
         BackgroundUtils.ensureMainThread();
         return imageLoader.get(requestUrl, listener);

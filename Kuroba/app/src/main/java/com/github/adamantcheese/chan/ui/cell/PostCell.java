@@ -1037,7 +1037,7 @@ public class PostCell
 
         private void cancel() {
             if (request != null) {
-                imageLoaderV2.cancelRequest(request);
+                request.cancelRequest();
                 request = null;
             }
         }

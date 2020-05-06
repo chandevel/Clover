@@ -802,7 +802,7 @@ public class MultiImageView
 
     private void cancelLoad() {
         if (thumbnailRequest != null) {
-            imageLoaderV2.cancelRequest(thumbnailRequest);
+            thumbnailRequest.cancelRequest();
             thumbnailRequest = null;
         }
         if (bigImageRequest != null) {
