@@ -1,34 +1,31 @@
 package com.github.adamantcheese.chan.utils;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class PostUtils {
 
-    @SuppressLint("DefaultLocale")
+    //https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
     public static String getReadableFileSize(long bytes) {
-        //Nice stack overflow copy-paste, but it's been updated to be more correct
-        //https://programming.guide/java/formatting-byte-size-to-human-readable-format.html
-        //@formatter:off
-        String s = bytes < 0 ? "-" : "";
-        long b = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
-        return    (b        ) < 1000L    ? bytes + " B"
-                : (b        ) < 999_950L ? String.format("%s%.1f kB", s, b / 1e3)
-                : (b /= 1000) < 999_950L ? String.format("%s%.1f MB", s, b / 1e3)
-                : (b /= 1000) < 999_950L ? String.format("%s%.1f GB", s, b / 1e3)
-                : (b /= 1000) < 999_950L ? String.format("%s%.1f TB", s, b / 1e3)
-                : (b /= 1000) < 999_950L ? String.format("%s%.1f PB", s, b / 1e3)
-                :                          String.format("%s%.1f EB", s, b / 1e6);
-        //@formatter:on
+        if (-1000 < bytes && bytes < 1000) {
+            return bytes + " B";
+        }
+        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+        while (bytes <= -999_950 || bytes >= 999_950) {
+            bytes /= 1000;
+            ci.next();
+        }
+        return String.format(Locale.ENGLISH, "%.1f %cB", bytes / 1000.0, ci.current());
     }
 
     public static Post findPostById(int id, @Nullable ChanThread thread) {
