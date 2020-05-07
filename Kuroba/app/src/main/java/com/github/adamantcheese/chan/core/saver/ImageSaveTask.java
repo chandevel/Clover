@@ -179,23 +179,16 @@ public class ImageSaveTask
         success = true;
         if (destination instanceof RawFile) {
             String[] paths = {destination.getFullPath()};
-            Uri uriForShare = null;
-            try {
-                // if this file is for sharing, this will return a properly resolved content URI
-                // otherwise it will throw an exception as it is not in the app's directories
-                // so if it is null after this, it's a regular file download and not a share
-                uriForShare = FileProvider.getUriForFile(getAppContext(),
-                        getAppFileProvider(),
-                        new File(destination.getFullPath())
-                );
-            } catch (Exception ignored) {}
-
-            Uri finalUriForShare = uriForShare;
+            //noinspection CodeBlock2Expr
             MediaScannerConnection.scanFile(getAppContext(),
                     paths,
                     null,
-                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> afterScan(
-                            finalUriForShare != null ? finalUriForShare : uri))
+                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> {
+                        afterScan(share ? FileProvider.getUriForFile(getAppContext(),
+                                getAppFileProvider(),
+                                new File(destination.getFullPath())
+                        ) : uri);
+                    })
             );
         } else if (destination instanceof ExternalFile) {
             Uri uri = Uri.parse(destination.getFullPath());
@@ -244,7 +237,7 @@ public class ImageSaveTask
     private void afterScan(final Uri uri) {
         Logger.d(this, "Media scan succeeded: " + uri);
 
-        // can't hurt to double check from the comment above though
+        // can't hurt to double check
         if (share) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("image/*");
