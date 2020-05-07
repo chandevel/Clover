@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -487,6 +488,9 @@ public class ReplyPresenter
                 callback.openMessage(getString(R.string.file_has_orientation_exif_data));
             }
         } catch (Exception ignored) {}
+        if (BitmapUtils.getImageFormat(file) == Bitmap.CompressFormat.WEBP) {
+            callback.openMessage(getString(R.string.file_type_may_not_be_supported));
+        }
         showPreview(name, file);
     }
 

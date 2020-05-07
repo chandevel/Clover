@@ -17,10 +17,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.Random;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
+import static android.graphics.Bitmap.CompressFormat.WEBP;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class BitmapUtils {
@@ -30,8 +32,10 @@ public class BitmapUtils {
     private static final String TEMP_FILE_NAME = "temp_file_name";
     private static final String TEMP_FILE_NAME_WITH_CACHE_DIR = "cache/" + TEMP_FILE_NAME;
 
-    private static final byte[] PNG_HEADER = new byte[]{-119, 80, 78, 71, 13, 10, 26, 10};
-    private static final byte[] JPEG_HEADER = new byte[]{-1, -40};
+    private static final byte[] PNG_HEADER = new byte[]{(byte) 137, 'P', 'N', 'G', '\r', '\n', 26, '\n'};
+    private static final byte[] JPEG_HEADER = new byte[]{(byte) 0xFF, (byte) 0xD8};
+    private static final byte[] WEBP_HEADER1 = new byte[]{'R', 'I', 'F', 'F'};
+    private static final byte[] WEBP_HEADER2 = new byte[]{'W', 'E', 'B', 'P'};
 
     private static final Random random = new Random();
     private static BitmapFactory.Options options = new BitmapFactory.Options();
@@ -46,7 +50,8 @@ public class BitmapUtils {
             @Nullable CompressFormat newFormat
     )
             throws IOException {
-        if (imageOptions.areOptionsInvalid()) throw new IllegalArgumentException("Image options not formatted correctly.");
+        if (imageOptions.areOptionsInvalid())
+            throw new IllegalArgumentException("Image options not formatted correctly.");
         Bitmap bitmap = BitmapFactory.decodeFile(inputBitmapFile.getAbsolutePath(), options);
         Matrix matrix = new Matrix();
 
@@ -164,6 +169,12 @@ public class BitmapUtils {
 
             if (JavaUtils.arrayPrefixedWith(header, JPEG_HEADER)) {
                 return JPEG;
+            }
+
+            if (JavaUtils.arrayPrefixedWith(header, WEBP_HEADER1)) {
+                if (JavaUtils.arrayPrefixedWith(Arrays.copyOfRange(header, 8, 16), WEBP_HEADER2)) {
+                    return WEBP;
+                }
             }
 
             return null;

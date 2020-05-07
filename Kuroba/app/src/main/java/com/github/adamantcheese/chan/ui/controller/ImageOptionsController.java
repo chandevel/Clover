@@ -186,7 +186,7 @@ public class ImageOptionsController
         ok.setOnClickListener(this);
         radioGroup.setOnCheckedChangeListener(this);
 
-        radioGroup.check(imageFormat == JPEG ? R.id.reencode_image_as_jpeg : R.id.reencode_image_as_png);
+        radioGroup.check(imageFormat == PNG ? R.id.reencode_image_as_png : R.id.reencode_image_as_jpeg);
 
         quality.setOnSeekBarChangeListener(listener);
         reduce.setOnSeekBarChangeListener(listener);
