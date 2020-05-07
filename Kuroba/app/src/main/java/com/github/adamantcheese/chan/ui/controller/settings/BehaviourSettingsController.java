@@ -153,7 +153,7 @@ public class BehaviourSettingsController
                     0
             ));
 
-            post.add(new BooleanSettingView(this, ChanSettings.tapNoReply, R.string.setting_tap_no_rely, 0));
+            post.add(new BooleanSettingView(this, ChanSettings.tapDetailsReply, R.string.setting_tap_details_reply, 0));
 
             post.add(new BooleanSettingView(this,
                     ChanSettings.enableLongPressURLCopy,

@@ -71,7 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingTop="8dp"
             android:paddingRight="8dp" />
 
-        <com.github.adamantcheese.chan.ui.text.FastTextView
+        <TextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -79,7 +79,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="8dp"
             android:paddingTop="8dp"
             android:paddingRight="8dp"
-            app:textColor="?android:textColorPrimary"
             tools:text="@string/lorem_ipsum" />
 
         <TextView

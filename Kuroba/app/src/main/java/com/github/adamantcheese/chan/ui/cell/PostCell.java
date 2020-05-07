@@ -32,7 +32,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -69,8 +68,6 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.text.FastTextView;
-import com.github.adamantcheese.chan.ui.text.FastTextViewMovementMethod;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -99,7 +96,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
@@ -115,10 +111,10 @@ public class PostCell
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
 
     private RelativeLayout relativeLayoutContainer;
-    private FastTextView title;
+    private TextView title;
     private PostIcons icons;
     private TextView comment;
-    private FastTextView replies;
+    private TextView replies;
     private View repliesAdditionalArea;
     private View divider;
     private View filterMatchColor;
@@ -142,7 +138,6 @@ public class PostCell
     private GestureDetector gestureDetector;
 
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
-    private PostViewFastMovementMethod titleMovementMethod = new PostViewFastMovementMethod();
 
     public PostCell(Context context) {
         super(context);
@@ -386,10 +381,6 @@ public class PostCell
         date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
-        if (ChanSettings.tapNoReply.get()) {
-            date.setSpan(new PostNumberClickableSpan(), 0, noText.length(), 0);
-        }
-
         titleParts.add(date);
 
         for (PostImage image : post.images) {
@@ -513,8 +504,11 @@ public class PostCell
             // And this sets clickable to appropriate values again.
             comment.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 
-            if (ChanSettings.tapNoReply.get()) {
-                title.setMovementMethod(titleMovementMethod);
+            if (ChanSettings.tapDetailsReply.get()) {
+                title.setOnTouchListener((v, event) -> {
+                    callback.onPostNoClicked(post);
+                    return true;
+                });
             }
         } else {
             comment.setText(commentText);
@@ -676,6 +670,9 @@ public class PostCell
     private void unbindPost(Post post) {
         bound = false;
         icons.cancelRequests();
+        if (ChanSettings.tapDetailsReply.get()) {
+            title.setOnTouchListener(null);
+        }
         for (PostImageThumbnailView view : thumbnailViews) {
             view.setPostImage(loadable, null, false, 0, 0);
         }
@@ -806,62 +803,6 @@ public class PostCell
         }
     }
 
-    /**
-     * A MovementMethod that searches for PostLinkables.<br>
-     * This version is for the {@link FastTextView}.<br>
-     * See {@link PostLinkable} for more information.
-     */
-    private static class PostViewFastMovementMethod
-            implements FastTextViewMovementMethod {
-        @Override
-        public boolean onTouchEvent(@NonNull FastTextView widget, @NonNull Spanned buffer, @NonNull MotionEvent event) {
-            int action = event.getActionMasked();
-
-            if (action == MotionEvent.ACTION_UP) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-
-                x -= widget.getPaddingLeft();
-                y -= widget.getPaddingTop();
-
-                x += widget.getScrollX();
-                y += widget.getScrollY();
-
-                Layout layout = widget.getLayout();
-                int line = layout.getLineForVertical(y);
-                int off = layout.getOffsetForHorizontal(line, x);
-
-                ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
-
-                if (link.length != 0) {
-                    link[0].onClick(widget);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-    }
-
-    private class PostNumberClickableSpan
-            extends ClickableSpan {
-        @Override
-        public void onClick(View widget) {
-            callback.onPostNoClicked(post);
-        }
-
-        @Override
-        public void updateDrawState(TextPaint ds) {
-            ds.setUnderlineText(false);
-        }
-    }
-
-    private static Bitmap stickyIcon = BitmapFactory.decodeResource(getRes(), R.drawable.sticky_icon);
-    private static Bitmap closedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.closed_icon);
-    private static Bitmap trashIcon = BitmapFactory.decodeResource(getRes(), R.drawable.trash_icon);
-    private static Bitmap archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
-    private static Bitmap errorIcon = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
-
     public static class PostIcons
             extends View {
         private static final int STICKY = 0x1;
@@ -869,6 +810,11 @@ public class PostCell
         private static final int DELETED = 0x4;
         private static final int ARCHIVED = 0x8;
         private static final int HTTP_ICONS = 0x10;
+
+        private Bitmap stickyIcon;
+        private Bitmap closedIcon;
+        private Bitmap trashIcon;
+        private Bitmap archivedIcon;
 
         private int height;
         private int spacing;
@@ -897,6 +843,11 @@ public class PostCell
 
             textPaint.setTypeface(Typeface.create((String) null, Typeface.ITALIC));
             setVisibility(GONE);
+
+            stickyIcon = BitmapFactory.decodeResource(getResources(), R.drawable.sticky_icon);
+            closedIcon = BitmapFactory.decodeResource(getResources(), R.drawable.closed_icon);
+            trashIcon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
+            archivedIcon = BitmapFactory.decodeResource(getResources(), R.drawable.archived_icon);
         }
 
         public void setHeight(int height) {
@@ -1023,12 +974,14 @@ public class PostCell
         private ImageContainer request;
         private Bitmap bitmap;
         private ImageLoaderV2 imageLoaderV2;
+        private Bitmap errorBitmap;
 
         private PostIconsHttpIcon(PostIcons postIcons, String name, HttpUrl url) {
             this.postIcons = postIcons;
             this.name = name;
             this.url = url;
             this.imageLoaderV2 = instance(ImageLoaderV2.class);
+            errorBitmap = BitmapFactory.decodeResource(postIcons.getResources(), R.drawable.error_icon);
         }
 
         private void request() {
@@ -1052,7 +1005,7 @@ public class PostCell
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            bitmap = errorIcon;
+            bitmap = errorBitmap;
             postIcons.invalidate();
         }
     }

@@ -440,13 +440,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
     <!-- endregion -->
 
-    <declare-styleable name="FastTextView">
-        <attr name="textColor" format="color" />
-        <attr name="textSize" format="dimension" />
-        <attr name="singleLine" format="boolean" />
-        <attr name="text" format="string" />
-    </declare-styleable>
-
     <declare-styleable name="MaxWidthLinearLayout">
         <attr name="maxWidth" format="dimension" />
     </declare-styleable>

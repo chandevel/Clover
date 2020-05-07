@@ -32,7 +32,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
-import com.github.adamantcheese.chan.ui.text.FastTextView;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -59,7 +58,7 @@ public class CardPostCell
 
     private PostImageThumbnailView thumbView;
     private TextView title;
-    private FastTextView comment;
+    private TextView comment;
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;

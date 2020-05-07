@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.cell.PostCell xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/post_cell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    tools:background="?backcolor"
     tools:ignore="RtlSymmetry,NotSibling">
 
     <View
@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         tools:ignore="UnknownIdInLayout">
 
-        <com.github.adamantcheese.chan.ui.text.FastTextView
+        <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,7 +66,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_toRightOf="@+id/thumbnail_view"
             tools:text="@string/lorem_ipsum" />
 
-        <com.github.adamantcheese.chan.ui.text.FastTextView
+        <TextView
             android:id="@+id/replies"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -74,8 +74,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/comment"
             android:layout_toRightOf="@+id/thumbnail_view"
             android:background="@drawable/ripple_item_background"
-            app:singleLine="true"
-            app:textColor="?android:textColorSecondary"
+            android:singleLine="true"
+            android:textColor="?android:textColorSecondary"
             tools:text="2 replies" />
 
         <View
