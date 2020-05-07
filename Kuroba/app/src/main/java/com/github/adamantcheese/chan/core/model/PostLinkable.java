@@ -84,7 +84,8 @@ public class PostLinkable
             ds.setColor(ds.linkColor);
             ds.setUnderlineText(true);
             if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
-                ds.setColor(ColorUtils.blendARGB(ds.linkColor, markedColorBlend, 0.15f));
+                // Theme styling notes: There is a helper PSD in the docs directory that may help you adjust this blend ratio, if needed
+                ds.setColor(ColorUtils.blendARGB(ds.linkColor, markedColorBlend, 0.30f));
             }
         } else {
             ds.bgColor = spoilerColor;
