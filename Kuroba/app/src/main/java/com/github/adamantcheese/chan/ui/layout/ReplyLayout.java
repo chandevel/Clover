@@ -169,6 +169,7 @@ public class ReplyLayout
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         EventBus.getDefault().register(this);
+        captchaHolder.addListener(this);
     }
 
     @Override
@@ -181,6 +182,7 @@ public class ReplyLayout
         }
 
         EventBus.getDefault().unregister(this);
+        captchaHolder.removeListener(this);
     }
 
     @Override
@@ -265,8 +267,6 @@ public class ReplyLayout
         captchaContainer.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         captchaHardReset.setOnClickListener(this);
-
-        captchaHolder.setListener(this);
 
         setView(replyInputLayout);
 
@@ -464,9 +464,7 @@ public class ReplyLayout
             case LOADING:
                 setWrappingMode(false);
                 setView(progressLayout);
-
-                //reset progress to 0 upon uploading start
-                currentProgress.setVisibility(INVISIBLE);
+                onUploadingProgress(0);
                 break;
             case INPUT:
                 setView(replyInputLayout);
@@ -915,23 +913,13 @@ public class ReplyLayout
 
     @Override
     public void onUploadingProgress(int percent) {
-        if (currentProgress != null) {
-            if (percent >= 0) {
-                currentProgress.setVisibility(VISIBLE);
-            }
-
-            currentProgress.setText(String.valueOf(percent));
-        }
+        currentProgress.setVisibility(percent > 0 ? VISIBLE : INVISIBLE);
+        currentProgress.setText(String.valueOf(percent));
     }
 
     @Override
     public void onCaptchaCountChanged(int validCaptchaCount) {
-        if (validCaptchaCount == 0) {
-            validCaptchasCount.setVisibility(GONE);
-        } else {
-            validCaptchasCount.setVisibility(VISIBLE);
-        }
-
+        validCaptchasCount.setVisibility(validCaptchaCount == 0 ? GONE : VISIBLE);
         validCaptchasCount.setText(String.valueOf(validCaptchaCount));
     }
 

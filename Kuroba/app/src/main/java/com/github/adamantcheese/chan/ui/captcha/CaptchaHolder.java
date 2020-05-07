@@ -22,14 +22,17 @@ public class CaptchaHolder {
 
     private Timer timer;
 
-    @Nullable
-    private CaptchaValidationListener captchaValidationListener;
+    private List<CaptchaValidationListener> captchaValidationListeners = new ArrayList<>();
 
     @GuardedBy("itself")
     private final List<CaptchaInfo> captchaQueue = new ArrayList<>();
 
-    public void setListener(CaptchaValidationListener listener) {
-        captchaValidationListener = listener;
+    public void addListener(CaptchaValidationListener listener) {
+        captchaValidationListeners.add(listener);
+    }
+
+    public void removeListener(CaptchaValidationListener listener) {
+        captchaValidationListeners.remove(listener);
     }
 
     public void addNewToken(String token, long tokenLifetime) {
@@ -40,7 +43,7 @@ public class CaptchaHolder {
             Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token));
         }
 
-        notifyListener();
+        notifyListeners();
         startTimer();
     }
 
@@ -73,7 +76,7 @@ public class CaptchaHolder {
             captchaQueue.remove(lastIndex);
             Logger.d(this, "getToken() token = " + trimToken(token));
 
-            notifyListener();
+            notifyListeners();
             return token;
         }
     }
@@ -122,14 +125,14 @@ public class CaptchaHolder {
         }
 
         if (captchasCountDecreased) {
-            notifyListener();
+            notifyListeners();
         }
     }
 
-    private void notifyListener() {
+    private void notifyListeners() {
         synchronized (captchaQueue) {
-            if (captchaValidationListener != null) {
-                captchaValidationListener.onCaptchaCountChanged(captchaQueue.size());
+            for (CaptchaValidationListener listener : captchaValidationListeners) {
+                listener.onCaptchaCountChanged(captchaQueue.size());
             }
         }
     }
