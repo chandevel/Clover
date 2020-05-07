@@ -701,7 +701,7 @@ public class ThreadPresenter implements
                     .append(" \nDimensions: ")
                     .append(image.imageWidth).append("x").append(image.imageHeight)
                     .append("\nSize: ")
-                    .append(AndroidUtils.getReadableFileSize(image.size, false));
+                    .append(AndroidUtils.getReadableFileSize(image.size));
 
             if (image.spoiler) {
                 text.append("\nSpoilered");
