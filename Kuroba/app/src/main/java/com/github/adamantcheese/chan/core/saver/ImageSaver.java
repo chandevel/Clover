@@ -340,7 +340,7 @@ public class ImageSaver {
             if (totalTasks.get() == 0) {
                 cancellableToast.showToast(getAppContext(), getText(task, wasAlbumSave), Toast.LENGTH_LONG);
             }
-        } else if (result == Canceled) {
+        } else if (result == Canceled && totalTasks.get() == 0) {
             cancellableToast.showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
         }
     }
@@ -406,8 +406,8 @@ public class ImageSaver {
             activeDownloads.clear();
         }
 
-        onBatchCompleted();
         cancellableToast.showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
+        onBatchCompleted();
     }
 
     private void updateNotification() {

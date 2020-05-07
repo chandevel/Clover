@@ -75,10 +75,10 @@ public class SavingNotification
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         //start with a blank notification, to ensure it is made within 5 seconds
-        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
             if (extras.getBoolean(CANCEL_KEY)) {
+                startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
                 postToEventBus(new SavingCancelRequestMessage());
                 stopSelf();
                 return START_NOT_STICKY;
