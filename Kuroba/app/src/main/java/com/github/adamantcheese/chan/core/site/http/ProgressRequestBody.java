@@ -32,9 +32,6 @@ public class ProgressRequestBody
     protected ProgressRequestListener listener;
     protected ProgressSink progressSink;
 
-    private static final int maxPercent = 100;
-    private static final int percentStep = 2;
-
     public ProgressRequestBody(RequestBody delegate, ProgressRequestListener listener) {
         this.delegate = delegate;
         this.listener = listener;
@@ -84,9 +81,9 @@ public class ProgressRequestBody
 
             bytesWritten += byteCount;
             if (contentLength() > 0) {
-                int percent = (int) (maxPercent * bytesWritten / contentLength());
+                int percent = (int) (100 * bytesWritten / contentLength());
 
-                if (percent - lastPercent >= percentStep) {
+                if (percent - lastPercent >= 1) { // 1% increments
                     lastPercent = percent;
                     listener.onRequestProgress(percent);
                 }

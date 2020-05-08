@@ -203,7 +203,7 @@ internal class ChunkPersister(
         val notifySize = if (chunkSize <= 0) {
             FileDownloader.BUFFER_SIZE
         } else {
-            chunkSize / 10
+            chunkSize / 100 // 1% increments
         }
 
         try {
