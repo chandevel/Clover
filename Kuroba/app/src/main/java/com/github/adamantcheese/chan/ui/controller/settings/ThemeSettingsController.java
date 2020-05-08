@@ -182,11 +182,6 @@ public class ThemeSettingsController
         // restore these if the user pressed back instead of the default theme color
         currentPrimaryColor = currentTheme.primaryColor;
         currentAccentColor = currentTheme.accentColor;
-        // setup all themes to contain the current accent color
-        for (int i = 0; i < themes.size(); i++) {
-            Theme theme = themes.get(i);
-            theme.accentColor = currentAccentColor;
-        }
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
@@ -202,6 +197,23 @@ public class ThemeSettingsController
                 break;
             }
         }
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                Theme currentTheme = getViewedTheme();
+                done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(currentTheme.accentColor.accentStyleId,
+                        R.attr.colorAccent
+                )));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
     }
 
     @Override
@@ -244,26 +256,11 @@ public class ThemeSettingsController
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                MaterialColorStyle color = (MaterialColorStyle) item.getId();
-                for (int i = 0; i < themes.size(); i++) {
-                    Theme theme = themes.get(i);
-                    theme.accentColor = color;
-                }
-                done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(color.accentStyleId,
+                Theme currentTheme = getViewedTheme();
+                currentTheme.accentColor = (MaterialColorStyle) item.getId();
+                done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
-                //forcibly refresh all items
-                Theme currentTheme = getViewedTheme();
-                pager.setAdapter(null);
-                pager.setAdapter(new Adapter());
-                for (int i = 0; i < themes.size(); i++) {
-                    Theme theme = themes.get(i);
-                    if (theme.name.equals(currentTheme.name)) {
-                        // Current theme
-                        pager.setCurrentItem(i, false);
-                        break;
-                    }
-                }
             }
 
             @Override
