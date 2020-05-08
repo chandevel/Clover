@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
+import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
@@ -32,7 +33,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.ExternalFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -43,14 +43,15 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.subjects.SingleSubject;
-import kotlin.NotImplementedError;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageSaveTask
         extends FileCacheListener {
@@ -177,32 +178,35 @@ public class ImageSaveTask
 
     private void onDestination() {
         success = true;
-        if (destination instanceof RawFile) {
-            String[] paths = {destination.getFullPath()};
-            //noinspection CodeBlock2Expr
-            MediaScannerConnection.scanFile(getAppContext(),
-                    paths,
-                    null,
-                    (path, uri) -> BackgroundUtils.runOnMainThread(() -> {
-                        afterScan(share ? FileProvider.getUriForFile(getAppContext(),
-                                getAppFileProvider(),
-                                new File(destination.getFullPath())
-                        ) : uri);
-                    })
-            );
-        } else if (destination instanceof ExternalFile) {
-            Uri uri = Uri.parse(destination.getFullPath());
-            BackgroundUtils.runOnMainThread(() -> afterScan(uri));
-        } else {
-            throw new NotImplementedError("Not implemented for " + destination.getClass().getName());
+        if (share) {
+            try {
+                Uri file = FileProvider.getUriForFile(getAppContext(),
+                        getAppFileProvider(),
+                        new File(destination.getFullPath())
+                );
+
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setType("image/*");
+                intent.putExtra(Intent.EXTRA_STREAM, file);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                openIntent(intent);
+            } catch (Exception e) {
+                showToast(getAppContext(), "Failed to share file.");
+            }
+            return;
         }
+
+        try {
+            String[] paths = {destination.getFullPath()};
+            MediaScannerConnection.scanFile(getAppContext(), paths, null, null);
+        } catch (Exception ignored) {}
     }
 
     private boolean copyToDestination(RawFile source) {
         try {
             if (share) {
-                // for a shared file, the downloaded file is already in the file cache as a temp file
-                destination = source;
+                destination =
+                        instance(CacheHandler.class).renameCacheFile(source, postImage.filename, postImage.extension);
                 return true;
             } else {
                 AbstractFile createdDestinationFile = fileManager.create(destination);
@@ -232,17 +236,5 @@ public class ImageSaveTask
         }
 
         return false;
-    }
-
-    private void afterScan(final Uri uri) {
-        Logger.d(this, "Media scan succeeded: " + uri);
-
-        // can't hurt to double check
-        if (share) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("image/*");
-            intent.putExtra(Intent.EXTRA_STREAM, uri);
-            openIntent(intent);
-        }
     }
 }

@@ -18,10 +18,13 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
 import android.text.TextUtils
-import com.github.adamantcheese.chan.utils.*
+import com.github.adamantcheese.chan.utils.AndroidUtils
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
 import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
 import com.github.adamantcheese.chan.utils.JavaUtils.stringMD5hash
+import com.github.adamantcheese.chan.utils.Logger
+import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
@@ -561,6 +564,19 @@ class CacheHandler(
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
+    /**
+    Be aware that currentCacheFile will no longer exist after this operation
+     */
+    fun renameCacheFile(currentCacheFile: RawFile, fileName: String, fileExt: String): RawFile {
+        createDirectories()
+
+        val createdFile = cacheDirFile.clone(FileSegment("$fileName.$fileExt"))
+        fileManager.create(createdFile)
+        fileManager.copyFileContents(currentCacheFile, createdFile)
+        fileManager.delete(currentCacheFile)
+        return createdFile as RawFile
+    }
+
     private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: String): RawFile {
         createDirectories()
 
@@ -593,23 +609,11 @@ class CacheHandler(
     }
 
     private fun formatCacheFileName(originalFileName: String): String {
-        return String.format(
-                Locale.ENGLISH,
-                CACHE_FILE_NAME_FORMAT,
-                originalFileName,
-                // AbstractFile expects all file names to have extensions
-                CACHE_EXTENSION
-        )
+        return "$originalFileName.$CACHE_EXTENSION"
     }
 
     private fun formatCacheFileMetaName(originalFileName: String): String {
-        return String.format(
-                Locale.ENGLISH,
-                CACHE_FILE_NAME_FORMAT,
-                originalFileName,
-                // AbstractFile expects all file names to have extensions
-                CACHE_META_EXTENSION
-        )
+        return "$originalFileName.$CACHE_META_EXTENSION"
     }
 
     private fun createDirectories() {
@@ -907,7 +911,6 @@ class CacheHandler(
         // ever gets
         private const val MAX_CACHE_META_SIZE = 1024L
 
-        private const val CACHE_FILE_NAME_FORMAT = "%s.%s"
         private const val CHUNK_CACHE_FILE_NAME_FORMAT = "%s_%d_%d.%s"
         private const val CACHE_FILE_META_CONTENT_FORMAT = "%d,%b"
         internal const val CACHE_EXTENSION = "cache"
