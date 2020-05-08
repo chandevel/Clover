@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
+            android:background="@drawable/ripple_item_background"
             tools:text="Title for the thread"
             tools:textColor="?post_details_color" />
 

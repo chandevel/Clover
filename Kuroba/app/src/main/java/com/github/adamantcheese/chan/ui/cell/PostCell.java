@@ -135,7 +135,8 @@ public class PostCell
     private int markedNo;
     private boolean showDivider;
 
-    private GestureDetector gestureDetector;
+    private GestureDetector doubleTapComment;
+    private GestureDetector doubleTapDetails;
 
     private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
@@ -218,7 +219,8 @@ public class PostCell
             }
         });
 
-        gestureDetector = new GestureDetector(getContext(), new DoubleTapGestureListener());
+        doubleTapComment = new GestureDetector(getContext(), new DoubleTapCommentGestureListener());
+        doubleTapDetails = new GestureDetector(getContext(), new DoubleTapDetailsGestureListener());
     }
 
     private void showOptions(
@@ -295,7 +297,10 @@ public class PostCell
         bindPost(theme, post);
 
         if (inPopup) {
-            setOnTouchListener((v, ev) -> gestureDetector.onTouchEvent(ev));
+            setOnTouchListener((v, ev) -> doubleTapComment.onTouchEvent(ev));
+            title.setOnTouchListener(null);
+            title.setClickable(false);
+            title.setBackgroundResource(0);
         }
     }
 
@@ -502,14 +507,10 @@ public class PostCell
             comment.setMovementMethod(commentMovementMethod);
 
             // And this sets clickable to appropriate values again.
-            comment.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+            comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
 
-            if (ChanSettings.tapDetailsReply.get()) {
-                title.setOnTouchListener((v, event) -> {
-                    callback.onPostNoClicked(post);
-                    return true;
-                });
-            }
+            title.setOnTouchListener((v, event) -> doubleTapDetails.onTouchEvent(event));
+            title.setClickable(true);
         } else {
             comment.setText(commentText);
             comment.setOnTouchListener(null);
@@ -518,7 +519,9 @@ public class PostCell
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);
 
-            title.setMovementMethod(null);
+            title.setBackgroundResource(0);
+            title.setOnTouchListener(null);
+            title.setClickable(false);
         }
 
         int repliesFromSize;
@@ -670,9 +673,10 @@ public class PostCell
     private void unbindPost(Post post) {
         bound = false;
         icons.cancelRequests();
-        if (ChanSettings.tapDetailsReply.get()) {
-            title.setOnTouchListener(null);
-        }
+        title.setOnTouchListener(null);
+        comment.setOnTouchListener(null);
+        title.setClickable(false);
+        comment.setMovementMethod(null);
         for (PostImageThumbnailView view : thumbnailViews) {
             view.setPostImage(loadable, null, false, 0, 0);
         }
@@ -1010,11 +1014,20 @@ public class PostCell
         }
     }
 
-    private class DoubleTapGestureListener
+    private class DoubleTapCommentGestureListener
             extends GestureDetector.SimpleOnGestureListener {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             callback.onPostDoubleClicked(post);
+            return true;
+        }
+    }
+
+    private class DoubleTapDetailsGestureListener
+            extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            callback.onPostNoClicked(post);
             return true;
         }
     }
