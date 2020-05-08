@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="themeDrawableColor" format="color" />
     <attr name="highlight_divider_color" format="color" />
 
-    <attr name="backcolor" format="color" />
-    <attr name="backcolor_secondary" format="color" />
+    <attr name="backcolor" format="reference|color" />
+    <attr name="backcolor_secondary" format="reference|color" />
 
     <attr name="post_name_color" format="color" />
     <attr name="post_subject_color" format="color" />

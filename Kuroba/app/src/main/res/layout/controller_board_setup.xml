@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/backcolor">
+    android:background="?backcolor">
 
     <com.github.adamantcheese.chan.ui.view.CrossfadeView
         android:id="@+id/crossfade"
