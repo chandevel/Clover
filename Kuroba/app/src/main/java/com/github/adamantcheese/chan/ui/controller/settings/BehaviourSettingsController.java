@@ -142,12 +142,6 @@ public class BehaviourSettingsController
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
             post.add(new BooleanSettingView(this,
-                    ChanSettings.repliesButtonsBottom,
-                    R.string.setting_buttons_bottom,
-                    0
-            ));
-
-            post.add(new BooleanSettingView(this,
                     ChanSettings.volumeKeysScrolling,
                     R.string.setting_volume_key_scrolling,
                     0

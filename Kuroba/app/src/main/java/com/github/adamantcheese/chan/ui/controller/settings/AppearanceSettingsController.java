@@ -84,6 +84,12 @@ public class AppearanceSettingsController
                     R.string.setting_enable_reply_fab_description
             )));
 
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.repliesButtonsBottom,
+                    R.string.setting_buttons_bottom,
+                    0
+            ));
+
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.moveInputToBottom,
                     "Bottom input",
