@@ -54,6 +54,7 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
+import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
 import com.github.adamantcheese.chan.ui.controller.SplitNavigationController;
 import com.github.adamantcheese.chan.ui.controller.StyledToolbarNavigationController;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
@@ -306,6 +307,8 @@ public class StartActivity
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         // Handle WatchNotification clicks
+        // pop any image viewers
+        popAllControllerClass(ImageViewerNavigationController.class);
         if (intent.getExtras() != null) {
             WatchManager watchManager = instance(WatchManager.class);
             int pinId = intent.getExtras().getInt("pin_id", -2);
@@ -452,6 +455,14 @@ public class StartActivity
         //we permit removal of things not on the top of the stack, but everything gets shifted down so the top of the stack
         //remains the same
         stack.remove(controller);
+    }
+
+    public void popAllControllerClass(Class<? extends Controller> controllerClass) {
+        for(Controller controller : stack) {
+            if(controller.getClass().equals(controllerClass)) {
+                controller.stopPresenting();
+            }
+        }
     }
 
     public ViewGroup getContentView() {
