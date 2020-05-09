@@ -239,53 +239,6 @@ public class FilterEngine {
         return false;
     }
 
-    /**
-     * This method is a rough duplicate of the one with Post.Builder
-     * However is only used for post-processing, like filter watching
-     *
-     * @param filter the filter to use
-     * @param post   the post content to test against
-     * @return true if the filter matches and should be applied to the content, false if not
-     */
-    @AnyThread
-    public boolean matches(Filter filter, Post post) {
-        if (!post.capcode.equals("") || post.isSticky()) return false;
-        if (filter.onlyOnOP && !post.isOP) return false;
-        if (filter.applyToSaved && !post.isSavedReply) return false;
-
-        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false)) return true;
-        if (typeMatches(filter, NAME) && matches(filter, post.name, false)) return true;
-        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
-        if (typeMatches(filter, ID) && matches(filter, post.id, false)) return true;
-        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
-        for (PostImage image : post.images) {
-            //for this case, we don't do any actions, so just return if it actually does match
-            if (typeMatches(filter, IMAGE) && matches(filter, image.fileHash, false)) return true;
-        }
-
-        //figure out if the post has a country code, if so check the filter
-        String countryCode = "";
-        if (post.httpIcons != null) {
-            for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.name.indexOf('/') != -1) {
-                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
-                    break;
-                }
-            }
-        }
-        if (!countryCode.isEmpty() && typeMatches(filter, COUNTRY_CODE) && matches(filter, countryCode, false)) {
-            return true;
-        }
-
-        //images is not null, must be at least an empty collection here
-        StringBuilder files = new StringBuilder();
-        for (PostImage image : post.images) {
-            files.append(image.filename).append(" ");
-        }
-        String fnames = files.toString();
-        return !fnames.isEmpty() && typeMatches(filter, FILENAME) && matches(filter, fnames, false);
-    }
-
     @AnyThread
     public boolean typeMatches(Filter filter, FilterType type) {
         return (filter.type & type.flag) != 0;

@@ -89,8 +89,12 @@ public class BoardRepository
         return allBoards;
     }
 
-    public SitesBoards getSaved() {
+    public SitesBoards getSavedObservable() {
         return savedBoards;
+    }
+
+    public List<SiteBoards> getSaved() {
+        return savedBoards.get();
     }
 
     public List<Board> getSiteBoards(Site site) {

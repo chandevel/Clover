@@ -77,7 +77,7 @@ public class BoardManager {
     }
 
     public BoardRepository.SitesBoards getSavedBoardsObservable() {
-        return boardRepository.getSaved();
+        return boardRepository.getSavedObservable();
     }
 
     public void updateBoardOrders(List<Board> boards) {

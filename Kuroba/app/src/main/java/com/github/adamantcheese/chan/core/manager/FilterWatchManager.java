@@ -50,9 +50,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 public class FilterWatchManager
         implements WakeManager.Wakeable {
     private final WakeManager wakeManager;
-    private final FilterEngine filterEngine;
-    private final WatchManager watchManager;
-    private final ChanLoaderManager chanLoaderManager;
     private final BoardRepository boardRepository;
     private final DatabaseLoadableManager databaseLoadableManager;
 
@@ -71,16 +68,10 @@ public class FilterWatchManager
     @Inject
     public FilterWatchManager(
             WakeManager wakeManager,
-            FilterEngine filterEngine,
-            WatchManager watchManager,
-            ChanLoaderManager chanLoaderManager,
             BoardRepository boardRepository,
             DatabaseManager databaseManager
     ) {
         this.wakeManager = wakeManager;
-        this.filterEngine = filterEngine;
-        this.watchManager = watchManager;
-        this.chanLoaderManager = chanLoaderManager;
         this.boardRepository = boardRepository;
         this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
@@ -115,18 +106,19 @@ public class FilterWatchManager
     }
 
     private void populateFilterLoaders() {
+        ChanLoaderManager chanLoaderManager = instance(ChanLoaderManager.class);
         for (ChanThreadLoader loader : filterLoaders.keySet()) {
             chanLoaderManager.release(loader, filterLoaders.get(loader));
         }
         filterLoaders.clear();
         //get our filters that are tagged as "pin"
-        filters = filterEngine.getEnabledWatchFilters();
+        filters = instance(FilterEngine.class).getEnabledWatchFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
         for (Filter f : filters) {
             //if the allBoards flag is set for any one filter, add all saved boards to the set
             if (f.allBoards) {
-                for (BoardRepository.SiteBoards s : boardRepository.getSaved().get()) {
+                for (BoardRepository.SiteBoards s : boardRepository.getSaved()) {
                     for (Board b : s.boards) {
                         boardCodes.add(b.code);
                     }
@@ -138,7 +130,7 @@ public class FilterWatchManager
         }
         numBoardsChecked = boardCodes.size();
         //create background loaders for each thing in the board set
-        for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved().get()) {
+        for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved()) {
             for (Board b : siteBoard.boards) {
                 for (String code : boardCodes) {
                     if (b.code.equals(code)) {
@@ -160,17 +152,17 @@ public class FilterWatchManager
 
         Set<Integer> toAdd = new HashSet<>();
         //Match filters and ignores
-        List<Filter> filters = filterEngine.getEnabledWatchFilters();
+        List<Filter> filters = instance(FilterEngine.class).getEnabledWatchFilters();
         for (Filter f : filters) {
             for (Post p : catalog.getPosts()) {
-                if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
+                if (p.filterWatch && !ignoredPosts.contains(p.no)) {
                     Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
                             p.board,
                             p.no,
                             PostHelper.getTitle(p, catalog.getLoadable())
                     );
                     pinLoadable = databaseLoadableManager.get(pinLoadable);
-                    watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                    instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                     toAdd.add(p.no);
                 }
             }
@@ -190,14 +182,14 @@ public class FilterWatchManager
             //Match filters and ignores
             for (Filter f : filters) {
                 for (Post p : result.getPosts()) {
-                    if (filterEngine.matches(f, p) && p.filterWatch && !ignoredPosts.contains(p.no)) {
+                    if (p.filterWatch && !ignoredPosts.contains(p.no)) {
                         Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
                                 p.board,
                                 p.no,
                                 PostHelper.getTitle(p, result.getLoadable())
                         );
                         pinLoadable = databaseLoadableManager.get(pinLoadable);
-                        watchManager.createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                        instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                         toAdd.add(p.no);
                     }
                 }

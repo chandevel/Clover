@@ -113,17 +113,11 @@ public class ManagerModule {
     @Singleton
     public FilterWatchManager provideFilterWatchManager(
             WakeManager wakeManager,
-            FilterEngine filterEngine,
-            WatchManager watchManager,
-            ChanLoaderManager chanLoaderManager,
             BoardRepository boardRepository,
             DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(wakeManager,
-                filterEngine,
-                watchManager,
-                chanLoaderManager,
                 boardRepository,
                 databaseManager
         );

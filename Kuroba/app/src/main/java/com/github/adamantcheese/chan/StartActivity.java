@@ -247,15 +247,13 @@ public class StartActivity
                 stateLoadable.site = site;
                 stateLoadable.board = board;
 
-                if (forThread) {
-                    // When restarting the parcelable isn't actually deserialized, but the same
-                    // object instance is reused. This means that the loadables we gave to the
-                    // state are the same instance, and also have the id set etc. We don't need to
-                    // query these from the loadablemanager.
+                // When restarting the parcelable isn't actually deserialized, but the same
+                // object instance is reused. This means that the loadables we gave to the
+                // state are the same instance, and also have the id set etc. We don't need to
+                // query these from the loadablemanager.
+                if (forThread && stateLoadable.id == 0) {
                     DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
-                    if (stateLoadable.id == 0) {
-                        stateLoadable = loadableManager.get(stateLoadable);
-                    }
+                    stateLoadable = loadableManager.get(stateLoadable);
                 }
 
                 return stateLoadable;
