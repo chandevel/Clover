@@ -127,7 +127,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
         <item name="backcolor">@color/black</item>
 
-        <item name="post_spoiler_color">@color/md_grey_900</item>
+        <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
 
     <style name="Chan.Theme.YotsubaB" parent="Chan.Theme.Light">
@@ -172,7 +172,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/black</item>
         <item name="backcolor_secondary">@color/md_grey_850</item>
 
-        <item name="post_spoiler_color">@color/md_grey_900</item>
+        <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
@@ -199,7 +199,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#458588</item>
         <item name="post_details_color">#a89984</item>
         <item name="post_inline_quote_color">#79740e</item>
-        <item name="post_spoiler_color">@color/md_grey_825</item>
+        <item name="post_spoiler_color">@color/md_grey_650</item>
         <item name="android:textColorLink">#B03337</item>
     </style>
 
@@ -212,7 +212,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#33b5e5</item>
         <item name="post_details_color">@color/md_grey_550</item>
         <item name="post_inline_quote_color">#99cc00</item>
-        <item name="post_spoiler_color">@color/md_grey_850</item>
+        <item name="post_spoiler_color">@color/md_grey_750</item>
         <item name="android:textColorLink">#33b5e5</item>
     </style>
 
@@ -224,7 +224,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
 
-        <item name="post_name_color">#d30102</item>
+        <item name="post_name_color">@color/md_red_A700</item>
         <item name="post_subject_color">#b58900</item>
         <item name="post_details_color">#586e75</item>
         <item name="post_inline_quote_color">#2aa198</item>
@@ -241,7 +241,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_subject_color">#666ec0</item>
         <item name="post_details_color">@color/white</item>
-        <item name="android:textColorLink">@color/md_red_700</item>
+        <item name="post_spoiler_color">#452c2f</item>
+        <item name="android:textColorLink">@color/red</item>
     </style>
     <!-- endregion -->
 

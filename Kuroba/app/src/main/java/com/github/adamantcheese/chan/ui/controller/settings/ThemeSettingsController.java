@@ -75,6 +75,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -323,7 +324,8 @@ public class ThemeSettingsController
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
                                     + "<a href=\\\"#p111111111\\\" class=\\\"quotelink\\\">&gt;&gt;111111111</a><br>"
-                                    + "This post is highlighted.")
+                                    + "This post is highlighted.<br>"
+                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
                             BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
                             .thumbnailUrl(HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
@@ -337,7 +339,7 @@ public class ThemeSettingsController
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.setBackgroundColor(resolveColor(theme.resValue, R.attr.backcolor));
+            linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
 
             RecyclerView postsView = new RecyclerView(themeContext);
             LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
