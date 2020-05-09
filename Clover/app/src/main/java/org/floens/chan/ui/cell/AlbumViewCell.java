@@ -31,7 +31,6 @@ import org.floens.chan.utils.AndroidUtils;
 
 import static org.floens.chan.utils.AndroidUtils.dp;
 import static org.floens.chan.utils.AndroidUtils.getDimen;
-import static org.floens.chan.utils.AndroidUtils.getString;
 
 public class AlbumViewCell extends FrameLayout {
     private PostImage postImage;
