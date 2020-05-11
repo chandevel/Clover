@@ -33,6 +33,7 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
@@ -647,7 +648,11 @@ public class ThreadLayout
             hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
-        presentController(new ImageOptionsController(getContext(), getLoadable(), this));
+        try {
+            presentController(new ImageOptionsController(getContext(), getLoadable(), this));
+        } catch (Exception e) {
+            showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
+        }
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

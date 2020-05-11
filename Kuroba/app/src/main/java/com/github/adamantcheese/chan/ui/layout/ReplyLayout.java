@@ -337,11 +337,7 @@ public class ReplyLayout
             if (presenter.isAttachedFileSupportedForReencoding()) {
                 callback.showImageReencodingWindow();
             } else {
-                showToast(
-                        getContext(),
-                        "Image doesn't support re-encoding. You can change the filename by long pressing the preview image.",
-                        Toast.LENGTH_LONG
-                );
+                showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
             }
         } else if (v == captchaHardReset) {
             if (authenticationLayout != null) {

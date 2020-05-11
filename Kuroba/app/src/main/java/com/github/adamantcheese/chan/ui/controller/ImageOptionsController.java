@@ -125,6 +125,9 @@ public class ImageOptionsController
 
         dims = presenter.getImageDims();
         imageFormat = presenter.getCurrentFileFormat();
+
+        // if for any reason the imageformat is null, we won't know what to do with it
+        if (imageFormat == null) throw new IllegalStateException();
     }
 
     @Override
@@ -159,9 +162,8 @@ public class ImageOptionsController
             fixExif.setChecked(lastOptions.fixExif);
         }
 
-        //noinspection ConstantConditions
         ((TextView) view.findViewById(R.id.reencode_title)).setText(getString(R.string.reencode_image_re_encode_image_text,
-                presenter.getCurrentFileFormat().name()
+                imageFormat.name()
         ));
         if (imageFormat != PNG) {
             qualityGroup.setVisibility(GONE);
@@ -176,7 +178,7 @@ public class ImageOptionsController
                 100 - reduce.getProgress()
         ));
 
-        if (presenter.getCurrentFileFormat() != JPEG || !presenter.hasExif()) {
+        if (imageFormat != JPEG || !presenter.hasExif()) {
             fixExif.setChecked(false);
             fixExif.setVisibility(GONE);
         }
