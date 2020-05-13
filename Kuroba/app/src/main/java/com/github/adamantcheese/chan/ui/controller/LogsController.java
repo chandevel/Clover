@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -54,12 +54,7 @@ public class LogsController
         super.onCreate();
 
         navigation.setTitle(R.string.settings_logs_screen);
-
-        navigation.buildMenu()
-                .withOverflow()
-                .withSubItem(R.string.settings_logs_copy, this::copyLogsClicked)
-                .build()
-                .build();
+        navigation.buildMenu().withItem(R.drawable.ic_clipboard_white_24dp, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
@@ -75,7 +70,7 @@ public class LogsController
         }
     }
 
-    private void copyLogsClicked(ToolbarMenuSubItem item) {
+    private void copyLogsClicked(ToolbarMenuItem item) {
         setClipboardContent("Logs", logText);
         showToast(context, R.string.settings_logs_copied_to_clipboard);
     }
