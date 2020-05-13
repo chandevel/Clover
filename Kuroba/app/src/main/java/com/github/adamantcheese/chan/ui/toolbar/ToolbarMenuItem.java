@@ -162,10 +162,9 @@ public class ToolbarMenuItem {
         }
 
         List<FloatingMenuItem> floatingMenuItems = new ArrayList<>();
-        List<ToolbarMenuSubItem> subItems = new ArrayList<>(this.subItems);
-        for (ToolbarMenuSubItem subItem : subItems) {
-            if(subItem.enabled) {
-                floatingMenuItems.add(new FloatingMenuItem(subItem));
+        for (ToolbarMenuSubItem subItem : this.subItems) {
+            if (subItem.enabled) {
+                floatingMenuItems.add(new FloatingMenuItem(subItem, subItem.text));
             }
         }
 
@@ -173,8 +172,12 @@ public class ToolbarMenuItem {
         overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                ToolbarMenuSubItem subItem = subItems.get(floatingMenuItems.indexOf(item));
-                subItem.performClick();
+                for (ToolbarMenuSubItem subItem : subItems) {
+                    if (subItem == item.getId()) {
+                        subItem.performClick();
+                        return;
+                    }
+                }
             }
 
             @Override

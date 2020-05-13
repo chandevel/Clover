@@ -33,11 +33,6 @@ public class FloatingMenuItem {
         this.text = text;
     }
 
-    public FloatingMenuItem(ToolbarMenuSubItem item) {
-        id = item.id;
-        text = item.text;
-    }
-
     public Object getId() {
         return id;
     }
