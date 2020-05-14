@@ -495,6 +495,10 @@ public class MultiImageView
             Logger.e(this, "OOM while trying to set a gif file", e);
             onOutOfMemoryError();
             return;
+        } catch (Exception e) {
+            Logger.e(this, "GifDrawable likely threw error, exception: ", e);
+            onError(e);
+            return;
         }
 
         GifImageView view = new GifImageView(getContext());
