@@ -565,6 +565,10 @@ public class ReplyPresenter
         }
     }
 
+    public Page getPage() {
+        return page;
+    }
+
     private void highlightQuotes() {
         Matcher matcher = QUOTE_PATTERN.matcher(draft.comment);
 

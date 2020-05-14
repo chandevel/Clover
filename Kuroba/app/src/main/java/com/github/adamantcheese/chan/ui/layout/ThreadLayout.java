@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
+import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -606,7 +607,8 @@ public class ThreadLayout
     @Override
     public void showNewPostsNotification(boolean show, int more) {
         if (show) {
-            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()) {
+            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()
+                    && threadListLayout.getReplyPresenter().getPage() == Page.INPUT) {
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);
                 dismissSnackbar();
                 newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
