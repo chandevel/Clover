@@ -89,12 +89,12 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ThreadPresenter
@@ -547,7 +547,7 @@ public class ThreadPresenter
         }
 
         loadable.setLoadableState(result.getLoadable().getLoadableDownloadingState());
-        Logger.d(this, "onChanLoaderData() loadableDownloadingState = " + loadable.getLoadableDownloadingState().name());
+        Logger.d(this, "onChanLoaderData() downloadingState = " + loadable.getLoadableDownloadingState().name());
 
         //allow for search refreshes inside the catalog
         if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
@@ -931,8 +931,7 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem(POST_OPTION_FILTER, R.string.post_filter));
         } else if (filterMenu.size() == 1) {
             FloatingMenuItem menuItem = filterMenu.remove(0);
-            menuItem.setText("Filter " + menuItem.getText().toLowerCase());
-            menu.add(menuItem);
+            menu.add(new FloatingMenuItem(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
@@ -1458,8 +1457,6 @@ public class ThreadPresenter
             }
         }
     }
-
-
 
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
