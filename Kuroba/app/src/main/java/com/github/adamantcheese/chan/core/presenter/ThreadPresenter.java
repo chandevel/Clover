@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -69,6 +70,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -114,11 +116,18 @@ public class ThreadPresenter
     private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
     private static final int POST_OPTION_HIDE = 12;
     private static final int POST_OPTION_OPEN_BROWSER = 13;
-    private static final int POST_OPTION_FILTER_TRIPCODE = 14;
-    private static final int POST_OPTION_FILTER_IMAGE_HASH = 15;
-    private static final int POST_OPTION_EXTRA = 16;
-    private static final int POST_OPTION_REMOVE = 17;
-    private static final int POST_OPTION_MOCK_REPLY = 18;
+    private static final int POST_OPTION_FILTER = 14;
+    private static final int POST_OPTION_FILTER_TRIPCODE = 15;
+    private static final int POST_OPTION_FILTER_IMAGE_HASH = 16;
+    private static final int POST_OPTION_FILTER_SUBJECT = 17;
+    private static final int POST_OPTION_FILTER_COMMENT = 18;
+    private static final int POST_OPTION_FILTER_NAME = 19;
+    private static final int POST_OPTION_FILTER_ID = 20;
+    private static final int POST_OPTION_FILTER_FILENAME = 21;
+    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 22;
+    private static final int POST_OPTION_EXTRA = 23;
+    private static final int POST_OPTION_REMOVE = 24;
+    private static final int POST_OPTION_MOCK_REPLY = 25;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -140,6 +149,7 @@ public class ThreadPresenter
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
     private Context context;
+    private List<FloatingMenuItem> filterMenu;
 
     @Nullable
     private List<CancelableDownload> activePrefetches = null;
@@ -885,12 +895,44 @@ public class ThreadPresenter
 
             if (!TextUtils.isEmpty(post.tripcode)) {
                 menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
-                menu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.post_filter_tripcode));
             }
+        }
 
-            if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH) && !post.images.isEmpty()) {
-                menu.add(new FloatingMenuItem(POST_OPTION_FILTER_IMAGE_HASH, R.string.post_filter_image_hash));
+        filterMenu = new ArrayList<>();
+        if (post.isOP && !TextUtils.isEmpty(post.subject)) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
+        }
+        if (!TextUtils.isEmpty(post.comment)) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
+        }
+        if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_NAME, R.string.filter_name));
+        }
+        if (!TextUtils.isEmpty(post.id)) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_ID, R.string.filter_id));
+        }
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
+        }
+        if (loadable.board.countryFlags) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
+        }
+        if (!post.images.isEmpty()) {
+            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
+            if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
+                filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
             }
+        }
+
+        //if the filter menu only has a single option we place just that option in the root menu
+        //in some cases a post will have nothing in it to filter (for example a post with no text and an image
+        //that is removed by a filter), in such cases there is no filter menu option.
+        if (filterMenu.size() > 1) {
+            menu.add(new FloatingMenuItem(POST_OPTION_FILTER, R.string.post_filter));
+        } else if (filterMenu.size() == 1) {
+            FloatingMenuItem menuItem = filterMenu.remove(0);
+            menuItem.setText("Filter " + menuItem.getText().toLowerCase());
+            menu.add(menuItem);
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
@@ -925,7 +967,7 @@ public class ThreadPresenter
         return POST_OPTION_EXTRA;
     }
 
-    public void onPostOptionClicked(Post post, Object id, boolean inPopup) {
+    public void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup) {
         switch ((Integer) id) {
             case POST_OPTION_QUOTE:
                 threadPresenterCallback.hidePostsPopup();
@@ -957,6 +999,27 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_HIGHLIGHT_TRIPCODE:
                 threadPresenterCallback.highlightPostTripcode(post.tripcode);
+                break;
+            case POST_OPTION_FILTER:
+                showFilterOptions(anchor, post, inPopup, filterMenu);
+                break;
+            case POST_OPTION_FILTER_SUBJECT:
+                threadPresenterCallback.filterPostSubject(post.subject);
+                break;
+            case POST_OPTION_FILTER_COMMENT:
+                threadPresenterCallback.filterPostComment(post.comment);
+                break;
+            case POST_OPTION_FILTER_NAME:
+                threadPresenterCallback.filterPostName(post.name);
+                break;
+            case POST_OPTION_FILTER_FILENAME:
+                threadPresenterCallback.filterPostFilename(post);
+                break;
+            case POST_OPTION_FILTER_COUNTRY_CODE:
+                threadPresenterCallback.filterPostCountryCode(post);
+                break;
+            case POST_OPTION_FILTER_ID:
+                threadPresenterCallback.filterPostID(post.id);
                 break;
             case POST_OPTION_FILTER_TRIPCODE:
                 threadPresenterCallback.filterPostTripcode(post.tripcode);
@@ -1041,6 +1104,21 @@ public class ThreadPresenter
                 }
                 break;
         }
+    }
+
+    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem> options) {
+        FloatingMenu menu = new FloatingMenu(context, anchor, options);
+        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+                onPostOptionClicked(anchor, post, item.getId(), inPopup);
+            }
+
+            @Override
+            public void onFloatingMenuDismissed(FloatingMenu menu) {
+            }
+        });
+        menu.show();
     }
 
     @Override
@@ -1381,6 +1459,8 @@ public class ThreadPresenter
         }
     }
 
+
+
     public interface ThreadPresenterCallback {
         void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
 
@@ -1429,6 +1509,18 @@ public class ThreadPresenter
         void highlightPostId(String id);
 
         void highlightPostTripcode(String tripcode);
+
+        void filterPostSubject(String subject);
+
+        void filterPostName(String name);
+
+        void filterPostComment(CharSequence comment);
+
+        void filterPostID(String ID);
+
+        void filterPostCountryCode(Post post);
+
+        void filterPostFilename(Post post);
 
         void filterPostTripcode(String tripcode);
 

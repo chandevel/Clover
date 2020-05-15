@@ -232,7 +232,7 @@ public class PostCell
                     showOptions(anchor, extraItems, null, null);
                 }
 
-                callback.onPostOptionClicked(post, item.getId(), inPopup);
+                callback.onPostOptionClicked(anchor, post, item.getId(), inPopup);
             }
 
             @Override

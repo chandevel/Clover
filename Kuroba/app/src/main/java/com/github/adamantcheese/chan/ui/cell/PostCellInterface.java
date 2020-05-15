@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import android.view.View;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -60,7 +62,7 @@ public interface PostCellInterface {
 
         Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu);
 
-        void onPostOptionClicked(Post post, Object id, boolean inPopup);
+        void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup);
 
         void onPostLinkableClicked(Post post, PostLinkable linkable);
 
