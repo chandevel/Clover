@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor">
@@ -26,19 +27,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-        android:paddingBottom="32dp"
         android:paddingLeft="32dp"
+        android:paddingTop="32dp"
         android:paddingRight="32dp"
-        android:paddingTop="32dp">
+        android:paddingBottom="32dp">
 
         <TextView
             android:id="@+id/errors"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
             android:paddingLeft="4dp"
-            android:paddingRight="4dp"
             android:paddingTop="8dp"
+            android:paddingRight="4dp"
+            android:paddingBottom="8dp"
             android:textColor="#fff44336"
             android:textSize="16sp"
             android:visibility="gone" />
@@ -77,8 +78,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="@string/setting_pass_authenticated"
-                tools:visibility="gone"
-                android:textSize="20sp" />
+                android:textSize="20sp"
+                tools:visibility="gone" />
 
         </com.github.adamantcheese.chan.ui.view.CrossfadeView>
 
@@ -92,8 +93,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="4dp"
-            android:paddingRight="4dp"
             android:paddingTop="16dp"
+            android:paddingRight="4dp"
             android:textSize="14sp" />
 
     </LinearLayout>
