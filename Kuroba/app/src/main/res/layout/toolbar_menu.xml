@@ -15,33 +15,42 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_vertical"
     android:baselineAligned="false"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:layout_height="@dimen/toolbar_height"
+    tools:layout_width="150dp">
 
-    <FrameLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:minWidth="150dp"
+        android:orientation="vertical"
+        android:paddingLeft="4dp"
         tools:ignore="UselessParent,SpUsage">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:drawablePadding="16dp"
+            android:layout_height="wrap_content"
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:lines="1"
-            android:minWidth="150dp"
-            android:paddingLeft="4dp"
             android:singleLine="true"
             android:textColor="@color/white"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            app:layout_constraintBottom_toTopOf="@id/subtitle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.2"
+            app:layout_constraintVertical_chainStyle="packed"
+            tools:text="/a/" />
 
         <TextView
             android:id="@+id/subtitle"
@@ -50,13 +59,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:lines="1"
-            android:minWidth="150dp"
-            android:paddingLeft="4dp"
-            android:paddingTop="29dp"
             android:singleLine="true"
             android:textColor="@color/white"
-            android:textSize="12dp" />
-    </FrameLayout>
+            android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            tools:text="Anime &amp; Manga" />
+
+        <ImageView
+            android:id="@+id/dropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow_drop_down_white_24dp"
+            android:translationY="3dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- menu inserted here
      TODO: make this layout relative and make a ViewStub but with programatically added views -->

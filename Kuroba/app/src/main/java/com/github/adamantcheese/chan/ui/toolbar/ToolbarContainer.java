@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
@@ -46,11 +47,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.text.TextUtils.isEmpty;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.Gravity.RIGHT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
@@ -441,9 +441,7 @@ public class ToolbarContainer
         private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
             @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
-            menu.setGravity(CENTER_VERTICAL);
-
-            FrameLayout titleContainer = menu.findViewById(R.id.title_container);
+            ConstraintLayout titleContainer = menu.findViewById(R.id.title_container);
 
             // Title
             final TextView titleView = menu.findViewById(R.id.title);
@@ -452,11 +450,10 @@ public class ToolbarContainer
 
             // Middle title with arrow and callback
             if (item.middleMenu != null) {
-                ImageView dropdown = new ImageView(getContext());
-                dropdown.setImageResource(R.drawable.ic_arrow_drop_down_white_24dp);
-                titleContainer.addView(dropdown, new LayoutParams(WRAP_CONTENT, WRAP_CONTENT, CENTER_VERTICAL | RIGHT));
-                titleContainer.setTranslationY(dp(3));
+                ImageView dropdown = menu.findViewById(R.id.dropdown);
+                dropdown.setVisibility(VISIBLE);
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
+                titleContainer.setBackground(getAttrDrawable(getContext(), R.attr.selectableItemBackground));
             }
 
             // Possible subtitle.
