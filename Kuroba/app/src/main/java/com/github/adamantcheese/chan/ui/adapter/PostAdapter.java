@@ -88,7 +88,7 @@ public class PostAdapter
         switch (viewType) {
             case TYPE_POST:
                 int layout = 0;
-                switch (postViewMode) {
+                switch (getPostViewMode()) {
                     case LIST:
                         layout = R.layout.cell_post;
                         break;
@@ -129,24 +129,21 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                boolean highlight =
-                        post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
-                                || post.tripcode.equals(highlightedPostTripcode);
                 ((PostCellInterface) postViewHolder.itemView).setPost(
                         loadable,
                         post,
                         postCellCallback,
-                        false,
-                        highlight,
-                        post.no == selectedPost,
-                        marked,
-                        true,
-                        postViewMode,
-                        compact,
+                        isInPopup(),
+                        shouldHighlight(post),
+                        isSelected(post),
+                        getMarkedNo(),
+                        showDivider(position),
+                        getPostViewMode(),
+                        isCompact(),
                         theme
                 );
 
-                if (itemViewType == TYPE_POST_STUB) {
+                if (itemViewType == TYPE_POST_STUB && postAdapterCallback != null) {
                     holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
@@ -158,19 +155,34 @@ public class PostAdapter
         }
     }
 
+    public boolean isInPopup() {
+        return false;
+    }
+
+    public boolean shouldHighlight(Post post) {
+        return post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
+                || post.tripcode.equals(highlightedPostTripcode);
+    }
+
+    public boolean isSelected(Post post) {
+        return post.no == selectedPost;
+    }
+
+    public int getMarkedNo() {
+        return marked;
+    }
+
+    public boolean showDivider(int position) {
+        return true;
+    }
+
+    public ChanSettings.PostViewMode getPostViewMode() {
+        return postViewMode;
+    }
+
     @Override
     public int getItemCount() {
-        int size = displayList.size();
-
-        if (showStatusView()) {
-            size++;
-        }
-
-        if (lastSeenIndicatorPosition >= 0) {
-            size++;
-        }
-
-        return size;
+        return displayList.size() + (showStatusView() ? 1 : 0) + (lastSeenIndicatorPosition >= 0 ? 1 : 0);
     }
 
     @Override
@@ -340,6 +352,10 @@ public class PostAdapter
         }
     }
 
+    public boolean isCompact() {
+        return compact;
+    }
+
     public int getPostPosition(int position) {
         int postPosition = position;
         if (lastSeenIndicatorPosition >= 0 && position > lastSeenIndicatorPosition) {
@@ -356,15 +372,12 @@ public class PostAdapter
         return postPosition;
     }
 
-    private boolean showStatusView() {
+    public boolean showStatusView() {
+        if (postAdapterCallback == null) return false;
         Loadable loadable = postAdapterCallback.getLoadable();
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         return loadable != null && loadable.isThreadMode();
-    }
-
-    public void setMarkedForThemeController(int markedNo) {
-        marked = markedNo;
     }
 
     //region Holders

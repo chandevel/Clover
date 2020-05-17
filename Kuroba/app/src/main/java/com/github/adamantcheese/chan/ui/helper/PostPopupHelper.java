@@ -55,7 +55,7 @@ public class PostPopupHelper {
             throw new IllegalStateException("Thread loadable cannot be null");
         }
 
-        presentingController.setPostRepliesData(presenter.getLoadable(), data);
+        presentingController.displayData(presenter.getLoadable(), data);
     }
 
     public void pop() {
@@ -68,7 +68,7 @@ public class PostPopupHelper {
                 throw new IllegalStateException("Thread loadable cannot be null");
             }
 
-            presentingController.setPostRepliesData(presenter.getLoadable(), dataQueue.get(dataQueue.size() - 1));
+            presentingController.displayData(presenter.getLoadable(), dataQueue.get(dataQueue.size() - 1));
         } else {
             dismiss();
         }
@@ -117,12 +117,10 @@ public class PostPopupHelper {
 
     public static class RepliesData {
         public List<Post> posts;
-        public Post forPost;
-        public int listViewIndex;
-        public int listViewTop;
+        public int forPostNo;
 
         public RepliesData(Post forPost, List<Post> posts) {
-            this.forPost = forPost;
+            this.forPostNo = forPost.no;
             this.posts = posts;
         }
     }

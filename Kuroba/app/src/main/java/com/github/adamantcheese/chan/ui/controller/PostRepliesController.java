@@ -18,10 +18,8 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -29,6 +27,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -47,7 +46,7 @@ public class PostRepliesController
     private boolean first = true;
 
     private LoadView loadView;
-    private ListView listView;
+    private RecyclerView listView;
     private PostPopupHelper.RepliesData displayingData;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
@@ -90,10 +89,6 @@ public class PostRepliesController
         return thumbnail;
     }
 
-    public void setPostRepliesData(Loadable loadable, PostPopupHelper.RepliesData data) {
-        displayData(loadable, data);
-    }
-
     public List<Post> getPostRepliesData() {
         return displayingData.posts;
     }
@@ -102,7 +97,7 @@ public class PostRepliesController
         listView.smoothScrollToPosition(displayPosition);
     }
 
-    private void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
+    public void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
 
         View dataView;
@@ -113,8 +108,6 @@ public class PostRepliesController
         }
 
         listView = dataView.findViewById(R.id.post_list);
-        listView.setDivider(null);
-        listView.setDividerHeight(0);
 
         View repliesBack = dataView.findViewById(R.id.replies_back);
         repliesBack.setOnClickListener(v -> postPopupHelper.pop());
@@ -122,52 +115,49 @@ public class PostRepliesController
         View repliesClose = dataView.findViewById(R.id.replies_close);
         repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
 
-        ArrayAdapter<Post> adapter = new ArrayAdapter<Post>(context, 0) {
+        PostAdapter adapter = new PostAdapter(listView, null, presenter, null, ThemeHelper.getTheme()) {
             @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                PostCellInterface postCell;
-                if (convertView instanceof PostCellInterface && !ChanSettings.shiftPostFormat.get()) {
-                    postCell = (PostCellInterface) convertView;
-                } else {
-                    postCell = (PostCellInterface) inflate(context, R.layout.cell_post, parent, false);
-                }
+            public boolean isInPopup() {
+                return true;
+            }
 
-                final Post p = getItem(position);
-                boolean showDivider = position < getCount() - 1;
-                postCell.setPost(
-                        loadable,
-                        p,
-                        presenter,
-                        true,
-                        false,
-                        false,
-                        data.forPost.no,
-                        showDivider,
-                        ChanSettings.PostViewMode.LIST,
-                        false,
-                        ThemeHelper.getTheme()
-                );
+            @Override
+            public boolean shouldHighlight(Post post) {
+                return false;
+            }
 
-                return (View) postCell;
+            @Override
+            public boolean isSelected(Post post) {
+                return false;
+            }
+
+            @Override
+            public int getMarkedNo() {
+                return displayingData.forPostNo;
+            }
+
+            @Override
+            public boolean showDivider(int position) {
+                return position < getDisplayList().size() - 1;
+            }
+
+            @Override
+            public ChanSettings.PostViewMode getPostViewMode() {
+                return ChanSettings.PostViewMode.LIST;
+            }
+
+            @Override
+            public boolean isCompact() {
+                return false;
+            }
+
+            @Override
+            public boolean showStatusView() {
+                return false;
             }
         };
-
-        adapter.addAll(data.posts);
         listView.setAdapter(adapter);
-
-        listView.setSelectionFromTop(data.listViewIndex, data.listViewTop);
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                data.listViewIndex = view.getFirstVisiblePosition();
-                View v = view.getChildAt(0);
-                data.listViewTop = (v == null) ? 0 : v.getTop();
-            }
-        });
+        adapter.setThread(loadable, displayingData.posts, false);
 
         loadView.setFadeDuration(first ? 0 : 150);
         first = false;

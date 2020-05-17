@@ -88,6 +88,7 @@ public class ThemeSettingsController
         extends Controller {
 
     private Loadable dummyLoadable = Loadable.emptyLoadable();
+
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
     }
@@ -375,12 +376,16 @@ public class ThemeSettingsController
                 public void onListStatusClicked() {
                     showAccentColorPicker();
                 }
-            }, theme);
+            }, theme) {
+                @Override
+                public int getMarkedNo() {
+                    return 123456789;
+                }
+            };
             adapter.setThread(dummyLoadable, posts, false);
             adapter.highlightPost(post2);
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
-            adapter.setMarkedForThemeController(123456789);
             postsView.setAdapter(adapter);
 
             final Toolbar toolbar = new Toolbar(themeContext);
