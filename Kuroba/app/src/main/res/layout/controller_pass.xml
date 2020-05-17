@@ -86,7 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <Button
             android:id="@+id/button"
             android:layout_width="130dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/submit" />
 
         <TextView
             android:id="@+id/bottom_description"
@@ -95,7 +96,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="4dp"
             android:paddingTop="16dp"
             android:paddingRight="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:text="@string/setting_pass_bottom_description" />
 
     </LinearLayout>
 

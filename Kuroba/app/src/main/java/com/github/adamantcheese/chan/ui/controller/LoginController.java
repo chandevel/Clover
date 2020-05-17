@@ -37,8 +37,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LoginController
         extends Controller
@@ -78,7 +78,9 @@ public class LoginController
         errors.setVisibility(GONE);
 
         final boolean loggedIn = loggedIn();
-        button.setText(loggedIn ? R.string.setting_pass_logout : R.string.setting_pass_login);
+        if (loggedIn) {
+            button.setText(R.string.setting_pass_logout);
+        }
         button.setOnClickListener(this);
 
         bottomDescription.setText(Html.fromHtml(getString(R.string.setting_pass_bottom_description)));
@@ -108,7 +110,7 @@ public class LoginController
             if (loggedIn()) {
                 deauth();
                 crossfadeView.toggle(true, true);
-                button.setText(R.string.setting_pass_login);
+                button.setText(R.string.submit);
                 hideError();
             } else {
                 auth();
@@ -146,7 +148,7 @@ public class LoginController
         }
 
         showError(message);
-        button.setText(R.string.setting_pass_login);
+        button.setText(R.string.submit);
     }
 
     private void authAfter() {

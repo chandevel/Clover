@@ -115,7 +115,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="top"
-                    android:imeActionLabel="@string/reply_submit"
+                    android:imeActionLabel="@string/submit"
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
                     android:minHeight="108dp"

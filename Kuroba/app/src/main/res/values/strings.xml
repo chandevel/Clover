@@ -102,6 +102,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="no">No</string>
     <string name="save">Save</string>
     <string name="send">Send</string>
+    <string name="submit">Submit</string>
 
     <string name="mark_as_my_post">Mark as my post</string>
     <string name="unmark_as_my_post">Unmark as my post</string>
@@ -344,7 +345,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="reply_file_open_failed">Failed to open file</string>
     <string name="reply_spoiler_image">Spoiler image</string>
     <string name="reply_no_preview">No preview</string>
-    <string name="reply_submit">Submit</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_error_message_timer_reply">Error posting: You must wait %d seconds before posting a reply.</string>
@@ -595,7 +595,6 @@ Tap the checkmark button when done."
 
 
     <string name="setting_pass_authenticated">Device authorized!</string>
-    <string name="setting_pass_login">Submit</string>
     <string name="setting_pass_logout">Logout</string>
     <string name="setting_pass_logging_in">Loading…</string>
     <string name="setting_pass_error">Connection error</string>
