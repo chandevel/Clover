@@ -13,7 +13,8 @@
             android:layout_height="match_parent"
             android:src="@drawable/ic_setting_alert"
             android:visibility="gone"
-            tools:visibility="visible" />
+            tools:visibility="visible"
+            tools:tint="@color/md_green_500"/>
 
         <TextView
             android:id="@+id/setting_notification_total_count"

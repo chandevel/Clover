@@ -14,7 +14,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <TextView
         android:id="@+id/top"
@@ -23,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:textColor="?setting_description_top"
+        tools:text="Setting name"
         android:textSize="16sp" />
 
     <TextView
@@ -32,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:textColor="?setting_description_bottom"
+        tools:text="Setting description"
         android:textSize="14sp" />
 
 </merge>

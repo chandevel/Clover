@@ -321,14 +321,12 @@ public class Toolbar
             return false;
         }
 
-        int firstVisibleElement;
+        int firstVisibleElement = -1;
 
         if (layoutManager instanceof GridLayoutManager) {
             firstVisibleElement = ((GridLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
         } else if (layoutManager instanceof LinearLayoutManager) {
             firstVisibleElement = ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition();
-        } else {
-            throw new IllegalStateException("Not implemented for " + layoutManager.getClass().getName());
         }
 
         return firstVisibleElement == 0;

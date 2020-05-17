@@ -131,8 +131,6 @@ public class ViewThreadController
                 (AnimatedVectorDrawableCompat) AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();
 
         downloadIconOutline = context.getDrawable(R.drawable.ic_download_anim0);
-        downloadIconOutline.setTint(Color.WHITE);
-
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1);
         downloadIconFilled.setTint(Color.WHITE);
 

@@ -19,7 +19,7 @@
         android:paddingEnd="8dp"
         android:maxLines="2"
         android:ellipsize="end"
-        tools:text="Test text 23543635474685895 war awr awr a awr awr a7 awr awr awr awr 9"/>
+        tools:text="Crash log test text\nCrash log test text line 2"/>
 
     <FrameLayout
         android:id="@+id/cell_crashlog_click_area"
