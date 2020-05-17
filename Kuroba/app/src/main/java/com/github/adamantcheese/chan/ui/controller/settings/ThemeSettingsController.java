@@ -87,12 +87,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ThemeSettingsController
         extends Controller {
 
-    private Board dummyBoard = new Board();
     private Loadable dummyLoadable = Loadable.emptyLoadable();
-
     {
-        dummyBoard.name = "name";
-        dummyBoard.code = "code";
         dummyLoadable.mode = Loadable.Mode.THREAD;
     }
 
@@ -299,7 +295,7 @@ public class ThemeSettingsController
 
             CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
-            Post.Builder builder1 = new Post.Builder().board(dummyBoard)
+            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .id(123456789)
                     .opId(123456789)
                     .op(true)
@@ -315,7 +311,7 @@ public class ThemeSettingsController
             Post post1 = postParser.parse(theme, builder1, parserCallback);
             post1.repliesFrom.add(234567890);
 
-            Post.Builder builder2 = new Post.Builder().board(dummyBoard)
+            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
                     .id(234567890)
                     .opId(123456789)
                     .name("W.T. Snacks")
@@ -343,7 +339,6 @@ public class ThemeSettingsController
 
             RecyclerView postsView = new RecyclerView(themeContext);
             LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
-            layoutManager.setOrientation(RecyclerView.VERTICAL);
             postsView.setLayoutManager(layoutManager);
             PostAdapter adapter = new PostAdapter(postsView, new PostAdapter.PostAdapterCallback() {
                 @Override

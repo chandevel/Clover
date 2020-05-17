@@ -101,7 +101,6 @@ public class HistoryController
         crossfade = view.findViewById(R.id.crossfade);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);

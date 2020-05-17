@@ -126,7 +126,6 @@ public class BoardSetupController
         savedAdapter = new SavedBoardsAdapter();
 
         // View setup
-        savedBoardsRecycler.setLayoutManager(new LinearLayoutManager(context));
         savedBoardsRecycler.setAdapter(savedAdapter);
         savedBoardsRecycler.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
 

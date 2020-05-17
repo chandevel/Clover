@@ -79,9 +79,6 @@ public class FilesAdapter
                     fileViewHolder.image.setVisibility(GONE);
                 } else {
                     fileViewHolder.image.setVisibility(VISIBLE);
-                    Drawable drawable = DrawableCompat.wrap(context.getDrawable(R.drawable.ic_folder_black_24dp));
-                    DrawableCompat.setTint(drawable, getAttrColor(context, android.R.attr.textColorSecondary));
-                    fileViewHolder.image.setImageDrawable(drawable);
                 }
 
                 boolean highlighted = highlightedItem != null && highlightedItem.file.equals(item.file);

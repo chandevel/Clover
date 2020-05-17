@@ -98,7 +98,6 @@ public class DrawerController
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
         drawerAdapter = new DrawerAdapter(this, context);

@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -95,7 +94,6 @@ public class ArchiveController
         adapter = new ArchiveAdapter();
 
         // View setup
-        archiveRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         archiveRecyclerview.setAdapter(adapter);
         archiveRecyclerview.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         FastScrollerHelper.create(archiveRecyclerview);

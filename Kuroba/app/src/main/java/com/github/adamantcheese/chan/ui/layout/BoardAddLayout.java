@@ -26,10 +26,10 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
 
@@ -70,7 +70,6 @@ public class BoardAddLayout
         search.setCallback(this);
 
         checkAllButton.setOnClickListener(this);
-        suggestionsRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         suggestionsRecycler.setAdapter(suggestionsAdapter);
 
         suggestionsRecycler.requestFocus();
@@ -79,13 +78,19 @@ public class BoardAddLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        presenter.bindAddDialog(this);
+        //this check is here for android studio's layout preview
+        if (presenter != null) {
+            presenter.bindAddDialog(this);
+        }
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        presenter.unbindAddDialog();
+        //this check is here for android studio's layout preview
+        if (presenter != null) {
+            presenter.unbindAddDialog();
+        }
     }
 
     @Override
@@ -125,12 +130,22 @@ public class BoardAddLayout
 
         @Override
         public long getItemId(int position) {
-            return presenter.getSuggestions().get(position).getId();
+            if (presenter != null) {
+                return presenter.getSuggestions().get(position).getId();
+            } else {
+                //this is here for android studio's layout preview
+                return position;
+            }
         }
 
         @Override
         public int getItemCount() {
-            return presenter.getSuggestions().size();
+            if (presenter != null) {
+                return presenter.getSuggestions().size();
+            } else {
+                //this is here for android studio's layout preview
+                return 15;
+            }
         }
 
         @Override
@@ -144,7 +159,13 @@ public class BoardAddLayout
 
         @Override
         public void onBindViewHolder(SuggestionCell holder, int position) {
-            BoardSetupPresenter.BoardSuggestion boardSuggestion = presenter.getSuggestions().get(position);
+            BoardSetupPresenter.BoardSuggestion boardSuggestion;
+            if (presenter != null) {
+                boardSuggestion = presenter.getSuggestions().get(position);
+            } else {
+                //this is here for android studio's layout preview
+                boardSuggestion = new BoardSetupPresenter.BoardSuggestion(Board.getDummyBoard());
+            }
             holder.setSuggestion(boardSuggestion);
             holder.text.setText(boardSuggestion.getName());
             holder.description.setText(boardSuggestion.getDescription());

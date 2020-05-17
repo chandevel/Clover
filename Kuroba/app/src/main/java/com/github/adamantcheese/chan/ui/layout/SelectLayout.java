@@ -76,7 +76,6 @@ public class SelectLayout<T>
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
     }
 
     public void setItems(List<SelectItem<T>> items) {

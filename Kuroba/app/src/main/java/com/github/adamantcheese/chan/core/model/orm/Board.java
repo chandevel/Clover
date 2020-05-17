@@ -189,6 +189,17 @@ public class Board
         return board;
     }
 
+    private static Board dummyBoard;
+
+    public static Board getDummyBoard() {
+        if (dummyBoard != null) return dummyBoard;
+        Board board = new Board();
+        board.name = "Test Board";
+        board.code = "test";
+        dummyBoard = board;
+        return board;
+    }
+
     public boolean hasMissingInfo() {
         return TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0;
     }

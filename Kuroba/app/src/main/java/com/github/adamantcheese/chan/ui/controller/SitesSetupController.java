@@ -118,7 +118,6 @@ public class SitesSetupController
         sitesAdapter = new SitesAdapter();
 
         // View setup
-        sitesRecyclerview.setLayoutManager(new LinearLayoutManager(context));
         sitesRecyclerview.setAdapter(sitesAdapter);
         sitesRecyclerview.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);

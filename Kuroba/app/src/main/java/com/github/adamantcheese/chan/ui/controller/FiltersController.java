@@ -125,7 +125,6 @@ public class FiltersController
         adapter = new FilterAdapter();
 
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
         recyclerView.setAdapter(adapter);
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);

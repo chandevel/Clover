@@ -268,12 +268,12 @@ public class BoardSetupPresenter
 
         private boolean checked = false;
 
-        BoardSuggestion(Board board) {
+        public BoardSuggestion(Board board) {
             this.board = board;
             this.code = board.code;
         }
 
-        BoardSuggestion(String code) {
+        public BoardSuggestion(String code) {
             this.board = null;
             this.code = code;
         }
