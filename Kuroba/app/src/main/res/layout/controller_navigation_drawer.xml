@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_gravity="left"
+        android:background="?backcolor"
         android:clipToPadding="false"
         android:orientation="vertical">
 

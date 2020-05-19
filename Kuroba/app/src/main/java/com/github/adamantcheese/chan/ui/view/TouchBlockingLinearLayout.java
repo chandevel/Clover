@@ -23,30 +23,22 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-
 public class TouchBlockingLinearLayout
         extends LinearLayout {
     public TouchBlockingLinearLayout(Context context) {
-        this(context, null);
+        super(context);
     }
 
     public TouchBlockingLinearLayout(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
     public TouchBlockingLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        adjustBackground(context);
     }
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         return true;
-    }
-
-    private void adjustBackground(Context context) {
-        setBackgroundColor(AndroidUtils.getAttrColor(context, R.attr.backcolor));
     }
 }
