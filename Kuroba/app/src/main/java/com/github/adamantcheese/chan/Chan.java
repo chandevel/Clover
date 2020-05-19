@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Feather;
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.EventBusException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -97,7 +98,15 @@ public class Chan
         AndroidUtils.init(this);
         AndroidUtils.getBuildType(); //spit out the build hash to the log
         // remove this if you need to debug some sort of event bus issue
-        EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
+        try {
+            EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
+        } catch (EventBusException e) {
+            if (e.getMessage() != null && !e.getMessage().contains("already exists")) {
+                throw e;
+            } else if (e.getMessage() == null) {
+                throw e;
+            }
+        }
     }
 
     @Override
