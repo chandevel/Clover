@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.theme;
 
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -41,7 +42,6 @@ import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.OR
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.RED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class ThemeHelper {
     /*
@@ -116,14 +116,14 @@ public class ThemeHelper {
 
     public static void setupContext(AppCompatActivity context) {
         //set the theme to the newly made theme and setup some small extras
-        context.getTheme().setTo(createTheme(getTheme()));
+        context.getTheme().setTo(createTheme(context, getTheme()));
         Bitmap taskDescriptionBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
         context.setTaskDescription(new ActivityManager.TaskDescription(getApplicationLabel(), taskDescriptionBitmap));
     }
 
-    public static Resources.Theme createTheme(Theme theme) {
+    public static Resources.Theme createTheme(Context context, Theme theme) {
         //create the proper Android theme instance from the local theme, and the selected colors
-        Resources.Theme userTheme = getRes().newTheme();
+        Resources.Theme userTheme = context.getResources().newTheme();
         userTheme.applyStyle(theme.resValue, true); // main styling theme first
         userTheme.applyStyle(theme.primaryColor.primaryColorStyleId, true); // toolbar color, status bar color
         userTheme.applyStyle(theme.accentColor.accentStyleId, true); // FAB, ui element color

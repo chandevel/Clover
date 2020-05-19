@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
     </style>
 
-    <style name="ChanStartup" parent="Chan.Theme.BaseDark">
+    <style name="ChanStartup" parent="Chan.Theme.Dark">
         <item name="android:statusBarColor">@color/black</item>
         <item name="android:navigationBarColor">@color/black</item>
         <item name="android:windowBackground">@drawable/ic_splash_screen</item>
@@ -67,25 +67,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- GUIDE -->
 
     <!--
-        1) Make your new theme:
+        1) Make your new theme (light or dark):
         <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseLight">
         or
         <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseDark">
 
         2) Override any of the following:
-        backColor (your main background color)
+        backColor           (your main background color)
         backColor_secondary (for some views, a slightly darker (for light themes) or brighter (for dark themes) color compared to backColor)
 
-        android:textColorPrimary (your main text color; should look good on backColor)
-        android:textColorSecondary (a secondary text color, for smaller text next to your main text; should follow the rules for backColor_secondary)
-        android:textColorHint (hint color, for some input dialogs; follows after textColorSecondary with the same rules)
+        android:textColor           (your main text color; should look good on backColor)
+        android:textColorPrimary    (same color as above; different views use different attributes for some reason)
+        android:textColorSecondary  (a secondary text color, for smaller text next to your main text; should follow the rules for backColor_secondary)
+        android:textColorHint       (hint color, for some input dialogs; follows after textColorSecondary with the same rules)
 
-        post_name_color (the name color on posts)
-        post_subject_color (the subject color on posts)
-        post_details_color (the details color on posts; should be close to textColorSecondary)
+        post_name_color         (the name color on posts)
+        post_subject_color      (the subject color on posts)
+        post_details_color      (the details color on posts; should be close to textColorSecondary)
         post_inline_quote_color (the greentext color)
-        post_spoiler_color (the spoiler block color; the text's color inside is dynamically changed between black and white for visibility)
-        android:textColorLink (the color of all linkables, including >>quotes)
+        post_spoiler_color      (the spoiler block color; the text's color inside is dynamically changed between black and white for visibility)
+        android:textColorLink   (the color of all linkables, including >>quotes)
 
         3) Go to ThemeHelper to finish adding your theme.
     -->
@@ -95,6 +96,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/white</item>
         <item name="backcolor_secondary">@color/md_grey_100</item>
 
+        <item name="android:textColor">@color/black</item>
         <item name="android:textColorPrimary">@color/black</item>
         <item name="android:textColorSecondary">@color/md_grey_600</item>
         <item name="android:textColorHint">@color/md_grey_400</item>
@@ -112,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/md_grey_900</item>
         <item name="backcolor_secondary">@color/md_grey_850</item>
 
+        <item name="android:textColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
         <item name="android:textColorSecondary">@color/md_grey_400</item>
         <item name="android:textColorHint">@color/md_grey_700</item>
@@ -139,6 +142,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#f0e0d6</item>
         <item name="backcolor_secondary">@color/md_yellow_50</item>
 
+        <item name="android:textColor">#800000</item>
         <item name="android:textColorPrimary">#800000</item>
 
         <item name="post_subject_color">#cc1105</item>
@@ -158,6 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/md_grey_875</item>
         <item name="backcolor_secondary">@color/md_grey_900</item>
 
+        <item name="android:textColor">@color/md_grey_375</item>
         <item name="android:textColorPrimary">@color/md_grey_375</item>
         <item name="android:textColorSecondary">@color/md_grey_575</item>
 
@@ -176,6 +181,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
+        <item name="android:textColor">@color/md_grey_500</item>
         <item name="android:textColorPrimary">@color/md_grey_500</item>
         <item name="android:textColorSecondary">@color/md_grey_500</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
@@ -191,6 +197,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/md_grey_875</item>
         <item name="backcolor_secondary">#3c3836</item>
 
+        <item name="android:textColor">#ebdbb2</item>
         <item name="android:textColorPrimary">#ebdbb2</item>
         <item name="android:textColorSecondary">#d5c4a1</item>
         <item name="android:textColorHint">#bdae93</item>
@@ -204,6 +211,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
+        <item name="android:textColor">@color/md_grey_550</item>
         <item name="android:textColorPrimary">@color/md_grey_550</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
@@ -220,6 +228,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#002b36</item>
         <item name="backcolor_secondary">#073642</item>
 
+        <item name="android:textColor">@color/md_grey_500</item>
         <item name="android:textColorPrimary">@color/md_grey_500</item>
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
@@ -236,6 +245,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#654c4f</item>
         <item name="backcolor_secondary">#4a3335</item>
 
+        <item name="android:textColor">#fffde8</item>
         <item name="android:textColorPrimary">#fffde8</item>
         <item name="android:textColorSecondary">#b7aba1</item>
 

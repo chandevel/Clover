@@ -291,8 +291,7 @@ public class ThemeSettingsController
         public View getView(final int position, ViewGroup parent) {
             final Theme theme = themes.get(position);
 
-            Context themeContext = new ContextThemeWrapper(context, theme.resValue);
-            themeContext.getTheme().setTo(createTheme(theme));
+            Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
 
             CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
