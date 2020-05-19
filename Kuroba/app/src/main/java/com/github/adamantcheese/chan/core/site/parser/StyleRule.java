@@ -41,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 
 public class StyleRule {
     public enum ForegroundColor {
@@ -274,9 +274,9 @@ public class StyleRule {
     private int getForegroundColor(Theme theme, ForegroundColor foregroundColor) {
         switch (foregroundColor) {
             case INLINE_QUOTE:
-                return getAttrColor(theme, R.attr.post_inline_quote_color);
+                return resolveColor(theme.resValue, R.attr.post_inline_quote_color);
             case QUOTE:
-                return getAttrColor(theme, android.R.attr.textColorLink);
+                return resolveColor(theme.resValue, android.R.attr.textColorLink);
             case RED:
                 return Color.RED;
             default:
@@ -286,7 +286,7 @@ public class StyleRule {
 
     private int getBackgroundColor(Theme theme, BackgroundColor backgroundColor) {
         if (backgroundColor == BackgroundColor.CODE) {
-            return getAttrColor(theme, R.attr.backcolor_secondary);
+            return resolveColor(theme.resValue, R.attr.backcolor_secondary);
         }
         return 0;
     }

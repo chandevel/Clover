@@ -24,7 +24,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 
 /**
  * A Theme object, a wrapper around a Android theme<br>
@@ -81,9 +81,9 @@ public class Theme {
         isLightTheme = lightTheme;
 
         // Span color setup
-        subjectColor = getAttrColor(this, R.attr.post_subject_color);
-        nameColor = getAttrColor(this, R.attr.post_name_color);
-        detailsColor = getAttrColor(this, R.attr.post_details_color);
+        subjectColor = resolveColor(resValue, R.attr.post_subject_color);
+        nameColor = resolveColor(resValue, R.attr.post_name_color);
+        detailsColor = resolveColor(resValue, R.attr.post_details_color);
     }
 
     public Theme(

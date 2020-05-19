@@ -33,8 +33,8 @@ import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
@@ -63,7 +63,7 @@ public class PostLinkable
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
         markedColorBlend = theme.isLightTheme ? BLACK : WHITE;
-        spoilerColor = getAttrColor(theme, R.attr.post_spoiler_color);
+        spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
         this.type = type;

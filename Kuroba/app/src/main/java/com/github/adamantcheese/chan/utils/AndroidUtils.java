@@ -59,8 +59,6 @@ import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -263,10 +261,6 @@ public class AndroidUtils {
 
     public static int getAttrColor(Context context, int attr) {
         return getAttrColor(context.getTheme(), attr);
-    }
-
-    public static int getAttrColor(Theme theme, int attr) {
-        return getAttrColor(ThemeHelper.createTheme(theme), attr);
     }
 
     public static int getAttrColor(Resources.Theme theme, int attr) {
