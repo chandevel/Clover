@@ -85,22 +85,7 @@ public class BitmapUtils {
         if (imageOptions.fixExif) {
             try {
                 ExifInterface exif = new ExifInterface(inputBitmapFile.getAbsolutePath());
-                int orientation =
-                        exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
-                switch (orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_270:
-                        matrix.postRotate(270);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        matrix.postRotate(180);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_90:
-                        matrix.postRotate(90);
-                        break;
-                    default:
-                        matrix.postRotate(0);
-                        break;
-                }
+                matrix.postRotate(exif.getRotationDegrees());
             } catch (Exception ignored) {}
         }
 
@@ -114,8 +99,6 @@ public class BitmapUtils {
 
             try (FileOutputStream output = new FileOutputStream(tempFile)) {
                 newBitmap.compress(newFormat, imageOptions.reencodeQuality, output);
-            } catch (Exception e) {
-                Logger.d("BitmapUtils", "test");
             }
 
             return tempFile;

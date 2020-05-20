@@ -20,6 +20,7 @@ import android.content.Context;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ public class ReplyManager {
         if (reply == null) {
             reply = new Reply();
             drafts.put(loadable, reply);
+            Logger.d(this, "Draft doesn't exist, returning empty draft");
         }
         return reply;
     }
@@ -57,6 +59,7 @@ public class ReplyManager {
                 Reply value = entry.getValue();
                 value.file = null;
                 value.fileName = "";
+                Logger.d(this, "Cleared file for loadable " + loadable.toShortString());
             }
         }
 

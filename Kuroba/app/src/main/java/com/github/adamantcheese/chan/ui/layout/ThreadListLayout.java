@@ -61,6 +61,7 @@ import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -108,7 +109,22 @@ public class ThreadListLayout
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            onRecyclerViewScrolled();
+            // onScrolled can be called after cleanup()
+            if (showingThread != null) {
+                int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
+
+                showingThread.getLoadable().setListViewIndex(indexTop[0]);
+                showingThread.getLoadable().setListViewTop(indexTop[1]);
+
+                int last = getCompleteBottomAdapterPosition();
+                if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
+                    lastPostCount = last;
+
+                    // As requested by the RecyclerView, make sure that the adapter isn't changed
+                    // while in a layout pass. Postpone to the next frame.
+                    mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
+                }
+            }
         }
     };
 
@@ -168,25 +184,6 @@ public class ThreadListLayout
             reply.setPadding(0, toolbarHeight(), 0, 0);
         }
         updatePaddings(searchStatus, -1, -1, searchStatus.getPaddingTop() + toolbarHeight(), -1);
-    }
-
-    private void onRecyclerViewScrolled() {
-        // onScrolled can be called after cleanup()
-        if (showingThread != null) {
-            int[] indexTop = getIndexAndTop();
-
-            showingThread.getLoadable().setListViewIndex(indexTop[0]);
-            showingThread.getLoadable().setListViewTop(indexTop[1]);
-
-            int last = getCompleteBottomAdapterPosition();
-            if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
-                lastPostCount = last;
-
-                // As requested by the RecyclerView, make sure that the adapter isn't changed
-                // while in a layout pass. Postpone to the next frame.
-                mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
-            }
-        }
     }
 
     @Override
@@ -642,18 +639,7 @@ public class ThreadListLayout
     }
 
     public int[] getIndexAndTop() {
-        int index = 0;
-        int top = 0;
-        if (recyclerView.getLayoutManager().getChildCount() > 0) {
-            View topChild = recyclerView.getLayoutManager().getChildAt(0);
-
-            index = ((RecyclerView.LayoutParams) topChild.getLayoutParams()).getViewLayoutPosition();
-
-            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) topChild.getLayoutParams();
-            top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
-        }
-
-        return new int[]{index, top};
+        return RecyclerUtils.getIndexAndTop(recyclerView);
     }
 
     private boolean shouldToolbarCollapse() {
