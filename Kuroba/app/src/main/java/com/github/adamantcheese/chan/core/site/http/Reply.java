@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.io.File;
@@ -45,4 +48,23 @@ public class Reply {
     public String comment = "";
     public boolean spoilerImage = false;
     public String password = "";
+
+    @SuppressWarnings("ConstantConditions")
+    public Reply(@NonNull Loadable loadable) {
+        if (loadable == null) throw new IllegalArgumentException("Loadable cannot be null");
+        this.loadable = loadable;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (!(obj instanceof Reply)) return false;
+        Reply other = (Reply) obj;
+        // for the sake of ReplyManager, two reply objects are equal if they reference the same loadable, regardless of contents
+        return other.loadable.equals(loadable);
+    }
+
+    @Override
+    public int hashCode() {
+        return loadable.hashCode();
+    }
 }

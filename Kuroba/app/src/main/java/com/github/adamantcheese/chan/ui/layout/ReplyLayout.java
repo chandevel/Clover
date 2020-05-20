@@ -333,8 +333,8 @@ public class ReplyLayout
         } else if (v == submit) {
             presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {
-            attach.setClickable(false); // prevent immediately removing the file
             if (presenter.isAttachedFileSupportedForReencoding()) {
+                attach.setClickable(false); // prevent immediately removing the file
                 callback.showImageReencodingWindow();
             } else {
                 showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
@@ -888,7 +888,7 @@ public class ReplyLayout
     }
 
     public void onImageOptionsComplete() {
-        attach.setClickable(true); // reencode windows gone, allow the file to be removed
+        attach.setClickable(true); // reencode window gone, allow the file to be removed
     }
 
     private void showReencodeImageHint() {

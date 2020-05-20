@@ -111,7 +111,7 @@ public class ImageReencodingPresenter {
                     options,
                     callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat()
             );
-            replyManager.putReply(loadable, reply);
+            replyManager.putReply(reply);
         } catch (Throwable error) {
             showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
             return;

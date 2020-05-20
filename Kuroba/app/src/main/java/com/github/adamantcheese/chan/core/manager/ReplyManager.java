@@ -44,26 +44,24 @@ public class ReplyManager {
     public Reply getReply(Loadable loadable) {
         Reply reply = drafts.get(loadable);
         if (reply == null) {
-            reply = new Reply();
+            reply = new Reply(loadable);
             drafts.put(loadable, reply);
-            Logger.d(this, "Draft doesn't exist, returning empty draft");
         }
         return reply;
     }
 
-    public void putReply(Loadable loadable, Reply reply) {
+    public void putReply(Reply reply) {
         // Remove files from all other replies because there can only be one picked_file at the same time.
         // Not doing this would be confusing and cause invalid fileNames.
         for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
-            if (!entry.getKey().equals(loadable)) {
+            if (!entry.getKey().equals(reply.loadable)) {
                 Reply value = entry.getValue();
                 value.file = null;
                 value.fileName = "";
-                Logger.d(this, "Cleared file for loadable " + loadable.toShortString());
             }
         }
 
-        drafts.put(loadable, reply);
+        drafts.put(reply.loadable, reply);
     }
 
     public File getPickFile() {

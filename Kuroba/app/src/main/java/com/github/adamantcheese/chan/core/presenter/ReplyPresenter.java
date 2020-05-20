@@ -149,7 +149,7 @@ public class ReplyPresenter
         draft.file = null;
         draft.fileName = "";
         callback.loadViewsIntoDraft(draft);
-        replyManager.putReply(loadable, draft);
+        replyManager.putReply(draft);
 
         closeAll();
     }
@@ -287,7 +287,6 @@ public class ReplyPresenter
             return false;
         }
 
-        draft.loadable = loadable;
         draft.spoilerImage = draft.spoilerImage && board.spoilers;
         draft.captchaResponse = null;
 
@@ -337,9 +336,9 @@ public class ReplyPresenter
             closeAll();
             highlightQuotes();
             String name = draft.name;
-            draft = new Reply();
+            draft = new Reply(loadable);
             draft.name = name;
-            replyManager.putReply(localLoadable, draft);
+            replyManager.putReply(draft);
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
 
