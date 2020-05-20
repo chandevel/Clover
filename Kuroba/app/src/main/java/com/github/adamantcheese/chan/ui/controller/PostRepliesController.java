@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -33,6 +35,7 @@ import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.List;
 
@@ -158,6 +161,17 @@ public class PostRepliesController
         };
         listView.setAdapter(adapter);
         adapter.setThread(loadable, displayingData.posts, false);
+        LinearLayoutManager layoutManager = (LinearLayoutManager) listView.getLayoutManager();
+        layoutManager.scrollToPositionWithOffset(data.listViewIndex, data.listViewTop);
+
+        listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                int[] indexAndTop = RecyclerUtils.getIndexAndTop(recyclerView);
+                data.listViewIndex = indexAndTop[0];
+                data.listViewTop = indexAndTop[1];
+            }
+        });
 
         loadView.setFadeDuration(first ? 0 : 150);
         first = false;

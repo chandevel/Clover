@@ -118,6 +118,8 @@ public class PostPopupHelper {
     public static class RepliesData {
         public List<Post> posts;
         public int forPostNo;
+        public int listViewIndex;
+        public int listViewTop;
 
         public RepliesData(Post forPost, List<Post> posts) {
             this.forPostNo = forPost.no;
