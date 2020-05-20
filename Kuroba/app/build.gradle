@@ -234,7 +234,7 @@ dependencies {
     implementation 'androidx.slidingpanelayout:slidingpanelayout:1.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
-    implementation 'com.google.android.exoplayer:exoplayer:2.11.3'
+    implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
     implementation 'com.android.volley:volley:1.2.0-SNAPSHOT'
     implementation 'com.squareup.okhttp3:okhttp:4.5.0'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
