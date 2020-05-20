@@ -100,25 +100,6 @@ public class BackgroundUtils {
         return cancelable;
     }
 
-    public static Cancelable runWithExecutor(Executor executor, final Runnable background) {
-        final AtomicBoolean canceled = new AtomicBoolean(false);
-        Cancelable cancelable = () -> canceled.set(true);
-
-        executor.execute(() -> {
-            if (!canceled.get()) {
-                try {
-                    background.run();
-                } catch (final Exception e) {
-                    runOnMainThread(() -> {
-                        throw new RuntimeException(e);
-                    });
-                }
-            }
-        });
-
-        return cancelable;
-    }
-
     public interface BackgroundResult<T> {
         void onResult(T result);
     }

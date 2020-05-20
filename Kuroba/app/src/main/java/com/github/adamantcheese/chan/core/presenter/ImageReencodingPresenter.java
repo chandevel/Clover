@@ -30,13 +30,9 @@ import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.google.gson.Gson;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -53,10 +49,8 @@ public class ImageReencodingPresenter {
     @Inject
     ReplyManager replyManager;
 
-    private Executor executor = Executors.newSingleThreadExecutor();
     private ImageReencodingPresenterCallback callback;
     private Loadable loadable;
-    private BackgroundUtils.Cancelable cancelable;
 
     public ImageReencodingPresenter(
             Context context, ImageReencodingPresenterCallback callback, Loadable loadable
@@ -66,15 +60,6 @@ public class ImageReencodingPresenter {
         this.context = context;
         this.loadable = loadable;
         this.callback = callback;
-    }
-
-    public void onDestroy() {
-        synchronized (this) {
-            if (cancelable != null) {
-                cancelable.cancel();
-                cancelable = null;
-            }
-        }
     }
 
     public void loadImagePreview() {
@@ -117,41 +102,24 @@ public class ImageReencodingPresenter {
     }
 
     public void applyImageOptions(ImageOptions options) {
-        synchronized (this) {
-            if (cancelable != null) {
-                return;
-            }
-        }
-
         Reply reply = replyManager.getReply(loadable);
         ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(options));
 
-        BackgroundUtils.Cancelable localCancelable = BackgroundUtils.runWithExecutor(executor, () -> {
-            try {
-                callback.disableOrEnableButtons(false);
-                CompressFormat newFormat = callback.getReencodeFormat();
-                newFormat = newFormat == null ? getCurrentFileFormat() : newFormat;
-
-                reply.file = BitmapUtils.reencodeBitmapFile(reply.file, options, newFormat);
-                replyManager.putReply(loadable, reply);
-            } catch (Throwable error) {
-                showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
-                cancelable = null;
-                return;
-            } finally {
-                callback.disableOrEnableButtons(true);
-            }
-
-            callback.onImageOptionsApplied();
-
-            synchronized (this) {
-                cancelable = null;
-            }
-        });
-
-        synchronized (this) {
-            cancelable = localCancelable;
+        callback.disableOrEnableButtons(false);
+        try {
+            reply.file = BitmapUtils.reencodeBitmapFile(reply.file,
+                    options,
+                    callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat()
+            );
+            replyManager.putReply(loadable, reply);
+        } catch (Throwable error) {
+            showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
+            return;
+        } finally {
+            callback.disableOrEnableButtons(true);
         }
+
+        callback.onImageOptionsApplied();
     }
 
     public static class ImageOptions {

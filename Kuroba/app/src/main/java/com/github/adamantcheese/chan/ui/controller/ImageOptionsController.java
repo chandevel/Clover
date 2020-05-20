@@ -255,26 +255,18 @@ public class ImageOptionsController
 
     @Override
     public void onImageOptionsApplied() {
-        BackgroundUtils.ensureBackgroundThread();
-
-        BackgroundUtils.runOnMainThread(() -> {
-            stopPresenting();
-            callback.onImageOptionsApplied();
-            callback.onImageOptionsComplete();
-        });
+        stopPresenting();
+        callback.onImageOptionsApplied();
+        callback.onImageOptionsComplete();
     }
 
     @Override
     public void disableOrEnableButtons(boolean enabled) {
-        BackgroundUtils.ensureBackgroundThread();
-
-        BackgroundUtils.runOnMainThread(() -> {
-            fixExif.setEnabled(enabled);
-            changeImageChecksum.setEnabled(enabled);
-            viewHolder.setEnabled(enabled);
-            cancel.setEnabled(enabled);
-            ok.setEnabled(enabled);
-        });
+        fixExif.setEnabled(enabled);
+        changeImageChecksum.setEnabled(enabled);
+        viewHolder.setEnabled(enabled);
+        cancel.setEnabled(enabled);
+        ok.setEnabled(enabled);
     }
 
     @Override
