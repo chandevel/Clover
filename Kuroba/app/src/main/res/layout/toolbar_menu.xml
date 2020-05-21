@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:baselineAligned="false"
     android:orientation="horizontal"
     tools:layout_height="@dimen/toolbar_height"
-    tools:layout_width="150dp">
+    tools:layout_width="150dp"
+    tools:background="@color/md_red_500">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_container"
@@ -61,7 +62,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:singleLine="true"
             android:textColor="@color/white"
             android:textSize="12dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="Anime &amp; Manga" />
