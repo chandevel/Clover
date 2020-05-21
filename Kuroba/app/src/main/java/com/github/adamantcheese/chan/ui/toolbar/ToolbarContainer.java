@@ -463,8 +463,10 @@ public class ToolbarContainer
                 titleParams.height = WRAP_CONTENT;
                 titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
+                ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = R.id.parent;
                 updatePaddings(titleView, -1, -1, dp(5f), -1);
             } else {
+                ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = 0;
                 subtitleView.setVisibility(GONE);
             }
 
