@@ -52,11 +52,13 @@ public class ReplyManager {
     public void putReply(Reply reply) {
         // Remove files from all other replies because there can only be one picked_file at the same time.
         // Not doing this would be confusing and cause invalid fileNames.
-        for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
-            if (!entry.getKey().equals(reply.loadable)) {
-                Reply value = entry.getValue();
-                value.file = null;
-                value.fileName = "";
+        if(reply.file != null) {
+            for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
+                if (!entry.getKey().toString().equals(reply.loadable.toString())) {
+                    Reply value = entry.getValue();
+                    value.file = null;
+                    value.fileName = "";
+                }
             }
         }
 

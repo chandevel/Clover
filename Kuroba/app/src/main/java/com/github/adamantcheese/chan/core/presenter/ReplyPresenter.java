@@ -142,13 +142,13 @@ public class ReplyPresenter
     }
 
     public void unbindLoadable() {
-        bound = false;
-        draft.file = null;
-        draft.fileName = "";
-        callback.loadViewsIntoDraft(draft);
-        replyManager.putReply(draft);
+        if(bound) {
+            bound = false;
+            callback.loadViewsIntoDraft(draft);
+            replyManager.putReply(draft);
 
-        closeAll();
+            closeAll();
+        }
     }
 
     public void onOpen(boolean open) {
