@@ -90,6 +90,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         post_spoiler_color      (the spoiler block color; the text's color inside is dynamically changed between black and white for visibility)
         android:textColorLink   (the color of all linkables, including >>quotes)
 
+        If you have Oneechan installed in your browser, you can use it to more easily create themes that will work in Kuroba.
+        The following attribute mapping applies (Oneechan -> Kuroba):
+
+        Body Background 		-> backcolor_secondary
+        Reply/Header Background -> backcolor
+        Quotelinks 				-> android:textColorLink
+        Name Color 				-> post_name_color
+        Greentext 				-> post_inline_quote_color
+        Text Color 				-> android:textColor, android:textColorPrimary
+        Subject 				-> post_subject_color
+
+        Custom definitions:
+        android:textColorSecondary 	-> Just a darker color from android:textColor
+        android:textColorHint 		-> Just a darker color from android:textColorSecondary
+        post_details_color 			-> Just a darker color from android:textColorSecondary
+        post_spoiler_color 			-> Usually the default color works, but theme as you see fit
+
         3) Go to ThemeHelper to finish adding your theme.
     -->
 
