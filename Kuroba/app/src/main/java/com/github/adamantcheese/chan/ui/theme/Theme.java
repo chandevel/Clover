@@ -55,7 +55,6 @@ public class Theme {
     public Typeface mainFont = ROBOTO_MEDIUM;
     public Typeface altFont = ROBOTO_CONDENSED;
     public boolean altFontIsMain = false;
-    public boolean isLightTheme;
 
     // Span colors, kept here for performance reasons
     public int subjectColor;
@@ -66,11 +65,7 @@ public class Theme {
     private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
 
     public Theme(
-            String displayName,
-            int resValue,
-            MaterialColorStyle primaryColor,
-            MaterialColorStyle accentColor,
-            boolean lightTheme
+            String displayName, int resValue, MaterialColorStyle primaryColor, MaterialColorStyle accentColor
     ) {
         this.name = displayName;
         this.resValue = resValue;
@@ -78,7 +73,6 @@ public class Theme {
         defaultPrimary = primaryColor;
         this.accentColor = accentColor;
         defaultAccent = accentColor;
-        isLightTheme = lightTheme;
 
         // Span color setup
         subjectColor = resolveColor(resValue, R.attr.post_subject_color);
@@ -92,10 +86,9 @@ public class Theme {
             MaterialColorStyle primaryColor,
             MaterialColorStyle accentColor,
             Typeface mainFont,
-            Typeface altFont,
-            boolean lightTheme
+            Typeface altFont
     ) {
-        this(displayName, resValue, primaryColor, accentColor, lightTheme);
+        this(displayName, resValue, primaryColor, accentColor);
         this.mainFont = mainFont;
         this.altFont = altFont;
     }

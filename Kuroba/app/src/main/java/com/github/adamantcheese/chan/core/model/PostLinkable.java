@@ -34,6 +34,7 @@ import static android.graphics.Color.WHITE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveBool;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 
 /**
@@ -62,7 +63,7 @@ public class PostLinkable
     private int markedNo = -1;
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
-        markedColorBlend = theme.isLightTheme ? BLACK : WHITE;
+        markedColorBlend = resolveBool(theme.resValue, R.attr.isLightTheme) ? BLACK : WHITE;
         spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;

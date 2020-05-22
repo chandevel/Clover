@@ -33,11 +33,11 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -163,9 +163,11 @@ public class CaptchaLayout
 
     @Override
     public void hardReset() {
+        int[] attr = {R.attr.isLightTheme};
+        boolean isLightTheme = getContext().getTheme().obtainStyledAttributes(attr).getBoolean(0, true);
         String html = IOUtils.assetAsString(getContext(), "html/captcha2.html");
         html = html.replace("__site_key__", siteKey);
-        html = html.replace("__theme__", ThemeHelper.getTheme().isLightTheme ? "light" : "dark");
+        html = html.replace("__theme__", isLightTheme ? "light" : "dark");
 
         Point displaySize = getDisplaySize();
         boolean isSplitMode =

@@ -274,6 +274,13 @@ public class AndroidUtils {
         return getRes().getColor(colorId);
     }
 
+    public static boolean resolveBool(int themeId, int boolId) {
+        TypedValue typedValue = new TypedValue();
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
+        wrapper.getTheme().resolveAttribute(boolId, typedValue, true);
+        return typedValue.data != 0;
+    }
+
     public static int getContrastColor(int color) {
         double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000f;
         return y >= 128.0 ? Color.BLACK : Color.WHITE;
