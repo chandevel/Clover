@@ -109,7 +109,8 @@ public class Theme {
         //
         // UPPER_CASE_SNAKE_CASE
         //
-        // for any new items added to this enum; settings saving and display names depend on it
+        // for any new items added to this enum; settings saving and display names depend on it.
+        // NAME_HERE(R.style.PRIMARY_COLOR, R.style.ACCENT_COLOR)
 
         RED(R.style.PrimaryRed, R.style.AccentRed),
         PINK(R.style.PrimaryPink, R.style.AccentPink),
@@ -130,6 +131,7 @@ public class Theme {
         BROWN(R.style.PrimaryBrown, R.style.AccentBrown),
         GREY(R.style.PrimaryGrey, R.style.AccentGrey),
         BLUE_GREY(R.style.PrimaryBlueGrey, R.style.AccentBlueGrey),
+        LIGHT_BLUE_GREY(R.style.PrimaryLightBlueGrey, R.style.AccentLightBlueGrey),
 
         DARK(R.style.PrimaryDark, R.style.AccentDark),
         BLACK(R.style.PrimaryBlack, R.style.AccentBlack);

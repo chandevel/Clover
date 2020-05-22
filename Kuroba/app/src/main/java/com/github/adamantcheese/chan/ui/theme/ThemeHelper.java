@@ -52,7 +52,10 @@ public class ThemeHelper {
         themes.add(new Theme("NAME", R.style.NAMEHERE, PRIMARY_COLOR, ACCENT_COLOR));
         If you want to change the default fonts for your themes, there's a constructor and example for that.
 
-        5) That's it! Everything else is taken care of for you automatically.
+        5) If you've added a PrimaryColor or AccentColor, you'll need to add them to the MaterialColorStyle enum in Theme.java
+           Be sure to follow the instructions there.
+
+        6) That's it! Everything else is taken care of for you automatically.
      */
     private List<Theme> themes = new ArrayList<>();
 
