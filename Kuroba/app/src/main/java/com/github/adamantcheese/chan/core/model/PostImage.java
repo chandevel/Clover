@@ -44,7 +44,7 @@ public class PostImage {
     public boolean hidden = ChanSettings.hideImages.get();
 
     public final String serverFilename;
-    public final HttpUrl thumbnailUrl;
+    public HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
     @Nullable
     public final HttpUrl imageUrl;

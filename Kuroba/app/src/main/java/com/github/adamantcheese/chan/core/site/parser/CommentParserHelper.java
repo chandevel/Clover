@@ -233,12 +233,12 @@ public class CommentParserHelper {
 
                         post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
                                 //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
-                                .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
+                                .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : "https://api.rethumb.com/v1/square/512/" + linkable.value))
                                 .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
                                 .imageUrl(imageUrl)
                                 .filename(matcher.group(1))
                                 .extension(matcher.group(2))
-                                .spoiler(true)
+                                .spoiler(noThumbnail)
                                 .isInlined(true)
                                 .size(-1)
                                 .build()));

@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -152,5 +153,15 @@ public class PostImageThumbnailView
         showToast(getContext(), R.string.image_url_copied_to_clipboard);
 
         return true;
+    }
+
+    @Override
+    public void onErrorResponse(VolleyError e) {
+        if (postImage.isInlined) {
+            postImage.thumbnailUrl = postImage.spoilerThumbnailUrl;
+            setUrl(postImage.spoilerThumbnailUrl.toString());
+            return;
+        }
+        super.onErrorResponse(e);
     }
 }
