@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSet
 import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
@@ -181,7 +182,8 @@ public class ChanSettings {
 
     //region APPEARANCE
     // Theme
-    public static final StringSetting theme;
+    public static final StringSetting themeDay;
+    public static final StringSetting themeNight;
 
     // Layout
     public static final OptionsSetting<LayoutMode> layoutMode;
@@ -335,7 +337,8 @@ public class ChanSettings {
 
             //region APPEARANCE
             // Theme
-            theme = new StringSetting(p, "preference_theme", "Yotsuba,RED,RED");
+            themeDay = new StringSetting(p, "preference_theme", ThemeHelper.defaultTheme.toString());
+            themeNight = new StringSetting(p, "preference_theme_2", ThemeHelper.defaultTheme.toString());
 
             //Layout
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);

@@ -84,6 +84,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -108,6 +109,7 @@ public class StartActivity
     private boolean exitFlag = false;
 
     public static boolean loadedFromURL = false;
+    private int currentNightModeBits;
 
     @Inject
     DatabaseManager databaseManager;
@@ -118,6 +120,7 @@ public class StartActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        currentNightModeBits = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         super.onCreate(savedInstanceState);
         inject(this);
 
@@ -458,8 +461,8 @@ public class StartActivity
     }
 
     public void popAllControllerClass(Class<? extends Controller> controllerClass) {
-        for(Controller controller : stack) {
-            if(controller.getClass().equals(controllerClass)) {
+        for (Controller controller : stack) {
+            if (controller.getClass().equals(controllerClass)) {
                 controller.stopPresenting();
             }
         }
@@ -484,6 +487,11 @@ public class StartActivity
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+
+        if (isAndroid10() && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits) {
+            restartApp();
+        }
+
         for (Controller controller : stack) {
             controller.onConfigurationChanged(newConfig);
         }

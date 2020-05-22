@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.theme;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -42,6 +43,7 @@ import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.OR
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.RED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class ThemeHelper {
     /*
@@ -54,7 +56,9 @@ public class ThemeHelper {
      */
     private List<Theme> themes = new ArrayList<>();
 
-    private Theme theme;
+    private Theme themeDay;
+    private Theme themeNight;
+    public static boolean isNightTheme = false;
     public static Theme defaultTheme = new Theme("Yotsuba", R.style.Chan_Theme_Yotsuba, RED, RED, true);
 
     private static final Typeface TALLEYRAND =
@@ -79,29 +83,58 @@ public class ThemeHelper {
         holo.altFontIsMain = true;
         themes.add(holo);
 
-        String[] split = ChanSettings.theme.get().split(",");
+        String[] split = ChanSettings.themeDay.get().split(",");
+        boolean ok = false;
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    this.theme = theme;
-                    this.theme.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
-                    this.theme.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
-                    return;
+                    this.themeDay = theme;
+                    this.themeDay.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
+                    this.themeDay.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    ok = true;
                 } catch (Exception ignored) {
                     // theme name matches, but something else is wrong with the setting
-                    break;
                 }
+                break;
             }
         }
 
-        Logger.e(this, "No theme found for setting, using default theme");
-        ChanSettings.theme.set(defaultTheme.toString());
-        theme = defaultTheme;
+        if (!ok) {
+            Logger.e(this, "No theme found for setting, using default theme for day");
+            ChanSettings.themeDay.set(defaultTheme.toString());
+            themeDay = defaultTheme;
+        }
+
+        split = ChanSettings.themeNight.get().split(",");
+        ok = false;
+        for (Theme theme : themes) {
+            if (theme.name.equals(split[0])) {
+                try {
+                    this.themeNight = theme;
+                    this.themeNight.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
+                    this.themeNight.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    ok = true;
+                } catch (Exception ignored) {
+                    // theme name matches, but something else is wrong with the setting
+                }
+                break;
+            }
+        }
+
+        if (!ok) {
+            Logger.e(this, "No theme found for setting, using default theme for day");
+            ChanSettings.themeNight.set(defaultTheme.toString());
+            themeNight = defaultTheme;
+        }
     }
 
     @AnyThread
     public static Theme getTheme() {
-        return instance(ThemeHelper.class).theme;
+        if (isNightTheme) {
+            return instance(ThemeHelper.class).themeNight;
+        } else {
+            return instance(ThemeHelper.class).themeDay;
+        }
     }
 
     public static void resetThemes() {
@@ -115,6 +148,19 @@ public class ThemeHelper {
     }
 
     public static void setupContext(AppCompatActivity context) {
+        Configuration currentConfig = context.getResources().getConfiguration();
+        int nightModeBits = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        switch (nightModeBits) {
+            case Configuration.UI_MODE_NIGHT_YES:
+                isNightTheme = true;
+                break;
+            default:
+            case Configuration.UI_MODE_NIGHT_NO:
+            case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                isNightTheme = false;
+                break;
+        }
+        if(!isAndroid10()) isNightTheme = false;
         //set the theme to the newly made theme and setup some small extras
         context.getTheme().setTo(createTheme(context, getTheme()));
         Bitmap taskDescriptionBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);

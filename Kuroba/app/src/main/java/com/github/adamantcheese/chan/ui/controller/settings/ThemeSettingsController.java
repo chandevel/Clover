@@ -79,6 +79,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -87,6 +88,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ThemeSettingsController
         extends Controller {
 
+    private static final int TOGGLE_ID = 1;
     private Loadable dummyLoadable = Loadable.emptyLoadable();
 
     {
@@ -161,6 +163,7 @@ public class ThemeSettingsController
     private List<Theme> themes;
     private MaterialColorStyle currentPrimaryColor;
     private MaterialColorStyle currentAccentColor;
+    private boolean currentDayNight;
 
     public ThemeSettingsController(Context context) {
         super(context);
@@ -170,9 +173,18 @@ public class ThemeSettingsController
     public void onCreate() {
         super.onCreate();
 
+        navigationController.getToolbar().updateViewForItem(navigation);
         navigation.setTitle(R.string.settings_screen_theme);
         navigation.swipeable = false;
-        navigation.buildMenu().withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked).build();
+        NavigationItem.MenuBuilder builder =
+                navigation.buildMenu().withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked);
+        if (isAndroid10()) {
+            builder.withItem(TOGGLE_ID,
+                    ThemeHelper.isNightTheme ? R.drawable.ic_moon_white_24dp : R.drawable.ic_sun_white_24dp,
+                    this::dayNightToggle
+            );
+        }
+        builder.build();
         view = inflate(context, R.layout.controller_theme);
 
         themes = ThemeHelper.getThemes();
@@ -180,6 +192,7 @@ public class ThemeSettingsController
         // restore these if the user pressed back instead of the default theme color
         currentPrimaryColor = currentTheme.primaryColor;
         currentAccentColor = currentTheme.accentColor;
+        currentDayNight = ThemeHelper.isNightTheme;
 
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
@@ -219,6 +232,7 @@ public class ThemeSettingsController
         ThemeHelper.resetThemes();
         ThemeHelper.getTheme().primaryColor = currentPrimaryColor;
         ThemeHelper.getTheme().accentColor = currentAccentColor;
+        ThemeHelper.isNightTheme = currentDayNight;
         return super.onBack();
     }
 
@@ -227,7 +241,11 @@ public class ThemeSettingsController
     }
 
     private void saveTheme() {
-        ChanSettings.theme.setSync(getViewedTheme().toString());
+        if (ThemeHelper.isNightTheme) {
+            ChanSettings.themeNight.setSync(getViewedTheme().toString());
+        } else {
+            ChanSettings.themeDay.setSync(getViewedTheme().toString());
+        }
         ((StartActivity) context).restartApp();
     }
 
@@ -237,6 +255,34 @@ public class ThemeSettingsController
                 .setPositiveButton("Close", null)
                 .show();
         dialog.setCanceledOnTouchOutside(true);
+    }
+
+    private void dayNightToggle(ToolbarMenuItem item) {
+        //reset theme choices
+        ThemeHelper.resetThemes();
+        ThemeHelper.getTheme().primaryColor = currentPrimaryColor;
+        ThemeHelper.getTheme().accentColor = currentAccentColor;
+
+        //toggle toolbar item
+        if (ThemeHelper.isNightTheme) {
+            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_sun_white_24dp);
+            ThemeHelper.isNightTheme = false;
+        } else {
+            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_moon_white_24dp);
+            ThemeHelper.isNightTheme = true;
+        }
+        navigationController.getToolbar().updateViewForItem(navigation);
+
+        //update views
+        pager.setAdapter(new Adapter());
+        for (int i = 0; i < themes.size(); i++) {
+            Theme theme = themes.get(i);
+            if (theme.name.equals(ThemeHelper.getTheme().name)) {
+                // Current theme
+                pager.setCurrentItem(i, false);
+                break;
+            }
+        }
     }
 
     private void showAccentColorPicker() {
