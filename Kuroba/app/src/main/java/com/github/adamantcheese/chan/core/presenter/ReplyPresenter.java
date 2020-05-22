@@ -302,9 +302,10 @@ public class ReplyPresenter
                     "Title will update shortly…"
             );
             newThreadLoadable = databaseManager.getDatabaseLoadableManager().get(newThreadLoadable);
-            lastReplyRepository.putLastReply(originatingLoadable.board);
             if (originatingLoadable.isCatalogMode()) {
                 lastReplyRepository.putLastThread(newThreadLoadable.board);
+            } else {
+                lastReplyRepository.putLastReply(originatingLoadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
