@@ -49,7 +49,7 @@ public class ThemeHelper {
     /*
         Theme guide, continued from styles.xml
         4) Add in a new line
-        themes.add(new Theme("NAME", R.style.NAMEHERE, PRIMARY_COLOR, true if your theme's parent is Light, false if your theme's parent is Dark));
+        themes.add(new Theme("NAME", R.style.NAMEHERE, PRIMARY_COLOR, ACCENT_COLOR));
         If you want to change the default fonts for your themes, there's a constructor and example for that.
 
         5) That's it! Everything else is taken care of for you automatically.
