@@ -1307,7 +1307,7 @@ public class ThreadPresenter
 
         for (PostImage image : post.images) {
             text.append("Filename: ").append(image.filename).append(".").append(image.extension);
-            if (image.size == -1) {
+            if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
                 text.append(" \nDimensions: ")
@@ -1318,7 +1318,7 @@ public class ThreadPresenter
                         .append(getReadableFileSize(image.size));
             }
 
-            if (image.spoiler() && image.size != -1) { //all linked files are spoilered, don't say that
+            if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that
                 text.append("\nSpoilered");
             }
 

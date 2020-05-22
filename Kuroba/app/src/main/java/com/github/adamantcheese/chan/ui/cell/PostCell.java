@@ -401,9 +401,8 @@ public class PostCell
                 SpannableStringBuilder fileInfo = new SpannableStringBuilder();
                 fileInfo.append(postFileName ? " " : "\n");
                 fileInfo.append(image.extension.toUpperCase());
-                //if -1, linked image, no info
-                fileInfo.append(image.size == -1 ? "" : " " + getReadableFileSize(image.size));
-                fileInfo.append(image.size == -1 ? "" : " " + image.imageWidth + "x" + image.imageHeight);
+                fileInfo.append(image.isInlined ? "" : " " + getReadableFileSize(image.size));
+                fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                 fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 titleParts.add(fileInfo);
