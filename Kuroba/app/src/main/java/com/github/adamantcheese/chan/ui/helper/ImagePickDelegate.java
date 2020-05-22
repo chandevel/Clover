@@ -25,6 +25,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -77,7 +78,7 @@ public class ImagePickDelegate {
     private Activity activity;
     private ImagePickCallback callback;
     private Uri uri;
-    private String fileName;
+    private String fileName = "";
     private boolean success = false;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -212,11 +213,11 @@ public class ImagePickDelegate {
                     returnCursor.close();
                 }
 
-                if (fileName == null) {
+                if (TextUtils.isEmpty(fileName)) {
                     // As per the comment on OpenableColumns.DISPLAY_NAME:
                     // If this is not provided then the name should default to the last segment of the file's URI.
                     fileName = uri.getLastPathSegment();
-                    fileName = fileName == null ? DEFAULT_FILE_NAME : fileName;
+                    fileName = TextUtils.isEmpty(fileName) ? DEFAULT_FILE_NAME : fileName;
                 }
 
                 executor.execute(this::run);
@@ -291,7 +292,7 @@ public class ImagePickDelegate {
     private void reset() {
         callback = null;
         success = false;
-        fileName = null;
+        fileName = "";
         uri = null;
     }
 
