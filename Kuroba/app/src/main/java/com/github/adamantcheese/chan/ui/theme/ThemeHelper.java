@@ -59,7 +59,8 @@ public class ThemeHelper {
     private Theme themeDay;
     private Theme themeNight;
     public static boolean isNightTheme = false;
-    public static Theme defaultTheme = new Theme("Yotsuba", R.style.Chan_Theme_Yotsuba, RED, RED);
+    public static Theme defaultDayTheme = new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED);
+    public static Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, BLACK);
 
     private static final Typeface TALLEYRAND =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
@@ -68,12 +69,12 @@ public class ThemeHelper {
 
     public ThemeHelper() {
         themes.add(new Theme("Light", R.style.Chan_Theme_Light, GREEN, GREEN));
-        themes.add(new Theme("Dark", R.style.Chan_Theme_Dark, DARK, BLACK));
+        themes.add(defaultNightTheme);
         themes.add(new Theme("Black", R.style.Chan_Theme_Black, BLACK, DARK));
         themes.add(new Theme("Tomorrow", R.style.Chan_Theme_Tomorrow, DARK, BLACK));
         themes.add(new Theme("Tomorrow Black", R.style.Chan_Theme_TomorrowBlack, BLACK, DARK));
-        themes.add(defaultTheme);
-        themes.add(new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED));
+        themes.add(new Theme("Yotsuba", R.style.Chan_Theme_Yotsuba, RED, RED));
+        themes.add(defaultDayTheme);
         themes.add(new Theme("Photon", R.style.Chan_Theme_Photon, ORANGE, ORANGE));
         themes.add(new Theme("Insomnia", R.style.Chan_Theme_Insomnia, DARK, BLACK));
         themes.add(new Theme("Gruvbox", R.style.Chan_Theme_Gruvbox, DARK, BLACK));
@@ -101,8 +102,8 @@ public class ThemeHelper {
 
         if (!ok) {
             Logger.e(this, "No theme found for setting, using default theme for day");
-            ChanSettings.themeDay.set(defaultTheme.toString());
-            themeDay = defaultTheme;
+            ChanSettings.themeDay.set(defaultDayTheme.toString());
+            themeDay = defaultDayTheme;
         }
 
         split = ChanSettings.themeNight.get().split(",");
@@ -123,8 +124,8 @@ public class ThemeHelper {
 
         if (!ok) {
             Logger.e(this, "No theme found for setting, using default theme for day");
-            ChanSettings.themeNight.set(defaultTheme.toString());
-            themeNight = defaultTheme;
+            ChanSettings.themeNight.set(defaultNightTheme.toString());
+            themeNight = defaultNightTheme;
         }
     }
 
@@ -147,6 +148,10 @@ public class ThemeHelper {
         return instance(ThemeHelper.class).themes;
     }
 
+    public static boolean areDayAndNightThemesDifferent() {
+        return instance(ThemeHelper.class).themeDay != instance(ThemeHelper.class).themeNight;
+    }
+
     public static void setupContext(AppCompatActivity context) {
         Configuration currentConfig = context.getResources().getConfiguration();
         int nightModeBits = currentConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -160,7 +165,7 @@ public class ThemeHelper {
                 isNightTheme = false;
                 break;
         }
-        if(!isAndroid10()) isNightTheme = false;
+        if (!isAndroid10()) isNightTheme = false;
         //set the theme to the newly made theme and setup some small extras
         context.getTheme().setTo(createTheme(context, getTheme()));
         Bitmap taskDescriptionBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);

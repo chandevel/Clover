@@ -337,8 +337,8 @@ public class ChanSettings {
 
             //region APPEARANCE
             // Theme
-            themeDay = new StringSetting(p, "preference_theme", ThemeHelper.defaultTheme.toString());
-            themeNight = new StringSetting(p, "preference_theme_2", ThemeHelper.defaultTheme.toString());
+            themeDay = new StringSetting(p, "preference_theme", ThemeHelper.defaultDayTheme.toString());
+            themeNight = new StringSetting(p, "preference_theme_2", ThemeHelper.defaultNightTheme.toString());
 
             //Layout
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);

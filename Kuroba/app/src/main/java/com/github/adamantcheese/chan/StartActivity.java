@@ -488,7 +488,8 @@ public class StartActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (isAndroid10() && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits) {
+        if (isAndroid10() && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits
+                && ThemeHelper.areDayAndNightThemesDifferent()) {
             restartApp();
         }
 

@@ -576,7 +576,10 @@ Re-enable this permission in the app settings if you permanently disabled it."
     <string name="setting_theme_explanation">
 "Swipe to change the theme.
 Tap the toolbar menu to change its color.
-Tap the checkmark button when done."
+Tap the checkmark button when done.
+
+If you're on Android 10+, the sun/moon toggle selects the theme used for the day or night theme if dark mode is enabled.
+Setting the themes to the same will function as if dark mode is effectively off. Note that the application will restart when the theme changes."
     </string>
     <string name="setting_theme_accent">Tap to change the accent color.</string>
     <string name="settings_open_logs">View logs</string>
