@@ -105,7 +105,12 @@ public class Theme {
     }
 
     public enum MaterialColorStyle {
-        // Use UPPER_CASE_SNAKE_CASE for any new items added to this enum; settings saving and display names depend on it
+        // Use
+        //
+        // UPPER_CASE_SNAKE_CASE
+        //
+        // for any new items added to this enum; settings saving and display names depend on it
+
         RED(R.style.PrimaryRed, R.style.AccentRed),
         PINK(R.style.PrimaryPink, R.style.AccentPink),
         PURPLE(R.style.PrimaryPurple, R.style.AccentPurple),
@@ -130,11 +135,11 @@ public class Theme {
         BLACK(R.style.PrimaryBlack, R.style.AccentBlack);
 
         /**
-         * This style contains colorPrimary and colorVariant
+         * This style contains colorPrimary and colorPrimaryDark
          */
         public final int primaryColorStyleId;
         /**
-         * This style containscolorAccent
+         * This style contains colorAccent
          */
         public final int accentStyleId;
 
