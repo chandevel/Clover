@@ -211,7 +211,7 @@ public class Loadable
 
         Loadable other = (Loadable) object;
 
-        if (site.id() != other.siteId) {
+        if (siteId != other.siteId) {
             return false;
         }
 
@@ -246,7 +246,7 @@ public class Loadable
 
     @Override
     public String toString() {
-        return "Loadable{id=" + id + ", mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
+        return "Loadable{mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
                 + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(
                 lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo)
                 + ", dirty=" + dirty + ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';

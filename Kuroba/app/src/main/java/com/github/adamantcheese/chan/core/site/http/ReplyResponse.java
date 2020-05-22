@@ -21,9 +21,11 @@ import com.github.adamantcheese.chan.core.site.SiteActions;
 /**
  * Generic response for
  * {@link com.github.adamantcheese.chan.core.site.SiteActions#post(Reply, SiteActions.PostListener)} that the
- * reply layout uses.
+ * reply presenter uses.
  */
 public class ReplyResponse {
+    public Reply originatingReply;
+
     /**
      * {@code true} if the post when through, {@code false} otherwise.
      */
@@ -36,11 +38,11 @@ public class ReplyResponse {
     public String errorMessage;
 
     // TODO(multi-site)
-    public int siteId = 0;
-    public String boardCode = "";
-    public int threadNo = 0;
     public int postNo = 0;
-    public String password = "";
     public boolean probablyBanned = false;
     public boolean requireAuthentication = false;
+
+    public ReplyResponse(Reply reply) {
+        originatingReply = reply;
+    }
 }

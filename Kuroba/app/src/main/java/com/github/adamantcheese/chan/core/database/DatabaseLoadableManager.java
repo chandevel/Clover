@@ -26,10 +26,8 @@ import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -42,8 +40,7 @@ public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
-    // Uhhh, should this really be like this?
-    private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
+    private List<Loadable> cachedLoadables = new ArrayList<>();
 
     public DatabaseLoadableManager() {
         inject(this);
@@ -55,21 +52,12 @@ public class DatabaseLoadableManager {
      */
     public Callable<Void> flush() {
         return () -> {
-            List<Loadable> toFlush = new ArrayList<>();
-            for (Loadable loadable : cachedLoadables.values()) {
+            for (Loadable loadable : cachedLoadables) {
                 if (loadable.dirty) {
                     loadable.dirty = false;
-                    toFlush.add(loadable);
-                }
-            }
-
-            if (!toFlush.isEmpty()) {
-                Logger.d(DatabaseLoadableManager.this, "Flushing " + toFlush.size() + " loadable(s)");
-                for (Loadable loadable : toFlush) {
                     helper.loadableDao.update(loadable);
                 }
             }
-
             return null;
         };
     }
@@ -112,18 +100,24 @@ public class DatabaseLoadableManager {
         }
 
         // If the loadable was already loaded in the cache, return that entry
-        for (Loadable key : cachedLoadables.keySet()) {
-            if (key.id == loadable.id) {
-                return key;
-            }
-        }
+        Loadable cachedLoadable = findLoadableInCache(loadable);
+        if (cachedLoadable != null) return cachedLoadable;
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
         loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
-        cachedLoadables.put(loadable, loadable);
+        cachedLoadables.add(loadable);
         return loadable;
+    }
+
+    private Loadable findLoadableInCache(Loadable l) {
+        for (Loadable key : cachedLoadables) {
+            if (key.toString().equals(l.toString())) {
+                return key;
+            }
+        }
+        return null;
     }
 
     private Callable<Loadable> getLoadable(final Loadable loadable) {
@@ -132,7 +126,7 @@ public class DatabaseLoadableManager {
         }
 
         return () -> {
-            Loadable cachedLoadable = cachedLoadables.get(loadable);
+            Loadable cachedLoadable = findLoadableInCache(loadable);
             if (cachedLoadable != null) {
                 Logger.v(DatabaseLoadableManager.this, "Cached loadable found");
                 return cachedLoadable;
@@ -149,7 +143,10 @@ public class DatabaseLoadableManager {
                         .query();
 
                 if (results.size() > 1) {
-                    Logger.w(DatabaseLoadableManager.this, "Multiple loadables found for where Loadable.equals() would return true");
+                    Logger.w(
+                            DatabaseLoadableManager.this,
+                            "Multiple loadables found for where Loadable.equals() would return true"
+                    );
                     for (Loadable result : results) {
                         Logger.w(DatabaseLoadableManager.this, result.toString());
                     }
@@ -166,7 +163,7 @@ public class DatabaseLoadableManager {
                     result.board = result.site.board(result.boardCode);
                 }
 
-                cachedLoadables.put(result, result);
+                cachedLoadables.add(result);
                 return result;
             }
         };
@@ -200,9 +197,10 @@ public class DatabaseLoadableManager {
 
     public Callable<Void> updateLoadable(Loadable updatedLoadable) {
         return () -> {
-            for (Loadable key : cachedLoadables.keySet()) {
+            for (Loadable key : cachedLoadables) {
                 if (key.id == updatedLoadable.id) {
-                    cachedLoadables.put(key, updatedLoadable);
+                    cachedLoadables.remove(key);
+                    cachedLoadables.add(updatedLoadable);
                     break;
                 }
             }

@@ -33,9 +33,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
-import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -60,7 +58,6 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -293,59 +290,60 @@ public class ReplyPresenter
         return true;
     }
 
+    // Do NOT use the loadable from ReplyPresenter in this method, as it is not guaranteed to match the loadable associated with the reply object
+    // Instead use the response's reply to get the loadable or generate a fresh loadable for a new thread
     @Override
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            //if the thread being presented has changed in the time waiting for this call to complete, the loadable field in
-            //ReplyPresenter will be incorrect; reconstruct the loadable (local to this method) from the reply response
-            Site localSite = instance(SiteRepository.class).forId(replyResponse.siteId);
-            Board localBoard = instance(BoardRepository.class).getFromCode(localSite, replyResponse.boardCode);
-            Loadable localLoadable =
-                    databaseManager.getDatabaseLoadableManager().get(Loadable.forThread(localSite, localBoard,
-                            //this loadable is for the reply response's site and board
-                            replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
-                            //for the time being, will be updated later when the watchmanager updates
-                            "/" + localBoard.code + "/"
-                    ));
-
-            lastReplyRepository.putLastReply(localLoadable.board);
-            if (loadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(loadable.board);
+            Loadable originatingLoadable = replyResponse.originatingReply.loadable;
+            Loadable newThreadLoadable = Loadable.forThread(replyResponse.originatingReply.loadable.site,
+                    replyResponse.originatingReply.loadable.board,
+                    replyResponse.postNo,
+                    "Title will update shortly…"
+            );
+            newThreadLoadable = databaseManager.getDatabaseLoadableManager().get(newThreadLoadable);
+            lastReplyRepository.putLastReply(originatingLoadable.board);
+            if (originatingLoadable.isCatalogMode()) {
+                lastReplyRepository.putLastThread(newThreadLoadable.board);
             }
 
             if (ChanSettings.postPinThread.get()) {
-                if (localLoadable.isThreadMode()) {
+                if (originatingLoadable.isThreadMode()) {
                     //reply
                     ChanThread thread = callback.getThread();
                     if (thread != null) {
-                        watchManager.createPin(localLoadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
+                        watchManager.createPin(originatingLoadable, thread.getOp(), PinType.WATCH_NEW_POSTS);
                     } else {
-                        watchManager.createPin(localLoadable);
+                        watchManager.createPin(originatingLoadable);
                     }
                 } else {
-                    //new thread
-                    watchManager.createPin(localLoadable, draft);
+                    //new thread, use the new loadable
+                    draft.loadable = newThreadLoadable;
+                    watchManager.createPin(draft);
                 }
             }
 
-            SavedReply savedReply =
-                    SavedReply.fromBoardNoPassword(localLoadable.board, replyResponse.postNo, replyResponse.password);
+            SavedReply savedReply = SavedReply.fromBoardNoPassword(originatingLoadable.board,
+                    replyResponse.postNo,
+                    replyResponse.originatingReply.password
+            );
             databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
 
             switchPage(Page.INPUT);
             closeAll();
             highlightQuotes();
             String name = draft.name;
-            draft = new Reply(loadable);
+            draft = new Reply(originatingLoadable.isCatalogMode() ? newThreadLoadable : originatingLoadable);
+
+            if (originatingLoadable.isCatalogMode()) {
+                //new thread
+                callback.showThread(newThreadLoadable);
+            }
+
             draft.name = name;
             replyManager.putReply(draft);
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
-
-            //special case for new threads, check if we were on the catalog with the nonlocal loadable
-            if (bound && loadable.isCatalogMode()) {
-                callback.showThread(localLoadable);
-            }
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);
         } else {

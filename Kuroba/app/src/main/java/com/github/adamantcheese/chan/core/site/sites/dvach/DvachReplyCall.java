@@ -51,6 +51,8 @@ public class DvachReplyCall
     public void addParameters(
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
+        Reply reply = replyResponse.originatingReply;
+
         formBuilder.addFormDataPart("task", "post");
         formBuilder.addFormDataPart("board", reply.loadable.boardCode);
         formBuilder.addFormDataPart("comment", reply.comment);
@@ -84,6 +86,7 @@ public class DvachReplyCall
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         RequestBody requestBody;
+        Reply reply = replyResponse.originatingReply;
 
         if (progressListener == null) {
             requestBody = RequestBody.create(reply.file, MediaType.parse("application/octet-stream"));
@@ -111,9 +114,7 @@ public class DvachReplyCall
             } else {
                 Matcher threadMessageMatcher = THREAD_MESSAGE.matcher(result);
                 if (threadMessageMatcher.find()) {
-                    int threadNo = Integer.parseInt(threadMessageMatcher.group(1));
-                    replyResponse.threadNo = threadNo;
-                    replyResponse.postNo = threadNo;
+                    replyResponse.postNo = Integer.parseInt(threadMessageMatcher.group(1));
                 }
             }
         }

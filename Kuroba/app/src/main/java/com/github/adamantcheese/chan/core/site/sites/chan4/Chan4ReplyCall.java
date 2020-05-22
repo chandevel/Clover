@@ -39,8 +39,10 @@ public class Chan4ReplyCall
     public void addParameters(
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
+        Reply reply = replyResponse.originatingReply;
+
         formBuilder.addFormDataPart("mode", "regist");
-        formBuilder.addFormDataPart("pwd", replyResponse.password);
+        formBuilder.addFormDataPart("pwd", reply.password);
 
         if (reply.loadable.isThreadMode()) {
             formBuilder.addFormDataPart("resto", String.valueOf(reply.loadable.no));
@@ -86,6 +88,7 @@ public class Chan4ReplyCall
     ) {
         RequestBody requestBody;
 
+        Reply reply = replyResponse.originatingReply;
         if (progressListener == null) {
             requestBody = RequestBody.create(reply.file, MediaType.parse("application/octet-stream"));
         } else {

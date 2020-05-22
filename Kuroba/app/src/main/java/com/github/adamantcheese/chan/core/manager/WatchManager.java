@@ -202,20 +202,27 @@ public class WatchManager
         updateState();
     }
 
-    public boolean createPin(Loadable loadable) {
-        return createPin(loadable, null, PinType.WATCH_NEW_POSTS);
+    public void createPin(Loadable loadable) {
+        createPin(loadable, null, PinType.WATCH_NEW_POSTS);
     }
 
-    public boolean createPin(Loadable loadable, Reply newThreadOP) {
+    public void createPin(Reply newThreadOP) {
         //use a dummy post with just the subject/comment copied in for getting the right title
-        return createPin(loadable,
-                new Post.Builder().subject(newThreadOP.subject).comment(newThreadOP.comment).build(),
+        createPin(
+                newThreadOP.loadable,
+                new Post.Builder().board(newThreadOP.loadable.board)
+                        .id(newThreadOP.loadable.no)
+                        .opId(newThreadOP.loadable.no)
+                        .setUnixTimestampSeconds(System.currentTimeMillis())
+                        .subject(newThreadOP.subject)
+                        .comment(newThreadOP.comment)
+                        .build(),
                 PinType.WATCH_NEW_POSTS
         );
     }
 
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType) {
-        return createPin(loadable, opPost, pinType, true);
+    public void createPin(Loadable loadable, @Nullable Post opPost, int pinType) {
+        createPin(loadable, opPost, pinType, true);
     }
 
     public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType, boolean sendBroadcast) {
@@ -231,8 +238,8 @@ public class WatchManager
         return createPin(pin, sendBroadcast);
     }
 
-    public boolean createPin(Pin pin) {
-        return createPin(pin, true);
+    public void createPin(Pin pin) {
+        createPin(pin, true);
     }
 
     public boolean createPin(Pin pin, boolean sendBroadcast) {

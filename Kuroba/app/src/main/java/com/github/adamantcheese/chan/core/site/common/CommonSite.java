@@ -47,12 +47,10 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -64,8 +62,6 @@ import static android.text.TextUtils.isEmpty;
 
 public abstract class CommonSite
         extends SiteBase {
-    private final Random secureRandom = new SecureRandom();
-
     private String name;
     private SiteIcon icon;
     private BoardsType boardsType;
@@ -426,12 +422,7 @@ public abstract class CommonSite
 
         @Override
         public void post(Reply reply, PostListener postListener) {
-            ReplyResponse replyResponse = new ReplyResponse();
-
-            reply.password = Long.toHexString(site.secureRandom.nextLong());
-            replyResponse.password = reply.password;
-            replyResponse.siteId = reply.loadable.siteId;
-            replyResponse.boardCode = reply.loadable.boardCode;
+            ReplyResponse replyResponse = new ReplyResponse(reply);
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override

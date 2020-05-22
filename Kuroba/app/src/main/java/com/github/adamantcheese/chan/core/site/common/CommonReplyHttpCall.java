@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import org.jsoup.Jsoup;
 
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,33 +36,27 @@ import okhttp3.Response;
 
 public abstract class CommonReplyHttpCall
         extends HttpCall {
-    private static final Random RANDOM = new Random();
-    private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
+    private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:[0-9]+,no:([0-9]+) -->");
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
     private static final String PROBABLY_BANNED_TEXT = "banned";
 
-    public final Reply reply;
-    public final ReplyResponse replyResponse = new ReplyResponse();
+    public final ReplyResponse replyResponse;
 
     public CommonReplyHttpCall(Site site, Reply reply) {
         super(site);
-        this.reply = reply;
-        replyResponse.siteId = reply.loadable.siteId;
-        replyResponse.boardCode = reply.loadable.boardCode;
+        replyResponse = new ReplyResponse(reply);
     }
 
     @Override
     public void setup(
             Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
-        replyResponse.password = Long.toHexString(RANDOM.nextLong());
-
         MultipartBody.Builder formBuilder = new MultipartBody.Builder();
         formBuilder.setType(MultipartBody.FORM);
 
         addParameters(formBuilder, progressListener);
 
-        HttpUrl replyUrl = site.endpoints().reply(this.reply.loadable);
+        HttpUrl replyUrl = site.endpoints().reply(replyResponse.originatingReply.loadable);
         requestBuilder.url(replyUrl);
         requestBuilder.addHeader("Referer", replyUrl.toString());
         requestBuilder.post(formBuilder.build());
@@ -79,14 +72,12 @@ public abstract class CommonReplyHttpCall
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {
                 try {
-                    replyResponse.threadNo = Integer.parseInt(threadNoMatcher.group(1));
-                    replyResponse.postNo = Integer.parseInt(threadNoMatcher.group(2));
+                    replyResponse.postNo = Integer.parseInt(threadNoMatcher.group(1));
+                    // corresponds to the post number of a new thread OP or a new reply in a thread
+                    if (replyResponse.postNo > 0) {
+                        replyResponse.posted = true;
+                    }
                 } catch (NumberFormatException ignored) {
-                }
-
-                if (replyResponse.threadNo >= 0
-                        && replyResponse.postNo > 0) { //threadNo can be 0 iff this is a new thread
-                    replyResponse.posted = true;
                 }
             }
         }

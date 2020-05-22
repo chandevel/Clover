@@ -39,15 +39,8 @@ public class TaimabaActions
         super(commonSite);
     }
 
-    int threadNo = 0;
-    String password = null;
-
     @Override
     public void setupPost(Reply reply, MultipartHttpCall call) {
-        //pass threadNo & password with correct variables
-        threadNo = reply.loadable.no;
-        password = reply.password;
-
         call.parameter("fart", Integer.toString((int) (Math.random() * 15000) + 5000));
 
         call.parameter("board", reply.loadable.boardCode);
@@ -81,8 +74,7 @@ public class TaimabaActions
         if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
-            replyResponse.threadNo = threadNo;
-            replyResponse.password = password;
+            replyResponse.postNo = replyResponse.originatingReply.loadable.no;
             replyResponse.posted = true;
         }
     }

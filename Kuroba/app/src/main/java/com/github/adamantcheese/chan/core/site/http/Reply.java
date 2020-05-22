@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.io.File;
+import java.security.SecureRandom;
+import java.util.Random;
 
 /**
  * The data needed to send a reply.
@@ -53,6 +55,12 @@ public class Reply {
     public Reply(@NonNull Loadable loadable) {
         if (loadable == null) throw new IllegalArgumentException("Loadable cannot be null");
         this.loadable = loadable;
+        //try to use a secure random instance if it exists to generate a password, fallback to a regular random otherwise
+        try {
+            password = Long.toHexString(SecureRandom.getInstance("NativePRNG").nextLong());
+        } catch (Exception e) {
+            password = Long.toHexString(new Random().nextLong());
+        }
     }
 
     @Override
