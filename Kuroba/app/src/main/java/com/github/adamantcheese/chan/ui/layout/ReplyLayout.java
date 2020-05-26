@@ -360,8 +360,8 @@ public class ReplyLayout
 
     @SuppressWarnings("ConstantConditions")
     private boolean insertQuote() {
-        int selectionStart = comment.getSelectionStart();
-        int selectionEnd = comment.getSelectionEnd();
+        int selectionStart = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
+        int selectionEnd = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
         String[] textLines = comment.getText().subSequence(selectionStart, selectionEnd).toString().split("\n");
         StringBuilder rebuilder = new StringBuilder();
         for (int i = 0; i < textLines.length; i++) {
