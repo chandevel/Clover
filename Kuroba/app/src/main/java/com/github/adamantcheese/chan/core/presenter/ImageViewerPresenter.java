@@ -599,7 +599,8 @@ public class ImageViewerPresenter
     public void onAudioLoaded(MultiImageView multiImageView) {
         PostImage currentPostImage = getCurrentPostImage();
         if (multiImageView.getPostImage() == currentPostImage) {
-            callback.showVolumeMenuItem(true, muted);
+            muted = muted || !BackgroundUtils.isInForeground();
+            callback.showVolumeMenuItem(true, muted );
             callback.setVolume(currentPostImage, muted);
         }
     }
