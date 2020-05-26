@@ -471,8 +471,10 @@ public class PostCell
 
                 @Override
                 public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    CharSequence selection =
-                            comment.getText().subSequence(comment.getSelectionStart(), comment.getSelectionEnd());
+                    // ensure that the start and end are in the right order, in case the selection start/end are flipped
+                    int start = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
+                    int end = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
+                    CharSequence selection = comment.getText().subSequence(start, end);
                     if (item == quoteMenuItem) {
                         callback.onPostSelectionQuoted(post, selection);
                         processed = true;
