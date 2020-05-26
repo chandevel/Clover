@@ -623,8 +623,6 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_re_encode_image_text">Re-encode %s image</string>
     <string name="reencode_image_as_jpeg">AS JPEG</string>
     <string name="reencode_image_as_png">AS PNG</string>
-    <string name="reencode_image_image_quality_100_default_text">Image quality: 100</string>
-    <string name="reencode_image_reduce_default_text">Reduce: 0%</string>
     <string name="click_image_for_extra_options">Click image for extra options</string>
 
     <string name="settings_import_export">Import/Export</string>

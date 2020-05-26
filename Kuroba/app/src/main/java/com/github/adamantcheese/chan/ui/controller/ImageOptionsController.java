@@ -170,12 +170,13 @@ public class ImageOptionsController
             quality.setProgress(100);
             quality.setEnabled(false);
         }
+        int lastReducePercent = lastOptions != null ? lastOptions.reducePercent : 0;
         currentImageReduce.setText(getString(R.string.scale_reduce,
                 dims.first,
                 dims.second,
-                dims.first,
-                dims.second,
-                100 - reduce.getProgress()
+                (int) (dims.first * ((100f - lastReducePercent) / 100f)),
+                (int) (dims.second * ((100f - lastReducePercent) / 100f)),
+                100 - lastReducePercent
         ));
 
         if (imageFormat != JPEG || !presenter.hasExif()) {

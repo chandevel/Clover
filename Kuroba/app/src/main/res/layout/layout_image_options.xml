@@ -100,19 +100,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
-                        android:text="@string/reencode_image_image_quality_100_default_text" />
+                        android:text="Image quality: 100"
+                        tools:ignore="HardcodedText" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:text="1"
-                            tools:ignore="HardcodedText" />
 
                         <SeekBar
                             android:id="@+id/reecode_image_quality"
@@ -121,14 +115,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                             android:layout_weight="1"
                             android:max="100"
                             android:min="1"
-                            android:progress="100" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:text="100"
-                            tools:ignore="HardcodedText" />
+                            android:progress="100"
+                            tools:targetApi="o" />
 
                     </LinearLayout>
 
@@ -145,33 +133,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="4dp"
-                        android:text="@string/reencode_image_reduce_default_text" />
+                        android:text="Reduce: 0%"
+                        tools:ignore="HardcodedText" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:text="0%"
-                            tools:ignore="HardcodedText" />
-
                         <SeekBar
                             android:id="@+id/reecode_image_reduce"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:progress="0" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center_vertical"
-                            android:text="100%"
-                            tools:ignore="HardcodedText" />
+                            android:progress="0"
+                            android:max="99"/>
 
                     </LinearLayout>
 
