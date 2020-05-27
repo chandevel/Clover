@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor">
-    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:id="@+id/container"

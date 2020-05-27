@@ -33,8 +33,8 @@ class ScreenRectF {
     private val _rect = Rect(0, 0, 0, 0)
     private val _center = PointF(0f, 0f)
 
-    val minSize: Float
-    val maxSize: Float
+    private val minSize: Float
+    private val maxSize: Float
 
     val x: Float
         get() = _x

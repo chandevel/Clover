@@ -50,7 +50,7 @@ class Android10GesturesExclusionZonesHolder(
             val sizesString = "oldMinScreenSize = ${exclusionZones.minScreenSize}, " +
                     "currentMinScreenSize = ${minScreenSize}, " +
                     "oldMaxScreenSize = ${exclusionZones.maxScreenSize}, " +
-                    "currentMaxScreenSize = ${maxScreenSize}"
+                    "currentMaxScreenSize = $maxScreenSize"
 
             Logger.d(TAG, "Screen sizes do not match! $sizesString")
             resetZones()
@@ -77,7 +77,7 @@ class Android10GesturesExclusionZonesHolder(
 
             zoneRect.checkValid()
             zones[zoneJson.screenOrientation]!!.add(zoneRect)
-            Logger.d(TAG, "Loaded zone ${zoneJson}")
+            Logger.d(TAG, "Loaded zone $zoneJson")
         }
 
         return zones
@@ -101,7 +101,7 @@ class Android10GesturesExclusionZonesHolder(
         val prevZone = getZoneOrNull(orientation, attachSide)
         if (prevZone != null) {
             Logger.d(TAG, "addZone() Removing previous zone with the same params " +
-                    "as the new one, prevZone = ${prevZone}")
+                    "as the new one, prevZone = $prevZone")
             removeZone(prevZone.screenOrientation, prevZone.attachSide)
         }
 
@@ -126,7 +126,7 @@ class Android10GesturesExclusionZonesHolder(
             )
             ChanSettings.androidTenGestureZones.set(json)
 
-            Logger.d(TAG, "Added zone ${zoneRect} for orientation ${orientation}")
+            Logger.d(TAG, "Added zone $zoneRect for orientation $orientation")
         }
     }
 
@@ -165,7 +165,7 @@ class Android10GesturesExclusionZonesHolder(
             )
             ChanSettings.androidTenGestureZones.set(json)
 
-            Logger.d(TAG, "Removed zone ${exclusionZone} for orientation ${orientation}")
+            Logger.d(TAG, "Removed zone $exclusionZone for orientation $orientation")
         }
     }
 

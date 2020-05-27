@@ -33,7 +33,7 @@ class TestModule {
     fun provideApplication() = RuntimeEnvironment.application
     fun provideContext() = provideApplication().applicationContext
 
-    internal fun provideChunkReader(): ChunkPersister {
+    private fun provideChunkReader(): ChunkPersister {
         if (chunkPersister == null) {
             chunkPersister = ChunkPersister(
                     provideFileManager(),
@@ -46,7 +46,7 @@ class TestModule {
         return chunkPersister!!
     }
 
-    internal fun provideSiteResolver(): SiteResolver {
+    private fun provideSiteResolver(): SiteResolver {
         if (siteResolver == null) {
             siteResolver = mock()
         }
@@ -54,7 +54,7 @@ class TestModule {
         return siteResolver!!
     }
 
-    internal fun provideChunkPersister(): ChunkMerger {
+    private fun provideChunkPersister(): ChunkMerger {
         if (chunkMerger == null) {
             chunkMerger = ChunkMerger(
                     provideFileManager(),

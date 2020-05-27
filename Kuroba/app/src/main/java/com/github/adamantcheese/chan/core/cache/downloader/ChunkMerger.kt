@@ -133,7 +133,7 @@ internal class ChunkMerger(
 
     private fun markFileAsDownloaded(url: String) {
         val request = checkNotNull(activeDownloads.get(url)) {
-            "Active downloads does not have url: ${url} even though it was just downloaded"
+            "Active downloads does not have url: $url even though it was just downloaded"
         }
 
         if (!cacheHandler.markFileDownloaded(request.output)) {

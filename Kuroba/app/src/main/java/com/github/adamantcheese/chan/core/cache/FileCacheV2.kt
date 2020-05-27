@@ -46,8 +46,8 @@ import kotlin.collections.ArrayList
 class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
-        private val siteResolver: SiteResolver,
-        private val okHttpClient: OkHttpClient,
+        siteResolver: SiteResolver,
+        okHttpClient: OkHttpClient,
         private val connectivityManager: ConnectivityManager
 ) {
     private val activeDownloads = ActiveDownloads()
@@ -133,7 +133,7 @@ class FileCacheV2(
     )
 
     init {
-        require(chunksCount > 0) { "Chunks count is zero or less ${chunksCount}" }
+        require(chunksCount > 0) { "Chunks count is zero or less $chunksCount" }
         log(TAG, "chunksCount = $chunksCount")
 
         initNormalRxWorkerQueue()
@@ -539,14 +539,12 @@ class FileCacheV2(
         return Single.fromCallable {
             if (file is RawFile) {
                 // Regular Java File
-                return@fromCallable file as RawFile
+                return@fromCallable file
             } else {
                 // SAF file
                 try {
                     val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
-                    if (resultFile == null) {
-                        throw IOException("Couldn't get or create cache file")
-                    }
+                            ?: throw IOException("Couldn't get or create cache file")
 
                     if (!fileManager.copyFileContents(file, resultFile)) {
                         if (!cacheHandler.deleteCacheFile(resultFile)) {
@@ -566,7 +564,7 @@ class FileCacheV2(
                         throw FileCacheException.CouldNotMarkFileAsDownloaded(resultFile)
                     }
 
-                    return@fromCallable resultFile as RawFile
+                    return@fromCallable resultFile
                 } catch (e: IOException) {
                     logError(TAG, "Error while trying to create a new random cache file", e)
                     throw e
@@ -628,12 +626,12 @@ class FileCacheV2(
                     val totalString = PostUtils.getReadableFileSize(total)
 
                     log(TAG, "Success (" +
-                            "downloaded = ${downloadedString} ($downloaded B), " +
-                            "total = ${totalString} ($total B), " +
+                            "downloaded = $downloadedString ($downloaded B), " +
+                            "total = $totalString ($total B), " +
                             "took ${result.requestTime}ms, " +
                             "network class = $networkClass, " +
                             "downloads = $activeDownloadsCount" +
-                            ") for request ${request}"
+                            ") for request $request"
                     )
 
                     // Trigger cache trimmer after a file has been successfully downloaded
@@ -660,8 +658,8 @@ class FileCacheV2(
                         log(TAG,
                                 "Progress " +
                                         "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
-                                        "(${result.downloaded} B) / ${totalString} (${chunkSize} B), " +
-                                        "${percents}%) for request ${request}"
+                                        "(${result.downloaded} B) / $totalString (${chunkSize} B), " +
+                                        "${percents}%) for request $request"
                         )
                     }
 
@@ -699,7 +697,7 @@ class FileCacheV2(
                         "stopped"
                     }
 
-                    log(TAG, "Request ${request} $causeText, " +
+                    log(TAG, "Request $request $causeText, " +
                             "downloaded = $downloaded, " +
                             "total = $total, " +
                             "network class = $networkClass, " +

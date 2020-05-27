@@ -45,7 +45,7 @@ class JsCaptchaCookiesEditorLayout(context: Context) : FrameLayout(context) {
                         JsCaptchaCookiesJar::class.java
                 )
             } catch (ignored: Exception) {
-                showToast(context, R.string.cookies_editor_failed_parse);
+                showToast(context, R.string.cookies_editor_failed_parse)
             }
 
             hsidCookieEditText.setText(prevCookiesJar.hsidCookie)

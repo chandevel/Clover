@@ -120,7 +120,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             output: RawFile
     ): Flowable<FileDownloadResult> {
         if (verboseLogs) {
-            log(TAG, "File (${maskImageUrl(url)}) was split into chunks: ${chunks}")
+            log(TAG, "File (${maskImageUrl(url)}) was split into chunks: $chunks")
         }
 
         if (!partialContentCheckResult.couldDetermineFileSize() && chunks.size != 1) {
