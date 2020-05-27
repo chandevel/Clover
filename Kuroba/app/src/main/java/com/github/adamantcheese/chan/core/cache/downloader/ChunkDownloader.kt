@@ -62,7 +62,7 @@ internal class ChunkDownloader(
                 if (!call.isCanceled()) {
                     log(
                             TAG,
-                            "Disposing OkHttp Call for CHUNKED request ${request} via " +
+                            "Disposing OkHttp Call for CHUNKED request $request via " +
                                     "manual canceling (${chunk.start}..${chunk.end})"
                     )
 

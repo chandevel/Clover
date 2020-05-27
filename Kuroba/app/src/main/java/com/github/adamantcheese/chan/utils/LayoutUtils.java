@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.FrameLayout;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-
 public class LayoutUtils {
     public static View inflate(Context context, int resId, ViewGroup root) {
         return LayoutInflater.from(context).inflate(resId, root);

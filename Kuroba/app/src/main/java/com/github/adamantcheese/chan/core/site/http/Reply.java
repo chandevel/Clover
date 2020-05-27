@@ -49,7 +49,7 @@ public class Reply {
     public String subject = "";
     public String comment = "";
     public boolean spoilerImage = false;
-    public String password = "";
+    public String password;
 
     @SuppressWarnings("ConstantConditions")
     public Reply(@NonNull Loadable loadable) {

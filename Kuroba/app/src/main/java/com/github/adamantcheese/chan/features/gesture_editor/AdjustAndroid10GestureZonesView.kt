@@ -184,7 +184,7 @@ enum class AttachSide(val id: Int) {
         @JvmStatic
         fun fromInt(id: Int): AttachSide {
             return values().firstOrNull { side -> side.id == id }
-                    ?: throw IllegalArgumentException("Unknown attach side id: ${id}")
+                    ?: throw IllegalArgumentException("Unknown attach side id: $id")
         }
     }
 }

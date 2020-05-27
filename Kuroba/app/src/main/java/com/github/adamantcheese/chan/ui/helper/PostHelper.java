@@ -32,8 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-
 public class PostHelper {
     public static CharSequence prependIcon(Context context, CharSequence total, Bitmap bitmap, int height) {
         SpannableString string = new SpannableString("  ");

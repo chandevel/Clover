@@ -19,8 +19,8 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
     internal class NoResponseBodyException
         : FileCacheException("NoResponseBodyException")
 
-    internal class CouldNotCreateOutputFileException(val filePath: String)
-        : FileCacheException("Could not create output file, path = ${filePath}")
+    internal class CouldNotCreateOutputFileException(filePath: String)
+        : FileCacheException("Could not create output file, path = $filePath")
 
     internal class CouldNotGetInputStreamException(
             val path: String,
@@ -33,7 +33,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val path: String,
             val exists: Boolean,
             val isFile: Boolean,
-            val canWrite: Boolean
+            canWrite: Boolean
     ) : FileCacheException("Could not get output stream, exists = $exists, isFile = $isFile, canWrite = $canWrite, path = $path")
 
     internal class OutputFileDoesNotExist(val path: String)
@@ -49,17 +49,17 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val path: String,
             val exists: Boolean,
             val isFile: Boolean,
-            val canWrite: Boolean
+            canWrite: Boolean
     ) : FileCacheException("Bad output file, exists = $exists, isFile = $isFile, canWrite = $canWrite, path = $path")
 
     internal class FileHashesAreDifferent(
             val url: String,
             val fileName: String,
-            val expectedFileHash: String,
-            val actualFileHash: String
+            expectedFileHash: String,
+            actualFileHash: String
     ) : FileCacheException("Downloaded file's hash differs from the one we got from the server!" +
             "\nSomething is wrong with the file, use force reload!" +
-            "\nexpected = \"$expectedFileHash\", actual = \"$actualFileHash\", url = ${maskImageUrl(url)}, file name = ${fileName}")
+            "\nexpected = \"$expectedFileHash\", actual = \"$actualFileHash\", url = ${maskImageUrl(url)}, file name = $fileName")
 }
 
 internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error: Throwable): String {

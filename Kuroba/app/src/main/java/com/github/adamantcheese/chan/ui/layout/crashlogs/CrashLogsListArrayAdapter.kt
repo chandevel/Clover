@@ -30,7 +30,7 @@ internal class CrashLogsListArrayAdapter(
     @SuppressLint("ViewHolder")
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val crashLog = checkNotNull(getItem(position)) {
-            "Item with position $position is null! Items count = ${count}"
+            "Item with position $position is null! Items count = $count"
         }
 
         val cellView = inflater.inflate(R.layout.cell_crashlog_item, parent, false)

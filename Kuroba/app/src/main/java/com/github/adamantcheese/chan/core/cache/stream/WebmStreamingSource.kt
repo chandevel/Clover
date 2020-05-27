@@ -78,7 +78,7 @@ class WebmStreamingSource(
                     }
 
                     override fun onFail(exception: Exception) {
-                        Logger.d(TAG, "createMediaSource() onFail ${exception}")
+                        Logger.d(TAG, "createMediaSource() onFail $exception")
 
                         BackgroundUtils.ensureMainThread()
                         callback.onError(exception)
