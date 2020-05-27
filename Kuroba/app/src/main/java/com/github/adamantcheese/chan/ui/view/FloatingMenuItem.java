@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FloatingMenuItem {

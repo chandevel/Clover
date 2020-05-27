@@ -157,8 +157,8 @@ android {
         // We need to iterate each build variant and for each build variant we need to find it's
         // flavor then we need to extract the versionNameSuffix from the flavor and update the output
         // apk name with it.
-        android.applicationVariants.all { variant ->
-            variant.outputs.all {
+        applicationVariants.all { variant ->
+            outputs.all {
                 Object flavor = getCurrentFlavor(variant.flavorName)
                 if (flavor == null) {
                     throw new GradleException("Couldn't find flavor by variant.flavorName = ${variant.flavorName}")

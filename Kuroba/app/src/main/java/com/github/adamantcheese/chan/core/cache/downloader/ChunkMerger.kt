@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.site.SiteResolver
-import com.github.adamantcheese.chan.utils.JavaUtils
 import com.github.adamantcheese.chan.utils.JavaUtils.inputStreamMD5hash
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
