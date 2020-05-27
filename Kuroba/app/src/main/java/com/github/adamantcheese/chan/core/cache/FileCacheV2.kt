@@ -539,7 +539,8 @@ class FileCacheV2(
         return Single.fromCallable {
             if (file is RawFile) {
                 // Regular Java File
-                return@fromCallable file
+                @Suppress("USELESS_CAST")
+                return@fromCallable file as RawFile
             } else {
                 // SAF file
                 try {
@@ -564,7 +565,8 @@ class FileCacheV2(
                         throw FileCacheException.CouldNotMarkFileAsDownloaded(resultFile)
                     }
 
-                    return@fromCallable resultFile
+                    @Suppress("USELESS_CAST")
+                    return@fromCallable resultFile as RawFile
                 } catch (e: IOException) {
                     logError(TAG, "Error while trying to create a new random cache file", e)
                     throw e
