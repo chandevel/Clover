@@ -72,13 +72,13 @@ public class Lainchan
         }
     };
 
-    public Lainchan() { }
+    public Lainchan() {
+        setName("Lainchan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
+    }
 
     @Override
     public void setup() {
-        setName("Lainchan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
-
         setBoards(
                 Board.fromSiteNameCode(this, "Programming", "λ"),
                 Board.fromSiteNameCode(this, "Do It Yourself", "Δ"),

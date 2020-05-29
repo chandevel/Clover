@@ -73,8 +73,6 @@ public class Dvach
     static final String CAPTCHA_KEY = "6LeQYz4UAAAAAL8JCk35wHSv6cuEV5PyLhI6IxsM";
     private OptionsSetting<Chan4.CaptchaType> captchaType;
 
-    public Dvach() { }
-
     @Override
     public void initializeSettings() {
         super.initializeSettings();
@@ -95,10 +93,13 @@ public class Dvach
         this.postParser = new DvachPostParser(commentParser);
     }
 
-    @Override
-    public void setup() {
+    public Dvach() {
         setName("2ch.hk");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
+    }
+
+    @Override
+    public void setup() {
         setBoardsType(BoardsType.DYNAMIC);
 
         setResolvable(URL_HANDLER);

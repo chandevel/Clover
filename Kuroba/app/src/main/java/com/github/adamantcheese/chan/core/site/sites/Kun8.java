@@ -61,12 +61,13 @@ public class Kun8
         }
     };
 
-    public Kun8() { }
+    public Kun8() {
+        setName("8kun");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
+    }
 
     @Override
     public void setup() {
-        setName("8kun");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
         setBoardsType(BoardsType.INFINITE);
         setResolvable(URL_HANDLER);
 

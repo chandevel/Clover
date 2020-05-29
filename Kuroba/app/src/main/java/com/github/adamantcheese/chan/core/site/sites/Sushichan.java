@@ -72,13 +72,13 @@ public class Sushichan
         }
     };
 
-    public Sushichan() {}
+    public Sushichan() {
+        setName("Sushichan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
+    }
 
     @Override
     public void setup() {
-        setName("Sushichan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
-
         setBoards(
                 Board.fromSiteNameCode(this, "artsy", "wildcard"),
                 Board.fromSiteNameCode(this, "sushi social", "lounge"),

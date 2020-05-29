@@ -83,13 +83,13 @@ public class Wired7
         }
     };
 
-    public Wired7() { }
+    public Wired7() {
+        setName("Wired-7");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
+    }
 
     @Override
     public void setup() {
-        setName("Wired-7");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
-
         setBoards(
                 Board.fromSiteNameCode(this, "Random", "b"),
                 Board.fromSiteNameCode(this, "Hentai", "h"),

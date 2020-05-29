@@ -36,11 +36,9 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
-import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteRegistry;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
@@ -173,7 +171,7 @@ public class SitesSetupController
         @SuppressLint("InflateParams")
         final ListView dialogView = new ListView(context);
         SitePreviewAdapter adapter = new SitePreviewAdapter();
-        if (adapter.sites.isEmpty()) {
+        if (adapter.siteClasses.isEmpty()) {
             showToast(context, "All sites added!");
             return;
         }
@@ -317,12 +315,11 @@ public class SitesSetupController
         @Inject
         SiteRepository siteRepository;
 
-        private List<Class<? extends Site>> sites;
+        private List<Class<? extends Site>> siteClasses = new ArrayList<>();
         private AlertDialog dialog;
 
         public SitePreviewAdapter() {
             inject(this);
-            sites = new ArrayList<>();
             List<String> addedSites = new ArrayList<>();
             for (Site s : siteRepository.all().getAll()) {
                 addedSites.add(s.getClass().getSimpleName());
@@ -330,7 +327,7 @@ public class SitesSetupController
             for (int i = 0; i < SiteRegistry.SITE_CLASSES.size(); i++) {
                 Class<? extends Site> s = SiteRegistry.SITE_CLASSES.valueAt(i);
                 if (!addedSites.contains(s.getSimpleName())) {
-                    sites.add(s);
+                    siteClasses.add(s);
                 }
             }
         }
@@ -341,12 +338,12 @@ public class SitesSetupController
 
         @Override
         public int getCount() {
-            return sites.size();
+            return siteClasses.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return sites.get(position);
+            return siteClasses.get(position);
         }
 
         @Override
@@ -356,15 +353,14 @@ public class SitesSetupController
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Site s = siteRepository.instantiateSiteClass(sites.get(position));
-            s.initialize(0, new SiteConfig(), new JsonSettings());
+            Site s = siteRepository.instantiateSiteClass(siteClasses.get(position));
             LinearLayout previewCell = (LinearLayout) inflate(context, R.layout.layout_site_preview);
             ImageView favicon = previewCell.findViewById(R.id.site_icon);
             TextView siteName = previewCell.findViewById(R.id.site_name);
             s.icon().get(favicon::setImageDrawable);
             siteName.setText(s.name());
             previewCell.setOnClickListener((v -> {
-                presenter.onAddClicked(sites.get(position));
+                presenter.onAddClicked(siteClasses.get(position));
                 dialog.dismiss();
             }));
             return previewCell;

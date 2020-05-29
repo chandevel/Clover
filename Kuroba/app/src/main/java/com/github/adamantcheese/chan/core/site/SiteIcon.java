@@ -16,18 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
@@ -51,24 +49,22 @@ public class SiteIcon {
     private SiteIcon() {
     }
 
-    public void get(final SiteIconResult result) {
+    public void get(final SiteIconResult res) {
         if (drawable != null) {
-            result.onSiteIcon(drawable);
+            res.onSiteIcon(drawable);
         } else if (url != null) {
-            instance(ImageLoaderV2.class).get(url.toString(), new ImageListener() {
+            NetUtils.makeBitmapRequest(url, new NetUtils.BitmapResult() {
                 @Override
-                public void onResponse(ImageContainer response, boolean isImmediate) {
-                    if (response.getBitmap() != null) {
-                        Drawable drawable = new BitmapDrawable(getRes(), response.getBitmap());
-                        SiteIcon.this.drawable = drawable;
-                        result.onSiteIcon(drawable);
-                    }
+                public void onBitmapFailure(Bitmap errormap) {
+                    Logger.e(SiteIcon.this, "Error loading favicon");
+                    drawable = null;
+                    BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(new BitmapDrawable(getRes(), errormap)));
                 }
 
                 @Override
-                public void onErrorResponse(VolleyError error) {
-                    Logger.e(SiteIcon.this, "Error loading favicon", error);
-                    drawable = null;
+                public void onBitmapSuccess(Bitmap bitmap) {
+                    drawable = new BitmapDrawable(getRes(), bitmap);
+                    BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(drawable));
                 }
             }, FAVICON_SIZE, FAVICON_SIZE);
         }

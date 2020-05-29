@@ -78,12 +78,13 @@ public class Chan420
         }
     };
 
-    public Chan420() { }
+    public Chan420() {
+        setName("420Chan");
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://420chan.org/favicon.ico")));
+    }
 
     @Override
     public void setup() {
-        setName("420Chan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://420chan.org/favicon.ico")));
         setBoardsType(BoardsType.DYNAMIC);
 
         setResolvable(URL_HANDLER);
