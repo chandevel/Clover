@@ -30,6 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
+        <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/md_grey_600</item>
@@ -51,6 +54,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
+        <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
+        <item name="colorSurface">@color/white</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
@@ -483,6 +489,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
     <!-- endregion -->
 
+    <!-- region STYLED ELEMENTS -->
     <declare-styleable name="MaxWidthLinearLayout">
         <attr name="maxWidth" format="dimension" />
     </declare-styleable>
@@ -494,5 +501,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <declare-styleable name="GridRecyclerView">
         <attr name="spanWidth" format="dimension" />
     </declare-styleable>
+    <!-- endregion -->
+
+    <style name="SnackbarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
+        <item name="android:textColor">@color/md_grey_300</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 
 </resources>
