@@ -64,7 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:textSize="16sp"
-                    tools:text="Reencode XXX image" />
+                    tools:text="Reencode XXX image as" />
 
                 <RadioGroup
                     android:id="@+id/reencode_image_radio_group"
@@ -146,8 +146,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:progress="0"
-                            android:max="99"/>
+                            android:max="99"
+                            android:progress="0" />
 
                     </LinearLayout>
 
