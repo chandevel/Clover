@@ -117,7 +117,7 @@ public class SelectLayout<T>
         }
 
         allChecked = checkedCount == items.size();
-        checkAllButton.setText(allChecked ? R.string.board_select_none : R.string.board_select_all);
+        checkAllButton.setText(allChecked ? R.string.select_none : R.string.select_all);
     }
 
     private class SelectAdapter

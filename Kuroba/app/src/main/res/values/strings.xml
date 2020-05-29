@@ -103,6 +103,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="save">Save</string>
     <string name="send">Send</string>
     <string name="submit">Submit</string>
+    <string name="select_all">Select all</string>
+    <string name="select_none">Select none</string>
 
     <string name="mark_as_my_post">Mark as my post</string>
     <string name="unmark_as_my_post">Unmark as my post</string>
@@ -221,7 +223,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="setup_board_empty">No boards added</string>
     <string name="setup_board_removed">Removed \"%s\"</string>
     <string name="setup_board_added">%s added</string>
-    <string name="setup_board_select_all">Select all</string>
     <string name="filter_summary_all_boards">All boards</string>
     <string name="filter_enabled">Enabled</string>
     <string name="filter_filter">Filter</string>
@@ -290,9 +291,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="filter_filename">Filename</string>
     <string name="filter_country_code">Country code</string>
     <string name="filter_image_hash">Image hash</string>
-
-    <string name="board_select_all">Select all</string>
-    <string name="board_select_none">Select none</string>
 
     <string name="history_clear">Clear history</string>
     <string name="history_clear_confirm">Clear history?</string>
@@ -657,7 +655,6 @@ Don't have a 4chan Pass?<br>
     <string name="restore_posts">Restore posts</string>
     <string name="restored_n_posts">Restored %1$d posts</string>
     <string name="no_removed_posts_for_current_thread">No removed posts found for the current thread</string>
-    <string name="select_all">Select all</string>
     <string name="settings_captcha_group">Captcha</string>
     <string name="settings_use_new_captcha_window">Use new captcha window for no-js captcha</string>
     <string name="settings_use_real_google_cookies_description">When enabled, a GET request to google.com will be executed to get a cookie, which will be used for captcha authentication.

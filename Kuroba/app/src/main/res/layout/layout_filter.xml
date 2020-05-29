@@ -79,6 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableTint="?themeDrawableColor"
                 tools:text="Types (1)" />
 
             <TextView
@@ -88,6 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_marginLeft="12dp"
                 android:drawablePadding="8dp"
                 tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableTint="?themeDrawableColor"
                 tools:text="Boards (All)" />
 
         </LinearLayout>
@@ -116,6 +118,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
                 tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableTint="?themeDrawableColor"
                 tools:text="Hide post" />
 
             <LinearLayout

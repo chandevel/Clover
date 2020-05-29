@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <Button
                 android:id="@+id/removed_posts_select_all"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/select_all" />
@@ -64,6 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <Button
                 android:id="@+id/removed_posts_restore_posts"
+                style="@style/Widget.AppCompat.Button.Borderless"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/restore_posts" />

@@ -44,7 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/select_all"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="@string/setup_board_select_all" />
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:text="@string/select_all" />
 
     </LinearLayout>
 

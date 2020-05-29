@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
         <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogStyle</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/md_grey_600</item>
@@ -57,6 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
         <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
+        <item name="android:alertDialogTheme">@style/AlertDialogStyle</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
@@ -506,6 +508,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="SnackbarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
         <item name="android:textColor">@color/md_grey_300</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="AlertDialogStyle" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="android:background">?backcolor</item>
     </style>
 
 </resources>
