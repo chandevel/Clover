@@ -69,7 +69,7 @@ public class PostHelper {
     }
 
     private static DateFormat dateFormat =
-            SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.ENGLISH);
+            SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM, Locale.getDefault());
     private static Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {
