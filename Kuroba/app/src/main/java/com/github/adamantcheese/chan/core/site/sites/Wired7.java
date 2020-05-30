@@ -75,7 +75,7 @@ public class Wired7
                 return getUrl().newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
-                        .addPathSegment(String.valueOf(loadable.no))
+                        .addPathSegment(loadable.no + ".html")
                         .toString();
             } else {
                 return getUrl().toString();
@@ -99,7 +99,7 @@ public class Wired7
                 Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
                 Board.fromSiteNameCode(this, "Anime", "a"),
                 Board.fromSiteNameCode(this, "Cultura Japonesa", "jp"),
-                Board.fromSiteNameCode(this, "Musica & Audio", "mu"),
+                Board.fromSiteNameCode(this, "Música y Audio", "mu"),
                 Board.fromSiteNameCode(this, "Tecnología", "tech"),
                 Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
                 Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
