@@ -18,25 +18,21 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Chan4PagesRequest
-        extends JsonReaderRequest<List<Chan4PagesRequest.Page>> {
-    public Chan4PagesRequest(Site site, Board board, Listener<List<Page>> listener, ErrorListener errorListener) {
-        super(site.endpoints().pages(board).toString(), listener, errorListener);
-    }
+import static com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
 
+public class Chan4PagesParser
+        implements NetUtils.JsonParser<ChanPages> {
     @Override
-    public List<Page> readJson(JsonReader reader)
+    public ChanPages parse(JsonReader reader)
             throws Exception {
-        List<Page> pages = new ArrayList<>();
+        List<ChanPage> pages = new ArrayList<>();
 
         reader.beginArray();
         while (reader.hasNext()) {
@@ -44,10 +40,10 @@ public class Chan4PagesRequest
         }
         reader.endArray();
 
-        return pages;
+        return new ChanPages(pages);
     }
 
-    private Page readPageEntry(JsonReader reader)
+    private ChanPage readPageEntry(JsonReader reader)
             throws Exception {
         int pageNo = -1;
         List<ThreadNoTimeModPair> threadNoTimeModPairs = null;
@@ -65,7 +61,7 @@ public class Chan4PagesRequest
         }
         reader.endObject();
 
-        return new Page(pageNo, threadNoTimeModPairs);
+        return new ChanPage(pageNo, threadNoTimeModPairs);
     }
 
     private List<ThreadNoTimeModPair> readThreadTimes(JsonReader reader)
@@ -100,33 +96,5 @@ public class Chan4PagesRequest
         reader.endObject();
 
         return new ThreadNoTimeModPair(no, modified);
-    }
-
-    public static class Pages {
-        public final List<Page> pages;
-
-        public Pages(List<Page> pages) {
-            this.pages = pages;
-        }
-    }
-
-    public static class Page {
-        public final int page;
-        public final List<ThreadNoTimeModPair> threads;
-
-        public Page(int page, List<ThreadNoTimeModPair> threads) {
-            this.page = page;
-            this.threads = threads;
-        }
-    }
-
-    public static class ThreadNoTimeModPair {
-        public final int no;
-        public final long modified;
-
-        public ThreadNoTimeModPair(int no, long modified) {
-            this.no = no;
-            this.modified = modified;
-        }
     }
 }

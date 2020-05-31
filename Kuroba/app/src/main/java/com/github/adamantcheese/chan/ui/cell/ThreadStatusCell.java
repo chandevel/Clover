@@ -34,7 +34,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
@@ -172,7 +172,7 @@ public class ThreadStatusCell
                     }
 
                     if (!chanThread.getLoadable().isLocal()) {
-                        Page p = callback.getPage(op);
+                        ChanPage p = callback.getPage(op);
                         if (p != null) {
                             SpannableString page = new SpannableString(String.valueOf(p.page));
                             if (p.page >= board.pages) {
@@ -247,7 +247,7 @@ public class ThreadStatusCell
         @Nullable
         ChanThread getChanThread();
 
-        Page getPage(Post op);
+        ChanPage getPage(Post op);
 
         void onListStatusClicked();
     }

@@ -42,9 +42,9 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
@@ -208,8 +208,7 @@ public class WatchManager
 
     public void createPin(Reply newThreadOP) {
         //use a dummy post with just the subject/comment copied in for getting the right title
-        createPin(
-                newThreadOP.loadable,
+        createPin(newThreadOP.loadable,
                 new Post.Builder().board(newThreadOP.loadable.board)
                         .id(newThreadOP.loadable.no)
                         .opId(newThreadOP.loadable.no)
@@ -1231,7 +1230,7 @@ public class WatchManager
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
-                Page page = pageRequestManager.getPage(chanLoader.getLoadable());
+                ChanPage page = pageRequestManager.getPage(chanLoader.getLoadable());
                 if (page != null) {
                     latestKnownPage = page.page;
                     doPageNotification(page);
@@ -1384,14 +1383,14 @@ public class WatchManager
         @Override
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
-            Page p = pageRequestManager.getPage(chanLoader.getLoadable());
+            ChanPage p = pageRequestManager.getPage(chanLoader.getLoadable());
             if (p != null) {
                 latestKnownPage = p.page;
             }
             doPageNotification(p);
         }
 
-        private void doPageNotification(Page page) {
+        private void doPageNotification(ChanPage page) {
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {

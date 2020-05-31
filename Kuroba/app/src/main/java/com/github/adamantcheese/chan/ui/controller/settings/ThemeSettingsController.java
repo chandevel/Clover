@@ -46,10 +46,10 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
@@ -140,7 +140,7 @@ public class ThemeSettingsController
         }
 
         @Override
-        public Page getPage(Post op) {
+        public ChanPage getPage(Post op) {
             return null;
         }
     };
@@ -413,7 +413,7 @@ public class ThemeSettingsController
                 }
 
                 @Override
-                public Page getPage(Post op) {
+                public ChanPage getPage(Post op) {
                     return null;
                 }
 

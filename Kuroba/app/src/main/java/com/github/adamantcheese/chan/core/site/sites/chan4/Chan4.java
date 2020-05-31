@@ -44,6 +44,7 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -52,8 +53,8 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -314,14 +315,18 @@ public class Chan4
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            requestQueue.add(new Chan4PagesRequest(Chan4.this,
-                    board,
-                    response -> listener.onPagesReceived(board, new Pages(response)),
-                    error -> {
-                        Logger.e(Chan4.this, "Failed to get pages for board " + board.code);
-                        listener.onPagesReceived(board, new Pages(new ArrayList<>()));
-                    }
-            ));
+            NetUtils.makeJsonRequest(endpoints().pages(board), new NetUtils.JsonResult<ChanPages>() {
+                @Override
+                public void onJsonFailure() {
+                    Logger.e(Chan4.this, "Failed to get pages for board " + board.code);
+                    listener.onPagesReceived(board, new ChanPages(new ArrayList<>()));
+                }
+
+                @Override
+                public void onJsonSuccess(ChanPages result) {
+                    listener.onPagesReceived(board, result);
+                }
+            }, new Chan4PagesParser());
         }
 
         @Override
@@ -504,6 +509,7 @@ public class Chan4
     }
 
     private final SiteIcon icon = SiteIcon.fromFavicon(HttpUrl.parse("https://s.4cdn.org/image/favicon.ico"));
+
     @Override
     public SiteIcon icon() {
         return icon;

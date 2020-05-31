@@ -20,9 +20,9 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Page;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ThreadNoTimeModPair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,19 +38,19 @@ public class PageRequestManager
         implements SiteActions.PagesListener {
     private Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
     private Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
-    private ConcurrentMap<String, Pages> boardPagesMap = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, ChanPages> boardPagesMap = new ConcurrentHashMap<>();
     private ConcurrentMap<String, Long> boardTimeMap = new ConcurrentHashMap<>();
 
     private List<PageCallback> callbackList = new ArrayList<>();
 
-    public Page getPage(Post op) {
+    public ChanPage getPage(Post op) {
         if (op == null) {
             return null;
         }
         return findPage(op.board, op.no);
     }
 
-    public Page getPage(Loadable opLoadable) {
+    public ChanPage getPage(Loadable opLoadable) {
         if (opLoadable == null) {
             return null;
         }
@@ -61,10 +61,10 @@ public class PageRequestManager
         requestBoard(b);
     }
 
-    private Page findPage(Board board, int opNo) {
-        Pages pages = getPages(board);
+    private ChanPage findPage(Board board, int opNo) {
+        ChanPages pages = getPages(board);
         if (pages == null) return null;
-        for (Page page : pages.pages) {
+        for (ChanPage page : pages.pages) {
             for (ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
                 if (opNo == threadNoTimeModPair.no) {
                     return page;
@@ -74,7 +74,7 @@ public class PageRequestManager
         return null;
     }
 
-    private Pages getPages(Board b) {
+    private ChanPages getPages(Board b) {
         if (savedBoards.contains(b.code)) {
             //if we have it stored already, return the pages for it
             //also issue a new request if 3 minutes have passed
@@ -118,7 +118,7 @@ public class PageRequestManager
     }
 
     @Override
-    public void onPagesReceived(Board b, Pages pages) {
+    public void onPagesReceived(Board b, ChanPages pages) {
         savedBoards.add(b.code);
         requestedBoards.remove(b.code);
         boardTimeMap.put(b.code, System.currentTimeMillis());

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
@@ -26,7 +27,6 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public interface SiteActions {
     }
 
     interface PagesListener {
-        void onPagesReceived(Board b, Pages pages);
+        void onPagesReceived(Board b, ChanPages pages);
     }
 
     interface ArchiveRequestListener {

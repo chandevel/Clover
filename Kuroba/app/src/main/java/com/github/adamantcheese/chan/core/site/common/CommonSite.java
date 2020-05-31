@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
@@ -45,7 +46,6 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4PagesRequest.Pages;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -539,7 +539,7 @@ public abstract class CommonSite
 
         @Override
         public void pages(Board board, PagesListener pagesListener) {
-            pagesListener.onPagesReceived(board, new Pages(new ArrayList<>()));
+            pagesListener.onPagesReceived(board, new ChanPages(new ArrayList<>()));
         }
 
         @Override
