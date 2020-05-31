@@ -18,12 +18,6 @@ package com.github.adamantcheese.chan.utils;
 
 import android.content.Context;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,27 +39,12 @@ public class IOUtils {
     }
 
     public static String readString(InputStream is) {
-        Reader sr = new InputStreamReader(is);
-        Writer sw = new StringWriter();
-
-        try {
+        try (Reader sr = new InputStreamReader(is); Writer sw = new StringWriter()) {
             copy(sr, sw);
+            return sw.toString();
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            IOUtils.closeQuietly(sr);
-            IOUtils.closeQuietly(sw);
-        }
-
-        return sw.toString();
-    }
-
-    public static void closeQuietly(Closeable closeable) {
-        if (closeable != null) {
-            try {
-                closeable.close();
-            } catch (IOException ignored) {
-            }
+            Logger.e("IOUtils", "readString failed: ", e);
+            return "";
         }
     }
 
@@ -99,29 +78,6 @@ public class IOUtils {
         int read;
         while ((read = input.read(buffer)) != -1) {
             output.write(buffer, 0, read);
-        }
-    }
-
-    /**
-     * Copies the {@link File} specified by {@code in} to {@code out}.
-     * Both streams are always closed.
-     *
-     * @param in  input file
-     * @param out output file
-     * @throws IOException thrown on copy exceptions.
-     */
-    public static void copyFile(File in, File out)
-            throws IOException {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            copy(
-                    is = new BufferedInputStream(new FileInputStream(in)),
-                    os = new BufferedOutputStream(new FileOutputStream(out))
-            );
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
         }
     }
 }

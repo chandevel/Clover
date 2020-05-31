@@ -29,13 +29,10 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 public abstract class JsonReaderRequest<T>
         extends Request<T> {
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
-
     protected final Listener<T> listener;
 
     public JsonReaderRequest(String url, Listener<T> listener, ErrorListener errorListener) {
@@ -51,27 +48,15 @@ public abstract class JsonReaderRequest<T>
 
     @Override
     protected Response<T> parseNetworkResponse(NetworkResponse response) {
-        ByteArrayInputStream baos = new ByteArrayInputStream(response.data);
-        JsonReader reader = new JsonReader(new InputStreamReader(baos, UTF8));
-
-        Exception exception = null;
-        T read = null;
-        try {
-            read = readJson(reader);
-        } catch (Exception e) {
-            exception = e;
-        }
-
-        IOUtils.closeQuietly(reader);
-
-        if (read == null) {
-            if (exception != null) {
-                return Response.error(new VolleyError(exception));
-            } else {
+        try (JsonReader reader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.data), StandardCharsets.UTF_8))) {
+            T read = readJson(reader);
+            if (read == null) {
                 return Response.error(new VolleyError("Unknown error"));
+            } else {
+                return Response.success(read, HttpHeaderParser.parseCacheHeaders(response));
             }
-        } else {
-            return Response.success(read, HttpHeaderParser.parseCacheHeaders(response));
+        } catch (Exception e) {
+            return Response.error(new VolleyError(e));
         }
     }
 

@@ -181,4 +181,70 @@ public class BitmapUtils {
             return new Pair<>(-1, -1);
         }
     }
+
+    /**
+     * Decode the given byte data into a Bitmap, scaling it if necessary.
+     * @param data bytes to decode
+     * @param maxWidth the max width of the image
+     * @param maxHeight the max height of the image
+     * @return a bitmap, scaled to the max width and height if needed
+     */
+    public static Bitmap decode(byte[] data, int maxWidth, int maxHeight) {
+        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
+        Bitmap bitmap;
+
+        // If we have to resize this image, first get the natural bounds.
+        decodeOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+        int actualWidth = decodeOptions.outWidth;
+        int actualHeight = decodeOptions.outHeight;
+
+        // Then compute the dimensions we would ideally like to decode to.
+        int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
+        int desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth);
+
+        // Decode to the nearest power of two scaling factor.
+        decodeOptions.inJustDecodeBounds = false;
+
+        // Get the best sample size for the image
+        double wr = (double) actualWidth / desiredWidth;
+        double hr = (double) actualHeight / desiredHeight;
+        double ratio = Math.min(wr, hr);
+        float n = 1.0f;
+        while ((n * 2) <= ratio) {
+            n *= 2;
+        }
+        decodeOptions.inSampleSize = (int) n;
+
+        Bitmap tempBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
+
+        // If necessary, scale down to the maximal acceptable size.
+        if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth || tempBitmap.getHeight() > desiredHeight)) {
+            bitmap = Bitmap.createScaledBitmap(tempBitmap, desiredWidth, desiredHeight, true);
+            tempBitmap.recycle();
+        } else {
+            bitmap = tempBitmap;
+        }
+
+        return bitmap;
+    }
+
+    private static int getResizedDimension(int maxPrimary, int maxSecondary, int actualPrimary, int actualSecondary) {
+        // If no dominant value at all, just return the actual.
+        if (maxPrimary == 0 && maxSecondary == 0) {
+            return actualPrimary;
+        }
+
+        // If primary is unspecified, scale primary to match secondary's scaling ratio.
+        if (maxPrimary == 0) {
+            return (int) (actualPrimary * ((double) maxSecondary / (double) actualSecondary));
+        }
+
+        if (maxSecondary == 0) {
+            return maxPrimary;
+        }
+
+        double ratio = (double) actualSecondary / (double) actualPrimary;
+        return maxPrimary * ratio > maxSecondary ? (int) (maxSecondary / ratio) : maxPrimary;
+    }
 }

@@ -250,27 +250,23 @@ public class ImagePickDelegate {
     private void run() {
         RawFile cacheFile = fileManager.fromRawFile(replyManager.getPickFile());
 
-        InputStream is = null;
-        OutputStream os = null;
         try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {
             if (fileDescriptor == null) {
                 throw new IOException("Couldn't open file descriptor for uri = " + uri);
             }
 
-            is = new FileInputStream(fileDescriptor.getFileDescriptor());
-            os = fileManager.getOutputStream(cacheFile);
+            try (InputStream is = new FileInputStream(fileDescriptor.getFileDescriptor());
+                 OutputStream os = fileManager.getOutputStream(cacheFile)) {
+                if (os == null) {
+                    throw new IOException(
+                            "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
+                }
 
-            if (os == null) {
-                throw new IOException(
-                        "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
+                success = IOUtils.copy(is, os, MAX_FILE_SIZE);
+            } catch (Exception e) {
+                Logger.e(this, "Error copying file from the file descriptor", e);
             }
-
-            success = IOUtils.copy(is, os, MAX_FILE_SIZE);
-        } catch (IOException | SecurityException e) {
-            Logger.e(this, "Error copying file from the file descriptor", e);
-        } finally {
-            IOUtils.closeQuietly(is);
-            IOUtils.closeQuietly(os);
+        } catch (Exception ignored) {
         }
 
         if (!success) {

@@ -60,8 +60,7 @@ public abstract class HttpCall
 
     @Override
     public void onResponse(Call call, Response response) {
-        ResponseBody body = response.body();
-        try {
+        try (ResponseBody body = response.body()) {
             if (body != null) {
                 String responseString = body.string();
                 process(response, responseString);
@@ -70,8 +69,6 @@ public abstract class HttpCall
             }
         } catch (Exception e) {
             exception = new IOException("Error processing response", e);
-        } finally {
-            IOUtils.closeQuietly(body);
         }
 
         if (exception != null) {
