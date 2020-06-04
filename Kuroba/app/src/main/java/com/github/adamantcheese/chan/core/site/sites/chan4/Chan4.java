@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
-import android.util.JsonReader;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
@@ -44,9 +43,10 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
+import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
@@ -304,21 +304,26 @@ public class Chan4
     private SiteActions actions = new SiteActions() {
         @Override
         public void boards(final BoardsListener listener) {
-            requestQueue.add(new Chan4BoardsRequest(Chan4.this,
-                    response -> listener.onBoardsReceived(new Boards(response)),
-                    error -> {
-                        Logger.e(Chan4.this, "Failed to get boards from server", error);
-                        listener.onBoardsReceived(new Boards(new ArrayList<>()));
-                    }
-            ));
+            NetUtils.makeJsonRequest(endpoints.boards(), new JsonResult<Boards>() {
+                @Override
+                public void onJsonFailure(Exception e) {
+                    Logger.e(Chan4.this, "Failed to get boards from server", e);
+                    listener.onBoardsReceived(new Boards(new ArrayList<>()));
+                }
+
+                @Override
+                public void onJsonSuccess(Boards result) {
+                    listener.onBoardsReceived(result);
+                }
+            }, new Chan4BoardsRequest(Chan4.this));
         }
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            NetUtils.makeJsonRequest(endpoints().pages(board), new NetUtils.JsonResult<ChanPages>() {
+            NetUtils.makeJsonRequest(endpoints().pages(board), new JsonResult<ChanPages>() {
                 @Override
-                public void onJsonFailure() {
-                    Logger.e(Chan4.this, "Failed to get pages for board " + board.code);
+                public void onJsonFailure(Exception e) {
+                    Logger.e(Chan4.this, "Failed to get pages for board " + board.code, e);
                     listener.onPagesReceived(board, new ChanPages(new ArrayList<>()));
                 }
 

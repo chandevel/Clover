@@ -20,12 +20,15 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaActions;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentParser;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,21 +105,24 @@ public class Chan420
         setActions(new TaimabaActions(this) {
             @Override
             public void boards(final BoardsListener listener) {
-                requestQueue.add(new Chan420BoardsRequest(Chan420.this,
-                        response -> listener.onBoardsReceived(new Boards(response)),
-                        (error) -> {
-                            Logger.e(Chan420.this, "Failed to get boards from server", error);
+                NetUtils.makeJsonRequest(endpoints().boards(), new JsonResult<Boards>() {
+                    @Override
+                    public void onJsonFailure(Exception e) {
+                        Logger.e(Chan420.this, "Failed to get boards from server", e);
+                        List<Board> list = new ArrayList<>();
+                        list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
+                        list.add(Board.fromSiteNameCode(Chan420.this, "Alcohol Discussion", "hooch"));
+                        list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
+                        list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
+                        Collections.shuffle(list);
+                        listener.onBoardsReceived(new Boards(list));
+                    }
 
-                            // API fail, provide some default boards
-                            List<Board> list = new ArrayList<>();
-                            list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
-                            list.add(Board.fromSiteNameCode(Chan420.this, "Alcohol Discussion", "hooch"));
-                            list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
-                            list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
-                            Collections.shuffle(list);
-                            listener.onBoardsReceived(new Boards(list));
-                        }
-                ));
+                    @Override
+                    public void onJsonSuccess(Boards result) {
+                        listener.onBoardsReceived(result);
+                    }
+                }, new Chan420BoardsRequest(Chan420.this));
             }
         });
         setApi(new TaimabaApi(this));

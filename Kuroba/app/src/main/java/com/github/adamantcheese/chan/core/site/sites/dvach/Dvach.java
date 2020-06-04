@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -19,6 +20,8 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -208,23 +211,29 @@ public class Dvach
 
             @Override
             public void boards(final BoardsListener listener) {
-                //@formatter:off
-                requestQueue.add(new DvachBoardsRequest(Dvach.this,
-                   response -> listener.onBoardsReceived(new Boards(response)),
-                   error -> {
-                       Logger.e(Dvach.this, "Failed to get boards from server", error);
+                NetUtils.makeJsonRequest(endpoints().boards(), new JsonResult<Boards>() {
+                    @Override
+                    public void onJsonFailure(Exception e) {
+                        Logger.e(Dvach.this, "Failed to get boards from server", e);
 
-                       // API fail, provide some default boards
-                       List<Board> list = new ArrayList<>();
-                       list.add(Board.fromSiteNameCode(Dvach.this, "бред", "b"));
-                       list.add(Board.fromSiteNameCode(Dvach.this, "Видеоигры, general, официальные треды", "vg"));
-                       list.add(Board.fromSiteNameCode(Dvach.this, "новости", "news"));
-                       list.add(Board.fromSiteNameCode(Dvach.this, "политика, новости, ольгинцы, хохлы, либерахи, рептилоиды.. oh shi", "po"));
-                       Collections.shuffle(list);
-                       listener.onBoardsReceived(new Boards(list));
-                   }
-                ));
-                //@formatter:on
+                        // API fail, provide some default boards
+                        List<Board> list = new ArrayList<>();
+                        list.add(Board.fromSiteNameCode(Dvach.this, "бред", "b"));
+                        list.add(Board.fromSiteNameCode(Dvach.this, "Видеоигры, general, официальные треды", "vg"));
+                        list.add(Board.fromSiteNameCode(Dvach.this, "новости", "news"));
+                        list.add(Board.fromSiteNameCode(Dvach.this,
+                                "политика, новости, ольгинцы, хохлы, либерахи, рептилоиды.. oh shi",
+                                "po"
+                        ));
+                        Collections.shuffle(list);
+                        listener.onBoardsReceived(new Boards(list));
+                    }
+
+                    @Override
+                    public void onJsonSuccess(Boards result) {
+                        listener.onBoardsReceived(result);
+                    }
+                }, new DvachBoardsRequest(Dvach.this));
             }
         });
 

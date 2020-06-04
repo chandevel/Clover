@@ -23,6 +23,7 @@ import android.graphics.drawable.Drawable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.BitmapResult;
 
 import okhttp3.HttpUrl;
 
@@ -53,7 +54,7 @@ public class SiteIcon {
         if (drawable != null) {
             res.onSiteIcon(drawable);
         } else if (url != null) {
-            NetUtils.makeBitmapRequest(url, new NetUtils.BitmapResult() {
+            NetUtils.makeBitmapRequest(url, new BitmapResult() {
                 @Override
                 public void onBitmapFailure(Bitmap errormap) {
                     Logger.e(SiteIcon.this, "Error loading favicon");

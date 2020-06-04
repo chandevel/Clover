@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.core.site;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
@@ -38,7 +40,7 @@ public interface SiteActions {
     void archives(ArchiveRequestListener archivesListener);
 
     interface BoardsListener {
-        void onBoardsReceived(SiteBase.Boards boards);
+        void onBoardsReceived(Boards boards);
     }
 
     interface PagesListener {

@@ -18,11 +18,10 @@ package com.github.adamantcheese.chan.core.site.sites.chan420;
 
 import android.util.JsonReader;
 
-import com.android.volley.Response.ErrorListener;
-import com.android.volley.Response.Listener;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,16 +30,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Chan420BoardsRequest
-        extends JsonReaderRequest<List<Board>> {
+        implements JsonParser<Boards> {
     private final Site site;
 
-    public Chan420BoardsRequest(Site site, Listener<List<Board>> listener, ErrorListener errorListener) {
-        super(site.endpoints().boards().toString(), listener, errorListener);
+    public Chan420BoardsRequest(Site site) {
         this.site = site;
     }
 
     @Override
-    public List<Board> readJson(JsonReader reader)
+    public Boards parse(JsonReader reader)
             throws Exception {
         List<Board> list = new ArrayList<>();
 
@@ -64,7 +62,7 @@ public class Chan420BoardsRequest
         }
         reader.endObject();
 
-        return list;
+        return new Boards(list);
     }
 
     private Board readBoardEntry(JsonReader reader)

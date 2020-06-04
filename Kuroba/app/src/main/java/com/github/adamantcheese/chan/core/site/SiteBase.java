@@ -131,14 +131,6 @@ public abstract class SiteBase
         return false;
     }
 
-    public static class Boards {
-        public final List<Board> boards;
-
-        public Boards(List<Board> boards) {
-            this.boards = boards;
-        }
-    }
-
     @Override
     public boolean equals(@Nullable Object obj) {
         if (obj == null) return false;
