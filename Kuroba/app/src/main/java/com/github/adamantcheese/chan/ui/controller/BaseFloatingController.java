@@ -5,8 +5,8 @@ import android.content.Context;
 import com.github.adamantcheese.chan.controller.Controller;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public abstract class BaseFloatingController
         extends Controller {

@@ -22,7 +22,6 @@ import android.os.Looper;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;

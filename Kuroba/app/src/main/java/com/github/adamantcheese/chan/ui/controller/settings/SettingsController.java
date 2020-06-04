@@ -53,11 +53,11 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class SettingsController
         extends Controller

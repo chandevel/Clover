@@ -38,8 +38,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
+import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class HintPopup {
     public static HintPopup show(Context context, View anchor, int text) {

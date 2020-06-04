@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
 import com.github.adamantcheese.chan.utils.Logger;
 
