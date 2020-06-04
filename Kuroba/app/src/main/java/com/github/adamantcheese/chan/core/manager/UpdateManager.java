@@ -25,30 +25,29 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.text.Html;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.net.UpdateApiRequest;
-import com.github.adamantcheese.chan.core.net.UpdateApiRequest.UpdateApiResponse;
+import com.github.adamantcheese.chan.core.net.UpdateApiParser;
+import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.callback.FileCreateCallback;
@@ -60,8 +59,6 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
@@ -69,6 +66,13 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
+import static com.github.adamantcheese.chan.BuildConfig.DEV_API_ENDPOINT;
+import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
+import static com.github.adamantcheese.chan.BuildConfig.UPDATE_API_ENDPOINT;
+import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
+import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
+import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -84,8 +88,6 @@ import static java.util.concurrent.TimeUnit.DAYS;
  * screen is launched after downloading.
  */
 public class UpdateManager {
-    @Inject
-    RequestQueue volleyRequestQueue;
     @Inject
     FileCacheV2 fileCacheV2;
     @Inject
@@ -110,11 +112,10 @@ public class UpdateManager {
      * Runs every time onCreate is called on the StartActivity.
      */
     public void autoUpdateCheck() {
-        if (PersistableChanState.previousVersion.get() < BuildConfig.VERSION_CODE
+        if (PersistableChanState.previousVersion.get() < VERSION_CODE
                 && PersistableChanState.previousVersion.get() != 0) {
             // Show dialog because release updates are infrequent so it's fine
-            Spanned text = Html.fromHtml(
-                    "<h3>" + getApplicationLabel() + " was updated to " + BuildConfig.VERSION_NAME + "</h3>");
+            Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + VERSION_NAME + "</h3>");
             final AlertDialog dialog =
                     new AlertDialog.Builder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(false);
@@ -128,18 +129,18 @@ public class UpdateManager {
             }, 1500);
 
             // Also set the new app version to not show this message again
-            PersistableChanState.previousVersion.set(BuildConfig.VERSION_CODE);
+            PersistableChanState.previousVersion.set(VERSION_CODE);
             cancelApkUpdateNotification();
 
             // Don't process the updater because a dialog is now already showing.
             return;
         }
 
-        if (BuildConfig.DEV_BUILD && !PersistableChanState.previousDevHash.get().equals(BuildConfig.COMMIT_HASH)) {
+        if (DEV_BUILD && !PersistableChanState.previousDevHash.get().equals(COMMIT_HASH)) {
             // Show toast because dev updates may happen every day (to avoid alert dialog spam)
             showToast(context, getApplicationLabel() + " was updated to the latest commit.");
 
-            PersistableChanState.previousDevHash.set(BuildConfig.COMMIT_HASH);
+            PersistableChanState.previousDevHash.set(COMMIT_HASH);
             cancelApkUpdateNotification();
 
             return;
@@ -161,7 +162,7 @@ public class UpdateManager {
 
         if (!manual) {
             long lastUpdateTime = PersistableChanState.updateCheckTime.get();
-            long interval = DAYS.toMillis(BuildConfig.UPDATE_DELAY);
+            long interval = DAYS.toMillis(UPDATE_DELAY);
             long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
@@ -172,73 +173,54 @@ public class UpdateManager {
         }
 
         Logger.d(this, "Calling update API");
-        if (!BuildConfig.DEV_BUILD) {
-            //region Release build
-            volleyRequestQueue.add(new UpdateApiRequest(response -> {
-                if (!processUpdateApiResponse(response, manual) && manual && BackgroundUtils.isInForeground()) {
-                    new AlertDialog.Builder(context).setTitle(getString(R.string.update_none, getApplicationLabel()))
-                            .setPositiveButton(R.string.ok, null)
-                            .show();
+        if (!DEV_BUILD) {
+            NetUtils.makeJsonRequest(HttpUrl.get(UPDATE_API_ENDPOINT), new JsonResult<UpdateApiResponse>() {
+                @Override
+                public void onJsonFailure(Exception e) {
+                    failedUpdate(manual);
                 }
-            }, error -> failedUpdate(manual)));
-            //endregion
-        } else {
-            //region Dev build
-            //@formatter:off
-            JsonObjectRequest request = new JsonObjectRequest(
-            BuildConfig.DEV_API_ENDPOINT + "/latest_apk_uuid",
-                  null,
-                  response -> {
-                      try {
-                          int versionCode = response.getInt("apk_version");
-                          String commitHash = response.getString("commit_hash");
-                          if (commitHash.equals(BuildConfig.COMMIT_HASH)) {
-                              //same version and commit, no update needed
-                              if (manual && BackgroundUtils.isInForeground()) {
-                                  new AlertDialog.Builder(context)
-                                          .setTitle(getString(R.string.update_none,
-                                                                      getApplicationLabel()
-                                          ))
-                                          .setPositiveButton(R.string.ok, null)
-                                          .show();
-                              }
 
-                              cancelApkUpdateNotification();
-                          } else {
-                              //new version or commit, update
-                              Matcher versionCodeStringMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})")
-                                      .matcher(String.valueOf(versionCode));
-                              if (versionCodeStringMatcher.matches()) {
-                                  UpdateApiResponse fauxResponse = new UpdateApiResponse();
-                                  fauxResponse.versionCode = versionCode;
-                                  fauxResponse.versionCodeString =
-                                          "v" + Integer.valueOf(versionCodeStringMatcher.group(1))
-                                          + "." + Integer.valueOf(versionCodeStringMatcher.group(2))
-                                          + "." + Integer.valueOf(versionCodeStringMatcher.group(3))
-                                          + "-" + commitHash.substring(0, 7);
-                                  fauxResponse.apkURL = HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT
-                                          + "/apk/" + versionCode + "_" + commitHash + ".apk");
-                                  fauxResponse.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-                                  processUpdateApiResponse(fauxResponse, manual);
-                              } else {
-                                  throw new Exception(); // to reuse the failed code below
-                              }
-                          }
-                      } catch (Exception e) { // any exceptions just fail out
-                          failedUpdate(manual);
-                      }
-                  },
-                  response -> failedUpdate(manual)
+                @Override
+                public void onJsonSuccess(UpdateApiResponse result) {
+                    if (!processUpdateApiResponse(result, manual) && manual && BackgroundUtils.isInForeground()) {
+                        showToast(context, getString(R.string.update_none, getApplicationLabel()), Toast.LENGTH_LONG);
+                    }
+                }
+            }, new UpdateApiParser());
+        } else {
+            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT + "/latest_apk_uuid"),
+                    new JsonResult<UpdateApiResponse>() {
+                        @Override
+                        public void onJsonFailure(Exception e) {
+                            failedUpdate(manual);
+                        }
+
+                        @Override
+                        public void onJsonSuccess(UpdateApiResponse result) {
+                            if (result == null) {
+                                failedUpdate(manual);
+                            } else if (result.commitHash.equals(COMMIT_HASH)) {
+                                //same version and commit, no update needed
+                                if (manual && BackgroundUtils.isInForeground()) {
+                                    showToast(context,
+                                            getString(R.string.update_none, getApplicationLabel()),
+                                            Toast.LENGTH_LONG
+                                    );
+                                }
+
+                                cancelApkUpdateNotification();
+                            } else {
+                                processUpdateApiResponse(result, manual);
+                            }
+                        }
+                    },
+                    new UpdateApiParser()
             );
-            volleyRequestQueue.add(request);
-            //@formatter:on
-            //endregion
         }
     }
 
     private boolean processUpdateApiResponse(UpdateApiResponse response, boolean manual) {
-        if ((response.versionCode > BuildConfig.VERSION_CODE || BuildConfig.DEV_BUILD)
-                && BackgroundUtils.isInForeground()) {
+        if ((response.versionCode > VERSION_CODE || DEV_BUILD) && BackgroundUtils.isInForeground()) {
 
             // Do not spam dialogs if this is not the manual update check, use the notifications
             // instead
@@ -282,7 +264,7 @@ public class UpdateManager {
     }
 
     private void failedUpdate(boolean manual) {
-        Logger.e(this, "Failed to process " + (BuildConfig.DEV_BUILD ? "dev" : "stable") + " API call for updating");
+        Logger.e(this, "Failed to process " + (DEV_BUILD ? "dev" : "stable") + " API call for updating");
         if (manual && BackgroundUtils.isInForeground()) {
             new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
                     .setPositiveButton(R.string.ok, null)

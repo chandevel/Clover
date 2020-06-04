@@ -18,16 +18,19 @@ package com.github.adamantcheese.chan.core.net;
 
 import android.os.Build;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.JsonReader;
+import android.util.MalformedJsonException;
 
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,15 +38,21 @@ import okhttp3.HttpUrl;
 
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
 
-public class UpdateApiRequest
-        extends JsonReaderRequest<UpdateApiRequest.UpdateApiResponse> {
-    public UpdateApiRequest(Response.Listener<UpdateApiResponse> listener, Response.ErrorListener errorListener) {
-        super(BuildConfig.UPDATE_API_ENDPOINT, listener, errorListener);
-    }
+public class UpdateApiParser
+        implements JsonParser<UpdateApiResponse> {
 
     @Override
-    public UpdateApiResponse readJson(JsonReader reader)
+    public UpdateApiResponse parse(JsonReader reader)
             throws Exception {
+        if (BuildConfig.DEV_BUILD) {
+            return parseDev(reader);
+        } else {
+            return parseRelease(reader);
+        }
+    }
+
+    public UpdateApiResponse parseRelease(JsonReader reader)
+            throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();
         reader.beginObject();
         while (reader.hasNext()) {
@@ -59,7 +68,7 @@ public class UpdateApiRequest
                                     Integer.parseInt(versionMatcher.group(1)) * 10000);
                         }
                     } catch (Exception e) {
-                        throw new VolleyError("Tag name wasn't of the form v(major).(minor).(patch)!");
+                        throw new MalformedJsonException("Tag name wasn't of the form v(major).(minor).(patch)!");
                     }
                     break;
                 case "name":
@@ -84,15 +93,17 @@ public class UpdateApiRequest
                             }
                         }
                     } catch (Exception e) {
-                        throw new VolleyError("No APK URL!");
+                        throw new MalformedJsonException("No APK URL!");
                     }
                     reader.endArray();
                     break;
                 case "body":
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                         Node updateLog = Parser.builder().build().parse(reader.nextString());
-                        response.body =
-                                Html.fromHtml("Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog), FROM_HTML_MODE_LEGACY);
+                        response.body = Html.fromHtml(
+                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
+                                FROM_HTML_MODE_LEGACY
+                        );
                     } else {
                         response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
                                 + " Your Android API is too low to properly render the changelog from the site, as a result of libraries used on the project.");
@@ -105,12 +116,43 @@ public class UpdateApiRequest
         }
         reader.endObject();
         if (response.versionCode == 0 || response.apkURL == null || response.body == null) {
-            throw new VolleyError("Update API response is incomplete, issue with github release listing!");
+            throw new MalformedJsonException("Update API response is incomplete, issue with github release listing!");
         }
         return response;
     }
 
+    public UpdateApiResponse parseDev(JsonReader reader)
+            throws IOException {
+        reader.beginObject();
+        reader.nextName(); // apk_version
+        int versionCode = reader.nextInt();
+        reader.nextName(); // commit hash
+        String commitHash = reader.nextString();
+        reader.endObject();
+
+        Matcher versionCodeMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})").matcher(String.valueOf(versionCode));
+        if (versionCodeMatcher.matches()) {
+            UpdateApiResponse response = new UpdateApiResponse();
+            response.commitHash = commitHash;
+            response.versionCode = versionCode;
+            //@formatter:off
+            //noinspection ConstantConditions
+            response.versionCodeString =
+                    "v" + Integer.valueOf(versionCodeMatcher.group(1))
+                        + "." + Integer.valueOf(versionCodeMatcher.group(2))
+                        + "." + Integer.valueOf(versionCodeMatcher.group(3))
+                        + "-" + commitHash.substring(0, 7);
+            //@formatter:on
+            response.apkURL =
+                    HttpUrl.parse(BuildConfig.DEV_API_ENDPOINT + "/apk/" + versionCode + "_" + commitHash + ".apk");
+            response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+            return response;
+        }
+        return null;
+    }
+
     public static class UpdateApiResponse {
+        public String commitHash = "";
         public int versionCode = 0;
         public String versionCodeString;
         public String updateTitle = "";
