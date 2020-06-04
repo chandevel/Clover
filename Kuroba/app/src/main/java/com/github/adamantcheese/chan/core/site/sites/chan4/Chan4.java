@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
+import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -341,17 +342,20 @@ public class Chan4
         public void archives(ArchiveRequestListener archivesListener) {
             //currently only used for 4chan, so if there are archives, don't send another request
             if (Chan.instance(ArchivesManager.class).hasArchives()) return;
-            requestQueue.add(new JsonReaderRequest<List<ArchivesManager.Archives>>(
-                    "https://nstepien.github.io/archives.json/archives.json",
-                    archivesListener::onArchivesReceived,
-                    error -> Logger.e(Chan4.this, "Failed to get archives for 4Chan, using builtins")
-            ) {
-                @Override
-                public List<ArchivesManager.Archives> readJson(JsonReader reader)
-                        throws Exception {
-                    return ArchivesManager.parseArchives(reader);
-                }
-            });
+            NetUtils.makeJsonRequest(HttpUrl.get("https://nstepien.github.io/archives.json/archives.json"),
+                    new JsonResult<List<ArchivesManager.Archives>>() {
+                        @Override
+                        public void onJsonFailure(Exception e) {
+                            Logger.e(Chan4.this, "Failed to get archives for 4Chan, using builtins");
+                        }
+
+                        @Override
+                        public void onJsonSuccess(List<ArchivesManager.Archives> result) {
+                            archivesListener.onArchivesReceived(result);
+                        }
+                    },
+                    ArchivesManager::parseArchives
+            );
         }
 
         @Override

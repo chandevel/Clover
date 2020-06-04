@@ -26,8 +26,6 @@ import android.os.PersistableBundle;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.android.volley.NetworkResponse;
-import com.android.volley.ServerError;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.base.Debouncer;
@@ -51,6 +49,7 @@ import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils.HttpCodeException;
 import com.github.k1rakishou.fsaf.FileManager;
 
 import org.greenrobot.eventbus.EventBus;
@@ -1277,14 +1276,12 @@ public class WatchManager
                     // is AlreadyDownloaded
                     && pin.loadable.getLoadableDownloadingState() != DownloadingAndViewable && (thread.isArchived()
                     || thread.isClosed())) {
-                NetworkResponse networkResponse =
-                        new NetworkResponse(503, EMPTY_BYTE_ARRAY, true, 1, Collections.emptyList());
-                ServerError serverError = new ServerError(networkResponse);
+                HttpCodeException networkResponse = new HttpCodeException(503);
 
                 pin.isError = true;
                 pin.watching = false;
 
-                onChanLoaderError(new ChanThreadLoader.ChanLoaderException(serverError));
+                onChanLoaderError(new ChanThreadLoader.ChanLoaderException(networkResponse));
                 return;
             }
 

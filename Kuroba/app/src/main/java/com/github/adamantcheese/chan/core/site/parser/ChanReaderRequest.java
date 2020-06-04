@@ -24,9 +24,9 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderRequestParams;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,9 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
-import okhttp3.HttpUrl;
-
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
  * Process a typical imageboard json response.<br>
@@ -55,7 +54,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * changed on the main thread.
  */
 public class ChanReaderRequest
-        extends JsonReaderRequest<ChanLoaderResponse> {
+        implements NetUtils.JsonParser<ChanLoaderResponse> {
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
     private static final String threadFactoryName = "post_parser_thread_%d";
@@ -70,9 +69,6 @@ public class ChanReaderRequest
     }
 
     @Inject
-    DatabaseManager databaseManager;
-
-    @Inject
     FilterEngine filterEngine;
 
     private Loadable loadable;
@@ -83,7 +79,6 @@ public class ChanReaderRequest
     private List<Filter> filters;
 
     public ChanReaderRequest(ChanLoaderRequestParams request) {
-        super(getChanUrl(request.loadable).toString(), request.listener, request.errorListener);
         inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
@@ -100,37 +95,11 @@ public class ChanReaderRequest
             }
         }
 
-        databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
-    }
-
-    private static HttpUrl getChanUrl(Loadable loadable) {
-        HttpUrl url;
-
-        if (loadable.site == null) {
-            throw new NullPointerException("Loadable.site == null");
-        }
-
-        if (loadable.board == null) {
-            throw new NullPointerException("Loadable.board == null");
-        }
-
-        if (loadable.isThreadMode()) {
-            url = loadable.site.endpoints().thread(loadable.board, loadable);
-        } else if (loadable.isCatalogMode()) {
-            url = loadable.site.endpoints().catalog(loadable.board);
-        } else {
-            throw new IllegalArgumentException("Unknown mode");
-        }
-        return url;
+        databaseSavedReplyManager = instance(DatabaseManager.class).getDatabaseSavedReplyManager();
     }
 
     @Override
-    public Priority getPriority() {
-        return Priority.HIGH;
-    }
-
-    @Override
-    public ChanLoaderResponse readJson(JsonReader reader)
+    public ChanLoaderResponse parse(JsonReader reader)
             throws Exception {
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 

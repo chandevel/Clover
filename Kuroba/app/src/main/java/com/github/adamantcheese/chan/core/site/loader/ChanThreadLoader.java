@@ -17,18 +17,11 @@
 package com.github.adamantcheese.chan.core.site.loader;
 
 import android.text.TextUtils;
+import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.ParseError;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.ServerError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.base.ModularResult;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -41,11 +34,13 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.HttpCodeException;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
@@ -66,9 +61,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
@@ -78,14 +77,10 @@ import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
  * {@link ChanLoaderCallback}.
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
  */
-public class ChanThreadLoader
-        implements Response.ErrorListener, Response.Listener<ChanLoaderResponse> {
+public class ChanThreadLoader {
     private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
     private static final Scheduler backgroundScheduler = Schedulers.from(executor);
-
-    @Inject
-    RequestQueue volleyRequestQueue;
 
     @Inject
     DatabaseManager databaseManager;
@@ -102,7 +97,7 @@ public class ChanThreadLoader
     @Nullable
     private ChanThread thread;
     @Nullable
-    private ChanLoaderRequest request;
+    private Call request;
     @Nullable
     private ScheduledFuture<?> pendingFuture;
 
@@ -147,7 +142,7 @@ public class ChanThreadLoader
         if (listeners.isEmpty()) {
             clearTimer();
             if (request != null) {
-                request.getVolleyRequest().cancel();
+                request.cancel();
                 request = null;
             }
             return true;
@@ -174,7 +169,7 @@ public class ChanThreadLoader
                 .subscribe(this::requestDataInternal, error -> {
                     Logger.e(ChanThreadLoader.this, "Error while loading saved thread", error);
 
-                    notifyAboutError(new VolleyError(error));
+                    notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error));
                 });
 
         compositeDisposable.add(disposable);
@@ -188,7 +183,8 @@ public class ChanThreadLoader
         }
 
         if (request != null) {
-            request.getVolleyRequest().cancel();
+            request.cancel();
+            request = null;
         }
 
         if (loadable.isCatalogMode()) {
@@ -259,7 +255,7 @@ public class ChanThreadLoader
     @SuppressWarnings("unchecked")
     private Disposable requestMoreDataInternal() {
         return Single.fromCallable(() -> {
-            ChanLoaderRequest request = getData();
+            Call request = getData();
             if (request == null) {
                 return ModularResult.error(new ThreadAlreadyArchivedException());
             }
@@ -267,19 +263,15 @@ public class ChanThreadLoader
             return ModularResult.value(request);
         }).subscribeOn(backgroundScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result instanceof ModularResult.Error) {
-                handleErrorResult(((ModularResult.Error<Throwable>) result).getError());
+                Throwable error = ((ModularResult.Error<Throwable>) result).getError();
+                if (error instanceof ThreadAlreadyArchivedException) {
+                    return;
+                }
+                notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error));
             } else {
-                request = ((ModularResult.Value<ChanLoaderRequest>) result).getValue();
+                request = ((ModularResult.Value<Call>) result).getValue();
             }
-        }, error -> notifyAboutError(new VolleyError(error)));
-    }
-
-    private void handleErrorResult(Throwable error) {
-        if (error instanceof ThreadAlreadyArchivedException) {
-            return;
-        }
-
-        notifyAboutError(new VolleyError(error));
+        }, error -> notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error)));
     }
 
     /**
@@ -360,11 +352,10 @@ public class ChanThreadLoader
         }
     }
 
-    private ChanLoaderRequest getData() {
+    private Call getData() {
         BackgroundUtils.ensureBackgroundThread();
 
-        if (loadable.mode == Loadable.Mode.THREAD
-                && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
+        if (loadable.mode == THREAD && loadable.getLoadableDownloadingState() == AlreadyDownloaded) {
             // If loadableDownloadingState is AlreadyDownloaded try to load the local thread from
             // the disk. If we couldn't do that then try to send the request to the server
             if (onThreadArchived(true, true)) {
@@ -380,19 +371,44 @@ public class ChanThreadLoader
             cached = thread == null ? new ArrayList<>() : thread.getPosts();
         }
 
-        ChanReader chanReader = loadable.getSite().chanReader();
+        ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, cached);
+        request = NetUtils.makeJsonRequest(getChanUrl(loadable), new JsonResult<ChanLoaderResponse>() {
+            @Override
+            public void onJsonFailure(Exception e) {
+                onErrorResponse(e);
+            }
 
-        ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, chanReader, cached, this, this);
-        ChanReaderRequest readerRequest = new ChanReaderRequest(requestParams);
-
-        request = new ChanLoaderRequest(readerRequest);
-        volleyRequestQueue.add(request.getVolleyRequest());
+            @Override
+            public void onJsonSuccess(ChanLoaderResponse result) {
+                onResponse(result);
+            }
+        }, new ChanReaderRequest(requestParams));
 
         return request;
     }
 
-    @Override
-    public void onResponse(ChanLoaderResponse response) {
+    private HttpUrl getChanUrl(Loadable loadable) {
+        HttpUrl url;
+
+        if (loadable.site == null) {
+            throw new NullPointerException("Loadable.site == null");
+        }
+
+        if (loadable.board == null) {
+            throw new NullPointerException("Loadable.board == null");
+        }
+
+        if (loadable.isThreadMode()) {
+            url = loadable.site.endpoints().thread(loadable.board, loadable);
+        } else if (loadable.isCatalogMode()) {
+            url = loadable.site.endpoints().catalog(loadable.board);
+        } else {
+            throw new IllegalArgumentException("Unknown mode");
+        }
+        return url;
+    }
+
+    private void onResponse(ChanLoaderResponse response) {
         request = null;
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
@@ -400,7 +416,7 @@ public class ChanThreadLoader
                 .subscribe(result -> { }, error -> {
                     Logger.e(ChanThreadLoader.this, "onResponse error", error);
 
-                    notifyAboutError(new VolleyError(error));
+                    notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error));
                 });
 
         compositeDisposable.add(disposable);
@@ -417,8 +433,8 @@ public class ChanThreadLoader
         }
 
         // Normal thread, not archived/deleted/closed
-        if (response == null || response.posts.isEmpty()) {
-            onErrorResponse(new VolleyError("Post size is 0"));
+        if (response == null || (response.posts != null && response.posts.isEmpty())) {
+            onErrorResponse(new Exception("Post size is 0"));
             return false;
         }
 
@@ -473,11 +489,7 @@ public class ChanThreadLoader
             });
 
             // Otherwise pass it to the response parse method
-            onPreparedResponseInternal(chanThread,
-                    Loadable.LoadableDownloadingState.AlreadyDownloaded,
-                    closed,
-                    archived
-            );
+            onPreparedResponseInternal(chanThread, AlreadyDownloaded, closed, archived);
             return true;
         } else {
             Logger.d(this, "Thread " + maskPostNo(chanThread.getLoadable().no) + " has no posts");
@@ -492,7 +504,7 @@ public class ChanThreadLoader
         savedThread.isFullyDownloaded = true;
         savedThread.isStopped = true;
 
-        chanThread.updateLoadableState(Loadable.LoadableDownloadingState.AlreadyDownloaded);
+        chanThread.updateLoadableState(AlreadyDownloaded);
         watchManager.createOrUpdateSavedThread(savedThread);
 
         Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
@@ -622,16 +634,15 @@ public class ChanThreadLoader
         }
     }
 
-    @Override
-    public void onErrorResponse(VolleyError error) {
+    private void onErrorResponse(Exception error) {
         request = null;
 
         Disposable disposable = Single.fromCallable(() -> {
             BackgroundUtils.ensureBackgroundThread();
 
             // Thread was deleted (404), try to load a saved copy (if we have it)
-            if (error.networkResponse != null && error.networkResponse.statusCode == 404
-                    && loadable.mode == Loadable.Mode.THREAD) {
+            if (error instanceof HttpCodeException && ((HttpCodeException) error).code == 404
+                    && loadable.mode == THREAD) {
                 Logger.d(ChanThreadLoader.this, "Got 404 status for a thread " + maskPostNo(loadable.no));
 
                 ChanThread chanThread = loadSavedThreadIfItExists();
@@ -646,7 +657,7 @@ public class ChanThreadLoader
                     );
 
                     onPreparedResponseInternal(chanThread,
-                            Loadable.LoadableDownloadingState.AlreadyDownloaded,
+                            AlreadyDownloaded,
                             chanThread.isClosed(),
                             chanThread.isArchived()
                     );
@@ -667,26 +678,25 @@ public class ChanThreadLoader
             notifyAboutError(error);
         }, throwable -> {
             Logger.i(ChanThreadLoader.this, "Loading unhandled error", throwable);
-
             notifyAboutError(createError(throwable));
         });
 
         compositeDisposable.add(disposable);
     }
 
-    private VolleyError createError(Throwable throwable) {
+    private Exception createError(Throwable throwable) {
         if (throwable instanceof JsonSyntaxException) {
-            return new VolleyError("Error while trying to load local thread", throwable);
+            return new Exception("Error while trying to load local thread", throwable);
         }
 
-        return new VolleyError("Unhandled exception", throwable);
+        return new Exception("Unhandled exception", throwable);
     }
 
-    private void notifyAboutError(VolleyError error) {
+    private void notifyAboutError(Exception exception) {
         BackgroundUtils.ensureMainThread();
 
         clearTimer();
-        ChanLoaderException loaderException = new ChanLoaderException(error);
+        ChanLoaderException loaderException = new ChanLoaderException(exception);
 
         for (ChanLoaderCallback l : listeners) {
             l.onChanLoaderError(loaderException);
@@ -755,40 +765,34 @@ public class ChanThreadLoader
 
     public static class ChanLoaderException
             extends Exception {
-        private VolleyError volleyError;
+        private Exception exception;
 
-        public ChanLoaderException(VolleyError volleyError) {
-            this.volleyError = volleyError;
+        public ChanLoaderException(Exception exception) {
+            this.exception = exception;
         }
 
         public boolean isNotFound() {
-            return volleyError instanceof ServerError && isServerErrorNotFound((ServerError) volleyError);
+            return exception instanceof HttpCodeException && ((HttpCodeException) exception).isServerErrorNotFound();
         }
 
         public int getErrorMessage() {
-            int errorMessage;
-            if (volleyError.getCause() instanceof SSLException) {
+            //by default, a network error has occurred if the exception field is not null
+            int errorMessage = exception != null ? R.string.thread_load_failed_network : R.string.empty;
+            if (exception instanceof SSLException) {
                 errorMessage = R.string.thread_load_failed_ssl;
-            } else if (volleyError instanceof NetworkError || volleyError instanceof TimeoutError
-                    || volleyError instanceof ParseError || volleyError instanceof AuthFailureError) {
-                errorMessage = R.string.thread_load_failed_network;
-            } else if (volleyError instanceof ServerError) {
-                if (isServerErrorNotFound((ServerError) volleyError)) {
+            } else if (exception instanceof HttpCodeException) {
+                if (((HttpCodeException) exception).isServerErrorNotFound()) {
                     errorMessage = R.string.thread_load_failed_not_found;
                 } else {
                     errorMessage = R.string.thread_load_failed_server;
                 }
-            } else if (volleyError.getCause() instanceof JsonParseException) {
+            } else if (exception instanceof JsonParseException) {
                 errorMessage = R.string.thread_load_failed_local_thread_parsing;
-            } else {
+            } else if (exception instanceof MalformedJsonException) {
                 errorMessage = R.string.thread_load_failed_parsing;
             }
 
             return errorMessage;
-        }
-
-        private boolean isServerErrorNotFound(ServerError serverError) {
-            return serverError.networkResponse != null && serverError.networkResponse.statusCode == 404;
         }
     }
 

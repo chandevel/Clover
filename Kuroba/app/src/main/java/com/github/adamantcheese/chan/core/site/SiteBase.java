@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.site;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.volley.RequestQueue;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -43,7 +42,6 @@ public abstract class SiteBase
     protected SiteConfig config;
 
     protected HttpCallManager httpCallManager;
-    protected RequestQueue requestQueue;
     protected BoardManager boardManager;
     protected SettingProvider settingsProvider;
     private JsonSettings userSettings;
@@ -64,7 +62,6 @@ public abstract class SiteBase
     @Override
     public void postInitialize() {
         httpCallManager = instance(HttpCallManager.class);
-        requestQueue = instance(RequestQueue.class);
         boardManager = instance(BoardManager.class);
         SiteRepository siteRepository = instance(SiteRepository.class);
 
