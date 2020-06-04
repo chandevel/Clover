@@ -27,7 +27,6 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.net.JsonReaderRequest;
 import com.github.adamantcheese.chan.core.settings.OptionSettingItem;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
@@ -55,6 +54,10 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -353,11 +356,31 @@ public class Chan4
 
         @Override
         public void archive(Board board, ArchiveListener archiveListener) {
-            requestQueue.add(new Chan4ArchiveRequest(Chan4.this,
-                    board,
-                    archiveListener::onArchive,
-                    error -> archiveListener.onArchiveError()
-            ));
+            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<Archive>() {
+                @Override
+                public void onHTMLFailure(Exception e) {
+                    archiveListener.onArchiveError();
+                }
+
+                @Override
+                public void onHTMLSuccess(Archive result) {
+                    archiveListener.onArchive(result);
+                }
+            }, document -> {
+                List<Archive.ArchiveItem> items = new ArrayList<>();
+
+                Element table = document.getElementById("arc-list");
+                Element tableBody = table.getElementsByTag("tbody").first();
+                Elements trs = tableBody.getElementsByTag("tr");
+                for (Element tr : trs) {
+                    Elements dataElements = tr.getElementsByTag("td");
+                    String description = dataElements.get(1).text();
+                    int id = Integer.parseInt(dataElements.get(0).text());
+                    items.add(Archive.ArchiveItem.fromDescriptionId(description, id));
+                }
+
+                return Archive.fromItems(items);
+            });
         }
 
         @Override

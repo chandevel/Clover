@@ -103,4 +103,42 @@ public class NetUtils {
         T parse(JsonReader reader)
                 throws Exception;
     }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public static <T> Call makeHTMLRequest(
+            @NonNull final HttpUrl url, @NonNull final HTMLResult<T> result, @NonNull final HTMLReader<T> reader
+    ) {
+        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                try (ByteArrayInputStream baos = new ByteArrayInputStream(response.body().bytes())) {
+                    Document document = Jsoup.parse(baos, null, url.toString());
+
+                    T read = reader.read(document);
+                    result.onHTMLSuccess(read);
+                } catch (Exception e) {
+                    result.onHTMLFailure(e);
+                }
+                response.close();
+            }
+        });
+        return call;
+    }
+
+    public interface HTMLResult<T> {
+        void onHTMLFailure(Exception e);
+
+        void onHTMLSuccess(T result);
+    }
+
+    public interface HTMLReader<T> {
+        T read(Document document);
+    }
+
 }
