@@ -8,9 +8,12 @@ import androidx.annotation.Nullable;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.joda.time.DateTime;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.DateTimeFormatterBuilder;
 import org.joda.time.format.ISODateTimeFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.format.PeriodFormatterBuilder;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -173,5 +176,22 @@ public class StringUtils {
 
     public static String getCurrentDateAndTimeUTC() {
         return REPORT_DATE_TIME_PRINTER.print(DateTime.now());
+    }
+
+    public static String getHourMinSecondString(Period time) {
+        //format m?m:ss; ? is optional
+        //alternate h?h:mm:ss if hours
+        return new PeriodFormatterBuilder().appendLiteral("[")
+                .minimumPrintedDigits(0) //don't print hours if none
+                .appendHours()
+                .appendSuffix(":")
+                .minimumPrintedDigits(time.getHours() > 0 ? 2 : 1) //two digit minutes if hours
+                .printZeroAlways() //always print 0 for minutes, if seconds only
+                .appendMinutes()
+                .appendSuffix(":")
+                .minimumPrintedDigits(2) //always print two digit seconds
+                .appendSeconds()
+                .appendLiteral("]")
+                .toFormatter().print(time);
     }
 }

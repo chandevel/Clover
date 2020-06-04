@@ -26,9 +26,6 @@ import android.util.LruCache;
 import androidx.annotation.AnyThread;
 import androidx.core.util.Pair;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.RequestFuture;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -37,12 +34,10 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.joda.time.Period;
-import org.joda.time.format.PeriodFormatter;
-import org.joda.time.format.PeriodFormatterBuilder;
-import org.json.JSONObject;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
@@ -51,13 +46,11 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -106,7 +99,8 @@ public class CommentParserHelper {
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
-            spannable.setSpan(pl,
+            spannable.setSpan(
+                    pl,
                     link.getBeginIndex(),
                     link.getEndIndex(),
                     (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
@@ -122,67 +116,68 @@ public class CommentParserHelper {
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = youtubeLinkPattern.matcher(text);
         while (linkMatcher.find()) {
-            String videoID = linkMatcher.group(1);
-            RequestFuture<JSONObject> future = RequestFuture.newFuture();
-            //this must be a GET request, so the jsonRequest object is null per documentation
-            JsonObjectRequest request = new JsonObjectRequest(
-                    "https://www.googleapis.com/youtube/v3/videos?part=snippet"
-                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "") + "&id=" + videoID
-                            + "&fields=items%28id%2Csnippet%28title%29" + (ChanSettings.parseYoutubeDuration.get()
-                            ? "%2CcontentDetails%28duration%29"
-                            : "") + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get(),
-                    null,
-                    future,
-                    future
-            );
-            instance(RequestQueue.class).add(request);
-
             String URL = linkMatcher.group(0);
-            Pair<String, String> cachedInfo = youtubeCache.get(URL);
-            String title = URL;
-            String duration = null;
-            if (cachedInfo == null) {
-                try {
-                    // this will block so we get the title immediately
-                    JSONObject response = future.get(2500, TimeUnit.MILLISECONDS);
-                    title = response.getJSONArray("items")
-                            .getJSONObject(0)
-                            .getJSONObject("snippet")
-                            .getString("title"); //the response is well formatted so this will always work
-                    if (ChanSettings.parseYoutubeDuration.get()) {
-                        duration = response.getJSONArray("items")
-                                .getJSONObject(0)
-                                .getJSONObject("contentDetails")
-                                .getString("duration"); //the response is well formatted so this will always work
-                        Period time = Period.parse(duration);
-                        //format m?m:ss; ? is optional
-                        //alternate h?h:mm:ss if hours
-                        PeriodFormatter formatter = new PeriodFormatterBuilder().appendLiteral("[")
-                                .minimumPrintedDigits(0) //don't print hours if none
-                                .appendHours()
-                                .appendSuffix(":")
-                                .minimumPrintedDigits(time.getHours() > 0 ? 2 : 1) //two digit minutes if hours
-                                .printZeroAlways() //always print 0 for minutes, if seconds only
-                                .appendMinutes()
-                                .appendSuffix(":")
-                                .minimumPrintedDigits(2) //always print two digit seconds
-                                .appendSeconds()
-                                .appendLiteral("]")
-                                .toFormatter();
-                        duration = formatter.print(time);
-                        youtubeCache.put(URL, new Pair<>(title, duration));
-                    } else {
-                        youtubeCache.put(URL, new Pair<>(title, null));
-                    }
-                } catch (Exception ignored) {
-                    //fall back to just showing the URL, otherwise it will display "null" which is pretty useless
-                }
-            } else {
-                title = cachedInfo.first;
-                duration = cachedInfo.second;
+            String videoID = linkMatcher.group(1);
+            Pair<String, String> result = youtubeCache.get(URL);
+            if (result == null) {
+                result = NetUtils.makeJsonRequestSync(
+                        //@formatter:off
+                    HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
+                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
+                            + "&id=" + videoID
+                            + "&fields=items%28id%2Csnippet%28title%29"
+                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
+                            + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get()),
+                    //@formatter:on
+                        reader -> {
+                        /*
+                            {
+                              "items": [
+                                {
+                                  "id": "UyXlt9PP4eM",
+                                  "snippet": {
+                                    "title": "ATC Spindle Part 3: Designing the Spindle Mount"
+                                  },
+                                    "contentDetails": {
+                                      "duration": "PT22M27S"
+                                    }
+                                }
+                              ]
+                            }
+                         */
+                            reader.beginObject();
+                            reader.nextName();
+                            reader.beginArray();
+                            reader.beginObject();
+                            reader.nextName(); // video ID
+                            reader.nextString();
+                            reader.nextName(); // snippet
+                            reader.beginObject();
+                            reader.nextName(); // title
+                            String title = reader.nextString();
+                            Pair<String, String> ret = new Pair<>(title, null);
+                            reader.endObject();
+                            if (ChanSettings.parseYoutubeDuration.get()) {
+                                reader.nextName(); // content details
+                                reader.beginObject();
+                                reader.nextName(); // duration
+                                String duration = reader.nextString();
+                                duration = StringUtils.getHourMinSecondString(Period.parse(duration));
+                                ret = new Pair<>(title, duration);
+                                reader.endObject();
+                            }
+                            reader.endObject();
+                            reader.endArray();
+                            reader.endObject();
+                            return ret;
+                        }
+                );
+                youtubeCache.put(URL, result);
             }
             //prepend two spaces for the youtube icon later
-            String extraDur = ChanSettings.parseYoutubeDuration.get() ? (duration != null ? " " + duration : "") : "";
+            String title = result != null ? result.first : URL;
+            String duration = result != null ? result.second : null;
+            String extraDur = duration != null ? " " + duration : "";
             titleURLMap.put("  " + title + extraDur, URL);
             linkMatcher.appendReplacement(newString, "  " + Matcher.quoteReplacement(title + extraDur));
         }
@@ -194,7 +189,8 @@ public class CommentParserHelper {
         for (String key : titleURLMap.keySet()) {
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
-            finalizedString.setSpan(pl,
+            finalizedString.setSpan(
+                    pl,
                     newString.indexOf(key),
                     newString.indexOf(key) + key.length(),
                     (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
@@ -206,7 +202,8 @@ public class CommentParserHelper {
             int height = Integer.parseInt(ChanSettings.fontSize.get());
             int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
-            finalizedString.setSpan(ytIcon,
+            finalizedString.setSpan(
+                    ytIcon,
                     newString.indexOf(key),
                     newString.indexOf(key) + 1,
                     (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
