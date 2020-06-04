@@ -52,12 +52,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -75,12 +71,14 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
@@ -885,7 +883,6 @@ public class PostCell
                 String name = icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length());
                 PostIconsHttpIcon j = new PostIconsHttpIcon(this, name, icon.url);
                 httpIcons.add(j);
-                j.request();
             }
         }
 
@@ -967,47 +964,34 @@ public class PostCell
         }
     }
 
-    private static class PostIconsHttpIcon
-            implements ImageListener {
-        private final PostIcons postIcons;
+    private static class PostIconsHttpIcon {
         private final String name;
-        private final HttpUrl url;
-        private ImageContainer request;
+        private Call request;
         private Bitmap bitmap;
-        private ImageLoaderV2 imageLoaderV2;
-        private Bitmap errorBitmap;
 
-        private PostIconsHttpIcon(PostIcons postIcons, String name, HttpUrl url) {
-            this.postIcons = postIcons;
+        private PostIconsHttpIcon(final PostIcons postIcons, String name, HttpUrl url) {
             this.name = name;
-            this.url = url;
-            this.imageLoaderV2 = instance(ImageLoaderV2.class);
-            errorBitmap = BitmapFactory.decodeResource(postIcons.getResources(), R.drawable.error_icon);
-        }
 
-        private void request() {
-            request = imageLoaderV2.get(url.toString(), this);
+            request = NetUtils.makeBitmapRequest(url, new NetUtils.BitmapResult() {
+                @Override
+                public void onBitmapFailure(Bitmap errormap) {
+                    bitmap = errormap;
+                    postIcons.invalidate();
+                }
+
+                @Override
+                public void onBitmapSuccess(Bitmap bitmap) {
+                    PostIconsHttpIcon.this.bitmap = bitmap;
+                    postIcons.invalidate();
+                }
+            }, -1, -1);
         }
 
         private void cancel() {
             if (request != null) {
-                request.cancelRequest();
+                request.cancel();
                 request = null;
             }
-        }
-
-        @Override
-        public void onResponse(ImageContainer response, boolean isImmediate) {
-            if (response.getBitmap() != null) {
-                bitmap = response.getBitmap();
-                postIcons.invalidate();
-            }
-        }
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            bitmap = errorBitmap;
-            postIcons.invalidate();
         }
     }
 
