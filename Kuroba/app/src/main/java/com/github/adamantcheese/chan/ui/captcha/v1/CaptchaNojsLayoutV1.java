@@ -30,6 +30,8 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -172,7 +174,7 @@ public class CaptchaNojsLayoutV1
                 .header("User-Agent", webviewUserAgent)
                 .header("Referer", baseUrl)
                 .build();
-        instance(OkHttpClient.class).newCall(request).enqueue(new Callback() {
+        instance(ProxiedOkHttpClient.class).newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
             }

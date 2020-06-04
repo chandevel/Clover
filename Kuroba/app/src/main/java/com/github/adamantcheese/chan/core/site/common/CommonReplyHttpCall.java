@@ -56,7 +56,7 @@ public abstract class CommonReplyHttpCall
 
         addParameters(formBuilder, progressListener);
 
-        HttpUrl replyUrl = site.endpoints().reply(replyResponse.originatingReply.loadable);
+        HttpUrl replyUrl = getSite().endpoints().reply(replyResponse.originatingReply.loadable);
         requestBuilder.url(replyUrl);
         requestBuilder.addHeader("Referer", replyUrl.toString());
         requestBuilder.post(formBuilder.build());

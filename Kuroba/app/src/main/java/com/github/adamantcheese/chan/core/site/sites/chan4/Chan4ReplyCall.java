@@ -66,7 +66,7 @@ public class Chan4ReplyCall
             }
         }
 
-        if (site instanceof Chan4 && reply.loadable.boardCode.equals("pol")) {
+        if (getSite() instanceof Chan4 && reply.loadable.boardCode.equals("pol")) {
             if (!reply.flag.isEmpty()) {
                 formBuilder.addFormDataPart("flag", reply.flag);
             } else {

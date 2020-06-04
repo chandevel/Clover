@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
@@ -45,13 +46,11 @@ import okhttp3.ResponseBody;
  */
 public class VichanAntispam {
     private HttpUrl url;
-    private NetModule.ProxiedOkHttpClient okHttpClient;
 
     private List<String> fieldsToIgnore = new ArrayList<>();
 
     public VichanAntispam(HttpUrl url) {
         this.url = url;
-        this.okHttpClient = Chan.instance(NetModule.ProxiedOkHttpClient.class);
     }
 
     public void addDefaultIgnoreFields() {
@@ -77,7 +76,7 @@ public class VichanAntispam {
 
         Request request = new Request.Builder().url(url).build();
         try {
-            Response response = okHttpClient.getProxiedClient().newCall(request).execute();
+            Response response = Chan.instance(ProxiedOkHttpClient.class).getProxiedClient().newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

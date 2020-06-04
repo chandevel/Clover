@@ -42,7 +42,7 @@ import okhttp3.ResponseBody;
  */
 public abstract class HttpCall
         implements Callback {
-    protected Site site;
+    private Site site;
 
     private Handler handler = new Handler(Looper.getMainLooper());
     private HttpCallback callback;
@@ -56,6 +56,10 @@ public abstract class HttpCall
 
     public HttpCall(Site site) {
         this.site = site;
+    }
+
+    public Site getSite() {
+        return site;
     }
 
     @Override

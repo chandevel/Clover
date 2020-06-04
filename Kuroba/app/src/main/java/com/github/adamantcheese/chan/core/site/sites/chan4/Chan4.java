@@ -389,7 +389,7 @@ public class Chan4
 
         @Override
         public void post(Reply reply, final PostListener postListener) {
-            httpCallManager.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply),
+            NetUtils.makeHttpCall(new Chan4ReplyCall(Chan4.this, reply),
                     new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                         @Override
                         public void onHttpSuccess(CommonReplyHttpCall httpPost) {
@@ -429,7 +429,7 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
-            httpCallManager.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest),
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest),
                     new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
                         @Override
                         public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
@@ -449,7 +449,7 @@ public class Chan4
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            httpCallManager.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest),
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest),
                     new HttpCall.HttpCallback<Chan4PassHttpCall>() {
                         @Override
                         public void onHttpSuccess(Chan4PassHttpCall httpCall) {

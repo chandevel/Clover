@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -481,7 +482,7 @@ public abstract class CommonSite
         }
 
         private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
-            site.httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
+            NetUtils.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
                     postListener.onPostComplete(httpCall, replyResponse);
@@ -514,7 +515,7 @@ public abstract class CommonSite
 
             call.url(site.endpoints().delete(deleteRequest.post));
             setupDelete(deleteRequest, call);
-            site.httpCallManager.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
+            NetUtils.makeHttpCall(call, new HttpCall.HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
                     deleteListener.onDeleteComplete(httpCall, deleteResponse);

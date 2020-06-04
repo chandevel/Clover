@@ -112,15 +112,10 @@ public class ManagerModule {
     @Provides
     @Singleton
     public FilterWatchManager provideFilterWatchManager(
-            WakeManager wakeManager,
-            BoardRepository boardRepository,
-            DatabaseManager databaseManager
+            WakeManager wakeManager, BoardRepository boardRepository, DatabaseManager databaseManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager,
-                boardRepository,
-                databaseManager
-        );
+        return new FilterWatchManager(wakeManager, boardRepository, databaseManager);
     }
 
     @Provides
@@ -168,16 +163,12 @@ public class ManagerModule {
     @Provides
     @Singleton
     public ReportManager provideReportManager(
-            NetModule.ProxiedOkHttpClient okHttpClient,
-            Gson gson,
-            ThreadSaveManager threadSaveManager,
-            SettingsNotificationManager settingsNotificationManager
+            Gson gson, ThreadSaveManager threadSaveManager, SettingsNotificationManager settingsNotificationManager
     ) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
 
-        return new ReportManager(okHttpClient.getProxiedClient(),
-                threadSaveManager,
+        return new ReportManager(threadSaveManager,
                 settingsNotificationManager,
                 gson,
                 new File(cacheDir, CRASH_LOGS_DIR_NAME)

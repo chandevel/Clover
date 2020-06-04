@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.json.JsonSettingsProvider;
-import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +40,6 @@ public abstract class SiteBase
     protected int id;
     protected SiteConfig config;
 
-    protected HttpCallManager httpCallManager;
     protected BoardManager boardManager;
     protected SettingProvider settingsProvider;
     private JsonSettings userSettings;
@@ -61,7 +59,6 @@ public abstract class SiteBase
 
     @Override
     public void postInitialize() {
-        httpCallManager = instance(HttpCallManager.class);
         boardManager = instance(BoardManager.class);
         SiteRepository siteRepository = instance(SiteRepository.class);
 

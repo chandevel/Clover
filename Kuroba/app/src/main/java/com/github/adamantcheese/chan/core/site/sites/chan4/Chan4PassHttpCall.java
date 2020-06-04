@@ -52,7 +52,7 @@ public class Chan4PassHttpCall
         formBuilder.add("id", loginRequest.user);
         formBuilder.add("pin", loginRequest.pass);
 
-        requestBuilder.url(site.endpoints().login());
+        requestBuilder.url(getSite().endpoints().login());
         requestBuilder.post(formBuilder.build());
     }
 

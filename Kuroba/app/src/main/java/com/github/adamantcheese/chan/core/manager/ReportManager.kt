@@ -3,7 +3,9 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.base.ModularResult
+import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
@@ -18,9 +20,12 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -29,7 +34,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class ReportManager(
-        private val okHttpClient: OkHttpClient,
         private val threadSaveManager: ThreadSaveManager,
         private val settingsNotificationManager: SettingsNotificationManager,
         private val gson: Gson,
@@ -395,7 +399,7 @@ class ReportManager(
                     .post(requestBody)
                     .build()
 
-            okHttpClient.newCall(request).enqueue(object : Callback {
+            instance(ProxiedOkHttpClient::class.java).proxiedClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.onSuccess(ModularResult.error(e))
                 }

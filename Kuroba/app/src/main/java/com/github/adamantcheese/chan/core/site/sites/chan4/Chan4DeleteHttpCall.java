@@ -57,7 +57,7 @@ public class Chan4DeleteHttpCall
         formBuilder.add("mode", "usrdel");
         formBuilder.add("pwd", deleteRequest.savedReply.password);
 
-        requestBuilder.url(site.endpoints().delete(deleteRequest.post));
+        requestBuilder.url(getSite().endpoints().delete(deleteRequest.post));
         requestBuilder.post(formBuilder.build());
     }
 

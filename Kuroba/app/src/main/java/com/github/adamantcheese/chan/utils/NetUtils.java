@@ -6,8 +6,15 @@ import android.util.JsonReader;
 import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
+import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -32,15 +39,45 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class NetUtils {
     private static final String TAG = "NetUtils";
 
+    public static void makeHttpCall(
+            HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
+    ) {
+        makeHttpCall(httpCall, callback, null);
+    }
+
+    public static void makeHttpCall(
+            HttpCall httpCall,
+            HttpCall.HttpCallback<? extends HttpCall> callback,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+    ) {
+        httpCall.setCallback(callback);
+
+        Request.Builder requestBuilder = new Request.Builder();
+
+        httpCall.setup(requestBuilder, progressListener);
+
+        if (httpCall.getSite() != null) {
+            final SiteRequestModifier siteRequestModifier = httpCall.getSite().requestModifier();
+            if (siteRequestModifier != null) {
+                siteRequestModifier.modifyHttpCall(httpCall, requestBuilder);
+            }
+        }
+
+        requestBuilder.header("User-Agent", NetModule.USER_AGENT);
+        Request request = requestBuilder.build();
+
+        instance(ProxiedOkHttpClient.class).getProxiedClient().newCall(request).enqueue(httpCall);
+    }
+
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error loading bitmap from " + url.toString());
-                result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon));
+                result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon), e);
             }
 
             @Override
@@ -58,7 +95,7 @@ public class NetUtils {
                 if (bitmap != null) {
                     result.onBitmapSuccess(bitmap);
                 } else {
-                    result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon));
+                    result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon), new Exception("Bitmap from response is null"));
                 }
                 response.close();
             }
@@ -67,7 +104,7 @@ public class NetUtils {
     }
 
     public interface BitmapResult {
-        void onBitmapFailure(Bitmap errormap);
+        void onBitmapFailure(Bitmap errormap, Exception e);
 
         void onBitmapSuccess(Bitmap bitmap);
     }
@@ -75,7 +112,7 @@ public class NetUtils {
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
     ) {
-        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -109,7 +146,7 @@ public class NetUtils {
     }
 
     public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
-        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
         try (Response response = call.execute()) {
             if (response.code() != 200) {
                 Logger.e(TAG, "Response code was not OK:" + response.code());
@@ -144,7 +181,7 @@ public class NetUtils {
     public static <T> Call makeHTMLRequest(
             @NonNull final HttpUrl url, @NonNull final HTMLResult<T> result, @NonNull final HTMLReader<T> reader
     ) {
-        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

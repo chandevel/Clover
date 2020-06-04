@@ -30,7 +30,6 @@ import com.github.adamantcheese.chan.core.net.DnsSelector;
 import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.core.site.http.HttpCallManager;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -45,6 +44,7 @@ import java.util.List;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
+import okhttp3.Cache;
 import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -57,7 +57,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
-    public static final String DOWNLOADER_OKHTTP_CLIENT_NAME = "downloader_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
     private static final String FILE_CHUNKS_CACHE_DIR = "file_chunks_cache";
 
@@ -89,7 +88,7 @@ public class NetModule {
             FileManager fileManager,
             CacheHandler cacheHandler,
             SiteResolver siteResolver,
-            @Named(DOWNLOADER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient
+            ProxiedOkHttpClient okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
         return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient, connectivityManager);
@@ -104,39 +103,25 @@ public class NetModule {
         return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
     }
 
-    @Provides
-    @Singleton
-    public HttpCallManager provideHttpCallManager(ProxiedOkHttpClient okHttpClient) {
-        Logger.d(AppModule.DI_TAG, "Http call manager");
-        return new HttpCallManager(okHttpClient);
-    }
-
     /**
-     * This okHttpClient is for posting.
+     * This okHttpClient is for posting, as well as images/file/apk updates/ downloading, prefetching, etc.
      */
     // TODO(FileCacheV2): make this @Named as well instead of using hacks
     @Provides
     @Singleton
     public ProxiedOkHttpClient provideProxiedOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "ProxiedOkHTTP client");
-        return new ProxiedOkHttpClient();
-    }
-
-    /**
-     * This okHttpClient is for images/file/apk updates/ downloading, prefetching, etc.
-     */
-    @Provides
-    @Singleton
-    @Named(DOWNLOADER_OKHTTP_CLIENT_NAME)
-    public OkHttpClient provideOkHttpClient() {
-        Logger.d(AppModule.DI_TAG, "DownloaderOkHttp client");
-
-        return new OkHttpClient.Builder().connectTimeout(30, SECONDS)
+        //@formatter:off
+        return new ProxiedOkHttpClient(
+                new OkHttpClient.Builder()
+                .connectTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector())
-                .build();
+                .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
+        );
+        //@formatter:on
     }
 
     /**
@@ -154,6 +139,7 @@ public class NetModule {
                 .readTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector())
+                .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
                 .build();
     }
 
@@ -183,6 +169,10 @@ public class NetModule {
             extends OkHttpClient {
         private OkHttpClient proxiedClient;
 
+        public ProxiedOkHttpClient(Builder builder) {
+            super(builder);
+        }
+
         public OkHttpClient getProxiedClient() {
             if (proxiedClient == null) {
 
@@ -193,6 +183,7 @@ public class NetModule {
                         .writeTimeout(30, SECONDS)
                         .protocols(getOkHttpProtocols())
                         .dns(getOkHttpDnsSelector())
+                        .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
                         .build();
             }
             return proxiedClient;

@@ -163,7 +163,7 @@ public class Dvach
 
             @Override
             public void post(Reply reply, final PostListener postListener) {
-                httpCallManager.makeHttpCall(new DvachReplyCall(Dvach.this, reply),
+                NetUtils.makeHttpCall(new DvachReplyCall(Dvach.this, reply),
                         new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                             @Override
                             public void onHttpSuccess(CommonReplyHttpCall httpPost) {

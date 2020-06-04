@@ -974,7 +974,7 @@ public class PostCell
 
             request = NetUtils.makeBitmapRequest(url, new NetUtils.BitmapResult() {
                 @Override
-                public void onBitmapFailure(Bitmap errormap) {
+                public void onBitmapFailure(Bitmap errormap, Exception e) {
                     bitmap = errormap;
                     postIcons.invalidate();
                 }
