@@ -3,12 +3,15 @@ package com.github.adamantcheese.chan.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.JsonReader;
+import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -105,10 +108,29 @@ public class NetUtils {
         return call;
     }
 
+    public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
+        Call call = instance(OkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        try (Response response = call.execute()) {
+            if (response.code() != 200) {
+                Logger.e(TAG, "Response code was not OK:" + response.code());
+                response.close();
+                return null;
+            }
+            try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
+                    .bytes()), UTF_8))) {
+                return parser.parse(jsonReader);
+            } catch (Exception e) {
+                Logger.e(TAG, "Error parsing JSON: ", e);
+                return null;
+            }
+        } catch (IOException e) {
+            Logger.e(TAG, "Error with request: ", e);
+            return null;
+        }
     }
 
     public interface JsonResult<T> {
-        void onJsonFailure();
+        void onJsonFailure(Exception e);
 
         void onJsonSuccess(T result);
     }
@@ -155,4 +177,16 @@ public class NetUtils {
         T read(Document document);
     }
 
+    public static class HttpCodeException
+            extends Exception {
+        public int code;
+
+        public HttpCodeException(int code) {
+            this.code = code;
+        }
+
+        public boolean isServerErrorNotFound() {
+            return code == 404;
+        }
+    }
 }
