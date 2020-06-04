@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -33,9 +34,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.R;
@@ -48,13 +46,14 @@ import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraI
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.Player;
@@ -77,11 +76,14 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
@@ -89,6 +91,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
+import static com.github.adamantcheese.chan.utils.NetUtils.BitmapResult;
 
 public class MultiImageView
         extends FrameLayout
@@ -108,15 +111,13 @@ public class MultiImageView
     FileCacheV2 fileCacheV2;
     @Inject
     WebmStreamingSource webmStreamingSource;
-    @Inject
-    ImageLoaderV2 imageLoaderV2;
 
     private PostImage postImage;
     private Callback callback;
     private boolean op;
 
     private Mode mode = Mode.UNLOADED;
-    private ImageContainer thumbnailRequest;
+    private Call thumbnailRequest;
     private CancelableDownload bigImageRequest;
     private CancelableDownload gifRequest;
     private CancelableDownload videoRequest;
@@ -178,15 +179,14 @@ public class MultiImageView
         hasContent = false;
         waitForMeasure(this, view -> {
             if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
-                Logger.e(
-                        MultiImageView.this,
+                Logger.e(MultiImageView.this,
                         "getWidth() or getHeight() returned 0, or view not laid out, not loading"
                 );
                 return false;
             }
             switch (newMode) {
                 case LOWRES:
-                    setThumbnail(loadable, postImage, center);
+                    setThumbnail(postImage, center);
                     transparentBackground = ChanSettings.transparencyOn.get();
                     break;
                 case BIGIMAGE:
@@ -310,46 +310,45 @@ public class MultiImageView
         }
     }
 
-    private void setThumbnail(Loadable loadable, PostImage postImage, boolean center) {
+    private void setThumbnail(PostImage postImage, boolean center) {
         BackgroundUtils.ensureMainThread();
 
         if (thumbnailRequest != null) {
             return;
         }
 
-        thumbnailRequest =
-                imageLoaderV2.getImage(true, loadable, postImage, getWidth(), getHeight(), new ImageListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        thumbnailRequest = null;
-                        if (center) {
-                            onError(error);
-                        }
-                    }
+        final HttpUrl thumbnailURL = postImage.spoiler() ? postImage.spoilerThumbnailUrl : postImage.thumbnailUrl;
+        Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(thumbnailURL.toString());
+        if (cachedBitmap != null) {
+            onThumbnailBitmap(cachedBitmap);
+            return;
+        }
 
-                    @Override
-                    public void onResponse(
-                            ImageContainer response, boolean isImmediate
-                    ) {
-                        thumbnailRequest = null;
+        thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
+            @Override
+            public void onBitmapFailure(Bitmap errormap, Exception e) {
+                thumbnailRequest = null;
+                if (center) onError(e);
+            }
 
-                        if (response.getBitmap() != null && (!hasContent || mode == Mode.LOWRES)) {
-                            ThumbnailImageView thumbnail = new ThumbnailImageView(getContext());
-                            thumbnail.setType(postImage.type);
-                            thumbnail.setImageBitmap(response.getBitmap());
-                            thumbnail.setOnClickListener(null);
-                            thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
+            @Override
+            public void onBitmapSuccess(Bitmap bitmap) {
+                thumbnailRequest = null;
+                instance(BitmapLruImageCache.class).putBitmap(thumbnailURL.toString(), bitmap);
+                onThumbnailBitmap(bitmap);
+            }
+        }, getWidth(), getHeight());
+    }
 
-                            onModeLoaded(Mode.LOWRES, thumbnail);
-                        }
-                    }
-                });
+    private void onThumbnailBitmap(Bitmap bitmap) {
+        if (!hasContent || mode == Mode.LOWRES) {
+            ThumbnailImageView thumbnail = new ThumbnailImageView(getContext());
+            thumbnail.setType(postImage.type);
+            thumbnail.setImageBitmap(bitmap);
+            thumbnail.setOnClickListener(null);
+            thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
 
-        if (thumbnailRequest != null && thumbnailRequest.getBitmap() != null) {
-            // Request was immediate and thumbnailRequest was first set to null in onResponse, and then set to the container
-            // when the method returned
-            // Still set it to null here
-            thumbnailRequest = null;
+            onModeLoaded(Mode.LOWRES, thumbnail);
         }
     }
 
@@ -806,7 +805,7 @@ public class MultiImageView
 
     private void cancelLoad() {
         if (thumbnailRequest != null) {
-            thumbnailRequest.cancelRequest();
+            thumbnailRequest.cancel();
             thumbnailRequest = null;
         }
         if (bigImageRequest != null) {

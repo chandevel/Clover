@@ -83,13 +83,19 @@ public class AppModule {
     @Provides
     @Singleton
     public ImageLoaderV2 provideImageLoaderV2(
-            RequestQueue requestQueue, FileManager fileManager
+            RequestQueue requestQueue, FileManager fileManager, BitmapLruImageCache imageCache
     ) {
-        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int lruImageCacheSize = runtimeMemory / 8;
-        ImageLoader imageLoader = new ImageLoader(requestQueue, new BitmapLruImageCache(lruImageCacheSize));
+        ImageLoader imageLoader = new ImageLoader(requestQueue, imageCache);
         Logger.d(DI_TAG, "Image loader v2");
         return new ImageLoaderV2(imageLoader, fileManager);
+    }
+
+    @Provides
+    @Singleton
+    public BitmapLruImageCache provideBitmapCache() {
+        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int lruImageCacheSize = runtimeMemory / 8;
+        return new BitmapLruImageCache(lruImageCacheSize);
     }
 
     @Provides
