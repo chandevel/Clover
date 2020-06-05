@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.settings.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.core.settings.StringSetting;
-import com.github.adamantcheese.chan.core.site.ChunkDownloaderSiteProperties;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
