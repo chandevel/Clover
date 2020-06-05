@@ -326,7 +326,7 @@ public class MultiImageView
             }
 
             @Override
-            public void onBitmapSuccess(Bitmap bitmap) {
+            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                 thumbnailRequest = null;
                 onThumbnailBitmap(bitmap);
             }

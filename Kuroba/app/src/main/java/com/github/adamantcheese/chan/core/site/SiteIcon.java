@@ -20,6 +20,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
@@ -63,7 +65,7 @@ public class SiteIcon {
                 }
 
                 @Override
-                public void onBitmapSuccess(Bitmap bitmap) {
+                public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                     drawable = new BitmapDrawable(getRes(), bitmap);
                     BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(drawable));
                 }

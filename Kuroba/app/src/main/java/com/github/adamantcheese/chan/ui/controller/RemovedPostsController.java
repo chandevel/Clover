@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -15,35 +16,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class RemovedPostsController
         extends BaseFloatingController
         implements View.OnClickListener {
-    @Inject
-    ImageLoaderV2 imageLoaderV2;
-
     private RemovedPostsHelper removedPostsHelper;
 
     private ConstraintLayout viewHolder;
@@ -57,8 +49,6 @@ public class RemovedPostsController
     public RemovedPostsController(Context context, RemovedPostsHelper removedPostsHelper) {
         super(context);
         this.removedPostsHelper = removedPostsHelper;
-
-        inject(this);
     }
 
     @Override
@@ -97,7 +87,7 @@ public class RemovedPostsController
         }
 
         if (adapter == null) {
-            adapter = new RemovedPostAdapter(context, imageLoaderV2, R.layout.layout_removed_posts);
+            adapter = new RemovedPostAdapter(context, R.layout.layout_removed_posts);
 
             postsListView.setAdapter(adapter);
         }
@@ -167,12 +157,10 @@ public class RemovedPostsController
 
     public static class RemovedPostAdapter
             extends ArrayAdapter<RemovedPost> {
-        private ImageLoaderV2 imageLoaderV2;
         private List<RemovedPost> removedPostsCopy = new ArrayList<>();
 
-        public RemovedPostAdapter(@NonNull Context context, ImageLoaderV2 imageLoaderV2, int resource) {
+        public RemovedPostAdapter(@NonNull Context context, int resource) {
             super(context, resource);
-            this.imageLoaderV2 = imageLoaderV2;
         }
 
         @NonNull
@@ -203,17 +191,16 @@ public class RemovedPostsController
                 // load only the first image
                 PostImage image = removedPost.getImages().get(0);
                 postImage.setVisibility(VISIBLE);
-
-                imageLoaderV2.get(image.getThumbnailUrl().toString(), new ImageListener() {
+                NetUtils.makeBitmapRequest(image.getThumbnailUrl(), new NetUtils.BitmapResult() {
                     @Override
-                    public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-                        postImage.setImageBitmap(response.getBitmap());
+                    public void onBitmapFailure(Bitmap errormap, Exception e) {
+                        Logger.e(RemovedPostAdapter.this, "Error while trying to download post image", e);
+                        postImage.setVisibility(GONE);
                     }
 
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Logger.e(RemovedPostAdapter.this, "Error while trying to download post image", error);
-                        postImage.setVisibility(GONE);
+                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                        postImage.setImageBitmap(bitmap);
                     }
                 }, postImage.getWidth(), postImage.getHeight());
             } else {

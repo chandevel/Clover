@@ -54,6 +54,8 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -396,13 +398,13 @@ public class DrawerAdapter
         }
 
         if (savedThread == null || !savedThread.isFullyDownloaded) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
+            holder.image.setUrl(HttpUrl.get(pin.thumbnailUrl), dp(48), dp(48));
             return;
         }
 
         String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
         if (filename == null || filename.isEmpty()) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
+            holder.image.setUrl(HttpUrl.get(pin.thumbnailUrl), dp(48), dp(48));
             return;
         }
 

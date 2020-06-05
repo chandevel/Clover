@@ -19,10 +19,7 @@ package com.github.adamantcheese.chan.core.di;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.ImageLoader;
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
@@ -78,16 +75,6 @@ public class AppModule {
         }
 
         return connectivityManager;
-    }
-
-    @Provides
-    @Singleton
-    public ImageLoaderV2 provideImageLoaderV2(
-            RequestQueue requestQueue, FileManager fileManager, BitmapLruImageCache imageCache
-    ) {
-        ImageLoader imageLoader = new ImageLoader(requestQueue, imageCache);
-        Logger.d(DI_TAG, "Image loader v2");
-        return new ImageLoaderV2(imageLoader, fileManager);
     }
 
     @Provides

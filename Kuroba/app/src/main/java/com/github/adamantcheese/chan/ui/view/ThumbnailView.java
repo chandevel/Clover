@@ -34,32 +34,28 @@ import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
-import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 
-import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkError;
-import com.android.volley.ParseError;
-import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
-import static com.github.adamantcheese.chan.Chan.instance;
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class ThumbnailView
         extends View
-        implements ImageListener {
-    private ImageContainer container;
-
+        implements NetUtils.BitmapResult {
+    private Call bitmapCall;
     private boolean circular = false;
     private int rounding = 0;
 
@@ -108,32 +104,33 @@ public class ThumbnailView
         }
     }
 
-    public void setUrl(String url, int maxWidth, int maxHeight) {
-        if (container != null && container.getRequestUrl() != null && container.getRequestUrl().equals(url)) {
-            return;
-        }
-
-        if (container != null) {
-            container.cancelRequest();
-            container = null;
+    public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
+        if (url == null || bitmapCall != null) {
+            if (bitmapCall != null) {
+                bitmapCall.cancel();
+            }
+            bitmapCall = null;
             error = false;
             setImageBitmap(null);
             animate().cancel();
+            if (url == null) {
+                return;
+            }
         }
 
-        if (!TextUtils.isEmpty(url)) {
-            container = instance(ImageLoaderV2.class).get(url, this, maxWidth, maxHeight);
-        }
+        bitmapCall = NetUtils.makeBitmapRequest(url, this, maxWidth, maxHeight);
     }
 
-    public void setUrl(String url) {
+    public void setUrl(HttpUrl url) {
         setUrl(url, 0, 0);
     }
 
     public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
         animate().cancel();
         setImageBitmap(null);
-        container = instance(ImageLoaderV2.class).getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
+        try {
+            bitmapCall = ImageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
+        } catch (Exception ignored) { }
     }
 
     public void setCircular(boolean circular) {
@@ -174,29 +171,6 @@ public class ThumbnailView
 
     public Bitmap getBitmap() {
         return bitmap;
-    }
-
-    @Override
-    public void onResponse(ImageContainer response, boolean isImmediate) {
-        if (response.getBitmap() != null) {
-            setImageBitmap(response.getBitmap());
-            onImageSet(isImmediate);
-        }
-    }
-
-    @Override
-    public void onErrorResponse(VolleyError e) {
-        error = true;
-
-        if (e instanceof NetworkError || e instanceof TimeoutError || e instanceof ParseError
-                || e instanceof AuthFailureError) {
-            errorText = getString(R.string.thumbnail_load_failed_network);
-        } else {
-            errorText = "404";
-        }
-
-        onImageSet(false);
-        invalidate();
     }
 
     @Override
@@ -348,5 +322,25 @@ public class ThumbnailView
             bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
         }
         invalidate();
+    }
+
+    @Override
+    public void onBitmapFailure(Bitmap errormap, Exception e) {
+        error = true;
+
+        if (e instanceof NetUtils.HttpCodeException) {
+            errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
+        } else {
+            errorText = getString(R.string.thumbnail_load_failed_network);
+        }
+
+        onImageSet(false);
+        invalidate();
+    }
+
+    @Override
+    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+        setImageBitmap(bitmap);
+        onImageSet(fromCache);
     }
 }

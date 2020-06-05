@@ -39,9 +39,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader.ImageContainer;
-import com.android.volley.toolbox.ImageLoader.ImageListener;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -67,6 +64,7 @@ import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
@@ -100,8 +98,6 @@ public class ImageViewerController
     private static final int SAVE_ID = 2;
     private static final int ROTATE_ID = 3;
 
-    @Inject
-    ImageLoaderV2 imageLoaderV2;
     @Inject
     ImageSaver imageSaver;
 
@@ -429,22 +425,19 @@ public class ImageViewerController
 
     @Override
     public void updatePreviewImage(PostImage postImage) {
-        imageLoaderV2.getImage(true,
-                loadable,
+        ImageLoaderV2.getImage(loadable,
                 postImage,
                 previewImage.getWidth(),
                 previewImage.getHeight(),
-                new ImageListener() {
+                new NetUtils.BitmapResult() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public void onBitmapFailure(Bitmap errormap, Exception e) {
                         // the preview image will just remain as the last successful response; good enough
                     }
 
                     @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null) {
-                            previewImage.setBitmap(response.getBitmap());
-                        }
+                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                        previewImage.setBitmap(bitmap);
                     }
                 }
         );
@@ -535,14 +528,13 @@ public class ImageViewerController
             }
         });
 
-        imageLoaderV2.getImage(true,
-                loadable,
+        ImageLoaderV2.getImage(loadable,
                 postImage,
                 previewImage.getWidth(),
                 previewImage.getHeight(),
-                new ImageListener() {
+                new NetUtils.BitmapResult() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
+                    public void onBitmapFailure(Bitmap errormap, Exception e) {
                         Logger.e(
                                 ImageViewerController.this,
                                 "onErrorResponse for preview in transition, cannot show correct transition bitmap"
@@ -551,11 +543,9 @@ public class ImageViewerController
                     }
 
                     @Override
-                    public void onResponse(ImageContainer response, boolean isImmediate) {
-                        if (response.getBitmap() != null) {
-                            previewImage.setBitmap(response.getBitmap());
-                            startAnimation.start();
-                        }
+                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                        previewImage.setBitmap(bitmap);
+                        startAnimation.start();
                     }
                 }
         );

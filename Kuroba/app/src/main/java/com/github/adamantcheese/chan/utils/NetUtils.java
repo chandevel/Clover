@@ -78,7 +78,7 @@ public class NetUtils {
         Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
         Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(url.toString());
         if (cachedBitmap != null) {
-            result.onBitmapSuccess(cachedBitmap);
+            result.onBitmapSuccess(cachedBitmap, true);
             return null;
         }
         Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
@@ -99,8 +99,12 @@ public class NetUtils {
 
                 try (ResponseBody body = response.body()) {
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
+                    if(bitmap == null) {
+                        result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null"));
+                        return;
+                    }
                     instance(BitmapLruImageCache.class).putBitmap(url.toString(), bitmap);
-                    result.onBitmapSuccess(bitmap);
+                    result.onBitmapSuccess(bitmap, false);
                 } catch (Exception e) {
                     result.onBitmapFailure(errorBitmap, e);
                 }
@@ -112,7 +116,7 @@ public class NetUtils {
     public interface BitmapResult {
         void onBitmapFailure(Bitmap errormap, Exception e);
 
-        void onBitmapSuccess(Bitmap bitmap);
+        void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache);
     }
 
     public static <T> Call makeJsonRequest(

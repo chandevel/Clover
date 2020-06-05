@@ -980,7 +980,7 @@ public class PostCell
                 }
 
                 @Override
-                public void onBitmapSuccess(Bitmap bitmap) {
+                public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                     PostIconsHttpIcon.this.bitmap = bitmap;
                     postIcons.invalidate();
                 }
