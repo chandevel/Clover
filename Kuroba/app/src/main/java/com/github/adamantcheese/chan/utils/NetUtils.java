@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
-import com.github.adamantcheese.chan.core.site.SiteCallModifier;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
@@ -59,7 +59,7 @@ public class NetUtils {
         httpCall.setup(requestBuilder, progressListener);
 
         if (httpCall.getSite() != null) {
-            final SiteCallModifier siteCallModifier = httpCall.getSite().callModifier();
+            final CommonSite.CommonCallModifier siteCallModifier = httpCall.getSite().callModifier();
             if (siteCallModifier != null) {
                 siteCallModifier.modifyHttpCall(httpCall, requestBuilder);
             }

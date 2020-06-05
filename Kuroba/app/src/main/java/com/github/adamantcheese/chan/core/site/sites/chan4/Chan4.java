@@ -40,11 +40,11 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteBase;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteCallModifier;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
+import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
 import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -281,7 +281,7 @@ public class Chan4
         }
     };
 
-    private SiteCallModifier siteCallModifier = new SiteCallModifier() {
+    private CommonCallModifier siteCallModifier = new CommonCallModifier() {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
             if (actions.isLoggedIn()) {
@@ -585,7 +585,7 @@ public class Chan4
     }
 
     @Override
-    public SiteCallModifier callModifier() {
+    public CommonCallModifier callModifier() {
         return siteCallModifier;
     }
 

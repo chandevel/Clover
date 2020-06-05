@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteCallModifier;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import okhttp3.HttpUrl;
@@ -56,7 +56,7 @@ public class ReportController
         try {
             WebView webView = new WebView(context);
 
-            SiteCallModifier siteCallModifier = site.callModifier();
+            CommonSite.CommonCallModifier siteCallModifier = site.callModifier();
             if (siteCallModifier != null) {
                 siteCallModifier.modifyWebView(webView);
             }
