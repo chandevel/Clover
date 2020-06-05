@@ -20,9 +20,9 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
 
 import java.util.ArrayList;
 import java.util.Collections;

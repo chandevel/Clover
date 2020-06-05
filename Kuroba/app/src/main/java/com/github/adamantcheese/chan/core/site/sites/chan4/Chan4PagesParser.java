@@ -18,14 +18,13 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.PageStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPage;
 
 public class Chan4PagesParser
         implements NetUtils.JsonParser<ChanPages> {
