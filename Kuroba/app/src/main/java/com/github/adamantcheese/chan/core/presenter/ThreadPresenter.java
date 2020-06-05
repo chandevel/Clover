@@ -83,6 +83,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -643,9 +644,7 @@ public class ThreadPresenter
             watchManager.updatePin(pin, true);
         }
 
-        if (result.getLoadable().isCatalogMode()) {
-            instance(FilterWatchManager.class).onCatalogLoad(result);
-        }
+        Executors.newSingleThreadExecutor().submit(() -> instance(FilterWatchManager.class).onCatalogLoad(result));
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {

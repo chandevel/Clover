@@ -146,9 +146,9 @@ public class FilterWatchManager
     }
 
     public void onCatalogLoad(ChanThread catalog) {
-        Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
         if (catalog.getLoadable().isThreadMode()) return; //not a catalog
         if (processing) return; //filter watch manager is currently processing, ignore
+        Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
 
         Set<Integer> toAdd = new HashSet<>();
         //Match filters and ignores
