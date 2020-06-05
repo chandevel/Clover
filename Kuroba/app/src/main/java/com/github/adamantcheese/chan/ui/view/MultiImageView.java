@@ -318,12 +318,6 @@ public class MultiImageView
         }
 
         final HttpUrl thumbnailURL = postImage.spoiler() ? postImage.spoilerThumbnailUrl : postImage.thumbnailUrl;
-        Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(thumbnailURL.toString());
-        if (cachedBitmap != null) {
-            onThumbnailBitmap(cachedBitmap);
-            return;
-        }
-
         thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
             @Override
             public void onBitmapFailure(Bitmap errormap, Exception e) {
@@ -334,7 +328,6 @@ public class MultiImageView
             @Override
             public void onBitmapSuccess(Bitmap bitmap) {
                 thumbnailRequest = null;
-                instance(BitmapLruImageCache.class).putBitmap(thumbnailURL.toString(), bitmap);
                 onThumbnailBitmap(bitmap);
             }
         }, getWidth(), getHeight());

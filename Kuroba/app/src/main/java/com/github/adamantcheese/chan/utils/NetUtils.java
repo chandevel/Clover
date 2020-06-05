@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
+import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
@@ -70,6 +71,11 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
+        Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(url.toString());
+        if (cachedBitmap != null) {
+            result.onBitmapSuccess(cachedBitmap);
+            return null;
+        }
         Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
@@ -91,9 +97,13 @@ public class NetUtils {
                 }
 
                 if (bitmap != null) {
+                    instance(BitmapLruImageCache.class).putBitmap(url.toString(), bitmap);
                     result.onBitmapSuccess(bitmap);
                 } else {
-                    result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon), new Exception("Bitmap from response is null"));
+                    result.onBitmapFailure(
+                            BitmapFactory.decodeResource(getRes(), R.drawable.error_icon),
+                            new Exception("Bitmap from response is null")
+                    );
                 }
                 response.close();
             }
