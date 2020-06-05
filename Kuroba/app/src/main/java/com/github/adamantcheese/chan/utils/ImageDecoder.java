@@ -30,9 +30,6 @@ import java.io.FileInputStream;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
-/**
- * Simple ImageDecoder. Taken from Volley ImageRequest.
- */
 public class ImageDecoder {
 
     public static void decodeFileOnBackgroundThread(

@@ -20,14 +20,11 @@ import android.net.ConnectivityManager;
 
 import androidx.annotation.NonNull;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.net.DnsSelector;
-import com.github.adamantcheese.chan.core.net.ProxiedHurlStack;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -59,13 +56,6 @@ public class NetModule {
     public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
     private static final String FILE_CHUNKS_CACHE_DIR = "file_chunks_cache";
-
-    @Provides
-    @Singleton
-    public RequestQueue provideRequestQueue() {
-        Logger.d(AppModule.DI_TAG, "Request queue");
-        return Volley.newRequestQueue(getAppContext(), new ProxiedHurlStack());
-    }
 
     @Provides
     @Singleton
@@ -183,7 +173,6 @@ public class NetModule {
                         .writeTimeout(30, SECONDS)
                         .protocols(getOkHttpProtocols())
                         .dns(getOkHttpDnsSelector())
-                        .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
                         .build();
             }
             return proxiedClient;

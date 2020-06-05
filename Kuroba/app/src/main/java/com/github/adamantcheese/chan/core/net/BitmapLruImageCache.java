@@ -19,11 +19,8 @@ package com.github.adamantcheese.chan.core.net;
 import android.graphics.Bitmap;
 import android.util.LruCache;
 
-import com.android.volley.toolbox.ImageLoader;
-
 public class BitmapLruImageCache
-        extends LruCache<String, Bitmap>
-        implements ImageLoader.ImageCache {
+        extends LruCache<String, Bitmap> {
     public BitmapLruImageCache(int maxSize) {
         super(maxSize);
     }
@@ -33,12 +30,10 @@ public class BitmapLruImageCache
         return value.getRowBytes() * value.getHeight() / 1024;
     }
 
-    @Override
     public Bitmap getBitmap(String url) {
         return get(url);
     }
 
-    @Override
     public void putBitmap(String url, Bitmap bitmap) {
         put(url, bitmap);
     }

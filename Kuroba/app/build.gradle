@@ -105,9 +105,6 @@ android {
         abortOnError false
     }
 
-    // Needed for volley
-    useLibrary 'org.apache.http.legacy'
-
     packagingOptions {
         exclude 'META-INF/*'
     }
@@ -236,7 +233,6 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.4'
-    implementation 'com.android.volley:volley:1.2.0-SNAPSHOT'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
