@@ -47,9 +47,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
+import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static okhttp3.Protocol.HTTP_1_1;
+import static okhttp3.Protocol.HTTP_2;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
@@ -101,17 +104,13 @@ public class NetModule {
     @Singleton
     public ProxiedOkHttpClient provideProxiedOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "ProxiedOkHTTP client");
-        //@formatter:off
-        return new ProxiedOkHttpClient(
-                new OkHttpClient.Builder()
-                .connectTimeout(30, SECONDS)
+        return new ProxiedOkHttpClient(new OkHttpClient.Builder().connectTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector())
                 .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
         );
-        //@formatter:on
     }
 
     /**
@@ -134,24 +133,20 @@ public class NetModule {
     }
 
     private Dns getOkHttpDnsSelector() {
-        if (ChanSettings.okHttpAllowIpv6.get()) {
-            Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.SYSTEM");
-            return new DnsSelector(DnsSelector.Mode.SYSTEM);
-        }
-
-        Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode.IPV4_ONLY");
-        return new DnsSelector(DnsSelector.Mode.IPV4_ONLY);
+        DnsSelector selector = new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY);
+        Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode." + selector.mode.name());
+        return selector;
     }
 
     @NonNull
     private List<Protocol> getOkHttpProtocols() {
         if (ChanSettings.okHttpAllowHttp2.get()) {
             Logger.d(AppModule.DI_TAG, "Using HTTP_2 and HTTP_1_1");
-            return Arrays.asList(Protocol.HTTP_2, Protocol.HTTP_1_1);
+            return Arrays.asList(HTTP_2, HTTP_1_1);
         }
 
         Logger.d(AppModule.DI_TAG, "Using HTTP_1_1");
-        return Collections.singletonList(Protocol.HTTP_1_1);
+        return Collections.singletonList(HTTP_1_1);
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance

@@ -14,7 +14,7 @@ import okhttp3.Dns;
 
 public class DnsSelector
         implements Dns {
-    private Mode mode;
+    public Mode mode;
 
     public DnsSelector(Mode mode) {
         this.mode = mode;
