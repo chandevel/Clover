@@ -984,7 +984,7 @@ public class PostCell
                     PostIconsHttpIcon.this.bitmap = bitmap;
                     postIcons.invalidate();
                 }
-            }, -1, -1);
+            });
         }
 
         private void cancel() {

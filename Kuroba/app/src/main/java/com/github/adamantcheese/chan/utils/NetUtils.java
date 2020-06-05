@@ -22,7 +22,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import okhttp3.Call;
@@ -30,6 +29,7 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
@@ -68,9 +68,14 @@ public class NetUtils {
         instance(ProxiedOkHttpClient.class).getProxiedClient().newCall(request).enqueue(httpCall);
     }
 
+    public static Call makeBitmapRequest(@NonNull final HttpUrl url, @NonNull final BitmapResult result) {
+        return makeBitmapRequest(url, result, 0, 0);
+    }
+
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
+        Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
         Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(url.toString());
         if (cachedBitmap != null) {
             result.onBitmapSuccess(cachedBitmap);
@@ -81,31 +86,24 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error loading bitmap from " + url.toString());
-                result.onBitmapFailure(BitmapFactory.decodeResource(getRes(), R.drawable.error_icon), e);
+                result.onBitmapFailure(errorBitmap, e);
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                Bitmap bitmap = null;
-                //noinspection ConstantConditions
-                try (InputStream inputStream = response.body().byteStream()) {
-                    bitmap = BitmapFactory.decodeStream(inputStream);
-                } catch (Exception ignored) {
-                }
-                if (width != -1 && height != -1) {
-                    bitmap = bitmap != null ? Bitmap.createScaledBitmap(bitmap, width, height, true) : null;
+                if (response.code() != 200) {
+                    result.onBitmapFailure(errorBitmap, new HttpCodeException(response.code()));
+                    response.close();
+                    return;
                 }
 
-                if (bitmap != null) {
+                try (ResponseBody body = response.body()) {
+                    Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
                     instance(BitmapLruImageCache.class).putBitmap(url.toString(), bitmap);
                     result.onBitmapSuccess(bitmap);
-                } else {
-                    result.onBitmapFailure(
-                            BitmapFactory.decodeResource(getRes(), R.drawable.error_icon),
-                            new Exception("Bitmap from response is null")
-                    );
+                } catch (Exception e) {
+                    result.onBitmapFailure(errorBitmap, e);
                 }
-                response.close();
             }
         });
         return call;
@@ -135,6 +133,7 @@ public class NetUtils {
                     response.close();
                     return;
                 }
+
                 try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
                         .bytes()), UTF_8))) {
                     T read = parser.parse(jsonReader);
@@ -161,6 +160,7 @@ public class NetUtils {
                 response.close();
                 return null;
             }
+
             try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
                     .bytes()), UTF_8))) {
                 return parser.parse(jsonReader);
@@ -198,6 +198,12 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.code() != 200) {
+                    result.onHTMLFailure(new HttpCodeException(response.code()));
+                    response.close();
+                    return;
+                }
+
                 try (ByteArrayInputStream baos = new ByteArrayInputStream(response.body().bytes())) {
                     Document document = Jsoup.parse(baos, null, url.toString());
 
