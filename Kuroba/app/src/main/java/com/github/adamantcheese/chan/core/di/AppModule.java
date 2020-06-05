@@ -20,7 +20,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
@@ -75,14 +74,6 @@ public class AppModule {
         }
 
         return connectivityManager;
-    }
-
-    @Provides
-    @Singleton
-    public BitmapLruImageCache provideBitmapCache() {
-        final int runtimeMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int lruImageCacheSize = runtimeMemory / 8;
-        return new BitmapLruImageCache(lruImageCacheSize);
     }
 
     @Provides

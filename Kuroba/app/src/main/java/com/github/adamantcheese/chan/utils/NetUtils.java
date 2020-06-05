@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.JsonReader;
+import android.util.LruCache;
 import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
@@ -11,7 +12,6 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
-import com.github.adamantcheese.chan.core.net.BitmapLruImageCache;
 import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
@@ -37,6 +37,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
+    private static final BitmapLruCache imageCache =
+            new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (1024 * 8)));
+            // max 1/8th of runtime memory for cache
 
     public static void makeHttpCall(
             HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
@@ -76,7 +79,7 @@ public class NetUtils {
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
         Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
-        Bitmap cachedBitmap = instance(BitmapLruImageCache.class).getBitmap(url.toString());
+        Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
             result.onBitmapSuccess(cachedBitmap, true);
             return null;
@@ -99,11 +102,11 @@ public class NetUtils {
 
                 try (ResponseBody body = response.body()) {
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
-                    if(bitmap == null) {
+                    if (bitmap == null) {
                         result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null"));
                         return;
                     }
-                    instance(BitmapLruImageCache.class).putBitmap(url.toString(), bitmap);
+                    imageCache.put(url, bitmap);
                     result.onBitmapSuccess(bitmap, false);
                 } catch (Exception e) {
                     result.onBitmapFailure(errorBitmap, e);
@@ -242,6 +245,18 @@ public class NetUtils {
 
         public boolean isServerErrorNotFound() {
             return code == 404;
+        }
+    }
+
+    private static class BitmapLruCache
+            extends LruCache<HttpUrl, Bitmap> {
+        public BitmapLruCache(int maxSize) {
+            super(maxSize);
+        }
+
+        @Override
+        protected int sizeOf(HttpUrl key, Bitmap value) {
+            return value.getRowBytes() * value.getHeight() / 1024;
         }
     }
 }
