@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.subjects.SingleSubject;
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
@@ -89,14 +90,6 @@ public class ImageSaveTask
 
     public PostImage getPostImage() {
         return postImage;
-    }
-
-    public String getPostImageUrl() {
-        if (postImage.imageUrl == null) {
-            throw new NullPointerException("imageUrl is null! loadable = " + loadable.toShortString());
-        }
-
-        return postImage.imageUrl.toString();
     }
 
     public void setDestination(AbstractFile destination) {

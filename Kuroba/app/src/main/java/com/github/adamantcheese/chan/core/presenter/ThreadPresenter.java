@@ -588,12 +588,7 @@ public class ThreadPresenter
 
                 for (Post p : result.getPosts()) {
                     for (PostImage postImage : p.images) {
-                        if (postImage.imageUrl == null) {
-                            Logger.e(this, "onChanLoaderData() postImage.imageUrl == null");
-                            continue;
-                        }
-
-                        if (cacheHandler.exists(postImage.imageUrl.toString())) {
+                        if (cacheHandler.exists(postImage.imageUrl)) {
                             continue;
                         }
 
@@ -847,12 +842,7 @@ public class ThreadPresenter
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
             for (PostImage image : item.images) {
-                if (image.imageUrl == null) {
-                    Logger.e(this, "onThumbnailClicked() image.imageUrl == null");
-                    continue;
-                }
-
-                if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl.toString())) {
+                if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(image);
                     if (image.equalUrl(postImage)) {

@@ -27,10 +27,9 @@ class WebmStreamingSource(
 ) {
 
     fun createMediaSource(loadable: Loadable, postImage: PostImage, callback: MediaSourceCallback) {
-        val videoUrl = postImage.imageUrl.toString()
-        val uri = Uri.parse(videoUrl)
-        val alreadyExists = cacheHandler.exists(videoUrl)
-        val rawFile = cacheHandler.getOrCreateCacheFile(videoUrl)
+        val uri = Uri.parse(postImage.imageUrl.toString())
+        val alreadyExists = cacheHandler.exists(postImage.imageUrl)
+        val rawFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl)
         val fileCacheSource = WebmStreamingDataSource(uri, rawFile, fileManager)
 
         fileCacheSource.addListener { file ->
@@ -53,7 +52,7 @@ class WebmStreamingSource(
         }
 
         val cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
-                videoUrl,
+                postImage.imageUrl,
                 object : FileCacheListener() {
                     override fun onSuccess(file: RawFile?) {
                         Logger.d(TAG, "createMediaSource() Loading just downloaded file after stop()")

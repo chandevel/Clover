@@ -286,7 +286,7 @@ public class UpdateManager {
         }
 
         cancelableDownload =
-                fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL.toString(), new FileCacheListener() {
+                fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL, new FileCacheListener() {
                     @Override
                     public void onProgress(int chunkIndex, long downloaded, long total) {
                         BackgroundUtils.ensureMainThread();

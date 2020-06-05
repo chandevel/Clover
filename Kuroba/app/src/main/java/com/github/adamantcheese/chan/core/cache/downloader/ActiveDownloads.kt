@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import androidx.annotation.GuardedBy
+import okhttp3.HttpUrl
 
 /**
  * ThreadSafe
@@ -8,7 +9,7 @@ import androidx.annotation.GuardedBy
 internal open class ActiveDownloads {
 
     @GuardedBy("itself")
-    private val activeDownloads = hashMapOf<String, FileDownloadRequest>()
+    private val activeDownloads = hashMapOf<HttpUrl, FileDownloadRequest>()
 
     fun clear() {
         synchronized(activeDownloads) {
@@ -19,7 +20,7 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun remove(url: String) {
+    fun remove(url: HttpUrl) {
         synchronized(activeDownloads) {
             val request = activeDownloads[url]
             if (request != null) {
@@ -29,7 +30,7 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun isGalleryBatchDownload(url: String): Boolean {
+    fun isGalleryBatchDownload(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) {
             return@synchronized activeDownloads[url]
                     ?.cancelableDownload
@@ -39,7 +40,7 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun isBatchDownload(url: String): Boolean {
+    fun isBatchDownload(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) {
             return@synchronized activeDownloads[url]
                     ?.cancelableDownload
@@ -49,19 +50,19 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun containsKey(url: String): Boolean {
+    fun containsKey(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) { activeDownloads.containsKey(url) }
     }
 
-    fun get(url: String): FileDownloadRequest? {
+    fun get(url: HttpUrl): FileDownloadRequest? {
         return synchronized(activeDownloads) { activeDownloads[url] }
     }
 
-    fun put(url: String, fileDownloadRequest: FileDownloadRequest) {
+    fun put(url: HttpUrl, fileDownloadRequest: FileDownloadRequest) {
         synchronized(activeDownloads) { activeDownloads[url] = fileDownloadRequest }
     }
 
-    fun updateTotalLength(url: String, contentLength: Long) {
+    fun updateTotalLength(url: HttpUrl, contentLength: Long) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.total?.set(contentLength)
         }
@@ -70,13 +71,13 @@ internal open class ActiveDownloads {
     /**
      * [chunkIndex] is used for tests, do not change/remove it
      * */
-    open fun updateDownloaded(url: String, chunkIndex: Int, downloaded: Long) {
+    open fun updateDownloaded(url: HttpUrl, chunkIndex: Int, downloaded: Long) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.downloaded?.set(downloaded)
         }
     }
 
-    fun addDisposeFunc(url: String, disposeFunc: () -> Unit): DownloadState {
+    fun addDisposeFunc(url: HttpUrl, disposeFunc: () -> Unit): DownloadState {
         return synchronized(activeDownloads) {
             val state = activeDownloads[url]?.cancelableDownload?.getState()
                     ?: DownloadState.Canceled
@@ -96,15 +97,15 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun getChunks(url: String): Set<Chunk> {
+    fun getChunks(url: HttpUrl): Set<Chunk> {
         return synchronized(activeDownloads) { activeDownloads[url]?.chunks?.toSet() ?: emptySet() }
     }
 
-    fun clearChunks(url: String) {
+    fun clearChunks(url: HttpUrl) {
         synchronized(activeDownloads) { activeDownloads[url]?.chunks?.clear() }
     }
 
-    fun addChunks(url: String, chunks: List<Chunk>) {
+    fun addChunks(url: HttpUrl, chunks: List<Chunk>) {
         synchronized(activeDownloads) {
             activeDownloads[url]?.chunks?.addAll(chunks)
         }
@@ -114,7 +115,7 @@ internal open class ActiveDownloads {
      * Marks current CancelableDownload as canceled and throws CancellationException to terminate
      * the reactive stream
      * */
-    fun throwCancellationException(url: String): Nothing {
+    fun throwCancellationException(url: HttpUrl): Nothing {
         val prevState = synchronized(activeDownloads) {
             val prevState = activeDownloads[url]?.cancelableDownload?.getState()
                     ?: DownloadState.Canceled
@@ -139,7 +140,7 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun getState(url: String): DownloadState {
+    fun getState(url: HttpUrl): DownloadState {
         return synchronized(activeDownloads) {
             activeDownloads[url]?.cancelableDownload?.getState()
                     ?: DownloadState.Canceled

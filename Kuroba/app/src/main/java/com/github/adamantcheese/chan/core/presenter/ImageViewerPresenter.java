@@ -612,7 +612,7 @@ public class ImageViewerPresenter
         }
 
         // Auto load the image when it is cached
-        return cacheHandler.exists(postImage.imageUrl.toString())
+        return cacheHandler.exists(postImage.imageUrl)
                 || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
@@ -647,12 +647,12 @@ public class ImageViewerPresenter
     public boolean forceReload() {
         PostImage currentImage = getCurrentPostImage();
 
-        if (fileCacheV2.isRunning(currentImage.imageUrl.toString())) {
+        if (fileCacheV2.isRunning(currentImage.imageUrl)) {
             showToast(context, "Image is not yet downloaded");
             return false;
         }
 
-        if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl.toString())) {
+        if (!cacheHandler.deleteCacheFileByUrl(currentImage.imageUrl)) {
             showToast(context, "Can't force reload because couldn't delete cached image");
             return false;
         }

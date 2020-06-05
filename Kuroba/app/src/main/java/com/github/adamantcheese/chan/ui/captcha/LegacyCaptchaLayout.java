@@ -37,6 +37,8 @@ import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LegacyCaptchaLayout
@@ -142,7 +144,7 @@ public class LegacyCaptchaLayout
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
         this.challenge = challenge;
-        image.setUrl(imageUrl);
+        image.setUrl(HttpUrl.get(imageUrl));
     }
 
     public static class CaptchaInterface {

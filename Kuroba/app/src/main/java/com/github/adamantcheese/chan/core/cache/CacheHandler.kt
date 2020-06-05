@@ -30,6 +30,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
+import okhttp3.HttpUrl
 import org.joda.time.format.DateTimeFormatterBuilder
 import org.joda.time.format.ISODateTimeFormat
 import java.io.File
@@ -103,15 +104,15 @@ class CacheHandler(
         }
     }
 
-    fun exists(key: String): Boolean {
-        return fileManager.exists(getCacheFileInternal(key))
+    fun exists(url: HttpUrl): Boolean {
+        return fileManager.exists(getCacheFileInternal(url))
     }
 
     /**
      * Either returns already downloaded file or creates an empty new one on the disk (also creates
      * cache file meta with default parameters)
      * */
-    fun getOrCreateCacheFile(url: String): RawFile? {
+    fun getOrCreateCacheFile(url: HttpUrl): RawFile? {
         createDirectories()
         var cacheFile = getCacheFileInternal(url)
 
@@ -150,7 +151,7 @@ class CacheHandler(
         }
     }
 
-    fun getChunkCacheFileOrNull(chunkStart: Long, chunkEnd: Long, url: String): RawFile? {
+    fun getChunkCacheFileOrNull(chunkStart: Long, chunkEnd: Long, url: HttpUrl): RawFile? {
         val chunkCacheFile = getChunkCacheFileInternal(chunkStart, chunkEnd, url)
 
         if (fileManager.exists(chunkCacheFile)) {
@@ -160,7 +161,7 @@ class CacheHandler(
         return null
     }
 
-    fun getOrCreateChunkCacheFile(chunkStart: Long, chunkEnd: Long, url: String): RawFile? {
+    fun getOrCreateChunkCacheFile(chunkStart: Long, chunkEnd: Long, url: HttpUrl): RawFile? {
         val chunkCacheFile = getChunkCacheFileInternal(chunkStart, chunkEnd, url)
 
         if (fileManager.exists(chunkCacheFile)) {
@@ -350,8 +351,8 @@ class CacheHandler(
         return deleteCacheFile(fileName)
     }
 
-    fun deleteCacheFileByUrl(url: String): Boolean {
-        return deleteCacheFile(stringMD5hash(url))
+    fun deleteCacheFileByUrl(url: HttpUrl): Boolean {
+        return deleteCacheFile(stringMD5hash(url.toString()))
     }
 
     @Synchronized
@@ -557,10 +558,10 @@ class CacheHandler(
         }
     }
 
-    private fun getCacheFileInternal(url: String): RawFile {
+    private fun getCacheFileInternal(url: HttpUrl): RawFile {
         createDirectories()
 
-        val fileName = formatCacheFileName(stringMD5hash(url))
+        val fileName = formatCacheFileName(stringMD5hash(url.toString()))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
@@ -577,18 +578,18 @@ class CacheHandler(
         return createdFile as RawFile
     }
 
-    private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: String): RawFile {
+    private fun getChunkCacheFileInternal(chunkStart: Long, chunkEnd: Long, url: HttpUrl): RawFile {
         createDirectories()
 
-        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, stringMD5hash(url))
+        val fileName = formatChunkCacheFileName(chunkStart, chunkEnd, stringMD5hash(url.toString()))
         return chunksCacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
-    internal fun getCacheFileMetaInternal(url: String): RawFile {
+    internal fun getCacheFileMetaInternal(url: HttpUrl): RawFile {
         createDirectories()
 
         // AbstractFile expects all file names to have extensions
-        val fileName = formatCacheFileMetaName(stringMD5hash(url))
+        val fileName = formatCacheFileMetaName(stringMD5hash(url.toString()))
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 

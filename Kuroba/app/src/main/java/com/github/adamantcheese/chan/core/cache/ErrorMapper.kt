@@ -3,12 +3,13 @@ package com.github.adamantcheese.chan.core.cache
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.utils.Logger
 import io.reactivex.exceptions.CompositeException
+import okhttp3.HttpUrl
 
 internal object ErrorMapper {
     private const val TAG = "ErrorMapper"
 
     fun mapError(
-            url: String,
+            url: HttpUrl,
             throwable: Throwable,
             activeDownloads: ActiveDownloads
     ): FileDownloadResult? {

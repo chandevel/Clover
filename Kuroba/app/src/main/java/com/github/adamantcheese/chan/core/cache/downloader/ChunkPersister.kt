@@ -9,6 +9,7 @@ import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.FlowableEmitter
+import okhttp3.HttpUrl
 import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.internal.closeQuietly
@@ -23,7 +24,7 @@ internal class ChunkPersister(
         private val verboseLogs: Boolean
 ) {
     fun storeChunkInFile(
-            url: String,
+            url: HttpUrl,
             chunkResponse: ChunkResponse,
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
@@ -115,7 +116,7 @@ internal class ChunkPersister(
 
     @Synchronized
     private fun handleErrors(
-            url: String,
+            url: HttpUrl,
             totalChunksCount: Int,
             error: Throwable,
             chunkIndex: Int,
@@ -187,7 +188,7 @@ internal class ChunkPersister(
 
     private fun readBodyLoop(
             chunkSize: Long,
-            url: String,
+            url: HttpUrl,
             bufferedSource: BufferedSource,
             bufferedSink: BufferedSink,
             totalDownloaded: AtomicLong,
@@ -274,7 +275,7 @@ internal class ChunkPersister(
         }
     }
 
-    private fun isRequestStoppedOrCanceled(url: String): Boolean {
+    private fun isRequestStoppedOrCanceled(url: HttpUrl): Boolean {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = activeDownloads.get(url)

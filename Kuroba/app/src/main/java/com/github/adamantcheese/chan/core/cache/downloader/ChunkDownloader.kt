@@ -16,7 +16,7 @@ internal class ChunkDownloader(
 ) {
 
     fun downloadChunk(
-            url: String,
+            url: HttpUrl,
             chunk: Chunk,
             totalChunksCount: Int
     ): Flowable<Response> {

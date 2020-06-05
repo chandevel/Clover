@@ -46,7 +46,6 @@ public class PostImage {
     public final String serverFilename;
     public final HttpUrl thumbnailUrl;
     public final HttpUrl spoilerThumbnailUrl;
-    @Nullable
     public final HttpUrl imageUrl;
     public final String filename;
     public final String extension;
@@ -64,6 +63,7 @@ public class PostImage {
         this.serverFilename = builder.serverFilename;
         this.thumbnailUrl = builder.thumbnailUrl;
         this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
+        if (builder.imageUrl == null) throw new NullPointerException("imageUrl must not be null!");
         this.imageUrl = builder.imageUrl;
         this.filename = builder.filename;
         this.extension = builder.extension;
@@ -99,10 +99,6 @@ public class PostImage {
     }
 
     public boolean equalUrl(PostImage other) {
-        if (imageUrl == null || other.imageUrl == null) {
-            return serverFilename.equals(other.serverFilename);
-        }
-
         return imageUrl.equals(other.imageUrl);
     }
 
@@ -156,6 +152,7 @@ public class PostImage {
         }
 
         public Builder imageUrl(@NonNull HttpUrl imageUrl) {
+            //noinspection ConstantConditions
             if (imageUrl == null) {
                 throw new NullPointerException("imageUrl must not be null!");
             }

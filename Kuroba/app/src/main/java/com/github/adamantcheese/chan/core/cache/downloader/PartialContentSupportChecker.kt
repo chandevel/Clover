@@ -11,7 +11,6 @@ import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
 import okhttp3.*
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -30,32 +29,27 @@ internal class PartialContentSupportChecker(
         private val maxTimeoutMs: Long
 ) {
     // Thread safe
-    private val cachedResults = LruCache<String, PartialContentCheckResult>(1024)
+    private val cachedResults = LruCache<HttpUrl, PartialContentCheckResult>(1024)
 
     @GuardedBy("itself")
     private val checkedChanHosts = mutableMapOf<String, Boolean>()
 
-    fun check(url: String): Single<PartialContentCheckResult> {
+    fun check(url: HttpUrl): Single<PartialContentCheckResult> {
         if (activeDownloads.isBatchDownload(url)) {
             return Single.just(PartialContentCheckResult(false))
         }
 
         val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
         if (fileSize > 0) {
-            val host = url.toHttpUrlOrNull()?.host
-            if (host == null) {
-                logError(TAG, "Bad url, can't extract host: ${maskImageUrl(url)}")
-            }
-
             val hostAlreadyChecked = synchronized(checkedChanHosts) {
-                checkedChanHosts.containsKey(host)
+                checkedChanHosts.containsKey(url.host)
             }
 
             // If a host is already check (we sent HEAD request to it at least 1 time during the app
             // lifetime) we can go a fast route and  just check the cached value (whether the site)
             // supports partial content or not
-            if (host != null && hostAlreadyChecked) {
-                val siteSendsFileSizeInBytes = siteResolver.findSiteForUrl(host)
+            if (hostAlreadyChecked) {
+                val siteSendsFileSizeInBytes = siteResolver.findSiteForUrl(url.host)
                         ?.chunkDownloaderSiteProperties
                         ?.siteSendsCorrectFileSizeInBytes
                         ?: false
@@ -65,7 +59,7 @@ internal class PartialContentSupportChecker(
                 // by sending HEAD requests every time
                 if (siteSendsFileSizeInBytes) {
                     val supportsPartialContent = synchronized(checkedChanHosts) {
-                        checkedChanHosts[host] ?: false
+                        checkedChanHosts[url.host] ?: false
                     }
 
                     if (supportsPartialContent) {
@@ -107,65 +101,65 @@ internal class PartialContentSupportChecker(
         val startTime = System.currentTimeMillis()
 
         return Single.create<PartialContentCheckResult> { emitter ->
-                    val call = okHttpClient.newCall(headRequest)
+            val call = okHttpClient.newCall(headRequest)
 
-                    val disposeFunc = {
-                        if (!call.isCanceled()) {
-                            log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
-                            call.cancel()
-                        }
-                    }
+            val disposeFunc = {
+                if (!call.isCanceled()) {
+                    log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
+                    call.cancel()
+                }
+            }
 
-                    val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
-                    if (downloadState != DownloadState.Running) {
-                        when (downloadState) {
-                            DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
-                            DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
-                            else -> {
-                                emitter.tryOnError(
-                                        RuntimeException("DownloadState must be either Stopped or Canceled")
-                                )
-                                return@create
-                            }
-                        }
-
+            val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
+            if (downloadState != DownloadState.Running) {
+                when (downloadState) {
+                    DownloadState.Canceled -> activeDownloads.get(url)?.cancelableDownload?.cancel()
+                    DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
+                    else -> {
                         emitter.tryOnError(
-                                FileCacheException.CancellationException(downloadState, url)
+                                RuntimeException("DownloadState must be either Stopped or Canceled")
                         )
                         return@create
                     }
-
-                    call.enqueue(object : Callback {
-                        override fun onFailure(call: Call, e: IOException) {
-                            if (emitter.isDisposed) {
-                                return
-                            }
-
-                            if (!isCancellationError(e)) {
-                                emitter.tryOnError(e)
-                            } else {
-                                val state = activeDownloads.get(url)?.cancelableDownload?.getState()
-                                        ?: DownloadState.Canceled
-
-                                if (state == DownloadState.Running) {
-                                    throw RuntimeException("Expected Cancelled or Stopped but got Running")
-                                }
-
-                                emitter.tryOnError(
-                                        FileCacheException.CancellationException(state, url)
-                                )
-                            }
-                        }
-
-                        override fun onResponse(call: Call, response: Response) {
-                            if (emitter.isDisposed) {
-                                return
-                            }
-
-                            handleResponse(response, url, emitter, startTime)
-                        }
-                    })
                 }
+
+                emitter.tryOnError(
+                        FileCacheException.CancellationException(downloadState, url)
+                )
+                return@create
+            }
+
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    if (emitter.isDisposed) {
+                        return
+                    }
+
+                    if (!isCancellationError(e)) {
+                        emitter.tryOnError(e)
+                    } else {
+                        val state = activeDownloads.get(url)?.cancelableDownload?.getState()
+                                ?: DownloadState.Canceled
+
+                        if (state == DownloadState.Running) {
+                            throw RuntimeException("Expected Cancelled or Stopped but got Running")
+                        }
+
+                        emitter.tryOnError(
+                                FileCacheException.CancellationException(state, url)
+                        )
+                    }
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (emitter.isDisposed) {
+                        return
+                    }
+
+                    handleResponse(response, url, emitter, startTime)
+                }
+            })
+        }
                 // Some HEAD requests on 4chan may take a lot of time (like 2 seconds or even more) when
                 // a file is not cached by the cloudflare so if a request takes more than [MAX_TIMEOUT_MS]
                 // we assume that cloudflare doesn't have this file cached so we just download it normally
@@ -201,7 +195,7 @@ internal class PartialContentSupportChecker(
 
     private fun handleResponse(
             response: Response,
-            url: String,
+            url: HttpUrl,
             emitter: SingleEmitter<PartialContentCheckResult>,
             startTime: Long
     ) {
@@ -271,10 +265,7 @@ internal class PartialContentSupportChecker(
         log(TAG, "url = ${maskImageUrl(url)}, fileSize = $length, " +
                 "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
 
-        val host = url.toHttpUrlOrNull()?.host
-        if (host != null) {
-            synchronized(checkedChanHosts) { checkedChanHosts.put(host, true) }
-        }
+        synchronized(checkedChanHosts) { checkedChanHosts.put(url.host, true) }
 
         val result = PartialContentCheckResult(
                 supportsPartialContentDownload = true,
@@ -285,26 +276,20 @@ internal class PartialContentSupportChecker(
         emitter.onSuccess(cache(url, result))
     }
 
-    private fun canWeUseFileSizeFromJson(url: String): Boolean {
+    private fun canWeUseFileSizeFromJson(url: HttpUrl): Boolean {
         val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
         if (fileSize <= 0) {
             return false
         }
 
-        val host = url.toHttpUrlOrNull()?.host
-        if (host == null) {
-            logError(TAG, "Bad url, can't extract host: $url")
-            return false
-        }
-
-        return siteResolver.findSiteForUrl(host)
+        return siteResolver.findSiteForUrl(url.host)
                 ?.chunkDownloaderSiteProperties
                 ?.siteSendsCorrectFileSizeInBytes
                 ?: false
     }
 
     private fun cache(
-            url: String,
+            url: HttpUrl,
             partialContentCheckResult: PartialContentCheckResult
     ): PartialContentCheckResult {
         cachedResults.put(url, partialContentCheckResult)

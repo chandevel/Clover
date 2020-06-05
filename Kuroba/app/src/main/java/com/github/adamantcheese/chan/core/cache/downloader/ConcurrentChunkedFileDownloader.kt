@@ -8,6 +8,7 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
 import io.reactivex.Scheduler
+import okhttp3.HttpUrl
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -26,7 +27,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
 
     override fun download(
             partialContentCheckResult: PartialContentCheckResult,
-            url: String,
+            url: HttpUrl,
             chunked: Boolean
     ): Flowable<FileDownloadResult> {
         val output = activeDownloads.get(url)
@@ -93,7 +94,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
         )
     }
 
-    private fun removeChunksFromDisk(url: String) {
+    private fun removeChunksFromDisk(url: HttpUrl) {
         val chunks = activeDownloads.getChunks(url)
         if (chunks.isEmpty()) {
             return
@@ -114,7 +115,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
     }
 
     private fun downloadInternal(
-            url: String,
+            url: HttpUrl,
             chunks: List<Chunk>,
             partialContentCheckResult: PartialContentCheckResult,
             output: RawFile
@@ -251,7 +252,7 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
     }
 
     private fun processChunks(
-            url: String,
+            url: HttpUrl,
             totalDownloaded: AtomicLong,
             chunkIndex: Int,
             chunk: Chunk,

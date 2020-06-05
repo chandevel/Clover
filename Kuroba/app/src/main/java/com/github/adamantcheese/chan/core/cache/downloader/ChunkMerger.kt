@@ -8,7 +8,7 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.Flowable
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.HttpUrl
 
 
 internal class ChunkMerger(
@@ -20,7 +20,7 @@ internal class ChunkMerger(
 ) {
 
     fun mergeChunksIntoCacheFile(
-            url: String,
+            url: HttpUrl,
             chunkSuccessEvents: List<ChunkDownloadEvent.ChunkSuccess>,
             output: RawFile,
             requestStartTime: Long
@@ -97,20 +97,14 @@ internal class ChunkMerger(
     /**
      * Some sites may sometimes send us incorrect file md5 hashes, just skip the hash check for them
      * */
-    private fun canSiteFileHashBeTrusted(url: String): Boolean {
-        val host = url.toHttpUrlOrNull()?.host
-        if (host == null) {
-            logError(TAG, "Bad url, can't extract host: ${maskImageUrl(url)}")
-            return false
-        }
-
-        return siteResolver.findSiteForUrl(host)
+    private fun canSiteFileHashBeTrusted(url: HttpUrl): Boolean {
+        return siteResolver.findSiteForUrl(url.host)
                 ?.chunkDownloaderSiteProperties
                 ?.canFileHashBeTrusted
                 ?: false
     }
 
-    private fun compareFileHashes(url: String, output: AbstractFile, expectedFileHash: String) {
+    private fun compareFileHashes(url: HttpUrl, output: AbstractFile, expectedFileHash: String) {
         fileManager.getInputStream(output)?.use { inputStream ->
             val actualFileHash = inputStreamMD5hash(inputStream)
 
@@ -130,7 +124,7 @@ internal class ChunkMerger(
         )
     }
 
-    private fun markFileAsDownloaded(url: String) {
+    private fun markFileAsDownloaded(url: HttpUrl) {
         val request = checkNotNull(activeDownloads.get(url)) {
             "Active downloads does not have url: $url even though it was just downloaded"
         }

@@ -30,6 +30,9 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import okhttp3.HttpUrl;
+
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -62,8 +65,7 @@ public class PostImageThumbnailView
 
             if (postImage != null) {
                 if (!loadable.isLocal()) {
-                    String url = getUrl(postImage, useHiRes);
-                    setUrl(url);
+                    setUrl(getUrl(postImage, useHiRes));
                 } else {
                     String fileName;
 
@@ -86,13 +88,11 @@ public class PostImageThumbnailView
         }
     }
 
-    private String getUrl(PostImage postImage, boolean useHiRes) {
-        String url = postImage.getThumbnailUrl().toString();
+    private HttpUrl getUrl(PostImage postImage, boolean useHiRes) {
+        HttpUrl url = postImage.getThumbnailUrl();
         if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
             if (!postImage.spoiler() || ChanSettings.removeImageSpoilers.get()) {
-                url = postImage.type == PostImage.Type.STATIC
-                        ? postImage.imageUrl.toString()
-                        : postImage.getThumbnailUrl().toString();
+                url = postImage.type == STATIC ? postImage.imageUrl : postImage.getThumbnailUrl();
             }
         }
 

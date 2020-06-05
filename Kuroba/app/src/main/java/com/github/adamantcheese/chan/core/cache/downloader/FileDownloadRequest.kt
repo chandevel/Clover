@@ -2,12 +2,13 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.file.RawFile
+import okhttp3.HttpUrl
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 
 internal open class FileDownloadRequest(
-        val url: String,
+        val url: HttpUrl,
         val output: RawFile,
         // A file will be split into [chunksCount] chunks which will be downloaded in parallel.
         // Must be 1 or greater than 1.

@@ -5,6 +5,7 @@ import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
+import okhttp3.HttpUrl
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference
  * ThreadSafe
  * */
 class CancelableDownload(
-        val url: String,
+        val url: HttpUrl,
         val downloadType: DownloadType,
         private val requestCancellationThread: ExecutorService
 ) {

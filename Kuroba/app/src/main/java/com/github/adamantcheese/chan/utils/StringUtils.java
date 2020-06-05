@@ -18,6 +18,8 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.HttpUrl;
+
 public class StringUtils {
     private static final String TAG = "StringUtils";
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
@@ -121,21 +123,24 @@ public class StringUtils {
         return postNoString;
     }
 
-    public static String maskImageUrl(@NonNull String url) {
-        if (url.length() < 4) {
-            return url;
+    public static String maskImageUrl(HttpUrl url) {
+        if (url == null) return "";
+
+        String result = url.toString();
+        if (result.length() < 4) {
+            return result;
         }
 
-        String extension = extractFileNameExtension(url);
+        String extension = extractFileNameExtension(result);
 
         int extensionLength = extension == null ? 0 : (extension.length() + 1);
         int charactersToTrim = 3 + extensionLength;
 
-        if (url.length() < charactersToTrim) {
-            return url;
+        if (result.length() < charactersToTrim) {
+            return result;
         }
 
-        String trimmedUrl = url.substring(0, url.length() - charactersToTrim);
+        String trimmedUrl = result.substring(0, result.length() - charactersToTrim);
         return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
     }
 
@@ -191,6 +196,7 @@ public class StringUtils {
                 .minimumPrintedDigits(2) //always print two digit seconds
                 .appendSeconds()
                 .appendLiteral("]")
-                .toFormatter().print(time);
+                .toFormatter()
+                .print(time);
     }
 }

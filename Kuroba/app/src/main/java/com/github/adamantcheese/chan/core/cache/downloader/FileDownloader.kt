@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import io.reactivex.Flowable
+import okhttp3.HttpUrl
 
 internal abstract class FileDownloader(
         protected val activeDownloads: ActiveDownloads,
@@ -10,11 +11,11 @@ internal abstract class FileDownloader(
 ) {
     abstract fun download(
             partialContentCheckResult: PartialContentCheckResult,
-            url: String,
+            url: HttpUrl,
             chunked: Boolean
     ): Flowable<FileDownloadResult>
 
-    protected fun isRequestStoppedOrCanceled(url: String): Boolean {
+    protected fun isRequestStoppedOrCanceled(url: HttpUrl): Boolean {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = activeDownloads.get(url)

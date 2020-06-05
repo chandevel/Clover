@@ -26,6 +26,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import java.io.IOException
 import java.util.*
@@ -57,8 +58,8 @@ class FileCacheV2(
      * image thumbnail to view a full-size image) and the other queue for when user downloads full
      * image albums or for media-prefetching etc.
      * */
-    private val normalRequestQueue = PublishProcessor.create<String>()
-    private val batchRequestQueue = PublishProcessor.create<List<String>>()
+    private val normalRequestQueue = PublishProcessor.create<HttpUrl>()
+    private val batchRequestQueue = PublishProcessor.create<List<HttpUrl>>()
 
     private val chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt()
     private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
@@ -207,7 +208,7 @@ class FileCacheV2(
                 })
     }
 
-    fun isRunning(url: String): Boolean {
+    fun isRunning(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) {
             activeDownloads.getState(url) == DownloadState.Running
         }
@@ -221,11 +222,11 @@ class FileCacheV2(
             throw IllegalArgumentException("Cannot use local thread loadable for prefetching!")
         }
 
-        val urls = mutableListOf<String>()
+        val urls = mutableListOf<HttpUrl>()
         val cancelableDownloads = mutableListOf<CancelableDownload>()
 
         for (postImage in postImageList) {
-            val url = postImage.imageUrl.toString()
+            val url = postImage.imageUrl
 
             val file: RawFile = cacheHandler.getOrCreateCacheFile(url)
                     ?: continue
@@ -303,10 +304,8 @@ class FileCacheV2(
             isBatchDownload: Boolean,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        val url = postImage.imageUrl.toString()
-
         if (loadable.isLocal || loadable.isDownloading) {
-            log(TAG, "Handling local thread file, url = ${maskImageUrl(url)}")
+            log(TAG, "Handling local thread file, url = ${maskImageUrl(postImage.imageUrl)}")
 
             if (callback == null) {
                 logError(TAG, "Callback is null for a local thread")
@@ -330,11 +329,11 @@ class FileCacheV2(
             return null
         }
 
-        return enqueueDownloadFileRequest(url, chunksCount, isBatchDownload, extraInfo, callback)
+        return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, isBatchDownload, extraInfo, callback)
     }
 
     fun enqueueChunkedDownloadFileRequest(
-            url: String,
+            url: HttpUrl,
             extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
@@ -342,7 +341,7 @@ class FileCacheV2(
     }
 
     fun enqueueNormalDownloadFileRequest(
-            url: String,
+            url: HttpUrl,
             callback: FileCacheListener?
     ): CancelableDownload? {
         // Normal downloads (not chunked) always have default extra info (no file size, no file hash)
@@ -350,7 +349,7 @@ class FileCacheV2(
     }
 
     private fun enqueueDownloadFileRequest(
-            url: String,
+            url: HttpUrl,
             chunksCount: Int,
             isBatchDownload: Boolean,
             extraInfo: DownloadRequestExtraInfo,
@@ -396,7 +395,7 @@ class FileCacheV2(
         cacheHandler.clearCache()
     }
 
-    private fun checkAlreadyCached(file: RawFile, url: String): Boolean {
+    private fun checkAlreadyCached(file: RawFile, url: HttpUrl): Boolean {
         if (!cacheHandler.isAlreadyDownloaded(file)) {
             return false
         }
@@ -418,7 +417,7 @@ class FileCacheV2(
     //  Maybe I could add a new flag and right in the end when handling terminal events
     //  I could check whether this flag is true or not and if it is re-add this request again?
     private fun getOrCreateCancelableDownload(
-            url: String,
+            url: HttpUrl,
             callback: FileCacheListener?,
             file: RawFile,
             chunksCount: Int,
@@ -520,7 +519,7 @@ class FileCacheV2(
         }.subscribeOn(workerScheduler)
     }
 
-    private fun handleFileImmediatelyAvailable(file: RawFile, url: String) {
+    private fun handleFileImmediatelyAvailable(file: RawFile, url: HttpUrl) {
         val request = activeDownloads.get(url)
                 ?: return
 
@@ -544,7 +543,7 @@ class FileCacheV2(
             } else {
                 // SAF file
                 try {
-                    val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl.toString())
+                    val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl)
                             ?: throw IOException("Couldn't get or create cache file")
 
                     if (!fileManager.copyFileContents(file, resultFile)) {
@@ -575,7 +574,7 @@ class FileCacheV2(
         }
     }
 
-    private fun handleResults(url: String, result: FileDownloadResult) {
+    private fun handleResults(url: HttpUrl, result: FileDownloadResult) {
         BackgroundUtils.ensureBackgroundThread()
 
         try {
@@ -784,7 +783,7 @@ class FileCacheV2(
     }
 
     private fun resultHandler(
-            url: String,
+            url: HttpUrl,
             request: FileDownloadRequest,
             isTerminalEvent: Boolean,
             func: FileCacheListener.() -> Unit
@@ -803,7 +802,7 @@ class FileCacheV2(
         }
     }
 
-    private fun handleFileDownload(url: String): Flowable<FileDownloadResult> {
+    private fun handleFileDownload(url: HttpUrl): Flowable<FileDownloadResult> {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = activeDownloads.get(url)
@@ -853,7 +852,7 @@ class FileCacheV2(
                 }
     }
 
-    private fun purgeOutput(url: String, output: RawFile) {
+    private fun purgeOutput(url: HttpUrl, output: RawFile) {
         BackgroundUtils.ensureBackgroundThread()
 
         val request = activeDownloads.get(url)

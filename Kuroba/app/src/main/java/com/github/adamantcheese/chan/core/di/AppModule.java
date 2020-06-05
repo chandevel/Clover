@@ -128,11 +128,8 @@ public class AppModule {
         LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
         SavedFilesBaseDirectory savedFilesBaseDirectory = new SavedFilesBaseDirectory();
 
-        BadPathSymbolResolutionStrategy resolutionStrategy = ReplaceBadSymbols;
-
-        if (BuildConfig.DEV_BUILD) {
-            resolutionStrategy = ThrowAnException;
-        }
+        BadPathSymbolResolutionStrategy resolutionStrategy =
+                BuildConfig.DEV_BUILD ? ThrowAnException : ReplaceBadSymbols;
 
         FileManager fileManager = new FileManager(applicationContext, resolutionStrategy, directoryManager);
 

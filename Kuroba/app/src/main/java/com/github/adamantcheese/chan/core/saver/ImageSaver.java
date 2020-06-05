@@ -63,6 +63,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.processors.FlowableProcessor;
 import io.reactivex.processors.PublishProcessor;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Canceled;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
@@ -123,7 +124,7 @@ public class ImageSaver {
      * If an image url is not present in the activeDownloads that means that it was canceled.
      */
     @GuardedBy("itself")
-    private final Set<String> activeDownloads = new HashSet<>(64);
+    private final Set<HttpUrl> activeDownloads = new HashSet<>(64);
 
     private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT,
             r -> new Thread(r, "ImageSaverThread-" + imagesSaverThreadIndex.getAndIncrement())
@@ -146,7 +147,7 @@ public class ImageSaver {
                         .observeOn(workerScheduler)
                         .flatMap((task) -> {
                             synchronized (activeDownloads) {
-                                boolean isStillActive = activeDownloads.contains(task.getPostImageUrl());
+                                boolean isStillActive = activeDownloads.contains(task.getPostImage().imageUrl);
 
                                 // If the download is not present in activeDownloads that means that
                                 // it wat canceled, so exit immediately
@@ -304,14 +305,14 @@ public class ImageSaver {
         failedTasks.incrementAndGet();
 
         synchronized (activeDownloads) {
-            activeDownloads.remove(task.getPostImageUrl());
+            activeDownloads.remove(task.getPostImage().imageUrl);
         }
 
         if (checkBatchCompleted()) {
             onBatchCompleted();
         }
 
-        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImageUrl()));
+        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImage().imageUrl));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         cancellableToast.showToast(getAppContext(), errorMessage, Toast.LENGTH_LONG);
@@ -322,10 +323,10 @@ public class ImageSaver {
         doneTasks.incrementAndGet();
 
         synchronized (activeDownloads) {
-            activeDownloads.remove(task.getPostImageUrl());
+            activeDownloads.remove(task.getPostImage().imageUrl);
         }
 
-        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImageUrl()));
+        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImage().imageUrl));
         boolean wasAlbumSave = totalTasks.get() > 1;
 
         if (checkBatchCompleted()) {
@@ -394,7 +395,7 @@ public class ImageSaver {
 
     private void startTask(ImageSaveTask task) {
         synchronized (activeDownloads) {
-            activeDownloads.add(task.getPostImageUrl());
+            activeDownloads.add(task.getPostImage().imageUrl);
         }
 
         totalTasks.incrementAndGet();

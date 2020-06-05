@@ -3,10 +3,11 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import io.reactivex.exceptions.CompositeException
+import okhttp3.HttpUrl
 
 internal sealed class FileCacheException(message: String) : Exception(message) {
 
-    internal class CancellationException(val state: DownloadState, url: String)
+    internal class CancellationException(val state: DownloadState, url: HttpUrl)
         : FileCacheException("CancellationException for request with " +
             "url = ${maskImageUrl(url)}, state = ${state.javaClass.simpleName}")
 
@@ -53,7 +54,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
     ) : FileCacheException("Bad output file, exists = $exists, isFile = $isFile, canWrite = $canWrite, path = $path")
 
     internal class FileHashesAreDifferent(
-            val url: String,
+            val url: HttpUrl,
             val fileName: String,
             expectedFileHash: String,
             actualFileHash: String
