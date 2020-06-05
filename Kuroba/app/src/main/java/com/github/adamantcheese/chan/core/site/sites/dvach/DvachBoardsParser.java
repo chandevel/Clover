@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.sites.chan420;
+package com.github.adamantcheese.chan.core.site.sites.dvach;
 
 import android.util.JsonReader;
 
@@ -25,15 +25,13 @@ import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-public class Chan420BoardsRequest
+public class DvachBoardsParser
         implements JsonParser<Boards> {
     private final Site site;
 
-    public Chan420BoardsRequest(Site site) {
+    DvachBoardsParser(Site site) {
         this.site = site;
     }
 
@@ -73,33 +71,24 @@ public class Chan420BoardsRequest
         board.siteId = site.id();
         board.site = site;
 
-        Map<String, Integer> fileSizeLimit = new HashMap<>();
-        fileSizeLimit.put("f", 40960 * 1024);
-        fileSizeLimit.put("m", 40960 * 1024);
-        fileSizeLimit.put("h", 40960 * 1024);
-        fileSizeLimit.put("wooo", 204800 * 1024);
-
         while (reader.hasNext()) {
             String key = reader.nextName();
 
             switch (key) {
-                case "board":
-                    board.code = reader.nextString();
-                    if (fileSizeLimit.containsKey(board.code)) {
-                        //noinspection ConstantConditions
-                        board.maxFileSize = fileSizeLimit.get(board.code);
-                    } else {
-                        board.maxFileSize = 20480 * 1024;
-                    }
-                    break;
-                case "title":
+                case "name":
                     board.name = reader.nextString();
                     break;
-                case "nws_board":
-                    board.workSafe = reader.nextInt() == 1;
+                case "id":
+                    board.code = reader.nextString();
                     break;
-                case "display_order":
-                    board.order = reader.nextInt();
+                case "bump_limit":
+                    board.bumpLimit = reader.nextInt();
+                    break;
+                case "info":
+                    board.description = reader.nextString();
+                    break;
+                case "category":
+                    board.workSafe = !"Взрослым".equals(reader.nextString());
                     break;
                 default:
                     reader.skipValue();
@@ -109,11 +98,12 @@ public class Chan420BoardsRequest
 
         reader.endObject();
 
+        board.maxFileSize = 20480 * 1024; //20MB
+
         if (board.hasMissingInfo()) {
             // Invalid data, ignore
             return null;
         }
-
         return board;
     }
 }

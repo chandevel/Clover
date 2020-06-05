@@ -14,7 +14,6 @@ public class LoadingViewController
     private TextView textView;
     private ProgressBar progressBar;
     private boolean indeterminate;
-    private boolean backNotAllowed = true;
 
     public LoadingViewController(Context context, boolean indeterminate) {
         super(context);
@@ -30,16 +29,9 @@ public class LoadingViewController
         progressBar = view.findViewById(R.id.progress_bar);
     }
 
-    public void enableBack() {
-        backNotAllowed = false;
-    }
-
-    // Disable the back button for this controller unless otherwise requested by the above
     @Override
     public boolean onBack() {
-        if (!backNotAllowed) {
-            presentedByController.onBack();
-        }
+        presentedByController.onBack();
         return true;
     }
 

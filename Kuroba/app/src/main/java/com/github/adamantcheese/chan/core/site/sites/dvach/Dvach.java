@@ -233,7 +233,7 @@ public class Dvach
                     public void onJsonSuccess(Boards result) {
                         listener.onBoardsReceived(result);
                     }
-                }, new DvachBoardsRequest(Dvach.this));
+                }, new DvachBoardsParser(Dvach.this));
             }
         });
 

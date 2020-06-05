@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 
 import okhttp3.Request;
 
-public interface SiteRequestModifier {
+public interface SiteCallModifier {
     void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder);
 
     void modifyWebView(WebView webView);

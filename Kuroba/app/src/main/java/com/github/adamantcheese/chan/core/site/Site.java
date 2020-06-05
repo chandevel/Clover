@@ -159,7 +159,7 @@ public interface Site {
 
     SiteEndpoints endpoints();
 
-    SiteRequestModifier requestModifier();
+    SiteCallModifier callModifier();
 
     ChanReader chanReader();
 

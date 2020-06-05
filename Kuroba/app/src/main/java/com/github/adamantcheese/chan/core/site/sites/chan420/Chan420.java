@@ -122,7 +122,7 @@ public class Chan420
                     public void onJsonSuccess(Boards result) {
                         listener.onBoardsReceived(result);
                     }
-                }, new Chan420BoardsRequest(Chan420.this));
+                }, new Chan420BoardsParser(Chan420.this));
             }
         });
         setApi(new TaimabaApi(this));

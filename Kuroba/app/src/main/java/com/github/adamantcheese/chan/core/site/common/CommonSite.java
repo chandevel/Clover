@@ -34,7 +34,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteBase;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
+import com.github.adamantcheese.chan.core.site.SiteCallModifier;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.PageStructs.ChanPages;
@@ -77,7 +77,7 @@ public abstract class CommonSite
     private CommonEndpoints endpoints;
     private CommonActions actions;
     private CommonApi api;
-    private CommonRequestModifier requestModifier = new CommonRequestModifier() {};
+    private CommonCallModifier callModifier = new CommonCallModifier() {};
 
     public PostParser postParser;
 
@@ -225,8 +225,8 @@ public abstract class CommonSite
     }
 
     @Override
-    public SiteRequestModifier requestModifier() {
-        return requestModifier;
+    public SiteCallModifier callModifier() {
+        return callModifier;
     }
 
     @Override
@@ -586,8 +586,8 @@ public abstract class CommonSite
         }
     }
 
-    public abstract static class CommonRequestModifier
-            implements SiteRequestModifier {
+    public abstract static class CommonCallModifier
+            implements SiteCallModifier {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
         }

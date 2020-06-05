@@ -53,7 +53,7 @@ import static com.github.adamantcheese.chan.Chan.instance;
  * This class is highly multithreaded, take good care to not access models that are to be only
  * changed on the main thread.
  */
-public class ChanReaderRequest
+public class ChanReaderParser
         implements NetUtils.JsonParser<ChanLoaderResponse> {
     private static final int THREAD_COUNT;
     private static final ExecutorService EXECUTOR;
@@ -78,7 +78,7 @@ public class ChanReaderRequest
 
     private List<Filter> filters;
 
-    public ChanReaderRequest(ChanLoaderRequestParams request) {
+    public ChanReaderParser(ChanLoaderRequestParams request) {
         inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.

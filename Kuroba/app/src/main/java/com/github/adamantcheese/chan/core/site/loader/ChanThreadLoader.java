@@ -34,7 +34,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
-import com.github.adamantcheese.chan.core.site.parser.ChanReaderRequest;
+import com.github.adamantcheese.chan.core.site.parser.ChanReaderParser;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -97,7 +97,7 @@ public class ChanThreadLoader {
     @Nullable
     private ChanThread thread;
     @Nullable
-    private Call request;
+    private Call call;
     @Nullable
     private ScheduledFuture<?> pendingFuture;
 
@@ -141,9 +141,9 @@ public class ChanThreadLoader {
 
         if (listeners.isEmpty()) {
             clearTimer();
-            if (request != null) {
-                request.cancel();
-                request = null;
+            if (call != null) {
+                call.cancel();
+                call = null;
             }
             return true;
         } else {
@@ -182,9 +182,9 @@ public class ChanThreadLoader {
             return;
         }
 
-        if (request != null) {
-            request.cancel();
-            request = null;
+        if (call != null) {
+            call.cancel();
+            call = null;
         }
 
         if (loadable.isCatalogMode()) {
@@ -244,7 +244,7 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureMainThread();
         clearPendingRunnable();
 
-        if (loadable.isThreadMode() && request == null) {
+        if (loadable.isThreadMode() && call == null) {
             compositeDisposable.add(requestMoreDataInternal());
             return true;
         } else {
@@ -269,7 +269,7 @@ public class ChanThreadLoader {
                 }
                 notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error));
             } else {
-                request = ((ModularResult.Value<Call>) result).getValue();
+                call = ((ModularResult.Value<Call>) result).getValue();
             }
         }, error -> notifyAboutError(error instanceof Exception ? (Exception) error : new Exception(error)));
     }
@@ -307,7 +307,7 @@ public class ChanThreadLoader {
     public void requestMoreDataAndResetTimer() {
         BackgroundUtils.ensureMainThread();
 
-        if (request == null) {
+        if (call == null) {
             clearTimer();
             requestMoreData();
         }
@@ -344,7 +344,7 @@ public class ChanThreadLoader {
     public long getTimeUntilLoadMore() {
         BackgroundUtils.ensureMainThread();
 
-        if (request != null) {
+        if (call != null) {
             return 0L;
         } else {
             long waitTime = WATCH_TIMEOUTS[Math.max(0, currentTimeout)] * 1000L;
@@ -372,7 +372,7 @@ public class ChanThreadLoader {
         }
 
         ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, cached);
-        request = NetUtils.makeJsonRequest(getChanUrl(loadable), new JsonResult<ChanLoaderResponse>() {
+        call = NetUtils.makeJsonRequest(getChanUrl(loadable), new JsonResult<ChanLoaderResponse>() {
             @Override
             public void onJsonFailure(Exception e) {
                 onErrorResponse(e);
@@ -382,9 +382,9 @@ public class ChanThreadLoader {
             public void onJsonSuccess(ChanLoaderResponse result) {
                 onResponse(result);
             }
-        }, new ChanReaderRequest(requestParams));
+        }, new ChanReaderParser(requestParams));
 
-        return request;
+        return call;
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {
@@ -409,7 +409,7 @@ public class ChanThreadLoader {
     }
 
     private void onResponse(ChanLoaderResponse response) {
-        request = null;
+        call = null;
 
         Disposable disposable = Single.fromCallable(() -> onResponseInternal(response))
                 .subscribeOn(backgroundScheduler)
@@ -635,7 +635,7 @@ public class ChanThreadLoader {
     }
 
     private void onErrorResponse(Exception error) {
-        request = null;
+        call = null;
 
         Disposable disposable = Single.fromCallable(() -> {
             BackgroundUtils.ensureBackgroundThread();

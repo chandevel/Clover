@@ -40,7 +40,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteBase;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteRequestModifier;
+import com.github.adamantcheese.chan.core.site.SiteCallModifier;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.ChanStructs.Boards;
@@ -281,7 +281,7 @@ public class Chan4
         }
     };
 
-    private SiteRequestModifier siteRequestModifier = new SiteRequestModifier() {
+    private SiteCallModifier siteCallModifier = new SiteCallModifier() {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
             if (actions.isLoggedIn()) {
@@ -585,8 +585,8 @@ public class Chan4
     }
 
     @Override
-    public SiteRequestModifier requestModifier() {
-        return siteRequestModifier;
+    public SiteCallModifier callModifier() {
+        return siteCallModifier;
     }
 
     @Override
