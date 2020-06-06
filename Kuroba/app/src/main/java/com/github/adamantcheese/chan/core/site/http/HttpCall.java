@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.io.IOException;
 
@@ -38,6 +39,7 @@ import okhttp3.ResponseBody;
  * {@code setup()} is called on the main thread, set up up the request builder here. {@code execute()} is
  * called on a worker thread after the response was executed, do something with the response here.
  */
+@SuppressWarnings("unchecked")
 public abstract class HttpCall
         implements Callback {
     private Site site;
@@ -67,7 +69,7 @@ public abstract class HttpCall
                 String responseString = body.string();
                 process(response, responseString);
             } else {
-                exception = new IOException("No body. HTTP " + response.code());
+                exception = new NetUtils.HttpCodeException(response.code());
             }
         } catch (Exception e) {
             exception = new IOException("Error processing response", e);
@@ -75,29 +77,15 @@ public abstract class HttpCall
 
         if (exception != null) {
             Logger.e(this, "onResponse", exception);
-            callFail(exception);
+            BackgroundUtils.runOnMainThread(() -> callback.onHttpFail(HttpCall.this, exception));
         } else {
-            callSuccess();
+            BackgroundUtils.runOnMainThread(() -> callback.onHttpSuccess(HttpCall.this));
         }
     }
 
     @Override
     public void onFailure(@NonNull Call call, @NonNull IOException e) {
         Logger.e(this, "onFailure", e);
-        callFail(e);
-    }
-
-    public Exception getException() {
-        return exception;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void callSuccess() {
-        BackgroundUtils.runOnMainThread(() -> callback.onHttpSuccess(HttpCall.this));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void callFail(final Exception e) {
         BackgroundUtils.runOnMainThread(() -> callback.onHttpFail(HttpCall.this, e));
     }
 
