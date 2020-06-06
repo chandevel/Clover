@@ -82,7 +82,7 @@ public class NetUtils {
         Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
         Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
-            result.onBitmapSuccess(cachedBitmap, true);
+            BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(cachedBitmap, true));
             return null;
         }
         Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
@@ -90,13 +90,13 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error loading bitmap from " + url.toString());
-                result.onBitmapFailure(errorBitmap, e);
+                BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, e));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() != 200) {
-                    result.onBitmapFailure(errorBitmap, new HttpCodeException(response.code()));
+                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new HttpCodeException(response.code())));
                     response.close();
                     return;
                 }
@@ -105,13 +105,13 @@ public class NetUtils {
                     //noinspection ConstantConditions
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
                     if (bitmap == null) {
-                        result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null"));
+                        BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null")));
                         return;
                     }
                     imageCache.put(url, bitmap);
-                    result.onBitmapSuccess(bitmap, false);
+                    BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(bitmap, false));
                 } catch (Exception e) {
-                    result.onBitmapFailure(errorBitmap, e);
+                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, e));
                 }
             }
         });

@@ -176,12 +176,6 @@ public class MultiImageView
         this.mode = newMode;
         hasContent = false;
         waitForMeasure(this, view -> {
-            if (getWidth() == 0 || getHeight() == 0 || !isLaidOut()) {
-                Logger.e(MultiImageView.this,
-                        "getWidth() or getHeight() returned 0, or view not laid out, not loading"
-                );
-                return false;
-            }
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(postImage, center);
@@ -320,12 +314,14 @@ public class MultiImageView
             @Override
             public void onBitmapFailure(Bitmap errormap, Exception e) {
                 thumbnailRequest = null;
+                callback.hideProgress(MultiImageView.this);
                 if (center) onError(e);
             }
 
             @Override
             public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                 thumbnailRequest = null;
+                callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
             }
         }, getWidth(), getHeight());

@@ -451,7 +451,7 @@ public class AndroidUtils {
         int width = view.getWidth();
         int height = view.getHeight();
 
-        if (returnIfNotZero && width > 0 && height > 0) {
+        if (returnIfNotZero && width > 0 && height > 0 && view.isLaidOut()) {
             callback.onMeasured(view);
         } else {
             viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
