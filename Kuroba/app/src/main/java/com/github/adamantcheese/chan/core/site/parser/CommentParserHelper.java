@@ -172,7 +172,9 @@ public class CommentParserHelper {
                             return ret;
                         }
                 );
-                youtubeCache.put(URL, result);
+                if (result != null) {
+                    youtubeCache.put(URL, result);
+                }
             }
             //prepend two spaces for the youtube icon later
             String title = result != null ? result.first : URL;
