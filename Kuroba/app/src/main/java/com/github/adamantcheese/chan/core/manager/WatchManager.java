@@ -231,7 +231,7 @@ public class WatchManager
 
         if (opPost != null) {
             PostImage image = opPost.image();
-            pin.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+            pin.thumbnailUrl = image == null ? null : image.getThumbnailUrl();
         }
         return createPin(pin, sendBroadcast);
     }
@@ -1296,14 +1296,12 @@ public class WatchManager
              */
             pin.loadable.setTitle(PostHelper.getTitle(thread.getOp(), pin.loadable));
 
-            //Forcibly update the thumbnail, if there is no thumbnail currently, or if it doesn't match the thread for some reason
-            //@formatter:off
-            if (thread.getOp() != null && thread.getOp().image() != null
-                    && (pin.thumbnailUrl.isEmpty()
-                    || !pin.thumbnailUrl.equals(thread.getOp().image().getThumbnailUrl().toString()))) {
-                pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl().toString();
-            }
-            //@formatter:on
+            //Forcibly update the thumbnail if there is no thumbnail currently
+            try {
+                if (pin.thumbnailUrl == null) {
+                    pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl();
+                }
+            } catch (Exception ignored) {}
 
             // Populate posts list
             posts.clear();

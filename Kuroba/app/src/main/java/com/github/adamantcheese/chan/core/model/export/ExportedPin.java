@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.google.gson.annotations.SerializedName;
 
+import okhttp3.HttpUrl;
+
 public class ExportedPin {
     @SerializedName("archived")
     private boolean archived;
@@ -38,8 +40,7 @@ public class ExportedPin {
     @SerializedName("quote_new_count")
     private int quoteNewCount;
     @SerializedName("thumbnail_url")
-    @Nullable
-    private String thumbnailUrl;
+    private HttpUrl thumbnailUrl;
     @SerializedName("watch_last_count")
     private int watchLastCount;
     @SerializedName("watch_new_count")
@@ -47,7 +48,6 @@ public class ExportedPin {
     @SerializedName("watching")
     private boolean watching;
     @SerializedName("exported_loadable")
-    @Nullable
     private ExportedLoadable exportedLoadable;
     @SerializedName("pin_type")
     private int pinType;
@@ -60,7 +60,7 @@ public class ExportedPin {
             int order,
             int quoteLastCount,
             int quoteNewCount,
-            @NonNull String thumbnailUrl,
+            HttpUrl thumbnailUrl,
             int watchLastCount,
             int watchNewCount,
             boolean watching,
@@ -110,8 +110,7 @@ public class ExportedPin {
         return quoteNewCount;
     }
 
-    @Nullable
-    public String getThumbnailUrl() {
+    public HttpUrl getThumbnailUrl() {
         return thumbnailUrl;
     }
 
@@ -127,7 +126,6 @@ public class ExportedPin {
         return watching;
     }
 
-    @Nullable
     public ExportedLoadable getExportedLoadable() {
         return exportedLoadable;
     }

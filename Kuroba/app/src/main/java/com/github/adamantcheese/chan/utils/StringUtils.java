@@ -50,8 +50,8 @@ public class StringUtils {
     }
 
     @Nullable
-    public static String convertThumbnailUrlToFilenameOnDisk(String url) {
-        Matcher matcher = IMAGE_THUMBNAIL_EXTRACTOR_PATTERN.matcher(url);
+    public static String convertThumbnailUrlToFilenameOnDisk(HttpUrl url) {
+        Matcher matcher = IMAGE_THUMBNAIL_EXTRACTOR_PATTERN.matcher(url.toString());
         if (matcher.find()) {
             String filename = matcher.group(1);
             String extension = matcher.group(2);

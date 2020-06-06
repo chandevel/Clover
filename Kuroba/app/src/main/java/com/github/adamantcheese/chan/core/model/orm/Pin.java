@@ -19,8 +19,11 @@ package com.github.adamantcheese.chan.core.model.orm;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import okhttp3.HttpUrl;
 
 @DatabaseTable(tableName = "pin")
 public class Pin
@@ -49,8 +52,8 @@ public class Pin
     @DatabaseField
     public boolean isError = false;
 
-    @DatabaseField(canBeNull = false)
-    public String thumbnailUrl = "";
+    @DatabaseField(persisterClass = HttpUrlType.class)
+    public HttpUrl thumbnailUrl;
 
     @DatabaseField
     public int order = -1;
@@ -68,14 +71,14 @@ public class Pin
     }
 
     public Pin(
-            Loadable loadable,
+            @NonNull Loadable loadable,
             boolean watching,
             int watchLastCount,
             int watchNewCount,
             int quoteLastCount,
             int quoteNewCount,
             boolean isError,
-            String thumbnailUrl,
+            HttpUrl thumbnailUrl,
             int order,
             boolean archived,
             int pinType

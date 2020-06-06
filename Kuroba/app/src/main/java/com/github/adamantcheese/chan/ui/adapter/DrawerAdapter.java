@@ -398,13 +398,13 @@ public class DrawerAdapter
         }
 
         if (savedThread == null || !savedThread.isFullyDownloaded) {
-            holder.image.setUrl(HttpUrl.get(pin.thumbnailUrl), dp(48), dp(48));
+            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
             return;
         }
 
         String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
         if (filename == null || filename.isEmpty()) {
-            holder.image.setUrl(HttpUrl.get(pin.thumbnailUrl), dp(48), dp(48));
+            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
             return;
         }
 
@@ -450,8 +450,9 @@ public class DrawerAdapter
         }
 
         if (!(holder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat)) {
-            AnimatedVectorDrawableCompat downloadAnimation =
-                    AnimationUtils.createAnimatedDownloadIcon(context, getAttrColor(context, android.R.attr.textColorPrimary));
+            AnimatedVectorDrawableCompat downloadAnimation = AnimationUtils.createAnimatedDownloadIcon(context,
+                    getAttrColor(context, android.R.attr.textColorPrimary)
+            );
             holder.threadDownloadIcon.setImageDrawable(downloadAnimation);
 
             downloadAnimation.start();
