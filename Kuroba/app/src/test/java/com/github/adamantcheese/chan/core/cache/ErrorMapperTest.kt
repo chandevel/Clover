@@ -11,7 +11,7 @@ class ErrorMapperTest {
 
     @Test
     fun `FileNotFoundOnTheServerException must be mapped into FileDownloadResult KnownException`() {
-        val url = "test.com".toHttpUrl()
+        val url = "https://www.test.com/test.jpg".toHttpUrl()
         val activeDownloads = ActiveDownloads()
 
         val result = ErrorMapper.mapError(

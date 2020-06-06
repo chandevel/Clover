@@ -6,7 +6,6 @@ import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.JavaUtils
-import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.subscribers.TestSubscriber
@@ -290,7 +289,7 @@ class ConcurrentChunkedFileDownloaderTest {
 
                 assertTrue(errors.isEmpty())
                 assertEquals(1, completes.size)
-                assertEquals(11, events.size)
+                assertEquals(30, events.size)
 
                 assertTrue(events.first() is FileDownloadResult.Start)
                 assertTrue(events.last() is FileDownloadResult.Success)
@@ -322,7 +321,7 @@ class ConcurrentChunkedFileDownloaderTest {
 
                 assertTrue(errors.isEmpty())
                 assertEquals(1, completes.size)
-                assertEquals(30, events.size)
+                assertEquals(34, events.size)
 
                 assertTrue(events.first() is FileDownloadResult.Start)
                 assertTrue(events.last() is FileDownloadResult.Success)
@@ -369,14 +368,14 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                        PartialContentCheckResult(
-                                supportsPartialContentDownload = true,
-                                notFoundOnServer = false,
-                                length = fileSize
-                        ),
-                        url,
-                        true
-                )
+                PartialContentCheckResult(
+                        supportsPartialContentDownload = true,
+                        notFoundOnServer = false,
+                        length = fileSize
+                ),
+                url,
+                true
+        )
                 .test()
 
         func(url, output, request, testObserver)
@@ -396,14 +395,14 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                        PartialContentCheckResult(
-                                supportsPartialContentDownload = false,
-                                notFoundOnServer = false,
-                                length = -1
-                        ),
-                        url,
-                        true
-                )
+                PartialContentCheckResult(
+                        supportsPartialContentDownload = false,
+                        notFoundOnServer = false,
+                        length = -1
+                ),
+                url,
+                true
+        )
                 .test()
 
         func(url, output, request, testObserver)

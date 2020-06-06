@@ -19,11 +19,13 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okhttp3.internal.closeQuietly
+import org.apache.tools.ant.taskdefs.condition.Http
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers.*
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.shadows.ShadowLog
@@ -88,7 +90,7 @@ class ChunkPersisterTest {
             }
         }
                 .whenever(activeDownloads)
-                .updateDownloaded(url, anyInt(), anyLong())
+                .updateDownloaded(anyString().toHttpUrl(), anyInt(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
                 .observeOn(Schedulers.newThread())
@@ -180,7 +182,7 @@ class ChunkPersisterTest {
             assertArrayEquals(expectedBytes, actualBytes)
         }
 
-        assertEquals(14, progressEventsGrouped.values.map { it.count() }.sum())
+        assertEquals(30, progressEventsGrouped.values.map { it.count() }.sum())
         progressEventsGrouped.forEach { (chunkIndex, chunkProgressEvents) ->
             chunkProgressEvents.zipWithNext().forEach { (current, next) ->
                 assertEquals(chunkIndex, current.chunkIndex)
