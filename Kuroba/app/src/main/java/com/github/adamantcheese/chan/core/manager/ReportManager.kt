@@ -280,7 +280,6 @@ class ReportManager(
         require(description.isNotEmpty() || logs != null) { "description is empty" }
         require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
         require(description.length <= MAX_DESCRIPTION_LENGTH) { "description is too long ${description.length}" }
-        logs?.let { require(it.length <= MAX_LOGS_LENGTH) { "logs are too long" } }
 
         val request = ReportRequest(
                 buildFlavor = BuildConfig.FLAVOR,
@@ -288,7 +287,7 @@ class ReportManager(
                 osInfo = getOsInfo(),
                 title = title,
                 description = description,
-                logs = logs
+                logs = logs?.take(MAX_LOGS_LENGTH)
         )
 
         return sendInternal(request)

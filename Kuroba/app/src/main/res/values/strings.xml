@@ -794,7 +794,7 @@ Don't have a 4chan Pass?<br>
     <string name="report_controller_report_an_error_problem">Report an error/crash/other problem</string>
     <string name="report_controller_i_have_a_problem_with">I have a problem with:</string>
     <string name="report_controller_problem_description">Problem description:</string>
-    <string name="report_controller_attach_logs">Attach logs (you can remove parts you don\'t want to send)</string>
+    <string name="report_controller_attach_logs">Attach logs</string>
     <string name="report_controller_no_logs">No logs</string>
     <string name="report_controller_send_report">Send report</string>
     <string name="report_controller_title_cannot_be_empty_error">Title cannot be empty!</string>

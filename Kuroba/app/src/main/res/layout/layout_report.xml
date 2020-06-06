@@ -102,6 +102,7 @@
                         android:importantForAutofill="no"
                         android:inputType="none"
                         android:maxLength="65535"
+                        android:editable="false"
                         android:text="@string/report_controller_no_logs"
                         android:textSize="14sp"
                         tools:text="@string/lorem_ipsum" />
