@@ -16,12 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
@@ -268,7 +266,7 @@ public class DatabaseManager {
             try {
                 final T result = TransactionManager.callInTransaction(helper.getConnectionSource(), taskCallable);
                 if (taskResult != null) {
-                    new Handler(Looper.getMainLooper()).post(() -> taskResult.onComplete(result));
+                    BackgroundUtils.runOnMainThread(() -> taskResult.onComplete(result));
                 }
                 return result;
             } catch (Exception e) {

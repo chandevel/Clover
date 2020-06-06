@@ -24,8 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -60,6 +58,7 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
@@ -104,8 +103,6 @@ public class ThreadListLayout
     private boolean searchOpen;
     private int lastPostCount;
 
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
-
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
@@ -122,7 +119,7 @@ public class ThreadListLayout
 
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
                     // while in a layout pass. Postpone to the next frame.
-                    mainHandler.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
+                    BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
             }
         }

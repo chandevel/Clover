@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-import android.os.Handler;
-import android.os.Looper;
 import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;
@@ -47,6 +45,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
@@ -451,10 +450,9 @@ public abstract class CommonSite
             call.url(site.endpoints().reply(reply.loadable));
 
             if (requirePrepare()) {
-                Handler handler = new Handler(Looper.getMainLooper());
                 new Thread(() -> {
                     prepare(call, reply, replyResponse);
-                    handler.post(() -> {
+                    BackgroundUtils.runOnMainThread(() -> {
                         setupPost(reply, call);
                         makePostCall(call, replyResponse, postListener);
                     });
