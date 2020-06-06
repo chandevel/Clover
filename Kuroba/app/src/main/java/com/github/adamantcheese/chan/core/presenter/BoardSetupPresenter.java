@@ -30,10 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class BoardSetupPresenter
         implements Observer {
@@ -48,7 +49,6 @@ public class BoardSetupPresenter
 
     private BoardRepository.SitesBoards allBoardsObservable;
 
-    private Executor executor = Executors.newSingleThreadExecutor();
     private BackgroundUtils.Cancelable suggestionCall;
 
     private List<BoardSuggestion> suggestions = new ArrayList<>();
@@ -197,7 +197,7 @@ public class BoardSetupPresenter
         }
 
         final String query = suggestionsQuery == null ? null : suggestionsQuery.replace("/", "").replace("\\", "");
-        suggestionCall = BackgroundUtils.runWithExecutor(executor, () -> {
+        suggestionCall = BackgroundUtils.runWithExecutor(instance(ExecutorService.class), () -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
                 List<Board> siteBoards = boardManager.getSiteBoards(site);

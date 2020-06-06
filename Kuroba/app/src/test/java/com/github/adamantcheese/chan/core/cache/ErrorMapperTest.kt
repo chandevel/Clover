@@ -4,13 +4,14 @@ import com.github.adamantcheese.chan.core.cache.downloader.ActiveDownloads
 import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException
 import com.github.adamantcheese.chan.core.cache.downloader.FileDownloadResult
 import junit.framework.Assert.assertTrue
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.Test
 
 class ErrorMapperTest {
 
     @Test
     fun `FileNotFoundOnTheServerException must be mapped into FileDownloadResult KnownException`() {
-        val url = "test.com"
+        val url = "test.com".toHttpUrl()
         val activeDownloads = ActiveDownloads()
 
         val result = ErrorMapper.mapError(

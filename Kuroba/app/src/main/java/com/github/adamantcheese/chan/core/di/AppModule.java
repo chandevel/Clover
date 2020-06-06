@@ -36,6 +36,8 @@ import com.google.gson.Gson;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.inject.Singleton;
 
@@ -138,5 +140,11 @@ public class AppModule {
         Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
 
         return new Android10GesturesExclusionZonesHolder(gson, getMinScreenSize(), getMaxScreenSize());
+    }
+
+    @Provides
+    @Singleton
+    public ExecutorService provideSingleThreadExecutor() {
+        return Executors.newSingleThreadExecutor();
     }
 }

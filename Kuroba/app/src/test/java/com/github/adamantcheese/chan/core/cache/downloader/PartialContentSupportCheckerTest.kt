@@ -5,6 +5,7 @@ import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.file.RawFile
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import org.junit.After
@@ -49,7 +50,7 @@ class PartialContentSupportCheckerTest {
 
     @Test
     fun `test check for batch request should return supportsPartialContentDownload == false`() {
-        val url = "http://4chan.org/image1.jpg"
+        val url = "http://4chan.org/image1.jpg".toHttpUrl()
         val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
         val request = createFileDownloadRequest(url, isBatchDownload = true, file = output)
         activeDownloads.put(url, request)
@@ -78,7 +79,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
@@ -116,7 +117,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
@@ -151,7 +152,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
@@ -192,7 +193,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
@@ -227,7 +228,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)
@@ -259,7 +260,7 @@ class PartialContentSupportCheckerTest {
 
             server.start()
 
-            val url = server.url("/image1.jpg").toString()
+            val url = server.url("/image1.jpg")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, file = output)
             activeDownloads.put(url, request)

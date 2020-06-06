@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.adamantcheese.chan.Chan.instance;
@@ -48,6 +49,24 @@ public class BackgroundUtils {
 
     public static void runOnMainThread(Runnable runnable, long delay) {
         mainHandler.postDelayed(runnable, delay);
+    }
+
+    public static void runOnBackgroundThread(Runnable runnable) {
+        runOnMainThread(() -> {
+            try {
+                instance(ExecutorService.class).submit(runnable).get();
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    public static void runOnBackgroundThread(Runnable runnable, long delay) {
+        runOnMainThread(() -> {
+            try {
+                instance(ExecutorService.class).submit(runnable).get();
+            } catch (Exception ignored) {
+            }
+        }, delay);
     }
 
     private static boolean isMainThread() {

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
 import android.text.TextUtils
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
@@ -38,6 +39,7 @@ import java.io.FileReader
 import java.io.IOException
 import java.io.PrintWriter
 import java.util.*
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.atomic.AtomicBoolean
@@ -67,10 +69,9 @@ class CacheHandler(
         private val fileManager: FileManager,
         private val cacheDirFile: RawFile,
         private val chunksCacheDirFile: RawFile,
-        autoLoadThreadImages: Boolean
+        autoLoadThreadImages: Boolean,
+        private val executor: ExecutorService
 ) {
-    private val executor = Executors.newSingleThreadExecutor()
-
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
      * because the folder exceeds the maximum size.

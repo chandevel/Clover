@@ -35,7 +35,7 @@ public class ImageDecoder {
     public static void decodeFileOnBackgroundThread(
             final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback
     ) {
-        Thread thread = new Thread(() -> {
+        BackgroundUtils.runOnBackgroundThread(() -> {
             final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
             Bitmap videoBitmap = null;
             try {
@@ -70,7 +70,6 @@ public class ImageDecoder {
             final Bitmap finalVideoBitmap = videoBitmap;
             BackgroundUtils.runOnMainThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
         });
-        thread.start();
     }
 
     public interface ImageDecoderCallback {

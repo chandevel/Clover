@@ -13,6 +13,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.robolectric.RuntimeEnvironment
 import java.io.File
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class TestModule {
@@ -136,7 +137,8 @@ class TestModule {
                     provideFileManager(),
                     provideCacheDirFile(),
                     provideChunksCacheDirFile(),
-                    false
+                    false,
+                    Executors.newSingleThreadExecutor()
             )
         }
 

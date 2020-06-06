@@ -4,6 +4,8 @@ import com.github.adamantcheese.chan.core.cache.downloader.TestModule
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.After
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -40,7 +42,7 @@ class CacheHandlerTest {
 
     @Test
     fun `simple test create new cache file and mark it as downloaded`() {
-        val url = "http://4chan.org/image.jpg"
+        val url = "http://4chan.org/image.jpg".toHttpUrl()
         val cacheFile = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
         assertFalse(cacheHandler.isAlreadyDownloaded(cacheFile))
 
@@ -50,7 +52,7 @@ class CacheHandlerTest {
 
     @Test
     fun `test create new cache file and malform cache file meta should delete both files`() {
-        val url = "http://4chan.org/image.jpg"
+        val url = "http://4chan.org/image.jpg".toHttpUrl()
         val cacheFile = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
         val cacheFileMeta = cacheHandler.getCacheFileMetaInternal(url)
         val fileLength = fileManager.getLength(cacheFileMeta)
@@ -77,7 +79,7 @@ class CacheHandlerTest {
     @Test
     fun `clearCache method should delete all cache files with their meta from the cache dir`() {
         repeat(10) { index ->
-            val url = "http://4chan.org/image$index.jpg"
+            val url = "http://4chan.org/image$index.jpg".toHttpUrl()
             val cacheFile = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
             assertFalse(cacheHandler.isAlreadyDownloaded(cacheFile))
 

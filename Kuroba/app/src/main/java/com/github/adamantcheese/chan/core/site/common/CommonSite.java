@@ -450,13 +450,13 @@ public abstract class CommonSite
             call.url(site.endpoints().reply(reply.loadable));
 
             if (requirePrepare()) {
-                new Thread(() -> {
+               BackgroundUtils.runOnBackgroundThread(() -> {
                     prepare(call, reply, replyResponse);
                     BackgroundUtils.runOnMainThread(() -> {
                         setupPost(reply, call);
                         makePostCall(call, replyResponse, postListener);
                     });
-                }).start();
+                });
             } else {
                 setupPost(reply, call);
                 makePostCall(call, replyResponse, postListener);

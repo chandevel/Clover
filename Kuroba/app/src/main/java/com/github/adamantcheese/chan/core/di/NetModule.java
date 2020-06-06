@@ -37,6 +37,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -63,7 +64,8 @@ public class NetModule {
     @Provides
     @Singleton
     public CacheHandler provideCacheHandler(
-            FileManager fileManager
+            FileManager fileManager,
+            ExecutorService executor
     ) {
         Logger.d(AppModule.DI_TAG, "Cache handler");
 
@@ -71,7 +73,7 @@ public class NetModule {
         RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
         RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
 
-        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile, ChanSettings.autoLoadThreadImages.get());
+        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile, ChanSettings.autoLoadThreadImages.get(), executor);
     }
 
     @Provides

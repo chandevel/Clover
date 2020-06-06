@@ -5,9 +5,12 @@ import com.github.adamantcheese.chan.core.cache.PartialContentOkHttpDispatcher
 import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
+import com.github.adamantcheese.chan.utils.JavaUtils
+import com.github.adamantcheese.chan.utils.StringUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.subscribers.TestSubscriber
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -122,7 +125,7 @@ class ConcurrentChunkedFileDownloaderTest {
 
     @Test
     fun `test enqueue four multi chunk requests and cancel two of the should only download the two not canceled images`() {
-        data class ExtraInfo(val imageName: String, val url: String, val output: RawFile)
+        data class ExtraInfo(val imageName: String, val url: HttpUrl, val output: RawFile)
         data class ResultData(
                 val events: List<Any>,
                 val errors: List<Any>,
@@ -152,7 +155,7 @@ class ConcurrentChunkedFileDownloaderTest {
 
             // Start 4 requests
             val testObservers = imageNameList.map { imageName ->
-                val url = server.url("/${imageName}").toString()
+                val url = server.url("/${imageName}")
                 val output = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
                 val request = createFileDownloadRequest(url, chunksCount = chunksCount, file = output)
                 activeDownloads.put(url, request)
@@ -237,7 +240,7 @@ class ConcurrentChunkedFileDownloaderTest {
                 // Find only file related to the current request since there will be 8 of them instead
                 // of two
                 val cacheFiles = fileManager.listFiles(cacheDirFile).filter { file ->
-                    return@filter fileManager.getName(file).contains(cacheHandler.hashUrl(extraInfo.url))
+                    return@filter fileManager.getName(file).contains(JavaUtils.stringMD5hash(extraInfo.url.toString()))
                 }
 
                 // Check that they are find
@@ -336,7 +339,7 @@ class ConcurrentChunkedFileDownloaderTest {
         }
     }
 
-    private fun checkCacheFilesAreOk(output: RawFile, url: String) {
+    private fun checkCacheFilesAreOk(output: RawFile, url: HttpUrl) {
         val cacheFiles = fileManager.listFiles(cacheDirFile)
         assertEquals(2, cacheFiles.size)
         assertTrue(fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION))
@@ -355,12 +358,12 @@ class ConcurrentChunkedFileDownloaderTest {
             fileSize: Long,
             chunksCount: Int,
             imageName: String,
-            func: (String, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
+            func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
     ) {
         server.dispatcher = PartialContentOkHttpDispatcher()
         server.start()
 
-        val url = server.url("/${imageName}").toString()
+        val url = server.url("/${imageName}")
         val output = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
         val request = createFileDownloadRequest(url, chunksCount = chunksCount, file = output)
         activeDownloads.put(url, request)
@@ -382,12 +385,12 @@ class ConcurrentChunkedFileDownloaderTest {
     private fun singleChunkTestProlog(
             server: MockWebServer,
             response: MockResponse,
-            func: (String, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
+            func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
     ) {
         server.enqueue(response)
         server.start()
 
-        val url = server.url("/image1.jpg").toString()
+        val url = server.url("/image1.jpg")
         val output = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
         val request = createFileDownloadRequest(url, chunksCount = 1, file = output)
         activeDownloads.put(url, request)

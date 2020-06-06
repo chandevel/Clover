@@ -11,6 +11,8 @@ import com.nhaarman.mockitokotlin2.spy
 import com.nhaarman.mockitokotlin2.whenever
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.Protocol
 import okhttp3.Request
@@ -66,7 +68,7 @@ class ChunkPersisterTest {
 
     @Test
     fun `test try store two chunks one chunk fails`() {
-        val url = "http://testUrl.com/123.jpg"
+        val url = "http://testUrl.com/123.jpg".toHttpUrl()
         val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
@@ -86,7 +88,7 @@ class ChunkPersisterTest {
             }
         }
                 .whenever(activeDownloads)
-                .updateDownloaded(anyString(), anyInt(), anyLong())
+                .updateDownloaded(url, anyInt(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
                 .observeOn(Schedulers.newThread())
@@ -126,7 +128,7 @@ class ChunkPersisterTest {
 
     @Test
     fun `test store two chunks on the disk both succeed`() {
-        val url = "http://testUrl.com/123.jpg"
+        val url = "http://testUrl.com/123.jpg".toHttpUrl()
         val fileBytes = javaClass.classLoader!!.getResourceAsStream("test_img1.jpg").readBytes()
         val chunksCount = 2
         val chunks = chunkLong(fileBytes.size.toLong(), chunksCount, MIN_CHUNK_SIZE)
@@ -198,7 +200,7 @@ class ChunkPersisterTest {
 
     @Test
     fun `test server returns 404 for a chunk`() {
-        val url = "http://testUrl.com/123.jpg"
+        val url = "http://testUrl.com/123.jpg".toHttpUrl()
         val chunksCount = 1
         val chunkResponse = create404ChunkResponse(url)
         val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
@@ -227,7 +229,7 @@ class ChunkPersisterTest {
         assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
     }
 
-    private fun create404ChunkResponse(url: String): ChunkResponse {
+    private fun create404ChunkResponse(url: HttpUrl): ChunkResponse {
         val request = with(Request.Builder()) {
             url(url)
             build()
@@ -244,7 +246,7 @@ class ChunkPersisterTest {
         return ChunkResponse(Chunk.wholeFile(), badResponse)
     }
 
-    private fun createChunkResponses(url: String, chunks: List<Chunk>, fileBytes: ByteArray): List<ChunkResponse> {
+    private fun createChunkResponses(url: HttpUrl, chunks: List<Chunk>, fileBytes: ByteArray): List<ChunkResponse> {
         return chunks.map { chunk ->
             val chunkBytes = fileBytes.sliceArray(chunk.start.toInt() until chunk.realEnd.toInt())
             val response = createResponse(url, chunkBytes)
@@ -253,7 +255,7 @@ class ChunkPersisterTest {
         }
     }
 
-    private fun createResponse(url: String, fileBytes: ByteArray): Response {
+    private fun createResponse(url: HttpUrl, fileBytes: ByteArray): Response {
         val request = with(Request.Builder()) {
             url(url)
             build()

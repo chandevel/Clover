@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import okhttp3.Call;
@@ -96,7 +97,7 @@ public class ImageLoaderV2 {
             throws Exception {
         BackgroundUtils.ensureMainThread();
 
-        return Executors.newSingleThreadExecutor().submit(() -> {
+        return instance(ExecutorService.class).submit(() -> {
             FileManager fileManager = instance(FileManager.class);
             try {
                 if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {

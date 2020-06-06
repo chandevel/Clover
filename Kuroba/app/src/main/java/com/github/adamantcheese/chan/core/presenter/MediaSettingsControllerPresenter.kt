@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.presenter
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegateCallbacks
@@ -17,6 +18,7 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.TraverseMode
 import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback
 import com.github.k1rakishou.fsaf.file.AbstractFile
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class MediaSettingsControllerPresenter(
@@ -24,7 +26,6 @@ class MediaSettingsControllerPresenter(
         private val fileChooser: FileChooser,
         private var context: Context
 ) {
-    private val fileCopyingExecutor = Executors.newSingleThreadExecutor()
     private var callbacks: SharedLocationSetupDelegateCallbacks? = null
 
     fun onCreate(callbacks: SharedLocationSetupDelegateCallbacks) {
@@ -33,7 +34,6 @@ class MediaSettingsControllerPresenter(
 
     fun onDestroy() {
         callbacks = null
-        fileCopyingExecutor.shutdown()
     }
 
     /**
@@ -225,7 +225,7 @@ class MediaSettingsControllerPresenter(
             oldBaseDirectory: AbstractFile,
             newBaseDirectory: AbstractFile
     ) {
-        fileCopyingExecutor.execute {
+        instance(ExecutorService::class.java).execute {
             val result = fileManager.copyDirectoryWithContent(
                     oldBaseDirectory,
                     newBaseDirectory,

@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
 import android.net.ConnectivityManager
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
@@ -30,6 +31,7 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
@@ -63,7 +65,6 @@ class FileCacheV2(
 
     private val chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt()
     private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
-    private val requestCancellationThread = Executors.newSingleThreadExecutor()
     private val verboseLogs = ChanSettings.verboseLogs.get()
 
     private val normalThreadIndex = AtomicInteger(0)
@@ -447,7 +448,7 @@ class FileCacheV2(
 
             val cancelableDownload = CancelableDownload(
                     url = url,
-                    requestCancellationThread = requestCancellationThread,
+                    requestCancellationThread = instance(ExecutorService::class.java),
                     downloadType = CancelableDownload.DownloadType(isPrefetchDownload, isGalleryBatchDownload)
             )
 

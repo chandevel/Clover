@@ -74,13 +74,14 @@ public class ImagePickDelegate {
     FileManager fileManager;
     @Inject
     FileCacheV2 fileCacheV2;
+    @Inject
+    ExecutorService executor;
 
     private Activity activity;
     private ImagePickCallback callback;
     private Uri uri;
     private String fileName = "";
     private boolean success = false;
-    private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Nullable
     private CancelableDownload cancelableDownload;

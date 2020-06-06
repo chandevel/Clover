@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.schedulers.Schedulers
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import org.junit.After
@@ -62,7 +63,7 @@ class ChunkDownloaderTest {
             server.dispatcher = PartialContentOkHttpDispatcher()
             server.start()
 
-            val url = server.url("/${imageName}").toString()
+            val url = server.url("/${imageName}")
             val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
             val request = createFileDownloadRequest(url, chunks.size, file = output)
             activeDownloads.put(url, request)
@@ -105,7 +106,7 @@ class ChunkDownloaderTest {
     fun `test should not download anything when request is canceled`() {
         withServer { server ->
             val imageName = "test_img1.jpg"
-            val url = server.url("/${imageName}").toString()
+            val url = server.url("/${imageName}")
             val chunk = Chunk(999, 9999)
             val chunksCount = 4
 
