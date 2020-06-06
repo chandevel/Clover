@@ -150,27 +150,14 @@ public class NetModule {
     }
 
     //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
-    public class ProxiedOkHttpClient
+    public static class ProxiedOkHttpClient
             extends OkHttpClient {
-        private OkHttpClient proxiedClient;
-
         public ProxiedOkHttpClient(Builder builder) {
             super(builder);
         }
 
         public OkHttpClient getProxiedClient() {
-            if (proxiedClient == null) {
-
-                // Proxies are usually slow, so they have increased timeouts
-                proxiedClient = newBuilder().proxy(ChanSettings.getProxy())
-                        .connectTimeout(30, SECONDS)
-                        .readTimeout(30, SECONDS)
-                        .writeTimeout(30, SECONDS)
-                        .protocols(getOkHttpProtocols())
-                        .dns(getOkHttpDnsSelector())
-                        .build();
-            }
-            return proxiedClient;
+            return newBuilder().proxy(ChanSettings.getProxy()).build();
         }
     }
 }

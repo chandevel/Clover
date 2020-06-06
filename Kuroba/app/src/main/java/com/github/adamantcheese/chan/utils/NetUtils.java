@@ -24,6 +24,7 @@ import org.jsoup.nodes.Document;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -40,7 +41,7 @@ public class NetUtils {
     private static final String TAG = "NetUtils";
     private static final BitmapLruCache imageCache =
             new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (1024 * 8)));
-            // max 1/8th of runtime memory for cache
+    // max 1/8th of runtime memory for cache
 
     public static void makeHttpCall(
             HttpCall httpCall, HttpCallback<? extends HttpCall> callback
@@ -96,7 +97,9 @@ public class NetUtils {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() != 200) {
-                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new HttpCodeException(response.code())));
+                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap,
+                            new HttpCodeException(response.code())
+                    ));
                     response.close();
                     return;
                 }
@@ -105,7 +108,9 @@ public class NetUtils {
                     //noinspection ConstantConditions
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
                     if (bitmap == null) {
-                        BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null")));
+                        BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap,
+                                new NullPointerException("Bitmap returned is null")
+                        ));
                         return;
                     }
                     imageCache.put(url, bitmap);
@@ -163,7 +168,10 @@ public class NetUtils {
     }
 
     public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
-        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(ProxiedOkHttpClient.class).newBuilder()
+                .callTimeout(2500, TimeUnit.MILLISECONDS)
+                .build()
+                .newCall(new Request.Builder().url(url).build());
         try (Response response = call.execute()) {
             if (response.code() != 200) {
                 Logger.e(TAG, "Response code was not OK:" + response.code());
