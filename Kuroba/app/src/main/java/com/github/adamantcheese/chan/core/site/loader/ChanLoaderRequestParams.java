@@ -31,8 +31,6 @@ public class ChanLoaderRequestParams {
      */
     public final Loadable loadable;
 
-    public final ChanReader chanReader;
-
     /**
      * Cached Post objects from previous loads, or an empty list.
      */
@@ -40,7 +38,6 @@ public class ChanLoaderRequestParams {
 
     public ChanLoaderRequestParams(Loadable loadable, List<Post> cached) {
         this.loadable = loadable;
-        this.chanReader = loadable.getSite().chanReader();
         this.cached = cached;
     }
 }

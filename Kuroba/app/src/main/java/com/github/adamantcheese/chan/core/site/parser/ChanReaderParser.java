@@ -84,7 +84,7 @@ public class ChanReaderParser
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
         loadable = request.loadable.clone();
         cached = new ArrayList<>(request.cached);
-        reader = request.chanReader;
+        reader = loadable.getSite().chanReader();
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();

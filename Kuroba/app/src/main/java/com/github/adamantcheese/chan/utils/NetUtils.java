@@ -137,13 +137,13 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error with request: ", e);
-                result.onJsonFailure(e);
+                BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(e));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() != 200) {
-                    result.onJsonFailure(new HttpCodeException(response.code()));
+                    BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new HttpCodeException(response.code())));
                     response.close();
                     return;
                 }
@@ -153,13 +153,14 @@ public class NetUtils {
                         .bytes()), UTF_8))) {
                     T read = parser.parse(jsonReader);
                     if (read != null) {
-                        result.onJsonSuccess(read);
+                        BackgroundUtils.runOnMainThread(() -> result.onJsonSuccess(read));
                     } else {
-                        result.onJsonFailure(new MalformedJsonException("Json parse returned null object"));
+                        BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(
+                                "Json parse returned null object")));
                     }
                 } catch (Exception e) {
                     Logger.e(TAG, "Error parsing JSON: ", e);
-                    result.onJsonFailure(new MalformedJsonException(e.getMessage()));
+                    BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(e.getMessage())));
                 }
                 response.close();
             }
