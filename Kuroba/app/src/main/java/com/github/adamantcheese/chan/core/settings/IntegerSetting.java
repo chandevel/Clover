@@ -27,13 +27,11 @@ public class IntegerSetting
 
     @Override
     public Integer get() {
-        if (hasCached) {
-            return cached;
-        } else {
+        if (!hasCached) {
             cached = settingProvider.getInt(key, def);
             hasCached = true;
-            return cached;
         }
+        return cached;
     }
 
     @Override

@@ -292,7 +292,7 @@ public class DatabaseHelper
                 ChanSettings.parseYoutubeTitles.set(false);
 
                 //remove arisuchan boards that don't exist anymore
-                Where where = boardsDao.queryBuilder().where();
+                Where<Board, Integer> where = boardsDao.queryBuilder().where();
                 where.and(where.eq("site", 3), where.or(
                         where.eq("value", "cyb"),
                         where.eq("value", "feels"),
@@ -353,7 +353,7 @@ public class DatabaseHelper
         if (oldVersion < 42) {
             try {
                 //remove wired-7 boards that don't exist anymore
-                Where where = boardsDao.queryBuilder().where();
+                Where<Board, Integer> where = boardsDao.queryBuilder().where();
                 where.and(where.eq("site", 6), where.eq("value", "18"));
                 List<Board> toRemove = where.query();
                 for (Board b : toRemove) {
@@ -484,7 +484,7 @@ public class DatabaseHelper
         }
 
         //boards
-        DeleteBuilder boardDelete = boardsDao.deleteBuilder();
+        DeleteBuilder<Board, Integer> boardDelete = boardsDao.deleteBuilder();
         boardDelete.where().eq("site", toDelete.id);
         boardDelete.delete();
 
@@ -613,7 +613,7 @@ public class DatabaseHelper
         threadHideDelete.delete();
 
         //board itself
-        DeleteBuilder boardDelete = boardsDao.deleteBuilder();
+        DeleteBuilder<Board, Integer> boardDelete = boardsDao.deleteBuilder();
         boardDelete.where().eq("site", board.siteId).and().eq("value", board.code);
         boardDelete.delete();
     }
@@ -625,15 +625,14 @@ public class DatabaseHelper
      * @param <T>  the type of the setting, should extend Setting
      * @return the setting requested, or null
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getSettingForKey(SettingProvider p, String key, Class<T> type) {
         if (!Setting.class.isAssignableFrom(type)) return null;
         try {
-            Constructor c = type.getConstructor(SettingProvider.class, String.class, type);
+            Constructor<T> c = type.getConstructor(SettingProvider.class, String.class, type);
             c.setAccessible(true);
-            Object returnSetting = c.newInstance(p, key, null);
+            T returnSetting = c.newInstance(p, key, null);
             c.setAccessible(false);
-            return (T) returnSetting;
+            return returnSetting;
         } catch (Exception failedSomething) {
             Logger.e(TAG, "Reflection failed", failedSomething);
             return null;

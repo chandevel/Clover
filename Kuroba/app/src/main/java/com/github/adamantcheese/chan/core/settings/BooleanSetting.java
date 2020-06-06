@@ -27,13 +27,11 @@ public class BooleanSetting
 
     @Override
     public Boolean get() {
-        if (hasCached) {
-            return cached;
-        } else {
+        if (!hasCached) {
             cached = settingProvider.getBoolean(key, def);
             hasCached = true;
-            return cached;
         }
+        return cached;
     }
 
     @Override

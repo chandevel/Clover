@@ -199,7 +199,6 @@ public class ImageSaveTask
             if (share) {
                 destination =
                         instance(CacheHandler.class).renameCacheFile(source, postImage.filename, postImage.extension);
-                return true;
             } else {
                 AbstractFile createdDestinationFile = fileManager.create(destination);
                 if (createdDestinationFile == null) {
@@ -213,9 +212,8 @@ public class ImageSaveTask
                 if (!fileManager.copyFileContents(source, createdDestinationFile)) {
                     throw new IOException("Could not copy source file into destination");
                 }
-
-                return true;
             }
+            return true;
         } catch (Throwable e) {
             boolean exists = fileManager.exists(destination);
             boolean canWrite = fileManager.canWrite(destination);

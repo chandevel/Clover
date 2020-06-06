@@ -339,14 +339,12 @@ public class StartActivity
                                 ThreadSlideController slideNav = (ThreadSlideController) controller;
                                 if (slideNav.getRightController() instanceof ViewThreadController) {
                                     ((ViewThreadController) slideNav.getRightController()).loadThread(pin.loadable);
-                                    slideNav.switchToController(false);
-                                    break;
                                 } else {
                                     ViewThreadController v = new ViewThreadController(this, pin.loadable);
                                     slideNav.setRightController(v);
-                                    slideNav.switchToController(false);
-                                    break;
                                 }
+                                slideNav.switchToController(false);
+                                break;
                             }
                         }
                     }

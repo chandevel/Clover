@@ -48,7 +48,7 @@ public class RuntimePermissionsHelper {
         return ContextCompat.checkSelfPermission(getAppContext(), permission) == PackageManager.PERMISSION_GRANTED;
     }
 
-    public boolean requestPermission(String permission, Callback callback) {
+    public void requestPermission(String permission, Callback callback) {
         if (pendingCallback == null) {
             pendingCallback = new CallbackHolder();
             pendingCallback.callback = callback;
@@ -58,10 +58,6 @@ public class RuntimePermissionsHelper {
                     new String[]{permission},
                     RUNTIME_PERMISSION_RESULT_ID
             );
-
-            return true;
-        } else {
-            return false;
         }
     }
 

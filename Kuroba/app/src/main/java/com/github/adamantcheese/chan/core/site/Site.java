@@ -156,7 +156,7 @@ public interface Site {
 
     boolean boardFeature(BoardFeature boardFeature, Board board);
 
-    List<SiteSetting> settings();
+    List<SiteSetting<?>> settings();
 
     SiteEndpoints endpoints();
 

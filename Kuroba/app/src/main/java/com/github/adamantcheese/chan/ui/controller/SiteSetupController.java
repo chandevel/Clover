@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
 import com.github.adamantcheese.chan.core.settings.OptionsSetting;
@@ -29,6 +27,7 @@ import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
@@ -103,26 +102,28 @@ public class SiteSetupController
         loginLink.setDescription(text);
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
-    public void showSettings(List<SiteSetting> settings) {
+    public void showSettings(List<SiteSetting<?>> settings) {
         SettingsGroup group = new SettingsGroup("Additional settings");
 
-        for (SiteSetting setting : settings) {
+        for (SiteSetting<?> setting : settings) {
             switch (setting.type) {
                 case OPTIONS:
                     // Turn the SiteSetting for a list of options into a proper setting with a
                     // name and a list of options, both given in the SiteSetting.
                     OptionsSetting optionsSetting = (OptionsSetting) setting.setting;
 
-                    List<ListSettingView.Item<Enum>> items = new ArrayList<>();
+                    List<Item<Enum>> items = new ArrayList<>();
                     Enum[] settingItems = optionsSetting.getItems();
                     for (int i = 0; i < settingItems.length; i++) {
                         String name = setting.optionNames.get(i);
                         Enum anEnum = settingItems[i];
-                        items.add(new ListSettingView.Item<>(name, anEnum));
+                        items.add(new Item<>(name, anEnum));
                     }
 
-                    ListSettingView<?> v = getListSettingView(setting, optionsSetting, items);
+                    //noinspection unchecked
+                    ListSettingView<?> v = new ListSettingView<>(this, optionsSetting, setting.name, items);
 
                     group.add(v);
                     break;
@@ -137,15 +138,6 @@ public class SiteSetupController
         }
 
         groups.add(group);
-    }
-
-    @SuppressWarnings("unchecked")
-    @NonNull
-    private ListSettingView<?> getListSettingView(
-            SiteSetting setting, OptionsSetting optionsSetting, List<ListSettingView.Item<Enum>> items
-    ) {
-        // we know it's an enum
-        return (ListSettingView<?>) new ListSettingView(this, optionsSetting, setting.name, items);
     }
 
     @Override

@@ -77,6 +77,7 @@ public class NavigationItem {
         return menu == null ? null : menu.findSubItem(id);
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class MenuBuilder {
         private final NavigationItem navigationItem;
         private final ToolbarMenu menu;
@@ -126,6 +127,7 @@ public class NavigationItem {
         }
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class MenuOverflowBuilder {
         private final MenuBuilder menuBuilder;
         private final ToolbarMenuItem menuItem;

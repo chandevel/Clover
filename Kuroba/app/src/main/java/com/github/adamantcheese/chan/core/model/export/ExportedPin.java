@@ -50,7 +50,7 @@ public class ExportedPin {
     @Nullable
     private ExportedLoadable exportedLoadable;
     @SerializedName("pin_type")
-    private int pinType = -1;
+    private int pinType;
 
     public ExportedPin(
             boolean archived,

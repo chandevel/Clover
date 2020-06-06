@@ -83,7 +83,7 @@ public abstract class SiteBase
     }
 
     @Override
-    public List<SiteSetting> settings() {
+    public List<SiteSetting<?>> settings() {
         return new ArrayList<>();
     }
 

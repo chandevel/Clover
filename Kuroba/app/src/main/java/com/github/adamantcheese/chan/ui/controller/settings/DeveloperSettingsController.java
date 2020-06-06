@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.core.manager.WakeManager.Wakeable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
@@ -174,7 +175,8 @@ public class DeveloperSettingsController
                 WakeManager wakeManager = instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
-                for (WakeManager.Wakeable wakeable : (Set<WakeManager.Wakeable>) wakeables.get(wakeManager)) {
+                //noinspection ConstantConditions,unchecked,unchecked
+                for (Wakeable wakeable : (Set<Wakeable>) wakeables.get(wakeManager)) {
                     wakeable.onWake();
                 }
                 showToast(context, "Woke all wakeables");

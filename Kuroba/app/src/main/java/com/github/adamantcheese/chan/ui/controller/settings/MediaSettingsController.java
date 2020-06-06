@@ -29,6 +29,8 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.ImageClickPreloadStrategy;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode;
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController;
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SaveLocationSetupDelegate;
@@ -38,6 +40,7 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -69,8 +72,8 @@ public class MediaSettingsController
     private BooleanSettingView headsetDefaultMutedSetting;
     private LinkSettingView saveLocation;
     private LinkSettingView localThreadsLocation;
-    private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
-    private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
+    private ListSettingView<MediaAutoLoadMode> imageAutoLoadView;
+    private ListSettingView<MediaAutoLoadMode> videoAutoLoadView;
     private BooleanSettingView incrementalThreadDownloadingSetting;
 
     private MediaSettingsControllerPresenter presenter;
@@ -255,12 +258,12 @@ public class MediaSettingsController
     }
 
     private void setupImagePreloadStrategySetting(SettingsGroup preloading) {
-        List<ListSettingView.Item> items = new ArrayList<>();
-        for (ChanSettings.ImageClickPreloadStrategy setting : ChanSettings.ImageClickPreloadStrategy.values()) {
-            items.add(new ListSettingView.Item<>(setting.getKey(), setting));
+        List<Item<ImageClickPreloadStrategy>> items = new ArrayList<>();
+        for (ImageClickPreloadStrategy setting : ImageClickPreloadStrategy.values()) {
+            items.add(new Item<>(setting.getKey(), setting));
         }
 
-        preloading.add(new ListSettingView<ChanSettings.ImageClickPreloadStrategy>(this,
+        preloading.add(new ListSettingView<ImageClickPreloadStrategy>(this,
                 ChanSettings.imageClickPreloadStrategy,
                 getString(R.string.media_settings_image_click_preload_strategy_name),
                 items
@@ -362,9 +365,9 @@ public class MediaSettingsController
     }
 
     private void setupMediaLoadTypesSetting(SettingsGroup loading) {
-        List<ListSettingView.Item> imageAutoLoadTypes = new ArrayList<>();
-        List<ListSettingView.Item> videoAutoLoadTypes = new ArrayList<>();
-        for (ChanSettings.MediaAutoLoadMode mode : ChanSettings.MediaAutoLoadMode.values()) {
+        List<Item<MediaAutoLoadMode>> imageAutoLoadTypes = new ArrayList<>();
+        List<Item<MediaAutoLoadMode>> videoAutoLoadTypes = new ArrayList<>();
+        for (MediaAutoLoadMode mode : MediaAutoLoadMode.values()) {
             int name = 0;
             switch (mode) {
                 case ALL:
@@ -378,8 +381,8 @@ public class MediaSettingsController
                     break;
             }
 
-            imageAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
-            videoAutoLoadTypes.add(new ListSettingView.Item<>(getString(name), mode));
+            imageAutoLoadTypes.add(new Item<>(getString(name), mode));
+            videoAutoLoadTypes.add(new Item<>(getString(name), mode));
         }
 
         imageAutoLoadView = new ListSettingView<>(this,
@@ -401,8 +404,8 @@ public class MediaSettingsController
 
     //region Setting update methods
     private void updateVideoLoadModes() {
-        ChanSettings.MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
-        ChanSettings.MediaAutoLoadMode[] modes = ChanSettings.MediaAutoLoadMode.values();
+        MediaAutoLoadMode currentImageLoadMode = ChanSettings.imageAutoLoadNetwork.get();
+        MediaAutoLoadMode[] modes = MediaAutoLoadMode.values();
         boolean enabled = false;
         boolean resetVideoMode = false;
         for (int i = 0; i < modes.length; i++) {

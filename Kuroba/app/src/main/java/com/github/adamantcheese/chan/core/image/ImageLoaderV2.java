@@ -33,7 +33,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
 public class ImageLoaderV2 {
     private static final String TAG = "ImageLoaderV2";
 
-    public static Call getImage(
+    public static void getImage(
             Loadable loadable, PostImage postImage, int width, int height, @NonNull NetUtils.BitmapResult imageListener
     ) {
         BackgroundUtils.ensureMainThread();
@@ -62,7 +62,7 @@ public class ImageLoaderV2 {
             }
 
             try {
-                return getFromDisk(
+                getFromDisk(
                         loadable,
                         formattedName,
                         postImage.spoiler(),
@@ -72,10 +72,10 @@ public class ImageLoaderV2 {
                         () -> doFallback(postImage, imageListener, width, height)
                 );
             } catch (Exception e) {
-                return doFallback(postImage, imageListener, width, height);
+                doFallback(postImage, imageListener, width, height);
             }
         } else {
-            return doFallback(postImage, imageListener, width, height);
+            doFallback(postImage, imageListener, width, height);
         }
     }
 

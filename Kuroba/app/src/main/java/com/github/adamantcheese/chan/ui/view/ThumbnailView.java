@@ -207,6 +207,7 @@ public class ThumbnailView
         int width = getWidth() - getPaddingLeft() - getPaddingRight();
         int height = getHeight() - getPaddingTop() - getPaddingBottom();
 
+        //noinspection IfStatementWithIdenticalBranches
         if (error) {
             canvas.save();
 

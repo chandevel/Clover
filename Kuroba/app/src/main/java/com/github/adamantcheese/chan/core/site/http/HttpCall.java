@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site.http;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.site.Site;
@@ -44,6 +45,7 @@ public abstract class HttpCall
     private Site site;
 
     private Handler handler = new Handler(Looper.getMainLooper());
+    @SuppressWarnings("rawtypes")
     private HttpCallback callback;
     private Exception exception;
 
@@ -62,7 +64,7 @@ public abstract class HttpCall
     }
 
     @Override
-    public void onResponse(Call call, Response response) {
+    public void onResponse(@NonNull Call call, @NonNull Response response) {
         try (ResponseBody body = response.body()) {
             if (body != null) {
                 String responseString = body.string();
@@ -83,7 +85,7 @@ public abstract class HttpCall
     }
 
     @Override
-    public void onFailure(Call call, IOException e) {
+    public void onFailure(@NonNull Call call, @NonNull IOException e) {
         Logger.e(this, "onFailure", e);
         callFail(e);
     }

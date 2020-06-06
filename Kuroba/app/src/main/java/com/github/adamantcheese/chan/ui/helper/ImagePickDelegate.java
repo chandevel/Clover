@@ -192,9 +192,9 @@ public class ImagePickDelegate {
                 });
     }
 
-    public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (callback == null || requestCode != IMAGE_PICK_RESULT) {
-            return false;
+            return;
         }
 
         boolean ok = false;
@@ -231,8 +231,6 @@ public class ImagePickDelegate {
             callback.onFilePickError(canceled);
             reset();
         }
-
-        return true;
     }
 
     @Nullable

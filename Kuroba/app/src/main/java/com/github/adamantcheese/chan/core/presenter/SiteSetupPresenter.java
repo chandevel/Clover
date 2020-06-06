@@ -29,7 +29,7 @@ public class SiteSetupPresenter {
             callback.showLogin();
         }
 
-        List<SiteSetting> settings = site.settings();
+        List<SiteSetting<?>> settings = site.settings();
         if (!settings.isEmpty()) {
             callback.showSettings(settings);
         }
@@ -54,6 +54,6 @@ public class SiteSetupPresenter {
 
         void setIsLoggedIn(boolean isLoggedIn);
 
-        void showSettings(List<SiteSetting> settings);
+        void showSettings(List<SiteSetting<?>> settings);
     }
 }

@@ -35,20 +35,20 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class ListSettingView<T>
         extends SettingView
         implements FloatingMenu.FloatingMenuCallback, View.OnClickListener {
-    public final List<Item> items;
+    public final List<Item<T>> items;
 
     public int selected;
 
     private Setting<T> setting;
 
     public ListSettingView(
-            SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, String[] keys
+            SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, T[] keys
     ) {
         this(settingsController, setting, getString(name), itemNames, keys);
     }
 
     public ListSettingView(
-            SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, String[] keys
+            SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, T[] keys
     ) {
         super(settingsController, name);
 
@@ -62,19 +62,21 @@ public class ListSettingView<T>
         updateSelection();
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, Item[] items) {
+    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, Item<T>[] items) {
         this(settingsController, setting, getString(name), items);
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, List<Item> items) {
+    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, List<Item<T>> items) {
         this(settingsController, setting, getString(name), items);
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, String name, Item[] items) {
+    public ListSettingView(SettingsController settingsController, Setting<T> setting, String name, Item<T>[] items) {
         this(settingsController, setting, name, Arrays.asList(items));
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, String name, List<Item> items) {
+    public ListSettingView(
+            SettingsController settingsController, Setting<T> setting, String name, List<Item<T>> items
+    ) {
         super(settingsController, name);
         this.setting = setting;
         this.items = items;
@@ -109,8 +111,8 @@ public class ListSettingView<T>
     @Override
     public void onClick(View v) {
         List<FloatingMenuItem> menuItems = new ArrayList<>(items.size());
-        for (Item item : items) {
-            if(item.enabled) {
+        for (Item<?> item : items) {
+            if (item.enabled) {
                 menuItems.add(new FloatingMenuItem(item.key, item.name));
             }
         }

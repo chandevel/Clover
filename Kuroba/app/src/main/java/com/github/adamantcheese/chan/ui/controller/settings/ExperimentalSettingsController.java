@@ -19,6 +19,7 @@ import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesCo
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
@@ -116,10 +117,10 @@ public class ExperimentalSettingsController
     }
 
     private void setupConcurrentFileDownloadingChunksSetting(SettingsGroup group) {
-        List<ListSettingView.Item> items = new ArrayList<>();
+        List<Item<ConcurrentFileDownloadingChunks>> items = new ArrayList<>();
 
         for (ConcurrentFileDownloadingChunks setting : ConcurrentFileDownloadingChunks.values()) {
-            items.add(new ListSettingView.Item<>(setting.getKey(), setting));
+            items.add(new Item<>(setting.getKey(), setting));
         }
 
         requiresRestart.add(group.add(new ListSettingView<ConcurrentFileDownloadingChunks>(

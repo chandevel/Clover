@@ -48,7 +48,6 @@ public class PostAdapter
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
     private RecyclerView recyclerView;
-    private int marked = -1;
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
@@ -169,7 +168,7 @@ public class PostAdapter
     }
 
     public int getMarkedNo() {
-        return marked;
+        return -1;
     }
 
     public boolean showDivider(int position) {

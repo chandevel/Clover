@@ -15,7 +15,7 @@ import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
@@ -84,11 +84,14 @@ public class Dvach
     }
 
     @Override
-    public List<SiteSetting> settings() {
-        return Collections.singletonList(SiteSetting.forOption(captchaType,
-                "Captcha type",
+    public List<SiteSetting<?>> settings() {
+        List<SiteSetting<?>> settings = new ArrayList<>();
+        SiteSetting<?> captchaSetting = new SiteSetting<>("Captcha type",
+                captchaType,
                 Arrays.asList("Javascript", "Noscript")
-        ));
+        );
+        settings.add(captchaSetting);
+        return settings;
     }
 
     @Override
@@ -163,20 +166,17 @@ public class Dvach
 
             @Override
             public void post(Reply reply, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(Dvach.this, reply),
-                        new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                            @Override
-                            public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                                postListener.onPostComplete(httpPost, httpPost.replyResponse);
-                            }
+                NetUtils.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCallback<CommonReplyHttpCall>() {
+                    @Override
+                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
+                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                    }
 
-                            @Override
-                            public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                                postListener.onPostError(httpPost, e);
-                            }
-                        },
-                        postListener::onUploadingProgress
-                );
+                    @Override
+                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
+                        postListener.onPostError(httpPost, e);
+                    }
+                }, postListener::onUploadingProgress);
             }
 
             @Override

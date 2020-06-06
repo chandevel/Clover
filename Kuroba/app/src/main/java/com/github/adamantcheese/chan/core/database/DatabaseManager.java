@@ -179,7 +179,7 @@ public class DatabaseManager {
      * @param trigger Trim if there are more rows than {@code trigger}.
      * @param trim    Count of rows to trim.
      */
-    /*package*/ void trimTable(Dao dao, String table, long trigger, long trim) {
+    /*package*/ <T, ID> void trimTable(Dao<T, ID> dao, String table, long trigger, long trim) {
         try {
             long count = dao.countOf();
             if (count > trigger) {

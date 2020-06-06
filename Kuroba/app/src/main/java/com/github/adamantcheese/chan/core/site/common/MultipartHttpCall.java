@@ -30,6 +30,7 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+@SuppressWarnings("UnusedReturnValue")
 public abstract class MultipartHttpCall
         extends HttpCall {
     private final MultipartBody.Builder formBuilder;

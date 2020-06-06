@@ -60,6 +60,6 @@ public abstract class Setting<T> {
     }
 
     public interface SettingCallback<T> {
-        void onValueChange(Setting setting, T value);
+        void onValueChange(Setting<T> setting, T value);
     }
 }

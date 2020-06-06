@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -134,10 +135,11 @@ public class WatchSettingsController
                 HOURS.toMillis(2)};
         //@formatter:on
 
-        ListSettingView.Item[] timeoutsItems = new ListSettingView.Item[timeouts.length];
+        //noinspection unchecked
+        Item<Integer>[] timeoutsItems = new Item[timeouts.length];
         for (int i = 0; i < timeouts.length; i++) {
             String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
-            timeoutsItems[i] = new ListSettingView.Item<>(name, (int) timeouts[i]);
+            timeoutsItems[i] = new Item<>(name, (int) timeouts[i]);
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this,
                 ChanSettings.watchBackgroundInterval,

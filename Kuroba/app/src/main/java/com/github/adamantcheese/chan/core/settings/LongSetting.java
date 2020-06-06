@@ -27,13 +27,11 @@ public class LongSetting
 
     @Override
     public Long get() {
-        if (hasCached) {
-            return cached;
-        } else {
+        if (!hasCached) {
             cached = settingProvider.getLong(key, def);
             hasCached = true;
-            return cached;
         }
+        return cached;
     }
 
     @Override

@@ -217,6 +217,7 @@ public class Chan4
             }
         }
 
+        @SuppressWarnings("ConstantConditions")
         @Override
         public HttpUrl icon(String icon, Map<String, String> arg) {
             HttpUrl.Builder b = s.newBuilder().addPathSegment("image");
@@ -527,10 +528,12 @@ public class Chan4
     }
 
     @Override
-    public List<SiteSetting> settings() {
-        List<SiteSetting> settings = new ArrayList<>();
-        settings.add(SiteSetting.forOption(captchaType, "Captcha type", Arrays.asList("Javascript", "Noscript")));
-        settings.add(SiteSetting.forString(flagType, "Country flag code"));
+    public List<SiteSetting<?>> settings() {
+        List<SiteSetting<?>> settings = new ArrayList<>();
+        SiteSetting<?> captchaSetting =
+                new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
+        settings.add(captchaSetting);
+        settings.add(new SiteSetting<>("Country flag code", flagType, null));
         return settings;
     }
 

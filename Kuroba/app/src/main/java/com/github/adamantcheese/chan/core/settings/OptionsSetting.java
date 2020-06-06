@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public class OptionsSetting<T extends Enum & OptionSettingItem>
+public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
         extends Setting<T> {
     private boolean hasCached = false;
 
@@ -35,9 +35,7 @@ public class OptionsSetting<T extends Enum & OptionSettingItem>
 
     @Override
     public T get() {
-        if (hasCached) {
-            return cached;
-        } else {
+        if (!hasCached) {
             String itemName = settingProvider.getString(key, def.getKey());
             T selectedItem = null;
             for (T item : items) {
@@ -51,8 +49,8 @@ public class OptionsSetting<T extends Enum & OptionSettingItem>
 
             cached = selectedItem;
             hasCached = true;
-            return cached;
         }
+        return cached;
     }
 
     @Override

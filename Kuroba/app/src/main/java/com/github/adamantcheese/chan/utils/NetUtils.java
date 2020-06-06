@@ -14,6 +14,7 @@ import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,14 +43,14 @@ public class NetUtils {
             // max 1/8th of runtime memory for cache
 
     public static void makeHttpCall(
-            HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback
+            HttpCall httpCall, HttpCallback<? extends HttpCall> callback
     ) {
         makeHttpCall(httpCall, callback, null);
     }
 
     public static void makeHttpCall(
             HttpCall httpCall,
-            HttpCall.HttpCallback<? extends HttpCall> callback,
+            HttpCallback<? extends HttpCall> callback,
             @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         httpCall.setCallback(callback);
@@ -101,6 +102,7 @@ public class NetUtils {
                 }
 
                 try (ResponseBody body = response.body()) {
+                    //noinspection ConstantConditions
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
                     if (bitmap == null) {
                         result.onBitmapFailure(errorBitmap, new NullPointerException("Bitmap returned is null"));
@@ -141,6 +143,7 @@ public class NetUtils {
                     return;
                 }
 
+                //noinspection ConstantConditions
                 try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
                         .bytes()), UTF_8))) {
                     T read = parser.parse(jsonReader);
@@ -168,6 +171,7 @@ public class NetUtils {
                 return null;
             }
 
+            //noinspection ConstantConditions
             try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
                     .bytes()), UTF_8))) {
                 return parser.parse(jsonReader);
@@ -211,6 +215,7 @@ public class NetUtils {
                     return;
                 }
 
+                //noinspection ConstantConditions
                 try (ByteArrayInputStream baos = new ByteArrayInputStream(response.body().bytes())) {
                     Document document = Jsoup.parse(baos, null, url.toString());
 

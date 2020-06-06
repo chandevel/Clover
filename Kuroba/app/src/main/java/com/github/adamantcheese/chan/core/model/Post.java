@@ -311,6 +311,7 @@ public class Post
                 + "]";
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static final class Builder {
         public Board board;
         public int id = -1;

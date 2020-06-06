@@ -20,9 +20,11 @@ import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -274,8 +276,8 @@ public class AppearanceSettingsController
     }
 
     private void setupLayoutModeSetting(SettingsGroup layout) {
-        List<ListSettingView.Item> layoutModes = new ArrayList<>();
-        for (ChanSettings.LayoutMode mode : ChanSettings.LayoutMode.values()) {
+        List<Item<LayoutMode>> layoutModes = new ArrayList<>();
+        for (LayoutMode mode : LayoutMode.values()) {
             int name = 0;
             switch (mode) {
                 case AUTO:
@@ -291,7 +293,7 @@ public class AppearanceSettingsController
                     name = R.string.setting_layout_mode_split;
                     break;
             }
-            layoutModes.add(new ListSettingView.Item<>(getString(name), mode));
+            layoutModes.add(new Item<>(getString(name), mode));
         }
 
         requiresRestart.add(layout.add(new ListSettingView<>(this,
@@ -302,10 +304,10 @@ public class AppearanceSettingsController
     }
 
     private void setupGridColumnsSetting(SettingsGroup layout) {
-        List<ListSettingView.Item> gridColumns = new ArrayList<>();
-        gridColumns.add(new ListSettingView.Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
+        List<Item<Integer>> gridColumns = new ArrayList<>();
+        gridColumns.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
         for (int columns = 2; columns <= 5; columns++) {
-            gridColumns.add(new ListSettingView.Item<>(getString(R.string.setting_board_grid_span_count_item, columns),
+            gridColumns.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns),
                     columns
             ));
         }
@@ -317,17 +319,18 @@ public class AppearanceSettingsController
     }
 
     private void setupFontSizeSetting(SettingsGroup post) {
-        List<ListSettingView.Item> fontSizes = new ArrayList<>();
+        List<Item<String>> fontSizes = new ArrayList<>();
         for (int size = 10; size <= 19; size++) {
             String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " "
                     + getString(R.string.setting_font_size_default) : "");
-            fontSizes.add(new ListSettingView.Item<>(name, String.valueOf(size)));
+            fontSizes.add(new Item<>(name, String.valueOf(size)));
         }
 
+        //noinspection unchecked
         requiresUiRefresh.add(post.add(new ListSettingView<>(this,
                 ChanSettings.fontSize,
                 R.string.setting_font_size,
-                fontSizes.toArray(new ListSettingView.Item[0])
+                fontSizes.toArray(new Item[0])
         )));
     }
 }

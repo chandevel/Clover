@@ -27,13 +27,11 @@ public class StringSetting
 
     @Override
     public String get() {
-        if (hasCached) {
-            return cached;
-        } else {
+        if (!hasCached) {
             cached = settingProvider.getString(key, def);
             hasCached = true;
-            return cached;
         }
+        return cached;
     }
 
     @Override

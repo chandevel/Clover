@@ -24,6 +24,8 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -111,6 +113,7 @@ public class DatabaseLoadableManager {
         return loadable;
     }
 
+    @Nullable
     private Loadable findLoadableInCache(Loadable l) {
         for (Loadable key : cachedLoadables) {
             if (key.toString().equals(l.toString())) {

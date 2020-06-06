@@ -215,11 +215,10 @@ public class ToolbarContainer
         if (didComplete) {
             removeItem(currentView);
             currentView = transitionView;
-            transitionView = null;
         } else {
             removeItem(transitionView);
-            transitionView = null;
         }
+        transitionView = null;
 
         if (getChildCount() != 1) {
             throw new IllegalStateException("Not 1 view attached");
@@ -400,7 +399,9 @@ public class ToolbarContainer
         return animator;
     }
 
-    private void removeItem(ItemView item) {
+    private void removeItem(@NonNull ItemView item) {
+        //noinspection ConstantConditions
+        if (item == null) return;
         item.remove();
         removeView(item.view);
     }
