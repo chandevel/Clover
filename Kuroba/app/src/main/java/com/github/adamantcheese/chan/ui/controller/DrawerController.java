@@ -109,7 +109,10 @@ public class DrawerController
 
         Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
                 .subscribe(activeNotifications -> drawerAdapter.onNotificationsChanged(),
-                        (error) -> Logger.e(DrawerController.this, "Unknown error from SettingsNotificationManager", error)
+                        (error) -> Logger.e(DrawerController.this,
+                                "Unknown error from SettingsNotificationManager",
+                                error
+                        )
                 );
 
         compositeDisposable.add(disposable);
@@ -343,8 +346,10 @@ public class DrawerController
                 continue;
             }
 
-            total += p.getNewPostCount();
-            color = color | p.getNewQuoteCount() > 0;
+            if (p.watching || p.archived) {
+                total += p.getNewPostCount();
+                color = color | p.getNewQuoteCount() > 0;
+            }
         }
 
         if (getTop() != null) {
