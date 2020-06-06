@@ -94,7 +94,7 @@ public class ImageViewerPresenter
     private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
     private Set<CancelableDownload> preloadingImages = new HashSet<>();
-    private final Set<String> nonCancelableImages = new HashSet<>();
+    private final Set<HttpUrl> nonCancelableImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible
     private boolean viewPagerVisible = false;
@@ -350,23 +350,23 @@ public class ImageViewerPresenter
         }
     }
 
-    private List<String> getNonCancelableImages(int index) {
+    private List<HttpUrl> getNonCancelableImages(int index) {
         if (images.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<String> nonCancelableImages = new ArrayList<>(3);
+        List<HttpUrl> nonCancelableImages = new ArrayList<>(3);
 
         if (index - 1 >= 0) {
-            nonCancelableImages.add(images.get(index - 1).imageUrl.toString());
+            nonCancelableImages.add(images.get(index - 1).imageUrl);
         }
 
         if (index >= 0 && index < images.size()) {
-            nonCancelableImages.add(images.get(index).imageUrl.toString());
+            nonCancelableImages.add(images.get(index).imageUrl);
         }
 
         if (index + 1 < images.size()) {
-            nonCancelableImages.add(images.get(index + 1).imageUrl.toString());
+            nonCancelableImages.add(images.get(index + 1).imageUrl);
         }
 
         return nonCancelableImages;
@@ -456,7 +456,7 @@ public class ImageViewerPresenter
         }
 
         PostImage previousImage = images.get(position);
-        if (downloader.getUrl().equals(previousImage.imageUrl.toString())) {
+        if (downloader.getUrl().equals(previousImage.imageUrl)) {
             downloader.cancel();
             preloadingImages.remove(downloader);
             return true;
