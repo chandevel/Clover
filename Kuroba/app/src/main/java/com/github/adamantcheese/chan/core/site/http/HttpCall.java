@@ -16,13 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
-import android.os.Handler;
-import android.os.Looper;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;
@@ -44,7 +42,6 @@ public abstract class HttpCall
         implements Callback {
     private Site site;
 
-    private Handler handler = new Handler(Looper.getMainLooper());
     @SuppressWarnings("rawtypes")
     private HttpCallback callback;
     private Exception exception;
@@ -96,12 +93,12 @@ public abstract class HttpCall
 
     @SuppressWarnings("unchecked")
     private void callSuccess() {
-        handler.post(() -> callback.onHttpSuccess(HttpCall.this));
+        BackgroundUtils.runOnMainThread(() -> callback.onHttpSuccess(HttpCall.this));
     }
 
     @SuppressWarnings("unchecked")
     private void callFail(final Exception e) {
-        handler.post(() -> callback.onHttpFail(HttpCall.this, e));
+        BackgroundUtils.runOnMainThread(() -> callback.onHttpFail(HttpCall.this, e));
     }
 
     public void setCallback(HttpCallback<? extends HttpCall> callback) {

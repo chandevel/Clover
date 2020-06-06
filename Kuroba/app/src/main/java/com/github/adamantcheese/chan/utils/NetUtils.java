@@ -212,13 +212,13 @@ public class NetUtils {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-
+                BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(e));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() != 200) {
-                    result.onHTMLFailure(new HttpCodeException(response.code()));
+                    BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(new HttpCodeException(response.code())));
                     response.close();
                     return;
                 }
@@ -228,9 +228,9 @@ public class NetUtils {
                     Document document = Jsoup.parse(baos, null, url.toString());
 
                     T read = reader.read(document);
-                    result.onHTMLSuccess(read);
+                    BackgroundUtils.runOnMainThread(() -> result.onHTMLSuccess(read));
                 } catch (Exception e) {
-                    result.onHTMLFailure(e);
+                    BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(e));
                 }
                 response.close();
             }
