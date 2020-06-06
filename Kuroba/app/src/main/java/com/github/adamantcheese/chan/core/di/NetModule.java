@@ -111,7 +111,6 @@ public class NetModule {
                 .writeTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector())
-                .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
         );
     }
 
@@ -130,7 +129,6 @@ public class NetModule {
                 .readTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector())
-                .cache(new Cache(getCacheDir(), 10L * 1024L * 1024L)) // 10MB network cache
                 .build();
     }
 
