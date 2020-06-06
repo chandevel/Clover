@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.github.adamantcheese.chan.utils
 
 import okhttp3.internal.and

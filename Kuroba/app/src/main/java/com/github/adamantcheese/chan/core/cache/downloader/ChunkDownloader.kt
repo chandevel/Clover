@@ -48,7 +48,7 @@ internal class ChunkDownloader(
         val httpRequest = builder.build()
         val startTime = System.currentTimeMillis()
 
-        return Flowable.create<Response>({ emitter ->
+        return Flowable.create({ emitter ->
             BackgroundUtils.ensureBackgroundThread()
 
             val serializedEmitter = emitter.serialize()
