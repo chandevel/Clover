@@ -634,15 +634,14 @@ public class ThreadPresenter
         if (!ChanSettings.watchEnabled.get() && !ChanSettings.watchBackground.get()
                 && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
             Pin pin = watchManager.findPinByLoadableId(loadable.id);
-            if (pin == null) {
+            if (pin != null) {
+                pin.isError = true;
+                pin.watching = false;
+
+                watchManager.updatePin(pin, true);
+            } else {
                 Logger.d(this, "Could not find pin with loadableId = " + loadable.id + ", it was already deleted?");
-                return;
             }
-
-            pin.isError = true;
-            pin.watching = false;
-
-            watchManager.updatePin(pin, true);
         }
 
         instance(ExecutorService.class).submit(() -> instance(FilterWatchManager.class).onCatalogLoad(result));
