@@ -35,6 +35,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         tools:ignore="UnknownIdInLayout">
 
+        <!-- FOR TESTING IMAGE DISPLAY --> <!--
+        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
+            android:id="@+id/thumbnail_view"
+            android:layout_width="@dimen/cell_post_thumbnail_size"
+            android:layout_height="@dimen/cell_post_thumbnail_size"
+            app:test_bitmap="true"/>
+
+        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
+            android:id="@+id/thumbnail_view_2"
+            android:layout_width="@dimen/cell_post_thumbnail_size"
+            android:layout_height="@dimen/cell_post_thumbnail_size"
+            android:layout_below="@+id/thumbnail_view"
+            app:test_bitmap="true"/>
+
+        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
+            android:id="@+id/thumbnail_view_3"
+            android:layout_width="@dimen/cell_post_thumbnail_size"
+            android:layout_height="@dimen/cell_post_thumbnail_size"
+            android:layout_below="@+id/thumbnail_view_2"
+            app:test_bitmap="true"/>
+         -->
+
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
@@ -69,7 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <TextView
             android:id="@+id/replies"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
@@ -78,15 +100,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:singleLine="true"
             android:textColor="?android:textColorSecondary"
             tools:text="2 replies" />
-
-        <View
-            android:id="@+id/replies_additional_area"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/replies"
-            android:layout_alignBottom="@id/replies"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@id/replies" />
 
         <View
             android:id="@+id/divider"

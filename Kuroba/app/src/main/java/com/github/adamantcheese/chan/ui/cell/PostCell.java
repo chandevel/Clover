@@ -113,7 +113,6 @@ public class PostCell
     private PostIcons icons;
     private TextView comment;
     private TextView replies;
-    private View repliesAdditionalArea;
     private View divider;
     private View filterMatchColor;
 
@@ -158,7 +157,6 @@ public class PostCell
         icons = findViewById(R.id.icons);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
-        repliesAdditionalArea = findViewById(R.id.replies_additional_area);
         ImageView options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
@@ -199,7 +197,6 @@ public class PostCell
             }
         };
         replies.setOnClickListener(repliesClickListener);
-        repliesAdditionalArea.setOnClickListener(repliesClickListener);
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem> items = new ArrayList<>();
@@ -325,7 +322,6 @@ public class PostCell
         setPostLinkableListener(post, true);
 
         replies.setClickable(threadMode);
-        repliesAdditionalArea.setClickable(threadMode);
 
         if (!threadMode) {
             replies.setBackgroundResource(0);
@@ -526,7 +522,6 @@ public class PostCell
 
         if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
             replies.setVisibility(VISIBLE);
-            repliesAdditionalArea.setVisibility(VISIBLE);
 
             int replyCount = threadMode ? repliesFromSize : post.getReplies();
             String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
@@ -547,7 +542,6 @@ public class PostCell
             updatePaddings(replies, -1, -1, paddingPx, -1);
         } else {
             replies.setVisibility(GONE);
-            repliesAdditionalArea.setVisibility(GONE);
             updatePaddings(comment, -1, -1, -1, paddingPx);
             updatePaddings(replies, -1, -1, 0, -1);
         }
@@ -602,11 +596,6 @@ public class PostCell
                 RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
                 replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 replies.setLayoutParams(replyParams);
-
-                RelativeLayout.LayoutParams replyExtraParams =
-                        (RelativeLayout.LayoutParams) repliesAdditionalArea.getLayoutParams();
-                replyExtraParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                repliesAdditionalArea.setLayoutParams(replyExtraParams);
             }
         }
     }
