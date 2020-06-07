@@ -22,6 +22,7 @@ import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -48,20 +49,21 @@ public class PostHelper {
         }
     }
 
-    public static String getTitle(@Nullable Post post, @Nullable Loadable loadable) {
+    @SuppressWarnings("ConstantConditions")
+    public static String getTitle(@Nullable Post post, @NonNull Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {
                 return post.subject;
             } else if (!TextUtils.isEmpty(post.comment)) {
-                return "/" + post.boardId + "/ - " + post.comment.subSequence(0, Math.min(post.comment.length(), 200));
+                return post.comment.subSequence(0, Math.min(post.comment.length(), 200)) + "";
             } else {
                 return "/" + post.boardId + "/" + post.no;
             }
         } else if (loadable != null) {
-            if (loadable.mode == Loadable.Mode.CATALOG) {
-                return "/" + loadable.boardCode + "/";
-            } else {
+            if (loadable.isThreadMode()) {
                 return "/" + loadable.boardCode + "/" + loadable.no;
+            } else {
+                return "/" + loadable.boardCode + "/";
             }
         } else {
             return "";

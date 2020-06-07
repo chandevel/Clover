@@ -168,7 +168,7 @@ public abstract class ThreadController
 
     @Override
     public void openReportController(final Post post) {
-        navigationController.pushController(new ReportController(context, post));
+        navigationController.pushController(new ReportController(context, post, getLoadable()));
     }
 
     public void selectPostImage(PostImage postImage) {

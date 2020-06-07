@@ -26,6 +26,7 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -38,17 +39,19 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public class ReportController
         extends Controller {
     private Post post;
+    private Loadable loadable;
 
-    public ReportController(Context context, Post post) {
+    public ReportController(Context context, Post post, Loadable loadable) {
         super(context);
         this.post = post;
+        this.loadable = loadable;
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate() {
         super.onCreate();
-        navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, null));
+        navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, loadable));
 
         Site site = post.board.site;
         HttpUrl url = site.endpoints().report(post);

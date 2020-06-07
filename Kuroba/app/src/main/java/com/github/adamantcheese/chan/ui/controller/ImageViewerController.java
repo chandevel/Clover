@@ -347,7 +347,9 @@ public class ImageViewerController
                 + postNoString + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
-                ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage), null)
+                ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage),
+                imageViewerCallback.getLoadable()
+        )
                 : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
@@ -712,6 +714,8 @@ public class ImageViewerController
         void scrollToImage(PostImage postImage);
 
         Post getPostForPostImage(PostImage postImage);
+
+        Loadable getLoadable();
     }
 
     public interface GoPostCallback {
