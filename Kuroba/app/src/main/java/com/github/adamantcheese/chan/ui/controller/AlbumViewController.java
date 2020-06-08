@@ -150,6 +150,11 @@ public class AlbumViewController
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public Loadable getLoadable() {
+        return loadable;
+    }
+
     private void openImage(AlbumItemCellHolder albumItemCellHolder, PostImage postImage) {
         // Just ignore the showImages request when the image is not loaded
         if (albumItemCellHolder.thumbnailView.getBitmap() != null) {
