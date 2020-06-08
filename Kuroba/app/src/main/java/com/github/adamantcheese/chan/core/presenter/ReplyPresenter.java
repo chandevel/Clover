@@ -142,7 +142,7 @@ public class ReplyPresenter
     }
 
     public void unbindLoadable() {
-        if(bound) {
+        if (bound) {
             bound = false;
             callback.loadViewsIntoDraft(draft);
             replyManager.putReply(draft);
@@ -298,7 +298,7 @@ public class ReplyPresenter
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
             Loadable newThreadLoadable = Loadable.forThread(replyResponse.originatingReply.loadable.site,
                     replyResponse.originatingReply.loadable.board,
-                    replyResponse.postNo,
+                    replyResponse.threadNo,
                     "Title will update shortly…"
             );
             newThreadLoadable = databaseManager.getDatabaseLoadableManager().get(newThreadLoadable);

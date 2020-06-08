@@ -36,7 +36,7 @@ import okhttp3.Response;
 
 public abstract class CommonReplyHttpCall
         extends HttpCall {
-    private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:[0-9]+,no:([0-9]+) -->");
+    private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
     private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
     private static final String PROBABLY_BANNED_TEXT = "banned";
 
@@ -72,12 +72,14 @@ public abstract class CommonReplyHttpCall
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {
                 try {
-                    replyResponse.postNo = Integer.parseInt(threadNoMatcher.group(1));
-                    // corresponds to the post number of a new thread OP or a new reply in a thread
-                    if (replyResponse.postNo > 0) {
-                        replyResponse.posted = true;
-                    }
+                    replyResponse.threadNo = Integer.parseInt(threadNoMatcher.group(1));
+                    replyResponse.postNo = Integer.parseInt(threadNoMatcher.group(2));
                 } catch (NumberFormatException ignored) {
+                }
+
+                if (replyResponse.threadNo >= 0
+                        && replyResponse.postNo > 0) { //threadNo can be 0 iff this is a new thread
+                    replyResponse.posted = true;
                 }
             }
         }

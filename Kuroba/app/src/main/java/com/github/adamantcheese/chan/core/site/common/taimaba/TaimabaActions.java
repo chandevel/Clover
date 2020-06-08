@@ -74,7 +74,7 @@ public class TaimabaActions
         if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
-            replyResponse.postNo = replyResponse.originatingReply.loadable.no;
+            replyResponse.threadNo = replyResponse.originatingReply.loadable.no;
             replyResponse.posted = true;
         }
     }

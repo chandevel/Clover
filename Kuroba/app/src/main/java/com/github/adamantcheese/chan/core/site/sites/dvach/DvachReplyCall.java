@@ -114,7 +114,9 @@ public class DvachReplyCall
             } else {
                 Matcher threadMessageMatcher = THREAD_MESSAGE.matcher(result);
                 if (threadMessageMatcher.find()) {
-                    replyResponse.postNo = Integer.parseInt(threadMessageMatcher.group(1));
+                    int threadNo = Integer.parseInt(threadMessageMatcher.group(1));
+                    replyResponse.threadNo = threadNo;
+                    replyResponse.postNo = threadNo;
                 }
             }
         }

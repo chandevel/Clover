@@ -99,11 +99,12 @@ public class VichanActions
             Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(url.encodedPath());
             try {
                 if (m.find()) {
+                    replyResponse.threadNo = Integer.parseInt(m.group(1));
                     String fragment = url.encodedFragment();
                     if (fragment != null) {
                         replyResponse.postNo = Integer.parseInt(fragment);
                     } else {
-                        replyResponse.postNo = Integer.parseInt(m.group(1));
+                        replyResponse.postNo = replyResponse.threadNo;
                     }
                     replyResponse.posted = true;
                 }

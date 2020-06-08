@@ -38,6 +38,7 @@ public class ReplyResponse {
     public String errorMessage;
 
     // TODO(multi-site)
+    public int threadNo = 0;
     public int postNo = 0;
     public boolean probablyBanned = false;
     public boolean requireAuthentication = false;
