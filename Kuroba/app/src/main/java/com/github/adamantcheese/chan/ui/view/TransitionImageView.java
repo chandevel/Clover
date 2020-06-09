@@ -58,6 +58,11 @@ public class TransitionImageView
         init();
     }
 
+    private void init() {
+        paint.setAntiAlias(true);
+        paint.setFilterBitmap(true);
+    }
+
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -176,11 +181,6 @@ public class TransitionImageView
             canvas.drawBitmap(bitmap, matrix, paint);
             canvas.restore();
         }
-    }
-
-    private void init() {
-        paint.setAntiAlias(true);
-        paint.setFilterBitmap(true);
     }
 
     private float lerp(float a, float b, float x) {

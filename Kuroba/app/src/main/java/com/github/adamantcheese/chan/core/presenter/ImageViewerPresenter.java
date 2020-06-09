@@ -234,8 +234,7 @@ public class ImageViewerPresenter
                 viewPagerVisible = true;
                 if (!entering) {
                     // Entering transition was already ended, switch now
-                    callback.setPreviewVisibility(false);
-                    callback.setPagerVisiblity(true);
+                    onInTransitionEnd();
                 } else {
                     // Wait for enter animation to finish before changing views
                     changeViewsOnInTransitionEnd = true;
@@ -600,7 +599,7 @@ public class ImageViewerPresenter
         PostImage currentPostImage = getCurrentPostImage();
         if (multiImageView.getPostImage() == currentPostImage) {
             muted = muted || !BackgroundUtils.isInForeground();
-            callback.showVolumeMenuItem(true, muted );
+            callback.showVolumeMenuItem(true, muted);
             callback.setVolume(currentPostImage, muted);
         }
     }
