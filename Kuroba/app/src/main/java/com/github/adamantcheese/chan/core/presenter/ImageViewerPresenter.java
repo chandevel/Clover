@@ -137,8 +137,8 @@ public class ImageViewerPresenter
 
     public void onViewMeasured() {
         // Pager is measured, but still invisible
-        callback.startPreviewInTransition(loadable, images.get(selectedPosition));
         PostImage postImage = images.get(selectedPosition);
+        callback.startPreviewInTransition(loadable, postImage);
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler());
     }
 
