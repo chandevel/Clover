@@ -502,12 +502,16 @@ public class ImageViewerController
     public void startPreviewInTransition(Loadable loadable, PostImage postImage) {
         ThumbnailView startImageView = getTransitionImageView(postImage);
 
-        if (!setTransitionViewData(startImageView)) {
-            Logger.test("Oops");
-            return; // TODO
-        }
-
         statusBarColorPrevious = getWindow(context).getStatusBarColor();
+
+        if (!setTransitionViewData(startImageView)) {
+            // Some weird stuff happened, like the user pressed back in the thread, tapped an image, then immediately tapped back again;
+            // This should cause this controller to disappear, but if there's no transition image, no transition occurs and we'd
+            // get stuck. Instead, just trigger the presenter to be "transitioned", which it can then be backed out of without
+            // being stuck in a softlocked controller.
+            presenter.onInTransitionEnd();
+            return;
+        }
 
         setBackgroundAlpha(0f);
 
