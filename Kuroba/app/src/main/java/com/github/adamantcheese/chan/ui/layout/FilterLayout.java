@@ -69,7 +69,6 @@ public class FilterLayout
         implements View.OnClickListener {
     private TextView typeText;
     private TextView boardsSelector;
-    private boolean patternContainerErrorShowing = false;
     private TextView pattern;
     private TextView patternPreview;
     private TextView patternPreviewStatus;
@@ -333,11 +332,7 @@ public class FilterLayout
     private void updateFilterValidity() {
         int extraFlags = (filter.type & FilterType.COUNTRY_CODE.flag) != 0 ? Pattern.CASE_INSENSITIVE : 0;
         boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern, extraFlags) != null;
-
-        if (valid != patternContainerErrorShowing) {
-            patternContainerErrorShowing = valid;
-            pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
-        }
+        pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
 
         if (callback != null) {
             callback.setSaveButtonEnabled(valid);
@@ -408,7 +403,7 @@ public class FilterLayout
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && filterEngine.matches(filter, text, true);
+        boolean matches = filterEngine.matches(filter, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

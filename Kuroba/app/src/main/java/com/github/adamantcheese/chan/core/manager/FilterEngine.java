@@ -246,10 +246,6 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, String text, boolean forceCompile) {
-        if (TextUtils.isEmpty(text)) {
-            return false;
-        }
-
         Pattern pattern = null;
         if (!forceCompile) {
             synchronized (patternCache) {
@@ -308,7 +304,8 @@ public class FilterEngine {
             }
 
             try {
-                pattern = Pattern.compile(isRegex.group(1), flags);
+                //Don't allow an empty regex string (would match everything)
+                pattern = isRegex.group(1).length() > 0 ? Pattern.compile(isRegex.group(1), flags) : null;
             } catch (PatternSyntaxException e) {
                 return null;
             }
@@ -316,7 +313,8 @@ public class FilterEngine {
                 && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
-            pattern = Pattern.compile(text, Pattern.CASE_INSENSITIVE);
+            //Don't allow only double quotes (would match everything)
+            pattern = rawPattern.length() != 2 ? Pattern.compile(text, Pattern.CASE_INSENSITIVE) : null;
         } else {
             String[] words = rawPattern.split(" ");
             StringBuilder text = new StringBuilder();
@@ -331,8 +329,8 @@ public class FilterEngine {
                     text.append("|");
                 }
             }
-
-            pattern = Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE);
+            //Don't allow only spaces (would match everything after split)
+            pattern = !TextUtils.isEmpty(text) ? Pattern.compile(text.toString(), Pattern.CASE_INSENSITIVE) : null;
         }
 
         return pattern;
