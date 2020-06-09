@@ -33,6 +33,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.ExternalFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.google.gson.Gson
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
@@ -240,6 +241,12 @@ constructor(
                     ))
                 }
 
+                val thumbnailUrl = try {
+                    exportedPin.thumbnailUrl.toHttpUrl()
+                } catch (e: Exception) {
+                    null
+                }
+
                 val pin = Pin(
                         insertedLoadable,
                         exportedPin.isWatching,
@@ -248,7 +255,7 @@ constructor(
                         exportedPin.quoteLastCount,
                         exportedPin.quoteNewCount,
                         exportedPin.isError,
-                        exportedPin.thumbnailUrl,
+                        thumbnailUrl,
                         exportedPin.order,
                         exportedPin.isArchived,
                         exportedPin.pinType
@@ -396,7 +403,7 @@ constructor(
                     pin.order,
                     pin.quoteLastCount,
                     pin.quoteNewCount,
-                    pin.thumbnailUrl,
+                    pin.thumbnailUrl.toString(),
                     pin.watchLastCount,
                     pin.watchNewCount,
                     pin.watching,

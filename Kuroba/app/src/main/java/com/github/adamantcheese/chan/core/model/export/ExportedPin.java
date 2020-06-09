@@ -40,7 +40,7 @@ public class ExportedPin {
     @SerializedName("quote_new_count")
     private int quoteNewCount;
     @SerializedName("thumbnail_url")
-    private HttpUrl thumbnailUrl;
+    private String thumbnailUrl;
     @SerializedName("watch_last_count")
     private int watchLastCount;
     @SerializedName("watch_new_count")
@@ -60,7 +60,7 @@ public class ExportedPin {
             int order,
             int quoteLastCount,
             int quoteNewCount,
-            HttpUrl thumbnailUrl,
+            String thumbnailUrl,
             int watchLastCount,
             int watchNewCount,
             boolean watching,
@@ -110,7 +110,7 @@ public class ExportedPin {
         return quoteNewCount;
     }
 
-    public HttpUrl getThumbnailUrl() {
+    public String getThumbnailUrl() {
         return thumbnailUrl;
     }
 
