@@ -285,6 +285,9 @@ public class SitesSetupController
             // Setup views
             itemView.setOnClickListener(this);
             removeSite.setOnClickListener(this);
+            settings.setOnClickListener(this);
+            // even though we don't react to click events, for ripple drawing this needs to be set
+            reorder.setOnClickListener(this);
 
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
@@ -303,7 +306,7 @@ public class SitesSetupController
         public void onClick(View v) {
             if (v == removeSite) {
                 onRemoveSiteSettingClicked(site);
-            } else if (v == itemView) {
+            } else if (v == itemView || v == settings) {
                 onSiteCellSettingsClicked(site);
             }
         }
