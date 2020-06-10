@@ -52,9 +52,12 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -417,7 +420,11 @@ public class DatabaseHelper
 
         if (oldVersion < 45) {
             try {
-                loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastLoadDate TIMESTAMP default '1970-01-01 00:00:01'");
+                loadableDao.executeRawNoArgs(
+                        "ALTER TABLE loadable ADD COLUMN lastLoadDate TIMESTAMP default '1970-01-01 00:00:01'");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                String currentTime = format.format(GregorianCalendar.getInstance().getTime());
+                loadableDao.executeRawNoArgs("UPDATE loadable SET lastLoadDate='" + currentTime + "'");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 45");
             }
