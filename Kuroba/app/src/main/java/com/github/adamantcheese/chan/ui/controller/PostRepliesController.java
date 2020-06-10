@@ -49,7 +49,7 @@ public class PostRepliesController
     private boolean first = true;
 
     private LoadView loadView;
-    private RecyclerView listView;
+    private RecyclerView recyclerView;
     private PostPopupHelper.RepliesData displayingData;
 
     public PostRepliesController(Context context, PostPopupHelper postPopupHelper, ThreadPresenter presenter) {
@@ -74,10 +74,10 @@ public class PostRepliesController
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {
-        if (listView == null) return null;
+        if (recyclerView == null) return null;
         ThumbnailView thumbnail = null;
-        for (int i = 0; i < listView.getChildCount(); i++) {
-            View view = listView.getChildAt(i);
+        for (int i = 0; i < recyclerView.getChildCount(); i++) {
+            View view = recyclerView.getChildAt(i);
             if (view instanceof PostCellInterface) {
                 PostCellInterface postView = (PostCellInterface) view;
                 Post post = postView.getPost();
@@ -97,7 +97,7 @@ public class PostRepliesController
     }
 
     public void scrollTo(int displayPosition) {
-        listView.smoothScrollToPosition(displayPosition);
+        recyclerView.smoothScrollToPosition(displayPosition);
     }
 
     public void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
@@ -110,7 +110,7 @@ public class PostRepliesController
             dataView = inflate(context, R.layout.layout_post_replies);
         }
 
-        listView = dataView.findViewById(R.id.post_list);
+        recyclerView = dataView.findViewById(R.id.post_list);
 
         View repliesBack = dataView.findViewById(R.id.replies_back);
         repliesBack.setOnClickListener(v -> postPopupHelper.pop());
@@ -118,7 +118,7 @@ public class PostRepliesController
         View repliesClose = dataView.findViewById(R.id.replies_close);
         repliesClose.setOnClickListener(v -> postPopupHelper.popAll());
 
-        PostAdapter adapter = new PostAdapter(listView, null, presenter, null, ThemeHelper.getTheme()) {
+        PostAdapter adapter = new PostAdapter(recyclerView, null, presenter, null, ThemeHelper.getTheme()) {
             @Override
             public boolean isInPopup() {
                 return true;
@@ -159,12 +159,12 @@ public class PostRepliesController
                 return false;
             }
         };
-        listView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
         adapter.setThread(loadable, displayingData.posts, false);
-        LinearLayoutManager layoutManager = (LinearLayoutManager) listView.getLayoutManager();
+        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         layoutManager.scrollToPositionWithOffset(data.listViewIndex, data.listViewTop);
 
-        listView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 int[] indexAndTop = RecyclerUtils.getIndexAndTop(recyclerView);
