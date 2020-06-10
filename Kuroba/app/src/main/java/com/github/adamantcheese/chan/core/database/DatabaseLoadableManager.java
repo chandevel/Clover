@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
@@ -28,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +40,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static java.util.concurrent.TimeUnit.DAYS;
 
 public class DatabaseLoadableManager {
     @Inject
@@ -60,6 +63,20 @@ public class DatabaseLoadableManager {
                     loadable.dirty = false;
                     helper.loadableDao.update(loadable);
                 }
+            }
+            // if we haven't purged loadables yet and we're on the first day of the month, then
+            // purge loadables that haven'tbeen loaded for more than one month
+            int dayOfMonth = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+            if (!PersistableChanState.loadablesPurged.get() && dayOfMonth == 1) {
+                List<Loadable> allLoadables = helper.loadableDao.queryForAll();
+                for (Loadable l : allLoadables) {
+                    if (l.lastLoadDate.getTime() + DAYS.toMillis(30) < System.currentTimeMillis()) {
+                        helper.loadableDao.delete(l);
+                    }
+                }
+                PersistableChanState.loadablesPurged.set(true);
+            } else if (dayOfMonth > 1) {
+                PersistableChanState.loadablesPurged.set(false);
             }
             return null;
         };
@@ -183,7 +200,7 @@ public class DatabaseLoadableManager {
     public Callable<List<Loadable>> getLoadables(Site site) {
         return () -> {
             List<Loadable> loadables = helper.loadableDao.queryForEq("site", site.id());
-            for(Loadable l : loadables) {
+            for (Loadable l : loadables) {
                 l.lastLoadDate = GregorianCalendar.getInstance().getTime();
             }
             return loadables;

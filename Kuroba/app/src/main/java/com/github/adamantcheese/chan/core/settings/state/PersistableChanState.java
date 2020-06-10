@@ -28,6 +28,8 @@ public class PersistableChanState {
     public static StringSetting filterWatchIgnored;
     public static StringSetting youtubeCache;
 
+    public static BooleanSetting loadablesPurged;
+
     static {
         try {
             SharedPreferencesSettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getAppState());
@@ -40,6 +42,8 @@ public class PersistableChanState {
 
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
             youtubeCache = new StringSetting(p, "yt_cache", EMPTY_JSON);
+
+            loadablesPurged = new BooleanSetting(p, "loadables_purged", false);
         } catch (Exception e) {
             Logger.e("PersistableChanState", "Error while initializing the state", e);
             throw e;
