@@ -372,7 +372,7 @@ public class DatabaseHelper
                 deleteSiteByRegistryID(3);
                 Logger.d(this, "Removed Arisuchan successfully");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 44");
+                Logger.e(this, "Error upgrading to version 43");
             }
         }
 
@@ -411,7 +411,7 @@ public class DatabaseHelper
                 BooleanSetting uploadCrashLogs = getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class);
                 ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 43");
+                Logger.e(this, "Error upgrading to version 44");
             }
         }
     }
