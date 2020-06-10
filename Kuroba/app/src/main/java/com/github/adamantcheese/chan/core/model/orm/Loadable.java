@@ -24,6 +24,8 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
@@ -82,6 +84,9 @@ public class Loadable
 
     @DatabaseField
     public int lastLoaded = -1;
+
+    @DatabaseField(canBeNull = false, format = "yyyy-MM-dd HH:mm:ss")
+    public Date lastLoadDate = GregorianCalendar.getInstance().getTime();
 
     public int markedNo = -1;
 

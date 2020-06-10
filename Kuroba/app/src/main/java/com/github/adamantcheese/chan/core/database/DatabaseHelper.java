@@ -66,7 +66,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 44;
+    private static final int DATABASE_VERSION = 45;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -412,6 +412,14 @@ public class DatabaseHelper
                 ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 44");
+            }
+        }
+
+        if (oldVersion < 45) {
+            try {
+                loadableDao.executeRawNoArgs("ALTER TABLE loadable ADD COLUMN lastLoadDate TIMESTAMP default '1970-01-01 00:00:01'");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 45");
             }
         }
     }

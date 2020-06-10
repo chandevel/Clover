@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -103,12 +104,17 @@ public class DatabaseLoadableManager {
 
         // If the loadable was already loaded in the cache, return that entry
         Loadable cachedLoadable = findLoadableInCache(loadable);
-        if (cachedLoadable != null) return cachedLoadable;
+        if (cachedLoadable != null) {
+            cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            return cachedLoadable;
+        }
 
         // Add it to the cache, refresh contents
         helper.loadableDao.refresh(loadable);
         loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
+        loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+        loadable.dirty = true;
         cachedLoadables.add(loadable);
         return loadable;
     }
@@ -132,6 +138,7 @@ public class DatabaseLoadableManager {
             Loadable cachedLoadable = findLoadableInCache(loadable);
             if (cachedLoadable != null) {
                 Logger.v(DatabaseLoadableManager.this, "Cached loadable found");
+                cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
                 return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
@@ -167,13 +174,20 @@ public class DatabaseLoadableManager {
                 }
 
                 cachedLoadables.add(result);
+                result.lastLoadDate = GregorianCalendar.getInstance().getTime();
                 return result;
             }
         };
     }
 
     public Callable<List<Loadable>> getLoadables(Site site) {
-        return () -> helper.loadableDao.queryForEq("site", site.id());
+        return () -> {
+            List<Loadable> loadables = helper.loadableDao.queryForEq("site", site.id());
+            for(Loadable l : loadables) {
+                l.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            }
+            return loadables;
+        };
     }
 
     public Callable<Object> deleteLoadables(List<Loadable> siteLoadables) {
@@ -208,6 +222,7 @@ public class DatabaseLoadableManager {
                 }
             }
 
+            updatedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
             helper.loadableDao.update(updatedLoadable);
             return null;
         };
