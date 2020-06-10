@@ -284,6 +284,10 @@ public class ThemeSettingsController
                 break;
             }
         }
+        //update button color manually, in case onPageSelected isn't called
+        done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(ThemeHelper.getTheme().accentColor.accentStyleId,
+                R.attr.colorAccent
+        )));
     }
 
     private void showAccentColorPicker() {
