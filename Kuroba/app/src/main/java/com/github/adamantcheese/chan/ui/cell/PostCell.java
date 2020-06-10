@@ -530,7 +530,7 @@ public class PostCell
                 text += ", " + getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
             }
 
-            if (!ChanSettings.neverShowPages.get()) {
+            if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
                 ChanPage p = callback.getPage(post);
                 if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
                     text += ", page " + p.page;
