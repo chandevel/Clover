@@ -69,7 +69,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 45;
+    private static final int DATABASE_VERSION = 46;
 
     public Dao<Pin, Integer> pinDao;
     public Dao<Loadable, Integer> loadableDao;
@@ -430,6 +430,18 @@ public class DatabaseHelper
                 loadableDao.executeRawNoArgs("UPDATE loadable SET lastLoadDate='" + currentTime + "'");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 45");
+            }
+        }
+
+        if (oldVersion < 46) {
+            try {
+                //sqlite doesn't have a proper modify command to remove the NOT NULL constraint from thumbnailUrl
+                pinDao.executeRawNoArgs("ALTER TABLE pin RENAME TO pin_old"); // rename existing table
+                TableUtils.createTable(connectionSource, Pin.class); // recreate table
+                pinDao.executeRawNoArgs("INSERT INTO pin SELECT * FROM pin_old"); // copy table
+                pinDao.executeRawNoArgs("DROP TABLE pin_old"); // delete old table
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 46");
             }
         }
     }

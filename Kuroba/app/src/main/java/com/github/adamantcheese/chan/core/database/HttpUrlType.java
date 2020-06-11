@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.database;
 
+import androidx.annotation.NonNull;
+
 import com.j256.ormlite.field.FieldType;
 import com.j256.ormlite.field.SqlType;
 import com.j256.ormlite.field.types.BaseDataType;
@@ -24,8 +26,8 @@ public class HttpUrlType
     }
 
     @Override
-    public Object javaToSqlArg(FieldType fieldType, Object javaObject) {
-        return javaObject == null ? "" : javaObject.toString();
+    public Object javaToSqlArg(FieldType fieldType, @NonNull Object javaObject) {
+        return javaObject.toString();
     }
 
     @Override
@@ -51,10 +53,5 @@ public class HttpUrlType
     @Override
     public boolean isAppropriateId() {
         return false;
-    }
-
-    @Override
-    public Class<?> getPrimaryClass() {
-        return HttpUrl.class;
     }
 }
