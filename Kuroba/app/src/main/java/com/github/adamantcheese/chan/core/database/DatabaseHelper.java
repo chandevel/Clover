@@ -385,15 +385,17 @@ public class DatabaseHelper
                 // the PersistableChanState class was added, so some settings are being moved over there
                 // get settings from before the move
                 IntegerSetting watchLastCount =
-                        getSettingForKey(p, "preference_watch_last_count", IntegerSetting.class);
+                        getSettingForKey(p, "preference_watch_last_count", IntegerSetting.class, Integer.class);
                 IntegerSetting previousVersion =
-                        getSettingForKey(p, "preference_previous_version", IntegerSetting.class);
-                LongSetting updateCheckTime = getSettingForKey(p, "update_check_time", LongSetting.class);
-                StringSetting previousDevHash = getSettingForKey(p, "previous_dev_hash", StringSetting.class);
+                        getSettingForKey(p, "preference_previous_version", IntegerSetting.class, Integer.class);
+                LongSetting updateCheckTime = getSettingForKey(p, "update_check_time", LongSetting.class, Long.class);
+                StringSetting previousDevHash =
+                        getSettingForKey(p, "previous_dev_hash", StringSetting.class, String.class);
                 StringSetting filterWatchIgnores =
-                        getSettingForKey(p, "filter_watch_last_ignored_set", StringSetting.class);
-                StringSetting youtubeTitleCache = getSettingForKey(p, "yt_title_cache", StringSetting.class);
-                StringSetting youtubeDurCache = getSettingForKey(p, "yt_dur_cache", StringSetting.class);
+                        getSettingForKey(p, "filter_watch_last_ignored_set", StringSetting.class, String.class);
+                StringSetting youtubeTitleCache =
+                        getSettingForKey(p, "yt_title_cache", StringSetting.class, String.class);
+                StringSetting youtubeDurCache = getSettingForKey(p, "yt_dur_cache", StringSetting.class, String.class);
 
                 // update a few of them
                 PersistableChanState.watchLastCount.setSync(watchLastCount.get());
@@ -411,7 +413,8 @@ public class DatabaseHelper
                 p.removeSync(youtubeDurCache.getKey());
 
                 // Preference key changed, move it over
-                BooleanSetting uploadCrashLogs = getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class);
+                BooleanSetting uploadCrashLogs =
+                        getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class, Boolean.class);
                 ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 44");
@@ -640,12 +643,22 @@ public class DatabaseHelper
      * @param <T>  the type of the setting, should extend Setting
      * @return the setting requested, or null
      */
-    public static <T> T getSettingForKey(SettingProvider p, String key, Class<T> type) {
+    public static <T, S> T getSettingForKey(SettingProvider p, String key, Class<T> type, Class<S> def) {
         if (!Setting.class.isAssignableFrom(type)) return null;
         try {
-            Constructor<T> c = type.getConstructor(SettingProvider.class, String.class, type);
+            Constructor<T> c = type.getConstructor(SettingProvider.class, String.class, def);
             c.setAccessible(true);
-            T returnSetting = c.newInstance(p, key, null);
+            Object defArg = null;
+            if (Integer.class.equals(def)) {
+                defArg = 0;
+            } else if (Long.class.equals(def)) {
+                defArg = 0L;
+            } else if (String.class.equals(def)) {
+                defArg = "";
+            } else if (Boolean.class.equals(def)) {
+                defArg = Boolean.FALSE;
+            }
+            T returnSetting = c.newInstance(p, key, defArg);
             c.setAccessible(false);
             return returnSetting;
         } catch (Exception failedSomething) {
