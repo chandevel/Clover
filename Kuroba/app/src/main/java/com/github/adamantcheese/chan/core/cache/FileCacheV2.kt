@@ -448,7 +448,6 @@ class FileCacheV2(
 
             val cancelableDownload = CancelableDownload(
                     url = url,
-                    requestCancellationThread = instance(ExecutorService::class.java),
                     downloadType = CancelableDownload.DownloadType(isPrefetchDownload, isGalleryBatchDownload)
             )
 

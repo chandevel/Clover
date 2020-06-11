@@ -11,6 +11,7 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
@@ -225,7 +226,7 @@ class MediaSettingsControllerPresenter(
             oldBaseDirectory: AbstractFile,
             newBaseDirectory: AbstractFile
     ) {
-        instance(ExecutorService::class.java).execute {
+        BackgroundUtils.runOnBackgroundThread {
             val result = fileManager.copyDirectoryWithContent(
                     oldBaseDirectory,
                     newBaseDirectory,

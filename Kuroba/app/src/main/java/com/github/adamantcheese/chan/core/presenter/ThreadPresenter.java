@@ -644,7 +644,7 @@ public class ThreadPresenter
             }
         }
 
-        instance(ExecutorService.class).submit(() -> instance(FilterWatchManager.class).onCatalogLoad(result));
+        BackgroundUtils.runOnBackgroundThread(() -> instance(FilterWatchManager.class).onCatalogLoad(result));
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {

@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
@@ -16,8 +17,7 @@ import java.util.concurrent.atomic.AtomicReference
  * */
 class CancelableDownload(
         val url: HttpUrl,
-        val downloadType: DownloadType,
-        private val requestCancellationThread: ExecutorService
+        val downloadType: DownloadType
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableMap<Class<*>, FileCacheListener> = mutableMapOf()
@@ -135,33 +135,33 @@ class CancelableDownload(
         // bit of time for it to get really canceled.
 
         try {
-            requestCancellationThread.submit {
-                        synchronized(this) {
-                            // Cancel downloads
-                            disposeFuncList.forEach { func ->
-                                try {
-                                    func.invoke()
-                                } catch (error: Throwable) {
-                                    Logger.e(TAG, "Unhandled error in dispose function, " +
-                                            "error = ${error.javaClass.simpleName}")
-                                }
-                            }
-
-                            disposeFuncList.clear()
+            instance(ExecutorService::class.java).submit {
+                synchronized(this) {
+                    // Cancel downloads
+                    disposeFuncList.forEach { func ->
+                        try {
+                            func.invoke()
+                        } catch (error: Throwable) {
+                            Logger.e(TAG, "Unhandled error in dispose function, " +
+                                    "error = ${error.javaClass.simpleName}")
                         }
-
-                        val action = when (state.get()) {
-                            DownloadState.Running -> {
-                                throw RuntimeException("Expected Stopped or Canceled but got Running!")
-                            }
-                            DownloadState.Stopped -> "Stopping"
-                            DownloadState.Canceled -> "Cancelling"
-                        }
-
-                        Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
                     }
+
+                    disposeFuncList.clear()
+                }
+
+                val action = when (state.get()) {
+                    DownloadState.Running -> {
+                        throw RuntimeException("Expected Stopped or Canceled but got Running!")
+                    }
+                    DownloadState.Stopped -> "Stopping"
+                    DownloadState.Canceled -> "Cancelling"
+                }
+
+                Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
+            }
                     // We use timeout here just in case to not get deadlocked
-                    .get(MAX_CANCELLATION_WAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .get(10L, TimeUnit.SECONDS)
         } catch (error: Throwable) {
             if (error is TimeoutException) {
                 Logger.e(TAG, "POSSIBLE DEADLOCK in CancelableDownload.dispose() !!!", error)
@@ -183,6 +183,5 @@ class CancelableDownload(
 
     companion object {
         private const val TAG = "CancelableDownload"
-        private const val MAX_CANCELLATION_WAIT_TIME_SECONDS = 10L
     }
 }

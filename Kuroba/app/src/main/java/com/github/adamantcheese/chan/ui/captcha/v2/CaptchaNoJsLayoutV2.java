@@ -143,7 +143,6 @@ public class CaptchaNoJsLayoutV2
 
         switch (captchaInfoError) {
             case OK:
-            case ALREADY_SHUTDOWN:
                 break;
             case HOLD_YOUR_HORSES:
                 showToast(
@@ -277,9 +276,6 @@ public class CaptchaNoJsLayoutV2
                             R.string.captcha_layout_v2_verification_already_in_progress,
                             Toast.LENGTH_LONG
                     );
-                    break;
-                case ALREADY_SHUTDOWN:
-                    // do nothing
                     break;
             }
         } catch (Throwable error) {

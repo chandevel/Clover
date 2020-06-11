@@ -52,6 +52,9 @@ public class BackgroundUtils {
     }
 
     public static void runOnBackgroundThread(Runnable runnable) {
+        if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
+            throw new AssertionError("Executor pool is terminated, this should never occur.");
+        }
         runOnMainThread(() -> {
             try {
                 instance(ExecutorService.class).submit(runnable).get();
@@ -61,8 +64,12 @@ public class BackgroundUtils {
     }
 
     public static void runOnBackgroundThread(Runnable runnable, long delay) {
+        if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
+            throw new AssertionError("Executor pool is terminated, this should never occur.");
+        }
         runOnMainThread(() -> {
             try {
+                assert !instance(ExecutorService.class).isTerminated();
                 instance(ExecutorService.class).submit(runnable).get();
             } catch (Exception ignored) {
             }

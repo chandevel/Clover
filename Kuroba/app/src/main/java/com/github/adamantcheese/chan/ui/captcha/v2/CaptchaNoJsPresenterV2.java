@@ -100,12 +100,6 @@ public class CaptchaNoJsPresenterV2 {
             return VerifyError.ALREADY_IN_PROGRESS;
         }
 
-        if (executor.isShutdown()) {
-            verificationInProgress.set(false);
-            Logger.d(this, "Cannot verify, executor has been shut down");
-            return VerifyError.ALREADY_SHUTDOWN;
-        }
-
         try {
             if (selectedIds.isEmpty()) {
                 verificationInProgress.set(false);
@@ -176,12 +170,6 @@ public class CaptchaNoJsPresenterV2 {
                 captchaRequestInProgress.set(false);
                 Logger.d(this, "Requesting captcha info too fast");
                 return RequestCaptchaInfoError.HOLD_YOUR_HORSES;
-            }
-
-            if (executor.isShutdown()) {
-                captchaRequestInProgress.set(false);
-                Logger.d(this, "Cannot request captcha info, executor has been shut down");
-                return RequestCaptchaInfoError.ALREADY_SHUTDOWN;
             }
 
             lastTimeCaptchaRequest = System.currentTimeMillis();
@@ -334,22 +322,18 @@ public class CaptchaNoJsPresenterV2 {
         this.prevCaptchaInfo = null;
         this.verificationInProgress.set(false);
         this.captchaRequestInProgress.set(false);
-
-        executor.shutdown();
     }
 
     public enum VerifyError {
         OK,
         NO_IMAGES_SELECTED,
-        ALREADY_IN_PROGRESS,
-        ALREADY_SHUTDOWN
+        ALREADY_IN_PROGRESS
     }
 
     public enum RequestCaptchaInfoError {
         OK,
         ALREADY_IN_PROGRESS,
-        HOLD_YOUR_HORSES,
-        ALREADY_SHUTDOWN
+        HOLD_YOUR_HORSES
     }
 
     public interface AuthenticationCallbacks {

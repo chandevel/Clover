@@ -144,7 +144,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ExecutorService provideSingleThreadExecutor() {
-        return Executors.newSingleThreadExecutor();
+    public ExecutorService provideBackgroundPool() {
+        return Executors.newFixedThreadPool(2);
     }
 }
