@@ -31,10 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%d board</item>
         <item quantity="other">%d boards</item>
     </plurals>
-    <plurals name="type">
-        <item quantity="one">%d type</item>
-        <item quantity="other">%d types</item>
-    </plurals>
     <plurals name="bookmark">
         <item quantity="one">%d bookmark</item>
         <item quantity="other">%d bookmarks</item>
