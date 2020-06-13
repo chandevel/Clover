@@ -291,16 +291,17 @@ public class ReplyLayout
     }
 
     private void setWrappingMode(boolean matchParent) {
+        // MATCH_PARENT is used for the expanded view, WRAP_CONTENT is for the minimized view
         LayoutParams params = (LayoutParams) getLayoutParams();
         params.width = MATCH_PARENT;
         params.height = matchParent ? MATCH_PARENT : WRAP_CONTENT;
 
         if (ChanSettings.moveInputToBottom.get()) {
             if (matchParent) {
-                setPadding(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
-                params.gravity = Gravity.TOP;
+                params.setMargins(0, ((ThreadListLayout) getParent()).toolbarHeight(), 0, 0);
+                params.gravity = -1;
             } else {
-                setPadding(0, 0, 0, 0);
+                params.setMargins(0, 0, 0, 0);
                 params.gravity = Gravity.BOTTOM;
             }
         }
