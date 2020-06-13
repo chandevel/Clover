@@ -1017,21 +1017,43 @@ public class ThreadPresenter
                 requestDeletePost(post);
                 break;
             case POST_OPTION_SAVE:
-                SavedReply savedReply = SavedReply.fromBoardNoPassword(post.board, post.no, "");
+                if (!isBound()) break;
+                Set<Post> matchingPosts = new HashSet<>(1);
+                if (TextUtils.isEmpty(post.id)) {
+                    //just this post
+                    matchingPosts.add(post);
+                } else {
+                    //match all post IDs
+                    //noinspection ConstantConditions, isBound check takes care of this
+                    for (Post p : getChanThread().getPosts()) {
+                        if (!TextUtils.isEmpty(p.id) && p.id.equals(post.id)) {
+                            matchingPosts.add(p);
+                        }
+                    }
+                }
+
                 if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
-                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(savedReply));
-                    Pin watchedPin = watchManager.getPinByLoadable(loadable);
-                    if (watchedPin != null) {
-                        synchronized (this) {
-                            watchedPin.quoteLastCount -= post.repliesFrom.size();
+                    //unsave all matching posts
+                    for (Post p : matchingPosts) {
+                        SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
+                        databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(saved));
+                        Pin watchedPin = watchManager.getPinByLoadable(loadable);
+                        if (watchedPin != null) {
+                            synchronized (this) {
+                                watchedPin.quoteLastCount -= p.repliesFrom.size();
+                            }
                         }
                     }
                 } else {
-                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
-                    Pin watchedPin = watchManager.getPinByLoadable(loadable);
-                    if (watchedPin != null) {
-                        synchronized (this) {
-                            watchedPin.quoteLastCount += post.repliesFrom.size();
+                    //save all matching posts
+                    for (Post p : matchingPosts) {
+                        SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
+                        databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
+                        Pin watchedPin = watchManager.getPinByLoadable(loadable);
+                        if (watchedPin != null) {
+                            synchronized (this) {
+                                watchedPin.quoteLastCount += p.repliesFrom.size();
+                            }
                         }
                     }
                 }
