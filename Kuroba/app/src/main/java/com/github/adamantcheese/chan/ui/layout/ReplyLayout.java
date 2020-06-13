@@ -135,10 +135,9 @@ public class ReplyLayout
     private ImageView preview;
     private TextView previewMessage;
     private ImageView attach;
-    private ConstraintLayout captcha;
     private TextView validCaptchasCount;
     private ImageView more;
-    private ImageView submit;
+    private ConstraintLayout submit;
     @Nullable
     private HintPopup hintPopup = null;
 
@@ -213,7 +212,6 @@ public class ReplyLayout
         previewHolder = replyInputLayout.findViewById(R.id.preview_holder);
         previewMessage = replyInputLayout.findViewById(R.id.preview_message);
         attach = replyInputLayout.findViewById(R.id.attach);
-        captcha = replyInputLayout.findViewById(R.id.captcha_container);
         validCaptchasCount = replyInputLayout.findViewById(R.id.valid_captchas_count);
         more = replyInputLayout.findViewById(R.id.more);
         submit = replyInputLayout.findViewById(R.id.submit);
@@ -250,9 +248,6 @@ public class ReplyLayout
             return true;
         });
 
-        ImageView captchaImage = replyInputLayout.findViewById(R.id.captcha);
-        captcha.setOnClickListener(this);
-
         submit.setOnClickListener(this);
         submit.setOnLongClickListener(v -> {
             presenter.onSubmitClicked(true);
@@ -284,15 +279,6 @@ public class ReplyLayout
 
     public void onOpen(boolean open) {
         presenter.onOpen(open);
-    }
-
-    public void bindLoadable(Loadable loadable) {
-        if (loadable.site.actions().postRequiresAuthentication()) {
-            comment.setMinHeight(dp(144));
-        } else {
-            captcha.setVisibility(GONE);
-        }
-        presenter.bindLoadable(loadable);
     }
 
     public void cleanup() {
@@ -328,8 +314,6 @@ public class ReplyLayout
             presenter.onMoreClicked();
         } else if (v == attach) {
             presenter.onAttachClicked(false);
-        } else if (v == captcha) {
-            presenter.onAuthenticateCalled();
         } else if (v == submit) {
             presenter.onSubmitClicked(false);
         } else if (v == previewHolder) {

@@ -7,13 +7,17 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 
 public class CaptchaHolder {
     private static final long INTERVAL = 5000;
@@ -24,8 +28,9 @@ public class CaptchaHolder {
 
     private List<CaptchaValidationListener> captchaValidationListeners = new ArrayList<>();
 
+    // this Deque operates as a queue, where the first added captcha token is the first removed, as it would be the first to expire
     @GuardedBy("itself")
-    private final List<CaptchaInfo> captchaQueue = new ArrayList<>();
+    private final Deque<CaptchaInfo> captchaQueue = new ArrayDeque<>();
 
     public void addListener(CaptchaValidationListener listener) {
         captchaValidationListeners.add(listener);
@@ -39,8 +44,8 @@ public class CaptchaHolder {
         removeNotValidTokens();
 
         synchronized (captchaQueue) {
-            captchaQueue.add(0, new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
-            Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + trimToken(token));
+            captchaQueue.addLast(new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
+            Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + captchaQueue.peek());
         }
 
         notifyListeners();
@@ -70,14 +75,11 @@ public class CaptchaHolder {
                 return null;
             }
 
-            int lastIndex = captchaQueue.size() - 1;
-
-            String token = captchaQueue.get(lastIndex).getToken();
-            captchaQueue.remove(lastIndex);
-            Logger.d(this, "getToken() token = " + trimToken(token));
+            CaptchaInfo token = captchaQueue.removeFirst();
+            Logger.d(this, "Got token " + token);
 
             notifyListeners();
-            return token;
+            return token.token;
         }
     }
 
@@ -104,18 +106,14 @@ public class CaptchaHolder {
         boolean captchasCountDecreased = false;
 
         synchronized (captchaQueue) {
-            ListIterator<CaptchaInfo> it = captchaQueue.listIterator(captchaQueue.size());
-            while (it.hasPrevious()) {
-                CaptchaInfo captchaInfo = it.previous();
-                if (now > captchaInfo.getValidUntil()) {
+            Iterator<CaptchaInfo> it = captchaQueue.iterator();
+            while (it.hasNext()) {
+                CaptchaInfo captchaInfo = it.next();
+                if (now > captchaInfo.validUntil) {
                     captchasCountDecreased = true;
                     it.remove();
 
-                    Logger.d(
-                            this,
-                            "Captcha token expired, now = " + sdf.format(now) + ", token validUntil = " + sdf.format(
-                                    captchaInfo.getValidUntil()) + ", token = " + trimToken(captchaInfo.getToken())
-                    );
+                    Logger.d(this, "Captcha token expired, now = " + sdf.format(now) + ", token " + captchaInfo);
                 }
             }
 
@@ -150,59 +148,31 @@ public class CaptchaHolder {
     }
 
     private static class CaptchaInfo {
-        private String token;
-        private long validUntil;
+        public String token;
+        public long validUntil;
 
         public CaptchaInfo(String token, long validUntil) {
             this.token = token;
             this.validUntil = validUntil;
         }
 
-        public String getToken() {
-            return token;
-        }
-
-        public long getValidUntil() {
-            return validUntil;
-        }
-
         @Override
         public int hashCode() {
-            return token.hashCode() * 31 * (int) (validUntil & 0x00000000FFFFFFFFL) * 31 * (int) ((validUntil >> 32)
-                    & 0x00000000FFFFFFFFL);
+            long mask = 0x00000000FFFFFFFFL;
+            return token.hashCode() * 31 * (int) (validUntil & mask) * 31 * (int) ((validUntil >> 32) & mask);
         }
 
         @Override
         public boolean equals(@Nullable Object other) {
-            if (other == null) {
-                return false;
-            }
-
-            if (this == other) {
-                return true;
-            }
-
-            if (this.getClass() != other.getClass()) {
-                return false;
-            }
-
+            if (!(other instanceof CaptchaInfo)) return false;
             CaptchaInfo otherCaptchaInfo = (CaptchaInfo) other;
-
-            return token.equals(otherCaptchaInfo.token) && validUntil == otherCaptchaInfo.getValidUntil();
+            return token.equals(otherCaptchaInfo.token) && validUntil == otherCaptchaInfo.validUntil;
         }
 
         @NonNull
         @Override
         public String toString() {
-            return "validUntil = " + sdf.format(validUntil) + ", token = " + trimToken(token);
+            return "validUntil = " + sdf.format(validUntil) + ", token = " + centerEllipsize(token, 16);
         }
-    }
-
-    private static String trimToken(String token) {
-        if (token.length() <= 16) {
-            return token;
-        }
-
-        return token.substring(0, 7) + "..." + token.substring(token.length() - 8);
     }
 }

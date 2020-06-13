@@ -200,4 +200,13 @@ public class StringUtils {
                 .toFormatter()
                 .print(time);
     }
+
+    public static String centerEllipsize(String string, int maxLength) {
+        if (string.length() <= maxLength) {
+            return string;
+        }
+
+        return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "\u2026" + string.substring(
+                string.length() - maxLength / 2 - maxLength % 2);
+    }
 }

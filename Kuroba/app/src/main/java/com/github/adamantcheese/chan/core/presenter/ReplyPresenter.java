@@ -238,39 +238,19 @@ public class ReplyPresenter
     }
 
     public void onSubmitClicked(boolean longClicked) {
-        if (!onPrepareToSubmit(false)) {
+        long timeLeft = lastReplyRepository.getTimeUntilDraftPostable(draft);
+
+        boolean authenticateOnly = timeLeft > 0L && !longClicked;
+        if (!onPrepareToSubmit(authenticateOnly)) {
             return;
         }
 
-        //only 4chan seems to have the post delay, this is a hack for that
-        if (draft.loadable.site instanceof Chan4 && !longClicked) {
-            if (loadable.isThreadMode()) {
-                long timeLeft = lastReplyRepository.getTimeUntilReply(draft.loadable.board, draft.file != null);
-                if (timeLeft < 0L) {
-                    submitOrAuthenticate();
-                } else {
-                    String errorMessage = getString(R.string.reply_error_message_timer_reply, timeLeft);
-                    switchPage(Page.INPUT);
-                    callback.openMessage(errorMessage);
-                }
-            } else {
-                long timeLeft = lastReplyRepository.getTimeUntilThread(draft.loadable.board);
-                if (timeLeft < 0L) {
-                    submitOrAuthenticate();
-                } else {
-                    String errorMessage = getString(R.string.reply_error_message_timer_thread, timeLeft);
-                    switchPage(Page.INPUT);
-                    callback.openMessage(errorMessage);
-                }
-            }
-        } else {
-            submitOrAuthenticate();
-        }
+        submitOrAuthenticate(authenticateOnly);
     }
 
-    private void submitOrAuthenticate() {
+    private void submitOrAuthenticate(boolean authenticateOnly) {
         if (loadable.site.actions().postRequiresAuthentication()) {
-            switchPage(Page.AUTHENTICATION);
+            switchPage(Page.AUTHENTICATION, true, !authenticateOnly);
         } else {
             makeSubmitCall();
         }
@@ -388,6 +368,14 @@ public class ReplyPresenter
     ) {
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
+
+        long timeLeft = lastReplyRepository.getTimeUntilDraftPostable(draft);
+        if (timeLeft > 0L && !autoReply) {
+            String errorMessage = getString(R.string.reply_error_message_timer, timeLeft);
+            switchPage(Page.INPUT);
+            callback.openMessage(errorMessage);
+            return;
+        }
 
         if (autoReply) {
             makeSubmitCall();

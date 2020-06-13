@@ -266,7 +266,7 @@ public class ThreadListLayout
     ) {
         showingThread = thread;
         if (initial) {
-            reply.bindLoadable(showingThread.getLoadable());
+            reply.getPresenter().bindLoadable(showingThread.getLoadable());
 
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(layoutManager);

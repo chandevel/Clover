@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.http.Reply;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ public class LastReplyRepository {
      * @param hasImage if the reply has an image attached to it
      * @return seconds until a new reply can be posted on this board; negative if postable
      */
-    public long getTimeUntilReply(Board b, boolean hasImage) {
+    private long getTimeUntilReply(Board b, boolean hasImage) {
         Long lastTime = lastReplyMap.get(b);
         long lastReplyTime = lastTime != null ? lastTime : 0L;
         long waitTime = hasImage ? b.cooldownImages : b.cooldownReplies;
@@ -50,11 +51,19 @@ public class LastReplyRepository {
      * @param b board for a new thread
      * @return seconds until a new thread can be posted on this board; negative if postable
      */
-    public long getTimeUntilThread(Board b) {
+    private long getTimeUntilThread(Board b) {
         Long lastTime = lastThreadMap.get(b);
         long lastThreadTime = lastTime != null ? lastTime : 0L;
         long waitTime = b.cooldownThreads;
         if (b.site.actions().isLoggedIn()) waitTime /= 2;
         return waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
+    }
+
+    public long getTimeUntilDraftPostable(Reply draft) {
+        if (draft.loadable.isThreadMode()) {
+            return getTimeUntilReply(draft.loadable.board, draft.file != null);
+        } else {
+            return getTimeUntilThread(draft.loadable.board);
+        }
     }
 }

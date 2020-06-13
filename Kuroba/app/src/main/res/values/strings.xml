@@ -345,8 +345,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="reply_no_preview">No preview</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
-    <string name="reply_error_message_timer_reply">Error posting: You must wait %d seconds before posting a reply.</string>
-    <string name="reply_error_message_timer_thread">Error posting: You must wait %d seconds before posting a thread.</string>
+    <string name="reply_error_message_timer">Error posting: You must wait %d seconds before posting.</string>
     <string name="reply_success">Post successful</string>
 
     <string name="reply_captcha_text">Type the text</string>

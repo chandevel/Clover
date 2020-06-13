@@ -119,7 +119,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
                     android:maxLines="6"
                     android:minHeight="108dp"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    tools:text="@string/lorem_ipsum" />
 
                 <TextView
                     android:id="@+id/comment_counter"
@@ -127,9 +128,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentRight="true"
-                    android:paddingRight="8dp"
+                    android:paddingRight="4dp"
                     android:textColor="?android:textColorSecondary"
                     android:textSize="12sp"
+                    android:translationY="-2dp"
                     tools:ignore="RelativeOverlap"
                     tools:text="0/2000" />
 
@@ -237,7 +239,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="128dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
-                    android:scaleType="fitCenter" />
+                    android:scaleType="fitCenter"
+                    tools:src="@mipmap/ic_launcher_foreground" />
 
                 <Space
                     android:layout_width="0dp"
@@ -297,9 +300,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <ImageView
                 android:id="@+id/more"
-                android:background="@drawable/ripple_item_background"
                 android:layout_width="36dp"
                 android:layout_height="36dp"
+                android:background="@drawable/ripple_item_background"
                 android:padding="6dp"
                 android:scaleX="1.25"
                 android:scaleY="1.25"
@@ -309,48 +312,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <ImageView
                 android:id="@+id/attach"
                 android:layout_width="36dp"
-                android:background="@drawable/ripple_item_background"
                 android:layout_height="36dp"
+                android:background="@drawable/ripple_item_background"
                 android:padding="6dp"
                 android:src="@drawable/ic_image_themed_24dp"
-                android:tint="?attr/themeDrawableColor"/>
+                android:tint="?attr/themeDrawableColor" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/captcha_container"
+                android:id="@+id/submit"
                 android:layout_width="36dp"
                 android:layout_height="36dp">
 
                 <ImageView
-                    android:id="@+id/captcha"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="6dp"
                     android:background="@drawable/ripple_item_background"
-                    android:src="@drawable/ic_captcha" />
+                    android:padding="6dp"
+                    android:src="@drawable/ic_send_themed_24dp" />
 
                 <TextView
                     android:id="@+id/valid_captchas_count"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:background="@drawable/circle_background"
+                    android:clickable="false"
                     android:gravity="center"
                     android:textColor="#fff"
                     android:textSize="12sp"
                     android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="99+"
-                    tools:visibility="visible"/>
+                    tools:text="2"
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <ImageView
-                android:id="@+id/submit"
-                android:layout_width="36dp"
-                android:background="@drawable/ripple_item_background"
-                android:layout_height="36dp"
-                android:padding="6dp"
-                android:src="@drawable/ic_send_themed_24dp" />
 
         </LinearLayout>
 
