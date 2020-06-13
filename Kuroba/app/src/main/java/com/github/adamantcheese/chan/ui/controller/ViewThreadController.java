@@ -62,7 +62,9 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -174,6 +176,7 @@ public class ViewThreadController
             menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchivesInternal);
         }
         menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
+                .withSubItem(R.string.view_your_posts, this::showYourPosts)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
@@ -290,6 +293,20 @@ public class ViewThreadController
                 new AlertDialog.Builder(context).setView(dialogView).setTitle(R.string.thread_show_archives).create();
         dialog.setCanceledOnTouchOutside(true);
         dialog.show();
+    }
+
+    public void showYourPosts(ToolbarMenuSubItem item) {
+        if (!threadLayout.getPresenter().isBound() || threadLayout.getPresenter().getChanThread() == null) return;
+        List<Post> yourPosts = new ArrayList<>();
+        for (Post post : threadLayout.getPresenter().getChanThread().getPosts()) {
+            if (post.isSavedReply) yourPosts.add(post);
+        }
+
+        if (yourPosts.isEmpty()) {
+            showToast(context, R.string.no_saved_posts_for_current_thread);
+        } else {
+            threadLayout.showPostsPopup(null, yourPosts);
+        }
     }
 
     public void showRemovedPostsDialog(ToolbarMenuSubItem item) {

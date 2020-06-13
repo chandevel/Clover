@@ -122,7 +122,7 @@ public class PostPopupHelper {
         public int listViewTop;
 
         public RepliesData(Post forPost, List<Post> posts) {
-            this.forPostNo = forPost.no;
+            this.forPostNo = forPost == null ? -1 : forPost.no;
             this.posts = posts;
         }
     }

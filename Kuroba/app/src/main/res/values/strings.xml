@@ -867,4 +867,7 @@ Don't have a 4chan Pass?<br>
     <string name="file_has_orientation_exif_data">This file has orientation data. Consider re-encoding it before posting.</string>
     <string name="file_type_may_not_be_supported">This file may not be supported on this imageboard. Consider re-encoding it before posting.</string>
     <string name="file_cannot_be_reencoded">Image doesn\'t support re-encoding. You can change the filename by long pressing the preview image.</string>
+
+    <string name="view_your_posts">View your posts</string>
+    <string name="no_saved_posts_for_current_thread">You haven\'t posted in this thread!</string>
 </resources>
