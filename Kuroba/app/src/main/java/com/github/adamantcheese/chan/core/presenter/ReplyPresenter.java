@@ -276,14 +276,15 @@ public class ReplyPresenter
     public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
-            Loadable newThreadLoadable = Loadable.forThread(replyResponse.originatingReply.loadable.site,
-                    replyResponse.originatingReply.loadable.board,
-                    replyResponse.threadNo,
+            Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.site,
+                    originatingLoadable.board,
+                    replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
                     "Title will update shortly…"
             );
             newThreadLoadable = databaseManager.getDatabaseLoadableManager().get(newThreadLoadable);
+
             if (originatingLoadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(newThreadLoadable.board);
+                lastReplyRepository.putLastThread(originatingLoadable.board);
             } else {
                 lastReplyRepository.putLastReply(originatingLoadable.board);
             }

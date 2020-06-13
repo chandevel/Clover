@@ -64,6 +64,17 @@ public abstract class CommonReplyHttpCall
 
     @Override
     public void process(Response response, String result) {
+        /*
+        FOR A REGULAR REPLY
+        <!-- thread:3255892,no:3259817 -->
+                    ^^^^^^^	   ^^^^^^^
+                    thread#    post#
+
+		FOR A NEW THREAD
+        <!-- thread:0,no:204393073 -->
+                    ^    ^^^^^^^^^
+              catalog    thread#
+         */
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
