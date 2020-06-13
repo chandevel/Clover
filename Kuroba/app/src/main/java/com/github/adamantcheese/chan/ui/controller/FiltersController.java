@@ -53,7 +53,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -271,20 +270,28 @@ public class FiltersController
             holder.subtext.setTextColor(getAttrColor(context,
                     filter.enabled ? android.R.attr.textColorSecondary : android.R.attr.textColorHint
             ));
-            int types = FilterType.forFlags(filter.type).size();
-            String subText = getQuantityString(R.plurals.type, types, types);
 
-            subText += " \u2013 ";
-            if (filter.allBoards) {
-                subText += getString(R.string.filter_summary_all_boards);
+            StringBuilder subText = new StringBuilder();
+            int types = FilterType.forFlags(filter.type).size();
+            if (types == 1) {
+                subText.append(FilterType.filterTypeName(FilterType.forFlags(filter.type).get(0)));
             } else {
-                int size = filterEngine.getFilterBoardCount(filter);
-                subText += getQuantityString(R.plurals.board, size, size);
+                subText.append(String.format(Locale.ENGLISH, "%d types", types));
             }
 
-            subText += " \u2013 " + FilterAction.actionName(FilterAction.forId(filter.action));
+            subText.append(" \u2013 ");
+            if (filter.allBoards) {
+                subText.append(getString(R.string.filter_summary_all_boards));
+            } else if (filterEngine.getFilterBoardCount(filter) == 1) {
+                subText.append(String.format("/%s/", filter.boardCodesNoId()[0]));
+            } else {
+                int size = filterEngine.getFilterBoardCount(filter);
+                subText.append(String.format(Locale.ENGLISH, "%d boards", size));
+            }
 
-            holder.subtext.setText(subText);
+            subText.append(" \u2013 ").append(FilterAction.actionName(FilterAction.forId(filter.action)));
+
+            holder.subtext.setText(subText.toString());
         }
 
         @Override
