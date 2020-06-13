@@ -54,8 +54,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
-import okhttp3.HttpUrl;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;

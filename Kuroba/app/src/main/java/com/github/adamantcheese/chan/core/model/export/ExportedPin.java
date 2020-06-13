@@ -17,12 +17,9 @@
 package com.github.adamantcheese.chan.core.model.export;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.google.gson.annotations.SerializedName;
-
-import okhttp3.HttpUrl;
 
 public class ExportedPin {
     @SerializedName("archived")

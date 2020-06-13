@@ -42,7 +42,6 @@ import java.util.concurrent.ExecutorService;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import okhttp3.Cache;
 import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;

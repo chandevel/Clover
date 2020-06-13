@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
 import android.net.ConnectivityManager
-import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
@@ -31,7 +30,6 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
