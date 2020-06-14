@@ -193,15 +193,6 @@ public class ThreadPresenter
                 unbindLoadable();
             }
 
-            Pin pin = watchManager.findPinByLoadableId(loadable.id);
-            // TODO this isn't true anymore, because all loadables come from one location.
-            if (pin != null) {
-                // Use the loadable from the pin.
-                // This way we can store the list position in the pin loadable,
-                // and not in a separate loadable instance.
-                loadable = pin.loadable;
-            }
-
             this.loadable = loadable;
             this.addToLocalBackHistory = addToLocalBackHistory;
 
