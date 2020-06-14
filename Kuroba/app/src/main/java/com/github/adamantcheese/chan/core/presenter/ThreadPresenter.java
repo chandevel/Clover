@@ -806,12 +806,12 @@ public class ThreadPresenter
     @Override
     public void onPostClicked(Post post) {
         if (isBound() && loadable.isCatalogMode()) {
-            Loadable newLoadable =
-                    Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable));
-
             highlightPost(post);
-            Loadable threadLoadable = databaseManager.getDatabaseLoadableManager().get(newLoadable);
-            threadPresenterCallback.showThread(threadLoadable);
+            threadPresenterCallback.showThread(Loadable.forThread(loadable.site,
+                    post.board,
+                    post.no,
+                    PostHelper.getTitle(post, loadable)
+            ));
         }
     }
 
@@ -1061,10 +1061,11 @@ public class ThreadPresenter
                 requestData();
                 break;
             case POST_OPTION_PIN:
-                String title = PostHelper.getTitle(post, loadable);
-                Loadable pinLoadable = databaseManager.getDatabaseLoadableManager()
-                        .get(Loadable.forThread(loadable.site, post.board, post.no, title));
-                watchManager.createPin(pinLoadable, post, PinType.WATCH_NEW_POSTS);
+                watchManager.createPin(
+                        Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable)),
+                        post,
+                        PinType.WATCH_NEW_POSTS
+                );
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 if (isBound()) {
@@ -1143,8 +1144,7 @@ public class ThreadPresenter
 
             Board board = loadable.site.board(link.board);
             if (board != null) {
-                Loadable thread = databaseManager.getDatabaseLoadableManager()
-                        .get(Loadable.forThread(board.site, board, link.threadId, ""));
+                Loadable thread = Loadable.forThread(board.site, board, link.threadId, "");
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
@@ -1155,8 +1155,7 @@ public class ThreadPresenter
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
-                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-                threadPresenterCallback.showBoard(catalog);
+                threadPresenterCallback.showBoard(Loadable.forCatalog(board));
             }
         } else if (linkable.type == PostLinkable.Type.SEARCH && isBound()) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
@@ -1165,8 +1164,7 @@ public class ThreadPresenter
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
-                Loadable catalog = databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-                threadPresenterCallback.showBoardAndSearch(catalog, search.search);
+                threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(board), search.search);
             }
         }
     }

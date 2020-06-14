@@ -135,9 +135,7 @@ public class FilterWatchManager
                 for (String code : boardCodes) {
                     if (b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
-                        Loadable boardLoadable = Loadable.forCatalog(b);
-                        boardLoadable = databaseLoadableManager.get(boardLoadable);
-                        ChanThreadLoader catalogLoader = chanLoaderManager.obtain(boardLoadable, backgroundLoader);
+                        ChanThreadLoader catalogLoader = chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
                 }
@@ -161,7 +159,6 @@ public class FilterWatchManager
                             p.no,
                             PostHelper.getTitle(p, catalog.getLoadable())
                     );
-                    pinLoadable = databaseLoadableManager.get(pinLoadable);
                     instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                     toAdd.add(p.no);
                 }
@@ -188,7 +185,6 @@ public class FilterWatchManager
                                 p.no,
                                 PostHelper.getTitle(p, result.getLoadable())
                         );
-                        pinLoadable = databaseLoadableManager.get(pinLoadable);
                         instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                         toAdd.add(p.no);
                     }

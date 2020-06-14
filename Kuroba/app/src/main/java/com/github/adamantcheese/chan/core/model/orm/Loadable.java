@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.model.orm;
 import android.os.Parcel;
 import android.text.TextUtils;
 
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
@@ -161,7 +163,7 @@ public class Loadable
         loadable.boardCode = board.code;
         loadable.no = no;
         loadable.title = title;
-        return loadable;
+        return instance(DatabaseManager.class).getDatabaseLoadableManager().get(loadable);
     }
 
     public Site getSite() {
@@ -263,11 +265,6 @@ public class Loadable
 
     public boolean isCatalogMode() {
         return mode == Mode.CATALOG;
-    }
-
-    // TODO(multi-site) remove
-    public boolean isFromDatabase() {
-        return id > 0;
     }
 
     /**

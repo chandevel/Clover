@@ -281,7 +281,6 @@ public class ReplyPresenter
                     replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
                     "Title will update shortly…"
             );
-            newThreadLoadable = databaseManager.getDatabaseLoadableManager().get(newThreadLoadable);
 
             if (originatingLoadable.isCatalogMode()) {
                 lastReplyRepository.putLastThread(originatingLoadable.board);

@@ -54,10 +54,6 @@ public class ChanLoaderManager {
 
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
-            if (!loadable.isFromDatabase()) {
-                throw new IllegalArgumentException();
-            }
-
             chanLoader = threadLoaders.get(loadable);
             if (chanLoader == null) {
                 chanLoader = threadLoadersCache.get(loadable);

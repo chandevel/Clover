@@ -32,7 +32,6 @@ import javax.inject.Inject;
 
 public class BrowsePresenter
         implements Observer {
-    private final DatabaseManager databaseManager;
 
     @Nullable
     private Callback callback;
@@ -43,9 +42,7 @@ public class BrowsePresenter
     private BoardRepository.SitesBoards savedBoardsObservable;
 
     @Inject
-    public BrowsePresenter(DatabaseManager databaseManager, BoardManager boardManager) {
-        this.databaseManager = databaseManager;
-
+    public BrowsePresenter(BoardManager boardManager) {
         savedBoardsObservable = boardManager.getSavedBoardsObservable();
 
         hadBoards = hasBoards();
@@ -106,15 +103,11 @@ public class BrowsePresenter
         return null;
     }
 
-    private Loadable getLoadableForBoard(Board board) {
-        return databaseManager.getDatabaseLoadableManager().get(Loadable.forCatalog(board));
-    }
-
     private void loadBoard(Board board) {
         if (callback != null) {
             currentBoard = board;
 
-            callback.loadBoard(getLoadableForBoard(board));
+            callback.loadBoard(Loadable.forCatalog(board));
         }
     }
 
