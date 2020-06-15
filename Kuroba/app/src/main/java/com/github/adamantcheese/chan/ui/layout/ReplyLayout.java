@@ -704,10 +704,16 @@ public class ReplyLayout
 
     @Override
     public void openSpoiler(boolean show, boolean setUnchecked) {
-        spoiler.setVisibility(show ? VISIBLE : GONE);
+        spoiler.setVisibility(show && presenter.canPostSpoileredImages() ? VISIBLE : GONE);
         if (setUnchecked) {
             spoiler.setChecked(false);
         }
+    }
+
+    @Override
+    public void enableImageAttach(boolean canAttach) {
+        attach.setVisibility(canAttach ? VISIBLE : GONE);
+        attach.setEnabled(canAttach);
     }
 
     @Override

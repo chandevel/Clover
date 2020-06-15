@@ -77,13 +77,11 @@ public interface Site {
         /**
          * This board supports posting with images.
          */
-        // TODO(multisite) use this
         POSTING_IMAGE,
 
         /**
          * This board supports posting with a checkbox to mark the posted image as a spoiler.
          */
-        // TODO(multisite) use this
         POSTING_SPOILER,
 
         /**

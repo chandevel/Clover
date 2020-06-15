@@ -240,7 +240,14 @@ public abstract class CommonSite
         }
 
         public boolean boardFeature(BoardFeature boardFeature, Board board) {
-            return false;
+            switch (boardFeature) {
+                case POSTING_IMAGE:
+                    return true;
+                case POSTING_SPOILER:
+                    return board.spoilers;
+                default:
+                    return false;
+            }
         }
     }
 
@@ -450,7 +457,7 @@ public abstract class CommonSite
             call.url(site.endpoints().reply(reply.loadable));
 
             if (requirePrepare()) {
-               BackgroundUtils.runOnBackgroundThread(() -> {
+                BackgroundUtils.runOnBackgroundThread(() -> {
                     prepare(call, reply, replyResponse);
                     BackgroundUtils.runOnMainThread(() -> {
                         setupPost(reply, call);

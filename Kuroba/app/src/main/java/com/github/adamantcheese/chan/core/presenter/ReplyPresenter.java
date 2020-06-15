@@ -58,6 +58,8 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -133,6 +135,7 @@ public class ReplyPresenter
                 ? R.string.reply_comment_thread
                 : R.string.reply_comment_board));
         callback.showCommentCounter(board.maxCommentChars > 0);
+        callback.enableImageAttach(canPostImages());
 
         if (draft.file != null) {
             showPreview(draft.fileName, draft.file);
@@ -149,6 +152,14 @@ public class ReplyPresenter
 
             closeAll();
         }
+    }
+
+    public boolean canPostImages() {
+        return loadable.site.boardFeature(POSTING_IMAGE, loadable.board);
+    }
+
+    public boolean canPostSpoileredImages() {
+        return loadable.site.boardFeature(POSTING_SPOILER, loadable.board);
     }
 
     public void onOpen(boolean open) {
@@ -690,5 +701,7 @@ public class ReplyPresenter
         void destroyCurrentAuthentication();
 
         void showAuthenticationFailedError(Throwable error);
+
+        void enableImageAttach(boolean canAttach);
     }
 }
