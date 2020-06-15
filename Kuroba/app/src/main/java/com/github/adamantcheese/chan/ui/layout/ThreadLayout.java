@@ -119,7 +119,6 @@ public class ThreadLayout
     private RemovedPostsHelper removedPostsHelper;
     private Visible visible;
     private ProgressDialog deletingDialog;
-    private boolean refreshedFromSwipe;
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
     private Snackbar newPostsNotification;
@@ -211,11 +210,6 @@ public class ThreadLayout
 
     public ThreadPresenter getPresenter() {
         return presenter;
-    }
-
-    public void refreshFromSwipe() {
-        refreshedFromSwipe = true;
-        presenter.requestData();
     }
 
     public void gainedFocus() {
@@ -713,7 +707,7 @@ public class ThreadLayout
     private void showReplyButton(final boolean show) {
         if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
-
+            replyButton.animate().cancel();
             replyButton.animate()
                     .setInterpolator(new DecelerateInterpolator(2f))
                     .setStartDelay(show ? 100 : 0)
@@ -748,37 +742,26 @@ public class ThreadLayout
                     if (getLoadable() == null || getLoadable().isThreadMode()) {
                         showSearch(false);
                     }
-                    showReplyButton(false);
                     dismissSnackbar();
                 }
             }
 
             this.visible = visible;
+            showReplyButton(false);
+            callback.hideSwipeRefreshLayout();
             switch (visible) {
                 case EMPTY:
                     loadView.setView(inflateEmptyView());
-                    showReplyButton(false);
                     break;
                 case LOADING:
-                    View view = loadView.setView(progressLayout);
-
-                    // TODO: cleanup
-                    if (refreshedFromSwipe) {
-                        refreshedFromSwipe = false;
-                        view.setVisibility(GONE);
-                    }
-
-                    showReplyButton(false);
+                    loadView.setView(progressLayout);
                     break;
                 case THREAD:
-                    callback.hideSwipeRefreshLayout();
                     loadView.setView(threadListLayout);
                     showReplyButton(true);
                     break;
                 case ERROR:
-                    callback.hideSwipeRefreshLayout();
                     loadView.setView(errorLayout);
-                    showReplyButton(false);
                     break;
             }
         }

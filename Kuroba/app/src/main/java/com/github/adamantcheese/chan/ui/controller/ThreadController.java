@@ -135,7 +135,7 @@ public abstract class ThreadController
 
     @Override
     public void onRefresh() {
-        threadLayout.refreshFromSwipe();
+        threadLayout.getPresenter().requestData();
     }
 
     @Override
