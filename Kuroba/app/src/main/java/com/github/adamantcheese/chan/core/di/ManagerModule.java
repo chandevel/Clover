@@ -43,13 +43,11 @@ import org.codejargon.feather.Provides;
 
 import java.io.File;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.core.di.NetModule.THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME;
 
 public class ManagerModule {
     private static final String CRASH_LOGS_DIR_NAME = "crashlogs";
@@ -136,7 +134,7 @@ public class ManagerModule {
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
             DatabaseManager databaseManager,
-            @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME) OkHttpClient okHttpClient,
+            OkHttpClient okHttpClient,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager
     ) {

@@ -39,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 import okhttp3.Dns;
@@ -56,15 +55,13 @@ import static okhttp3.Protocol.HTTP_2;
 
 public class NetModule {
     public static final String USER_AGENT = getApplicationLabel() + "/" + BuildConfig.VERSION_NAME;
-    public static final String THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME = "thread_save_manager_okhttp_client";
     private static final String FILE_CACHE_DIR = "filecache";
     private static final String FILE_CHUNKS_CACHE_DIR = "file_chunks_cache";
 
     @Provides
     @Singleton
     public CacheHandler provideCacheHandler(
-            FileManager fileManager,
-            ExecutorService executor
+            FileManager fileManager, ExecutorService executor
     ) {
         Logger.d(AppModule.DI_TAG, "Cache handler");
 
@@ -72,7 +69,12 @@ public class NetModule {
         RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
         RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
 
-        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile, ChanSettings.autoLoadThreadImages.get(), executor);
+        return new CacheHandler(fileManager,
+                cacheDirFile,
+                chunksCacheDirFile,
+                ChanSettings.autoLoadThreadImages.get(),
+                executor
+        );
     }
 
     @Provides
@@ -100,17 +102,15 @@ public class NetModule {
     /**
      * This okHttpClient is for posting, as well as images/file/apk updates/ downloading, prefetching, etc.
      */
-    // TODO(FileCacheV2): make this @Named as well instead of using hacks
     @Provides
     @Singleton
     public ProxiedOkHttpClient provideProxiedOkHttpClient() {
-        Logger.d(AppModule.DI_TAG, "ProxiedOkHTTP client");
+        Logger.d(AppModule.DI_TAG, "Proxied OkHTTP client");
         return new ProxiedOkHttpClient(new OkHttpClient.Builder().connectTimeout(30, SECONDS)
                 .readTimeout(30, SECONDS)
                 .writeTimeout(30, SECONDS)
                 .protocols(getOkHttpProtocols())
-                .dns(getOkHttpDnsSelector())
-        );
+                .dns(getOkHttpDnsSelector()));
     }
 
     /**
@@ -118,9 +118,8 @@ public class NetModule {
      */
     @Provides
     @Singleton
-    @Named(THREAD_SAVE_MANAGER_OKHTTP_CLIENT_NAME)
     public OkHttpClient provideOkHttpClientForThreadSaveManager() {
-        Logger.d(AppModule.DI_TAG, "ThreadSaverOkHttp client");
+        Logger.d(AppModule.DI_TAG, "ThreadSaver OkHttp client");
 
         return new OkHttpClient().newBuilder()
                 .connectTimeout(30, SECONDS)
@@ -148,7 +147,7 @@ public class NetModule {
         return Collections.singletonList(HTTP_1_1);
     }
 
-    //this is basically the same as OkHttpClient, but with a singleton for a proxy instance
+    //basically the same as OkHttpClient, but has an extra method for constructing a proxied client for a specific call
     public static class ProxiedOkHttpClient
             extends OkHttpClient {
         public ProxiedOkHttpClient(Builder builder) {
