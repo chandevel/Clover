@@ -327,7 +327,8 @@ public class Loadable
         copy.siteId = siteId;
         copy.site = site;
         copy.mode = mode;
-        copy.board = site.board(boardCode);
+        // TODO: for empty loadables
+        if (board != null) copy.board = board.clone();
         copy.boardCode = boardCode;
         copy.no = no;
         copy.title = title;
