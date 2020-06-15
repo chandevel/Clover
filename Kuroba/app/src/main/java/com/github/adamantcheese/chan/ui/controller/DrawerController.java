@@ -156,10 +156,6 @@ public class DrawerController
 
     @Override
     public void onPinClicked(Pin pin) {
-        // Post it to avoid animation jumping because the first frame is heavy.
-        // TODO: probably twice because of some force redraw, fix that.
-        drawerLayout.post(() -> drawerLayout.post(() -> drawerLayout.closeDrawer(drawer)));
-
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
             Loadable.LoadableDownloadingState state = Loadable.LoadableDownloadingState.NotDownloading;
@@ -196,6 +192,8 @@ public class DrawerController
             pin.loadable.setLoadableState(state);
             threadController.openPin(pin);
         }
+        // Post it to avoid animation jumping because the first frame is heavy.
+        drawerLayout.post(() -> drawerLayout.closeDrawers());
     }
 
     @Override
