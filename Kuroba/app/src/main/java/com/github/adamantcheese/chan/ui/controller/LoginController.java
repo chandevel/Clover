@@ -52,11 +52,8 @@ public class LoginController
 
     private Site site;
 
-    public LoginController(Context context) {
+    public LoginController(Context context, Site site) {
         super(context);
-    }
-
-    public void setSite(Site site) {
         this.site = site;
     }
 
@@ -77,7 +74,7 @@ public class LoginController
 
         errors.setVisibility(GONE);
 
-        final boolean loggedIn = loggedIn();
+        final boolean loggedIn = site.actions().isLoggedIn();
         if (loggedIn) {
             button.setText(R.string.setting_pass_logout);
         }
@@ -95,20 +92,14 @@ public class LoginController
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        // TODO: remove
-        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
-            crossfadeView.getLayoutParams().height = crossfadeView.getHeight();
-            crossfadeView.requestLayout();
-            crossfadeView.toggle(!loggedIn, false);
-            return false;
-        });
+        crossfadeView.toggle(!loggedIn, false);
     }
 
     @Override
     public void onClick(View v) {
         if (v == button) {
-            if (loggedIn()) {
-                deauth();
+            if (site.actions().isLoggedIn()) {
+                site.actions().logout();
                 crossfadeView.toggle(true, true);
                 button.setText(R.string.submit);
                 hideError();
@@ -170,10 +161,6 @@ public class LoginController
         site.actions().login(new LoginRequest(user, pass), this);
     }
 
-    private void deauth() {
-        site.actions().logout();
-    }
-
     private void showError(String error) {
         errors.setText(error);
         errors.setVisibility(VISIBLE);
@@ -182,9 +169,5 @@ public class LoginController
     private void hideError() {
         errors.setText(null);
         errors.setVisibility(GONE);
-    }
-
-    private boolean loggedIn() {
-        return site.actions().isLoggedIn();
     }
 }

@@ -145,8 +145,7 @@ public class SiteSetupController
         SettingsGroup login = new SettingsGroup(R.string.setup_site_group_login);
 
         loginLink = new LinkSettingView(this, getString(R.string.setup_site_login), "", v -> {
-            LoginController loginController = new LoginController(context);
-            loginController.setSite(site);
+            LoginController loginController = new LoginController(context, site);
             navigationController.pushController(loginController);
         });
 
