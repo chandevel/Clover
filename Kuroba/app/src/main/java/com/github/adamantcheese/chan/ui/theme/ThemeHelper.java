@@ -81,6 +81,7 @@ public class ThemeHelper {
         themes.add(new Theme("Photon", R.style.Chan_Theme_Photon, ORANGE, ORANGE));
         themes.add(new Theme("Insomnia", R.style.Chan_Theme_Insomnia, DARK, BLACK));
         themes.add(new Theme("Gruvbox", R.style.Chan_Theme_Gruvbox, DARK, BLACK));
+        themes.add(new Theme("Gruvbox Black", R.style.Chan_Theme_GruvboxBlack, BLACK, DARK));
         themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, BLACK));
         themes.add(new Theme("Solarized Dark", R.style.Chan_Theme_SolarizedDark, ORANGE, ORANGE));
         Theme holo = new Theme("Holo", R.style.Chan_Theme_Holo, BROWN, RED, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
