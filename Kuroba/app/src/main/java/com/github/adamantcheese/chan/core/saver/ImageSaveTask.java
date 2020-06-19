@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.RawFile;
@@ -178,7 +179,7 @@ public class ImageSaveTask
                 );
 
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType("image/*");
+                intent.setType(getAppContext().getContentResolver().getType(file));
                 intent.putExtra(Intent.EXTRA_STREAM, file);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 openIntent(intent);
@@ -197,8 +198,10 @@ public class ImageSaveTask
     private boolean copyToDestination(RawFile source) {
         try {
             if (share) {
-                destination =
-                        instance(CacheHandler.class).renameCacheFile(source, postImage.filename, postImage.extension);
+                destination = instance(CacheHandler.class).renameCacheFile(source,
+                        StringUtils.fileNameRemoveBadCharacters(postImage.filename),
+                        postImage.extension
+                );
             } else {
                 AbstractFile createdDestinationFile = fileManager.create(destination);
                 if (createdDestinationFile == null) {
