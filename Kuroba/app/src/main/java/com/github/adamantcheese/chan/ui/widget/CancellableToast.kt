@@ -28,6 +28,8 @@ class CancellableToast {
             toast = null
         }
 
-        toast = Toast.makeText(context, message, duration).apply { show() }
+        if (BackgroundUtils.isInForeground()) {
+            toast = Toast.makeText(context, message, duration).apply { show() }
+        }
     }
 }
