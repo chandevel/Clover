@@ -49,8 +49,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import okhttp3.HttpUrl;
-
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -194,7 +192,7 @@ public class HistoryController
         @Override
         public void onBindViewHolder(HistoryCell holder, int position) {
             History history = displayList.get(position);
-            holder.thumbnail.setUrl(HttpUrl.get(history.thumbnailUrl), dp(48), dp(48));
+            holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
 
             holder.text.setText(history.loadable.title);
             Board board = history.loadable.board;

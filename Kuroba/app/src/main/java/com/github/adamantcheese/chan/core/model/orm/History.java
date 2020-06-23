@@ -16,8 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import okhttp3.HttpUrl;
 
 @DatabaseTable(tableName = "history")
 public class History {
@@ -27,9 +30,6 @@ public class History {
     @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable;
 
-    @DatabaseField
-    public String thumbnailUrl;
-
-    @DatabaseField
-    public long date;
+    @DatabaseField(persisterClass = HttpUrlType.class)
+    public HttpUrl thumbnailUrl;
 }

@@ -1384,8 +1384,7 @@ public class ThreadPresenter
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
-            PostImage image = chanLoader.getThread().getOp().image();
-            history.thumbnailUrl = image == null ? "" : image.getThumbnailUrl().toString();
+            history.thumbnailUrl = chanLoader.getThread().getOp().image().getThumbnailUrl();
             databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }

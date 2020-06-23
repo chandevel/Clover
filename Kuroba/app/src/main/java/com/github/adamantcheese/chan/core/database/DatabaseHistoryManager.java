@@ -79,11 +79,7 @@ public class DatabaseHistoryManager {
             List<History> existingHistories = builder.where().eq("loadable_id", history.loadable.id).query();
             History existingHistoryForLoadable = existingHistories.isEmpty() ? null : existingHistories.get(0);
 
-            if (existingHistoryForLoadable != null) {
-                existingHistoryForLoadable.date = System.currentTimeMillis();
-                helper.historyDao.update(existingHistoryForLoadable);
-            } else {
-                history.date = System.currentTimeMillis();
+            if (existingHistoryForLoadable == null) {
                 helper.historyDao.create(history);
             }
 
