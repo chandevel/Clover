@@ -47,7 +47,6 @@ public class FilesLayout
     private TextView backText;
     private RecyclerView recyclerView;
 
-    private LinearLayoutManager layoutManager;
     private FilesAdapter filesAdapter;
 
     private Map<String, FileItemHistory> history = new HashMap<>();
@@ -104,7 +103,9 @@ public class FilesLayout
         // Restore any previous list position
         currentHistory = history.get(fileItems.path.getAbsolutePath());
         if (currentHistory != null) {
-            layoutManager.scrollToPositionWithOffset(currentHistory.index, currentHistory.top);
+            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(currentHistory.index,
+                    currentHistory.top
+            );
             filesAdapter.setHighlightedItem(currentHistory.clickedItem);
         } else {
             currentHistory = new FileItemHistory();
@@ -124,10 +125,6 @@ public class FilesLayout
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
-    }
-
-    public ViewGroup getBackLayout() {
-        return backLayout;
     }
 
     @Override
