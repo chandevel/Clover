@@ -464,7 +464,7 @@ public class WatchManager
         updatePinsInDatabase();
 
         updateState();
-        postToEventBus(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage());
     }
 
     public void updatePin(Pin pin) {
@@ -617,13 +617,13 @@ public class WatchManager
     // Called when the user changes the watch enabled preference
     private void onWatchEnabledChanged(boolean watchEnabled) {
         updateState(watchEnabled, ChanSettings.watchBackground.get());
-        postToEventBus(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage());
     }
 
     // Called when the user changes the watch background enabled preference
     private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
         updateState(isTimerEnabled(), backgroundEnabled);
-        postToEventBus(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage());
     }
 
     // Called when the broadcast scheduled by the alarm manager was received
@@ -640,7 +640,7 @@ public class WatchManager
         updateState();
         updatePinsInDatabase();
 
-        postToEventBus(new PinMessages.PinsChangedMessage(pins));
+        postToEventBus(new PinMessages.PinsChangedMessage());
     }
 
     public boolean hasAtLeastOnePinWithDownloadFlag() {
@@ -1132,11 +1132,7 @@ public class WatchManager
         }
 
         public static class PinsChangedMessage {
-            public List<Pin> pins;
-
-            public PinsChangedMessage(List<Pin> pins) {
-                this.pins = pins;
-            }
+            public PinsChangedMessage() {}
         }
     }
 

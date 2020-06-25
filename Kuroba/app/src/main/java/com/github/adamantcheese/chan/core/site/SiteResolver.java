@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.site;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 
@@ -28,12 +27,10 @@ import okhttp3.HttpUrl;
 
 public class SiteResolver {
     private final SiteRepository siteRepository;
-    private final DatabaseManager databaseManager;
 
     @Inject
-    public SiteResolver(SiteRepository siteRepository, DatabaseManager databaseManager) {
+    public SiteResolver(SiteRepository siteRepository) {
         this.siteRepository = siteRepository;
-        this.databaseManager = databaseManager;
     }
 
     /**

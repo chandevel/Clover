@@ -23,8 +23,8 @@ import android.view.ViewGroup;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.presenter.SettingsPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.LicensesController;
@@ -51,10 +51,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class MainSettingsController
-        extends SettingsController
-        implements SettingsPresenter.Callback {
+        extends SettingsController {
     @Inject
-    private SettingsPresenter presenter;
+    private DatabaseManager databaseManager;
     @Inject
     ReportManager reportManager;
 
@@ -81,36 +80,25 @@ public class MainSettingsController
 
         Disposable disposable = settingsNotificationManager.listenForNotificationUpdates()
                 .subscribe((event) -> onNotificationsChanged(),
-                        (error) -> Logger.e(MainSettingsController.this, "Unknown error received from SettingsNotificationManager", error)
+                        (error) -> Logger.e(MainSettingsController.this,
+                                "Unknown error received from SettingsNotificationManager",
+                                error
+                        )
                 );
 
         compositeDisposable.add(disposable);
-
-        presenter.create(this);
     }
 
     @Override
     public void onShow() {
         super.onShow();
 
-        presenter.show();
-    }
+        long siteCount = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getCount());
+        long filterCount = databaseManager.runTask(databaseManager.getDatabaseFilterManager().getCount());
 
-    @Override
-    public void setFiltersCount(int count) {
-        String filters = getQuantityString(R.plurals.filter, count, count);
-        filtersSetting.setDescription(filters);
-    }
-
-    @Override
-    public void setSiteCount(int count) {
-        String sites = getQuantityString(R.plurals.site, count, count);
-        sitesSetting.setDescription(sites);
-    }
-
-    @Override
-    public void setWatchEnabled(boolean enabled) {
-        watchLink.setDescription(enabled
+        sitesSetting.setDescription(getQuantityString(R.plurals.site, (int) siteCount, (int) siteCount));
+        filtersSetting.setDescription(getQuantityString(R.plurals.filter, (int) filterCount, (int) filterCount));
+        watchLink.setDescription(ChanSettings.watchEnabled.get()
                 ? R.string.setting_watch_summary_enabled
                 : R.string.setting_watch_summary_disabled);
     }

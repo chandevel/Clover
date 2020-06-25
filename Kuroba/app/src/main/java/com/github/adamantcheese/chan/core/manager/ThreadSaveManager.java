@@ -1420,7 +1420,7 @@ public class ThreadSaveManager {
     public enum DownloadRequestState {
         Running,
         Canceled,   // Pin is removed or both buttons (watch posts and save posts) are unpressed.
-        Stopped;     // Save posts button is unpressed.
+        Stopped     // Save posts button is unpressed.
     }
 
     private static final Comparator<Post> postComparator = (o1, o2) -> Integer.compare(o1.no, o2.no);

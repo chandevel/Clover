@@ -20,7 +20,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
@@ -60,6 +62,13 @@ public class AppModule {
     public Context provideApplicationContext() {
         Logger.d(DI_TAG, "App Context");
         return applicationContext;
+    }
+
+    @Provides
+    @Singleton
+    public SiteResolver provideSiteResolver(SiteRepository siteRepository) {
+        Logger.d(AppModule.DI_TAG, "Site resolver");
+        return new SiteResolver(siteRepository);
     }
 
     @Provides

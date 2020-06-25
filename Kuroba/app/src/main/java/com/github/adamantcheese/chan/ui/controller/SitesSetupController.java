@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.SitesSetupPresenter.SiteBoardCount;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
