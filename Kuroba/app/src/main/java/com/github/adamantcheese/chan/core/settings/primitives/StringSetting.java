@@ -14,8 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings;
+package com.github.adamantcheese.chan.core.settings.primitives;
 
-public interface OptionSettingItem {
-    String getKey();
+import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
+
+public class StringSetting
+        extends Setting<String> {
+
+    public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
+        super(settingProvider, key, def);
+    }
+
+    public void setSyncNoCheck(String value) {
+        settingProvider.putValueSync(key, value);
+        cached = value;
+        onValueChanged();
+    }
 }

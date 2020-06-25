@@ -21,7 +21,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;

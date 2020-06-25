@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.core.site.sites.dvach;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.OptionsSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;

@@ -122,10 +122,6 @@ public class FileWatcher {
         public boolean canNavigate() {
             return StorageHelper.canNavigate(file);
         }
-
-        public boolean canOpen() {
-            return StorageHelper.canOpen(file);
-        }
     }
 
     public static class FileItems {

@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings;
+package com.github.adamantcheese.chan.core.settings.provider;
 
 import android.content.SharedPreferences;
+
+import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 
 public class SharedPreferencesSettingProvider
         implements SettingProvider<Object> {

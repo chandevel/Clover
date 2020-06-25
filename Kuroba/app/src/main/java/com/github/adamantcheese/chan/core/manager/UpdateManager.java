@@ -41,7 +41,7 @@ import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;

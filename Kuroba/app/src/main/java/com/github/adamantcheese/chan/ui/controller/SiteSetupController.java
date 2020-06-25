@@ -20,8 +20,8 @@ import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
-import com.github.adamantcheese.chan.core.settings.OptionsSetting;
-import com.github.adamantcheese.chan.core.settings.StringSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;

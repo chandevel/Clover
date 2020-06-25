@@ -14,18 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings;
+package com.github.adamantcheese.chan.core.settings.primitives;
 
-public class StringSetting
-        extends Setting<String> {
+import com.google.gson.annotations.SerializedName;
 
-    public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
-        super(settingProvider, key, def);
-    }
+import java.util.HashMap;
+import java.util.Map;
 
-    public void setSyncNoCheck(String value) {
-        settingProvider.putValueSync(key, value);
-        cached = value;
-        onValueChanged();
+public class JsonSettings {
+    @SerializedName("settings")
+    public Map<String, JsonSetting<?>> settings = new HashMap<>();
+
+    public static class JsonSetting<T> {
+        @SerializedName("key")
+        public String key;
+        @SerializedName("value")
+        public T value;
     }
 }

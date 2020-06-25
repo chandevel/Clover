@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.model.orm;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
-import com.github.adamantcheese.chan.core.settings.json.JsonSettings;
+import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;

@@ -14,11 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings;
+package com.github.adamantcheese.chan.core.settings.primitives;
 
-public class IntegerSetting
-        extends Setting<Integer> {
-    public IntegerSetting(SettingProvider<Object> settingProvider, String key, Integer def) {
+import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
+
+public class LongSetting
+        extends Setting<Long> {
+    public LongSetting(SettingProvider<Object> settingProvider, String key, Long def) {
         super(settingProvider, key, def);
     }
 }

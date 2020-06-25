@@ -14,14 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings;
+package com.github.adamantcheese.chan.core.settings.primitives;
 
-public interface SettingProvider<T> {
-    T getValue(String key, T def);
+import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 
-    void putValue(String key, T value);
+public class BooleanSetting
+        extends Setting<Boolean> {
+    public BooleanSetting(SettingProvider<Object> settingProvider, String key, Boolean def) {
+        super(settingProvider, key, def);
+    }
 
-    void putValueSync(String key, T value);
-
-    void removeSync(String key);
+    public void toggle() {
+        set(!get());
+    }
 }

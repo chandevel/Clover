@@ -14,21 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings.json;
+package com.github.adamantcheese.chan.core.settings.primitives;
 
-import com.google.gson.annotations.SerializedName;
-
-import java.util.HashMap;
-import java.util.Map;
-
-public class JsonSettings {
-    @SerializedName("settings")
-    Map<String, JsonSetting<?>> settings = new HashMap<>();
-
-    public static class JsonSetting<T> {
-        @SerializedName("key")
-        public String key;
-        @SerializedName("value")
-        public T value;
-    }
+public interface OptionSettingItem {
+    String getKey();
 }

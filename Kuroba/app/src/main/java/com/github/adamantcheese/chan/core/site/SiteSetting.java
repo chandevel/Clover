@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 
 import java.util.List;
 

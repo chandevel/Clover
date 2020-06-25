@@ -20,7 +20,7 @@ import android.view.Gravity;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.settings.Setting;
+import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;

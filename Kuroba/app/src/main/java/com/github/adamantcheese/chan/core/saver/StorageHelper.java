@@ -34,8 +34,4 @@ public class StorageHelper {
         }
         return false;
     }
-
-    public static boolean canOpen(File file) {
-        return file != null && file.exists() && file.isFile() && file.canRead();
-    }
 }

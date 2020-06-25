@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.settings.json;
+package com.github.adamantcheese.chan.core.settings.provider;
 
-import com.github.adamantcheese.chan.core.settings.SettingProvider;
-import com.github.adamantcheese.chan.core.settings.json.JsonSettings.JsonSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
+import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings.JsonSetting;
 
 public class JsonSettingsProvider
         implements SettingProvider<Object> {

@@ -1,12 +1,11 @@
-package com.github.adamantcheese.chan.core.settings.state;
+package com.github.adamantcheese.chan.core.settings;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.settings.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.IntegerSetting;
-import com.github.adamantcheese.chan.core.settings.LongSetting;
-import com.github.adamantcheese.chan.core.settings.SharedPreferencesSettingProvider;
-import com.github.adamantcheese.chan.core.settings.StringSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.LongSetting;
+import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
+import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 

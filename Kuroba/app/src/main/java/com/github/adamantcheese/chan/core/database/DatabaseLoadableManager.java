@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
-import com.github.adamantcheese.chan.core.settings.state.PersistableChanState;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
