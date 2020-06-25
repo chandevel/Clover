@@ -23,7 +23,6 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -53,11 +52,11 @@ public interface SiteActions {
     void post(Reply reply, PostListener postListener);
 
     interface PostListener {
-        void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse);
+        void onPostComplete(ReplyResponse replyResponse);
 
         void onUploadingProgress(int percent);
 
-        void onPostError(HttpCall httpCall, Exception exception);
+        void onPostError(Exception exception);
     }
 
     boolean postRequiresAuthentication();
@@ -77,9 +76,9 @@ public interface SiteActions {
     void delete(DeleteRequest deleteRequest, DeleteListener deleteListener);
 
     interface DeleteListener {
-        void onDeleteComplete(HttpCall httpCall, DeleteResponse deleteResponse);
+        void onDeleteComplete(DeleteResponse deleteResponse);
 
-        void onDeleteError(HttpCall httpCall);
+        void onDeleteError(Exception e);
     }
 
     void archive(Board board, ArchiveListener archiveListener);
@@ -103,8 +102,8 @@ public interface SiteActions {
     LoginRequest getLoginDetails();
 
     interface LoginListener {
-        void onLoginComplete(HttpCall httpCall, LoginResponse loginResponse);
+        void onLoginComplete(LoginResponse loginResponse);
 
-        void onLoginError(HttpCall httpCall);
+        void onLoginError(Exception e);
     }
 }

@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -37,7 +36,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LoginController
@@ -110,7 +108,7 @@ public class LoginController
     }
 
     @Override
-    public void onLoginComplete(HttpCall httpCall, LoginResponse loginResponse) {
+    public void onLoginComplete(LoginResponse loginResponse) {
         if (loginResponse.success) {
             authSuccess(loginResponse);
         } else {
@@ -121,7 +119,7 @@ public class LoginController
     }
 
     @Override
-    public void onLoginError(HttpCall httpCall) {
+    public void onLoginError(Exception e) {
         authFail(null);
         authAfter();
     }

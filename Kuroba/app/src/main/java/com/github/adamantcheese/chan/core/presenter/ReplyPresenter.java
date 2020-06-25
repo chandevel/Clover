@@ -38,7 +38,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
@@ -284,7 +283,7 @@ public class ReplyPresenter
     // Do NOT use the loadable from ReplyPresenter in this method, as it is not guaranteed to match the loadable associated with the reply object
     // Instead use the response's reply to get the loadable or generate a fresh loadable for a new thread
     @Override
-    public void onPostComplete(HttpCall httpCall, ReplyResponse replyResponse) {
+    public void onPostComplete(ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
             Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.site,
@@ -357,7 +356,7 @@ public class ReplyPresenter
     }
 
     @Override
-    public void onPostError(HttpCall httpCall, Exception exception) {
+    public void onPostError(Exception exception) {
         Logger.e(this, "onPostError", exception);
 
         switchPage(Page.INPUT);

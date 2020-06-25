@@ -324,7 +324,7 @@ public class ChanSettings {
 
     static {
         try {
-            SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
+            SettingProvider<Object> p = new SharedPreferencesSettingProvider(getPreferences());
 
             //region THREAD WATCHER
             watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);

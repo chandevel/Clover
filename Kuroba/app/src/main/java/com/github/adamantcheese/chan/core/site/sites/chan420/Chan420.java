@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.site.sites.chan420;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -40,11 +39,6 @@ public class Chan420
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private final String[] mediaHosts = new String[]{"boards.420chan.org"};
-
-        @Override
-        public Class<? extends Site> getSiteClass() {
-            return Chan420.class;
-        }
 
         @Override
         public HttpUrl getUrl() {

@@ -296,8 +296,7 @@ public class BrowseController
             return;
         }
 
-        ArchiveController archiveController = new ArchiveController(context);
-        archiveController.setBoard(board);
+        ArchiveController archiveController = new ArchiveController(context, board);
 
         if (doubleNavigationController != null) {
             doubleNavigationController.pushController(archiveController);

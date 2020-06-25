@@ -102,19 +102,6 @@ public class Filter
         this.applyToSaved = applyToSaved;
     }
 
-    public void apply(Filter filter) {
-        enabled = filter.enabled;
-        type = filter.type;
-        pattern = filter.pattern;
-        allBoards = filter.allBoards;
-        boards = filter.boards;
-        action = filter.action;
-        color = filter.color;
-        applyToReplies = filter.applyToReplies;
-        order = filter.order;
-        onlyOnOP = filter.onlyOnOP;
-    }
-
     @SuppressWarnings("MethodDoesntCallSuperMethod")
     public Filter clone() {
         return new Filter(

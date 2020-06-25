@@ -136,11 +136,7 @@ public class DatabaseHideManager {
                         continue;
                     }
 
-                    PostHide newHiddenPost = PostHide.hidePost(post,
-                            false,
-                            parentHiddenPost.hide,
-                            parentHiddenPost.hideRepliesToThisPost
-                    );
+                    PostHide newHiddenPost = PostHide.hidePost(post, false, parentHiddenPost.hide, true);
                     hiddenPostsLookupMap.put(newHiddenPost.no, newHiddenPost);
                     newHiddenPosts.add(newHiddenPost);
 

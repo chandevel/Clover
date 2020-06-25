@@ -20,6 +20,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -126,7 +127,7 @@ public class SitesSetupPresenter
     public void removeSite(Site site) {
         try {
             siteRepository.removeSite(site);
-            callback.onSiteDeleted(site);
+            ((StartActivity) context).restartApp();
         } catch (Throwable error) {
             Logger.e(this, "Could not delete site: " + site.name(), error);
             String message = getString(R.string.could_not_remove_site_error_message, site.name(), error.getMessage());
@@ -152,7 +153,5 @@ public class SitesSetupPresenter
         void showAddDialog();
 
         void openSiteConfiguration(Site site);
-
-        void onSiteDeleted(Site site);
     }
 }

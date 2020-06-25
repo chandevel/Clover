@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -69,8 +68,6 @@ public class FilesAdapter
                 FileWatcher.FileItem item = getItem(position);
                 FileViewHolder fileViewHolder = ((FileViewHolder) holder);
                 fileViewHolder.text.setText(item.file.getName());
-
-                Context context = holder.itemView.getContext();
 
                 if (isFile) {
                     fileViewHolder.image.setVisibility(GONE);

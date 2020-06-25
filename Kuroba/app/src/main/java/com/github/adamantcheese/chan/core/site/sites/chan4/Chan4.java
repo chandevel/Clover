@@ -81,11 +81,6 @@ public class Chan4
         private final String[] mediaHosts = new String[]{"i.4cdn.org"};
 
         @Override
-        public Class<? extends Site> getSiteClass() {
-            return Chan4.class;
-        }
-
-        @Override
         public boolean matchesMediaHost(@NonNull HttpUrl url) {
             return SiteBase.containsMediaHostUrl(url, mediaHosts);
         }
@@ -393,12 +388,12 @@ public class Chan4
                     new HttpCall.HttpCallback<CommonReplyHttpCall>() {
                         @Override
                         public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                            postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                            postListener.onPostComplete(httpPost.replyResponse);
                         }
 
                         @Override
                         public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                            postListener.onPostError(httpPost, e);
+                            postListener.onPostError(e);
                         }
                     },
                     postListener::onUploadingProgress
@@ -433,12 +428,12 @@ public class Chan4
                     new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
                         @Override
                         public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
-                            deleteListener.onDeleteComplete(httpPost, httpPost.deleteResponse);
+                            deleteListener.onDeleteComplete(httpPost.deleteResponse);
                         }
 
                         @Override
                         public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
-                            deleteListener.onDeleteError(httpPost);
+                            deleteListener.onDeleteError(e);
                         }
                     }
             );
@@ -457,12 +452,12 @@ public class Chan4
                             if (loginResponse.success) {
                                 passToken.set(loginResponse.token);
                             }
-                            loginListener.onLoginComplete(httpCall, loginResponse);
+                            loginListener.onLoginComplete(loginResponse);
                         }
 
                         @Override
                         public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
-                            loginListener.onLoginError(httpCall);
+                            loginListener.onLoginError(e);
                         }
                     }
             );
@@ -511,7 +506,7 @@ public class Chan4
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
-        SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
+        SettingProvider<Object> p = new SharedPreferencesSettingProvider(getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         // token was renamed, before it meant the username, now it means the token returned

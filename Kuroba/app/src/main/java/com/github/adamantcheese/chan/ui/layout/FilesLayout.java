@@ -123,10 +123,6 @@ public class FilesLayout
         backText.setTextColor(color);
     }
 
-    public RecyclerView getRecyclerView() {
-        return recyclerView;
-    }
-
     @Override
     public void onFileItemClicked(FileWatcher.FileItem fileItem) {
         currentHistory.clickedItem = fileItem;

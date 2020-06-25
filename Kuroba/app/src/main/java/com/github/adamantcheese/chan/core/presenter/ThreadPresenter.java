@@ -58,7 +58,6 @@ import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
@@ -1280,7 +1279,7 @@ public class ThreadPresenter
             post.board.site.actions()
                     .delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
                         @Override
-                        public void onDeleteComplete(HttpCall httpPost, DeleteResponse deleteResponse) {
+                        public void onDeleteComplete(DeleteResponse deleteResponse) {
                             String message;
                             if (deleteResponse.deleted) {
                                 message = getString(R.string.delete_success);
@@ -1293,7 +1292,7 @@ public class ThreadPresenter
                         }
 
                         @Override
-                        public void onDeleteError(HttpCall httpCall) {
+                        public void onDeleteError(Exception e) {
                             threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
                         }
                     });

@@ -41,7 +41,7 @@ public abstract class SiteBase
     protected SiteConfig config;
 
     protected BoardManager boardManager;
-    protected SettingProvider settingsProvider;
+    protected SettingProvider<Object> settingsProvider;
     private JsonSettings userSettings;
     private boolean initialized = false;
 

@@ -4,7 +4,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
@@ -37,11 +36,6 @@ public class Dvach
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://2ch.hk";
-
-        @Override
-        public Class<? extends Site> getSiteClass() {
-            return Dvach.class;
-        }
 
         @Override
         public HttpUrl getUrl() {
@@ -169,12 +163,12 @@ public class Dvach
                 NetUtils.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCallback<CommonReplyHttpCall>() {
                     @Override
                     public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onPostComplete(httpPost, httpPost.replyResponse);
+                        postListener.onPostComplete(httpPost.replyResponse);
                     }
 
                     @Override
                     public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                        postListener.onPostError(httpPost, e);
+                        postListener.onPostError(e);
                     }
                 }, postListener::onUploadingProgress);
             }

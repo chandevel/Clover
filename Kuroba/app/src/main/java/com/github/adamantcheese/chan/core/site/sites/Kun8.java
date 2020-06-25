@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -23,11 +22,6 @@ public class Kun8
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private final String[] mediaHosts = new String[]{"media.8kun.top"};
-
-        @Override
-        public Class<? extends Site> getSiteClass() {
-            return Kun8.class;
-        }
 
         @Override
         public HttpUrl getUrl() {

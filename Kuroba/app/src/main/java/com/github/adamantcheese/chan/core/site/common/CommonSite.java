@@ -490,12 +490,12 @@ public abstract class CommonSite
             NetUtils.makeHttpCall(call, new HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
-                    postListener.onPostComplete(httpCall, replyResponse);
+                    postListener.onPostComplete(replyResponse);
                 }
 
                 @Override
                 public void onHttpFail(HttpCall httpCall, Exception e) {
-                    postListener.onPostError(httpCall, e);
+                    postListener.onPostError(e);
                 }
             });
         }
@@ -523,12 +523,12 @@ public abstract class CommonSite
             NetUtils.makeHttpCall(call, new HttpCallback<HttpCall>() {
                 @Override
                 public void onHttpSuccess(HttpCall httpCall) {
-                    deleteListener.onDeleteComplete(httpCall, deleteResponse);
+                    deleteListener.onDeleteComplete(deleteResponse);
                 }
 
                 @Override
                 public void onHttpFail(HttpCall httpCall, Exception e) {
-                    deleteListener.onDeleteError(httpCall);
+                    deleteListener.onDeleteError(e);
                 }
             });
         }

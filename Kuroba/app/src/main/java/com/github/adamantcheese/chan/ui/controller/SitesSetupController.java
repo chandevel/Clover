@@ -198,11 +198,6 @@ public class SitesSetupController
         crossfadeView.toggle(!sites.isEmpty(), true);
     }
 
-    @Override
-    public void onSiteDeleted(Site site) {
-        ((StartActivity) context).restartApp();
-    }
-
     private void onSiteCellSettingsClicked(Site site) {
         presenter.onSiteCellSettingsClicked(site);
     }

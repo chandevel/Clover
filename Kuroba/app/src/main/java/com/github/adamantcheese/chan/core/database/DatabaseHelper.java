@@ -381,7 +381,7 @@ public class DatabaseHelper
 
         if (oldVersion < 44) {
             try {
-                SettingProvider p = new SharedPreferencesSettingProvider(getPreferences());
+                SettingProvider<Object> p = new SharedPreferencesSettingProvider(getPreferences());
                 // the PersistableChanState class was added, so some settings are being moved over there
                 // get settings from before the move
                 IntegerSetting watchLastCount =
@@ -655,7 +655,7 @@ public class DatabaseHelper
      * @param <T>  the type of the setting, should extend Setting
      * @return the setting requested, or null
      */
-    public static <T, S> T getSettingForKey(SettingProvider p, String key, Class<T> type, Class<S> def) {
+    public static <T, S> T getSettingForKey(SettingProvider<Object> p, String key, Class<T> type, Class<S> def) {
         if (!Setting.class.isAssignableFrom(type)) return null;
         try {
             Constructor<T> c = type.getConstructor(SettingProvider.class, String.class, def);

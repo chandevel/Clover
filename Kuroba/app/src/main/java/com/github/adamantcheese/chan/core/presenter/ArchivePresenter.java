@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -26,13 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
 import static android.text.TextUtils.isEmpty;
 
 public class ArchivePresenter
         implements SiteActions.ArchiveListener {
-    private DatabaseManager databaseManager;
 
     private Callback callback;
     private Board board;
@@ -43,16 +39,9 @@ public class ArchivePresenter
     private List<Archive.ArchiveItem> items = new ArrayList<>();
     private List<Archive.ArchiveItem> filteredItems = new ArrayList<>();
 
-    @Inject
-    public ArchivePresenter(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
-
-    public void create(Callback callback, Board board) {
+    public ArchivePresenter(Callback callback, Board board) {
         this.callback = callback;
         this.board = board;
-
-        loadArchive();
     }
 
     public void onRefresh() {

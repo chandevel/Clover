@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
@@ -34,11 +33,6 @@ public class Sushichan
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         private static final String ROOT = "https://sushigirl.us/";
-
-        @Override
-        public Class<? extends Site> getSiteClass() {
-            return Sushichan.class;
-        }
 
         @Override
         public HttpUrl getUrl() {

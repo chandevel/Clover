@@ -235,7 +235,7 @@ public class ThreadSaveManager {
             }
         }
 
-        SaveThreadParameters parameters = new SaveThreadParameters(loadable, postsToSave);
+        SaveThreadParameters parameters = new SaveThreadParameters(postsToSave);
 
         // Store the parameters of this download
         synchronized (activeDownloads) {
@@ -1341,22 +1341,12 @@ public class ThreadSaveManager {
     }
 
     public static class SaveThreadParameters {
-        private Loadable loadable;
         private List<Post> postsToSave;
         private AtomicReference<DownloadRequestState> state;
 
-        public SaveThreadParameters(Loadable loadable, List<Post> postsToSave) {
-            this.loadable = loadable;
+        public SaveThreadParameters(List<Post> postsToSave) {
             this.postsToSave = postsToSave;
             this.state = new AtomicReference<>(DownloadRequestState.Running);
-        }
-
-        public Loadable getLoadable() {
-            return loadable;
-        }
-
-        public List<Post> getPostsToSave() {
-            return postsToSave;
         }
 
         public boolean isRunning() {

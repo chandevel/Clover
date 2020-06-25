@@ -39,8 +39,6 @@ import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -56,19 +54,17 @@ public class ArchiveController
     private View progress;
     private View errorView;
 
-    @Inject
     private ArchivePresenter presenter;
 
     private ArchiveAdapter adapter;
 
     private Board board;
 
-    public ArchiveController(Context context) {
+    public ArchiveController(Context context, Board board) {
         super(context);
-    }
-
-    public void setBoard(Board board) {
         this.board = board;
+
+        presenter = new ArchivePresenter(this, board);
     }
 
     @Override
@@ -100,8 +96,8 @@ public class ArchiveController
         crossfadeView.toggle(false, false);
         swipeRefreshLayout.setOnRefreshListener(this);
 
-        // Presenter
-        presenter.create(this, board);
+        //Request data
+        presenter.onRefresh();
     }
 
     private void searchClicked(ToolbarMenuItem item) {

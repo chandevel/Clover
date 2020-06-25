@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;

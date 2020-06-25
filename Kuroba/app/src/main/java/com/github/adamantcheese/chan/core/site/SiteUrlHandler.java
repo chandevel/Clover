@@ -23,8 +23,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import okhttp3.HttpUrl;
 
 public interface SiteUrlHandler {
-    Class<? extends Site> getSiteClass();
-
     boolean matchesName(String value);
 
     boolean respondsTo(HttpUrl url);
