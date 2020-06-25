@@ -50,15 +50,14 @@ import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBase
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils.HttpCodeException;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -101,7 +100,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class WatchManager
         implements WakeManager.Wakeable {
     private static final Intent WATCH_NOTIFICATION_INTENT = new Intent(getAppContext(), WatchNotification.class);
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[]{};
 
     enum IntervalType {
         /**
@@ -1051,7 +1049,7 @@ public class WatchManager
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
             Logger.i(this,
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
-                            + DateFormat.getTimeInstance(DateFormat.DEFAULT, Locale.ENGLISH).format(new Date())
+                            + StringUtils.getCurrentDateAndTimeUTC()
             );
             wakeManager.manageLock(true, WatchManager.this);
         }
@@ -1100,11 +1098,7 @@ public class WatchManager
                 waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                    Logger.i(this,
-                            "All watchers updated, finished at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
-                                    Locale.ENGLISH
-                            ).format(new Date())
-                    );
+                    Logger.i(this, "All watchers updated, finished at " + StringUtils.getCurrentDateAndTimeUTC());
                     waitingForPinWatchersForBackgroundUpdate = null;
                     wakeManager.manageLock(false, WatchManager.this);
                 }

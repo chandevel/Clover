@@ -96,7 +96,7 @@ public class LastPageNotification
 
         PendingIntent pendingIntent =
                 PendingIntent.getActivity(getAppContext(), pin.loadable.no, intent, PendingIntent.FLAG_ONE_SHOT);
-        String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.ENGLISH).format(new Date());
+        String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(new Date());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
         builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
