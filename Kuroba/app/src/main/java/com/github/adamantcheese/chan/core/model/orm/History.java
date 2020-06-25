@@ -32,4 +32,7 @@ public class History {
 
     @DatabaseField(persisterClass = HttpUrlType.class)
     public HttpUrl thumbnailUrl;
+
+    @DatabaseField
+    public long date;
 }

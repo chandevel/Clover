@@ -77,9 +77,13 @@ public class DatabaseHistoryManager {
         return () -> {
             QueryBuilder<History, Integer> builder = helper.historyDao.queryBuilder();
             List<History> existingHistories = builder.where().eq("loadable_id", history.loadable.id).query();
-            History existingHistoryForLoadable = existingHistories.isEmpty() ? null : existingHistories.get(0);
+            History existingHistoryForLoadable = existingHistories.isEmpty() ? history : existingHistories.get(0);
+            existingHistoryForLoadable.date = System.currentTimeMillis();
 
-            if (existingHistoryForLoadable == null) {
+            // if the existing history exists, update it, otherwise create it from the function argument
+            if (existingHistoryForLoadable != history) {
+                helper.historyDao.update(existingHistoryForLoadable);
+            } else {
                 helper.historyDao.create(history);
             }
 
