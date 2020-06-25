@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -51,7 +50,6 @@ public class FilterWatchManager
         implements WakeManager.Wakeable {
     private final WakeManager wakeManager;
     private final BoardRepository boardRepository;
-    private final DatabaseLoadableManager databaseLoadableManager;
 
     //filterLoaders keeps track of ChanThreadLoaders so they can be cleared correctly each alarm trigger
     //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
@@ -62,18 +60,14 @@ public class FilterWatchManager
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private int numBoardsChecked = 0;
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
-    private List<Filter> filters;
     private boolean processing = false;
 
     @Inject
     public FilterWatchManager(
-            WakeManager wakeManager,
-            BoardRepository boardRepository,
-            DatabaseManager databaseManager
+            WakeManager wakeManager, BoardRepository boardRepository
     ) {
         this.wakeManager = wakeManager;
         this.boardRepository = boardRepository;
-        this.databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
 
         wakeManager.registerWakeable(this);
 
@@ -89,7 +83,7 @@ public class FilterWatchManager
             wakeManager.manageLock(true, FilterWatchManager.this);
             Logger.i(this,
                     "Processing filter loaders, started at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
-                            Locale.ENGLISH
+                            Locale.getDefault()
                     ).format(new Date())
             );
             processing = true;
@@ -112,7 +106,7 @@ public class FilterWatchManager
         }
         filterLoaders.clear();
         //get our filters that are tagged as "pin"
-        filters = instance(FilterEngine.class).getEnabledWatchFilters();
+        List<Filter> filters = instance(FilterEngine.class).getEnabledWatchFilters();
         //get a set of boards to background load
         Set<String> boardCodes = new HashSet<>();
         for (Filter f : filters) {
@@ -135,7 +129,8 @@ public class FilterWatchManager
                 for (String code : boardCodes) {
                     if (b.code.equals(code)) {
                         BackgroundLoader backgroundLoader = new BackgroundLoader();
-                        ChanThreadLoader catalogLoader = chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
+                        ChanThreadLoader catalogLoader =
+                                chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
                     }
                 }
@@ -149,19 +144,15 @@ public class FilterWatchManager
         Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
 
         Set<Integer> toAdd = new HashSet<>();
-        //Match filters and ignores
-        List<Filter> filters = instance(FilterEngine.class).getEnabledWatchFilters();
-        for (Filter f : filters) {
-            for (Post p : catalog.getPosts()) {
-                if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                    Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
-                            p.board,
-                            p.no,
-                            PostHelper.getTitle(p, catalog.getLoadable())
-                    );
-                    instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
-                    toAdd.add(p.no);
-                }
+        for (Post p : catalog.getPosts()) {
+            if (p.filterWatch && !ignoredPosts.contains(p.no)) {
+                Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
+                        p.board,
+                        p.no,
+                        PostHelper.getTitle(p, catalog.getLoadable())
+                );
+                instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                toAdd.add(p.no);
             }
         }
         //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
@@ -176,18 +167,15 @@ public class FilterWatchManager
         public void onChanLoaderData(ChanThread result) {
             Logger.d(this, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
             Set<Integer> toAdd = new HashSet<>();
-            //Match filters and ignores
-            for (Filter f : filters) {
-                for (Post p : result.getPosts()) {
-                    if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                        Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
-                                p.board,
-                                p.no,
-                                PostHelper.getTitle(p, result.getLoadable())
-                        );
-                        instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
-                        toAdd.add(p.no);
-                    }
+            for (Post p : result.getPosts()) {
+                if (p.filterWatch && !ignoredPosts.contains(p.no)) {
+                    Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
+                            p.board,
+                            p.no,
+                            PostHelper.getTitle(p, result.getLoadable())
+                    );
+                    instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                    toAdd.add(p.no);
                 }
             }
             //add all posts to ignore
