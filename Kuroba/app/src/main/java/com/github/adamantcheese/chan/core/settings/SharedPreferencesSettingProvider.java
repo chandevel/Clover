@@ -19,81 +19,57 @@ package com.github.adamantcheese.chan.core.settings;
 import android.content.SharedPreferences;
 
 public class SharedPreferencesSettingProvider
-        implements SettingProvider {
+        implements SettingProvider<Object> {
     private SharedPreferences prefs;
 
     public SharedPreferencesSettingProvider(SharedPreferences prefs) {
         this.prefs = prefs;
     }
 
-    //region Integer
     @Override
-    public int getInt(String key, int def) {
-        return prefs.getInt(key, def);
+    public Object getValue(String key, Object def) {
+        if (def instanceof Integer) {
+            return (Integer) prefs.getInt(key, (Integer) def);
+        } else if (def instanceof Long) {
+            return (Long) prefs.getLong(key, (Long) def);
+        } else if (def instanceof Boolean) {
+            return (Boolean) prefs.getBoolean(key, (Boolean) def);
+        } else if (def instanceof String) {
+            return (String) prefs.getString(key, (String) def);
+        } else {
+            throw new UnsupportedOperationException("Needs a handler for type " + def.getClass().getSimpleName());
+        }
     }
 
     @Override
-    public void putInt(String key, int value) {
-        prefs.edit().putInt(key, value).apply();
+    public void putValue(String key, Object value) {
+        if (value instanceof Integer) {
+            prefs.edit().putInt(key, (Integer) value).apply();
+        } else if (value instanceof Long) {
+            prefs.edit().putLong(key, (Long) value).apply();
+        } else if (value instanceof Boolean) {
+            prefs.edit().putBoolean(key, (Boolean) value).apply();
+        } else if (value instanceof String) {
+            prefs.edit().putString(key, (String) value).apply();
+        } else {
+            throw new UnsupportedOperationException("Needs a handler for type " + value.getClass().getSimpleName());
+        }
     }
 
     @Override
-    public void putIntSync(String key, Integer value) {
-        prefs.edit().putInt(key, value).commit();
+    public void putValueSync(String key, Object value) {
+        if (value instanceof Integer) {
+            prefs.edit().putInt(key, (Integer) value).commit();
+        } else if (value instanceof Long) {
+            prefs.edit().putLong(key, (Long) value).commit();
+        } else if (value instanceof Boolean) {
+            prefs.edit().putBoolean(key, (Boolean) value).commit();
+        } else if (value instanceof String) {
+            prefs.edit().putString(key, (String) value).commit();
+        } else {
+            throw new UnsupportedOperationException("Needs a handler for type " + value.getClass().getSimpleName());
+        }
     }
-
-    //endregion
-    //region Long
-    @Override
-    public long getLong(String key, long def) {
-        return prefs.getLong(key, def);
-    }
-
-    @Override
-    public void putLong(String key, long value) {
-        prefs.edit().putLong(key, value).apply();
-    }
-
-    @Override
-    public void putLongSync(String key, Long value) {
-        prefs.edit().putLong(key, value).commit();
-    }
-
-    //endregion
-    //region Boolean
-    @Override
-    public boolean getBoolean(String key, boolean def) {
-        return prefs.getBoolean(key, def);
-    }
-
-    @Override
-    public void putBoolean(String key, boolean value) {
-        prefs.edit().putBoolean(key, value).apply();
-    }
-
-    @Override
-    public void putBooleanSync(String key, Boolean value) {
-        prefs.edit().putBoolean(key, value).commit();
-    }
-
-    //endregion
-    //region String
-    @Override
-    public String getString(String key, String def) {
-        return prefs.getString(key, def);
-    }
-
-    @Override
-    public void putString(String key, String value) {
-        prefs.edit().putString(key, value).apply();
-    }
-
-    @Override
-    public void putStringSync(String key, String value) {
-        prefs.edit().putString(key, value).commit();
-    }
-
-    //endregion
 
     @Override
     public void removeSync(String key) {

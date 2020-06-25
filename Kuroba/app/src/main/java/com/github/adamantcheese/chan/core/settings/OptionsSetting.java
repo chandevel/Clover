@@ -18,12 +18,9 @@ package com.github.adamantcheese.chan.core.settings;
 
 public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
         extends Setting<T> {
-    private boolean hasCached = false;
-
-    private T cached;
     private T[] items;
 
-    public OptionsSetting(SettingProvider settingProvider, String key, Class<T> clazz, T def) {
+    public OptionsSetting(SettingProvider<Object> settingProvider, String key, Class<T> clazz, T def) {
         super(settingProvider, key, def);
 
         this.items = clazz.getEnumConstants();
@@ -36,7 +33,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public T get() {
         if (!hasCached) {
-            String itemName = settingProvider.getString(key, def.getKey());
+            String itemName = (String) settingProvider.getValue(key, def.getKey());
             T selectedItem = null;
             for (T item : items) {
                 if (item.getKey().equals(itemName)) {
@@ -56,7 +53,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public void set(T value) {
         if (!value.equals(get())) {
-            settingProvider.putString(key, value.getKey());
+            settingProvider.putValue(key, value.getKey());
             cached = value;
             onValueChanged();
         }
@@ -65,7 +62,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public void setSync(T value) {
         if (!value.equals(get())) {
-            settingProvider.putStringSync(key, value.getKey());
+            settingProvider.putValueSync(key, value.getKey());
             cached = value;
             onValueChanged();
         }

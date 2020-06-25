@@ -23,5 +23,12 @@ import java.util.Map;
 
 public class JsonSettings {
     @SerializedName("settings")
-    Map<String, JsonSetting> settings = new HashMap<>();
+    Map<String, JsonSetting<?>> settings = new HashMap<>();
+
+    public static class JsonSetting<T> {
+        @SerializedName("key")
+        public String key;
+        @SerializedName("value")
+        public T value;
+    }
 }

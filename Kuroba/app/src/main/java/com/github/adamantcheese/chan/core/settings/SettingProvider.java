@@ -16,40 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
-public interface SettingProvider {
+public interface SettingProvider<T> {
+    T getValue(String key, T def);
 
-    //region Integer
-    int getInt(String key, int def);
+    void putValue(String key, T value);
 
-    void putInt(String key, int value);
-
-    void putIntSync(String key, Integer value);
-
-    //endregion
-    //region Long
-    long getLong(String key, long def);
-
-    void putLong(String key, long value);
-
-    void putLongSync(String key, Long value);
-
-    //endregion
-    //region Boolean
-    boolean getBoolean(String key, boolean def);
-
-    void putBoolean(String key, boolean value);
-
-    void putBooleanSync(String key, Boolean value);
-
-    //endregion
-    //region String
-    String getString(String key, String def);
-
-    void putString(String key, String value);
-
-    void putStringSync(String key, String value);
-
-    //endregion
+    void putValueSync(String key, T value);
 
     void removeSync(String key);
 }

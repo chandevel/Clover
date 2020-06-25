@@ -18,48 +18,14 @@ package com.github.adamantcheese.chan.core.settings;
 
 public class StringSetting
         extends Setting<String> {
-    private boolean hasCached = false;
-    private String cached;
 
-    public StringSetting(SettingProvider settingProvider, String key, String def) {
+    public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
         super(settingProvider, key, def);
     }
 
-    @Override
-    public String get() {
-        if (!hasCached) {
-            cached = settingProvider.getString(key, def);
-            hasCached = true;
-        }
-        return cached;
-    }
-
-    @Override
-    public void set(String value) {
-        if (!value.equals(get())) {
-            settingProvider.putString(key, value);
-            cached = value;
-            onValueChanged();
-        }
-    }
-
-    public void setSync(String value) {
-        if (!value.equals(get())) {
-            settingProvider.putStringSync(key, value);
-            cached = value;
-            onValueChanged();
-        }
-    }
-
     public void setSyncNoCheck(String value) {
-        settingProvider.putStringSync(key, value);
+        settingProvider.putValueSync(key, value);
         cached = value;
         onValueChanged();
-    }
-
-    public void remove() {
-        settingProvider.removeSync(key);
-        hasCached = false;
-        cached = null;
     }
 }

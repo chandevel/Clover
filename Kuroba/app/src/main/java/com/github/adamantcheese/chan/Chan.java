@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.DatabaseModule;
-import com.github.adamantcheese.chan.core.di.GsonModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
@@ -122,7 +121,6 @@ public class Chan
                 new AppModule(this),
                 new DatabaseModule(),
                 new NetModule(),
-                new GsonModule(),
                 new RepositoryModule(),
                 new SiteModule(),
                 new ManagerModule()

@@ -585,13 +585,13 @@ public class StartActivity
         startActivityForResult(intent, requestCode);
     }
 
+    private static final Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
+
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
         super.onStart();
         //restore parsed youtube stuff
         Gson gson = instance(Gson.class);
-        Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
-        //convert
         Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.youtubeCache.get(), lruType);
         //reconstruct
         CommentParserHelper.youtubeCache = new LruCache<>(500);
@@ -605,8 +605,6 @@ public class StartActivity
         super.onStop();
         //store parsed youtube stuff, extra prevention of unneeded API calls
         Gson gson = instance(Gson.class);
-        Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
-        //convert and set
         PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
     }
 }

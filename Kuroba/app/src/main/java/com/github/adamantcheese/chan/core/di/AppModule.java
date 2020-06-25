@@ -101,6 +101,13 @@ public class AppModule {
 
     @Provides
     @Singleton
+    public Gson provideGson() {
+        Logger.d(AppModule.DI_TAG, "Gson module");
+        return new Gson();
+    }
+
+    @Provides
+    @Singleton
     public FileManager provideFileManager() {
         DirectoryManager directoryManager = new DirectoryManager(applicationContext);
 

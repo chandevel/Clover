@@ -18,40 +18,11 @@ package com.github.adamantcheese.chan.core.settings;
 
 public class BooleanSetting
         extends Setting<Boolean> {
-    private boolean hasCached = false;
-    private boolean cached;
-
-    public BooleanSetting(SettingProvider settingProvider, String key, Boolean def) {
+    public BooleanSetting(SettingProvider<Object> settingProvider, String key, Boolean def) {
         super(settingProvider, key, def);
-    }
-
-    @Override
-    public Boolean get() {
-        if (!hasCached) {
-            cached = settingProvider.getBoolean(key, def);
-            hasCached = true;
-        }
-        return cached;
-    }
-
-    @Override
-    public void set(Boolean value) {
-        if (!value.equals(get())) {
-            settingProvider.putBoolean(key, value);
-            cached = value;
-            onValueChanged();
-        }
     }
 
     public void toggle() {
         set(!get());
-    }
-
-    public void setSync(Boolean value) {
-        if (!value.equals(get())) {
-            settingProvider.putBooleanSync(key, value);
-            cached = value;
-            onValueChanged();
-        }
     }
 }

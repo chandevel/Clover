@@ -17,9 +17,10 @@
 package com.github.adamantcheese.chan.core.settings.json;
 
 import com.github.adamantcheese.chan.core.settings.SettingProvider;
+import com.github.adamantcheese.chan.core.settings.json.JsonSettings.JsonSetting;
 
 public class JsonSettingsProvider
-        implements SettingProvider {
+        implements SettingProvider<Object> {
     public final JsonSettings jsonSettings;
     private Callback callback;
 
@@ -28,129 +29,63 @@ public class JsonSettingsProvider
         this.callback = callback;
     }
 
-    //region Integer
     @Override
-    public int getInt(String key, int def) {
-        JsonSetting setting = jsonSettings.settings.get(key);
-        if (setting != null) {
-            return ((IntegerJsonSetting) setting).value;
-        } else {
-            return def;
-        }
+    public Object getValue(String key, Object def) {
+        JsonSetting<?> setting = jsonSettings.settings.get(key);
+        if (setting == null) return def;
+        return setting.value;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void putInt(String key, int value) {
-        JsonSetting jsonSetting = jsonSettings.settings.get(key);
-        if (jsonSetting == null) {
-            IntegerJsonSetting v = new IntegerJsonSetting();
-            v.value = value;
-            jsonSettings.settings.put(key, v);
+    public void putValue(String key, Object value) {
+        JsonSetting<?> jsonSetting = jsonSettings.settings.get(key);
+        if (value instanceof Integer) {
+            if (jsonSetting == null) {
+                JsonSetting<Integer> v = new JsonSetting<>();
+                v.value = (Integer) value;
+                jsonSettings.settings.put(key, v);
+            } else {
+                ((JsonSetting<Integer>) jsonSetting).value = (Integer) value;
+            }
+        } else if (value instanceof Long) {
+            if (jsonSetting == null) {
+                JsonSetting<Long> v = new JsonSetting<>();
+                v.value = (Long) value;
+                jsonSettings.settings.put(key, v);
+            } else {
+                ((JsonSetting<Long>) jsonSetting).value = (Long) value;
+            }
+        } else if (value instanceof Boolean) {
+            if (jsonSetting == null) {
+                JsonSetting<Boolean> v = new JsonSetting<>();
+                v.value = (Boolean) value;
+                jsonSettings.settings.put(key, v);
+            } else {
+                ((JsonSetting<Boolean>) jsonSetting).value = (Boolean) value;
+            }
+        } else if (value instanceof String) {
+            if (jsonSetting == null) {
+                JsonSetting<String> v = new JsonSetting<>();
+                v.value = (String) value;
+                jsonSettings.settings.put(key, v);
+            } else {
+                ((JsonSetting<String>) jsonSetting).value = (String) value;
+            }
         } else {
-            ((IntegerJsonSetting) jsonSetting).value = value;
-        }
-        callback.save();
-    }
-
-    @Override
-    public void putIntSync(String key, Integer value) {
-        throw new UnsupportedOperationException();
-    }
-
-    //endregion
-    //region Long
-    @Override
-    public long getLong(String key, long def) {
-        JsonSetting setting = jsonSettings.settings.get(key);
-        if (setting != null) {
-            return ((LongJsonSetting) setting).value;
-        } else {
-            return def;
-        }
-    }
-
-    @Override
-    public void putLong(String key, long value) {
-        JsonSetting jsonSetting = jsonSettings.settings.get(key);
-        if (jsonSetting == null) {
-            LongJsonSetting v = new LongJsonSetting();
-            v.value = value;
-            jsonSettings.settings.put(key, v);
-        } else {
-            ((LongJsonSetting) jsonSetting).value = value;
+            throw new UnsupportedOperationException("Needs a handler for type " + value.getClass().getSimpleName());
         }
         callback.save();
     }
 
     @Override
-    public void putLongSync(String key, Long value) {
-        throw new UnsupportedOperationException();
+    public void putValueSync(String key, Object value) {
+        putValue(key, value);
     }
-
-    //endregion
-    //region Boolean
-    @Override
-    public boolean getBoolean(String key, boolean def) {
-        JsonSetting setting = jsonSettings.settings.get(key);
-        if (setting != null) {
-            return ((BooleanJsonSetting) setting).value;
-        } else {
-            return def;
-        }
-    }
-
-    @Override
-    public void putBoolean(String key, boolean value) {
-        JsonSetting jsonSetting = jsonSettings.settings.get(key);
-        if (jsonSetting == null) {
-            BooleanJsonSetting v = new BooleanJsonSetting();
-            v.value = value;
-            jsonSettings.settings.put(key, v);
-        } else {
-            ((BooleanJsonSetting) jsonSetting).value = value;
-        }
-        callback.save();
-    }
-
-    @Override
-    public void putBooleanSync(String key, Boolean value) {
-        throw new UnsupportedOperationException();
-    }
-
-    //endregion
-    //region String
-    @Override
-    public String getString(String key, String def) {
-        JsonSetting setting = jsonSettings.settings.get(key);
-        if (setting != null) {
-            return ((StringJsonSetting) setting).value;
-        } else {
-            return def;
-        }
-    }
-
-    @Override
-    public void putString(String key, String value) {
-        JsonSetting jsonSetting = jsonSettings.settings.get(key);
-        if (jsonSetting == null) {
-            StringJsonSetting v = new StringJsonSetting();
-            v.value = value;
-            jsonSettings.settings.put(key, v);
-        } else {
-            ((StringJsonSetting) jsonSetting).value = value;
-        }
-        callback.save();
-    }
-
-    @Override
-    public void putStringSync(String key, String value) {
-        throw new UnsupportedOperationException();
-    }
-    //endregion
 
     @Override
     public void removeSync(String key) {
-        throw new UnsupportedOperationException();
+        jsonSettings.settings.remove(key);
     }
 
     public interface Callback {

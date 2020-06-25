@@ -17,7 +17,7 @@ class LocalThreadsBaseDirSetting(
         override val safBaseDir: StringSetting
 ) : BaseDirectorySetting() {
 
-    constructor(settingProvider: SettingProvider) : this(
+    constructor(settingProvider: SettingProvider<Any>) : this(
             IntegerSetting(
                     settingProvider,
                     "local_threads_active_base_dir_ordinal",

@@ -20,25 +20,57 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Setting<T> {
-    protected final SettingProvider settingProvider;
+    protected final SettingProvider<Object> settingProvider;
     protected final String key;
     protected final T def;
     private List<SettingCallback<T>> callbacks = new ArrayList<>();
 
-    public Setting(SettingProvider settingProvider, String key, T def) {
+    protected boolean hasCached = false;
+    protected T cached;
+
+    public Setting(SettingProvider<Object> settingProvider, String key, T def) {
         this.settingProvider = settingProvider;
         this.key = key;
         this.def = def;
     }
 
-    public abstract T get();
+    public T get() {
+        if (!hasCached) {
+            //noinspection unchecked
+            cached = (T) settingProvider.getValue(key, def);
+            hasCached = true;
+        }
+        return cached;
+    }
 
-    public abstract void set(T value);
+    public void set(T value) {
+        if (!value.equals(get())) {
+            settingProvider.putValue(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
 
-    public abstract void setSync(T value);
+    public void setSync(T value) {
+        if (!value.equals(get())) {
+            settingProvider.putValueSync(key, value);
+            cached = value;
+            onValueChanged();
+        }
+    }
+
+    public void remove() {
+        settingProvider.removeSync(key);
+        hasCached = false;
+        cached = null;
+    }
 
     public T getDefault() {
         return def;
+    }
+
+    public void reset() {
+        set(def);
     }
 
     public String getKey() {

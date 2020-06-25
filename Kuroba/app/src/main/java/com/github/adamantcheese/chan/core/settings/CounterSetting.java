@@ -18,16 +18,12 @@ package com.github.adamantcheese.chan.core.settings;
 
 public class CounterSetting
         extends IntegerSetting {
-    public CounterSetting(SettingProvider settingProvider, String key) {
+    public CounterSetting(SettingProvider<Object> settingProvider, String key) {
         super(settingProvider, key, 0);
     }
 
     public int increase() {
         set(get() + 1);
         return get();
-    }
-
-    public void reset() {
-        set(getDefault());
     }
 }
