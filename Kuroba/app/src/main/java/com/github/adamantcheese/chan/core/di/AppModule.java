@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.database.DatabaseHelper;
+import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -62,6 +64,20 @@ public class AppModule {
     public Context provideApplicationContext() {
         Logger.d(DI_TAG, "App Context");
         return applicationContext;
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseHelper provideDatabaseHelper(Context applicationContext) {
+        Logger.d(AppModule.DI_TAG, "Database helper");
+        return new DatabaseHelper(applicationContext);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseManager provideDatabaseManager() {
+        Logger.d(AppModule.DI_TAG, "Database manager");
+        return new DatabaseManager();
     }
 
     @Provides
