@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
+@SuppressWarnings("unused")
 public class Logger {
     //region VERBOSE
     public static void v(Object source, String message) {

@@ -797,8 +797,7 @@ public class ThreadPresenter
     public void onPostClicked(Post post) {
         if (isBound() && loadable.isCatalogMode()) {
             highlightPost(post);
-            threadPresenterCallback.showThread(Loadable.forThread(loadable.site,
-                    post.board,
+            threadPresenterCallback.showThread(Loadable.forThread(post.board,
                     post.no,
                     PostHelper.getTitle(post, loadable)
             ));
@@ -854,7 +853,7 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (loadable.getSite().siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
+        if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
         }
 
@@ -1052,7 +1051,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_PIN:
                 watchManager.createPin(
-                        Loadable.forThread(loadable.site, post.board, post.no, PostHelper.getTitle(post, loadable)),
+                        Loadable.forThread(post.board, post.no, PostHelper.getTitle(post, loadable)),
                         post,
                         PinType.WATCH_NEW_POSTS
                 );
@@ -1134,7 +1133,7 @@ public class ThreadPresenter
 
             Board board = loadable.site.board(link.board);
             if (board != null) {
-                Loadable thread = Loadable.forThread(board.site, board, link.threadId, "");
+                Loadable thread = Loadable.forThread(board, link.threadId, "");
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);

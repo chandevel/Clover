@@ -306,7 +306,7 @@ public abstract class CommonSite
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(site, b, Integer.parseInt(thread.group(3)), "");
+                    Loadable l = Loadable.forThread(b, Integer.parseInt(thread.group(3)), "");
 
                     if (isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());

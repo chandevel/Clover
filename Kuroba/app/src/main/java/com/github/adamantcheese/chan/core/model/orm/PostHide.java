@@ -22,6 +22,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "posthide")
 public class PostHide {
+    @SuppressWarnings("unused")
     @DatabaseField(generatedId = true)
     public int id;
 

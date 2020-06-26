@@ -26,13 +26,14 @@ public class SavedReply {
 
     public static SavedReply fromBoardNoPassword(Board board, int no, String password) {
         SavedReply savedReply = new SavedReply();
-        savedReply.siteId = board.site.id();
+        savedReply.siteId = board.siteId;
         savedReply.board = board.code;
         savedReply.no = no;
         savedReply.password = password;
         return savedReply;
     }
 
+    @SuppressWarnings("unused")
     @DatabaseField(generatedId = true)
     private int id;
 

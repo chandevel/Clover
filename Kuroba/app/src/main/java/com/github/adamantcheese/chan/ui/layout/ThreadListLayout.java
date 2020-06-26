@@ -310,11 +310,7 @@ public class ThreadListLayout
             List<Post> toRemove = new ArrayList<>();
             for (Pin pin : instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().site,
-                            thread.getLoadable().board,
-                            post.no,
-                            ""
-                    ))) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, ""))) {
                         toRemove.add(post);
                     }
                 }
@@ -833,7 +829,5 @@ public class ThreadListLayout
         void showImageReencodingWindow();
 
         boolean threadBackPressed();
-
-        Loadable getLoadable();
     }
 }

@@ -102,6 +102,7 @@ public class CustomScaleImageView
         this.callback = callback;
     }
 
+    @SuppressWarnings("unused")
     public static class ImageViewportTouchSide {
         @SuppressWarnings("PointlessBitwiseExpression")
         public final static int LEFT_SIDE = 1 << 0;

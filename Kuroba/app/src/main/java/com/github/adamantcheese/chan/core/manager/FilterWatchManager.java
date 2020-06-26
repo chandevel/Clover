@@ -145,11 +145,7 @@ public class FilterWatchManager
         Set<Integer> toAdd = new HashSet<>();
         for (Post p : catalog.getPosts()) {
             if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                Loadable pinLoadable = Loadable.forThread(catalog.getLoadable().site,
-                        p.board,
-                        p.no,
-                        PostHelper.getTitle(p, catalog.getLoadable())
-                );
+                Loadable pinLoadable = Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
                 instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                 toAdd.add(p.no);
             }
@@ -168,11 +164,8 @@ public class FilterWatchManager
             Set<Integer> toAdd = new HashSet<>();
             for (Post p : result.getPosts()) {
                 if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                    Loadable pinLoadable = Loadable.forThread(result.getLoadable().site,
-                            p.board,
-                            p.no,
-                            PostHelper.getTitle(p, result.getLoadable())
-                    );
+                    Loadable pinLoadable =
+                            Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
                     instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
                     toAdd.add(p.no);
                 }

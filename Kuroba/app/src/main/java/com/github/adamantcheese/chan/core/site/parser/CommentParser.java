@@ -300,7 +300,7 @@ public class CommentParser {
                 //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
                 Site site = builder.board.site;
                 String link =
-                        site.resolvable().desktopUrl(Loadable.forThread(site, builder.board, postNo, ""), builder.id);
+                        site.resolvable().desktopUrl(Loadable.forThread(builder.board, postNo, ""), builder.id);
                 link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
                 PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
                 text = span(text, newLinkable);

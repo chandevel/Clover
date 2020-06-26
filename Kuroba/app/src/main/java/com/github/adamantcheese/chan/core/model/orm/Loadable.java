@@ -154,24 +154,16 @@ public class Loadable
         return loadable;
     }
 
-    public static Loadable forThread(Site site, Board board, int no, String title) {
+    public static Loadable forThread(Board board, int no, String title) {
         Loadable loadable = new Loadable();
-        loadable.siteId = site.id();
-        loadable.site = site;
+        loadable.siteId = board.siteId;
+        loadable.site = board.site;
         loadable.mode = Mode.THREAD;
         loadable.board = board;
         loadable.boardCode = board.code;
         loadable.no = no;
         loadable.title = title;
         return instance(DatabaseManager.class).getDatabaseLoadableManager().get(loadable);
-    }
-
-    public Site getSite() {
-        return site;
-    }
-
-    public Board getBoard() {
-        return board;
     }
 
     public void setTitle(String title) {

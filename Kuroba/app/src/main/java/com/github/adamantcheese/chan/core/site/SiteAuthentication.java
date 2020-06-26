@@ -22,6 +22,7 @@ import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CA
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.GENERIC_WEBVIEW;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.NONE;
 
+@SuppressWarnings("ALL")
 public class SiteAuthentication {
     public enum Type {
         NONE,

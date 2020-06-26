@@ -82,7 +82,7 @@ public class DvachApi
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
-        SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
+        SiteEndpoints endpoints = queue.getLoadable().site.endpoints();
 
         List<PostImage> files = new ArrayList<>();
 

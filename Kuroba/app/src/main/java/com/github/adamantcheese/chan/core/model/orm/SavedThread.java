@@ -7,13 +7,12 @@ import com.j256.ormlite.table.DatabaseTable;
 
 @DatabaseTable(tableName = "saved_thread")
 public class SavedThread {
-    public static final String ID = "id";
     public static final String LOADABLE_ID = "loadable_id";
     public static final String LAST_SAVED_POST_NO = "last_saved_post_no";
     public static final String IS_FULLY_DOWNLOADED = "is_fully_downloaded";
     public static final String IS_STOPPED = "is_stopped";
 
-    @DatabaseField(columnName = ID, generatedId = true)
+    @DatabaseField(generatedId = true)
     public int id;
 
     @DatabaseField(columnName = LOADABLE_ID, index = true)

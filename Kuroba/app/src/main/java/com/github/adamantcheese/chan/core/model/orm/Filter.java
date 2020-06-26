@@ -23,6 +23,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "filter")
 public class Filter
         implements Cloneable {
+    @SuppressWarnings("unused")
     @DatabaseField(generatedId = true)
     public int id;
 

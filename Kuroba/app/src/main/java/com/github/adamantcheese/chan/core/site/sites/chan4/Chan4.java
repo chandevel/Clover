@@ -150,7 +150,7 @@ public class Chan4
                         }
 
                         if (no >= 0) {
-                            Loadable loadable = Loadable.forThread(site, board, no, "");
+                            Loadable loadable = Loadable.forThread(board, no, "");
                             if (post >= 0) {
                                 loadable.markedNo = post;
                             }

@@ -82,7 +82,7 @@ public class VichanApi
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
 
-        SiteEndpoints endpoints = queue.getLoadable().getSite().endpoints();
+        SiteEndpoints endpoints = queue.getLoadable().site.endpoints();
 
         // File
         String fileId = null;

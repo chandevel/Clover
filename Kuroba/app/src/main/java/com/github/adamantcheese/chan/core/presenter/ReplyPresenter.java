@@ -237,16 +237,6 @@ public class ReplyPresenter
         }
     }
 
-    public void onAuthenticateCalled() {
-        if (loadable.site.actions().postRequiresAuthentication()) {
-            if (!onPrepareToSubmit(true)) {
-                return;
-            }
-
-            switchPage(Page.AUTHENTICATION, true, false);
-        }
-    }
-
     public void onSubmitClicked(boolean longClicked) {
         long timeLeft = lastReplyRepository.getTimeUntilDraftPostable(draft);
 
@@ -286,8 +276,7 @@ public class ReplyPresenter
     public void onPostComplete(ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
-            Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.site,
-                    originatingLoadable.board,
+            Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.board,
                     replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
                     "Title will update shortly…"
             );
@@ -521,7 +510,7 @@ public class ReplyPresenter
     }
 
     private void makeSubmitCall() {
-        loadable.getSite().actions().post(draft, this);
+        loadable.site.actions().post(draft, this);
         switchPage(Page.LOADING);
     }
 

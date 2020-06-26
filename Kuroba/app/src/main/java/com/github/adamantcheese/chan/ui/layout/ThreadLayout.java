@@ -667,8 +667,7 @@ public class ThreadLayout
         }
     }
 
-    @Override
-    public Loadable getLoadable() {
+    private Loadable getLoadable() {
         return presenter.getLoadable();
     }
 

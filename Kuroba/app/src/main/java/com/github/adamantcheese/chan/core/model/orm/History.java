@@ -24,6 +24,7 @@ import okhttp3.HttpUrl;
 
 @DatabaseTable(tableName = "history")
 public class History {
+    @SuppressWarnings("unused")
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -33,6 +34,7 @@ public class History {
     @DatabaseField(persisterClass = HttpUrlType.class)
     public HttpUrl thumbnailUrl;
 
+    @SuppressWarnings("unused")
     @DatabaseField
     public long date;
 }

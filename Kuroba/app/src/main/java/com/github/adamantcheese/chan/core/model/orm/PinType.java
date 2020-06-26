@@ -1,8 +1,5 @@
 package com.github.adamantcheese.chan.core.model.orm;
 
-/**
- * FUCK ENUMS
- */
 public class PinType {
     public static final int WATCH_NEW_POSTS = 1;
     public static final int DOWNLOAD_NEW_POSTS = 1 << 1;
