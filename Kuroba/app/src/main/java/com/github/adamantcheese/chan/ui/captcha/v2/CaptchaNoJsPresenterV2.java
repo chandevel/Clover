@@ -110,7 +110,7 @@ public class CaptchaNoJsPresenterV2 {
                 throw new CaptchaNoJsV2Error("prevCaptchaInfo is null");
             }
 
-            if (prevCaptchaInfo.getcParameter() == null) {
+            if (prevCaptchaInfo.cParameter == null) {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
@@ -234,7 +234,7 @@ public class CaptchaNoJsPresenterV2 {
 
         sb.append(URLEncoder.encode("c", encoding));
         sb.append("=");
-        sb.append(URLEncoder.encode(prevCaptchaInfo.getcParameter(), encoding));
+        sb.append(URLEncoder.encode(prevCaptchaInfo.cParameter, encoding));
         sb.append("&");
 
         for (Integer selectedImageId : selectedIds) {

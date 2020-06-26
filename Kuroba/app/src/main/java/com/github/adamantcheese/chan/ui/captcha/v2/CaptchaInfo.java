@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.graphics.Bitmap;
+import android.text.SpannableString;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,115 +29,38 @@ import java.util.List;
 import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
 
 public class CaptchaInfo {
-    CaptchaType captchaType;
+    CaptchaType captchaType = UNKNOWN;
     @NonNull
-    List<Integer> checkboxes;
+    List<Integer> checkboxes = new ArrayList<>();
     @Nullable
-    String cParameter;
+    String cParameter = null;
     @NonNull
-    List<Bitmap> challengeImages;
+    List<Bitmap> challengeImages = Collections.emptyList();
     @Nullable
-    CaptchaTitle captchaTitle;
+    SpannableString captchaTitle = null;
 
-    public CaptchaInfo() {
-        captchaType = UNKNOWN;
-        checkboxes = new ArrayList<>();
-        cParameter = null;
-        challengeImages = Collections.emptyList();
-        captchaTitle = null;
-    }
-
-    public void setCaptchaType(CaptchaType captchaType) {
-        this.captchaType = captchaType;
-    }
-
-    public void setCheckboxes(@NonNull List<Integer> checkboxes) {
-        this.checkboxes = checkboxes;
-    }
-
-    public void setcParameter(@Nullable String cParameter) {
-        this.cParameter = cParameter;
-    }
-
-    public void setChallengeImages(@NonNull List<Bitmap> challengeImages) {
-        this.challengeImages = challengeImages;
-    }
-
-    public void setCaptchaTitle(@Nullable CaptchaTitle captchaTitle) {
-        this.captchaTitle = captchaTitle;
-    }
-
-    public CaptchaType getCaptchaType() {
-        return captchaType;
-    }
-
-    @NonNull
-    public List<Bitmap> getChallengeImages() {
-        return challengeImages;
-    }
-
-    @NonNull
-    public List<Integer> getCheckboxes() {
-        return checkboxes;
-    }
-
-    @Nullable
-    public String getcParameter() {
-        return cParameter;
-    }
-
-    @Nullable
-    public CaptchaTitle getCaptchaTitle() {
-        return captchaTitle;
-    }
+    public CaptchaInfo() { }
 
     public enum CaptchaType {
-        UNKNOWN,
-        // 3x3
-        CANONICAL,
-        // 2x4
-        NO_CANONICAL;
+        UNKNOWN(0), // ?x?
+        CANONICAL(3), // 3x3
+        NO_CANONICAL(2); // 2x4
+
+        int columnCount;
+
+        CaptchaType(int columnCount) {
+            this.columnCount = columnCount;
+        }
 
         public static CaptchaType fromCheckboxesCount(int count) {
-            if (count == 8) {
-                return NO_CANONICAL;
-            } else if (count == 9) {
-                return CANONICAL;
+            switch (count) {
+                case 8:
+                    return NO_CANONICAL;
+                case 9:
+                    return CANONICAL;
+                default:
+                    return UNKNOWN;
             }
-
-            return UNKNOWN;
-        }
-    }
-
-    public static class CaptchaTitle {
-        private String title;
-        private int boldStart;
-        private int boldEnd;
-
-        public CaptchaTitle(String title, int boldStart, int boldEnd) {
-            this.title = title;
-            this.boldStart = boldStart;
-            this.boldEnd = boldEnd;
-        }
-
-        public boolean isEmpty() {
-            return title.isEmpty() && boldStart == -1 && boldEnd == -1;
-        }
-
-        public boolean hasBold() {
-            return boldStart != -1 && boldEnd != -1;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public int getBoldStart() {
-            return boldStart;
-        }
-
-        public int getBoldEnd() {
-            return boldEnd;
         }
     }
 }

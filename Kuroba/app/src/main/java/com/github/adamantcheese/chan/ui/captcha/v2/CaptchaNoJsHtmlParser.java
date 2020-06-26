@@ -19,6 +19,10 @@ package com.github.adamantcheese.chan.ui.captcha.v2;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -128,7 +132,7 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("Could not parse challenge title " + responseHtml);
         }
 
-        CaptchaInfo.CaptchaTitle captchaTitle;
+        SpannableString captchaTitle;
 
         try {
             String title = matcher.group(2).replace("Select all images", "Tap all");
@@ -142,24 +146,26 @@ public class CaptchaNoJsHtmlParser {
                 String boldPart = titleMatcher.group(1);
                 String resultTitle = firstPart + boldPart;
 
-                captchaTitle = new CaptchaInfo.CaptchaTitle(resultTitle,
+                captchaTitle = new SpannableString(resultTitle);
+                captchaTitle.setSpan(new StyleSpan(Typeface.BOLD),
                         firstPart.length(),
-                        firstPart.length() + boldPart.length()
+                        firstPart.length() + boldPart.length(),
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
                 );
             } else {
                 // could not find it
-                captchaTitle = new CaptchaInfo.CaptchaTitle(title, -1, -1);
+                captchaTitle = new SpannableString(title);
             }
         } catch (Throwable error) {
             Logger.e(this, "Error while trying to parse challenge title", error);
             throw error;
         }
 
-        if (captchaTitle == null || captchaTitle.isEmpty()) {
+        if (captchaTitle.length() == 0) {
             throw new CaptchaNoJsV2ParsingError("challengeTitle is null or empty");
         }
 
-        captchaInfo.setCaptchaTitle(captchaTitle);
+        captchaInfo.captchaTitle = captchaTitle;
     }
 
     private void parseAndDownloadChallengeImage(String responseHtml, CaptchaInfo captchaInfo, String siteKey)
@@ -202,8 +208,7 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("Could not calculate rows count");
         }
 
-        List<Bitmap> challengeImages = decodeImagesFromFile(challengeImageFile, columns, rows);
-        captchaInfo.setChallengeImages(challengeImages);
+        captchaInfo.challengeImages = decodeImagesFromFile(challengeImageFile, columns, rows);
     }
 
     @NonNull
@@ -250,7 +255,7 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("cParameter is empty");
         }
 
-        captchaInfo.setcParameter(cParameter);
+        captchaInfo.cParameter = cParameter;
     }
 
     private void parseCheckboxes(String responseHtml, CaptchaInfo captchaInfo)
@@ -288,8 +293,8 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("Unknown captcha type");
         }
 
-        captchaInfo.setCaptchaType(captchaType);
-        captchaInfo.setCheckboxes(new ArrayList<>(checkboxesSet));
+        captchaInfo.captchaType = captchaType;
+        captchaInfo.checkboxes = new ArrayList<>(checkboxesSet);
     }
 
     @NonNull

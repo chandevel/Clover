@@ -18,10 +18,6 @@ package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Typeface;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -203,23 +199,14 @@ public class CaptchaNoJsLayoutV2
             setCaptchaTitle(captchaInfo);
 
             captchaImagesGrid.setAdapter(adapter);
-            int columnsCount;
+            int columnsCount = captchaInfo.captchaType.columnCount;
             int imageSize = Math.min(getWidth(), getHeight() - dp(104));
             //40 + 64dp from layout xml; width for left-right full span, height minus for top-bottom full span inc buttons and titlebar
             ViewGroup.LayoutParams layoutParams = captchaImagesGrid.getLayoutParams();
             layoutParams.height = imageSize;
             layoutParams.width = imageSize;
             captchaImagesGrid.setLayoutParams(layoutParams);
-            switch (captchaInfo.getCaptchaType()) {
-                case CANONICAL:
-                    columnsCount = 3;
-                    break;
-                case NO_CANONICAL:
-                    columnsCount = 2;
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown captcha type");
-            }
+
             imageSize /= columnsCount;
             captchaImagesGrid.setNumColumns(columnsCount);
 
@@ -237,21 +224,7 @@ public class CaptchaNoJsLayoutV2
     }
 
     private void setCaptchaTitle(CaptchaInfo captchaInfo) {
-        if (captchaInfo.getCaptchaTitle() != null) {
-            if (captchaInfo.getCaptchaTitle().hasBold()) {
-                SpannableString spannableString = new SpannableString(captchaInfo.getCaptchaTitle().getTitle());
-                spannableString.setSpan(
-                        new StyleSpan(Typeface.BOLD),
-                        captchaInfo.getCaptchaTitle().getBoldStart(),
-                        captchaInfo.getCaptchaTitle().getBoldEnd(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                );
-
-                captchaChallengeTitle.setText(spannableString);
-            } else {
-                captchaChallengeTitle.setText(captchaInfo.getCaptchaTitle().getTitle());
-            }
-        }
+        captchaChallengeTitle.setText(captchaInfo.captchaTitle);
     }
 
     private void sendVerificationResponse() {
