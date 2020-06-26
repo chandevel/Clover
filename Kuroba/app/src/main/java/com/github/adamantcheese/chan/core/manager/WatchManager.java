@@ -73,6 +73,7 @@ import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalTy
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.NotDownloading;
+import static com.github.adamantcheese.chan.core.model.orm.PinType.WATCH_NEW_POSTS;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -200,7 +201,7 @@ public class WatchManager
     }
 
     public void createPin(Loadable loadable) {
-        createPin(loadable, null, PinType.WATCH_NEW_POSTS);
+        createPin(loadable, null, WATCH_NEW_POSTS);
     }
 
     public void createPin(Reply newThreadOP) {
@@ -213,8 +214,12 @@ public class WatchManager
                         .subject(newThreadOP.subject)
                         .comment(newThreadOP.comment)
                         .build(),
-                PinType.WATCH_NEW_POSTS
+                WATCH_NEW_POSTS
         );
+    }
+
+    public void createPin(Loadable loadable, @Nullable Post opPost) {
+        createPin(loadable, opPost, WATCH_NEW_POSTS);
     }
 
     public void createPin(Loadable loadable, @Nullable Post opPost, int pinType) {

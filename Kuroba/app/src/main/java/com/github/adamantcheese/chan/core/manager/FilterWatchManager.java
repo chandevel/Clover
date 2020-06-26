@@ -21,11 +21,11 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -138,6 +138,8 @@ public class FilterWatchManager
     }
 
     public void onCatalogLoad(ChanThread catalog) {
+        BackgroundUtils.ensureBackgroundThread();
+
         if (catalog.getLoadable().isThreadMode()) return; //not a catalog
         if (processing) return; //filter watch manager is currently processing, ignore
         Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
@@ -145,8 +147,9 @@ public class FilterWatchManager
         Set<Integer> toAdd = new HashSet<>();
         for (Post p : catalog.getPosts()) {
             if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                Loadable pinLoadable = Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
-                instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                final Loadable pinLoadable =
+                        Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
+                BackgroundUtils.runOnMainThread(() -> instance(WatchManager.class).createPin(pinLoadable, p));
                 toAdd.add(p.no);
             }
         }
@@ -164,9 +167,9 @@ public class FilterWatchManager
             Set<Integer> toAdd = new HashSet<>();
             for (Post p : result.getPosts()) {
                 if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                    Loadable pinLoadable =
+                    final Loadable pinLoadable =
                             Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
-                    instance(WatchManager.class).createPin(pinLoadable, p, PinType.WATCH_NEW_POSTS);
+                    BackgroundUtils.runOnMainThread(() -> instance(WatchManager.class).createPin(pinLoadable, p));
                     toAdd.add(p.no);
                 }
             }
