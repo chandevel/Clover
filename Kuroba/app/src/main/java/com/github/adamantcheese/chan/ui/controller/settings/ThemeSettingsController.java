@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -158,6 +159,7 @@ public class ThemeSettingsController
         }
     };
 
+    private CoordinatorLayout wrapper;
     private ViewPager pager;
     private FloatingActionButton done;
 
@@ -189,6 +191,7 @@ public class ThemeSettingsController
         // restore if the user pressed back
         currentDayNight = ThemeHelper.isNightTheme;
 
+        wrapper = view.findViewById(R.id.wrapper);
         pager = view.findViewById(R.id.pager);
         done = view.findViewById(R.id.add);
         done.setOnClickListener(v -> saveTheme());
@@ -214,6 +217,7 @@ public class ThemeSettingsController
                 done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
+                wrapper.setBackgroundColor(resolveColor(currentTheme.resValue, R.attr.backcolor));
             }
 
             @Override
@@ -278,6 +282,7 @@ public class ThemeSettingsController
         done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(ThemeHelper.getTheme().accentColor.accentStyleId,
                 R.attr.colorAccent
         )));
+        wrapper.setBackgroundColor(resolveColor(ThemeHelper.getTheme().resValue, R.attr.backcolor));
     }
 
     private void showAccentColorPicker() {
