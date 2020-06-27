@@ -45,10 +45,6 @@ public class SiteRepository {
         return databaseManager.runTask(databaseManager.getDatabaseSiteManager().byId(id));
     }
 
-    public void setId(SiteModel siteModel, int id) {
-        databaseManager.runTask(databaseManager.getDatabaseSiteManager().updateId(siteModel, id));
-    }
-
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
         SiteModel siteModel = byId(site.id());
         if (siteModel == null) throw new NullPointerException("siteModel == null");

@@ -162,7 +162,7 @@ public class DatabaseLoadableManager {
         return () -> {
             Loadable cachedLoadable = findLoadableInCache(loadable);
             if (cachedLoadable != null) {
-                Logger.v(DatabaseLoadableManager.this, "Cached loadable found");
+                Logger.v(DatabaseLoadableManager.this, "Cached loadable found " + cachedLoadable);
                 cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
                 return cachedLoadable;
             } else {
@@ -189,8 +189,8 @@ public class DatabaseLoadableManager {
 
                 Loadable result = results.isEmpty() ? null : results.get(0);
                 if (result == null) {
-                    Logger.d(DatabaseLoadableManager.this, "Creating loadable");
                     helper.loadableDao.create(loadable);
+                    Logger.d(DatabaseLoadableManager.this, "Created loadable " + loadable);
                     result = loadable;
                 } else {
                     Logger.d(DatabaseLoadableManager.this, "Loadable found in db");

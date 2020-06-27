@@ -64,13 +64,6 @@ public class DatabaseSiteManager {
         };
     }
 
-    public Callable<SiteModel> updateId(final SiteModel site, final int newId) {
-        return () -> {
-            helper.siteDao.updateId(site, newId);
-            return site;
-        };
-    }
-
     public Callable<Map<Integer, Integer>> getOrdering() {
         return () -> {
             QueryBuilder<SiteModel, Integer> q = helper.siteDao.queryBuilder();
