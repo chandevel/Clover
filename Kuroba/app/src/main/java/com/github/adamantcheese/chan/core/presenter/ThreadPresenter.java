@@ -1050,8 +1050,7 @@ public class ThreadPresenter
                 requestData();
                 break;
             case POST_OPTION_PIN:
-                watchManager.createPin(
-                        Loadable.forThread(post.board, post.no, PostHelper.getTitle(post, loadable)),
+                watchManager.createPin(Loadable.forThread(post.board, post.no, PostHelper.getTitle(post, loadable)),
                         post,
                         PinType.WATCH_NEW_POSTS
                 );
@@ -1382,7 +1381,8 @@ public class ThreadPresenter
             historyAdded = true;
             History history = new History();
             history.loadable = loadable;
-            history.thumbnailUrl = chanLoader.getThread().getOp().image().getThumbnailUrl();
+            PostImage opImage = chanLoader.getThread().getOp().image();
+            history.thumbnailUrl = opImage != null ? opImage.getThumbnailUrl() : null;
             databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
