@@ -93,7 +93,7 @@ public class DatabaseLoadableManager {
      */
     public Loadable get(final Loadable loadable) {
         if (loadable.id != 0) {
-            throw new IllegalArgumentException("get() only works for transient loadables");
+            return loadable;
         }
 
         // We only cache THREAD loadables in the db
@@ -139,7 +139,7 @@ public class DatabaseLoadableManager {
     @Nullable
     private Loadable findLoadableInCache(Loadable l) {
         for (Loadable key : cachedLoadables) {
-            if (key.toString().equals(l.toString())) {
+            if (key.equals(l)) {
                 return key;
             }
         }
@@ -148,7 +148,7 @@ public class DatabaseLoadableManager {
 
     private Callable<Loadable> getLoadable(final Loadable loadable) {
         if (!loadable.isThreadMode()) {
-            throw new IllegalArgumentException("getLoadable can only be used for thread loadables");
+            return () -> loadable;
         }
 
         return () -> {

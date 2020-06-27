@@ -54,7 +54,7 @@ public class ReplyManager {
         // Not doing this would be confusing and cause invalid fileNames.
         if(reply.file != null) {
             for (Map.Entry<Loadable, Reply> entry : drafts.entrySet()) {
-                if (!entry.getKey().toString().equals(reply.loadable.toString())) {
+                if (!entry.getKey().equals(reply.loadable)) {
                     Reply value = entry.getValue();
                     value.file = null;
                     value.fileName = "";
