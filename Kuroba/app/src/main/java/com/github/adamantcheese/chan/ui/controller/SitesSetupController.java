@@ -60,7 +60,6 @@ public class SitesSetupController
         extends StyledToolbarNavigationController
         implements SitesSetupPresenter.Callback, View.OnClickListener {
 
-    @Inject
     SitesSetupPresenter presenter;
 
     private CrossfadeView crossfadeView;
@@ -97,7 +96,6 @@ public class SitesSetupController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         // Inflate
         view = inflate(context, R.layout.controller_sites_setup);
@@ -122,7 +120,7 @@ public class SitesSetupController
         crossfadeView.toggle(false, false);
 
         // Presenter
-        presenter.create(this);
+        presenter = new SitesSetupPresenter(context, this);
     }
 
     @Override

@@ -33,32 +33,30 @@ import java.util.Observer;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class SitesSetupPresenter
         implements Observer {
     private Context context;
-    private final SiteRepository siteRepository;
-    private final BoardManager boardManager;
+
+    @Inject
+    private final SiteRepository siteRepository = null;
+    @Inject
+    private final BoardManager boardManager = null;
 
     private Callback callback;
 
     private SiteRepository.Sites sites;
     private List<Site> sitesShown = new ArrayList<>();
 
-    @Inject
-    public SitesSetupPresenter(
-            Context context, SiteRepository siteRepository, BoardManager boardManager
-    ) {
+    public SitesSetupPresenter(Context context, Callback callback) {
+        inject(this);
         this.context = context;
-        this.siteRepository = siteRepository;
-        this.boardManager = boardManager;
-    }
-
-    public void create(Callback callback) {
         this.callback = callback;
 
+        //noinspection ConstantConditions this is dependency injected and will not be null
         sites = siteRepository.all();
         sites.addObserver(this);
 
@@ -100,6 +98,7 @@ public class SitesSetupPresenter
     }
 
     public void onAddClicked(Class<? extends Site> siteClass) {
+        //noinspection ConstantConditions
         Site newSite = siteRepository.createFromClass(siteClass);
 
         sitesShown.add(newSite);
@@ -113,12 +112,14 @@ public class SitesSetupPresenter
     }
 
     private void saveOrder() {
+        //noinspection ConstantConditions
         siteRepository.updateSiteOrderingAsync(sitesShown);
     }
 
     private void updateSitesInUi() {
         List<SiteBoardCount> r = new ArrayList<>();
         for (Site site : sitesShown) {
+            //noinspection ConstantConditions
             r.add(new SiteBoardCount(site, boardManager.getSiteSavedBoards(site).size()));
         }
         callback.setSites(r);
@@ -126,6 +127,7 @@ public class SitesSetupPresenter
 
     public void removeSite(Site site) {
         try {
+            //noinspection ConstantConditions
             siteRepository.removeSite(site);
             ((StartActivity) context).restartApp();
         } catch (Throwable error) {
