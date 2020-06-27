@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
@@ -28,8 +30,10 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -43,14 +47,17 @@ public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
-    private Set<Loadable> cache = new HashSet<>();
+    // This map converts a loadable without an ID to a loadable with an ID, which is obtained from the database
+    // Loadables without an ID are gotten from Loadable factory methods and must be put into the database before having
+    // an ID, which is used by other data items for indexing and whatnot
+    private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
 
     public DatabaseLoadableManager() {
         inject(this);
     }
 
     public int cacheSize() {
-        return cache.size();
+        return cachedLoadables.size();
     }
 
     /**
@@ -59,7 +66,7 @@ public class DatabaseLoadableManager {
      */
     public Callable<Void> flush() {
         return () -> {
-            for (Loadable loadable : cache) {
+            for (Loadable loadable : cachedLoadables.values()) {
                 if (loadable.dirty) {
                     loadable.dirty = false;
                     helper.loadableDao.update(loadable);
@@ -121,9 +128,10 @@ public class DatabaseLoadableManager {
         }
 
         // If the loadable was already loaded in the cache, return that entry
-        if (cache.contains(loadable)) {
-            loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            return loadable;
+        Loadable cachedLoadable = findLoadableInCache(loadable);
+        if (cachedLoadable != null) {
+            cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            return cachedLoadable;
         }
 
         // Add it to the cache, refresh contents
@@ -132,8 +140,18 @@ public class DatabaseLoadableManager {
         loadable.board = loadable.site.board(loadable.boardCode);
         loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
         loadable.dirty = true;
-        cache.add(loadable);
+        cachedLoadables.put(loadable, loadable);
         return loadable;
+    }
+
+    @Nullable
+    private Loadable findLoadableInCache(Loadable l) {
+        for (Loadable key : cachedLoadables.values()) {
+            if (key.equals(l)) {
+                return key;
+            }
+        }
+        return null;
     }
 
     private Callable<Loadable> getLoadable(final Loadable loadable) {
@@ -142,10 +160,11 @@ public class DatabaseLoadableManager {
         }
 
         return () -> {
-            if (cache.contains(loadable)) {
+            Loadable cachedLoadable = findLoadableInCache(loadable);
+            if (cachedLoadable != null) {
                 Logger.v(DatabaseLoadableManager.this, "Cached loadable found");
-                loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-                return loadable;
+                cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+                return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
                 List<Loadable> results = builder.where()
@@ -179,7 +198,7 @@ public class DatabaseLoadableManager {
                     result.board = result.site.board(result.boardCode);
                 }
 
-                cache.add(result);
+                cachedLoadables.put(loadable, result);
                 result.lastLoadDate = GregorianCalendar.getInstance().getTime();
                 return result;
             }
@@ -220,10 +239,10 @@ public class DatabaseLoadableManager {
 
     public Callable<Void> updateLoadable(Loadable updatedLoadable) {
         return () -> {
-            for (Loadable key : cache) {
+            for (Loadable key : cachedLoadables.keySet()) {
                 if (key.id == updatedLoadable.id) {
-                    cache.remove(key);
-                    cache.add(updatedLoadable);
+                    cachedLoadables.remove(key);
+                    cachedLoadables.put(key, updatedLoadable);
                     break;
                 }
             }
