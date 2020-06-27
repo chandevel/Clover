@@ -176,7 +176,7 @@ public class ViewThreadController
             menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchivesInternal);
         }
         menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
-                .withSubItem(R.string.view_your_posts, this::showYourPosts)
+                .withSubItem(R.string.view_my_posts, this::showYourPosts)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
                 .withSubItem(R.string.action_scroll_to_top, this::upClicked)
