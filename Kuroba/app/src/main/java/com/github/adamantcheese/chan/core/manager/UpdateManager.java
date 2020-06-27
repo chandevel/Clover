@@ -230,21 +230,16 @@ public class UpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
                         getApplicationLabel() + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
-                        .setNegativeButton(R.string.update_later, null)
+                        .setNegativeButton(R.string.update_later, ((dialog1, which) -> notifyNewApkUpdate()))
                         .setPositiveButton(R.string.update_install,
                                 (dialog1, which) -> updateInstallRequested(response)
                         )
                         .create();
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.show();
+            } else {
+                notifyNewApkUpdate();
             }
-
-            // There is an update, show the notification.
-            //
-            // (In case of the dev build we check whether the apk hashes differ or not beforehand,
-            // so if they are the same this method won't even get called. In case of the release
-            // build this method will be called in both cases so we do the check in this method)
-            notifyNewApkUpdate();
             return true;
         }
 
