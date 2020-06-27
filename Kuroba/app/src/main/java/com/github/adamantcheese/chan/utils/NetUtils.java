@@ -43,6 +43,8 @@ public class NetUtils {
             new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (1024 * 8)));
     // max 1/8th of runtime memory for cache
 
+    private static Bitmap errorBitmap;
+
     public static void makeHttpCall(
             HttpCall httpCall, HttpCallback<? extends HttpCall> callback
     ) {
@@ -80,7 +82,9 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
+        if (errorBitmap != null) {
+            errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
+        }
         Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
             BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(cachedBitmap, true));
@@ -117,6 +121,9 @@ public class NetUtils {
                     BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(bitmap, false));
                 } catch (Exception e) {
                     BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, e));
+                } catch (OutOfMemoryError e) {
+                    Runtime.getRuntime().gc();
+                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new IOException(e)));
                 }
             }
         });
