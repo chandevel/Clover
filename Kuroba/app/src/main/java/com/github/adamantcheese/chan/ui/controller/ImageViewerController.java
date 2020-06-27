@@ -137,6 +137,8 @@ public class ImageViewerController
         navigation.subtitle = "0";
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
+        menuBuilder.withItem(ROTATE_ID, R.drawable.ic_rotate_90_deg_white_24dp, this::rotateImage);
+
         if (goPostCallback != null) {
             menuBuilder.withItem(R.drawable.ic_subdirectory_arrow_left_white_24dp, this::goPostClicked);
         }
@@ -154,7 +156,6 @@ public class ImageViewerController
             overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         }
         overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
-        overflowBuilder.withSubItem(ROTATE_ID, R.string.action_image_rotate, this::rotateImage);
 
         if (!loadable.isLocal()) {
             overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
@@ -256,7 +257,7 @@ public class ImageViewerController
         ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
     }
 
-    private void rotateImage(ToolbarMenuSubItem item) {
+    private void rotateImage(ToolbarMenuItem item) {
         String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
         Integer[] rotateInts = {90, 180, -90};
         ListView rotateImageList = new ListView(context);
@@ -417,8 +418,8 @@ public class ImageViewerController
         navigation.subtitle = (index + 1) + "/" + count;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
-        ToolbarMenuSubItem rotate = navigation.findSubItem(ROTATE_ID);
-        rotate.enabled = getImageMode(postImage) == MultiImageView.Mode.BIGIMAGE;
+        ToolbarMenuItem rotate = navigation.findItem(ROTATE_ID);
+        rotate.setVisible(getImageMode(postImage) == MultiImageView.Mode.BIGIMAGE);
     }
 
     public void scrollToImage(PostImage postImage) {
