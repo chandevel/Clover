@@ -222,8 +222,7 @@ public class UpdateManager {
     private boolean processUpdateApiResponse(UpdateApiResponse response, boolean manual) {
         if ((response.versionCode > VERSION_CODE || DEV_BUILD) && BackgroundUtils.isInForeground()) {
 
-            // Do not spam dialogs if this is not the manual update check, use the notifications
-            // instead
+            // Do not spam dialogs if this is not the manual update check, use the notifications instead
             if (manual) {
                 boolean concat = !response.updateTitle.isEmpty();
                 CharSequence updateMessage =
@@ -285,83 +284,82 @@ public class UpdateManager {
             cancelableDownload = null;
         }
 
-        cancelableDownload =
-                fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL, new FileCacheListener() {
-                    @Override
-                    public void onProgress(int chunkIndex, long downloaded, long total) {
-                        BackgroundUtils.ensureMainThread();
+        cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(response.apkURL, new FileCacheListener() {
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
 
-                        if (updateDownloadDialog != null) {
-                            updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
-                                    / (double) total)));
-                        }
-                    }
+                if (updateDownloadDialog != null) {
+                    updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (downloaded
+                            / (double) total)));
+                }
+            }
 
-                    @Override
-                    public void onSuccess(RawFile file) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onSuccess(RawFile file) {
+                BackgroundUtils.ensureMainThread();
 
-                        if (updateDownloadDialog != null) {
-                            updateDownloadDialog.setOnDismissListener(null);
-                            updateDownloadDialog.dismiss();
-                            updateDownloadDialog = null;
-                        }
+                if (updateDownloadDialog != null) {
+                    updateDownloadDialog.setOnDismissListener(null);
+                    updateDownloadDialog.dismiss();
+                    updateDownloadDialog = null;
+                }
 
-                        String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
-                        suggestCopyingApkToAnotherDirectory(file, fileName, () -> {
-                            BackgroundUtils.runOnMainThread(() -> {
-                                //install from the filecache rather than downloads, as the
-                                // Environment.DIRECTORY_DOWNLOADS may not be "Download"
-                                installApk(file);
+                String fileName = getApplicationLabel() + "_" + response.versionCodeString + ".apk";
+                suggestCopyingApkToAnotherDirectory(file, fileName, () -> {
+                    BackgroundUtils.runOnMainThread(() -> {
+                        //install from the filecache rather than downloads, as the
+                        // Environment.DIRECTORY_DOWNLOADS may not be "Download"
+                        installApk(file);
 
-                                // Run the installApk a little bit later so the activity has time
-                                // to switch to the foreground state after we exit the SAF file
-                                // chooser
-                            }, TimeUnit.SECONDS.toMillis(1));
+                        // Run the installApk a little bit later so the activity has time
+                        // to switch to the foreground state after we exit the SAF file
+                        // chooser
+                    }, TimeUnit.SECONDS.toMillis(1));
 
-                            return Unit.INSTANCE;
-                        });
-                    }
-
-                    @Override
-                    public void onNotFound() {
-                        onFail(new IOException("Not found"));
-                    }
-
-                    @Override
-                    public void onFail(Exception exception) {
-                        if (!BackgroundUtils.isInForeground()) return;
-                        BackgroundUtils.ensureMainThread();
-
-                        String description =
-                                getString(R.string.update_install_download_failed_description, exception.getMessage());
-
-                        if (updateDownloadDialog != null) {
-                            updateDownloadDialog.setOnDismissListener(null);
-                            updateDownloadDialog.dismiss();
-                            updateDownloadDialog = null;
-                        }
-                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
-                                .setMessage(description)
-                                .setPositiveButton(R.string.ok, null)
-                                .show();
-                    }
-
-                    @Override
-                    public void onCancel() {
-                        if (!BackgroundUtils.isInForeground()) return;
-                        BackgroundUtils.ensureMainThread();
-
-                        if (updateDownloadDialog != null) {
-                            updateDownloadDialog.setOnDismissListener(null);
-                            updateDownloadDialog.dismiss();
-                            updateDownloadDialog = null;
-                        }
-                        new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
-                                .setPositiveButton(R.string.ok, null)
-                                .show();
-                    }
+                    return Unit.INSTANCE;
                 });
+            }
+
+            @Override
+            public void onNotFound() {
+                onFail(new IOException("Not found"));
+            }
+
+            @Override
+            public void onFail(Exception exception) {
+                if (!BackgroundUtils.isInForeground()) return;
+                BackgroundUtils.ensureMainThread();
+
+                String description =
+                        getString(R.string.update_install_download_failed_description, exception.getMessage());
+
+                if (updateDownloadDialog != null) {
+                    updateDownloadDialog.setOnDismissListener(null);
+                    updateDownloadDialog.dismiss();
+                    updateDownloadDialog = null;
+                }
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                        .setMessage(description)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            }
+
+            @Override
+            public void onCancel() {
+                if (!BackgroundUtils.isInForeground()) return;
+                BackgroundUtils.ensureMainThread();
+
+                if (updateDownloadDialog != null) {
+                    updateDownloadDialog.setOnDismissListener(null);
+                    updateDownloadDialog.dismiss();
+                    updateDownloadDialog = null;
+                }
+                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
+            }
+        });
     }
 
     private void suggestCopyingApkToAnotherDirectory(RawFile file, String fileName, Function0<Unit> onDone) {
