@@ -198,7 +198,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_575</item>
 
         <item name="post_name_color">@color/md_grey_375</item>
-        <item name="post_subject_color">@color/md_deep_purple_200</item>
+        <item name="post_subject_color">#b294bb</item>
         <item name="post_inline_quote_color">#b5bd68</item>
         <item name="android:textColorLink">#5F89AC</item>
 
@@ -248,10 +248,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
-        <item name="android:textColor">@color/md_grey_550</item>
-        <item name="android:textColorPrimary">@color/md_grey_550</item>
+        <item name="android:textColor">@color/md_grey_450</item>
+        <item name="android:textColorPrimary">@color/md_grey_450</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
-        <item name="android:textColorHint">@color/md_grey_575</item>
+        <item name="android:textColorHint">@color/md_grey_525</item>
 
         <item name="post_name_color">#669900</item>
         <item name="post_subject_color">#33b5e5</item>
@@ -265,8 +265,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#002b36</item>
         <item name="backcolor_secondary">#073642</item>
 
-        <item name="android:textColor">@color/md_grey_500</item>
-        <item name="android:textColorPrimary">@color/md_grey_500</item>
+        <item name="android:textColor">@color/md_grey_475</item>
+        <item name="android:textColorPrimary">@color/md_grey_475</item>
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
 
