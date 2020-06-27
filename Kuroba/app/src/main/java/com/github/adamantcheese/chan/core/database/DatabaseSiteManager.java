@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.QueryBuilder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -66,9 +65,7 @@ public class DatabaseSiteManager {
 
     public Callable<Map<Integer, Integer>> getOrdering() {
         return () -> {
-            QueryBuilder<SiteModel, Integer> q = helper.siteDao.queryBuilder();
-            q.selectColumns("id", "order");
-            List<SiteModel> modelsWithOrder = q.query();
+            List<SiteModel> modelsWithOrder = helper.siteDao.queryBuilder().selectColumns("id", "order").query();
             Map<Integer, Integer> ordering = new HashMap<>();
             for (SiteModel siteModel : modelsWithOrder) {
                 ordering.put(siteModel.id, siteModel.order);

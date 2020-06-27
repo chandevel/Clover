@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.repository;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -144,6 +145,7 @@ public class SiteRepository {
         return new SiteConfigSettingsHolder(instantiateSiteClass(config.classId), config, settings);
     }
 
+    @NonNull
     private Site instantiateSiteClass(int classId) {
         Class<? extends Site> clazz = SITE_CLASSES.get(classId);
         if (clazz == null) {
@@ -152,14 +154,13 @@ public class SiteRepository {
         return instantiateSiteClass(clazz);
     }
 
+    @NonNull
     public Site instantiateSiteClass(Class<? extends Site> clazz) {
-        Site site;
         try {
-            site = clazz.newInstance();
+            return clazz.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException();
         }
-        return site;
     }
 
     public void removeSite(Site site) {
@@ -220,19 +221,23 @@ public class SiteRepository {
             Map<Integer, Integer> ordering = getOrdering();
 
             List<Site> ordered = new ArrayList<>(sites);
-            Collections.sort(ordered, (lhs, rhs) -> ordering.get(lhs.id()) - ordering.get(rhs.id()));
+            //noinspection ConstantConditions
+            Collections.sort(
+                    ordered,
+                    (lhs, rhs) -> lhs == null || rhs == null ? 0 : ordering.get(lhs.id()) - ordering.get(rhs.id())
+            );
 
             return ordered;
         }
 
-        private void addAll(List<Site> all) {
+        private void addAll(@NonNull List<Site> all) {
             List<Site> copy = new ArrayList<>(sites);
             copy.addAll(all);
             resetSites(copy);
             setChanged();
         }
 
-        private void add(Site site) {
+        private void add(@NonNull Site site) {
             List<Site> copy = new ArrayList<>(sites);
             copy.add(site);
             resetSites(copy);
@@ -245,7 +250,7 @@ public class SiteRepository {
             setChanged();
         }
 
-        private void resetSites(List<Site> newSites) {
+        private void resetSites(@NonNull List<Site> newSites) {
             sites = Collections.unmodifiableList(newSites);
             SparseArray<Site> byId = new SparseArray<>(newSites.size());
             for (Site newSite : newSites) {
@@ -256,11 +261,16 @@ public class SiteRepository {
     }
 
     private static class SiteConfigSettingsHolder {
+        @NonNull
         Site site;
+        @NonNull
         SiteConfig config;
+        @NonNull
         JsonSettings settings;
 
-        public SiteConfigSettingsHolder(Site site, SiteConfig config, JsonSettings settings) {
+        public SiteConfigSettingsHolder(
+                @NonNull Site site, @NonNull SiteConfig config, @NonNull JsonSettings settings
+        ) {
             this.site = site;
             this.config = config;
             this.settings = settings;
