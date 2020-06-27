@@ -96,7 +96,6 @@ public class DeveloperSettingsController
 
         //CLEAR CACHE
         Button clearCacheButton = new Button(context);
-
         clearCacheButton.setOnClickListener(v -> {
             fileCacheV2.clearCache();
             showToast(context, "Cleared image cache");

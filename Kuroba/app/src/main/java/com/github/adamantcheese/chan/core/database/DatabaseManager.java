@@ -154,6 +154,7 @@ public class DatabaseManager {
 
         try {
             o += "Loadable rows: " + helper.loadableDao.countOf() + "\n";
+            o += "Currently cached loadables: " + databaseLoadableManager.cacheSize() + "\n";
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";

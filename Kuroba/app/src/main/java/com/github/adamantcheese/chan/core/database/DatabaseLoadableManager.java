@@ -25,14 +25,10 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -51,6 +47,10 @@ public class DatabaseLoadableManager {
 
     public DatabaseLoadableManager() {
         inject(this);
+    }
+
+    public int cacheSize() {
+        return cache.size();
     }
 
     /**
