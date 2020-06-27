@@ -107,8 +107,10 @@ public class ThumbnailView
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        bitmapCall.cancel();
-        bitmapCall = null;
+        if(bitmapCall != null) {
+            bitmapCall.cancel();
+            bitmapCall = null;
+        }
     }
 
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
