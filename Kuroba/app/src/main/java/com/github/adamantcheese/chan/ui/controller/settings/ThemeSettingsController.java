@@ -161,9 +161,6 @@ public class ThemeSettingsController
     private ViewPager pager;
     private FloatingActionButton done;
 
-    private List<Theme> themes;
-    private MaterialColorStyle currentPrimaryColor;
-    private MaterialColorStyle currentAccentColor;
     private boolean currentDayNight;
 
     public ThemeSettingsController(Context context) {
@@ -188,11 +185,8 @@ public class ThemeSettingsController
         builder.build();
         view = inflate(context, R.layout.controller_theme);
 
-        themes = ThemeHelper.getThemes();
         Theme currentTheme = ThemeHelper.getTheme();
-        // restore these if the user pressed back instead of the default theme color
-        currentPrimaryColor = currentTheme.primaryColor;
-        currentAccentColor = currentTheme.accentColor;
+        // restore if the user pressed back
         currentDayNight = ThemeHelper.isNightTheme;
 
         pager = view.findViewById(R.id.pager);
@@ -201,8 +195,8 @@ public class ThemeSettingsController
 
         pager.setAdapter(new Adapter());
         pager.setPageMargin(dp(6));
-        for (int i = 0; i < themes.size(); i++) {
-            Theme theme = themes.get(i);
+        for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
+            Theme theme = ThemeHelper.getThemes().get(i);
             if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
@@ -231,14 +225,12 @@ public class ThemeSettingsController
     @Override
     public boolean onBack() {
         ThemeHelper.resetThemes();
-        ThemeHelper.getTheme().primaryColor = currentPrimaryColor;
-        ThemeHelper.getTheme().accentColor = currentAccentColor;
         ThemeHelper.isNightTheme = currentDayNight;
         return super.onBack();
     }
 
     private Theme getViewedTheme() {
-        return themes.get(pager.getCurrentItem());
+        return ThemeHelper.getThemes().get(pager.getCurrentItem());
     }
 
     private void saveTheme() {
@@ -261,8 +253,6 @@ public class ThemeSettingsController
     private void dayNightToggle(ToolbarMenuItem item) {
         //reset theme choices
         ThemeHelper.resetThemes();
-        ThemeHelper.getTheme().primaryColor = currentPrimaryColor;
-        ThemeHelper.getTheme().accentColor = currentAccentColor;
 
         //toggle toolbar item
         if (ThemeHelper.isNightTheme) {
@@ -276,8 +266,8 @@ public class ThemeSettingsController
 
         //update views
         pager.setAdapter(new Adapter());
-        for (int i = 0; i < themes.size(); i++) {
-            Theme theme = themes.get(i);
+        for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
+            Theme theme = ThemeHelper.getThemes().get(i);
             if (theme.name.equals(ThemeHelper.getTheme().name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
@@ -340,7 +330,7 @@ public class ThemeSettingsController
 
         @Override
         public View getView(final int position, ViewGroup parent) {
-            final Theme theme = themes.get(position);
+            final Theme theme = ThemeHelper.getThemes().get(position);
 
             Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
 
@@ -489,6 +479,11 @@ public class ThemeSettingsController
             toolbar.setNavigationItem(false, true, item, theme);
             toolbar.setOnClickListener(colorClick);
             toolbar.setTag(theme.name);
+            if (theme.name.equals(getViewedTheme().name)) {
+                toolbar.setBackgroundColor(resolveColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId,
+                        R.attr.colorPrimary
+                ));
+            }
 
             linearLayout.addView(toolbar, new LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height)));
             linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
@@ -498,7 +493,7 @@ public class ThemeSettingsController
 
         @Override
         public int getCount() {
-            return themes.size();
+            return ThemeHelper.getThemes().size();
         }
     }
 

@@ -93,7 +93,7 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    this.themeDay = theme;
+                    this.themeDay = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
                     this.themeDay.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
                     this.themeDay.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
                     ok = true;
@@ -115,7 +115,7 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    this.themeNight = theme;
+                    this.themeNight = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
                     this.themeNight.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
                     this.themeNight.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
                     ok = true;

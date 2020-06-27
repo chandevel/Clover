@@ -107,7 +107,7 @@ public class ThumbnailView
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if(bitmapCall != null) {
+        if (bitmapCall != null) {
             bitmapCall.cancel();
             bitmapCall = null;
         }
