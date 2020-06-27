@@ -1163,6 +1163,10 @@ public class WatchManager
             pageRequestManager.addListener(this);
         }
 
+        public boolean getIsSticky() {
+            return pin.isSticky;
+        }
+
         public int getImageCount() {
             if (chanLoader != null && chanLoader.getThread() != null) {
                 int total = 0;
@@ -1261,8 +1265,10 @@ public class WatchManager
         public void onChanLoaderData(ChanThread thread) {
             if (thread.getOp() != null) {
                 lastReplyCount = thread.getOp().getReplies();
+                pin.isSticky = thread.getOp().isSticky();
             } else {
                 lastReplyCount = -1;
+                pin.isSticky = false;
             }
 
             // This route is only for downloading threads, to mark them as completely downloaded

@@ -94,6 +94,7 @@ public class DrawerAdapter
     private final Callback callback;
     private Pin highlighted;
     private Bitmap archivedIcon;
+    private Bitmap stickyIcon;
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -108,6 +109,7 @@ public class DrawerAdapter
         downloadIconFilled.setTint(Color.GRAY);
 
         archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
+        stickyIcon = BitmapFactory.decodeResource(getRes(), R.drawable.sticky_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -303,6 +305,10 @@ public class DrawerAdapter
             text = PostHelper.prependIcon(context, text, archivedIcon, sp(16));
         }
 
+        if(pin.isSticky) {
+            text = PostHelper.prependIcon(context, text, stickyIcon, sp(16));
+        }
+
         TextView bookmarkLabel = holder.textView;
         bookmarkLabel.setText(text);
         loadBookmarkImage(holder, pin);
@@ -363,13 +369,13 @@ public class DrawerAdapter
         //use the pin's watch count if the thread hasn't been loaded yet, otherwise use the latest reply count from the loaded thread
         if ((pinWatcher.lastReplyCount > 0 ? pinWatcher.lastReplyCount : pin.watchNewCount - 1) >= pinBoard.bumpLimit
                 && pinBoard.bumpLimit > 0) {
-            //italics for bump limit
-            italicize = true;
+            //italics for bump limit, if not a sticky
+            italicize = !pinWatcher.getIsSticky();
         }
 
         if (pinWatcher.getImageCount() >= pinBoard.imageLimit && pinBoard.imageLimit > 0) {
-            //bold for image limit
-            bold = true;
+            //bold for image limit, if not a sticky
+            bold = !pinWatcher.getIsSticky();
         }
 
         if (italicize && bold) {

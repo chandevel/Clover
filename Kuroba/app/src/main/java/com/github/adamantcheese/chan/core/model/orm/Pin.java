@@ -61,6 +61,9 @@ public class Pin
     @DatabaseField
     public boolean archived = false;
 
+    //local field for keeping track of if the thread is a sticky; don't put this in the database
+    public boolean isSticky = false;
+
     /**
      * Pins can now be used to either watch new posts or save new posts or do both
      */
