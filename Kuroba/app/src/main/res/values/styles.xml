@@ -159,7 +159,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_details_color">@color/md_grey_375</item>
         <item name="post_inline_quote_color">#789922</item>
         <item name="post_spoiler_color">@color/black</item>
-        <item name="android:textColorLink">#625cff</item>
+        <item name="android:textColorLink">#DD0000</item>
     </style>
 
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
@@ -299,7 +299,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#666ec0</item>
         <item name="post_details_color">@color/white</item>
         <item name="post_spoiler_color">#452c2f</item>
-        <item name="android:textColorLink">@color/red</item>
     </style>
     <!-- endregion -->
 
