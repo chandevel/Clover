@@ -369,6 +369,11 @@ public class Post
             return this;
         }
 
+        public Builder idColor(int idColor) {
+            this.idColor = idColor;
+            return this;
+        }
+
         public Builder opId(int opId) {
             this.opId = opId;
             return this;

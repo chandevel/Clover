@@ -341,6 +341,8 @@ public class ThemeSettingsController
 
             CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
+            
+            //region POSTS
             Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .id(123456789)
                     .opId(123456789)
@@ -351,17 +353,14 @@ public class ThemeSettingsController
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "This text is normally colored.<br>"
                             + "<span class=\"spoiler\">This text is spoilered.</span><br>"
-                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>");
-            builder1.idColor = Color.WHITE;
-            Post post1 = postParser.parse(theme, builder1, parserCallback);
-            post1.repliesFrom.add(345678901);
+                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
+                    .idColor(Color.WHITE);
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
                     .id(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment("This is a spacer post for divider color display.");
-            Post post2 = postParser.parse(theme, builder2, parserCallback);
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
                     .id(345678901)
@@ -380,12 +379,13 @@ public class ThemeSettingsController
                             .filename("new_icon_512")
                             .extension("png")
                             .build()));
-            Post post3 = postParser.parse(theme, builder3, parserCallback);
+            //endregion
 
             List<Post> posts = new ArrayList<>();
-            posts.add(post1);
-            posts.add(post2);
-            posts.add(post3);
+            posts.add(postParser.parse(theme, builder1, parserCallback));
+            posts.add(postParser.parse(theme, builder2, parserCallback));
+            posts.add(postParser.parse(theme, builder3, parserCallback));
+            posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -436,7 +436,7 @@ public class ThemeSettingsController
                 }
             };
             adapter.setThread(dummyLoadable, posts, false);
-            adapter.highlightPost(post3);
+            adapter.highlightPost(posts.get(posts.size() - 1)); // highlight last post
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
             postsView.setAdapter(adapter);
