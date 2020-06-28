@@ -341,7 +341,7 @@ public class ThemeSettingsController
 
             CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
-            
+
             //region POSTS
             Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .id(123456789)

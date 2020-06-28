@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.RectF;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -31,6 +32,7 @@ public class CustomScaleImageView
 
     public CustomScaleImageView(Context context) {
         super(context);
+        setPreferredBitmapConfig(Bitmap.Config.ARGB_8888);
         setOnImageEventListener(new DefaultOnImageEventListener() {
             @Override
             public void onReady() {
