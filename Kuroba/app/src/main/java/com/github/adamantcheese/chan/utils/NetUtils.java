@@ -193,6 +193,10 @@ public class NetUtils {
                 return parser.parse(jsonReader);
             } catch (Exception e) {
                 Logger.e(TAG, "Error parsing JSON: ", e);
+                if (response.body() != null) {
+                    //noinspection ConstantConditions
+                    Logger.e(TAG, "Bad JSON: " + response.body().string());
+                }
                 return null;
             }
         } catch (IOException e) {
