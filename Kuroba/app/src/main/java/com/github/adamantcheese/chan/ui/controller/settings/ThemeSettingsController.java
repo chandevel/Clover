@@ -346,19 +346,25 @@ public class ThemeSettingsController
                     .opId(123456789)
                     .op(true)
                     .replies(1)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
                     .subject("Lorem ipsum")
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "This text is normally colored.<br>"
                             + "<span class=\"spoiler\">This text is spoilered.</span><br>"
-                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
-                    .id(9001);
+                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>");
             builder1.idColor = Color.WHITE;
             Post post1 = postParser.parse(theme, builder1, parserCallback);
-            post1.repliesFrom.add(234567890);
+            post1.repliesFrom.add(345678901);
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
                     .id(234567890)
+                    .opId(123456789)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
+                    .comment("This is a spacer post for divider color display.");
+            Post post2 = postParser.parse(theme, builder2, parserCallback);
+
+            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
+                    .id(345678901)
                     .opId(123456789)
                     .name("W.T. Snacks")
                     .tripcode("!TcT.PTG1.2")
@@ -374,10 +380,12 @@ public class ThemeSettingsController
                             .filename("new_icon_512")
                             .extension("png")
                             .build()));
-            Post post2 = postParser.parse(theme, builder2, parserCallback);
+            Post post3 = postParser.parse(theme, builder3, parserCallback);
+
             List<Post> posts = new ArrayList<>();
             posts.add(post1);
             posts.add(post2);
+            posts.add(post3);
 
             LinearLayout linearLayout = new LinearLayout(themeContext);
             linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -428,7 +436,7 @@ public class ThemeSettingsController
                 }
             };
             adapter.setThread(dummyLoadable, posts, false);
-            adapter.highlightPost(post2);
+            adapter.highlightPost(post3);
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
             postsView.setAdapter(adapter);
