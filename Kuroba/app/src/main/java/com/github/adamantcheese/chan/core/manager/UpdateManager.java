@@ -20,14 +20,12 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.StrictMode;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -79,7 +77,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
@@ -112,27 +109,17 @@ public class UpdateManager {
      * Runs every time onCreate is called on the StartActivity.
      */
     public void autoUpdateCheck() {
-        if (PersistableChanState.previousVersion.get() < VERSION_CODE
-                && PersistableChanState.previousVersion.get() != 0) {
+        if (!DEV_BUILD && PersistableChanState.previousVersion.get() < VERSION_CODE) {
             // Show dialog because release updates are infrequent so it's fine
-            Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + VERSION_NAME + "</h3>");
+            Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + VERSION_NAME + ".</h3>");
             final AlertDialog dialog =
                     new AlertDialog.Builder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
-            dialog.setCanceledOnTouchOutside(false);
+            dialog.setCanceledOnTouchOutside(true);
             dialog.show();
 
-            final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
-            button.setEnabled(false);
-            runOnMainThread(() -> {
-                dialog.setCanceledOnTouchOutside(true);
-                button.setEnabled(true);
-            }, 1500);
-
-            // Also set the new app version to not show this message again
             PersistableChanState.previousVersion.set(VERSION_CODE);
             cancelApkUpdateNotification();
 
-            // Don't process the updater because a dialog is now already showing.
             return;
         }
 
@@ -154,18 +141,15 @@ public class UpdateManager {
     }
 
     private void runUpdateApi(final boolean manual) {
-        if (PersistableChanState.hasNewApkUpdate.get()) {
-            // If we noticed that there was an apk update on the previous check - show the
-            // notification
-            notifyNewApkUpdate();
-        }
-
         if (!manual) {
             long lastUpdateTime = PersistableChanState.updateCheckTime.get();
             long interval = DAYS.toMillis(UPDATE_DELAY);
             long now = System.currentTimeMillis();
             long delta = (lastUpdateTime + interval) - now;
             if (delta > 0) {
+                if (PersistableChanState.hasNewApkUpdate.get()) {
+                    notifyNewApkUpdate();
+                }
                 return;
             } else {
                 PersistableChanState.updateCheckTime.set(now);
@@ -230,16 +214,15 @@ public class UpdateManager {
                 AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
                         getApplicationLabel() + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
-                        .setNegativeButton(R.string.update_later, ((dialog1, which) -> notifyNewApkUpdate()))
+                        .setNegativeButton(R.string.update_later, null)
                         .setPositiveButton(R.string.update_install,
                                 (dialog1, which) -> updateInstallRequested(response)
                         )
                         .create();
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.show();
-            } else {
-                notifyNewApkUpdate();
             }
+            notifyNewApkUpdate();
             return true;
         }
 
