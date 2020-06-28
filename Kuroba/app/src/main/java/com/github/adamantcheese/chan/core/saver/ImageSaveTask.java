@@ -198,7 +198,7 @@ public class ImageSaveTask
     private boolean copyToDestination(RawFile source) {
         try {
             if (share) {
-                destination = instance(CacheHandler.class).renameCacheFile(source,
+                destination = instance(CacheHandler.class).duplicateCacheFile(source,
                         StringUtils.fileNameRemoveBadCharacters(postImage.filename),
                         postImage.extension
                 );

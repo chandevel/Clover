@@ -564,16 +564,13 @@ class CacheHandler(
         return cacheDirFile.clone(FileSegment(fileName)) as RawFile
     }
 
-    /**
-    Be aware that currentCacheFile will no longer exist after this operation
-     */
-    fun renameCacheFile(currentCacheFile: RawFile, fileName: String, fileExt: String): RawFile {
+    fun duplicateCacheFile(currentCacheFile: RawFile, fileName: String, fileExt: String): RawFile {
         createDirectories()
 
         val createdFile = cacheDirFile.clone(FileSegment("$fileName.$fileExt"))
         fileManager.create(createdFile)
         fileManager.copyFileContents(currentCacheFile, createdFile)
-        fileManager.delete(currentCacheFile)
+        fileWasAdded(File(createdFile.getFullPath()).length())
         return createdFile as RawFile
     }
 
