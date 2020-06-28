@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.BaseLight" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/almost_black</item>
         <item name="isLightTheme">true</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.BaseDark" parent="Theme.AppCompat.NoActionBar">
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:navigationBarColor">@color/almost_black</item>
         <item name="isLightTheme">false</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
@@ -68,8 +68,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="ChanStartup" parent="Chan.Theme.Dark">
-        <item name="android:statusBarColor">@color/black</item>
-        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:statusBarColor">@color/almost_black</item>
+        <item name="android:navigationBarColor">@color/almost_black</item>
         <item name="android:windowBackground">@drawable/ic_splash_screen</item>
     </style>
     <!-- endregion -->
