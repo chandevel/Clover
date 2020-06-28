@@ -199,7 +199,7 @@ public class NavigationControllerContainerLayout
             }
             blockTracking = false;
             if (tracking) {
-                endTracking(false);
+                endTracking(true);
             }
         }
 
@@ -244,12 +244,14 @@ public class NavigationControllerContainerLayout
                     }
 
                     if (doFlingAway) {
-                        startFlingAnimation(true);
+                        this.finishTransitionAfterAnimation = true;
                     } else {
                         scroller.forceFinished(true);
                         scroller.startScroll(translationX, 0, -translationX, 0, 250);
-                        startFlingAnimation(false);
+                        this.finishTransitionAfterAnimation = false;
                     }
+
+                    ViewCompat.postOnAnimation(this, flingRunnable);
                 } else {
                     // User swiped back to the left
                     endTracking(false);
@@ -333,11 +335,6 @@ public class NavigationControllerContainerLayout
         tracking = false;
         trackingController = null;
         behindTrackingController = null;
-    }
-
-    private void startFlingAnimation(boolean finishTransitionAfterAnimation) {
-        this.finishTransitionAfterAnimation = finishTransitionAfterAnimation;
-        ViewCompat.postOnAnimation(this, flingRunnable);
     }
 
     private Runnable flingRunnable = new Runnable() {
