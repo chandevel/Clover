@@ -58,12 +58,13 @@ android {
         //the repo endpoint is also used to calculate the issues endpoint
         //the resources endpoint is for any static resources; currently this is mostly used for various images used internally,
         //but using a remote resource works easier with the application architecture than using a local resource/drawable
-        buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba\""
+        buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba/releases/latest\""
         buildConfigField "String", "RESOURCES_ENDPOINT", "\"https://raw.githubusercontent.com/Adamantcheese/Kuroba/multi-feature/docs/\""
         //this is for your development server endpoint
         //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
-        buildConfigField "String", "DEV_API_ENDPOINT", "\"https://kuroba.io:8443\""
+        buildConfigField "String", "DEV_GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba-Dev\""
+        buildConfigField "String", "DEV_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba-Dev/releases/latest\""
         //this is for checking who's built what in debug logs
         buildConfigField "String", "SIGNATURE", "\"8952c098\""
         //this is the default dev signing signature, update it if you change the dev keystore
@@ -275,10 +276,7 @@ task downloadArchives {
 }
 preBuild.dependsOn downloadArchives
 
-//====================================================================
-// All of the below functions are being used by the upload_apk script
-//====================================================================
-
+@SuppressWarnings("GrMethodMayBeStatic")
 def getCurrentFlavor(String name) {
     Object resultFlavor = null
 
@@ -289,62 +287,4 @@ def getCurrentFlavor(String name) {
     }
 
     return resultFlavor
-}
-
-def getLatestCommit(String branchName) {
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        def printArgs = "%H; %ad; %s"
-
-        commandLine 'git', 'log', branchName, '-n 1', "--pretty=format:${printArgs}", "--date=iso8601-strict"
-        standardOutput = stdout
-    }
-
-    return stdout.toString().trim()
-}
-
-def getLastCommitsFromCommitByHash(String branchName, String from) {
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        def printArgs = "%H; %ad; %s"
-
-        commandLine 'git', 'log', branchName, "${from}..HEAD", "--pretty=format:${printArgs}", "--date=iso8601-strict"
-        standardOutput = stdout
-    }
-
-    return stdout.toString().trim()
-}
-
-def checkBranchExists(String branchName) {
-    def stdout = new ByteArrayOutputStream()
-    exec {
-        commandLine 'git', 'rev-parse', '--verify', branchName
-        standardOutput = stdout
-    }
-
-    return stdout.toString().trim()
-}
-
-task checkBranchExistsTask {
-    doLast {
-        println(checkBranchExists(branch_name))
-    }
-}
-
-task getLatestCommitTask {
-    doLast {
-        println(getLatestCommit(branch_name))
-    }
-}
-
-task getLastCommitsFromCommitByHashTask {
-    doLast {
-        println(getLastCommitsFromCommitByHash(branch_name, from))
-    }
-}
-
-task getVersionCodeTask {
-    doLast {
-        println(project.android.defaultConfig.versionCode)
-    }
 }
