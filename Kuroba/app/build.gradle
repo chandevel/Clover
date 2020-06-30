@@ -83,12 +83,6 @@ android {
         versionCode major * 10000 + minor * 100 + patch
         versionName "v" + major + "." + minor + "." + patch
 
-        applicationVariants.all { variant ->
-            variant.outputs.all {
-                outputFileName = manifestPlaceholders.get("appName").toString() + ".apk"
-            }
-        }
-
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
     }
 
@@ -151,18 +145,13 @@ android {
     }
 
     buildTypes {
-        // manifestPlaceholders do not work here for some reason so here is a little hack.
-        // We need to iterate each build variant and for each build variant we need to find it's
-        // flavor then we need to extract the versionNameSuffix from the flavor and update the output
-        // apk name with it.
         applicationVariants.all { variant ->
-            outputs.all {
-                Object flavor = getCurrentFlavor(variant.flavorName)
-                if (flavor == null) {
-                    throw new GradleException("Couldn't find flavor by variant.flavorName = ${variant.flavorName}")
+            variant.outputs.all {
+                android.productFlavors.all { flavor ->
+                    if (flavor.name == variant.flavorName) {
+                        outputFileName = flavor.manifestPlaceholders.get("appName").toString() + ".apk"
+                    }
                 }
-
-                outputFileName = "Kuroba${flavor.versionNameSuffix}.apk"
             }
         }
 
@@ -194,7 +183,7 @@ android {
                 signingConfig signingConfigs.release
             }
             // Because we're always on dev, don't minify to make sure that crash logs are intelligible
-            //You can turn this on if you wish
+            // You can turn this on if you wish
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard.cfg'
             debuggable = false
@@ -275,16 +264,3 @@ task downloadArchives {
     }
 }
 preBuild.dependsOn downloadArchives
-
-@SuppressWarnings("GrMethodMayBeStatic")
-def getCurrentFlavor(String name) {
-    Object resultFlavor = null
-
-    android.productFlavors.all { flavor ->
-        if (flavor.name == name) {
-            resultFlavor = flavor
-        }
-    }
-
-    return resultFlavor
-}
