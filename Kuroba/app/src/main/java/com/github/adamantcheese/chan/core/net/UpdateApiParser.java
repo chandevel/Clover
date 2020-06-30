@@ -36,13 +36,16 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 
 import static android.text.Html.FROM_HTML_MODE_LEGACY;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_API_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
+import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class UpdateApiParser
         implements JsonParser<UpdateApiResponse> {
+    private final String versionPatternString = "v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})";
+    private final Pattern RELEASE_PATTERN = Pattern.compile(versionPatternString);
+    private final Pattern DEV_PATTERN = Pattern.compile(versionPatternString + "-(.*)");
 
     @Override
     public UpdateApiResponse parse(JsonReader reader)
@@ -67,8 +70,7 @@ public class UpdateApiParser
             switch (reader.nextName()) {
                 case "tag_name":
                     response.versionCodeString = reader.nextString();
-                    Pattern versionPattern = Pattern.compile("v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})");
-                    Matcher versionMatcher = versionPattern.matcher(response.versionCodeString);
+                    Matcher versionMatcher = RELEASE_PATTERN.matcher(response.versionCodeString);
                     if (versionMatcher.matches()) {
                         try {
                             //@formatter:off
@@ -108,33 +110,46 @@ public class UpdateApiParser
         return response;
     }
 
+    @SuppressWarnings({"ConstantConditions", "PointlessArithmeticExpression"})
     public UpdateApiResponse parseDev(JsonReader reader)
             throws IOException {
-        reader.beginObject();
-        reader.nextName(); // apk_version
-        int versionCode = reader.nextInt();
-        reader.nextName(); // commit hash
-        String commitHash = reader.nextString();
-        reader.endObject();
+        UpdateApiResponse response = new UpdateApiResponse();
+        response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
 
-        Matcher versionCodeMatcher = Pattern.compile("(\\d+)(\\d{2})(\\d{2})").matcher(String.valueOf(versionCode));
-        if (versionCodeMatcher.matches()) {
-            UpdateApiResponse response = new UpdateApiResponse();
-            response.commitHash = commitHash;
-            response.versionCode = versionCode;
-            //@formatter:off
-            //noinspection ConstantConditions
-            response.versionCodeString =
-                    "v" + Integer.valueOf(versionCodeMatcher.group(1))
-                        + "." + Integer.valueOf(versionCodeMatcher.group(2))
-                        + "." + Integer.valueOf(versionCodeMatcher.group(3))
-                        + "-" + commitHash.substring(0, 7);
-            //@formatter:on
-            response.apkURL = HttpUrl.parse(DEV_API_ENDPOINT + "/apk/" + versionCode + "_" + commitHash + ".apk");
-            response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-            return response;
+        reader.beginObject();
+        while (reader.hasNext()) {
+            switch (reader.nextName()) {
+                case "tag_name":
+                    response.versionCodeString = reader.nextString();
+                    Matcher versionMatcher = DEV_PATTERN.matcher(response.versionCodeString);
+                    if (versionMatcher.matches()) {
+                        try {
+                            //@formatter:off
+                            response.versionCode =
+                                    10000 * Integer.parseInt(versionMatcher.group(1)) +
+                                    100   * Integer.parseInt(versionMatcher.group(2)) +
+                                    1     * Integer.parseInt(versionMatcher.group(3));
+                            response.apkURL =
+                                    HttpUrl.get(DEV_GITHUB_ENDPOINT + "/releases/download/" +
+                                            response.versionCodeString + "/" + getApplicationLabel() + ".apk");
+                            //@formatter:on
+                            break;
+                        } catch (Exception e) {
+                            throw new IOException("Error processing tag_name; apkUrl likely failed to be valid", e);
+                        }
+                    } else {
+                        throw new MalformedJsonException("Error processing tag_name; version code string is not valid.");
+                    }
+                case "body":
+                    response.commitHash = reader.nextString().trim();
+                    break;
+                default:
+                    reader.skipValue();
+                    break;
+            }
         }
-        return null;
+        reader.endObject();
+        return response;
     }
 
     public static class UpdateApiResponse {
