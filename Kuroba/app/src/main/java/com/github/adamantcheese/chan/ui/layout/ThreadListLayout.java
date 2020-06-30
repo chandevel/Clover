@@ -138,7 +138,7 @@ public class ThreadListLayout
         searchStatus = findViewById(R.id.search_status);
         recyclerView = findViewById(R.id.recycler_view);
 
-        if (ChanSettings.moveInputToBottom.get()) {
+        if (!isInEditMode() && ChanSettings.moveInputToBottom.get()) {
             LayoutParams params = (LayoutParams) reply.getLayoutParams();
             params.gravity = Gravity.BOTTOM;
             reply.setLayoutParams(params);
@@ -146,7 +146,9 @@ public class ThreadListLayout
 
         // View setup
         reply.setCallback(this);
-        searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
+        if (!isInEditMode()) {
+            searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
+        }
     }
 
     public void setCallbacks(
@@ -188,7 +190,7 @@ public class ThreadListLayout
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         int cardWidth = getDimen(getContext(), R.dimen.grid_card_width);
-        int gridCountSetting = ChanSettings.boardGridSpanCount.get();
+        int gridCountSetting = !isInEditMode() ? ChanSettings.boardGridSpanCount.get() : 3;
         boolean compactMode;
         if (gridCountSetting > 0) {
             spanCount = gridCountSetting;

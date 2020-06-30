@@ -60,7 +60,7 @@ public class SplitNavigationController
         leftControllerView = new FrameLayout(context);
 
         View dividerView = new View(context);
-        dividerView.setBackgroundColor(getAttrColor(context, R.attr.highlight_divider_color));
+        dividerView.setBackgroundColor(getAttrColor(context, R.attr.divider_color));
 
         rightControllerView = new FrameLayout(context);
 

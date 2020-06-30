@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="android:navigationBarColor">@color/almost_black</item>
-        <item name="isLightTheme">true</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
         <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
@@ -37,7 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/md_grey_600</item>
-        <item name="highlight_divider_color">#20000000</item>
+        <item name="highlight_color">#20000000</item>
+        <item name="divider_color">#20000000</item>
         <item name="setting_description_top">@drawable/setting_description_top</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom</item>
     </style>
@@ -46,7 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="windowActionModeOverlay">true</item>
         <item name="android:windowBackground">@null</item>
         <item name="android:navigationBarColor">@color/almost_black</item>
-        <item name="isLightTheme">false</item>
 
         <!-- Because we have both AppCompat and Material widgets inside of the app, but aren't moving to Material, these must be specified -->
         <!-- Otherwise the default styling doesn't properly overlay onto what I suspect is a Material something being used instead of an AppCompat one-->
@@ -62,7 +61,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
-        <item name="highlight_divider_color">#20000000</item>
+        <item name="highlight_color">#38000000</item>
+        <item name="divider_color">#40000000</item>
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
     </style>
@@ -91,9 +91,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textColorSecondary  (a secondary text color, for smaller text next to your main text; should follow the rules for backColor_secondary)
         android:textColorHint       (hint color, for some input dialogs; follows after textColorSecondary with the same rules)
 
-        highlight_divider_color     (the color for highlighting posts and the dividers between posts
-                                     use an alpha based color for these; the default for all themes is #20000000, a transparent black, which should work for most cases
-                                     note that for Black/AMOLED themes, this is blended against a solid black background, so it should use #20FFFFFF)
+        highlight_color     (the color for highlighting posts
+                             use an alpha based color for this; ie #xx000000 or #yyFFFFFF, for transparent black or white
+                             this is blended against the backColor
+                             notes: for light themes, always use the default; for dark themes:
+                                    for DARK GREY background colors, use the default #38000000
+                                    for LIGHT GREY background colors, set this to #20000000 or so
+                                    for BLACK backgrounds, set this to #1CFFFFFF)
+        divider_color       (the color used for the dividers between posts; should be similar to the highlight_color
+                             notes: for light themes, always use the default; for dark themes:
+                                    for DARK GREY background colors, use the default #40000000
+                                    for LIGHT GREY background colors, set this to #20FFFFFF
+                                    for BLACK backgrounds, set this to #28FFFFFF)
+        highlight_linkable_blend (the ratio to use for blending the appropriate contrast color with the primary text color for highlighted quotes)
 
         post_name_color         (the name color on posts)
         post_subject_color      (the subject color on posts)
@@ -136,6 +146,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_600</item>
         <item name="android:textColorHint">@color/md_grey_400</item>
 
+        <item name="highlight_linkable_blend">0.5</item>
+
         <item name="post_name_color">#117743</item>
         <item name="post_subject_color">#0F0C5D</item>
         <item name="post_details_color">@color/md_grey_700</item>
@@ -154,6 +166,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_400</item>
         <item name="android:textColorHint">@color/md_grey_700</item>
 
+        <item name="highlight_linkable_blend">0.25</item>
+
         <item name="post_name_color">#e0e0ff</item>
         <item name="post_subject_color">#625cff</item>
         <item name="post_details_color">@color/md_grey_375</item>
@@ -165,7 +179,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
         <item name="backcolor">@color/black</item>
 
-        <item name="highlight_divider_color">#20FFFFFF</item>
+        <item name="highlight_color">#1CFFFFFF</item>
+        <item name="divider_color">#28FFFFFF</item>
 
         <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
@@ -181,6 +196,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="android:textColor">#800000</item>
         <item name="android:textColorPrimary">#800000</item>
+
+        <item name="highlight_linkable_blend">1</item>
 
         <item name="post_subject_color">#cc1105</item>
         <item name="android:textColorLink">#000080</item>
@@ -203,6 +220,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorPrimary">@color/md_grey_375</item>
         <item name="android:textColorSecondary">@color/md_grey_575</item>
 
+        <item name="divider_color">#20FFFFFF</item>
+        <item name="highlight_linkable_blend">.37</item>
+
         <item name="post_name_color">@color/md_grey_375</item>
         <item name="post_subject_color">#b294bb</item>
         <item name="post_inline_quote_color">#b5bd68</item>
@@ -214,7 +234,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">@color/black</item>
         <item name="backcolor_secondary">@color/md_grey_850</item>
 
-        <item name="highlight_divider_color">#20FFFFFF</item>
+        <item name="highlight_color">#1CFFFFFF</item>
+        <item name="divider_color">#28FFFFFF</item>
 
         <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
@@ -224,6 +245,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorPrimary">@color/md_grey_500</item>
         <item name="android:textColorSecondary">@color/md_grey_500</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
+
+        <item name="divider_color">#20FFFFFF</item>
+        <item name="highlight_linkable_blend">.4</item>
 
         <item name="post_name_color">#566e78</item>
         <item name="post_subject_color">#567861</item>
@@ -241,6 +265,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#d5c4a1</item>
         <item name="android:textColorHint">#bdae93</item>
 
+        <item name="highlight_color">#20000000</item>
+        <item name="divider_color">#20FFFFFF</item>
+        <item name="highlight_linkable_blend">.2</item>
+
         <item name="post_name_color">#427b58</item>
         <item name="post_subject_color">#458588</item>
         <item name="post_details_color">#a89984</item>
@@ -252,7 +280,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.GruvboxBlack" parent="Chan.Theme.Gruvbox">
         <item name="backcolor">@color/black</item>
 
-        <item name="highlight_divider_color">#20FFFFFF</item>
+        <item name="highlight_color">#1CFFFFFF</item>
+        <item name="divider_color">#28FFFFFF</item>
 
         <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
@@ -262,6 +291,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorPrimary">@color/md_grey_450</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_525</item>
+
+        <item name="highlight_color">#1C000000</item>
+        <item name="divider_color">#20FFFFFF</item>
+        <item name="highlight_linkable_blend">.35</item>
 
         <item name="post_name_color">#669900</item>
         <item name="post_subject_color">#33b5e5</item>
@@ -280,6 +313,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
 
+        <item name="highlight_linkable_blend">.2</item>
+
         <item name="post_name_color">@color/md_red_A700</item>
         <item name="post_subject_color">#b58900</item>
         <item name="post_details_color">#586e75</item>
@@ -295,6 +330,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColor">#fffde8</item>
         <item name="android:textColorPrimary">#fffde8</item>
         <item name="android:textColorSecondary">#b7aba1</item>
+
+        <item name="divider_color">#20000000</item>
 
         <item name="post_subject_color">#666ec0</item>
         <item name="post_details_color">@color/white</item>

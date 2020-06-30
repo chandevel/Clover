@@ -360,7 +360,10 @@ public class ThemeSettingsController
                     .id(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
-                    .comment("This is a spacer post for divider color display.");
+                    .comment(
+                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
+                                    + "<a href=\\\"#p111111111\\\" class=\\\"quotelink\\\">&gt;&gt;111111111</a><br>"
+                                    + "This is a spacer post for divider color display.");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
                     .id(345678901)

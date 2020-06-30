@@ -32,7 +32,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_toLeftOf="@id/options"
         android:gravity="center_vertical"
         android:singleLine="true"
-        android:textColor="?android:textColorSecondary" />
+        android:textColor="?android:textColorSecondary"
+        tools:paddingLeft="8dp"
+        tools:textsize="8sp"
+        tools:text="Title for the stubbed cell" />
 
     <ImageView
         android:id="@+id/options"
@@ -41,12 +44,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_gravity="top|right"
+        android:background="@drawable/ripple_item_background"
         android:paddingTop="2dp"
         android:paddingRight="2dp"
         android:paddingBottom="2dp"
         android:src="@drawable/ic_overflow"
         android:tint="?android:textColorSecondary"
-        android:background="@drawable/ripple_item_background"
         tools:ignore="ContentDescription" />
 
     <View
@@ -57,6 +60,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:background="?attr/highlight_divider_color" />
+        android:background="?attr/divider_color"
+        tools:layout_marginLeft="8dp"
+        tools:layout_marginRight="8dp" />
 
 </com.github.adamantcheese.chan.ui.cell.PostStubCell>

@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/highlight_divider_color" />
+        android:background="?attr/divider_color" />
 
     <ImageView
         android:id="@+id/image"

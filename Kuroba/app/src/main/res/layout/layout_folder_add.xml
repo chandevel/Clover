@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <com.github.adamantcheese.chan.ui.layout.NewFolderLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <TextView
@@ -41,7 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/new_folder_hint"
-            android:inputType="textUri" />
+            android:inputType="textUri"
+            tools:text="Application Name"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 

@@ -97,8 +97,10 @@ public class LegacyCaptchaLayout
         internalWebView.setWebChromeClient(new WebChromeClient());
         internalWebView.setWebViewClient(new WebViewClient());
 
-        WebSettings settings = internalWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
+        if (!isInEditMode()) {
+            WebSettings settings = internalWebView.getSettings();
+            settings.setJavaScriptEnabled(true);
+        }
 
         internalWebView.addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
     }

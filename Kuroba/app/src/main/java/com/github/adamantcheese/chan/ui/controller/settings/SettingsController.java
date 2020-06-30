@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -197,6 +198,15 @@ public class SettingsController
 
                 if (i < group.settingViews.size() - 1) {
                     settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
+
+                    int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+                    int paddingPx = dp(textSizeSp - 6);
+                    LinearLayout.LayoutParams dividerParams =
+                            (LinearLayout.LayoutParams) settingView.divider.getLayoutParams();
+                    dividerParams.leftMargin = paddingPx;
+                    dividerParams.rightMargin = paddingPx;
+                    settingView.divider.setLayoutParams(dividerParams);
+
                     groupLayout.addView(settingView.divider);
                 }
             }

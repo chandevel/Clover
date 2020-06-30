@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="?backcolor">
 
     <com.github.adamantcheese.chan.ui.view.CrossfadeView
@@ -37,6 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical"
             android:visibility="gone"
+            tools:visibility="visible"
+            tools:listitem="@layout/cell_site"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
         <FrameLayout

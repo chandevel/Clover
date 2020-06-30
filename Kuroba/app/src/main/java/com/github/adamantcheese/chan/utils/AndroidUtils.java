@@ -281,6 +281,13 @@ public class AndroidUtils {
         return typedValue.data != 0;
     }
 
+    public static float resolveFloat(int themeId, int floatId) {
+        TypedValue typedValue = new TypedValue();
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
+        wrapper.getTheme().resolveAttribute(floatId, typedValue, true);
+        return typedValue.getFloat();
+    }
+
     public static int getContrastColor(int color) {
         double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000f;
         return y >= 128.0 ? Color.BLACK : Color.WHITE;

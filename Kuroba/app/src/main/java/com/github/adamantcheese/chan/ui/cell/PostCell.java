@@ -161,27 +161,29 @@ public class PostCell
         divider = findViewById(R.id.divider);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
-        int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-        paddingPx = dp(textSizeSp - 6);
-        detailsSizePx = sp(textSizeSp - 4);
-        title.setTextSize(textSizeSp);
-        title.setPadding(paddingPx, paddingPx, dp(16), 0);
+        if (!isInEditMode()) {
+            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+            paddingPx = dp(textSizeSp - 6);
+            detailsSizePx = sp(textSizeSp - 4);
+            title.setTextSize(textSizeSp);
+            title.setPadding(paddingPx, paddingPx, dp(16), 0);
 
-        iconSizePx = sp(textSizeSp - 3);
-        icons.setHeight(sp(textSizeSp));
-        icons.setSpacing(dp(4));
-        icons.setPadding(paddingPx, dp(4), paddingPx, 0);
+            iconSizePx = sp(textSizeSp - 3);
+            icons.setHeight(sp(textSizeSp));
+            icons.setSpacing(dp(4));
+            icons.setPadding(paddingPx, dp(4), paddingPx, 0);
 
-        comment.setTextSize(textSizeSp);
-        comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+            comment.setTextSize(textSizeSp);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
 
-        replies.setTextSize(textSizeSp);
-        replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+            replies.setTextSize(textSizeSp);
+            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
 
-        RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
-        dividerParams.leftMargin = paddingPx;
-        dividerParams.rightMargin = paddingPx;
-        divider.setLayoutParams(dividerParams);
+            RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
+            dividerParams.leftMargin = paddingPx;
+            dividerParams.rightMargin = paddingPx;
+            divider.setLayoutParams(dividerParams);
+        }
 
         OnClickListener repliesClickListener = v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
@@ -328,7 +330,7 @@ public class PostCell
         }
 
         if (highlighted || post.isSavedReply || selected) {
-            setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_divider_color));
+            setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_color));
         } else if (threadMode) {
             setBackgroundResource(0);
         } else {

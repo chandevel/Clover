@@ -26,8 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <View
         android:id="@+id/filter_match_color"
         android:layout_width="5dp"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:background="@color/red"
+        tools:visibility="gone" />
 
     <RelativeLayout
         android:id="@+id/relative_layout_container"
@@ -66,8 +68,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
             android:background="@drawable/ripple_item_background"
+            tools:paddingLeft="8dp"
+            tools:paddingRight="16dp"
+            tools:paddingTop="8dp"
             tools:text="Title for the thread"
-            tools:textColor="?post_details_color" />
+            tools:textColor="?post_details_color"
+            tools:textSize="10sp" />
 
         <view
             android:id="@+id/icons"
@@ -77,7 +83,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_view" />
+            android:layout_toRightOf="@+id/thumbnail_view"
+            tools:paddingLeft="8dp"
+            tools:paddingRight="8dp"
+            tools:paddingTop="4dp" />
 
         <TextView
             android:id="@+id/comment"
@@ -87,6 +96,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/icons"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
+            tools:paddingLeft="8dp"
+            tools:paddingRight="8dp"
+            tools:paddingTop="8dp"
             tools:text="@string/lorem_ipsum" />
 
         <TextView
@@ -99,16 +111,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:background="@drawable/ripple_item_background"
             android:singleLine="true"
             android:textColor="?android:textColorSecondary"
+            tools:paddingBottom="8dp"
+            tools:paddingLeft="8dp"
+            tools:paddingRight="16dp"
             tools:text="2 replies" />
 
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_alignBottom="@+id/replies"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:background="?attr/highlight_divider_color" />
+            android:background="?attr/divider_color"
+            tools:layout_marginLeft="8dp"
+            tools:layout_marginRight="8dp" />
 
         <ImageView
             android:id="@+id/options"

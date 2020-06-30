@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
     android:ellipsize="end"
@@ -23,4 +24,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:textColor="?android:textColorPrimary"
-    android:textSize="16sp" />
+    android:textSize="16sp"
+    tools:text="Text text" />

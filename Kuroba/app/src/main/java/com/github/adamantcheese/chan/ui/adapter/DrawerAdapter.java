@@ -332,7 +332,7 @@ public class DrawerAdapter
 
         boolean highlighted = pin == this.highlighted;
         if (highlighted && !holder.highlighted) {
-            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_divider_color));
+            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_color));
             holder.highlighted = true;
         } else if (!highlighted && holder.highlighted) {
             Drawable attrDrawable =

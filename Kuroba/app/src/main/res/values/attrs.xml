@@ -17,8 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <resources>
     <attr name="setting_description_top" format="reference" />
     <attr name="setting_description_bottom" format="reference" />
+
     <attr name="themeDrawableColor" format="color" />
-    <attr name="highlight_divider_color" format="color" />
+    <attr name="highlight_color" format="color" />
+    <attr name="divider_color" format="color" />
+    <attr name="highlight_linkable_blend" format="float" />
 
     <attr name="backcolor" format="reference|color" />
     <attr name="backcolor_secondary" format="reference|color" />

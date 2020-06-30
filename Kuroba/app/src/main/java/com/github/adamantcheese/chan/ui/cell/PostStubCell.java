@@ -73,16 +73,18 @@ public class PostStubCell
         ImageView options = findViewById(R.id.options);
         divider = findViewById(R.id.divider);
 
-        int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-        title.setTextSize(textSizeSp);
+        if (!isInEditMode()) {
+            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+            title.setTextSize(textSizeSp);
 
-        int paddingPx = dp(textSizeSp - 6);
-        title.setPadding(paddingPx, 0, 0, 0);
+            int paddingPx = dp(textSizeSp - 6);
+            title.setPadding(paddingPx, 0, 0, 0);
 
-        RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
-        dividerParams.leftMargin = paddingPx;
-        dividerParams.rightMargin = paddingPx;
-        divider.setLayoutParams(dividerParams);
+            RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
+            dividerParams.leftMargin = paddingPx;
+            dividerParams.rightMargin = paddingPx;
+            divider.setLayoutParams(dividerParams);
+        }
 
         setOnClickListener(this);
 

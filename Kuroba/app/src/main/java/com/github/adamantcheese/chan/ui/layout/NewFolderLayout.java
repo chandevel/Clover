@@ -28,6 +28,7 @@ public class NewFolderLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        if (isInEditMode()) return;
         folderName = findViewById(R.id.new_folder);
         folderName.setText(getApplicationLabel());
     }

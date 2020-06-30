@@ -167,6 +167,8 @@ public class ReplyLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        if (isInEditMode()) return;
+
         EventBus.getDefault().register(this);
         captchaHolder.addListener(this);
     }
@@ -174,6 +176,7 @@ public class ReplyLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        if (isInEditMode()) return;
 
         if (hintPopup != null) {
             hintPopup.dismiss();
@@ -187,7 +190,9 @@ public class ReplyLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        inject(this);
+        if (!isInEditMode()) {
+            inject(this);
+        }
 
         // Inflate reply input
         replyInputLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
@@ -239,7 +244,11 @@ public class ReplyLayout
         previewHolder.setOnClickListener(this);
         previewHolder.setOnLongClickListener(v -> presenter.filenameNewClicked(true));
 
-        more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
+        if (!isInEditMode()) {
+            more.setRotation(0f);
+        } else {
+            more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
+        }
         more.setOnClickListener(this);
 
         attach.setOnClickListener(this);
@@ -266,7 +275,9 @@ public class ReplyLayout
         setView(replyInputLayout);
 
         // Presenter
-        presenter.create(this);
+        if (!isInEditMode()) {
+            presenter.create(this);
+        }
     }
 
     public void setCallback(ReplyLayoutCallback callback) {

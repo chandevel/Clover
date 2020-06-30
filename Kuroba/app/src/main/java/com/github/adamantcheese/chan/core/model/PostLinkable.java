@@ -30,12 +30,12 @@ import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import static android.graphics.Color.BLACK;
-import static android.graphics.Color.WHITE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveBool;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveFloat;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
@@ -53,7 +53,8 @@ public class PostLinkable
         SEARCH
     }
 
-    private final int markedColorBlend;
+    private final float blendRatio;
+    private final int contrastColor;
     private final int spoilerColor;
     public final CharSequence key;
     public final Object value;
@@ -63,7 +64,10 @@ public class PostLinkable
     private int markedNo = -1;
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
-        markedColorBlend = resolveBool(theme.resValue, R.attr.isLightTheme) ? BLACK : WHITE;
+        blendRatio = resolveFloat(theme.resValue, R.attr.highlight_linkable_blend);
+        contrastColor = resolveBool(theme.resValue, android.R.attr.isLightTheme)
+                ? BLACK
+                : getContrastColor(resolveColor(theme.resValue, android.R.attr.textColorLink));
         spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
@@ -86,7 +90,7 @@ public class PostLinkable
             ds.setUnderlineText(true);
             if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
                 // Theme styling notes: There is a helper PSD in the docs directory that may help you adjust this blend ratio, if needed
-                ds.setColor(ColorUtils.blendARGB(ds.linkColor, markedColorBlend, 0.30f));
+                ds.setColor(ColorUtils.blendARGB(ds.linkColor, contrastColor, blendRatio));
             }
         } else {
             ds.bgColor = spoilerColor;
