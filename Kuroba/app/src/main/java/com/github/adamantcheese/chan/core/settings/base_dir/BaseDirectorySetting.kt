@@ -1,9 +1,9 @@
 package com.github.adamantcheese.chan.core.settings.base_dir
 
 import android.net.Uri
+import com.github.adamantcheese.chan.core.settings.base_dir.BaseDirectorySetting.ActiveBaseDir.Companion.fromIntegerSetting
 import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting
-import com.github.adamantcheese.chan.core.settings.base_dir.BaseDirectorySetting.ActiveBaseDir.Companion.fromIntegerSetting
 
 abstract class BaseDirectorySetting {
     abstract var activeBaseDir: IntegerSetting

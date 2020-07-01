@@ -5,8 +5,8 @@ import android.os.Environment
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting
-import com.github.adamantcheese.chan.core.settings.provider.SettingProvider
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting
+import com.github.adamantcheese.chan.core.settings.provider.SettingProvider
 import com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel
 import com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus
 import java.io.File
