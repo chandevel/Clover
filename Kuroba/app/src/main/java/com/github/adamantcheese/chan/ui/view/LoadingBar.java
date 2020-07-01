@@ -17,7 +17,9 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
@@ -28,8 +30,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-
 public class LoadingBar
         extends View {
     private int chunksCount = -1;
@@ -37,18 +37,24 @@ public class LoadingBar
     private Paint paint;
 
     public LoadingBar(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public LoadingBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public LoadingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
+
+        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setColor(Color.LTGRAY);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadingBar);
+        try {
+            paint.setColor(a.getColor(R.styleable.LoadingBar_color, Color.LTGRAY));
+        } finally {
+            a.recycle();
+        }
     }
 
     public void setProgress(List<Float> updatedProgress) {
@@ -88,10 +94,5 @@ public class LoadingBar
 
             offset += width;
         }
-    }
-
-    private void init() {
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(getAttrColor(getContext(), R.attr.colorAccent));
     }
 }

@@ -16,7 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.github.adamantcheese.chan.ui.view.TransitionImageView
         android:id="@+id/preview_image"
@@ -33,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/loading_bar"
         android:layout_width="match_parent"
         android:layout_height="3dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:color="#FFCCCCCC"/>
 
 </FrameLayout>

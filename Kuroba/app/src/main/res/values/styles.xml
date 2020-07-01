@@ -557,6 +557,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <declare-styleable name="GridRecyclerView">
         <attr name="spanWidth" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="LoadingBar">
+        <attr name="color" format="color" />
+    </declare-styleable>
     <!-- endregion -->
 
     <style name="SnackbarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
