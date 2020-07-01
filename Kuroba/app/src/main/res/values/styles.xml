@@ -61,7 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
-        <item name="highlight_color">#38000000</item>
+        <item name="highlight_color">#48000000</item>
         <item name="divider_color">#40000000</item>
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
@@ -187,7 +187,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
 
-        <item name="post_spoiler_color">@color/md_grey_875</item>
+        <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
 
     <style name="Chan.Theme.YotsubaB" parent="Chan.Theme.Light">
@@ -247,7 +247,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
 
-        <item name="post_spoiler_color">@color/md_grey_875</item>
+        <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
@@ -276,7 +276,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#d5c4a1</item>
         <item name="android:textColorHint">#bdae93</item>
 
-        <item name="highlight_color">#20000000</item>
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">1.25</item>
 
@@ -304,7 +303,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
 
-        <item name="highlight_color">#1C000000</item>
+        <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">.65</item>
 
@@ -345,6 +344,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorPrimary">#fffde8</item>
         <item name="android:textColorSecondary">#b7aba1</item>
 
+        <item name="highlight_color">#30000000</item>
         <item name="divider_color">#20000000</item>
         <item name="highlight_linkable_blend">1.2</item>
 
