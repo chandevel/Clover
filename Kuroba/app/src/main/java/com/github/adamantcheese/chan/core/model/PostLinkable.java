@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import android.graphics.Color;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
 import android.view.View;
@@ -28,6 +29,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.ConversionUtils;
 
 import static android.graphics.Color.BLACK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
@@ -54,7 +56,6 @@ public class PostLinkable
     }
 
     private final float blendRatio;
-    private final int contrastColor;
     private final int spoilerColor;
     public final CharSequence key;
     public final Object value;
@@ -65,9 +66,6 @@ public class PostLinkable
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
         blendRatio = resolveFloat(theme.resValue, R.attr.highlight_linkable_blend);
-        contrastColor = resolveBool(theme.resValue, android.R.attr.isLightTheme)
-                ? BLACK
-                : getContrastColor(resolveColor(theme.resValue, android.R.attr.textColorLink));
         spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
@@ -89,8 +87,12 @@ public class PostLinkable
             ds.setColor(ds.linkColor);
             ds.setUnderlineText(true);
             if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
-                // Theme styling notes: There is a helper PSD in the docs directory that may help you adjust this blend ratio, if needed
-                ds.setColor(ColorUtils.blendARGB(ds.linkColor, contrastColor, blendRatio));
+                float[] HSV = new float[3];
+                Color.colorToHSV(ds.linkColor, HSV);
+                HSV[1] = Math.min(HSV[1] * blendRatio, 1.0f);
+                HSV[2] = Math.min(HSV[2] * blendRatio, 1.0f);
+                int ARGB = Color.HSVToColor(Color.alpha(ds.linkColor), HSV);
+                ds.setColor(ARGB);
             }
         } else {
             ds.bgColor = spoilerColor;
