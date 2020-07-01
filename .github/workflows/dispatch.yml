@@ -1,7 +1,7 @@
 name: Dispatch Build Request
 on:
   push:
-    branches: [ master ]
+    branches: [ multi-feature ]
 
 jobs:
   build:
