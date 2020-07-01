@@ -121,6 +121,7 @@ public class Theme {
         LIGHT_BLUE(R.style.PrimaryLightBlue, R.style.AccentLightBlue),
         CYAN(R.style.PrimaryCyan, R.style.AccentCyan),
         TEAL(R.style.PrimaryTeal, R.style.AccentTeal),
+        DARK_TEAL(R.style.PrimaryDarkTeal, R.style.AccentDarkTeal),
         GREEN(R.style.PrimaryGreen, R.style.AccentGreen),
         LIGHT_GREEN(R.style.PrimaryLightGreen, R.style.AccentLightGreen),
         LIME(R.style.PrimaryLime, R.style.AccentLime),

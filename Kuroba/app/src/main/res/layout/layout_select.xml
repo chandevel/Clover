@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/select_all"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            style="@style/Widget.AppCompat.Button.Borderless"
             tools:text="@string/select_all" />
 
     </LinearLayout>

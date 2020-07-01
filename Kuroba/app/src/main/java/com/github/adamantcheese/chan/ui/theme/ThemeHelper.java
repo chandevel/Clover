@@ -35,10 +35,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.AMBER;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLACK;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLUE_GREY;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BROWN;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK_TEAL;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREEN;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREY;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.INDIGO;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE_GREY;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.ORANGE;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.RED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -63,7 +70,7 @@ public class ThemeHelper {
     private Theme themeNight;
     public static boolean isNightTheme = false;
     public static Theme defaultDayTheme = new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED);
-    public static Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, BLACK);
+    public static Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, DARK_TEAL);
 
     private static final Typeface TALLEYRAND =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
@@ -73,16 +80,16 @@ public class ThemeHelper {
     public ThemeHelper() {
         themes.add(new Theme("Light", R.style.Chan_Theme_Light, GREEN, GREEN));
         themes.add(defaultNightTheme);
-        themes.add(new Theme("Black", R.style.Chan_Theme_Black, BLACK, DARK));
-        themes.add(new Theme("Tomorrow", R.style.Chan_Theme_Tomorrow, DARK, BLACK));
-        themes.add(new Theme("Tomorrow Black", R.style.Chan_Theme_TomorrowBlack, BLACK, DARK));
+        themes.add(new Theme("Black", R.style.Chan_Theme_Black, BLACK, INDIGO));
+        themes.add(new Theme("Tomorrow", R.style.Chan_Theme_Tomorrow, DARK, LIGHT_BLUE_GREY));
+        themes.add(new Theme("Tomorrow Black", R.style.Chan_Theme_TomorrowBlack, BLACK, LIGHT_BLUE_GREY));
         themes.add(new Theme("Yotsuba", R.style.Chan_Theme_Yotsuba, RED, RED));
         themes.add(defaultDayTheme);
         themes.add(new Theme("Photon", R.style.Chan_Theme_Photon, ORANGE, ORANGE));
-        themes.add(new Theme("Insomnia", R.style.Chan_Theme_Insomnia, DARK, BLACK));
-        themes.add(new Theme("Gruvbox", R.style.Chan_Theme_Gruvbox, DARK, BLACK));
-        themes.add(new Theme("Gruvbox Black", R.style.Chan_Theme_GruvboxBlack, BLACK, DARK));
-        themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, BLACK));
+        themes.add(new Theme("Insomnia", R.style.Chan_Theme_Insomnia, DARK, BLUE_GREY));
+        themes.add(new Theme("Gruvbox", R.style.Chan_Theme_Gruvbox, DARK, AMBER));
+        themes.add(new Theme("Gruvbox Black", R.style.Chan_Theme_GruvboxBlack, BLACK, AMBER));
+        themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, LIGHT_BLUE));
         themes.add(new Theme("Solarized Dark", R.style.Chan_Theme_SolarizedDark, ORANGE, ORANGE));
         Theme holo = new Theme("Holo", R.style.Chan_Theme_Holo, BROWN, RED, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
         holo.altFontIsMain = true;
