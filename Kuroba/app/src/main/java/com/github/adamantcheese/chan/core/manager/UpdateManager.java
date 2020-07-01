@@ -172,7 +172,7 @@ public class UpdateManager {
                 }
             }, new UpdateApiParser());
         } else {
-            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT + "/latest_apk_uuid"),
+            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT),
                     new JsonResult<UpdateApiResponse>() {
                         @Override
                         public void onJsonFailure(Exception e) {
