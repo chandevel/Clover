@@ -23,19 +23,16 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.ConversionUtils;
 
-import static android.graphics.Color.BLACK;
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveBool;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveFloat;
 
@@ -56,6 +53,7 @@ public class PostLinkable
     }
 
     private final float blendRatio;
+    private final int quoteColor;
     private final int spoilerColor;
     public final CharSequence key;
     public final Object value;
@@ -66,6 +64,7 @@ public class PostLinkable
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
         blendRatio = resolveFloat(theme.resValue, R.attr.highlight_linkable_blend);
+        quoteColor = resolveColor(theme.resValue, R.attr.post_quote_color);
         spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
@@ -84,14 +83,14 @@ public class PostLinkable
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
         if (type != SPOILER) {
-            ds.setColor(ds.linkColor);
+            ds.setColor(type == LINK ? ds.linkColor : quoteColor);
             ds.setUnderlineText(true);
             if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
                 float[] HSV = new float[3];
-                Color.colorToHSV(ds.linkColor, HSV);
+                Color.colorToHSV(quoteColor, HSV);
                 HSV[1] = Math.min(HSV[1] * blendRatio, 1.0f);
                 HSV[2] = Math.min(HSV[2] * blendRatio, 1.0f);
-                int ARGB = Color.HSVToColor(Color.alpha(ds.linkColor), HSV);
+                int ARGB = Color.HSVToColor(Color.alpha(quoteColor), HSV);
                 ds.setColor(ARGB);
             }
         } else {

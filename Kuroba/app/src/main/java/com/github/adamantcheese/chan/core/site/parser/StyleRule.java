@@ -276,7 +276,7 @@ public class StyleRule {
             case INLINE_QUOTE:
                 return resolveColor(theme.resValue, R.attr.post_inline_quote_color);
             case QUOTE:
-                return resolveColor(theme.resValue, android.R.attr.textColorLink);
+                return resolveColor(theme.resValue, R.attr.post_quote_color);
             case RED:
                 return Color.RED;
             default:

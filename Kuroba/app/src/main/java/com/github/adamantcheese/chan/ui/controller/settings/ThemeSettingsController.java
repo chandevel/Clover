@@ -362,7 +362,7 @@ public class ThemeSettingsController
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\\\"#p111111111\\\" class=\\\"quotelink\\\">&gt;&gt;111111111</a><br>"
+                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
                                     + "This is a spacer post for divider color display.");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
@@ -373,7 +373,7 @@ public class ThemeSettingsController
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\\\"#p111111111\\\" class=\\\"quotelink\\\">&gt;&gt;111111111</a><br>"
+                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
                                     + "This post is highlighted.<br>"
                                     + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(

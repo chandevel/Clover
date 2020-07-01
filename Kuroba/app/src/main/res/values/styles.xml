@@ -111,20 +111,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         post_details_color      (the details color on posts; should be close to textColorSecondary)
         post_inline_quote_color (the greentext color)
         post_spoiler_color      (the spoiler block color; the text's color inside is dynamically changed between black and white for visibility)
-        android:textColorLink   (the color of all linkables, including >>quotes)
+        post_quote_color        (the color of >>quotes)
+        android:textColorLink   (the color of links)
 
         If you have Oneechan installed in your browser, you can use it to more easily create themes that will work in Kuroba.
         The following attribute mapping applies (Oneechan -> Kuroba):
 
         Body Background 		-> backcolor_secondary
         Reply/Header Background -> backcolor
-        Quotelinks 				-> android:textColorLink
+        Quotelinks 				-> post_quote_color
         Name Color 				-> post_name_color
         Greentext 				-> post_inline_quote_color
         Text Color 				-> android:textColor, android:textColorPrimary
         Subject 				-> post_subject_color
 
         Custom definitions:
+        android:textColorLink       -> The color specifically of links; you can use the same as post_quote_color
         android:textColorSecondary 	-> Just a darker color from android:textColor
         android:textColorHint 		-> Just a darker color from android:textColorSecondary
         post_details_color 			-> Just a darker color from android:textColorSecondary
@@ -151,10 +153,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_name_color">#117743</item>
         <item name="post_subject_color">#0F0C5D</item>
-        <item name="post_details_color">@color/md_grey_700</item>
+        <item name="post_details_color">@color/md_grey_675</item>
         <item name="post_inline_quote_color">#789922</item>
         <item name="post_spoiler_color">@color/black</item>
-        <item name="android:textColorLink">#DD0000</item>
+        <item name="post_quote_color">#DD0000</item>
+        <item name="android:textColorLink">#0000B4</item>
     </style>
 
     <!-- The regular Dark theme, which is used as a base for all other "Dark" themes -->
@@ -164,8 +167,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/md_grey_400</item>
-        <item name="android:textColorHint">@color/md_grey_700</item>
+        <item name="android:textColorSecondary">@color/md_grey_425</item>
+        <item name="android:textColorHint">@color/md_grey_775</item>
 
         <item name="highlight_linkable_blend">0.8</item>
 
@@ -174,7 +177,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_details_color">@color/md_grey_375</item>
         <item name="post_inline_quote_color">#789922</item>
         <item name="post_spoiler_color">@color/black</item>
-        <item name="android:textColorLink">#DD0000</item>
+        <item name="post_quote_color">#DD0000</item>
+        <item name="android:textColorLink">#625cff</item>
     </style>
 
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
@@ -183,12 +187,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
 
-        <item name="post_spoiler_color">@color/md_grey_800</item>
+        <item name="post_spoiler_color">@color/md_grey_875</item>
     </style>
 
     <style name="Chan.Theme.YotsubaB" parent="Chan.Theme.Light">
         <item name="backcolor">#d6daf0</item>
         <item name="backcolor_secondary">#eef2ff</item>
+
+        <item name="android:textColorLink">#DD0000</item>
     </style>
 
     <style name="Chan.Theme.Yotsuba" parent="Chan.Theme.Light">
@@ -201,6 +207,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="highlight_linkable_blend">0.0</item>
 
         <item name="post_subject_color">#cc1105</item>
+        <item name="post_quote_color">#000080</item>
         <item name="android:textColorLink">#000080</item>
     </style>
 
@@ -210,35 +217,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_name_color">#004A99</item>
         <item name="post_subject_color">@color/md_grey_950</item>
         <item name="post_details_color">@color/md_grey_850</item>
+        <item name="post_quote_color">@color/md_orange_A700</item>
         <item name="android:textColorLink">@color/md_orange_A700</item>
     </style>
 
     <style name="Chan.Theme.Tomorrow" parent="Chan.Theme.Dark">
-        <item name="backcolor">@color/md_grey_875</item>
-        <item name="backcolor_secondary">@color/md_grey_900</item>
+        <item name="backcolor">#282a2e</item>
+        <item name="backcolor_secondary">#1d1f21</item>
 
-        <item name="android:textColor">@color/md_grey_375</item>
-        <item name="android:textColorPrimary">@color/md_grey_375</item>
-        <item name="android:textColorSecondary">@color/md_grey_575</item>
+        <item name="android:textColor">#c5c8c6</item>
+        <item name="android:textColorPrimary">#c5c8c6</item>
+        <item name="android:textColorSecondary">#c5c8c6</item>
 
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">1.35</item>
 
-        <item name="post_name_color">@color/md_grey_375</item>
+        <item name="post_name_color">#c5c8c6</item>
         <item name="post_subject_color">#b294bb</item>
         <item name="post_inline_quote_color">#b5bd68</item>
+        <item name="post_quote_color">#5F89AC</item>
         <item name="android:textColorLink">#5F89AC</item>
 
     </style>
 
     <style name="Chan.Theme.TomorrowBlack" parent="Chan.Theme.Tomorrow">
         <item name="backcolor">@color/black</item>
-        <item name="backcolor_secondary">@color/md_grey_850</item>
+        <item name="backcolor_secondary">@color/md_grey_900</item>
 
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
 
-        <item name="post_spoiler_color">@color/md_grey_800</item>
+        <item name="post_spoiler_color">@color/md_grey_875</item>
     </style>
 
     <style name="Chan.Theme.Insomnia" parent="Chan.Theme.Dark">
@@ -252,14 +261,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_name_color">#566e78</item>
         <item name="post_subject_color">#567861</item>
-        <item name="post_details_color">@color/md_grey_650</item>
+        <item name="post_details_color">@color/md_grey_800</item>
         <item name="post_inline_quote_color">#a4a987</item>
-        <item name="android:textColorLink">#7e949e</item>
+        <item name="post_quote_color">#7e949e</item>
+        <item name="android:textColorLink">#81a2be</item>
     </style>
 
     <style name="Chan.Theme.Gruvbox" parent="Chan.Theme.Dark">
         <item name="backcolor">@color/md_grey_875</item>
-        <item name="backcolor_secondary">@color/md_grey_850</item>
+        <item name="backcolor_secondary">#3c3836</item>
 
         <item name="android:textColor">#ebdbb2</item>
         <item name="android:textColorPrimary">#ebdbb2</item>
@@ -275,7 +285,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_details_color">#a89984</item>
         <item name="post_inline_quote_color">#79740e</item>
         <item name="post_spoiler_color">@color/md_grey_650</item>
-        <item name="android:textColorLink">#B03337</item>
+        <item name="post_quote_color">#9d0006</item>
+        <item name="android:textColorLink">#458588</item>
     </style>
 
     <style name="Chan.Theme.GruvboxBlack" parent="Chan.Theme.Gruvbox">
@@ -284,14 +295,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
 
-        <item name="post_spoiler_color">@color/md_grey_800</item>
+        <item name="post_spoiler_color">@color/md_grey_850</item>
     </style>
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
-        <item name="android:textColor">@color/md_grey_450</item>
-        <item name="android:textColorPrimary">@color/md_grey_450</item>
+        <item name="android:textColor">@color/md_grey_550</item>
+        <item name="android:textColorPrimary">@color/md_grey_550</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
-        <item name="android:textColorHint">@color/md_grey_525</item>
+        <item name="android:textColorHint">@color/md_grey_575</item>
 
         <item name="highlight_color">#1C000000</item>
         <item name="divider_color">#20FFFFFF</item>
@@ -301,18 +312,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#33b5e5</item>
         <item name="post_details_color">@color/md_grey_550</item>
         <item name="post_inline_quote_color">#99cc00</item>
-        <item name="post_spoiler_color">@color/md_grey_750</item>
-        <item name="android:textColorLink">#33b5e5</item>
+        <item name="post_spoiler_color">@color/md_grey_625</item>
+        <item name="post_quote_color">#33b5e5</item>
+        <item name="android:textColorLink">#0099cc</item>
     </style>
 
     <style name="Chan.Theme.SolarizedDark" parent="Chan.Theme.Dark">
         <item name="backcolor">#002b36</item>
         <item name="backcolor_secondary">#073642</item>
 
-        <item name="android:textColor">@color/md_grey_475</item>
-        <item name="android:textColorPrimary">@color/md_grey_475</item>
+        <item name="android:textColor">#839496</item>
+        <item name="android:textColorPrimary">#839496</item>
         <item name="android:textColorSecondary">#586e75</item>
-        <item name="android:textColorHint">@color/md_grey_500</item>
+        <item name="android:textColorHint">@color/md_grey_575</item>
 
         <item name="highlight_linkable_blend">2</item>
 
@@ -321,7 +333,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_details_color">#586e75</item>
         <item name="post_inline_quote_color">#2aa198</item>
         <item name="post_spoiler_color">#A23C12</item>
-        <item name="android:textColorLink">#d33682</item>
+        <item name="post_quote_color">#d33682</item>
+        <item name="android:textColorLink">#268bd2</item>
     </style>
 
     <style name="Chan.Theme.Holo" parent="Chan.Theme.Dark">
@@ -338,6 +351,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_subject_color">#666ec0</item>
         <item name="post_details_color">@color/white</item>
         <item name="post_spoiler_color">#452c2f</item>
+        <item name="post_quote_color">#d06448</item>
+        <item name="android:textColorLink">#d06448</item>
     </style>
     <!-- endregion -->
 

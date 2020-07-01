@@ -30,5 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="post_subject_color" format="color" />
     <attr name="post_details_color" format="color" />
     <attr name="post_spoiler_color" format="color" />
+    <attr name="post_quote_color" format="color" />
     <attr name="post_inline_quote_color" format="color" />
 </resources>
