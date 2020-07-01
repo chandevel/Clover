@@ -443,7 +443,7 @@ class ReportManager(
     companion object {
         private const val TAG = "ReportManager"
         private const val SENDER_THREAD_NAME_FORMAT = "ReportSenderThread-%d"
-        private const val REPORT_URL = "${BuildConfig.DEV_API_ENDPOINT}/report"
+        private const val REPORT_URL = "https://kuroba.io:8443/report" // this will be changed in the future hopefully
         private const val CRASH_LOG_FILE_NAME_PREFIX = "crashlog"
         private const val UNBOUNDED_QUEUE_MIN_SIZE = 32
         private const val CRASH_REPORT_LOGS_LINES_COUNT = 500
