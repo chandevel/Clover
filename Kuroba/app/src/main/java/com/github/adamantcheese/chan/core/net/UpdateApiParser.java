@@ -131,7 +131,7 @@ public class UpdateApiParser
                                     1     * Integer.parseInt(versionMatcher.group(3));
                             response.apkURL =
                                     HttpUrl.get(DEV_GITHUB_ENDPOINT + "/releases/download/" +
-                                            response.versionCodeString + "/" + getApplicationLabel() + ".apk");
+                                            response.versionCodeString + "/" + getApplicationLabel() + "-" + versionMatcher.group(4) + ".apk");
                             //@formatter:on
                             break;
                         } catch (Exception e) {
