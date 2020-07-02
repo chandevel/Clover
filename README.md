@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/Adamantcheese/Kuroba.svg?branch=multi-feature)](https://travis-ci.org/Adamantcheese/Kuroba)
-
 # Kuroba - imageboard browser for Android
 ## All releases are less dev than actual dev. Do not assume they are stable, but they're more stable than actual dev.
 
