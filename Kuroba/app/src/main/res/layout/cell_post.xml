@@ -120,11 +120,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_alignBottom="@+id/replies"
             android:layout_alignParentLeft="true"
             android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
             android:background="?attr/divider_color"
+            tools:layout_alignBottom="@+id/replies"
+            tools:layout_alignParentBottom="false"
+            tools:layout_alignWithParentIfMissing="true"
             tools:layout_marginLeft="8dp"
             tools:layout_marginRight="8dp" />
 
