@@ -24,17 +24,16 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LoadingBar
         extends View {
-    private int chunksCount = -1;
-    private List<Float> chunkLoadingProgress = new ArrayList<>();
-    private Paint paint;
+    @NonNull
+    private Float[] chunkLoadingProgress = new Float[1];
+    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public LoadingBar(Context context) {
         this(context, null);
@@ -47,33 +46,21 @@ public class LoadingBar
     public LoadingBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.LTGRAY);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.LoadingBar);
         try {
-            paint.setColor(a.getColor(R.styleable.LoadingBar_color, Color.LTGRAY));
+            paint.setColor(a.getColor(R.styleable.LoadingBar_color, Color.GREEN));
         } finally {
             a.recycle();
         }
     }
 
-    public void setProgress(List<Float> updatedProgress) {
+    public void setProgress(@NonNull Float[] updatedProgress) {
         BackgroundUtils.ensureMainThread();
 
-        // This branch should only happen once for each download so it should be fine to re-allocate
-        // the list here
-        if (chunksCount == -1 || chunksCount != updatedProgress.size()) {
-            chunksCount = updatedProgress.size();
-
-            chunkLoadingProgress.clear();
-            chunkLoadingProgress.addAll(updatedProgress);
-        }
-
-        for (int i = 0; i < updatedProgress.size(); i++) {
-            float updatedChunkProgress = updatedProgress.get(i);
-            float clampedProgress = Math.min(Math.max(updatedChunkProgress, .1f), 1f);
-
-            chunkLoadingProgress.set(i, clampedProgress);
+        // Set and clamp
+        chunkLoadingProgress = updatedProgress;
+        for (int i = 0; i < updatedProgress.length; i++) {
+            chunkLoadingProgress[i] = Math.min(Math.max(updatedProgress[i], .1f), 1f);
         }
 
         invalidate();
@@ -83,11 +70,10 @@ public class LoadingBar
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float width = (float) getWidth() / chunksCount;
+        float width = (float) getWidth() / chunkLoadingProgress.length;
         float offset = 0f;
 
-        for (int i = 0; i < chunkLoadingProgress.size(); i++) {
-            float progress = chunkLoadingProgress.get(i);
+        for (Float progress : chunkLoadingProgress) {
             if (progress > 0f) {
                 canvas.drawRect(offset, 0f, offset + (width * progress), getHeight(), paint);
             }

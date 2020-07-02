@@ -467,7 +467,7 @@ public class ImageViewerController
         loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
 
-    public void onLoadProgress(List<Float> progress) {
+    public void onLoadProgress(Float[] progress) {
         loadingBar.setProgress(progress);
     }
 

@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -89,7 +90,7 @@ public class ImageViewerPresenter
     private boolean entering = true;
     private boolean exiting = false;
     private List<PostImage> images;
-    private Map<Integer, List<Float>> progress;
+    private Map<Integer, Float[]> progress;
     private int selectedPosition = 0;
     private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
@@ -119,14 +120,9 @@ public class ImageViewerPresenter
         int chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt();
 
         for (int i = 0; i < images.size(); ++i) {
-            List<Float> initialProgress = new ArrayList<>(chunksCount);
-
-            for (int j = 0; j < chunksCount; ++j) {
-                initialProgress.add(.1f);
-            }
-
-            // Always use a little bit of progress so it's obvious that we have started downloading
-            // the image
+            Float[] initialProgress = new Float[chunksCount];
+            Arrays.fill(initialProgress, .1f);
+            // Always use a little bit of progress so it's obvious that we have started downloading the image
             progress.put(i, initialProgress);
         }
 
@@ -526,13 +522,8 @@ public class ImageViewerPresenter
                     "chunksCount must be 1 or greater than 1 " + "(actual = " + chunksCount + ")");
         }
 
-        List<Float> initialProgress = new ArrayList<>(chunksCount);
-
-        for (int i = 0; i < chunksCount; ++i) {
-            // Always use a little bit of progress so it's obvious that we have started downloading
-            // the image
-            initialProgress.add(.1f);
-        }
+        Float[] initialProgress = new Float[chunksCount];
+        Arrays.fill(initialProgress, .1f);
 
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
@@ -571,11 +562,11 @@ public class ImageViewerPresenter
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
             if (postImage == multiImageView.getPostImage()) {
-                List<Float> chunksProgress = progress.get(i);
+                Float[] chunksProgress = progress.get(i);
 
                 if (chunksProgress != null) {
-                    if (chunkIndex >= 0 && chunkIndex < chunksProgress.size()) {
-                        chunksProgress.set(chunkIndex, current / (float) total);
+                    if (chunkIndex >= 0 && chunkIndex < chunksProgress.length) {
+                        chunksProgress[chunkIndex] = current / (float) total;
                     }
                 }
 
@@ -735,7 +726,7 @@ public class ImageViewerPresenter
 
         void showProgress(boolean show);
 
-        void onLoadProgress(List<Float> progress);
+        void onLoadProgress(Float[] progress);
 
         void showVolumeMenuItem(boolean show, boolean muted);
 
