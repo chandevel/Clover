@@ -26,10 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <View
         android:id="@+id/filter_match_color"
         android:layout_width="5dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:visibility="gone"
-        tools:background="@color/red"
-        tools:visibility="gone" />
+        tools:background="@color/md_green_800"
+        tools:visibility="visible" />
 
     <RelativeLayout
         android:id="@+id/relative_layout_container"
