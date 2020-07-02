@@ -4,6 +4,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.text.SimpleDateFormat;
@@ -139,7 +140,7 @@ public class CaptchaHolder {
             extends TimerTask {
         @Override
         public void run() {
-            removeNotValidTokens();
+            BackgroundUtils.runOnMainThread(CaptchaHolder.this::removeNotValidTokens);
         }
     }
 
