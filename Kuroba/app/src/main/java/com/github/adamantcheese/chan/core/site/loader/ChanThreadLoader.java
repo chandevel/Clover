@@ -371,7 +371,6 @@ public class ChanThreadLoader {
             cached = thread == null ? new ArrayList<>() : thread.getPosts();
         }
 
-        ChanLoaderRequestParams requestParams = new ChanLoaderRequestParams(loadable, cached);
         call = NetUtils.makeJsonRequest(getChanUrl(loadable), new JsonResult<ChanLoaderResponse>() {
             @Override
             public void onJsonFailure(Exception e) {
@@ -382,7 +381,7 @@ public class ChanThreadLoader {
             public void onJsonSuccess(ChanLoaderResponse result) {
                 onResponse(result);
             }
-        }, new ChanReaderParser(requestParams));
+        }, new ChanReaderParser(loadable, cached));
 
         return call;
     }

@@ -24,8 +24,9 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.loader.ChanLoaderRequestParams;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
+import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
@@ -78,18 +79,18 @@ public class ChanReaderParser
 
     private List<Filter> filters;
 
-    public ChanReaderParser(ChanLoaderRequestParams request) {
+    public ChanReaderParser(Loadable loadable, List<Post> cachedPosts) {
         inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
-        loadable = request.loadable.clone();
-        cached = new ArrayList<>(request.cached);
-        reader = loadable.site.chanReader();
+        this.loadable = loadable.clone();
+        cached = new ArrayList<>(cachedPosts);
+        reader = this.loadable.site.chanReader();
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();
         for (Filter filter : enabledFilters) {
-            if (filterEngine.matchesBoard(filter, loadable.board)) {
+            if (filterEngine.matchesBoard(filter, this.loadable.board)) {
                 // copy the filter because it will get used on other threads
                 filters.add(filter.clone());
             }
@@ -138,13 +139,15 @@ public class ChanReaderParser
         internalIds = Collections.unmodifiableSet(internalIds);
 
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
+        Theme currentTheme = ThemeHelper.getTheme();
         for (Post.Builder post : toParse) {
             tasks.add(new PostParseCallable(filterEngine,
                     filters,
                     databaseSavedReplyManager,
                     post,
                     reader,
-                    internalIds
+                    internalIds,
+                    currentTheme
             ));
         }
 

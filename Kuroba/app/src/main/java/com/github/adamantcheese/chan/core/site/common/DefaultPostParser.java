@@ -61,10 +61,6 @@ public class DefaultPostParser
 
     @Override
     public Post parse(Theme theme, Post.Builder builder, Callback callback) {
-        if (theme == null) {
-            theme = ThemeHelper.getTheme();
-        }
-
         if (!TextUtils.isEmpty(builder.name)) {
             builder.name = Parser.unescapeEntities(builder.name, false);
         }
