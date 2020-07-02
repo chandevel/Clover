@@ -134,6 +134,7 @@ public class Theme {
         BLUE_GREY(R.style.PrimaryBlueGrey, R.style.AccentBlueGrey),
         LIGHT_BLUE_GREY(R.style.PrimaryLightBlueGrey, R.style.AccentLightBlueGrey),
 
+        TAN(R.style.PrimaryTan, R.style.AccentTan),
         DARK(R.style.PrimaryDark, R.style.AccentDark),
         BLACK(R.style.PrimaryBlack, R.style.AccentBlack);
 

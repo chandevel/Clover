@@ -463,6 +463,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="colorPrimaryDark">#4C6D89</item>
     </style>
 
+    <style name="PrimaryTan">
+        <item name="colorPrimary">#d1ba80</item>
+        <item name="colorPrimaryDark">#b89e5e</item>
+    </style>
+
     <style name="PrimaryDark">
         <item name="colorPrimary">@color/md_grey_900</item>
         <item name="colorPrimaryDark">@color/black</item>
@@ -558,6 +563,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="AccentLightBlueGrey">
         <item name="colorAccent">#5F89AC</item>
+    </style>
+
+    <style name="AccentTan">
+        <item name="colorAccent">#d1ba80</item>
     </style>
 
     <style name="AccentDark">
