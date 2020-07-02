@@ -261,7 +261,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="post_name_color">#566e78</item>
         <item name="post_subject_color">#567861</item>
-        <item name="post_details_color">@color/md_grey_800</item>
+        <item name="post_details_color">@color/md_grey_650</item>
         <item name="post_inline_quote_color">#a4a987</item>
         <item name="post_quote_color">#7e949e</item>
         <item name="android:textColorLink">#81a2be</item>
