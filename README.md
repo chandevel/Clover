@@ -9,6 +9,7 @@ DEV releases are provided by Github Actions (they are built and uploaded after e
 ### [Latest DEV APK](https://github.com/Adamantcheese/Kuroba-Dev/releases/latest/)
 ### [All DEV APKs](https://github.com/Adamantcheese/Kuroba-Dev/releases)
 
+![](https://github.com/Adamantcheese/Kuroba-Dev/workflows/Build%20Dev/badge.svg)
 
 Kuroba is a fast Android app for browsing imageboards, such as 4chan and 8chan. It adds inline replying, thread watching, notifications, themes, pass support, filters and a whole lot more. It is based on Clover by Floens, but has additional features added in because Floens doesn't want to merge PRs. Credits to K1rakishou for a number of features.
 #### [A feature list can be found here, but may be out of date.](https://gist.github.com/Adamantcheese/0c15a36ab983e7829f91f1248ab28844)
