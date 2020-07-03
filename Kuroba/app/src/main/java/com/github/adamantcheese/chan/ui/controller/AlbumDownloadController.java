@@ -273,6 +273,8 @@ public class AlbumDownloadController
 
         @Override
         public void onBindViewHolder(AlbumDownloadCell holder, int position) {
+            holder.thumbnailView.setUrl(null);
+
             AlbumDownloadItem item = items.get(position);
 
             holder.thumbnailView.setPostImage(loadable, item.postImage, true, dp(100), dp(100));
