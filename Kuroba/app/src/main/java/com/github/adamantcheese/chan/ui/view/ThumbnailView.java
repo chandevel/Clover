@@ -45,6 +45,8 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
+import java.io.IOException;
+
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -340,6 +342,8 @@ public class ThumbnailView
 
         if (e instanceof NetUtils.HttpCodeException) {
             errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
+        } else if (e instanceof IOException && "Canceled".equals(e.getMessage())) {
+            return;
         } else {
             errorText = getString(R.string.thumbnail_load_failed_network);
         }
