@@ -304,17 +304,24 @@ public class AppearanceSettingsController
     }
 
     private void setupGridColumnsSetting(SettingsGroup layout) {
-        List<Item<Integer>> gridColumns = new ArrayList<>();
-        gridColumns.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
+        List<Item<Integer>> gridColumnsBoard = new ArrayList<>();
+        List<Item<Integer>> gridColumnsAlbum = new ArrayList<>();
+        gridColumnsBoard.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
+        gridColumnsAlbum.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
         for (int columns = 2; columns <= 5; columns++) {
-            gridColumns.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns),
-                    columns
-            ));
+            gridColumnsBoard.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns), columns));
+            gridColumnsAlbum.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns), columns));
         }
         requiresUiRefresh.add(layout.add(new ListSettingView<>(this,
                 ChanSettings.boardGridSpanCount,
                 R.string.setting_board_grid_span_count,
-                gridColumns
+                gridColumnsBoard
+        )));
+
+        requiresUiRefresh.add(layout.add(new ListSettingView<>(this,
+                ChanSettings.albumGridSpanCount,
+                R.string.setting_album_grid_span_count,
+                gridColumnsAlbum
         )));
     }
 

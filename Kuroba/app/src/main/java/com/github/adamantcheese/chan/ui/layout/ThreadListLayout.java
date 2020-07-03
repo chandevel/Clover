@@ -189,14 +189,17 @@ public class ThreadListLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int cardWidth = getDimen(getContext(), R.dimen.grid_card_width);
         int gridCountSetting = !isInEditMode() ? ChanSettings.boardGridSpanCount.get() : 3;
         boolean compactMode;
         if (gridCountSetting > 0) {
+            // Set count
             spanCount = gridCountSetting;
             compactMode = (getMeasuredWidth() / spanCount) < dp(getContext(), 120);
         } else {
-            spanCount = Math.max(1, Math.round((float) getMeasuredWidth() / cardWidth));
+            // Auto
+            spanCount = Math.max(1,
+                    Math.round((float) getMeasuredWidth() / getDimen(getContext(), R.dimen.grid_card_width))
+            );
             compactMode = false;
         }
 

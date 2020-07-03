@@ -196,6 +196,7 @@ public class ChanSettings {
     // Layout
     public static final OptionsSetting<LayoutMode> layoutMode;
     public static final IntegerSetting boardGridSpanCount;
+    public static final IntegerSetting albumGridSpanCount;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting moveInputToBottom;
@@ -351,6 +352,7 @@ public class ChanSettings {
             //Layout
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
             boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
+            albumGridSpanCount = new IntegerSetting(p, "preference_album_grid_span_count", 0);
             neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
             moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);

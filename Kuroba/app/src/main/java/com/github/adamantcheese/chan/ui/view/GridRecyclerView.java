@@ -58,8 +58,16 @@ public class GridRecyclerView
         }
     }
 
+    public void setRealSpanWidth(int spanWidth) {
+        realSpanWidth = spanWidth;
+    }
+
     public int getRealSpanWidth() {
         return realSpanWidth;
+    }
+
+    public float getSpanWidth() {
+        return spanWidth;
     }
 
     @Override
