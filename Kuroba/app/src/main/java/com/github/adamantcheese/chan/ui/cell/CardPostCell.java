@@ -207,12 +207,8 @@ public class CardPostCell
                     loadable,
                     post.image(),
                     true,
-                    ChanSettings.autoLoadThreadImages.get()
-                            ? Math.max(500, thumbView.getWidth())
-                            : thumbView.getWidth(),
-                    ChanSettings.autoLoadThreadImages.get()
-                            ? Math.max(500, thumbView.getHeight())
-                            : thumbView.getHeight()
+                    ChanSettings.highResCells.get() ? 2 * thumbView.getWidth() : thumbView.getWidth(),
+                    ChanSettings.highResCells.get() ? 2 * thumbView.getHeight() : thumbView.getHeight()
             );
         } else {
             thumbView.setVisibility(GONE);

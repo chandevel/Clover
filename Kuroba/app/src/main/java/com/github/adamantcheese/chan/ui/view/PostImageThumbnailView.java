@@ -65,7 +65,7 @@ public class PostImageThumbnailView
 
             if (postImage != null) {
                 if (!loadable.isLocal()) {
-                    setUrl(getUrl(postImage, useHiRes));
+                    setUrl(getUrl(postImage, useHiRes), useHiRes ? width : 0, useHiRes ? height : 0);
                 } else {
                     String fileName;
 
@@ -90,7 +90,7 @@ public class PostImageThumbnailView
 
     private HttpUrl getUrl(PostImage postImage, boolean useHiRes) {
         HttpUrl url = postImage.getThumbnailUrl();
-        if ((ChanSettings.autoLoadThreadImages.get() || ChanSettings.highResCells.get()) && useHiRes) {
+        if (ChanSettings.highResCells.get() && useHiRes) {
             if (!postImage.spoiler() || ChanSettings.removeImageSpoilers.get()) {
                 url = postImage.type == STATIC ? postImage.imageUrl : postImage.getThumbnailUrl();
             }

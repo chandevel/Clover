@@ -184,6 +184,7 @@ public class AlbumViewController
 
         @Override
         public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
+            holder.cell.getThumbnailView().setUrl(null);
             PostImage postImage = postImages.get(position);
             holder.cell.setPostImage(loadable, postImage);
         }
