@@ -45,9 +45,11 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -195,8 +197,10 @@ public class ChanSettings {
 
     // Layout
     public static final OptionsSetting<LayoutMode> layoutMode;
-    public static final IntegerSetting boardGridSpanCount;
-    public static final IntegerSetting albumGridSpanCount;
+    public static final IntegerSetting boardGridSpanCountPortrait;
+    public static final IntegerSetting albumGridSpanCountPortrait;
+    public static final IntegerSetting boardGridSpanCountLandscape;
+    public static final IntegerSetting albumGridSpanCountLandscape;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting enableReplyFab;
     public static final BooleanSetting moveInputToBottom;
@@ -351,8 +355,10 @@ public class ChanSettings {
 
             //Layout
             layoutMode = new OptionsSetting<>(p, "preference_layout_mode", LayoutMode.class, LayoutMode.AUTO);
-            boardGridSpanCount = new IntegerSetting(p, "preference_board_grid_span_count", 0);
-            albumGridSpanCount = new IntegerSetting(p, "preference_album_grid_span_count", 0);
+            boardGridSpanCountPortrait = new IntegerSetting(p, "preference_board_grid_span_count", 0);
+            albumGridSpanCountPortrait = new IntegerSetting(p, "preference_album_grid_span_count", 0);
+            boardGridSpanCountLandscape = new IntegerSetting(p, "preference_board_grid_span_count_landscape", 0);
+            albumGridSpanCountLandscape = new IntegerSetting(p, "preference_album_grid_span_count_landscape", 0);
             neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
             moveInputToBottom = new BooleanSetting(p, "move_input_bottom", false);
@@ -530,6 +536,18 @@ public class ChanSettings {
         } else {
             proxy = null;
         }
+    }
+
+    public static int getBoardColumnCount() {
+        return getScreenOrientation() == ORIENTATION_PORTRAIT
+                ? ChanSettings.boardGridSpanCountPortrait.get()
+                : ChanSettings.boardGridSpanCountLandscape.get();
+    }
+
+    public static int getAlbumColumnCount() {
+        return getScreenOrientation() == ORIENTATION_PORTRAIT
+                ? ChanSettings.albumGridSpanCountPortrait.get()
+                : ChanSettings.albumGridSpanCountLandscape.get();
     }
 
     /**

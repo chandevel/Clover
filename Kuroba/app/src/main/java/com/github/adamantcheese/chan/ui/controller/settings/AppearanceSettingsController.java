@@ -27,10 +27,12 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AppearanceSettingsController
@@ -304,23 +306,30 @@ public class AppearanceSettingsController
     }
 
     private void setupGridColumnsSetting(SettingsGroup layout) {
+        boolean isPortrait = AndroidUtils.getScreenOrientation() == ORIENTATION_PORTRAIT;
+
         List<Item<Integer>> gridColumnsBoard = new ArrayList<>();
         List<Item<Integer>> gridColumnsAlbum = new ArrayList<>();
-        gridColumnsBoard.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
-        gridColumnsAlbum.add(new Item<>(getString(R.string.setting_board_grid_span_count_default), 0));
-        for (int columns = 2; columns <= 5; columns++) {
-            gridColumnsBoard.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns), columns));
-            gridColumnsAlbum.add(new Item<>(getString(R.string.setting_board_grid_span_count_item, columns), columns));
+        gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
+        gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
+        for (int columns = 2; columns <= (isPortrait ? 5 : 12); columns++) {
+            gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
+            gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
         }
+
         requiresUiRefresh.add(layout.add(new ListSettingView<>(this,
-                ChanSettings.boardGridSpanCount,
-                R.string.setting_board_grid_span_count,
+                isPortrait ? ChanSettings.boardGridSpanCountPortrait : ChanSettings.boardGridSpanCountLandscape,
+                isPortrait
+                        ? R.string.setting_board_grid_span_count_portrait
+                        : R.string.setting_board_grid_span_count_landscape,
                 gridColumnsBoard
         )));
 
         requiresUiRefresh.add(layout.add(new ListSettingView<>(this,
-                ChanSettings.albumGridSpanCount,
-                R.string.setting_album_grid_span_count,
+                isPortrait ? ChanSettings.albumGridSpanCountPortrait : ChanSettings.albumGridSpanCountLandscape,
+                isPortrait
+                        ? R.string.setting_album_grid_span_count_portrait
+                        : R.string.setting_album_grid_span_count_landscape,
                 gridColumnsAlbum
         )));
     }

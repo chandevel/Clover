@@ -189,7 +189,7 @@ public class ThreadListLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        int gridCountSetting = !isInEditMode() ? ChanSettings.boardGridSpanCount.get() : 3;
+        int gridCountSetting = !isInEditMode() ? ChanSettings.getBoardColumnCount() : 3;
         boolean compactMode;
         if (gridCountSetting > 0) {
             // Set count

@@ -28,7 +28,7 @@ public class AlbumLayout
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
-        int gridCountSetting = !isInEditMode() ? ChanSettings.albumGridSpanCount.get() : 3;
+        int gridCountSetting = !isInEditMode() ? ChanSettings.getAlbumColumnCount() : 3;
         if (gridCountSetting > 0) {
             // Set count
             spanCount = gridCountSetting;
