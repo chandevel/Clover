@@ -338,8 +338,6 @@ public class ThumbnailView
 
     @Override
     public void onBitmapFailure(Bitmap errormap, Exception e) {
-        error = true;
-
         if (e instanceof NetUtils.HttpCodeException) {
             errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
         } else if (e instanceof IOException && "Canceled".equals(e.getMessage())) {
@@ -347,6 +345,7 @@ public class ThumbnailView
         } else {
             errorText = getString(R.string.thumbnail_load_failed_network);
         }
+        error = true;
 
         onImageSet(false);
         invalidate();
