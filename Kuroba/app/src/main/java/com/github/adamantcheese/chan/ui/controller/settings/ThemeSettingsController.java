@@ -203,6 +203,8 @@ public class ThemeSettingsController
             if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
+                theme.primaryColor = currentTheme.primaryColor;
+                theme.accentColor = currentTheme.accentColor;
                 break;
             }
         }
@@ -269,12 +271,15 @@ public class ThemeSettingsController
         navigationController.getToolbar().updateViewForItem(navigation);
 
         //update views
+        Theme currentTheme = ThemeHelper.getTheme();
         pager.setAdapter(new Adapter());
         for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
             Theme theme = ThemeHelper.getThemes().get(i);
-            if (theme.name.equals(ThemeHelper.getTheme().name)) {
+            if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
+                theme.primaryColor = currentTheme.primaryColor;
+                theme.accentColor = currentTheme.accentColor;
                 break;
             }
         }

@@ -356,6 +356,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
     <!-- endregion -->
 
+    <!-- region In-App Custom Styleable Elements -->
+    <!--
+    All items in here should be selectable from the theme selector UI
+    Styles should only have one or two elements inside of them, otherwise it may override an attribute already in the theme
+    when it is setup for the context in ThemeHelper
+    -->
+
     <!-- region PRIMARY COLORS -->
     <!-- For the toolbar/navbar -->
     <style name="PrimaryRed">
@@ -576,6 +583,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="AccentBlack">
         <item name="colorAccent">@color/black</item>
     </style>
+    <!-- endregion -->
     <!-- endregion -->
 
     <!-- region STYLED ELEMENTS -->

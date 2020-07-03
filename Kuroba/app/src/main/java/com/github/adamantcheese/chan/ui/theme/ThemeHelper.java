@@ -61,7 +61,12 @@ public class ThemeHelper {
         5) If you've added a PrimaryColor or AccentColor, you'll need to add them to the MaterialColorStyle enum in Theme.java
            Be sure to follow the instructions there.
 
-        6) That's it! Everything else is taken care of for you automatically.
+        6) Additional optional steps for selection in the theme picker UI; see comments in appropriate files for details:
+            - Add in extra resources to Theme.java and styles.xml; modify the constructor and add in defaults for all themes in ThemeHelper
+            - Add in the code to setup your new element in createTheme down below
+            - Add in code to ThemeSettingsController to control your styleable element (toolbar icon in a theme, etc.)
+
+        7) That's it! Everything else is taken care of for you automatically.
      */
     private List<Theme> themes = new ArrayList<>();
 
@@ -188,6 +193,7 @@ public class ThemeHelper {
         userTheme.applyStyle(theme.resValue, true); // main styling theme first
         userTheme.applyStyle(theme.primaryColor.primaryColorStyleId, true); // toolbar color, status bar color
         userTheme.applyStyle(theme.accentColor.accentStyleId, true); // FAB, ui element color
+        // add in your custom stuff here, the first argument must be something that resolves with R.style.<element>, with force always to true
         return userTheme;
     }
 }

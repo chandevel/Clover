@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
+import android.content.Context;
 import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
@@ -30,6 +31,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
  * A Theme object, a wrapper around a Android theme<br>
  * Used for setting the toolbar color, and passed around {@link PostParser} to give spans their correct colors.<br>
  * Technically the parser should not do UI, but it is important that spans do not get created on a UI thread for performance.
+ * <br><br>
+ * Add additional styleable elements for this theme to the Theme Context styleables region
+ * See {@link ThemeHelper#createTheme(Context, Theme)} to add those elements to the theme context used for the entire application.
+ * If you do add in elements here, be sure to also modify {@link #reset()} and {@link #toString()}, as these are used for
+ * saving the theme to settings and also resetting the theme when a user backs out of the theme setup controller.
  */
 public class Theme {
     /**
@@ -40,6 +46,8 @@ public class Theme {
      * The style resource id associated with the theme
      */
     public final int resValue;
+
+    //region Theme Context styleables
     /**
      * This is the main color for the theme, use primaryColorStyleId from it to retrieve R.attr.colorPrimary
      */
@@ -49,8 +57,10 @@ public class Theme {
      */
     public MaterialColorStyle accentColor;
 
+    // Defaults for the above colors
     private MaterialColorStyle defaultPrimary;
     private MaterialColorStyle defaultAccent;
+    //endregion
 
     public Typeface mainFont = ROBOTO_MEDIUM;
     public Typeface altFont = ROBOTO_CONDENSED;
