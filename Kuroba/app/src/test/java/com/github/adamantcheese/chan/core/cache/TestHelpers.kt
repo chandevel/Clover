@@ -31,8 +31,7 @@ internal fun createFileDownloadRequest(
 ): FileDownloadRequest {
     val cancelableDownload = CancelableDownload(
             url,
-            CancelableDownload.DownloadType(isPrefetchDownload = false, isGalleryBatchDownload = isBatchDownload),
-            executor
+            CancelableDownload.DownloadType(isPrefetchDownload = false, isGalleryBatchDownload = isBatchDownload)
     )
 
     return spy(
