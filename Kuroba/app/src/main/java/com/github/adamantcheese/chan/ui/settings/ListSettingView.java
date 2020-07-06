@@ -117,10 +117,9 @@ public class ListSettingView<T>
             }
         }
 
-        FloatingMenu menu = new FloatingMenu(v.getContext());
-        menu.setAnchor(v, Gravity.LEFT, dp(5), dp(5));
+        FloatingMenu menu = new FloatingMenu(v.getContext(), v, menuItems);
+        menu.setAnchorGravity(Gravity.LEFT, dp(5), dp(5));
         menu.setCallback(this);
-        menu.setItems(menuItems);
         menu.show();
     }
 

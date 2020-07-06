@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -378,12 +379,15 @@ public class BrowseController
             items.add(new FloatingMenuItem(order, name));
         }
         ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
+        View anchor = item != null ? item.getView() : overflow.getView();
         FloatingMenu menu;
-        if (item != null) {
-            menu = new FloatingMenu(context, item.getView(), items);
+        if (anchor != null) {
+            menu = new FloatingMenu(context, anchor, items);
         } else {
-            menu = new FloatingMenu(context, overflow.getView(), items);
+            Logger.wtf(this, "Couldn't find anchor for sorting button action??");
+            menu = new FloatingMenu(context, view, items);
         }
+        
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {

@@ -26,6 +26,8 @@ import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -52,18 +54,13 @@ public class FloatingMenu {
     private ListPopupWindow popupWindow;
     private FloatingMenuCallback callback;
 
-    public FloatingMenu(Context context, View anchor, List<FloatingMenuItem> items) {
+    public FloatingMenu(Context context, @NonNull View anchor, @NonNull List<FloatingMenuItem> items) {
         this.context = context;
         this.anchor = anchor;
-        setItems(items);
+        this.items= items;
     }
 
-    public FloatingMenu(Context context) {
-        this.context = context;
-    }
-
-    public void setAnchor(View anchor, int anchorGravity, int anchorOffsetX, int anchorOffsetY) {
-        this.anchor = anchor;
+    public void setAnchorGravity(int anchorGravity, int anchorOffsetX, int anchorOffsetY) {
         this.anchorGravity = anchorGravity;
         this.anchorOffsetX = anchorOffsetX;
         this.anchorOffsetY = anchorOffsetY;
@@ -74,10 +71,6 @@ public class FloatingMenu {
         if (popupWindow != null) {
             popupWindow.setHeight(height);
         }
-    }
-
-    public void setItems(List<FloatingMenuItem> items) {
-        this.items = items;
     }
 
     public void setSelectedItem(FloatingMenuItem item) {

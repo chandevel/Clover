@@ -324,12 +324,10 @@ public class ThemeSettingsController
     private FloatingMenu getColorsMenu(
             List<FloatingMenuItem> items, FloatingMenuItem selected, View anchor, boolean useAccentColors
     ) {
-        FloatingMenu menu = new FloatingMenu(context);
-
-        menu.setItems(items);
+        FloatingMenu menu = new FloatingMenu(context, anchor, items);
+        menu.setAnchorGravity(Gravity.CENTER, 0, 0);
         menu.setAdapter(new ColorsAdapter(items, useAccentColors));
         menu.setSelectedItem(selected);
-        menu.setAnchor(anchor, Gravity.CENTER, 0, 0);
         return menu;
     }
 

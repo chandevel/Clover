@@ -272,8 +272,8 @@ public class FilterLayout
                 menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
             }
 
-            FloatingMenu menu = new FloatingMenu(v.getContext());
-            menu.setAnchor(v, Gravity.LEFT, -dp(5), -dp(5));
+            FloatingMenu menu = new FloatingMenu(v.getContext(), v, menuItems);
+            menu.setAnchorGravity(Gravity.LEFT, -dp(5), -dp(5));
             menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
                 @Override
                 public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
@@ -286,7 +286,6 @@ public class FilterLayout
                 public void onFloatingMenuDismissed(FloatingMenu menu) {
                 }
             });
-            menu.setItems(menuItems);
             menu.show();
         } else if (v == help) {
             SpannableStringBuilder message = (SpannableStringBuilder) Html.fromHtml(getString(R.string.filter_help));
