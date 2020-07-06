@@ -98,7 +98,11 @@ public class PostRepliesController
     }
 
     public void scrollTo(int displayPosition) {
-        recyclerView.smoothScrollToPosition(displayPosition);
+        if (displayPosition >= 0) {
+            recyclerView.smoothScrollToPosition(displayPosition);
+        } else {
+            recyclerView.smoothScrollToPosition(displayingData.posts.size() - 1);
+        }
     }
 
     public void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {

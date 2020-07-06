@@ -405,7 +405,7 @@ public class ThreadLayout
     @Override
     public void scrollTo(int displayPosition, boolean smooth) {
         if (postPopupHelper.isOpen()) {
-            postPopupHelper.scrollTo(displayPosition, smooth);
+            postPopupHelper.scrollTo(displayPosition);
         } else if (visible == Visible.THREAD) {
             threadListLayout.scrollTo(displayPosition, smooth);
         }

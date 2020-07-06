@@ -87,7 +87,7 @@ public class PostPopupHelper {
         return presentingController.getPostRepliesData();
     }
 
-    public void scrollTo(int displayPosition, boolean smooth) {
+    public void scrollTo(int displayPosition) {
         presentingController.scrollTo(displayPosition);
     }
 
