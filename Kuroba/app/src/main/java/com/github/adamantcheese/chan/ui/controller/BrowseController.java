@@ -387,7 +387,7 @@ public class BrowseController
             Logger.wtf(this, "Couldn't find anchor for sorting button action??");
             menu = new FloatingMenu(context, view, items);
         }
-        
+
         menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {

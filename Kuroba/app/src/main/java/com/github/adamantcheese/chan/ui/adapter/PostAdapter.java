@@ -274,6 +274,11 @@ public class PostAdapter
         }
     }
 
+    public void setLastSeenIndicatorPosition(int position) {
+        lastSeenIndicatorPosition = position;
+        notifyDataSetChanged();
+    }
+
     public List<Post> getDisplayList() {
         return displayList;
     }

@@ -95,6 +95,7 @@ public class ThemeSettingsController
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
+        dummyLoadable.lastViewed = 234567890;
     }
 
     private PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
@@ -310,6 +311,16 @@ public class ThemeSettingsController
                 done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
+                //force update all the views to have the right accent color
+                pager.setAdapter(new Adapter());
+                for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
+                    Theme theme = ThemeHelper.getThemes().get(i);
+                    if (theme.name.equals(currentTheme.name)) {
+                        // Current theme
+                        pager.setCurrentItem(i, false);
+                        break;
+                    }
+                }
             }
 
             @Override
@@ -366,7 +377,7 @@ public class ThemeSettingsController
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
                                     + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
-                                    + "This is a spacer post for divider color display.");
+                                    + "This is a spacer post for divider color display, and for displaying the new posts indicator.");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
                     .id(345678901)
