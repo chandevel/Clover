@@ -92,7 +92,8 @@ public class ThemeHelper {
         themes.add(defaultDayTheme);
         themes.add(new Theme("Photon", R.style.Chan_Theme_Photon, ORANGE, ORANGE));
         themes.add(new Theme("Insomnia", R.style.Chan_Theme_Insomnia, DARK, BLUE_GREY));
-        themes.add(new Theme("Gruvbox", R.style.Chan_Theme_Gruvbox, DARK, TAN));
+        themes.add(new Theme("Gruvbox Light", R.style.Chan_Theme_GruvboxLight, TAN, TAN));
+        themes.add(new Theme("Gruvbox Dark", R.style.Chan_Theme_GruvboxDark, DARK, TAN));
         themes.add(new Theme("Gruvbox Black", R.style.Chan_Theme_GruvboxBlack, BLACK, TAN));
         themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, LIGHT_BLUE));
         themes.add(new Theme("Solarized Dark", R.style.Chan_Theme_SolarizedDark, ORANGE, ORANGE));
