@@ -51,8 +51,7 @@ public class ImageLoaderV2 {
 
                 if (extension == null) {
                     // We expect images to have extensions
-                    imageListener.onBitmapFailure(
-                            null,
+                    imageListener.onBitmapFailure(null,
                             new NullPointerException("Could not get extension from thumbnailUrl = " + maskImageUrl(
                                     postImage.thumbnailUrl))
                     );
@@ -62,8 +61,7 @@ public class ImageLoaderV2 {
             }
 
             try {
-                getFromDisk(
-                        loadable,
+                getFromDisk(loadable,
                         formattedName,
                         postImage.spoiler(),
                         imageListener,
@@ -148,11 +146,13 @@ public class ImageLoaderV2 {
 
                     if (bitmap == null) {
                         Logger.e(TAG, "Could not decode bitmap");
-                        imageListener.onBitmapFailure(null, new Exception("Could not decode bitmap"));
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapFailure(null,
+                                new Exception("Could not decode bitmap")
+                        ));
                         return null;
                     }
 
-                    imageListener.onBitmapSuccess(bitmap, false);
+                    BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapSuccess(bitmap, false));
                 }
             } catch (Exception e) {
                 // Some error has occurred, fallback to loading the image from the server
