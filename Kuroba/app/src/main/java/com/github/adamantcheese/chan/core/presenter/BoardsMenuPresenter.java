@@ -81,7 +81,7 @@ public class BoardsMenuPresenter
     }
 
     private void updateWithFilter() {
-        items.update(this.allBoards.get(), filter);
+        items.update(allBoards.get(), filter);
     }
 
     public static class Items
@@ -110,8 +110,7 @@ public class BoardsMenuPresenter
                         }
                     }
                 } else {
-                    List<Board> res = BoardHelper.quickSearch(boards, filter);
-                    for (Board b : res) {
+                    for (Board b : BoardHelper.quickSearch(boards, filter)) {
                         items.add(new Item(itemIdCounter++, b));
                     }
                 }

@@ -462,6 +462,7 @@ public class ThemeSettingsController
             }
 
             final Toolbar toolbar = new Toolbar(themeContext);
+            toolbar.setMenuDrawable(R.drawable.ic_format_paint_white_24dp);
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem> items = new ArrayList<>();
                 FloatingMenuItem selected = null;

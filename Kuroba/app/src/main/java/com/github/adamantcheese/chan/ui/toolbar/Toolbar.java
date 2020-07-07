@@ -129,6 +129,10 @@ public class Toolbar
         setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
     }
 
+    public void setMenuDrawable(int resID) {
+        arrowMenuView.setImageResource(resID);
+    }
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         return isTransitioning() || super.dispatchTouchEvent(ev);

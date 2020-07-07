@@ -85,7 +85,7 @@ public class BoardHelper {
             result.add(ratio.first);
         }
 
-        //exact board code matches go to the top of the list (useful for 8chan)
+        //exact board code matches go to the top of the list
         if (exact != null) {
             result.remove(exact);
             result.add(0, exact);
