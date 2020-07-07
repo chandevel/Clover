@@ -466,7 +466,7 @@ public class ThreadPresenter
             searchQuery = null;
         }
 
-        if (chanLoader != null && chanLoader.getThread() != null) {
+        if (chanLoader != null && chanLoader.getThread() != null && !visible) {
             showPosts();
         }
     }
