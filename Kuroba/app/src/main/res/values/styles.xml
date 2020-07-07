@@ -170,14 +170,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_425</item>
         <item name="android:textColorHint">@color/md_grey_775</item>
 
-        <item name="highlight_linkable_blend">0.8</item>
+        <item name="highlight_linkable_blend">2</item>
 
         <item name="post_name_color">#e0e0ff</item>
         <item name="post_subject_color">#625cff</item>
         <item name="post_details_color">@color/md_grey_375</item>
         <item name="post_inline_quote_color">#789922</item>
         <item name="post_spoiler_color">@color/black</item>
-        <item name="post_quote_color">#DD0000</item>
+        <item name="post_quote_color">#CC0000</item>
         <item name="android:textColorLink">#625cff</item>
     </style>
 
@@ -277,7 +277,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorHint">#bdae93</item>
 
         <item name="divider_color">#20FFFFFF</item>
-        <item name="highlight_linkable_blend">1.25</item>
+        <item name="highlight_linkable_blend">1.4</item>
 
         <item name="post_name_color">#427b58</item>
         <item name="post_subject_color">#458588</item>
