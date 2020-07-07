@@ -41,6 +41,7 @@ import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BR
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK_TEAL;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREEN;
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREY;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.INDIGO;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE_GREY;
@@ -95,6 +96,7 @@ public class ThemeHelper {
         themes.add(new Theme("Gruvbox Black", R.style.Chan_Theme_GruvboxBlack, BLACK, TAN));
         themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, LIGHT_BLUE));
         themes.add(new Theme("Solarized Dark", R.style.Chan_Theme_SolarizedDark, ORANGE, ORANGE));
+        themes.add(new Theme("Colorblind", R.style.Chan_Theme_Colorblind, DARK, GREY));
         Theme holo = new Theme("Holo", R.style.Chan_Theme_Holo, BROWN, RED, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
         holo.altFontIsMain = true;
         themes.add(holo);

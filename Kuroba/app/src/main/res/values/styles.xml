@@ -336,6 +336,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorLink">#268bd2</item>
     </style>
 
+    <style name="Chan.Theme.Colorblind" parent="Chan.Theme.Dark">
+        <item name="backcolor">@color/md_grey_800</item>
+        <item name="backcolor_secondary">@color/md_grey_850</item>
+
+        <item name="android:textColor">@color/md_grey_400</item>
+        <item name="android:textColorPrimary">@color/md_grey_400</item>
+        <item name="android:textColorSecondary">@color/md_grey_500</item>
+        <item name="android:textColorHint">@color/md_grey_600</item>
+
+        <item name="highlight_linkable_blend">0.0</item>
+
+        <item name="post_name_color">@color/md_grey_400</item>
+        <item name="post_subject_color">@color/md_grey_450</item>
+        <item name="post_details_color">@color/md_grey_600</item>
+        <item name="post_inline_quote_color">@color/black</item>
+        <item name="post_quote_color">@color/md_grey_200</item>
+        <item name="android:textColorLink">@color/md_grey_200</item>
+    </style>
+
     <style name="Chan.Theme.Holo" parent="Chan.Theme.Dark">
         <item name="backcolor">#654c4f</item>
         <item name="backcolor_secondary">#4a3335</item>
