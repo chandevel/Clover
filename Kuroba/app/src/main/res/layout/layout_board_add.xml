@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:orientation="vertical"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    tools:background="?backcolor_secondary">
+    tools:background="?backcolor">
 
     <LinearLayout
         android:layout_width="match_parent"

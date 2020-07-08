@@ -12,7 +12,7 @@
         android:id="@+id/captcha_layout_v2_title"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:background="?backcolor_secondary"
+        android:background="?backcolor"
         android:ellipsize="middle"
         android:gravity="center"
         android:padding="4dp"
@@ -39,7 +39,7 @@
         android:id="@+id/captcha_layout_v2_buttons"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:background="?backcolor_secondary"
+        android:background="?backcolor"
         tools:layout_editor_absoluteY="40dp">
 
         <Button

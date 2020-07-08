@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:id="@+id/crossfade"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?backcolor_secondary">
+    android:background="?backcolor">
 
     <include layout="@layout/settings_layout" />
 

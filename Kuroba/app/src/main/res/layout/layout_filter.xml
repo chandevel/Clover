@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:textColor="?attr/backcolor_secondary">
+            android:textColor="?attr/backcolor">
 
             <CheckBox
                 android:id="@+id/enabled"
