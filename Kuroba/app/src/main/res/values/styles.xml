@@ -269,7 +269,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorLink">#81a2be</item>
     </style>
 
-    <style name="Chan.Theme.GruvboxLight" parent="Chan.Theme.BaseLight">
+    <style name="Chan.Theme.GruvboxLight" parent="Chan.Theme.Light">
         <item name="backcolor">#fbf1c7</item>
         <item name="backcolor_secondary">#ebdbb2</item>
 
@@ -280,6 +280,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="highlight_color">#ebdbb2</item>
         <item name="divider_color">#ebdbb2</item>
+        <item name="highlight_linkable_blend">4</item>
 
         <item name="post_name_color">#427b58</item>
         <item name="post_subject_color">#076678</item>
