@@ -69,7 +69,9 @@ public class BackgroundUtils {
         }
         runOnMainThread(() -> {
             try {
-                assert !instance(ExecutorService.class).isTerminated();
+                if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
+                    throw new AssertionError("Executor pool is terminated, this should never occur.");
+                }
                 instance(ExecutorService.class).submit(runnable).get();
             } catch (Exception ignored) {
             }
