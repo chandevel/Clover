@@ -28,8 +28,6 @@ import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
@@ -61,6 +59,7 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -69,7 +68,6 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
@@ -92,11 +90,13 @@ public class Chan4
 
         @Override
         public boolean respondsTo(HttpUrl url) {
-            String host = url.host();
-
-            return host.equals("4chan.org") || host.equals("www.4chan.org") || host.equals("boards.4chan.org")
-                    || host.equals("4channel.org") || host.equals("www.4channel.org") || host.equals(
-                    "boards.4channel.org");
+            return Arrays.asList("4chan.org",
+                    "www.4chan.org",
+                    "boards.4chan.org",
+                    "4channel.org",
+                    "www.4channel.org",
+                    "boards.4channel.org"
+            ).contains(url.host());
         }
 
         @Override
@@ -407,18 +407,13 @@ public class Chan4
 
         @Override
         public SiteAuthentication postAuthenticate() {
-            final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
             if (isLoggedIn()) {
                 return SiteAuthentication.fromNone();
             } else {
-                switch (captchaType.get()) {
-                    case V2JS:
-                        return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
-                    case V2NOJS:
-                        return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://boards.4chan.org");
-                    default:
-                        throw new IllegalArgumentException();
-                }
+                //NOJS captcha has been disabled by the Hiro
+                return SiteAuthentication.fromCaptcha2("6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc",
+                        "https://boards.4chan.org"
+                );
             }
         }
 
@@ -484,24 +479,6 @@ public class Chan4
     private final StringSetting passPass;
     private final StringSetting passToken;
 
-    public enum CaptchaType
-            implements OptionSettingItem {
-        V2JS("v2js"),
-        V2NOJS("v2nojs");
-
-        String name;
-
-        CaptchaType(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getKey() {
-            return name;
-        }
-    }
-
-    private OptionsSetting<CaptchaType> captchaType;
     public static StringSetting flagType;
 
     public Chan4() {
@@ -517,19 +494,12 @@ public class Chan4
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
         flagType = new StringSetting(settingsProvider, "preference_flag_chan4", "0");
     }
 
     @Override
     public List<SiteSetting<?>> settings() {
-        List<SiteSetting<?>> settings = new ArrayList<>();
-        SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
-        settings.add(captchaSetting);
-        settings.add(new SiteSetting<>("Country flag code", flagType, null));
-        return settings;
+        return Collections.singletonList(new SiteSetting<>("Country flag code", flagType, null));
     }
 
     @Override
