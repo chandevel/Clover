@@ -110,7 +110,7 @@ public class BoardsMenuPresenter
                         }
                     }
                 } else {
-                    for (Board b : BoardHelper.quickSearch(boards, filter)) {
+                    for (Board b : BoardHelper.search(boards, filter)) {
                         items.add(new Item(itemIdCounter++, b));
                     }
                 }

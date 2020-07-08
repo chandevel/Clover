@@ -38,31 +38,6 @@ public class BoardHelper {
         return Parser.unescapeEntities(board.description, false);
     }
 
-    public static List<Board> quickSearch(List<Board> from, String query) {
-        from = new ArrayList<>(from);
-        query = query.toLowerCase();
-
-        List<Board> res = new ArrayList<>();
-
-        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
-            Board board = iterator.next();
-            if (board.code.toLowerCase().startsWith(query)) {
-                iterator.remove();
-                res.add(board);
-            }
-        }
-
-        for (Iterator<Board> iterator = from.iterator(); iterator.hasNext(); ) {
-            Board board = iterator.next();
-            if (board.name.toLowerCase().contains(query)) {
-                iterator.remove();
-                res.add(board);
-            }
-        }
-
-        return res;
-    }
-
     public static List<Board> search(List<Board> from, final String query) {
         List<Pair<Board, Integer>> ratios = new ArrayList<>();
         Board exact = null;
