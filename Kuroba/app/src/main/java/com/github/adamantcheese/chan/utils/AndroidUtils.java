@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -524,6 +525,10 @@ public class AndroidUtils {
         } else {
             return false;
         }
+    }
+
+    public static ActivityManager getActivityManager() {
+        return (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     public static boolean isConnected(int type) {

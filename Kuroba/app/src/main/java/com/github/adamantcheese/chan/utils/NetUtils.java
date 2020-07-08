@@ -24,6 +24,10 @@ import org.jsoup.nodes.Document;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -34,16 +38,22 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.highResCells;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
-    private static final BitmapLruCache imageCache =
-            new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (1024 * 8)));
-    // max 1/8th of runtime memory for cache
+    // max 1/3 the maximum Dalvik runtime size for hi res cells, 1/4 otherwise; if low RAM, 1/8
+    //by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
+    private static final BitmapLruCache imageCache = new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (
+            getActivityManager().isLowRamDevice()
+                    ? 8
+                    : (highResCells.get() ? 3 : 4))));
 
-    private static Bitmap errorBitmap;
+    private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
+    private static final Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
 
     public static void makeHttpCall(
             HttpCall httpCall, HttpCallback<? extends HttpCall> callback
@@ -82,12 +92,20 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        if (errorBitmap != null) {
-            errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
+        synchronized (resultListeners) {
+            List<BitmapResult> results = resultListeners.get(url);
+            if (results != null) {
+                results.add(result);
+                return null;
+            } else {
+                List<BitmapResult> listeners = new ArrayList<>();
+                listeners.add(result);
+                resultListeners.put(url, listeners);
+            }
         }
         Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
-            BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(cachedBitmap, true));
+            performBitmapSuccess(url, cachedBitmap, true);
             return null;
         }
         Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
@@ -95,15 +113,13 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error loading bitmap from " + url.toString());
-                BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, e));
+                performBitmapFailure(url, e);
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (response.code() != 200) {
-                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap,
-                            new HttpCodeException(response.code())
-                    ));
+                    performBitmapFailure(url, new HttpCodeException(response.code()));
                     response.close();
                     return;
                 }
@@ -112,22 +128,48 @@ public class NetUtils {
                     //noinspection ConstantConditions
                     Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
                     if (bitmap == null) {
-                        BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap,
-                                new NullPointerException("Bitmap returned is null")
-                        ));
+                        performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
                         return;
                     }
                     imageCache.put(url, bitmap);
-                    BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(bitmap, false));
+                    performBitmapSuccess(url, bitmap, false);
                 } catch (Exception e) {
-                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, e));
+                    performBitmapFailure(url, e);
                 } catch (OutOfMemoryError e) {
                     Runtime.getRuntime().gc();
-                    BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(errorBitmap, new IOException(e)));
+                    performBitmapFailure(url, new IOException(e));
                 }
             }
         });
         return call;
+    }
+
+    private static void performBitmapSuccess(@NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache) {
+        BackgroundUtils.runOnMainThread(() -> {
+            synchronized (resultListeners) {
+                List<BitmapResult> results = resultListeners.get(url);
+                if (results == null) return;
+                for (BitmapResult bitmapResult : results) {
+                    if (bitmapResult == null) continue;
+                    bitmapResult.onBitmapSuccess(bitmap, fromCache);
+                }
+                resultListeners.remove(url);
+            }
+        });
+    }
+
+    private static void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
+        BackgroundUtils.runOnMainThread(() -> {
+            synchronized (resultListeners) {
+                List<BitmapResult> results = resultListeners.get(url);
+                if (results == null) return;
+                for (BitmapResult bitmapResult : results) {
+                    if (bitmapResult == null) continue;
+                    bitmapResult.onBitmapFailure(NetUtils.errorBitmap, e);
+                }
+                resultListeners.remove(url);
+            }
+        });
     }
 
     public interface BitmapResult {
@@ -281,7 +323,7 @@ public class NetUtils {
 
         @Override
         protected int sizeOf(HttpUrl key, Bitmap value) {
-            return value.getRowBytes() * value.getHeight() / 1024;
+            return value.getByteCount();
         }
     }
 }
