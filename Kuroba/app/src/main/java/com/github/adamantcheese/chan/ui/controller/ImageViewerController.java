@@ -79,6 +79,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -261,6 +262,7 @@ public class ImageViewerController
     }
 
     private void rotateImage(ToolbarMenuItem item) {
+        if (getImageMode(presenter.getCurrentPostImage()) == LOWRES) return;
         String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
         Integer[] rotateInts = {90, 180, -90};
         ListView rotateImageList = new ListView(context);
@@ -422,7 +424,7 @@ public class ImageViewerController
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
         ToolbarMenuItem rotate = navigation.findItem(ROTATE_ID);
-        rotate.setVisible(getImageMode(postImage) == MultiImageView.Mode.BIGIMAGE);
+        rotate.setVisible(postImage.type == PostImage.Type.STATIC);
     }
 
     public void scrollToImage(PostImage postImage) {

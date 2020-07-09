@@ -34,11 +34,11 @@ import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 
 public class PostImage {
     public enum Type {
-        STATIC,
-        GIF,
-        MOVIE,
-        PDF,
-        SWF
+        STATIC, // static images, uses CustomScaleImageView
+        GIF, // GIF images, uses GifImageView
+        MOVIE, // movies/audio, uses PlayerView from Exoplayer
+        PDF, // not supported in-app
+        SWF // not supported in-app
     }
 
     public boolean hidden = ChanSettings.hideImages.get();

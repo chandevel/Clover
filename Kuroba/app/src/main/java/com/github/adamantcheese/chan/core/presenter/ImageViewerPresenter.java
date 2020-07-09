@@ -253,14 +253,14 @@ public class ImageViewerPresenter
     }
 
     private void onPageSwipedTo(int position) {
+        PostImage postImage = images.get(selectedPosition);
         // Reset volume icon.
         // If it has audio, we'll know after it is loaded.
-        callback.showVolumeMenuItem(false, true);
+        callback.showVolumeMenuItem(postImage.type == MOVIE, muted);
 
         //Reset the save icon
         callback.showDownloadMenuItem(false);
 
-        PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
         callback.updatePreviewImage(postImage);
@@ -578,11 +578,6 @@ public class ImageViewerPresenter
             callback.showProgress(true);
             callback.onLoadProgress(progress.get(selectedPosition));
         }
-    }
-
-    @Override
-    public void onVideoLoaded(MultiImageView multiImageView) {
-        callback.showVolumeMenuItem(false, muted);
     }
 
     @Override
