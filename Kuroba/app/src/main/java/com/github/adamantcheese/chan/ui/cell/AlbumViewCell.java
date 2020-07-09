@@ -65,8 +65,8 @@ public class AlbumViewCell
                 loadable,
                 postImage,
                 true,
-                ChanSettings.highResCells.get() ? 2 * thumbnailView.getWidth() : thumbnailSize,
-                ChanSettings.highResCells.get() ? 2 * thumbnailView.getWidth() : thumbnailSize
+                ChanSettings.highResCells.get() ? thumbnailView.getWidth() : thumbnailSize,
+                ChanSettings.highResCells.get() ? thumbnailView.getHeight() : thumbnailSize
         );
 
         String details =

@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.Random;
@@ -190,12 +191,12 @@ public class BitmapUtils {
      * @param maxHeight the max height of the image
      * @return a bitmap, scaled to the max width and height if needed
      */
-    public static Bitmap decode(byte[] data, int maxWidth, int maxHeight) {
+    public static Bitmap decode(InputStream data, int maxWidth, int maxHeight) {
         // If we have to resize this image, first get the natural bounds.
-        BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
-        Bitmap tempBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, decodeOptions);
-        int actualWidth = decodeOptions.outWidth;
-        int actualHeight = decodeOptions.outHeight;
+        Bitmap tempBitmap = BitmapFactory.decodeStream(data);
+        if (tempBitmap == null) return null;
+        int actualWidth = tempBitmap.getWidth();
+        int actualHeight = tempBitmap.getHeight();
 
         // Then compute the dimensions we would ideally like to decode to.
         int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
@@ -203,7 +204,7 @@ public class BitmapUtils {
 
         // If necessary, scale down to the maximal acceptable size.
         Bitmap bitmap;
-        if (tempBitmap != null && (tempBitmap.getWidth() > desiredWidth || tempBitmap.getHeight() > desiredHeight)) {
+        if (actualWidth > desiredWidth || actualHeight > desiredHeight) {
             bitmap = Bitmap.createScaledBitmap(tempBitmap, desiredWidth, desiredHeight, true);
             tempBitmap.recycle();
         } else {

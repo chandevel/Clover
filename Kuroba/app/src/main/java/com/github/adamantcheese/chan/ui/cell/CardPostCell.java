@@ -203,13 +203,7 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            thumbView.setPostImage(
-                    loadable,
-                    post.image(),
-                    true,
-                    ChanSettings.highResCells.get() ? 2 * thumbView.getWidth() : thumbView.getWidth(),
-                    ChanSettings.highResCells.get() ? 2 * thumbView.getHeight() : thumbView.getHeight()
-            );
+            thumbView.setPostImage(loadable, post.image(), true, thumbView.getWidth(), thumbView.getHeight());
         } else {
             thumbView.setVisibility(GONE);
             thumbView.setPostImage(loadable, null, false, 0, 0);

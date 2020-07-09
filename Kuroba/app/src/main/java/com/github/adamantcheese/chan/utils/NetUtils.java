@@ -112,7 +112,9 @@ public class NetUtils {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Logger.e(TAG, "Error loading bitmap from " + url.toString());
+                if (!"Canceled".equals(e.getMessage())) {
+                    Logger.e(TAG, "Error loading bitmap from " + url.toString());
+                }
                 performBitmapFailure(url, e);
             }
 
@@ -124,21 +126,26 @@ public class NetUtils {
                     return;
                 }
 
-                try (ResponseBody body = response.body()) {
-                    //noinspection ConstantConditions
-                    Bitmap bitmap = BitmapUtils.decode(body.bytes(), width, height);
-                    if (bitmap == null) {
-                        performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
-                        return;
+                BackgroundUtils.runOnBackgroundThread(() -> {
+                    try (ResponseBody body = response.body()) {
+                        if (body == null) {
+                            performBitmapFailure(url, new NullPointerException("No response data"));
+                            return;
+                        }
+                        Bitmap bitmap = BitmapUtils.decode(body.byteStream(), width, height);
+                        if (bitmap == null) {
+                            performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
+                            return;
+                        }
+                        imageCache.put(url, bitmap);
+                        performBitmapSuccess(url, bitmap, false);
+                    } catch (Exception e) {
+                        performBitmapFailure(url, e);
+                    } catch (OutOfMemoryError e) {
+                        Runtime.getRuntime().gc();
+                        performBitmapFailure(url, new IOException(e));
                     }
-                    imageCache.put(url, bitmap);
-                    performBitmapSuccess(url, bitmap, false);
-                } catch (Exception e) {
-                    performBitmapFailure(url, e);
-                } catch (OutOfMemoryError e) {
-                    Runtime.getRuntime().gc();
-                    performBitmapFailure(url, new IOException(e));
-                }
+                });
             }
         });
         return call;

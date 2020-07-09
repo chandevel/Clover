@@ -80,10 +80,7 @@ public class ImageDecoder {
         if (file == null || !file.exists()) return null;
 
         try (FileInputStream fis = new FileInputStream(file)) {
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                IOUtils.copy(fis, baos);
-                return BitmapUtils.decode(baos.toByteArray(), maxWidth, maxHeight);
-            }
+            return BitmapUtils.decode(fis, maxWidth, maxHeight);
         } catch (Throwable e) {
             Logger.e("ImageDecoder", "", e);
             return null;
