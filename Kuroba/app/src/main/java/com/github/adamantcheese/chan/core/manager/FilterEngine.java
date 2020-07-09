@@ -246,6 +246,8 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, String text, boolean forceCompile) {
+        if (text == null) return false;
+
         Pattern pattern = null;
         if (!forceCompile) {
             synchronized (patternCache) {
