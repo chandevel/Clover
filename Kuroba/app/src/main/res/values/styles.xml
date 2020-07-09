@@ -229,7 +229,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="android:textColor">#c5c8c6</item>
         <item name="android:textColorPrimary">#c5c8c6</item>
-        <item name="android:textColorSecondary">#c5c8c6</item>
+        <item name="android:textColorSecondary">#7e7f81</item>
 
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">1.35</item>
