@@ -871,4 +871,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="view_my_posts">View my posts</string>
     <string name="no_saved_posts_for_current_thread">You haven\'t posted in this thread!</string>
+
+    <string name="linkable_copied_to_clipboard">Linkable URL copied to clipboard</string>
 </resources>

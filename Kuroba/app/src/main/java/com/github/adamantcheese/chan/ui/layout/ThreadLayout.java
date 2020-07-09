@@ -22,6 +22,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -45,7 +47,6 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
@@ -54,6 +55,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
+import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -74,12 +76,14 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -302,15 +306,32 @@ public class ThreadLayout
     }
 
     public void showPostLinkables(final Post post) {
-        final List<PostLinkable> linkables = post.linkables;
-        String[] keys = new String[linkables.size()];
-        for (int i = 0; i < linkables.size(); i++) {
-            keys[i] = linkables.get(i).key.toString();
+        CharSequence[] keys = new CharSequence[post.linkables.size()];
+        Bitmap youtubeIcon = BitmapFactory.decodeResource(getRes(), R.drawable.youtube_icon);
+        for (int i = 0; i < post.linkables.size(); i++) {
+            keys[i] = post.linkables.get(i).key.toString();
+            String value = post.linkables.get(i).value.toString();
+            if (value.contains("youtu.be") || value.contains("youtube")) {
+                keys[i] = PostHelper.prependIcon(getContext(), keys[i], youtubeIcon, sp(16));
+            }
         }
 
-        new AlertDialog.Builder(getContext()).setItems(keys,
-                (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which))
-        ).show();
+        AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
+
+        ListView clickables = new ListView(getContext());
+        clickables.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, keys));
+        clickables.setOnItemClickListener((parent, view, position, id) -> {
+            presenter.onPostLinkableClicked(post, post.linkables.get(position));
+            dialog.dismiss();
+        });
+        clickables.setOnItemLongClickListener((parent, view, position, id) -> {
+            setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
+            showToast(getContext(), R.string.linkable_copied_to_clipboard);
+            return false;
+        });
+
+        dialog.setView(clickables);
+        dialog.show();
     }
 
     public void clipboardPost(Post post) {
