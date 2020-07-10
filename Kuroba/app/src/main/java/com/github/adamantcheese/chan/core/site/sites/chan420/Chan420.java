@@ -29,9 +29,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import okhttp3.HttpUrl;
 

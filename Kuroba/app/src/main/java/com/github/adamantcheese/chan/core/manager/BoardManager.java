@@ -19,10 +19,7 @@ package com.github.adamantcheese.chan.core.manager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-
-import java.util.List;
 
 import javax.inject.Inject;
 

@@ -20,11 +20,6 @@ public class CommonDataStructs {
         public Boards() {
             super();
         }
-
-        public Boards(Board board) {
-            super();
-            add(board);
-        }
     }
 
     public static class ChanPages
