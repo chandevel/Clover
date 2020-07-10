@@ -38,7 +38,7 @@ public class Chan4BoardsRequest
     @Override
     public Boards parse(JsonReader reader)
             throws Exception {
-        List<Board> list = new ArrayList<>();
+        Boards list = new Boards();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -60,7 +60,7 @@ public class Chan4BoardsRequest
         }
         reader.endObject();
 
-        return new Boards(list);
+        return list;
     }
 
     private Board readBoardEntry(JsonReader reader)

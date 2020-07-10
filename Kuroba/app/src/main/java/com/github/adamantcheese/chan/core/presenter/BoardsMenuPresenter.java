@@ -22,6 +22,8 @@ import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 
 import java.util.ArrayList;
@@ -99,7 +101,7 @@ public class BoardsMenuPresenter
 
             for (BoardRepository.SiteBoards siteAndBoards : allBoards) {
                 Site site = siteAndBoards.site;
-                List<Board> boards = siteAndBoards.boards;
+                Boards boards = siteAndBoards.boards;
 
                 items.add(new Item(itemIdCounter++, site));
 

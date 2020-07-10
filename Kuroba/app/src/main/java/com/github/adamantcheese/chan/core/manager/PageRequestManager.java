@@ -64,7 +64,7 @@ public class PageRequestManager
     private ChanPage findPage(Board board, int opNo) {
         ChanPages pages = getPages(board);
         if (pages == null) return null;
-        for (ChanPage page : pages.pages) {
+        for (ChanPage page : pages) {
             for (ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
                 if (opNo == threadNoTimeModPair.no) {
                     return page;

@@ -31,7 +31,7 @@ public class Chan4PagesParser
     @Override
     public ChanPages parse(JsonReader reader)
             throws Exception {
-        List<ChanPage> pages = new ArrayList<>();
+        ChanPages pages = new ChanPages();
 
         reader.beginArray();
         while (reader.hasNext()) {
@@ -39,7 +39,7 @@ public class Chan4PagesParser
         }
         reader.endArray();
 
-        return new ChanPages(pages);
+        return pages;
     }
 
     private ChanPage readPageEntry(JsonReader reader)

@@ -36,6 +36,8 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.layout.BoardAddLayout;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -58,7 +60,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class BoardSetupController
         extends Controller
-        implements View.OnClickListener, BoardSetupPresenter.Callback {
+        implements View.OnClickListener, BoardSetupPresenter.PresenterCallback {
     @Inject
     BoardSetupPresenter presenter;
 
@@ -174,7 +176,7 @@ public class BoardSetupController
     }
 
     @Override
-    public void setSavedBoards(List<Board> savedBoards) {
+    public void setSavedBoards(Boards savedBoards) {
         savedAdapter.setSavedBoards(savedBoards);
         crossfadeView.toggle(!savedBoards.isEmpty(), true);
     }
@@ -205,13 +207,13 @@ public class BoardSetupController
 
     private class SavedBoardsAdapter
             extends RecyclerView.Adapter<SavedBoardCell> {
-        private List<Board> savedBoards;
+        private Boards savedBoards;
 
         public SavedBoardsAdapter() {
             setHasStableIds(true);
         }
 
-        private void setSavedBoards(List<Board> savedBoards) {
+        private void setSavedBoards(Boards savedBoards) {
             this.savedBoards = savedBoards;
             notifyDataSetChanged();
         }

@@ -45,6 +45,8 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -230,7 +232,7 @@ public class FilterLayout
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
-            List<Board> allSavedBoards = new ArrayList<>();
+            Boards allSavedBoards = new Boards();
             for (BoardRepository.SiteBoards item : boardManager.getSavedBoardsObservable().get()) {
                 allSavedBoards.addAll(item.boards);
             }
@@ -248,7 +250,7 @@ public class FilterLayout
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
-                        List<Board> boardList = new ArrayList<>(items1.size());
+                        Boards boardList = new Boards(items1.size());
                         if (!all) {
                             for (SelectLayout.SelectItem<Board> item : items1) {
                                 if (item.checked) {

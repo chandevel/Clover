@@ -26,6 +26,8 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.provider.JsonSettingsProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -68,7 +70,7 @@ public abstract class SiteBase
         initializeSettings();
 
         if (boardsType().canList) {
-            actions().boards(boards -> boardManager.updateAvailableBoardsForSite(this, boards.boards));
+            actions().boards(boards -> boardManager.updateAvailableBoardsForSite(this, boards));
         }
     }
 
@@ -105,7 +107,7 @@ public abstract class SiteBase
         }
 
         Board board = Board.fromSiteNameCode(this, name, code);
-        boardManager.updateAvailableBoardsForSite(this, Collections.singletonList(board));
+        boardManager.updateAvailableBoardsForSite(this, new Boards(board));
         return board;
     }
 
