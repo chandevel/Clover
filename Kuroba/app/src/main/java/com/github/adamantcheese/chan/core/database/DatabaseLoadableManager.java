@@ -128,9 +128,10 @@ public class DatabaseLoadableManager {
         }
 
         // If the loadable was already loaded in the cache, return that entry
-        Loadable cachedLoadable = findLoadableInCache(loadable);
+        Loadable cachedLoadable = cachedLoadables.get(loadable);
         if (cachedLoadable != null) {
             cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            cachedLoadable.dirty = true;
             return cachedLoadable;
         }
 
@@ -144,26 +145,17 @@ public class DatabaseLoadableManager {
         return loadable;
     }
 
-    @Nullable
-    private Loadable findLoadableInCache(Loadable l) {
-        for (Loadable key : cachedLoadables.values()) {
-            if (key.equals(l)) {
-                return key;
-            }
-        }
-        return null;
-    }
-
     private Callable<Loadable> getLoadable(final Loadable loadable) {
         if (!loadable.isThreadMode()) {
             return () -> loadable;
         }
 
         return () -> {
-            Loadable cachedLoadable = findLoadableInCache(loadable);
+            Loadable cachedLoadable = cachedLoadables.get(loadable);
             if (cachedLoadable != null) {
                 Logger.v(DatabaseLoadableManager.this, "Cached loadable found " + cachedLoadable);
                 cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+                cachedLoadable.dirty = true;
                 return cachedLoadable;
             } else {
                 QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
@@ -198,8 +190,9 @@ public class DatabaseLoadableManager {
                     result.board = result.site.board(result.boardCode);
                 }
 
-                cachedLoadables.put(loadable, result);
+                cachedLoadables.put(result, result);
                 result.lastLoadDate = GregorianCalendar.getInstance().getTime();
+                result.dirty = true;
                 return result;
             }
         };
@@ -210,6 +203,7 @@ public class DatabaseLoadableManager {
             List<Loadable> loadables = helper.loadableDao.queryForEq("site", site.id());
             for (Loadable l : loadables) {
                 l.lastLoadDate = GregorianCalendar.getInstance().getTime();
+                l.dirty = true;
             }
             return loadables;
         };

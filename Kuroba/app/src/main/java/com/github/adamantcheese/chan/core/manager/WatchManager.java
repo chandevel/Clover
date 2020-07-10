@@ -204,20 +204,6 @@ public class WatchManager
         createPin(loadable, null, WATCH_NEW_POSTS);
     }
 
-    public void createPin(Reply newThreadOP) {
-        //use a dummy post with just the subject/comment copied in for getting the right title
-        createPin(newThreadOP.loadable,
-                new Post.Builder().board(newThreadOP.loadable.board)
-                        .id(newThreadOP.loadable.no)
-                        .opId(newThreadOP.loadable.no)
-                        .setUnixTimestampSeconds(System.currentTimeMillis())
-                        .subject(newThreadOP.subject)
-                        .comment(newThreadOP.comment)
-                        .build(),
-                WATCH_NEW_POSTS
-        );
-    }
-
     public void createPin(Loadable loadable, @Nullable Post opPost) {
         createPin(loadable, opPost, WATCH_NEW_POSTS);
     }
