@@ -122,6 +122,7 @@ public class BoardRepository
 
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
+        board.order = saved ? board.order : 0;
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
                 (e) -> updateObservablesAsync()
         );
