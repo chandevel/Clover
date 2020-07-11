@@ -673,10 +673,10 @@ public class ChanThreadLoader {
                 return;
             }
 
-            Logger.i(ChanThreadLoader.this, "Loading error", error);
+            Logger.e(ChanThreadLoader.this, "Loading error", error);
             notifyAboutError(error);
         }, throwable -> {
-            Logger.i(ChanThreadLoader.this, "Loading unhandled error", throwable);
+            Logger.e(ChanThreadLoader.this, "Loading unhandled error", throwable);
             notifyAboutError(createError(throwable));
         });
 

@@ -455,7 +455,7 @@ public class DatabaseHelper
         Logger.i(this, "Resetting database!");
 
         if (context.deleteDatabase(DATABASE_NAME)) {
-            Logger.i(this, "Deleted database");
+            Logger.i(this, "Deleted database!");
         }
     }
 

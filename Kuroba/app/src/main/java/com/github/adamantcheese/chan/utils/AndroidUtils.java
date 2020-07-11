@@ -487,7 +487,7 @@ public class AndroidUtils {
                     try {
                         ret = callback.onMeasured(view);
                     } catch (Exception e) {
-                        Logger.i(TAG, "Exception in onMeasured", e);
+                        Logger.e(TAG, "Exception in onMeasured", e);
                         throw e;
                     }
 

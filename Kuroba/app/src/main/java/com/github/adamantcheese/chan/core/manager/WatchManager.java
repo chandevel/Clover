@@ -1038,7 +1038,7 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.i(this,
+            Logger.d(this,
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
                             + StringUtils.getCurrentDateAndTimeUTC()
             );
@@ -1089,7 +1089,7 @@ public class WatchManager
                 waitingForPinWatchersForBackgroundUpdate.remove(pinWatcher);
 
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-                    Logger.i(this, "All watchers updated, finished at " + StringUtils.getCurrentDateAndTimeUTC());
+                    Logger.d(this, "All watchers updated, finished at " + StringUtils.getCurrentDateAndTimeUTC());
                     waitingForPinWatchersForBackgroundUpdate = null;
                     wakeManager.manageLock(false, WatchManager.this);
                 }

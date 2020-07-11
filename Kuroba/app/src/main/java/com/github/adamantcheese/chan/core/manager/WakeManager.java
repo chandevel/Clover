@@ -73,7 +73,7 @@ public class WakeManager {
 
     public void onBroadcastReceived() {
         if (System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
-            Logger.w(this, "Background update broadcast ignored because it was requested too soon");
+            Logger.d(this, "Background update broadcast ignored because it was requested too soon");
         } else {
             lastBackgroundUpdateTime = System.currentTimeMillis();
             for (Wakeable wakeable : wakeableSet) {
