@@ -463,10 +463,11 @@ public class AndroidUtils {
             callback.onMeasured(view);
         } else {
             viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                private ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
+
                 @Override
                 public boolean onPreDraw() {
-                    ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
-                    if (viewTreeObserver != view.getViewTreeObserver()) {
+                    if (usingViewTreeObserver != view.getViewTreeObserver()) {
                         Logger.e(
                                 TAG,
                                 "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
