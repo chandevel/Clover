@@ -59,13 +59,13 @@ public class PostImageThumbnailView
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
-    public void setPostImage(Loadable loadable, PostImage postImage, boolean useHiRes, int width, int height) {
+    public void setPostImage(Loadable loadable, PostImage postImage, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
 
             if (postImage != null) {
                 if (!loadable.isLocal()) {
-                    setUrl(getUrl(postImage, useHiRes), useHiRes ? width : 0, useHiRes ? height : 0);
+                    setUrl(postImage.getThumbnailUrl(), width, height);
                 } else {
                     String fileName;
 
@@ -87,18 +87,6 @@ public class PostImageThumbnailView
             }
         }
     }
-
-    private HttpUrl getUrl(PostImage postImage, boolean useHiRes) {
-        HttpUrl url = postImage.getThumbnailUrl();
-        if (ChanSettings.highResCells.get() && useHiRes) {
-            if (!postImage.spoiler() || ChanSettings.removeImageSpoilers.get()) {
-                url = postImage.type == STATIC ? postImage.imageUrl : postImage.getThumbnailUrl();
-            }
-        }
-
-        return url;
-    }
-
     public void setRatio(float ratio) {
         this.ratio = ratio;
     }

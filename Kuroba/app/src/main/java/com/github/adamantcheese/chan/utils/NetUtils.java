@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
+import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
@@ -38,19 +38,17 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.highResCells;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static java.lang.Runtime.getRuntime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
     // max 1/3 the maximum Dalvik runtime size for hi res cells, 1/4 otherwise; if low RAM, 1/8
     //by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
-    private static final BitmapLruCache imageCache = new BitmapLruCache((int) (Runtime.getRuntime().maxMemory() / (
-            getActivityManager().isLowRamDevice()
-                    ? 8
-                    : (highResCells.get() ? 3 : 4))));
+    private static final BitmapLruCache imageCache =
+            new BitmapLruCache((int) (getRuntime().maxMemory() / (getActivityManager().isLowRamDevice() ? 8 : 4)));
 
     private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
     private static final Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
@@ -82,7 +80,7 @@ public class NetUtils {
         requestBuilder.header("User-Agent", NetModule.USER_AGENT);
         Request request = requestBuilder.build();
 
-        instance(ProxiedOkHttpClient.class).getProxiedClient().newCall(request).enqueue(httpCall);
+        instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).enqueue(httpCall);
     }
 
     public static Call makeBitmapRequest(@NonNull final HttpUrl url, @NonNull final BitmapResult result) {
@@ -108,14 +106,19 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap, true);
             return null;
         }
-        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call =
+                instance(OkHttpClientWithUtils.class).getBitmapClient().newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 if (!"Canceled".equals(e.getMessage())) {
                     Logger.e(TAG, "Error loading bitmap from " + url.toString());
+                    performBitmapFailure(url, e);
+                    return;
                 }
-                performBitmapFailure(url, e);
+                synchronized (resultListeners) {
+                    resultListeners.remove(url);
+                }
             }
 
             @Override
@@ -142,7 +145,7 @@ public class NetUtils {
                     } catch (Exception e) {
                         performBitmapFailure(url, e);
                     } catch (OutOfMemoryError e) {
-                        Runtime.getRuntime().gc();
+                        getRuntime().gc();
                         performBitmapFailure(url, new IOException(e));
                     }
                 });
@@ -188,7 +191,7 @@ public class NetUtils {
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
     ) {
-        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -225,7 +228,7 @@ public class NetUtils {
     }
 
     public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
-        Call call = instance(ProxiedOkHttpClient.class).newBuilder()
+        Call call = instance(OkHttpClientWithUtils.class).newBuilder()
                 .callTimeout(2500, TimeUnit.MILLISECONDS)
                 .build()
                 .newCall(new Request.Builder().url(url).build());
@@ -269,7 +272,7 @@ public class NetUtils {
     public static <T> Call makeHTMLRequest(
             @NonNull final HttpUrl url, @NonNull final HTMLResult<T> result, @NonNull final HTMLReader<T> reader
     ) {
-        Call call = instance(ProxiedOkHttpClient.class).newCall(new Request.Builder().url(url).build());
+        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

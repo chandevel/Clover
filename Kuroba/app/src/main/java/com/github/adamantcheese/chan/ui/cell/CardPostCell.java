@@ -137,7 +137,7 @@ public class CardPostCell
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
-            thumbView.setPostImage(loadable, null, false, 0, 0);
+            thumbView.setPostImage(loadable, null, 0, 0);
             bound = false;
         }
     }
@@ -203,10 +203,10 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            thumbView.setPostImage(loadable, post.image(), true, thumbView.getWidth(), thumbView.getHeight());
+            thumbView.setPostImage(loadable, post.image(), thumbView.getWidth(), thumbView.getHeight());
         } else {
             thumbView.setVisibility(GONE);
-            thumbView.setPostImage(loadable, null, false, 0, 0);
+            thumbView.setPostImage(loadable, null, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {

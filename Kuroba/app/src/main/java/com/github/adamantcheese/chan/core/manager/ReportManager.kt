@@ -5,7 +5,7 @@ import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
 import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.base.ModularResult
-import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient
+import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
@@ -298,7 +298,6 @@ class ReportManager(
             appendln("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
             appendln("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
                     "active downloads = ${threadSaveManager.countActiveDownloads()}")
-            appendln("Hi-res thumbnails enabled: ${ChanSettings.highResCells.get()}")
             appendln("Youtube titles parsing enabled: ${ChanSettings.parseYoutubeTitles.get()}")
             appendln("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
             appendln("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
@@ -398,7 +397,7 @@ class ReportManager(
                     .post(requestBody)
                     .build()
 
-            instance(ProxiedOkHttpClient::class.java).proxiedClient.newCall(request).enqueue(object : Callback {
+            instance(OkHttpClientWithUtils::class.java).proxiedClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.onSuccess(ModularResult.error(e))
                 }

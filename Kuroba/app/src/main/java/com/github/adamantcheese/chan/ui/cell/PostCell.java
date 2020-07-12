@@ -635,7 +635,7 @@ public class PostCell
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(loadable, image, false, size, size);
+                v.setPostImage(loadable, image, size, size);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
                 if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
@@ -664,7 +664,7 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         for (PostImageThumbnailView view : thumbnailViews) {
-            view.setPostImage(loadable, null, false, 0, 0);
+            view.setPostImage(loadable, null, 0, 0);
         }
         setPostLinkableListener(post, false);
     }

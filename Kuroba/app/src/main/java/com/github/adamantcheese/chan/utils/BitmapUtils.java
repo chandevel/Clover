@@ -231,4 +231,13 @@ public class BitmapUtils {
         double ratio = (double) actualSecondary / (double) actualPrimary;
         return maxPrimary * ratio > maxSecondary ? (int) (maxSecondary / ratio) : maxPrimary;
     }
+
+    public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            return BitmapUtils.decode(fis, maxWidth, maxHeight);
+        } catch (Throwable e) {
+            Logger.e(TAG, "", e);
+            return null;
+        }
+    }
 }

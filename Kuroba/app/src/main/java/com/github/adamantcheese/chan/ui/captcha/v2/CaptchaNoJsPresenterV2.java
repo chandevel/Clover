@@ -62,7 +62,7 @@ public class CaptchaNoJsPresenterV2 {
             "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
 
     @Inject
-    NetModule.ProxiedOkHttpClient okHttpClient;
+    NetModule.OkHttpClientWithUtils okHttpClient;
     @Inject
     ExecutorService executor;
 

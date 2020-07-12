@@ -119,8 +119,8 @@ public class ThumbnailView
         if (url == null || bitmapCall != null) {
             if (bitmapCall != null) {
                 bitmapCall.cancel();
+                bitmapCall = null;
             }
-            bitmapCall = null;
             error = false;
             setImageBitmap(null);
             animate().cancel();
@@ -340,14 +340,12 @@ public class ThumbnailView
     public void onBitmapFailure(Bitmap errormap, Exception e) {
         if (e instanceof NetUtils.HttpCodeException) {
             errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
-        } else if (e instanceof IOException && "Canceled".equals(e.getMessage())) {
-            return;
         } else {
             errorText = getString(R.string.thumbnail_load_failed_network);
         }
         error = true;
 
-        onImageSet(false);
+        onImageSet(true);
         invalidate();
     }
 

@@ -250,12 +250,6 @@ public class AppearanceSettingsController
             ));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.highResCells,
-                    R.string.setting_images_high_res,
-                    R.string.setting_images_high_res_description
-            )));
-
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.parsePostImageLinks,
                     R.string.setting_image_link_loading_title,
                     R.string.setting_image_link_loading_description

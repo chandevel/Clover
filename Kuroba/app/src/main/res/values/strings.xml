@@ -469,8 +469,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <!-- Appearance gallery group -->
     <string name="setting_hide_images">Hide images</string>
     <string name="setting_hide_images_description">Hides images when with a special spoiler image. If you want to save on data, turn this on.</string>
-    <string name="setting_images_high_res">High resolution cells</string>
-    <string name="setting_images_high_res_description">Make the album view and card catalog images higher resolution by pre-rescaling full size images</string>
     <string name="setting_images_immersive_mode_title">Use immersive mode for image gallery</string>
     <string name="setting_images_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
     <string name="settings_screen_behavior">Behavior</string>

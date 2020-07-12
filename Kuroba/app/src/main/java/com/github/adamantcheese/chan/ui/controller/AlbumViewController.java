@@ -62,6 +62,7 @@ public class AlbumViewController
         view = inflate(context, R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setItemAnimator(null);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
         AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
         recyclerView.setAdapter(albumAdapter);
@@ -184,7 +185,6 @@ public class AlbumViewController
 
         @Override
         public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
-            holder.cell.getThumbnailView().setUrl(null);
             PostImage postImage = postImages.get(position);
             holder.cell.setPostImage(loadable, postImage);
         }
