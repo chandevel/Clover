@@ -23,7 +23,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -51,6 +50,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -75,8 +75,8 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -307,7 +307,7 @@ public class ThreadLayout
 
     public void showPostLinkables(final Post post) {
         CharSequence[] keys = new CharSequence[post.linkables.size()];
-        Bitmap youtubeIcon = BitmapFactory.decodeResource(getRes(), R.drawable.youtube_icon);
+        Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
         for (int i = 0; i < post.linkables.size(); i++) {
             keys[i] = post.linkables.get(i).key.toString();
             String value = post.linkables.get(i).value.toString();

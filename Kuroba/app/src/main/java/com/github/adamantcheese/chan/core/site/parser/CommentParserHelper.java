@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -27,13 +26,12 @@ import androidx.annotation.AnyThread;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -51,6 +49,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -59,17 +58,17 @@ public class CommentParserHelper {
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile(
+    private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
-    private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
     public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
 
-    //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile("https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
-    private static String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
-    //@formatter:on
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
+            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            Pattern.CASE_INSENSITIVE
+    );
+    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
     private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
@@ -114,7 +113,7 @@ public class CommentParserHelper {
                 new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
         StringBuffer newString = new StringBuffer();
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = youtubeLinkPattern.matcher(text);
+        Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(text);
         while (linkMatcher.find()) {
             String URL = linkMatcher.group(0);
             String videoID = linkMatcher.group(1);
@@ -188,6 +187,7 @@ public class CommentParserHelper {
         //we have a new string here with all the links replaced by their text equivalents, we need to add the linkables now using the map
         //we reference newString internally because SpannableString instances don't have an indexOf method, but the two are otherwise the same
         SpannableString finalizedString = new SpannableString(newString);
+        Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
         for (String key : titleURLMap.keySet()) {
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
@@ -220,7 +220,7 @@ public class CommentParserHelper {
             for (PostLinkable linkable : post.getLinkables()) {
                 if (post.images != null && post.images.size() >= 5) return; //max 5 images hotlinked
                 if (linkable.type == PostLinkable.Type.LINK) {
-                    Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
+                    Matcher matcher = IMAGE_URL_PATTERN.matcher((String) linkable.value);
                     if (matcher.matches()) {
                         boolean noThumbnail = StringUtils.endsWithAny((String) linkable.value, noThumbLinkSuffixes);
                         String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";

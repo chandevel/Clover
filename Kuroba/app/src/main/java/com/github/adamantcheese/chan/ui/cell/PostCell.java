@@ -20,7 +20,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -59,6 +58,7 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
@@ -801,11 +801,6 @@ public class PostCell
         private static final int ARCHIVED = 0x8;
         private static final int HTTP_ICONS = 0x10;
 
-        private Bitmap stickyIcon;
-        private Bitmap closedIcon;
-        private Bitmap trashIcon;
-        private Bitmap archivedIcon;
-
         private int height;
         private int spacing;
         private int icons;
@@ -833,11 +828,6 @@ public class PostCell
 
             textPaint.setTypeface(Typeface.create((String) null, Typeface.ITALIC));
             setVisibility(GONE);
-
-            stickyIcon = BitmapFactory.decodeResource(getResources(), R.drawable.sticky_icon);
-            closedIcon = BitmapFactory.decodeResource(getResources(), R.drawable.closed_icon);
-            trashIcon = BitmapFactory.decodeResource(getResources(), R.drawable.trash_icon);
-            archivedIcon = BitmapFactory.decodeResource(getResources(), R.drawable.archived_icon);
         }
 
         public void setHeight(int height) {
@@ -913,19 +903,19 @@ public class PostCell
                 int offset = 0;
 
                 if (get(STICKY)) {
-                    offset += drawBitmap(canvas, stickyIcon, offset);
+                    offset += drawBitmap(canvas, instance(BitmapRepository.class).stickyIcon, offset);
                 }
 
                 if (get(CLOSED)) {
-                    offset += drawBitmap(canvas, closedIcon, offset);
+                    offset += drawBitmap(canvas, instance(BitmapRepository.class).closedIcon, offset);
                 }
 
                 if (get(DELETED)) {
-                    offset += drawBitmap(canvas, trashIcon, offset);
+                    offset += drawBitmap(canvas, instance(BitmapRepository.class).trashIcon, offset);
                 }
 
                 if (get(ARCHIVED)) {
-                    offset += drawBitmap(canvas, archivedIcon, offset);
+                    offset += drawBitmap(canvas, instance(BitmapRepository.class).archivedIcon, offset);
                 }
 
                 if (get(HTTP_ICONS)) {

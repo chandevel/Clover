@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
@@ -78,6 +79,9 @@ public class Chan
     @Inject
     SettingsNotificationManager settingsNotificationManager;
 
+    @Inject
+    BitmapRepository bitmapRepository;
+
     private static Feather feather;
 
     public static <T> T instance(Class<T> tClass) {
@@ -115,12 +119,7 @@ public class Chan
         SavingNotification.setupChannel();
         LastPageNotification.setupChannel();
 
-        feather = Feather.with(
-                new AppModule(this),
-                new NetModule(),
-                new RepositoryModule(),
-                new ManagerModule()
-        );
+        feather = Feather.with(new AppModule(this), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
 
         //Needs to happen before any sites are processed, in case they request archives
@@ -129,6 +128,7 @@ public class Chan
         siteRepository.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
+        bitmapRepository.initialize();
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

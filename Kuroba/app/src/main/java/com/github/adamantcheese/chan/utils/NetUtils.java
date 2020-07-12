@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.JsonReader;
 import android.util.LruCache;
 import android.util.MalformedJsonException;
@@ -9,9 +8,9 @@ import android.util.MalformedJsonException;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
@@ -40,7 +39,6 @@ import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityManager;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static java.lang.Runtime.getRuntime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -54,7 +52,6 @@ public class NetUtils {
                     || ChanSettings.autoLoadThreadImages.get()) ? 8 : 4)));
 
     private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
-    private static final Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);
 
     public static void makeHttpCall(
             HttpCall httpCall, HttpCallback<? extends HttpCall> callback
@@ -178,7 +175,7 @@ public class NetUtils {
                 if (results == null) return;
                 for (BitmapResult bitmapResult : results) {
                     if (bitmapResult == null) continue;
-                    bitmapResult.onBitmapFailure(NetUtils.errorBitmap, e);
+                    bitmapResult.onBitmapFailure(instance(BitmapRepository.class).error, e);
                 }
                 resultListeners.remove(url);
             }
