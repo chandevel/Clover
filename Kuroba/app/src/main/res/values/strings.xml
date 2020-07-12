@@ -871,4 +871,7 @@ Don't have a 4chan Pass?<br>
     <string name="no_saved_posts_for_current_thread">You haven\'t posted in this thread!</string>
 
     <string name="linkable_copied_to_clipboard">Linkable URL copied to clipboard</string>
+
+    <string name="options_button_sage">Sage</string>
+    <string name="options_button_pass">Since4Pass</string>
 </resources>
