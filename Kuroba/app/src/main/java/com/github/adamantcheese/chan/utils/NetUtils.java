@@ -219,6 +219,14 @@ public class NetUtils {
                     }
                 } catch (Exception e) {
                     Logger.e(TAG, "Error parsing JSON: ", e);
+                    if (response.body() != null) {
+                        try {
+                            //noinspection ConstantConditions
+                            Logger.e(TAG, "Bad JSON: " + response.body().string(), e);
+                        } catch (Exception ex) {
+                            Logger.e(TAG, "Bad JSON, no JSON available: ", ex);
+                        }
+                    }
                     BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(e.getMessage())));
                 }
                 response.close();
