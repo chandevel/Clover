@@ -17,23 +17,33 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+
+import com.github.adamantcheese.chan.R;
 
 public class FixedRatioLinearLayout
         extends LinearLayout {
     private float ratio;
 
     public FixedRatioLinearLayout(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public FixedRatioLinearLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public FixedRatioLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioLinearLayout);
+        try {
+            ratio = a.getFloat(R.styleable.FixedRatioLinearLayout_layout_ratio, 1.0f);
+        } finally {
+            a.recycle();
+        }
     }
 
     public void setRatio(float ratio) {
@@ -42,6 +52,10 @@ public class FixedRatioLinearLayout
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (ratio == 0.0f) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
                 || heightMode == MeasureSpec.AT_MOST)) {

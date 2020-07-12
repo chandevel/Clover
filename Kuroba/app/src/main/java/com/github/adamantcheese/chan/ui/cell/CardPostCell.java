@@ -20,7 +20,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -79,10 +81,7 @@ public class CardPostCell
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        FixedRatioLinearLayout content = findViewById(R.id.card_content);
-        content.setRatio(9f / 18f);
         thumbView = findViewById(R.id.thumbnail);
-        thumbView.setRatio(16f / 13f);
         thumbView.setOnClickListener(this);
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
@@ -92,7 +91,9 @@ public class CardPostCell
 
         setOnClickListener(this);
 
-        setCompact(compact);
+        if (!isInEditMode()) {
+            setCompact(compact);
+        }
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem> items = new ArrayList<>();
@@ -100,6 +101,13 @@ public class CardPostCell
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
+
+        if (!isInEditMode() && ChanSettings.getBoardColumnCount() == 1) {
+            ((LinearLayout.LayoutParams) comment.getLayoutParams()).height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            ((LinearLayout.LayoutParams) comment.getLayoutParams()).weight = 0;
+            ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
+            invalidate();
+        }
     }
 
     private void showOptions(

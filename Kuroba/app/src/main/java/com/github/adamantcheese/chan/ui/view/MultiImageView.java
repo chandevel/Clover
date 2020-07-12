@@ -366,7 +366,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         setBitImageFileInternal(new File(file.getFullPath()), true);
@@ -425,7 +425,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         if (!hasContent || mode == Mode.GIFIMAGE) {
@@ -585,7 +585,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         if (!hasContent || mode == Mode.VIDEO) {

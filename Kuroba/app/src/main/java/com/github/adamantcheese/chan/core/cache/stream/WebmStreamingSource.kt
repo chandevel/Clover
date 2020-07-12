@@ -54,7 +54,7 @@ class WebmStreamingSource(
         val cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(
                 postImage.imageUrl,
                 object : FileCacheListener() {
-                    override fun onSuccess(file: RawFile?) {
+                    override fun onSuccess(file: RawFile?, immediate: Boolean) {
                         Logger.d(TAG, "createMediaSource() Loading just downloaded file after stop()")
                         BackgroundUtils.ensureMainThread()
 

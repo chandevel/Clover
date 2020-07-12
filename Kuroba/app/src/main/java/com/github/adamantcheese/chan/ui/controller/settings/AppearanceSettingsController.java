@@ -306,7 +306,7 @@ public class AppearanceSettingsController
         List<Item<Integer>> gridColumnsAlbum = new ArrayList<>();
         gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
         gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
-        for (int columns = 2; columns <= (isPortrait ? 5 : 12); columns++) {
+        for (int columns = 1; columns <= (isPortrait ? 5 : 12); columns++) {
             gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
             gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
         }

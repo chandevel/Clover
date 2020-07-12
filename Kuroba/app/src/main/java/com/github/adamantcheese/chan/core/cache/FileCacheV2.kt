@@ -35,15 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.collections.ArrayList
 
-/**
- * A file downloader with two reactive queues:
- * - One queue is for viewing images/webms/gifs in the gallery
- * - Second queue is for downloading image albums in huge batches (or for the media prefetching feature).
- *
- * This should prevent normal image viewing getting stuck when using media prefetching.
- * In the future this thing will be made 100% reactive (right now it still uses callbacks) as well
- * as the MultiImageView/ImageViewPresenter.
- * */
 class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
@@ -53,40 +44,20 @@ class FileCacheV2(
 ) {
     private val activeDownloads = ActiveDownloads()
 
-    /**
-     * We use two rx queues here. One for the normal file/image downloading (like when user clicks a
-     * image thumbnail to view a full-size image) and the other queue for when user downloads full
-     * image albums or for media-prefetching etc.
-     * */
-    private val normalRequestQueue = PublishProcessor.create<HttpUrl>()
-    private val batchRequestQueue = PublishProcessor.create<List<HttpUrl>>()
+    private val requestQueue = PublishProcessor.create<HttpUrl>()
 
     private val chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt()
     private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
     private val verboseLogs = ChanSettings.verboseLogs.get()
 
     private val normalThreadIndex = AtomicInteger(0)
-    private val batchThreadIndex = AtomicInteger(0)
-
-    private val batchScheduler = Schedulers.from(
-            Executors.newFixedThreadPool(1) { runnable ->
-                return@newFixedThreadPool Thread(
-                        runnable,
-                        String.format(
-                                Locale.ENGLISH,
-                                BATCH_THREAD_NAME_FORMAT,
-                                batchThreadIndex.getAndIncrement()
-                        )
-                )
-            }
-    )
     private val workerScheduler = Schedulers.from(
             Executors.newFixedThreadPool(threadsCount) { runnable ->
                 return@newFixedThreadPool Thread(
                         runnable,
                         String.format(
                                 Locale.ENGLISH,
-                                NORMAL_THREAD_NAME_FORMAT,
+                                THREAD_NAME_FORMAT,
                                 normalThreadIndex.getAndIncrement()
                         )
                 )
@@ -137,7 +108,6 @@ class FileCacheV2(
         log(TAG, "chunksCount = $chunksCount")
 
         initNormalRxWorkerQueue()
-        initBatchRequestQueue()
     }
 
     /**
@@ -146,7 +116,7 @@ class FileCacheV2(
      * */
     @SuppressLint("CheckResult")
     private fun initNormalRxWorkerQueue() {
-        normalRequestQueue
+        requestQueue
                 .observeOn(workerScheduler)
                 .onBackpressureBuffer()
                 .flatMap { url ->
@@ -171,95 +141,15 @@ class FileCacheV2(
                 })
     }
 
-    /**
-     * This is a singleton class so we don't care about the disposable since we will never should
-     * dispose of this stream
-     * */
-    @SuppressLint("CheckResult")
-    private fun initBatchRequestQueue() {
-        batchRequestQueue
-                .observeOn(batchScheduler)
-                .onBackpressureBuffer()
-                .concatMap { urlList ->
-                    return@concatMap Flowable.fromIterable(urlList)
-                            .subscribeOn(batchScheduler)
-                            .concatMap { url ->
-                                return@concatMap handleFileDownload(url)
-                                        .onErrorReturn { throwable ->
-                                            ErrorMapper.mapError(url, throwable, activeDownloads)
-                                        }
-                                        .map { result -> Pair(url, result) }
-                                        .doOnNext { (url, result) ->
-                                            handleResults(url, result)
-                                        }
-                            }
-                }
-                .subscribe({
-                    // Do nothing
-                }, { error ->
-                    throw RuntimeException("$TAG Uncaught exception!!! " +
-                            "workerQueue is in error state now!!! " +
-                            "This should not happen!!!, original error = " + error.message)
-                }, {
-                    throw RuntimeException(
-                            "$TAG workerQueue stream has completed!!! This should not happen!!!"
-                    )
-                })
-    }
-
     fun isRunning(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) {
             activeDownloads.getState(url) == DownloadState.Running
         }
     }
 
-    fun enqueueMediaPrefetchRequestBatch(
-            loadable: Loadable,
-            postImageList: List<PostImage>
-    ): List<CancelableDownload> {
-        if (loadable.isLocal || loadable.isDownloading) {
-            throw IllegalArgumentException("Cannot use local thread loadable for prefetching!")
-        }
-
-        val urls = mutableListOf<HttpUrl>()
-        val cancelableDownloads = mutableListOf<CancelableDownload>()
-
-        for (postImage in postImageList) {
-            val url = postImage.imageUrl
-
-            val file: RawFile = cacheHandler.getOrCreateCacheFile(url)
-                    ?: continue
-
-            val (alreadyActive, cancelableDownload) = getOrCreateCancelableDownload(
-                    url,
-                    null,
-                    file,
-                    // Always 1 for media prefetching
-                    chunksCount = 1,
-                    isGalleryBatchDownload = true,
-                    isPrefetchDownload = true,
-                    // Prefetch downloads always have default extra info (no file size, no file hash)
-                    extraInfo = DownloadRequestExtraInfo()
-            )
-
-            if (alreadyActive) {
-                continue
-            }
-
-            if (checkAlreadyCached(file, url)) {
-                continue
-            }
-
-            urls += url
-            cancelableDownloads += cancelableDownload
-        }
-
-        log(TAG, "Prefetching ${urls.size} files")
-        batchRequestQueue.onNext(urls)
-
-        return cancelableDownloads
-    }
-
+    /**
+     * Enqueue a download request for the given PostImage based on the setting of the chunk count.
+     */
     fun enqueueChunkedDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
@@ -271,25 +161,23 @@ class FileCacheV2(
                 postImage,
                 extraInfo,
                 chunksCount,
-                false,
                 callback
         )
     }
 
+    /**
+     * Enqueue a download request for the given PostImage with only one chunk and default extra information (no file size, no hash).
+     */
     fun enqueueNormalDownloadFileRequest(
             loadable: Loadable,
             postImage: PostImage,
-            isBatchDownload: Boolean,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
                 loadable,
                 postImage,
-                // Normal downloads (not chunked) always have default extra info
-                // (no file size, no file hash)
                 DownloadRequestExtraInfo(),
                 1,
-                isBatchDownload,
                 callback
         )
     }
@@ -300,7 +188,6 @@ class FileCacheV2(
             postImage: PostImage,
             extraInfo: DownloadRequestExtraInfo,
             chunksCount: Int,
-            isBatchDownload: Boolean,
             callback: FileCacheListener?
     ): CancelableDownload? {
         if (loadable.isLocal || loadable.isDownloading) {
@@ -316,7 +203,7 @@ class FileCacheV2(
                     .subscribe({ file ->
                         BackgroundUtils.ensureMainThread()
 
-                        callback.onSuccess(file)
+                        callback.onSuccess(file, true)
                         callback.onEnd()
                     }, { error ->
                         BackgroundUtils.ensureMainThread()
@@ -328,29 +215,34 @@ class FileCacheV2(
             return null
         }
 
-        return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, isBatchDownload, extraInfo, callback)
+        return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, extraInfo, callback)
     }
 
+    /**
+     * Enqueue a download request for the given HttpUrl based on the setting of the chunk count.
+     */
     fun enqueueChunkedDownloadFileRequest(
             url: HttpUrl,
             extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, chunksCount, false, extraInfo, callback)
+        return enqueueDownloadFileRequest(url, chunksCount, extraInfo, callback)
     }
 
+    /**
+     * Enqueue a download request for the given HttpUrl with only one chunk and default extra information (no file size, no hash).
+     */
     fun enqueueNormalDownloadFileRequest(
             url: HttpUrl,
             callback: FileCacheListener?
     ): CancelableDownload? {
         // Normal downloads (not chunked) always have default extra info (no file size, no file hash)
-        return enqueueDownloadFileRequest(url, 1, false, DownloadRequestExtraInfo(), callback)
+        return enqueueDownloadFileRequest(url, 1, DownloadRequestExtraInfo(), callback)
     }
 
     private fun enqueueDownloadFileRequest(
             url: HttpUrl,
             chunksCount: Int,
-            isBatchDownload: Boolean,
             extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
@@ -369,8 +261,6 @@ class FileCacheV2(
                 callback,
                 file,
                 chunksCount = chunksCount,
-                isGalleryBatchDownload = isBatchDownload,
-                isPrefetchDownload = false,
                 extraInfo = extraInfo
         )
 
@@ -383,7 +273,7 @@ class FileCacheV2(
         }
 
         log(TAG, "Downloading a file, url = ${maskImageUrl(url)}")
-        normalRequestQueue.onNext(url)
+        requestQueue.onNext(url)
 
         return cancelableDownload
     }
@@ -420,15 +310,8 @@ class FileCacheV2(
             callback: FileCacheListener?,
             file: RawFile,
             chunksCount: Int,
-            isGalleryBatchDownload: Boolean,
-            isPrefetchDownload: Boolean,
             extraInfo: DownloadRequestExtraInfo
     ): Pair<Boolean, CancelableDownload> {
-        if (chunksCount > 1 && (isGalleryBatchDownload || isPrefetchDownload)) {
-            throw IllegalArgumentException("Cannot download file in chunks for media " +
-                    "prefetching or gallery downloading!")
-        }
-
         return synchronized(activeDownloads) {
             val prevRequest = activeDownloads.get(url)
             if (prevRequest != null) {
@@ -444,10 +327,7 @@ class FileCacheV2(
                 return@synchronized true to prevCancelableDownload
             }
 
-            val cancelableDownload = CancelableDownload(
-                    url = url,
-                    downloadType = CancelableDownload.DownloadType(isPrefetchDownload, isGalleryBatchDownload)
-            )
+            val cancelableDownload = CancelableDownload(url = url)
 
             if (callback != null) {
                 cancelableDownload.addCallback(callback)
@@ -523,7 +403,7 @@ class FileCacheV2(
 
         request.cancelableDownload.forEachCallback {
             runOnMainThread {
-                onSuccess(file)
+                onSuccess(file, true)
                 onEnd()
             }
         }
@@ -637,7 +517,7 @@ class FileCacheV2(
                     cacheHandler.fileWasAdded(total)
 
                     resultHandler(url, request, true) {
-                        onSuccess(result.file)
+                        onSuccess(result.file, false)
                         onEnd()
                     }
                 }
@@ -871,8 +751,7 @@ class FileCacheV2(
 
     companion object {
         private const val TAG = "FileCacheV2"
-        private const val NORMAL_THREAD_NAME_FORMAT = "NormalFileCacheV2Thread-%d"
-        private const val BATCH_THREAD_NAME_FORMAT = "BatchFileCacheV2Thread-%d"
+        private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
         private const val MAX_TIMEOUT_MS = 1000L
 
         const val MIN_CHUNK_SIZE = 1024L * 8L // 8 KB

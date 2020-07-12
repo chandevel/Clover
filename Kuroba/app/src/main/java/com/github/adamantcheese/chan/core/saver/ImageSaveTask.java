@@ -63,19 +63,17 @@ public class ImageSaveTask
 
     private PostImage postImage;
     private Loadable loadable;
-    private boolean isBatchDownload;
     private AbstractFile destination;
     private boolean share;
     private String subFolder;
     private boolean success = false;
     private SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
 
-    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean isBatchDownload, boolean share) {
+    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean share) {
         inject(this);
 
         this.loadable = loadable;
         this.postImage = postImage;
-        this.isBatchDownload = isBatchDownload;
         this.share = share;
         this.imageSaveTaskAsyncResult = SingleSubject.create();
     }
@@ -119,11 +117,11 @@ public class ImageSaveTask
                 });
             } else {
                 CancelableDownload cancelableDownload =
-                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, isBatchDownload, this);
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, this);
 
                 onDisposeFunc = () -> {
                     if (cancelableDownload != null) {
-                        cancelableDownload.stopBatchDownload();
+                        cancelableDownload.stop();
                     }
                 };
             }
@@ -139,7 +137,7 @@ public class ImageSaveTask
     }
 
     @Override
-    public void onSuccess(RawFile file) {
+    public void onSuccess(RawFile file, boolean immediate) {
         BackgroundUtils.ensureMainThread();
 
         if (copyToDestination(file)) {

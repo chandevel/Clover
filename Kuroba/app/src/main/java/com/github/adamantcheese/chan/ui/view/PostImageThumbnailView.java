@@ -17,32 +17,42 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.cache.FileCacheListener;
+import com.github.adamantcheese.chan.core.cache.FileCacheV2;
+import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
+import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
-import okhttp3.HttpUrl;
+import java.io.File;
 
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class PostImageThumbnailView
-        extends ThumbnailView
+        extends FixedRatioThumbnailView
         implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
-    private float ratio = 0f;
     private Rect bounds = new Rect();
+
+    private CancelableDownload fullsizeDownload;
 
     public PostImageThumbnailView(Context context) {
         this(context, null);
@@ -59,13 +69,54 @@ public class PostImageThumbnailView
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (fullsizeDownload != null) {
+            fullsizeDownload.cancel();
+            fullsizeDownload = null;
+        }
+    }
+
     public void setPostImage(Loadable loadable, PostImage postImage, int width, int height) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
 
             if (postImage != null) {
                 if (!loadable.isLocal()) {
-                    setUrl(postImage.getThumbnailUrl(), width, height);
+                    if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == PostImage.Type.STATIC
+                            || postImage.type == PostImage.Type.GIF)) {
+                        fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(loadable,
+                                postImage,
+                                new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
+                                new FileCacheListener() {
+                                    @Override
+                                    public void onSuccess(RawFile file, boolean immediate) {
+                                        Bitmap fullsize = BitmapUtils.decodeFile(new File(file.getFullPath()),
+                                                width * 2,
+                                                height * 2
+                                        );
+                                        if (fullsize != null) {
+                                            onBitmapSuccess(fullsize, immediate);
+                                        } else {
+                                            onBitmapFailure(null, new NullPointerException("Failed to decode bitmap."));
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFail(Exception exception) {
+                                        onBitmapFailure(null, exception);
+                                    }
+
+                                    @Override
+                                    public void onNotFound() {
+                                        onBitmapFailure(null, new NetUtils.HttpCodeException(404));
+                                    }
+                                }
+                        );
+                    } else {
+                        setUrl(postImage.getThumbnailUrl(), width, height);
+                    }
                 } else {
                     String fileName;
 
@@ -87,9 +138,6 @@ public class PostImageThumbnailView
             }
         }
     }
-    public void setRatio(float ratio) {
-        this.ratio = ratio;
-    }
 
     @Override
     public void draw(Canvas canvas) {
@@ -108,25 +156,6 @@ public class PostImageThumbnailView
             );
             playIcon.setBounds(bounds);
             playIcon.draw(canvas);
-        }
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (ratio == 0f) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        } else {
-            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-            if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
-                    || heightMode == MeasureSpec.AT_MOST)) {
-                int width = MeasureSpec.getSize(widthMeasureSpec);
-
-                super.onMeasure(widthMeasureSpec,
-                        MeasureSpec.makeMeasureSpec((int) (width / ratio), MeasureSpec.EXACTLY)
-                );
-            } else {
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            }
         }
     }
 

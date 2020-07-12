@@ -166,7 +166,7 @@ public class ImagePickDelegate {
         cancelableDownload =
                 fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL, new FileCacheListener() {
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         toast.showToast(activity, R.string.image_url_get_success);
                         Uri imageURL = Uri.parse(finalClipboardURL.toString());
                         callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));

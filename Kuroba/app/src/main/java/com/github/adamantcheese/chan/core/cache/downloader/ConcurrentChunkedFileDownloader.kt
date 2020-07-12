@@ -264,8 +264,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
             activeDownloads.throwCancellationException(url)
         }
 
-        val isGalleryBatchDownload = activeDownloads.isGalleryBatchDownload(url)
-
         // Download each chunk separately in parallel
         return chunkDownloader.downloadChunk(url, chunk, totalChunksCount)
                 .subscribeOn(workerScheduler)
@@ -285,21 +283,6 @@ internal class ConcurrentChunkedFileDownloader @Inject constructor(
                             chunkIndex,
                             totalChunksCount
                     )
-                }
-                // Retry on IO error mechanism. Apply it to each chunk individually
-                // instead of applying it to all chunks. Do not use it if the exception
-                // is CancellationException
-                .retry(MAX_RETRIES) { error ->
-                    val retry = error !is FileCacheException.CancellationException
-                            && error is IOException
-
-                    // Only use retry-on-IO-error with batch gallery downloads
-                    if (isGalleryBatchDownload && retry) {
-                        log(TAG, "Retrying chunk ($chunk) for url ${maskImageUrl(url)}, " +
-                                "error = ${error.javaClass.simpleName}, msg = ${error.message}")
-                    }
-
-                    retry
                 }
     }
 

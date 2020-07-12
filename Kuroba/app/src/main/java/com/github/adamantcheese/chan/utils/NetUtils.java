@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
@@ -45,10 +46,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
-    // max 1/3 the maximum Dalvik runtime size for hi res cells, 1/4 otherwise; if low RAM, 1/8
-    //by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
+    // max 1/4 the maximum Dalvik runtime size; if low RAM or prefetch enabled, 1/8
+    // prefetching does not use this LRU cache, so it is fine for it to use far less memory
+    // by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
     private static final BitmapLruCache imageCache =
-            new BitmapLruCache((int) (getRuntime().maxMemory() / (getActivityManager().isLowRamDevice() ? 8 : 4)));
+            new BitmapLruCache((int) (getRuntime().maxMemory() / ((getActivityManager().isLowRamDevice()
+                    || ChanSettings.autoLoadThreadImages.get()) ? 8 : 4)));
 
     private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
     private static final Bitmap errorBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.error_icon);

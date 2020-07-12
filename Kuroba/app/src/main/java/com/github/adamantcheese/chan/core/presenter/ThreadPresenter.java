@@ -31,8 +31,6 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
@@ -86,7 +84,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -134,8 +131,6 @@ public class ThreadPresenter
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
-    private final FileCacheV2 fileCacheV2;
-    private final CacheHandler cacheHandler;
     private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
@@ -149,9 +144,6 @@ public class ThreadPresenter
     private boolean addToLocalBackHistory;
     private Context context;
     private List<FloatingMenuItem> filterMenu;
-
-    @Nullable
-    private List<CancelableDownload> activePrefetches = null;
     //endregion
 
     @Inject
@@ -161,8 +153,6 @@ public class ThreadPresenter
             ChanLoaderManager chanLoaderManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
-            FileCacheV2 fileCacheV2,
-            CacheHandler cacheHandler,
             FileManager fileManager,
             MockReplyManager mockReplyManager
     ) {
@@ -172,8 +162,6 @@ public class ThreadPresenter
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
-        this.fileCacheV2 = fileCacheV2;
-        this.cacheHandler = cacheHandler;
         this.mockReplyManager = mockReplyManager;
     }
 
@@ -214,23 +202,9 @@ public class ThreadPresenter
             loadable = null;
             historyAdded = false;
             addToLocalBackHistory = true;
-            cancelPrefetching();
 
             threadPresenterCallback.showLoading();
         }
-    }
-
-    private void cancelPrefetching() {
-        if (activePrefetches == null) {
-            return;
-        }
-
-        for (CancelableDownload cancelableDownload : activePrefetches) {
-            cancelableDownload.cancelPrefetch();
-        }
-
-        activePrefetches.clear();
-        activePrefetches = null;
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
@@ -569,31 +543,6 @@ public class ThreadPresenter
                 if (forcePageUpdate) {
                     pageRequestManager.forceUpdateForBoard(loadable.board);
                     forcePageUpdate = false;
-                }
-            }
-
-            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal() && !loadable.isDownloading()) {
-                List<PostImage> postImageList = new ArrayList<>();
-                cancelPrefetching();
-
-                for (Post p : result.getPosts()) {
-                    for (PostImage postImage : p.images) {
-                        if (cacheHandler.exists(postImage.imageUrl)) {
-                            continue;
-                        }
-
-                        if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                            postImageList.add(postImage);
-                        } else if (postImage.type == PostImage.Type.MOVIE
-                                && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                            postImageList.add(postImage);
-                        }
-                    }
-                }
-
-                if (postImageList.size() > 0) {
-                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(loadable, postImageList);
                 }
             }
         }

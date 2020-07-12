@@ -42,7 +42,7 @@ public abstract class FileCacheListener {
     /**
      * Called when the file download was completed.
      */
-    public void onSuccess(RawFile file) {
+    public void onSuccess(RawFile file, boolean immediate) {
     }
 
     /**

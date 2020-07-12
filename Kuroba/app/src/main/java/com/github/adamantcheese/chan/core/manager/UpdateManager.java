@@ -274,7 +274,7 @@ public class UpdateManager {
             }
 
             @Override
-            public void onSuccess(RawFile file) {
+            public void onSuccess(RawFile file, boolean immediate) {
                 BackgroundUtils.ensureMainThread();
 
                 if (updateDownloadDialog != null) {

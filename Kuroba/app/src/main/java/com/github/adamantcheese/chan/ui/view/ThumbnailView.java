@@ -43,9 +43,8 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.NetUtils;
-
-import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -54,7 +53,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class ThumbnailView
+public abstract class ThumbnailView
         extends View
         implements NetUtils.BitmapResult {
     private Call bitmapCall;

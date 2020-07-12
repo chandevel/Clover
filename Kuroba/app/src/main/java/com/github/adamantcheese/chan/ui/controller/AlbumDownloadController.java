@@ -93,7 +93,7 @@ public class AlbumDownloadController
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(0,0);
+        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
         AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
@@ -133,7 +133,7 @@ public class AlbumDownloadController
                     }
 
                     if (item.checked) {
-                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, true, false);
+                        ImageSaveTask imageTask = new ImageSaveTask(loadable, item.postImage, false);
                         if (subFolder != null) {
                             imageTask.setSubFolder(subFolder);
                         }

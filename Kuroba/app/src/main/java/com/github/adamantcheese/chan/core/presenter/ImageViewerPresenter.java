@@ -413,7 +413,7 @@ public class ImageViewerPresenter
                 );
             } else {
                 preloadDownload[0] =
-                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, false, fileCacheListener);
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, fileCacheListener);
             }
 
             if (preloadDownload[0] != null) {

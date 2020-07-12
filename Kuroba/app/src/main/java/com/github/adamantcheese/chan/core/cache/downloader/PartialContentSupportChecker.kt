@@ -17,10 +17,8 @@ import java.util.concurrent.TimeoutException
 
 /**
  * This class is used to figure out whether an image or a file can be downloaded from the server in
- * separate chunks concurrently using HTTP Partial-Content. For batched image downloading and
- * media prefetching this method returns false because we should download them normally. Chunked
- * downloading should only be used for high priority files/images like in the gallery when the user
- * is viewing them. Everything else should be downloaded in a singe chunk.
+ * separate chunks concurrently using HTTP Partial-Content. Chunked downloading should only be used for high priority
+ * files/images like in the gallery when the user is viewing them. Everything else should be downloaded in a singe chunk.
  * */
 internal class PartialContentSupportChecker(
         private val okHttpClient: OkHttpClient,
@@ -35,10 +33,6 @@ internal class PartialContentSupportChecker(
     private val checkedChanHosts = mutableMapOf<String, Boolean>()
 
     fun check(url: HttpUrl): Single<PartialContentCheckResult> {
-        if (activeDownloads.isBatchDownload(url)) {
-            return Single.just(PartialContentCheckResult(false))
-        }
-
         val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
         if (fileSize > 0) {
             val hostAlreadyChecked = synchronized(checkedChanHosts) {
