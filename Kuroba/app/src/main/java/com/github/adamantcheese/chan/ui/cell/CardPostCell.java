@@ -233,7 +233,7 @@ public class CardPostCell
         }
 
         CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH) {
+        if (post.comment.length() > COMMENT_MAX_LENGTH && ChanSettings.getBoardColumnCount() != 1) {
             commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH);
         } else {
             commentText = post.comment;
