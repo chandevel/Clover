@@ -74,7 +74,6 @@ public class LegacyCaptchaLayout
         super.onFinishInflate();
 
         image = findViewById(R.id.image);
-        image.setRatio(300f / 57f);
         image.setOnClickListener(this);
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
