@@ -22,7 +22,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -30,7 +29,6 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -46,17 +44,14 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -76,15 +71,12 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -299,53 +291,6 @@ public class ThreadLayout
         switchVisible(Visible.EMPTY);
     }
 
-    public void showPostInfo(String info) {
-        new AlertDialog.Builder(getContext()).setTitle(R.string.post_info_title)
-                .setMessage(info)
-                .setPositiveButton(R.string.ok, null)
-                .show();
-    }
-
-    public void showPostLinkables(final Post post) {
-        List<CharSequence> keys = new ArrayList<>();
-        Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
-        for (int i = 0; i < post.linkables.size(); i++) {
-            //skip SPOILER linkables, they aren't useful to display
-            if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
-            String key = post.linkables.get(i).key.toString();
-            String value = post.linkables.get(i).value.toString();
-            if (value.contains("youtu.be") || value.contains("youtube")) {
-                //need to trim off starting spaces for youtube links
-                keys.add(PostHelper.prependIcon(getContext(), key.substring(2), youtubeIcon, sp(16)));
-            } else {
-                keys.add(key);
-            }
-        }
-
-        AlertDialog dialog = new AlertDialog.Builder(getContext()).create();
-
-        ListView clickables = new ListView(getContext());
-        clickables.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, keys));
-        clickables.setOnItemClickListener((parent, view, position, id) -> {
-            presenter.onPostLinkableClicked(post, post.linkables.get(position));
-            dialog.dismiss();
-        });
-        clickables.setOnItemLongClickListener((parent, view, position, id) -> {
-            setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
-            showToast(getContext(), R.string.linkable_copied_to_clipboard);
-            return false;
-        });
-
-        dialog.setView(clickables);
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-    }
-
-    public void clipboardPost(Post post) {
-        setClipboardContent("Post text", post.comment.toString());
-        showToast(getContext(), R.string.post_text_copied);
-    }
-
     @Override
     public void openLink(final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
@@ -556,20 +501,6 @@ public class ThreadLayout
     }
 
     @Override
-    public void confirmPostDelete(final Post post) {
-        @SuppressLint("InflateParams")
-        final View view = LayoutUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
-        CheckBox checkBox = view.findViewById(R.id.image_only);
-        new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
-                .setView(view)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete,
-                        (dialog, which) -> presenter.deletePostConfirmed(post, checkBox.isChecked())
-                )
-                .show();
-    }
-
-    @Override
     public void showDeleting() {
         if (deletingDialog == null) {
             deletingDialog = ProgressDialog.show(getContext(), null, getString(R.string.delete_wait));
@@ -696,10 +627,6 @@ public class ThreadLayout
         }
     }
 
-    private Loadable getLoadable() {
-        return presenter.getLoadable();
-    }
-
     @Override
     public void onDetachedFromWindow() {
         dismissSnackbar();
@@ -714,7 +641,7 @@ public class ThreadLayout
             currentFocus.clearFocus();
         }
         try {
-            presentController(new ImageOptionsController(getContext(), getLoadable(), this));
+            presentController(new ImageOptionsController(getContext(), presenter.getLoadable(), this));
         } catch (Exception e) {
             showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
         }
@@ -767,7 +694,7 @@ public class ThreadLayout
                 if (this.visible == Visible.THREAD) {
                     threadListLayout.cleanup();
                     postPopupHelper.popAll();
-                    if (getLoadable() == null || getLoadable().isThreadMode()) {
+                    if (presenter.getLoadable() == null || presenter.getLoadable().isThreadMode()) {
                         showSearch(false);
                     }
                     dismissSnackbar();

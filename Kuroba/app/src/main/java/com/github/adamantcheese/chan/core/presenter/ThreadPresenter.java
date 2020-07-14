@@ -19,8 +19,12 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -50,6 +54,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -71,6 +76,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -88,8 +94,10 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
@@ -294,7 +302,7 @@ public class ThreadPresenter
     public void onForegroundChanged(boolean foreground) {
         if (isBound()) {
             if (foreground && isWatching()) {
-                chanLoader.requestMoreDataAndResetTimer();
+                chanLoader.requestMoreData();
                 if (chanLoader.getThread() != null) {
                     // Show loading indicator in the status cell
                     showPosts();
@@ -906,11 +914,43 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
-                    threadPresenterCallback.showPostLinkables(post);
+                    List<CharSequence> keys = new ArrayList<>();
+                    Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
+                    for (int i = 0; i < post.linkables.size(); i++) {
+                        //skip SPOILER linkables, they aren't useful to display
+                        if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
+                        String key = post.linkables.get(i).key.toString();
+                        String value = post.linkables.get(i).value.toString();
+                        if (value.contains("youtu.be") || value.contains("youtube")) {
+                            //need to trim off starting spaces for youtube links
+                            keys.add(PostHelper.prependIcon(context, key.substring(2), youtubeIcon, sp(16)));
+                        } else {
+                            keys.add(key);
+                        }
+                    }
+
+                    AlertDialog dialog = new AlertDialog.Builder(context).create();
+
+                    ListView clickables = new ListView(context);
+                    clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
+                    clickables.setOnItemClickListener((parent, view, position, id1) -> {
+                        onPostLinkableClicked(post, post.linkables.get(position));
+                        dialog.dismiss();
+                    });
+                    clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
+                        setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
+                        showToast(context, R.string.linkable_copied_to_clipboard);
+                        return false;
+                    });
+
+                    dialog.setView(clickables);
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.show();
                 }
                 break;
             case POST_OPTION_COPY_TEXT:
-                threadPresenterCallback.clipboardPost(post);
+                setClipboardContent("Post text", post.comment.toString());
+                showToast(context, R.string.post_text_copied);
                 break;
             case POST_OPTION_REPORT:
                 if (inPopup) {
@@ -1173,7 +1213,7 @@ public class ThreadPresenter
         if (!isBound()) return;
         //noinspection ConstantConditions
         if (!chanLoader.getThread().isArchived()) {
-            chanLoader.requestMoreDataAndResetTimer();
+            chanLoader.requestMoreData();
         } else {
             @SuppressLint("InflateParams")
             final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
@@ -1200,7 +1240,7 @@ public class ThreadPresenter
     @Override
     public void requestNewPostLoad() {
         if (isBound() && loadable.isThreadMode()) {
-            chanLoader.requestMoreDataAndResetTimer();
+            chanLoader.requestMoreData();
             //put in a "request" for a page update whenever the next set of data comes in
             forcePageUpdate = true;
         }
@@ -1214,11 +1254,20 @@ public class ThreadPresenter
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
         if (reply != null) {
-            threadPresenterCallback.confirmPostDelete(post);
+            @SuppressLint("InflateParams")
+            final View view = LayoutUtils.inflate(context, R.layout.dialog_post_delete, null);
+            CheckBox checkBox = view.findViewById(R.id.image_only);
+            new AlertDialog.Builder(context).setTitle(R.string.delete_confirm)
+                    .setView(view)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete,
+                            (dialog, which) -> deletePostConfirmed(post, checkBox.isChecked())
+                    )
+                    .show();
         }
     }
 
-    public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
+    private void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
         SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
@@ -1303,7 +1352,10 @@ public class ThreadPresenter
             text.append("\nCapcode: ").append(post.capcode);
         }
 
-        threadPresenterCallback.showPostInfo(text.toString());
+        new AlertDialog.Builder(context).setTitle(R.string.post_info_title)
+                .setMessage(text.toString())
+                .setPositiveButton(R.string.ok, null)
+                .show();
     }
 
     private void showPosts() {
@@ -1413,12 +1465,6 @@ public class ThreadPresenter
 
         void showEmpty();
 
-        void showPostInfo(String info);
-
-        void showPostLinkables(Post post);
-
-        void clipboardPost(Post post);
-
         void showThread(Loadable threadLoadable);
 
         void showBoard(Loadable catalogLoadable);
@@ -1476,8 +1522,6 @@ public class ThreadPresenter
         void quote(Post post, boolean withText);
 
         void quote(Post post, CharSequence text);
-
-        void confirmPostDelete(Post post);
 
         void showDeleting();
 
