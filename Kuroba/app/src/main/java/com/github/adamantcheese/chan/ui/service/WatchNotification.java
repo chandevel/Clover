@@ -141,7 +141,12 @@ public class WatchNotification
     public int onStartCommand(Intent intent, int flags, int startId) {
         setupChannel();
         //start with a blank notification, to ensure it is made within 5 seconds
-        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
+        startForeground(NOTIFICATION_ID,
+                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).setSmallIcon(R.drawable.ic_stat_notify)
+                        .setPriority(NotificationCompat.PRIORITY_MIN)
+                        .setOngoing(true)
+                        .build()
+        );
 
         if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean(PAUSE_PINS_KEY, false)) {
             watchManager.pauseAll();

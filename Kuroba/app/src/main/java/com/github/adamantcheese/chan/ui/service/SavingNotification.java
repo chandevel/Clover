@@ -78,7 +78,13 @@ public class SavingNotification
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
             if (extras.getBoolean(CANCEL_KEY)) {
-                startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
+                startForeground(NOTIFICATION_ID,
+                        new NotificationCompat.Builder(this,
+                                NOTIFICATION_ID_STR
+                        ).setSmallIcon(R.drawable.ic_stat_notify)
+                                .setOngoing(true)
+                                .build()
+                );
                 postToEventBus(new SavingCancelRequestMessage());
                 stopSelf();
                 return START_NOT_STICKY;
