@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
@@ -306,13 +307,18 @@ public class ThreadLayout
     }
 
     public void showPostLinkables(final Post post) {
-        CharSequence[] keys = new CharSequence[post.linkables.size()];
+        List<CharSequence> keys = new ArrayList<>();
         Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
         for (int i = 0; i < post.linkables.size(); i++) {
-            keys[i] = post.linkables.get(i).key.toString();
+            //skip SPOILER linkables, they aren't useful to display
+            if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
+            String key = post.linkables.get(i).key.toString();
             String value = post.linkables.get(i).value.toString();
             if (value.contains("youtu.be") || value.contains("youtube")) {
-                keys[i] = PostHelper.prependIcon(getContext(), keys[i], youtubeIcon, sp(16));
+                //need to trim off starting spaces for youtube links
+                keys.add(PostHelper.prependIcon(getContext(), key.substring(2), youtubeIcon, sp(16)));
+            } else {
+                keys.add(key);
             }
         }
 
@@ -331,6 +337,7 @@ public class ThreadLayout
         });
 
         dialog.setView(clickables);
+        dialog.setCanceledOnTouchOutside(true);
         dialog.show();
     }
 
