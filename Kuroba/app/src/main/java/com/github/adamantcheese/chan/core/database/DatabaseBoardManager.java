@@ -33,23 +33,6 @@ public class DatabaseBoardManager {
         inject(this);
     }
 
-    public Callable<Board> createOrUpdate(final Board board) {
-        return () -> {
-            QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-            q.where().eq("site", board.site.id()).and().eq("value", board.code);
-            Board existing = q.queryForFirst();
-            if (existing != null) {
-                existing.updateExcludingUserFields(board);
-                helper.boardsDao.update(existing);
-                board.updateExcludingUserFields(existing);
-            } else {
-                helper.boardsDao.create(board);
-            }
-
-            return board;
-        };
-    }
-
     public Callable<Void> updateIncludingUserFields(final Board board) {
         return () -> {
             helper.boardsDao.update(board);
@@ -198,17 +181,6 @@ public class DatabaseBoardManager {
                 res.add(new Pair<>(site, siteBoards));
             }
             return res;
-        };
-    }
-
-    public Callable<Boards> getSiteBoards(final Site site) {
-        return () -> {
-            List<Board> boards = helper.boardsDao.queryBuilder().where().eq("site", site.id()).query();
-            for (int i = 0; i < boards.size(); i++) {
-                Board board = boards.get(i);
-                board.site = site;
-            }
-            return new Boards(boards);
         };
     }
 
