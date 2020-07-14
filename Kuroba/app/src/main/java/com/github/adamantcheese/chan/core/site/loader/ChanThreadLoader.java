@@ -738,7 +738,7 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureMainThread();
 
         if (pendingFuture != null) {
-            Logger.d(this, "Cleared timer");
+            Logger.d(this, "Cleared runnable");
             pendingFuture.cancel(false);
             pendingFuture = null;
         }
