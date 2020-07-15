@@ -58,7 +58,7 @@ public class ThreadSlidingPaneLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        if(isInEditMode()) return;
+        if (isInEditMode()) return;
 
         // Forces a relayout after it has already been layed out, because SlidingPaneLayout sucks and otherwise
         // gives the children too much room until they request a relayout.
@@ -84,16 +84,10 @@ public class ThreadSlidingPaneLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
 
-        ViewGroup.LayoutParams leftParams = leftPane.getLayoutParams();
-        ViewGroup.LayoutParams rightParams = rightPane.getLayoutParams();
-
-        if (width < dp(getContext(), 500)) {
-            leftParams.width = width - dp(getContext(), 30);
-            rightParams.width = width;
-        } else {
-            leftParams.width = width - dp(getContext(), 60);
-            rightParams.width = width;
-        }
+        SlidingPaneLayout.LayoutParams leftParams = (LayoutParams) leftPane.getLayoutParams();
+        SlidingPaneLayout.LayoutParams rightParams = (LayoutParams) rightPane.getLayoutParams();
+        leftParams.width = width - dp(getContext(), (width < dp(getContext(), 500)) ? 30 : 60);
+        rightParams.width = width;
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
