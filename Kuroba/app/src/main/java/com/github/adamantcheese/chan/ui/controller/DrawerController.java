@@ -81,14 +81,13 @@ public class DrawerController
 
     public DrawerController(Context context) {
         super(context);
+        inject(this);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
-
-        EventBus.getDefault().register(this);
 
         view = inflate(context, R.layout.controller_navigation_drawer);
         container = view.findViewById(R.id.container);

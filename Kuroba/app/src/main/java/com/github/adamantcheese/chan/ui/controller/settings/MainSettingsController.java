@@ -66,12 +66,12 @@ public class MainSettingsController
 
     public MainSettingsController(Context context) {
         super(context);
+        inject(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         navigation.setTitle(R.string.settings_screen);
         setupLayout();

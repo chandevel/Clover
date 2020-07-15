@@ -458,9 +458,8 @@ public class BrowseController
     @Override
     public void showArchives() { }
 
-    // Creates or updates the target ThreadViewController
-    // This controller can be in various places depending on the layout
-    // We dynamically search for it
+    // Creates or updates the target ViewThreadController
+    // This controller can be in various places depending on the layout, so we dynamically search for it
     public void showThread(Loadable threadLoadable, boolean animated) {
         // The target ThreadViewController is in a split nav
         // (BrowseController -> ToolbarNavigationController -> SplitNavigationController)
