@@ -35,7 +35,6 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import org.joda.time.Period;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
@@ -121,6 +120,9 @@ public class CommentParserHelper {
             if (result == null) {
                 result = NetUtils.makeJsonRequestSync(
                         //@formatter:off
+                        //for testing, using 4chanx's api key
+                        //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
+                        //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
                     HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
                             + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
                             + "&id=" + videoID
@@ -160,9 +162,8 @@ public class CommentParserHelper {
                                 reader.nextName(); // content details
                                 reader.beginObject();
                                 reader.nextName(); // duration
-                                String duration = reader.nextString();
-                                duration = StringUtils.getHourMinSecondString(Period.parse(duration));
-                                ret = new Pair<>(title, duration);
+                                String duration = getHourMinSecondString(reader.nextString());
+                                ret = new Pair<>(title, "[" + duration + "]");
                                 reader.endObject();
                             }
                             reader.endObject();
@@ -213,6 +214,30 @@ public class CommentParserHelper {
         }
 
         return finalizedString;
+    }
+
+    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
+
+    private static String getHourMinSecondString(String ISO8601Duration) {
+        Matcher m = iso8601Time.matcher(ISO8601Duration);
+        if (m.matches()) {
+            String hours = m.group(2);
+            String minutes = m.group(4);
+            String seconds = m.group(6);
+            //pad seconds to 2 digits
+            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : null;
+            if (hours != null) {
+                //we have hours, pad minutes to 2 digits
+                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
+                return hours + ":" + (minutes != null ? minutes : "00") + ":" + (seconds != null ? seconds : "00");
+            } else {
+                //no hours, no need to pad anything else
+                return (minutes != null ? minutes : "0") + ":" + (seconds != null ? seconds : "00");
+            }
+        } else {
+            //badly formatted time from youtube's API?
+            return "0:00";
+        }
     }
 
     public static void addPostImages(Post.Builder post) {
