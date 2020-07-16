@@ -82,9 +82,9 @@ public class DatabaseLoadableManager {
                         helper.loadableDao.delete(l);
                     }
                 }
-                PersistableChanState.loadablesPurged.set(true);
+                PersistableChanState.loadablesPurged.setSync(true);
             } else if (dayOfMonth > 1) {
-                PersistableChanState.loadablesPurged.set(false);
+                PersistableChanState.loadablesPurged.setSync(false);
             }
             return null;
         };

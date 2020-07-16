@@ -202,7 +202,7 @@ public class DeveloperSettingsController
         // Reset the hash and make the app updated
         Button resetPrevApkHash = new Button(context);
         resetPrevApkHash.setOnClickListener(v -> {
-            PersistableChanState.previousVersion.set(BuildConfig.VERSION_CODE);
+            PersistableChanState.previousVersion.setSync(BuildConfig.VERSION_CODE);
             PersistableChanState.previousDevHash.setSync(NO_HASH_SET);
             PersistableChanState.updateCheckTime.setSync(0L);
             PersistableChanState.hasNewApkUpdate.setSync(false);

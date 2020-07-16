@@ -152,7 +152,7 @@ public class UpdateManager {
                 }
                 return;
             } else {
-                PersistableChanState.updateCheckTime.set(now);
+                PersistableChanState.updateCheckTime.setSync(now);
             }
         }
 
