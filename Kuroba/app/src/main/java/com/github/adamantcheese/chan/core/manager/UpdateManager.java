@@ -117,7 +117,7 @@ public class UpdateManager {
             dialog.setCanceledOnTouchOutside(true);
             dialog.show();
 
-            PersistableChanState.previousVersion.set(VERSION_CODE);
+            PersistableChanState.previousVersion.setSync(VERSION_CODE);
             cancelApkUpdateNotification();
 
             return;
@@ -127,7 +127,7 @@ public class UpdateManager {
             // Show toast because dev updates may happen every day (to avoid alert dialog spam)
             showToast(context, getApplicationLabel() + " was updated to the latest commit.");
 
-            PersistableChanState.previousDevHash.set(COMMIT_HASH);
+            PersistableChanState.previousDevHash.setSync(COMMIT_HASH);
             cancelApkUpdateNotification();
 
             return;
@@ -231,12 +231,12 @@ public class UpdateManager {
     }
 
     private void notifyNewApkUpdate() {
-        PersistableChanState.hasNewApkUpdate.set(true);
+        PersistableChanState.hasNewApkUpdate.setSync(true);
         settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
-        PersistableChanState.hasNewApkUpdate.set(false);
+        PersistableChanState.hasNewApkUpdate.setSync(false);
         settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 
