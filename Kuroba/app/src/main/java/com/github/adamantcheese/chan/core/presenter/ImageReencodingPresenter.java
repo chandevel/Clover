@@ -28,6 +28,7 @@ import androidx.exifinterface.media.ExifInterface;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
@@ -70,6 +71,7 @@ public class ImageReencodingPresenter {
                 dp(Math.min(displaySize.x, displaySize.y)), 0, bitmap -> {
                     if (bitmap == null) {
                         showToast(context, R.string.could_not_decode_image_bitmap);
+                        callback.showImagePreview(instance(BitmapRepository.class).error);
                         return;
                     }
 
