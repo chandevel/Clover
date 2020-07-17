@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -915,7 +914,6 @@ public class ThreadPresenter
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
                     List<CharSequence> keys = new ArrayList<>();
-                    Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
                     for (int i = 0; i < post.linkables.size(); i++) {
                         //skip SPOILER linkables, they aren't useful to display
                         if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
@@ -923,7 +921,12 @@ public class ThreadPresenter
                         String value = post.linkables.get(i).value.toString();
                         if (value.contains("youtu.be") || value.contains("youtube")) {
                             //need to trim off starting spaces for youtube links
-                            keys.add(PostHelper.prependIcon(context, key.substring(2), youtubeIcon, sp(16)));
+                            keys.add(PostHelper.prependIcon(
+                                    context,
+                                    key.substring(2),
+                                    BitmapRepository.youtubeIcon,
+                                    sp(16)
+                            ));
                         } else {
                             keys.add(key);
                         }

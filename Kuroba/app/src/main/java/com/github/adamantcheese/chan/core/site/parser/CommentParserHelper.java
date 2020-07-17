@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.graphics.Bitmap;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -48,7 +47,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -188,7 +186,6 @@ public class CommentParserHelper {
         //we have a new string here with all the links replaced by their text equivalents, we need to add the linkables now using the map
         //we reference newString internally because SpannableString instances don't have an indexOf method, but the two are otherwise the same
         SpannableString finalizedString = new SpannableString(newString);
-        Bitmap youtubeIcon = instance(BitmapRepository.class).youtubeIcon;
         for (String key : titleURLMap.keySet()) {
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
@@ -201,9 +198,11 @@ public class CommentParserHelper {
             post.addLinkable(pl);
 
             //set the youtube icon span for the linkable
-            ImageSpan ytIcon = new ImageSpan(getAppContext(), youtubeIcon);
+            ImageSpan ytIcon = new ImageSpan(getAppContext(), BitmapRepository.youtubeIcon);
             int height = Integer.parseInt(ChanSettings.fontSize.get());
-            int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
+            int width =
+                    (int) (sp(height) / (BitmapRepository.youtubeIcon.getHeight() / (float) BitmapRepository.youtubeIcon
+                            .getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
             finalizedString.setSpan(
                     ytIcon,

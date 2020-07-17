@@ -79,9 +79,6 @@ public class Chan
     @Inject
     SettingsNotificationManager settingsNotificationManager;
 
-    @Inject
-    BitmapRepository bitmapRepository;
-
     private static Feather feather;
 
     public static <T> T instance(Class<T> tClass) {
@@ -97,6 +94,7 @@ public class Chan
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         AndroidUtils.init(this);
+        BitmapRepository.initialize(this);
         AndroidUtils.getBuildType(); //spit out the build hash to the log
         // remove this if you need to debug some sort of event bus issue
         try {
@@ -128,7 +126,6 @@ public class Chan
         siteRepository.initialize();
         boardManager.initialize();
         databaseManager.initializeAndTrim();
-        bitmapRepository.initialize();
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

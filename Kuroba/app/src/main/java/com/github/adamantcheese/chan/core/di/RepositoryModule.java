@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.di;
 
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
@@ -69,12 +68,5 @@ public class RepositoryModule {
     public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson, FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader repository");
         return new SavedThreadLoaderRepository(gson, fileManager);
-    }
-
-    @Provides
-    @Singleton
-    public BitmapRepository provideBitmapRepository() {
-        Logger.d(AppModule.DI_TAG, "Bitmap repository");
-        return new BitmapRepository();
     }
 }

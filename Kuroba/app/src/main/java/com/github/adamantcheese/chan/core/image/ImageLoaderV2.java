@@ -147,7 +147,7 @@ public class ImageLoaderV2 {
 
                     if (bitmap == null) {
                         Logger.e(TAG, "Could not decode bitmap");
-                        BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapFailure(instance(BitmapRepository.class).error,
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapFailure(BitmapRepository.error,
                                 new Exception("Could not decode bitmap")
                         ));
                         return null;

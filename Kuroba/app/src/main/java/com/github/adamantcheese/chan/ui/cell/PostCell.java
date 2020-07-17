@@ -903,19 +903,19 @@ public class PostCell
                 int offset = 0;
 
                 if (get(STICKY)) {
-                    offset += drawBitmap(canvas, instance(BitmapRepository.class).stickyIcon, offset);
+                    offset += drawBitmap(canvas, BitmapRepository.stickyIcon, offset);
                 }
 
                 if (get(CLOSED)) {
-                    offset += drawBitmap(canvas, instance(BitmapRepository.class).closedIcon, offset);
+                    offset += drawBitmap(canvas, BitmapRepository.closedIcon, offset);
                 }
 
                 if (get(DELETED)) {
-                    offset += drawBitmap(canvas, instance(BitmapRepository.class).trashIcon, offset);
+                    offset += drawBitmap(canvas, BitmapRepository.trashIcon, offset);
                 }
 
                 if (get(ARCHIVED)) {
-                    offset += drawBitmap(canvas, instance(BitmapRepository.class).archivedIcon, offset);
+                    offset += drawBitmap(canvas, BitmapRepository.archivedIcon, offset);
                 }
 
                 if (get(HTTP_ICONS)) {

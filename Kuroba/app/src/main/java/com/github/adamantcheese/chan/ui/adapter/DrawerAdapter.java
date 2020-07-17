@@ -56,7 +56,6 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
@@ -297,11 +296,11 @@ public class DrawerAdapter
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            text = PostHelper.prependIcon(context, text, instance(BitmapRepository.class).archivedIcon, sp(16));
+            text = PostHelper.prependIcon(context, text, BitmapRepository.archivedIcon, sp(16));
         }
 
         if (pin.isSticky) {
-            text = PostHelper.prependIcon(context, text, instance(BitmapRepository.class).stickyIcon, sp(16));
+            text = PostHelper.prependIcon(context, text, BitmapRepository.stickyIcon, sp(16));
         }
 
         TextView bookmarkLabel = holder.textView;

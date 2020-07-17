@@ -80,7 +80,6 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -633,7 +632,7 @@ public class ImageViewerController
 
         Bitmap bitmap = startView.getBitmap();
         if (bitmap == null) {
-            bitmap = instance(BitmapRepository.class).error;
+            bitmap = BitmapRepository.error;
         }
 
         int[] loc = new int[2];

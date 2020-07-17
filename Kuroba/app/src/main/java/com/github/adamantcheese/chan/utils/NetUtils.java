@@ -175,7 +175,7 @@ public class NetUtils {
                 if (results == null) return;
                 for (BitmapResult bitmapResult : results) {
                     if (bitmapResult == null) continue;
-                    bitmapResult.onBitmapFailure(instance(BitmapRepository.class).error, e);
+                    bitmapResult.onBitmapFailure(BitmapRepository.error, e);
                 }
                 resultListeners.remove(url);
             }

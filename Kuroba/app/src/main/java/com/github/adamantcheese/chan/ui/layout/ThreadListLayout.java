@@ -20,7 +20,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -775,7 +774,6 @@ public class ThreadListLayout
     private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
         @Override
         public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
-            Bitmap hat = instance(BitmapRepository.class).partyHat;
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {
@@ -785,7 +783,7 @@ public class ThreadListLayout
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
                         int top = child.getTop() + params.topMargin;
                         int left = child.getLeft() + params.leftMargin;
-                        c.drawBitmap(hat,
+                        c.drawBitmap(BitmapRepository.partyHat,
                                 left - parent.getPaddingLeft() - dp(25),
                                 top - dp(80) - parent.getPaddingTop() + toolbarHeight(),
                                 null
