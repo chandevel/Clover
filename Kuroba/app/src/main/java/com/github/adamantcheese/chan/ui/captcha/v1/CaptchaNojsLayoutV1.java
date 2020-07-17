@@ -74,21 +74,15 @@ public class CaptchaNojsLayoutV1
     private boolean isAutoReply = true;
 
     public CaptchaNojsLayoutV1(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
-    }
-
-    private void init() {
         inject(this);
     }
 

@@ -646,11 +646,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </declare-styleable>
 
     <declare-styleable name="FixedRatioLinearLayout">
-        <attr name="layout_ratio" format="float"/>
+        <attr name="layout_ratio" format="float" />
     </declare-styleable>
 
     <declare-styleable name="FixedRatioThumbnailView">
-        <attr name="ratio" format="float"/>
+        <attr name="ratio" format="float" />
     </declare-styleable>
     <!-- endregion -->
 

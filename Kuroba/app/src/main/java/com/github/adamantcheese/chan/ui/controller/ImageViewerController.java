@@ -548,10 +548,11 @@ public class ImageViewerController
                 new NetUtils.BitmapResult() {
                     @Override
                     public void onBitmapFailure(Bitmap errormap, Exception e) {
-                        Logger.e(
-                                ImageViewerController.this,
-                                "onErrorResponse for preview in transition, cannot show correct transition bitmap"
+                        Logger.e(ImageViewerController.this,
+                                "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
+                                e
                         );
+                        previewImage.setBitmap(errormap);
                         startAnimation.start();
                     }
 
