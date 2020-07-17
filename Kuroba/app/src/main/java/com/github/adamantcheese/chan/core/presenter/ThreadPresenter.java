@@ -913,6 +913,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
+                    Set<String> added = new HashSet<>();
                     List<CharSequence> keys = new ArrayList<>();
                     for (int i = 0; i < post.linkables.size(); i++) {
                         //skip SPOILER linkables, they aren't useful to display
@@ -921,12 +922,10 @@ public class ThreadPresenter
                         String value = post.linkables.get(i).value.toString();
                         if (value.contains("youtu.be") || value.contains("youtube")) {
                             //need to trim off starting spaces for youtube links
-                            keys.add(PostHelper.prependIcon(
-                                    context,
-                                    key.substring(2),
-                                    BitmapRepository.youtubeIcon,
-                                    sp(16)
-                            ));
+                            String url = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
+                            if (added.contains(url)) continue;
+                            keys.add(PostHelper.prependIcon(context, url, BitmapRepository.youtubeIcon, sp(16)));
+                            added.add(url);
                         } else {
                             keys.add(key);
                         }
