@@ -60,7 +60,8 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
-        Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu);
+        // These floating menu items have type Integer because it is expected that post option IDs are integers
+        Object onPopulatePostOptions(Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu);
 
         void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup);
 

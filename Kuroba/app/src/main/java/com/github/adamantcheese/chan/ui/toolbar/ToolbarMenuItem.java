@@ -161,17 +161,19 @@ public class ToolbarMenuItem {
             return;
         }
 
-        List<FloatingMenuItem> floatingMenuItems = new ArrayList<>();
+        List<FloatingMenuItem<ToolbarMenuSubItem>> floatingMenuItems = new ArrayList<>();
         for (ToolbarMenuSubItem subItem : this.subItems) {
             if (subItem.enabled) {
-                floatingMenuItems.add(new FloatingMenuItem(subItem, subItem.text));
+                floatingMenuItems.add(new FloatingMenuItem<>(subItem, subItem.text));
             }
         }
 
-        FloatingMenu overflowMenu = new FloatingMenu(view.getContext(), view, floatingMenuItems);
-        overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<ToolbarMenuSubItem> overflowMenu = new FloatingMenu<>(view.getContext(), view, floatingMenuItems);
+        overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback<ToolbarMenuSubItem>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<ToolbarMenuSubItem> menu, FloatingMenuItem<ToolbarMenuSubItem> item
+            ) {
                 for (ToolbarMenuSubItem subItem : subItems) {
                     if (subItem == item.getId()) {
                         subItem.performClick();
@@ -181,7 +183,7 @@ public class ToolbarMenuItem {
             }
 
             @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
+            public void onFloatingMenuDismissed(FloatingMenu<ToolbarMenuSubItem> menu) {
                 if (threedotMenuCallback != null) {
                     threedotMenuCallback.onMenuHidden();
                 }

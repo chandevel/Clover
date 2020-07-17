@@ -201,8 +201,8 @@ public class PostCell
         replies.setOnClickListener(repliesClickListener);
 
         options.setOnClickListener(v -> {
-            List<FloatingMenuItem> items = new ArrayList<>();
-            List<FloatingMenuItem> extraItems = new ArrayList<>();
+            List<FloatingMenuItem<Integer>> items = new ArrayList<>();
+            List<FloatingMenuItem<Integer>> extraItems = new ArrayList<>();
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
@@ -219,21 +219,20 @@ public class PostCell
     }
 
     private void showOptions(
-            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
+            View anchor,
+            List<FloatingMenuItem<Integer>> items,
+            List<FloatingMenuItem<Integer>> extraItems,
+            Object extraOption
     ) {
-        FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<Integer> menu = new FloatingMenu<>(getContext(), anchor, items);
+        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 if (item.getId() == extraOption) {
                     showOptions(anchor, extraItems, null, null);
                 }
 
                 callback.onPostOptionClicked(anchor, post, item.getId(), inPopup);
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();

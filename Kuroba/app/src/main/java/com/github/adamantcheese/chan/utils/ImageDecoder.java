@@ -25,7 +25,6 @@ import android.media.MediaMetadataRetriever;
 import com.github.adamantcheese.chan.R;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.BitmapUtils.decodeFile;

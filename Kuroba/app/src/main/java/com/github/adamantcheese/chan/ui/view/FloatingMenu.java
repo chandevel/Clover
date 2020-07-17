@@ -32,32 +32,31 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.measureContentWidth;
 
-public class FloatingMenu {
+public class FloatingMenu<T> {
     private final Context context;
     private View anchor;
     private int anchorGravity = Gravity.RIGHT;
     private int anchorOffsetX = -dp(5);
     private int anchorOffsetY = dp(5);
     private int popupHeight = -1;
-    private List<FloatingMenuItem> items = new ArrayList<>();
-    private FloatingMenuItem selectedItem;
+    private List<FloatingMenuItem<T>> items;
+    private FloatingMenuItem<T> selectedItem;
     private ListAdapter adapter;
     private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
 
     private ListPopupWindow popupWindow;
-    private FloatingMenuCallback callback;
+    private FloatingMenuCallback<T> callback;
 
-    public FloatingMenu(Context context, @NonNull View anchor, @NonNull List<FloatingMenuItem> items) {
+    public FloatingMenu(Context context, @NonNull View anchor, @NonNull List<FloatingMenuItem<T>> items) {
         this.context = context;
         this.anchor = anchor;
-        this.items= items;
+        this.items = items;
     }
 
     public void setAnchorGravity(int anchorGravity, int anchorOffsetX, int anchorOffsetY) {
@@ -73,7 +72,7 @@ public class FloatingMenu {
         }
     }
 
-    public void setSelectedItem(FloatingMenuItem item) {
+    public void setSelectedItem(FloatingMenuItem<T> item) {
         this.selectedItem = item;
     }
 
@@ -84,7 +83,7 @@ public class FloatingMenu {
         }
     }
 
-    public void setCallback(FloatingMenuCallback callback) {
+    public void setCallback(FloatingMenuCallback<T> callback) {
         this.callback = callback;
     }
 
@@ -111,15 +110,17 @@ public class FloatingMenu {
             popupWindow.setAdapter(adapter);
             popupWindow.setWidth(measureContentWidth(context, adapter, dp(3 * 56)));
         } else {
-            FloatingMenuArrayAdapter arrayAdapter =
-                    new FloatingMenuArrayAdapter(context, R.layout.toolbar_menu_item, items);
+            FloatingMenuArrayAdapter<T> arrayAdapter = new FloatingMenuArrayAdapter<>(context,
+                    com.github.adamantcheese.chan.R.layout.toolbar_menu_item,
+                    items
+            );
             popupWindow.setAdapter(arrayAdapter);
             popupWindow.setWidth(measureContentWidth(context, arrayAdapter, dp(3 * 56)));
         }
 
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
             if (position >= 0 && position < items.size()) {
-                FloatingMenuItem item = items.get(position);
+                FloatingMenuItem<T> item = items.get(position);
                 callback.onFloatingMenuItemClicked(FloatingMenu.this, item);
                 dismiss();
             } else {
@@ -163,15 +164,25 @@ public class FloatingMenu {
         }
     }
 
-    public interface FloatingMenuCallback {
-        void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item);
+    public interface FloatingMenuCallback<R> {
+        void onFloatingMenuItemClicked(FloatingMenu<R> menu, FloatingMenuItem<R> item);
 
-        void onFloatingMenuDismissed(FloatingMenu menu);
+        void onFloatingMenuDismissed(FloatingMenu<R> menu);
     }
 
-    private static class FloatingMenuArrayAdapter
-            extends ArrayAdapter<FloatingMenuItem> {
-        public FloatingMenuArrayAdapter(Context context, int resource, List<FloatingMenuItem> objects) {
+    public abstract static class ClickCallback<S>
+            implements FloatingMenuCallback<S> {
+
+        @Override
+        public abstract void onFloatingMenuItemClicked(FloatingMenu<S> menu, FloatingMenuItem<S> item);
+
+        @Override
+        public final void onFloatingMenuDismissed(FloatingMenu<S> menu) {}
+    }
+
+    private static class FloatingMenuArrayAdapter<T>
+            extends ArrayAdapter<FloatingMenuItem<T>> {
+        public FloatingMenuArrayAdapter(Context context, int resource, List<FloatingMenuItem<T>> objects) {
             super(context, resource, objects);
         }
 
@@ -181,7 +192,7 @@ public class FloatingMenu {
                 convertView = inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
             }
 
-            FloatingMenuItem item = getItem(position);
+            FloatingMenuItem<T> item = getItem(position);
 
             TextView textView = (TextView) convertView;
             textView.setText(item.getText());

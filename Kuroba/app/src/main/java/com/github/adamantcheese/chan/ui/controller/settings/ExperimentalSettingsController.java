@@ -131,8 +131,7 @@ public class ExperimentalSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.settings_concurrent_file_downloading_description) + "\n\n" + items.get(
-                        selected).name;
+                return getString(R.string.settings_concurrent_file_downloading_description) + "\n\n" + selected.name;
             }
         }));
     }

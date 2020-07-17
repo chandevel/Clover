@@ -43,7 +43,6 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
 import okhttp3.Call;

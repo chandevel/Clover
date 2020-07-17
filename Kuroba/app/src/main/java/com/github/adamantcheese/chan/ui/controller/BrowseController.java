@@ -36,7 +36,7 @@ import com.github.adamantcheese.chan.core.presenter.BrowsePresenter;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
@@ -70,7 +70,7 @@ public class BrowseController
     @Inject
     BrowsePresenter presenter;
 
-    private PostsFilter.Order order;
+    private Order order;
     @Nullable
     private HintPopup hint = null;
     public String searchQuery = null;
@@ -85,7 +85,7 @@ public class BrowseController
         inject(this);
 
         // Initialization
-        order = PostsFilter.Order.find(ChanSettings.boardOrder.get());
+        order = Order.find(ChanSettings.boardOrder.get());
         threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
         threadLayout.getPresenter().setOrder(order);
 
@@ -344,8 +344,8 @@ public class BrowseController
 
     private void handleSorting(ToolbarMenuItem item) {
         final ThreadPresenter presenter = threadLayout.getPresenter();
-        List<FloatingMenuItem> items = new ArrayList<>();
-        for (PostsFilter.Order order : PostsFilter.Order.values()) {
+        List<FloatingMenuItem<Order>> items = new ArrayList<>();
+        for (Order order : Order.values()) {
             int nameId = 0;
             switch (order) {
                 case BUMP:
@@ -376,29 +376,25 @@ public class BrowseController
                 name = "\u2713 " + name; // Checkmark
             }
 
-            items.add(new FloatingMenuItem(order, name));
+            items.add(new FloatingMenuItem<>(order, name));
         }
         ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
         View anchor = item != null ? item.getView() : overflow.getView();
-        FloatingMenu menu;
+        FloatingMenu<Order> menu;
         if (anchor != null) {
-            menu = new FloatingMenu(context, anchor, items);
+            menu = new FloatingMenu<>(context, anchor, items);
         } else {
             Logger.wtf(this, "Couldn't find anchor for sorting button action??");
-            menu = new FloatingMenu(context, view, items);
+            menu = new FloatingMenu<>(context, view, items);
         }
 
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        menu.setCallback(new FloatingMenu.ClickCallback<Order>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                PostsFilter.Order order = (PostsFilter.Order) item.getId();
+            public void onFloatingMenuItemClicked(FloatingMenu<Order> menu, FloatingMenuItem<Order> item) {
+                Order order = item.getId();
                 ChanSettings.boardOrder.set(order.name);
                 BrowseController.this.order = order;
                 presenter.setOrder(order);
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();

@@ -20,7 +20,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -66,7 +65,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerController
         extends Controller
-        implements DrawerAdapter.Callback, View.OnClickListener {
+        implements DrawerAdapter.Callback {
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
@@ -130,11 +129,6 @@ public class DrawerController
         addChildController(childController);
         childController.attachToParentView(container);
         childController.onShow();
-    }
-
-    @Override
-    public void onClick(View v) {
-
     }
 
     public void onMenuClicked() {

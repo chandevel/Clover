@@ -267,24 +267,19 @@ public class FilterLayout
                     })
                     .show();
         } else if (v == actionText) {
-            List<FloatingMenuItem> menuItems = new ArrayList<>(6);
+            List<FloatingMenuItem<FilterAction>> menuItems = new ArrayList<>(6);
 
             for (FilterAction action : FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
+                menuItems.add(new FloatingMenuItem<>(action, FilterAction.actionName(action)));
             }
 
-            FloatingMenu menu = new FloatingMenu(v.getContext(), v, menuItems);
+            FloatingMenu<FilterAction> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
             menu.setAnchorGravity(Gravity.LEFT, -dp(5), -dp(5));
-            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
                 @Override
-                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                    FilterAction action = (FilterAction) item.getId();
-                    filter.action = action.id;
+                public void onFloatingMenuItemClicked(FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item) {
+                    filter.action = item.getId().id;
                     updateFilterAction();
-                }
-
-                @Override
-                public void onFloatingMenuDismissed(FloatingMenu menu) {
                 }
             });
             menu.show();

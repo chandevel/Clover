@@ -150,7 +150,7 @@ public class ThreadPresenter
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
     private Context context;
-    private List<FloatingMenuItem> filterMenu;
+    private List<FloatingMenuItem<Integer>> filterMenu;
     //endregion
 
     @Inject
@@ -800,59 +800,59 @@ public class ThreadPresenter
     }
 
     @Override
-    public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu) {
+    public Object onPopulatePostOptions(Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu) {
         if (!isBound()) return null;
         if (loadable.isCatalogMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         } else if (!loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
-            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_REPORT, R.string.post_report));
         }
 
         if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) && !loadable.isLocal()) {
             if (!post.filterStub) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIDE, R.string.post_hide));
             }
-            menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
         if (loadable.isThreadMode()) {
             if (!TextUtils.isEmpty(post.id)) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
 
             if (!TextUtils.isEmpty(post.tripcode)) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
             }
         }
 
         filterMenu = new ArrayList<>();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
         }
         if (!TextUtils.isEmpty(post.comment)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
         }
         if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_NAME, R.string.filter_name));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, R.string.filter_name));
         }
         if (!TextUtils.isEmpty(post.id)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_ID, R.string.filter_id));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, R.string.filter_id));
         }
         if (!TextUtils.isEmpty(post.tripcode)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
         }
         if (loadable.board.countryFlags) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
         }
         if (!post.images.isEmpty()) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
             if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
-                filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
+                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
             }
         }
 
@@ -860,38 +860,38 @@ public class ThreadPresenter
         //in some cases a post will have nothing in it to filter (for example a post with no text and an image
         //that is removed by a filter), in such cases there is no filter menu option.
         if (filterMenu.size() > 1) {
-            menu.add(new FloatingMenuItem(POST_OPTION_FILTER, R.string.post_filter));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
         } else if (filterMenu.size() == 1) {
-            FloatingMenuItem menuItem = filterMenu.remove(0);
-            menu.add(new FloatingMenuItem(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
+            FloatingMenuItem<Integer> menuItem = filterMenu.remove(0);
+            menu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
                 .isSaved(post.board, post.no) && !loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_DELETE, R.string.post_delete));
         }
 
         if (ChanSettings.accessibleInfo.get()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
         } else {
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
         }
 
-        menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
+        menu.add(new FloatingMenuItem<>(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_show_links));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SHARE, R.string.post_share));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE,
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
 
             if (BuildConfig.DEV_BUILD && loadable.no > 0) {
-                extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+                extraMenu.add(new FloatingMenuItem<>(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
             }
         }
 
@@ -1094,16 +1094,12 @@ public class ThreadPresenter
         }
     }
 
-    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem> options) {
-        FloatingMenu menu = new FloatingMenu(context, anchor, options);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
+        FloatingMenu<Integer> menu = new FloatingMenu<>(context, anchor, options);
+        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 onPostOptionClicked(anchor, post, item.getId(), inPopup);
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();

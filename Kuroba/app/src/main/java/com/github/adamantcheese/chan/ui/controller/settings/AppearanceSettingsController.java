@@ -336,11 +336,10 @@ public class AppearanceSettingsController
             fontSizes.add(new Item<>(name, String.valueOf(size)));
         }
 
-        //noinspection unchecked
         requiresUiRefresh.add(post.add(new ListSettingView<>(this,
                 ChanSettings.fontSize,
                 R.string.setting_font_size,
-                fontSizes.toArray(new Item[0])
+                fontSizes
         )));
     }
 }
