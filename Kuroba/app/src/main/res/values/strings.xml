@@ -363,7 +363,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Error deleting post</string>
 
-    <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
 
     <string name="history_screen">History</string>
