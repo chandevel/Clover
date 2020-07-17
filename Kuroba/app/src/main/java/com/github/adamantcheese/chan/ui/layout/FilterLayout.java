@@ -277,7 +277,9 @@ public class FilterLayout
             menu.setAnchorGravity(Gravity.LEFT, -dp(5), -dp(5));
             menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
                 @Override
-                public void onFloatingMenuItemClicked(FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item) {
+                public void onFloatingMenuItemClicked(
+                        FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item
+                ) {
                     filter.action = item.getId().id;
                     updateFilterAction();
                 }

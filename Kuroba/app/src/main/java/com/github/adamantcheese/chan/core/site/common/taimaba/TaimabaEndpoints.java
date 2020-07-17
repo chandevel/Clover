@@ -103,9 +103,7 @@ public class TaimabaEndpoints
                 .addQueryParameter("postId", String.valueOf(post.no))
                 .addQueryParameter("reason", "RULE_VIOLATION")
                 .addQueryParameter("note", "")
-                .addQueryParameter("location",
-                        "http://boards.420chan.org/" + post.board.code + "/" + post.no
-                )
+                .addQueryParameter("location", "http://boards.420chan.org/" + post.board.code + "/" + post.no)
                 .build();
     }
 }

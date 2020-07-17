@@ -75,7 +75,8 @@ public class VichanAntispam {
 
         Request request = new Request.Builder().url(url).build();
         try {
-            Response response = Chan.instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).execute();
+            Response response =
+                    Chan.instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

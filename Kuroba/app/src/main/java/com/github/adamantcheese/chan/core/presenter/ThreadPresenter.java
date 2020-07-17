@@ -800,7 +800,9 @@ public class ThreadPresenter
     }
 
     @Override
-    public Object onPopulatePostOptions(Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu) {
+    public Object onPopulatePostOptions(
+            Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+    ) {
         if (!isBound()) return null;
         if (loadable.isCatalogMode()) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));

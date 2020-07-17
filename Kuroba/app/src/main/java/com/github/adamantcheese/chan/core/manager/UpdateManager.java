@@ -172,34 +172,31 @@ public class UpdateManager {
                 }
             }, new UpdateApiParser());
         } else {
-            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT),
-                    new JsonResult<UpdateApiResponse>() {
-                        @Override
-                        public void onJsonFailure(Exception e) {
-                            failedUpdate(manual);
+            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT), new JsonResult<UpdateApiResponse>() {
+                @Override
+                public void onJsonFailure(Exception e) {
+                    failedUpdate(manual);
+                }
+
+                @Override
+                public void onJsonSuccess(UpdateApiResponse result) {
+                    if (result == null) {
+                        failedUpdate(manual);
+                    } else if (result.commitHash.equals(COMMIT_HASH)) {
+                        //same version and commit, no update needed
+                        if (manual && BackgroundUtils.isInForeground()) {
+                            showToast(context,
+                                    getString(R.string.update_none, getApplicationLabel()),
+                                    Toast.LENGTH_LONG
+                            );
                         }
 
-                        @Override
-                        public void onJsonSuccess(UpdateApiResponse result) {
-                            if (result == null) {
-                                failedUpdate(manual);
-                            } else if (result.commitHash.equals(COMMIT_HASH)) {
-                                //same version and commit, no update needed
-                                if (manual && BackgroundUtils.isInForeground()) {
-                                    showToast(context,
-                                            getString(R.string.update_none, getApplicationLabel()),
-                                            Toast.LENGTH_LONG
-                                    );
-                                }
-
-                                cancelApkUpdateNotification();
-                            } else {
-                                processUpdateApiResponse(result, manual);
-                            }
-                        }
-                    },
-                    new UpdateApiParser()
-            );
+                        cancelApkUpdateNotification();
+                    } else {
+                        processUpdateApiResponse(result, manual);
+                    }
+                }
+            }, new UpdateApiParser());
         }
     }
 

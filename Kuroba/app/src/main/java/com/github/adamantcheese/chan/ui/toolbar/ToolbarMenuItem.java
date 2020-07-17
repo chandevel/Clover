@@ -68,7 +68,10 @@ public class ToolbarMenuItem {
     }
 
     public ToolbarMenuItem(
-            int id, int drawable, ToolbarItemClickCallback clickCallback, @Nullable OverflowMenuCallback overflowMenuCallback
+            int id,
+            int drawable,
+            ToolbarItemClickCallback clickCallback,
+            @Nullable OverflowMenuCallback overflowMenuCallback
     ) {
         this.id = id;
         this.drawable = getAppContext().getDrawable(drawable);
