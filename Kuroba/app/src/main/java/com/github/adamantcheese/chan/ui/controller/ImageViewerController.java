@@ -95,7 +95,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ImageViewerController
         extends Controller
-        implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToobarThreedotMenuCallback {
+        implements ImageViewerPresenter.Callback, ToolbarMenuItem.OverflowMenuCallback {
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
@@ -492,7 +492,7 @@ public class ImageViewerController
     }
 
     @Override
-    public void onMenuShown(FloatingMenu menu) {
+    public void onMenuShown(FloatingMenu<ToolbarMenuSubItem> menu) {
         showSystemUI();
     }
 

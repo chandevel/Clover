@@ -87,15 +87,15 @@ public class NavigationItem {
             menu = new ToolbarMenu();
         }
 
-        public MenuBuilder withItem(int drawable, ToolbarMenuItem.ClickCallback clicked) {
+        public MenuBuilder withItem(int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
             return withItem(-1, drawable, clicked);
         }
 
-        public MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ClickCallback clicked) {
+        public MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
             return withItem(new ToolbarMenuItem(id, drawable, clicked));
         }
 
-        public MenuBuilder withItem(int id, Drawable drawable, ToolbarMenuItem.ClickCallback clicked) {
+        public MenuBuilder withItem(int id, Drawable drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
             return withItem(new ToolbarMenuItem(id, drawable, clicked));
         }
 
@@ -113,7 +113,7 @@ public class NavigationItem {
             );
         }
 
-        public MenuOverflowBuilder withOverflow(ToolbarMenuItem.ToobarThreedotMenuCallback threedotMenuCallback) {
+        public MenuOverflowBuilder withOverflow(ToolbarMenuItem.OverflowMenuCallback threedotMenuCallback) {
             return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
                     R.drawable.ic_more_vert_white_24dp,
                     ToolbarMenuItem::showSubmenu,
