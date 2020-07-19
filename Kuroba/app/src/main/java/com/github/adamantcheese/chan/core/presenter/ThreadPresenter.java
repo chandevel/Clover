@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -84,6 +85,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -109,7 +111,7 @@ public class ThreadPresenter
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
     private static final int POST_OPTION_LINKS = 3;
-    private static final int POST_OPTION_COPY_TEXT = 4;
+    private static final int POST_OPTION_COPY = 4;
     private static final int POST_OPTION_REPORT = 5;
     private static final int POST_OPTION_HIGHLIGHT_ID = 6;
     private static final int POST_OPTION_DELETE = 7;
@@ -131,6 +133,11 @@ public class ThreadPresenter
     private static final int POST_OPTION_EXTRA = 23;
     private static final int POST_OPTION_REMOVE = 24;
     private static final int POST_OPTION_MOCK_REPLY = 25;
+    private static final int POST_OPTION_COPY_POST_LINK = 26;
+    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 27;
+    private static final int POST_OPTION_COPY_POST_TEXT = 28;
+    private static final int POST_OPTION_COPY_IMG_URL = 29;
+    private static final int POST_OPTION_COPY_POST_URL = 30;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -151,6 +158,7 @@ public class ThreadPresenter
     private boolean addToLocalBackHistory;
     private Context context;
     private List<FloatingMenuItem<Integer>> filterMenu;
+    private List<FloatingMenuItem<Integer>> copyMenu;
     //endregion
 
     @Inject
@@ -804,6 +812,10 @@ public class ThreadPresenter
             Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
     ) {
         if (!isBound()) return null;
+
+        copyMenu = populateCopyMenuOptions(post);
+        filterMenu = populateFilterMenuOptions(post);
+
         if (loadable.isCatalogMode()) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         } else if (!loadable.isLocal()) {
@@ -832,41 +844,7 @@ public class ThreadPresenter
             }
         }
 
-        filterMenu = new ArrayList<>();
-        if (post.isOP && !TextUtils.isEmpty(post.subject)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
-        }
-        if (!TextUtils.isEmpty(post.comment)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
-        }
-        if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, R.string.filter_name));
-        }
-        if (!TextUtils.isEmpty(post.id)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, R.string.filter_id));
-        }
-        if (!TextUtils.isEmpty(post.tripcode)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
-        }
-        if (loadable.board.countryFlags) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
-        }
-        if (!post.images.isEmpty()) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
-            if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
-                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
-            }
-        }
-
-        //if the filter menu only has a single option we place just that option in the root menu
-        //in some cases a post will have nothing in it to filter (for example a post with no text and an image
-        //that is removed by a filter), in such cases there is no filter menu option.
-        if (filterMenu.size() > 1) {
-            menu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
-        } else if (filterMenu.size() == 1) {
-            FloatingMenuItem<Integer> menuItem = filterMenu.remove(0);
-            menu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
-        }
+        menu.add(new FloatingMenuItem<>(POST_OPTION_COPY, R.string.post_copy_menu));
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
                 .isSaved(post.board, post.no) && !loadable.isLocal()) {
@@ -881,10 +859,21 @@ public class ThreadPresenter
 
         menu.add(new FloatingMenuItem<>(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_show_links));
+        if (post.linkables.size() > 0) {
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_show_links));
+        }
         extraMenu.add(new FloatingMenuItem<>(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SHARE, R.string.post_share));
-        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+
+        //if the filter menu only has a single option we place just that option in the root menu
+        //in some cases a post will have nothing in it to filter (for example a post with no text and an image
+        //that is removed by a filter), in such cases there is no filter menu option.
+        if (filterMenu.size() > 1) {
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
+        } else if (filterMenu.size() == 1) {
+            FloatingMenuItem<Integer> menuItem = filterMenu.remove(0);
+            extraMenu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
+        }
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
@@ -914,45 +903,62 @@ public class ThreadPresenter
                 showPostInfo(post);
                 break;
             case POST_OPTION_LINKS:
-                if (post.linkables.size() > 0) {
-                    Set<String> added = new HashSet<>();
-                    List<CharSequence> keys = new ArrayList<>();
-                    for (int i = 0; i < post.linkables.size(); i++) {
-                        //skip SPOILER linkables, they aren't useful to display
-                        if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
-                        String key = post.linkables.get(i).key.toString();
-                        String value = post.linkables.get(i).value.toString();
-                        if (value.contains("youtu.be") || value.contains("youtube")) {
-                            //need to trim off starting spaces for youtube links
-                            String url = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
-                            if (added.contains(url)) continue;
-                            keys.add(PostHelper.prependIcon(context, url, BitmapRepository.youtubeIcon, sp(16)));
-                            added.add(url);
-                        } else {
-                            keys.add(key);
-                        }
+                Set<String> added = new HashSet<>();
+                List<CharSequence> keys = new ArrayList<>();
+                for (int i = 0; i < post.linkables.size(); i++) {
+                    //skip SPOILER linkables, they aren't useful to display
+                    if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
+                    String key = post.linkables.get(i).key.toString();
+                    String value = post.linkables.get(i).value.toString();
+                    if (value.contains("youtu.be") || value.contains("youtube")) {
+                        //need to trim off starting spaces for youtube links
+                        String url = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
+                        if (added.contains(url)) continue;
+                        keys.add(PostHelper.prependIcon(context, url, BitmapRepository.youtubeIcon, sp(16)));
+                        added.add(url);
+                    } else {
+                        keys.add(key);
                     }
-
-                    AlertDialog dialog = new AlertDialog.Builder(context).create();
-
-                    ListView clickables = new ListView(context);
-                    clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
-                    clickables.setOnItemClickListener((parent, view, position, id1) -> {
-                        onPostLinkableClicked(post, post.linkables.get(position));
-                        dialog.dismiss();
-                    });
-                    clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
-                        setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
-                        showToast(context, R.string.linkable_copied_to_clipboard);
-                        return false;
-                    });
-
-                    dialog.setView(clickables);
-                    dialog.setCanceledOnTouchOutside(true);
-                    dialog.show();
                 }
+
+                AlertDialog dialog = new AlertDialog.Builder(context).create();
+
+                ListView clickables = new ListView(context);
+                clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
+                clickables.setOnItemClickListener((parent, view, position, id1) -> {
+                    onPostLinkableClicked(post, post.linkables.get(position));
+                    dialog.dismiss();
+                });
+                clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
+                    setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
+                    showToast(context, R.string.linkable_copied_to_clipboard);
+                    return true;
+                });
+
+                dialog.setView(clickables);
+                dialog.setCanceledOnTouchOutside(true);
+                dialog.show();
                 break;
-            case POST_OPTION_COPY_TEXT:
+            case POST_OPTION_COPY:
+                showSubMenuOptions(anchor, post, inPopup, copyMenu);
+                break;
+            case POST_OPTION_COPY_POST_LINK:
+                setClipboardContent("Post link", String.format(Locale.ENGLISH,">>%d", post.no));
+                showToast(context, R.string.post_link_copied);
+                break;
+            case POST_OPTION_COPY_CROSS_BOARD_LINK:
+                setClipboardContent("Cross-board link", String.format(Locale.ENGLISH,">>>/%s/%d", post.boardId, post.no));
+                showToast(context, R.string.post_cross_board_link_copied);
+                break;
+            case POST_OPTION_COPY_POST_URL:
+                setClipboardContent("Post URL", loadable.site.resolvable().desktopUrl(loadable, post.no));
+                showToast(context, R.string.post_url_copied);
+                break;
+            case POST_OPTION_COPY_IMG_URL:
+                setClipboardContent("Image URL", post.image().imageUrl.toString());
+                showToast(context, R.string.image_url_copied_to_clipboard);
+                break;
+            case POST_OPTION_COPY_POST_TEXT:
                 setClipboardContent("Post text", post.comment.toString());
                 showToast(context, R.string.post_text_copied);
                 break;
@@ -969,7 +975,7 @@ public class ThreadPresenter
                 threadPresenterCallback.highlightPostTripcode(post.tripcode);
                 break;
             case POST_OPTION_FILTER:
-                showFilterOptions(anchor, post, inPopup, filterMenu);
+                showSubMenuOptions(anchor, post, inPopup, filterMenu);
                 break;
             case POST_OPTION_FILTER_SUBJECT:
                 threadPresenterCallback.filterPostSubject(post.subject);
@@ -1096,7 +1102,7 @@ public class ThreadPresenter
         }
     }
 
-    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
+    private void showSubMenuOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
         FloatingMenu<Integer> menu = new FloatingMenu<>(context, anchor, options);
         menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
@@ -1297,7 +1303,9 @@ public class ThreadPresenter
 
     private void showPostInfo(Post post) {
         StringBuilder text = new StringBuilder();
-
+        if (post.isOP && !TextUtils.isEmpty(post.subject)) {
+            text.append("Subject: ").append(post.subject).append("\n");
+        }
         for (PostImage image : post.images) {
             text.append("Filename: ").append(image.filename).append(".").append(image.extension);
             if (image.isInlined) {
@@ -1351,11 +1359,17 @@ public class ThreadPresenter
         if (!TextUtils.isEmpty(post.capcode)) {
             text.append("\nCapcode: ").append(post.capcode);
         }
-
-        new AlertDialog.Builder(context).setTitle(R.string.post_info_title)
+        AlertDialog.Builder alertDialogbuilder = new AlertDialog.Builder(context);
+        AlertDialog dialog = alertDialogbuilder
                 .setMessage(text.toString())
+                .setTitle(R.string.post_info)
                 .setPositiveButton(R.string.ok, null)
-                .show();
+                .create();
+        dialog.show();
+        View messageView = dialog.findViewById(android.R.id.message);
+        if (messageView instanceof TextView) {
+            ((TextView) messageView).setTextIsSelectable(true);
+        }
     }
 
     private void showPosts() {
@@ -1452,6 +1466,53 @@ public class ThreadPresenter
                 watchManager.onBottomPostViewed(pin);
             }
         }
+    }
+
+    private List<FloatingMenuItem<Integer>> populateFilterMenuOptions(Post post) {
+        List<FloatingMenuItem<Integer>> filterMenu = new ArrayList<>();
+        if (post.isOP && !TextUtils.isEmpty(post.subject)) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
+        }
+        if (!TextUtils.isEmpty(post.comment)) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
+        }
+        if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, R.string.filter_name));
+        }
+        if (!TextUtils.isEmpty(post.id)) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, R.string.filter_id));
+        }
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
+        }
+        if (loadable.board.countryFlags) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
+        }
+        if (!post.images.isEmpty()) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
+            if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
+                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
+            }
+        }
+        return filterMenu;
+    }
+
+    private List<FloatingMenuItem<Integer>> populateCopyMenuOptions(Post post) {
+        List<FloatingMenuItem<Integer>> copyMenu = new ArrayList<>();
+        if (!TextUtils.isEmpty(post.comment)) {
+            copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_POST_TEXT, R.string.post_copy_text));
+        }
+        copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_POST_LINK, R.string.post_copy_link));
+        copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_CROSS_BOARD_LINK, R.string.post_copy_cross_board_link));
+        copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_POST_URL, R.string.post_copy_post_url));
+        if (!post.images.isEmpty()) {
+            copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_IMG_URL, R.string.post_copy_image_url));
+        }
+        copyMenu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
+        if (post.linkables.size() > 0) {
+            copyMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_copy_links));
+        }
+        return copyMenu;
     }
 
     public interface ThreadPresenterCallback {

@@ -309,14 +309,25 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
 
     <string name="post_highlight_id">Highlight ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
-    <string name="post_text_copied">Text copied to clipboard</string>
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>
-    <string name="post_info">Info</string>
-    <string name="post_info_title">Post info</string>
+    <string name="post_info">Post info</string>
     <string name="post_show_links">Show links</string>
     <string name="post_share">Share</string>
-    <string name="post_copy_text">Copy text</string>
+
+    <string name="post_copy_menu">Copy…</string>
+    <string name="post_copy_text">Post text</string>
+    <string name="post_copy_link">Post link</string>
+    <string name="post_copy_cross_board_link">Cross-board link</string>
+    <string name="post_copy_image_url">Image URL</string>
+    <string name="post_copy_post_url">Post URL</string>
+    <string name="post_copy_links">Links in post</string>
+
+    <string name="post_link_copied">Link copied to clipboard</string>
+    <string name="post_cross_board_link_copied">Cross-board link copied to clipboard</string>
+    <string name="post_url_copied">Post URL copied to clipboard</string>
+    <string name="post_text_copied">Text copied to clipboard</string>
+
     <string name="post_report">Report</string>
     <string name="post_hide">Hide</string>
     <string name="post_remove">Remove</string>
