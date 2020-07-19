@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -230,7 +231,7 @@ public class FilterLayout
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 
-            List<Board> allSavedBoards = new ArrayList<>();
+            Boards allSavedBoards = new Boards();
             for (BoardRepository.SiteBoards item : boardManager.getSavedBoardsObservable().get()) {
                 allSavedBoards.addAll(item.boards);
             }
@@ -248,7 +249,7 @@ public class FilterLayout
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
-                        List<Board> boardList = new ArrayList<>(items1.size());
+                        Boards boardList = new Boards(items1.size());
                         if (!all) {
                             for (SelectLayout.SelectItem<Board> item : items1) {
                                 if (item.checked) {
@@ -266,24 +267,21 @@ public class FilterLayout
                     })
                     .show();
         } else if (v == actionText) {
-            List<FloatingMenuItem> menuItems = new ArrayList<>(6);
+            List<FloatingMenuItem<FilterAction>> menuItems = new ArrayList<>(6);
 
             for (FilterAction action : FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem(action, FilterAction.actionName(action)));
+                menuItems.add(new FloatingMenuItem<>(action, FilterAction.actionName(action)));
             }
 
-            FloatingMenu menu = new FloatingMenu(v.getContext(), v, menuItems);
+            FloatingMenu<FilterAction> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
             menu.setAnchorGravity(Gravity.LEFT, -dp(5), -dp(5));
-            menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+            menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
                 @Override
-                public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                    FilterAction action = (FilterAction) item.getId();
-                    filter.action = action.id;
+                public void onFloatingMenuItemClicked(
+                        FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item
+                ) {
+                    filter.action = item.getId().id;
                     updateFilterAction();
-                }
-
-                @Override
-                public void onFloatingMenuDismissed(FloatingMenu menu) {
                 }
             });
             menu.show();

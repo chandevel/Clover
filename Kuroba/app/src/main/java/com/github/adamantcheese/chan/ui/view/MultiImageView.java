@@ -191,7 +191,7 @@ public class MultiImageView
                     setVideo(loadable, postImage);
                     break;
                 case OTHER:
-                    setOther(loadable, postImage);
+                    setOther(postImage);
                     break;
             }
             return true;
@@ -366,7 +366,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         setBitImageFileInternal(new File(file.getFullPath()), true);
@@ -425,7 +425,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         if (!hasContent || mode == Mode.GIFIMAGE) {
@@ -543,7 +543,6 @@ public class MultiImageView
                         exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
-                        callback.onVideoLoaded(MultiImageView.this);
                         callback.onDownloaded(postImage);
                     }
                 }
@@ -586,7 +585,7 @@ public class MultiImageView
                     }
 
                     @Override
-                    public void onSuccess(RawFile file) {
+                    public void onSuccess(RawFile file, boolean immediate) {
                         BackgroundUtils.ensureMainThread();
 
                         if (!hasContent || mode == Mode.VIDEO) {
@@ -654,7 +653,6 @@ public class MultiImageView
             exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.VIDEO, exoVideoView);
-            callback.onVideoLoaded(this);
         }
     }
 
@@ -665,15 +663,9 @@ public class MultiImageView
         }
     }
 
-    private void setOther(Loadable loadable, PostImage image) {
-        if (image.type == PostImage.Type.PDF) {
-            cancellableToast.showToast(getContext(), R.string.pdf_not_viewable);
-            //this lets the user download the PDF, even though we haven't actually downloaded anything
-            callback.onDownloaded(image);
-        } else if (image.type == PostImage.Type.SWF) {
-            cancellableToast.showToast(getContext(), R.string.swf_not_viewable);
-            callback.onDownloaded(image);
-        }
+    private void setOther(PostImage image) {
+        cancellableToast.showToast(getContext(), getString(R.string.file_not_viewable, image.type.name()));
+        callback.onDownloaded(image);
     }
 
     public void toggleTransparency() {
@@ -899,8 +891,6 @@ public class MultiImageView
         void onProgress(MultiImageView multiImageView, int chunkIndex, long current, long total);
 
         void onDownloaded(PostImage postImage);
-
-        void onVideoLoaded(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
 

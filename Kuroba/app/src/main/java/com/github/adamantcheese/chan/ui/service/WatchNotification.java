@@ -76,7 +76,6 @@ public class WatchNotification
     private int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
-    public static final String PAUSE_PINS_KEY = "pause_pins";
 
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
@@ -141,11 +140,12 @@ public class WatchNotification
     public int onStartCommand(Intent intent, int flags, int startId) {
         setupChannel();
         //start with a blank notification, to ensure it is made within 5 seconds
-        startForeground(NOTIFICATION_ID, new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).build());
-
-        if (intent != null && intent.getExtras() != null && intent.getExtras().getBoolean(PAUSE_PINS_KEY, false)) {
-            watchManager.pauseAll();
-        }
+        startForeground(NOTIFICATION_ID,
+                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).setSmallIcon(R.drawable.ic_stat_notify)
+                        .setPriority(NotificationCompat.PRIORITY_MIN)
+                        .setOngoing(true)
+                        .build()
+        );
 
         Notification notification = createNotification(); //this may take more than 5 seconds to generate
         if (notification == null) {
@@ -300,8 +300,7 @@ public class WatchNotification
                     0,
                     false,
                     false,
-                    pins.size() > 0 ? pins.get(0) : null,
-                    pins.size() > 0
+                    pins.size() > 0 ? pins.get(0) : null
             );
         } else {
             // New posts notification
@@ -370,8 +369,7 @@ public class WatchNotification
                     flags,
                     alert,
                     PersistableChanState.watchLastCount.get() > 0,
-                    subjectPins.size() == 1 ? subjectPins.get(0) : null,
-                    pins.size() > 0
+                    subjectPins.size() == 1 ? subjectPins.get(0) : null
             );
         }
     }
@@ -459,8 +457,7 @@ public class WatchNotification
             int flags,
             boolean alertIcon,
             boolean alertIconOverride,
-            Pin target,
-            boolean hasWatchPins
+            Pin target
     ) {
         synchronized (this) {
             NotificationCompat.Builder builder =
@@ -493,18 +490,6 @@ public class WatchNotification
                 builder.setSmallIcon(R.drawable.ic_stat_notify_alert).setPriority(NotificationCompat.PRIORITY_HIGH);
             } else {
                 builder.setSmallIcon(R.drawable.ic_stat_notify).setPriority(NotificationCompat.PRIORITY_MIN);
-            }
-
-            if (hasWatchPins) {
-                //setup the pause watch button
-                Intent pauseWatching = new Intent(this, WatchNotification.class);
-                pauseWatching.putExtra(PAUSE_PINS_KEY, true);
-                PendingIntent pauseWatchIntent =
-                        PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_pause_white_24dp,
-                        getString(R.string.watch_pause_pins),
-                        pauseWatchIntent
-                );
             }
 
             //setup the display in the notification

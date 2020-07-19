@@ -26,21 +26,24 @@ import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
+import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter.BoardSuggestion;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class BoardAddLayout
         extends LinearLayout
-        implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.AddCallback, View.OnClickListener {
+        implements SearchLayout.SearchLayoutCallback, BoardSetupPresenter.LayoutCallback {
     private BoardSetupPresenter presenter;
 
     private SuggestionsAdapter suggestionsAdapter;
-
-    private Button checkAllButton;
 
     public BoardAddLayout(Context context) {
         this(context, null);
@@ -61,7 +64,7 @@ public class BoardAddLayout
         // View binding
         SearchLayout search = findViewById(R.id.search);
         RecyclerView suggestionsRecycler = findViewById(R.id.suggestions);
-        checkAllButton = findViewById(R.id.select_all);
+        Button checkAllButton = findViewById(R.id.select_all);
 
         // Adapters
         suggestionsAdapter = new SuggestionsAdapter();
@@ -69,7 +72,7 @@ public class BoardAddLayout
         // View setup
         search.setCallback(this);
 
-        checkAllButton.setOnClickListener(this);
+        checkAllButton.setOnClickListener(v -> suggestionsAdapter.selectAll());
         suggestionsRecycler.setAdapter(suggestionsAdapter);
 
         suggestionsRecycler.requestFocus();
@@ -78,8 +81,7 @@ public class BoardAddLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        //this check is here for android studio's layout preview
-        if (presenter != null) {
+        if (!isInEditMode()) {
             presenter.bindAddDialog(this);
         }
     }
@@ -87,16 +89,8 @@ public class BoardAddLayout
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        //this check is here for android studio's layout preview
-        if (presenter != null) {
+        if (!isInEditMode()) {
             presenter.unbindAddDialog();
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == checkAllButton) {
-            presenter.onSelectAllClicked();
         }
     }
 
@@ -106,16 +100,17 @@ public class BoardAddLayout
     }
 
     @Override
-    public void suggestionsWereChanged() {
-        suggestionsAdapter.notifyDataSetChanged();
+    public void suggestionsWereChanged(List<BoardSuggestion> suggestionList) {
+        suggestionsAdapter.setSuggestionList(suggestionList);
+    }
+
+    @Override
+    public List<String> getCheckedSuggestions() {
+        return suggestionsAdapter.getSelectedSuggestions();
     }
 
     public void setPresenter(BoardSetupPresenter presenter) {
         this.presenter = presenter;
-    }
-
-    private void onSuggestionClicked(BoardSetupPresenter.BoardSuggestion suggestion) {
-        presenter.onSuggestionClicked(suggestion);
     }
 
     public void onPositiveClicked() {
@@ -124,32 +119,51 @@ public class BoardAddLayout
 
     private class SuggestionsAdapter
             extends RecyclerView.Adapter<SuggestionCell> {
+
+        private final List<BoardSuggestion> suggestionList = new ArrayList<>();
+
         public SuggestionsAdapter() {
             setHasStableIds(true);
         }
 
+        public void setSuggestionList(List<BoardSuggestion> suggestions) {
+            suggestionList.clear();
+            suggestionList.addAll(suggestions);
+            notifyDataSetChanged();
+        }
+
+        public void selectAll() {
+            for (BoardSuggestion suggestion : suggestionList) {
+                suggestion.checked = true;
+            }
+            notifyDataSetChanged();
+        }
+
+        public List<String> getSelectedSuggestions() {
+            List<String> result = new ArrayList<>();
+            for (BoardSuggestion suggestion : suggestionList) {
+                if (suggestion.checked) {
+                    result.add(suggestion.code);
+                }
+            }
+            return result;
+        }
+
         @Override
         public long getItemId(int position) {
-            if (presenter != null) {
-                return presenter.getSuggestions().get(position).getId();
-            } else {
-                //this is here for android studio's layout preview
-                return position;
-            }
+            if (isInEditMode()) return position;
+            return suggestionList.get(position).getId();
         }
 
         @Override
         public int getItemCount() {
-            if (presenter != null) {
-                return presenter.getSuggestions().size();
-            } else {
-                //this is here for android studio's layout preview
-                return 15;
-            }
+            if (isInEditMode()) return 15;
+            return suggestionList.size();
         }
 
         @Override
-        public SuggestionCell onCreateViewHolder(ViewGroup parent, int viewType) {
+        @NonNull
+        public SuggestionCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new SuggestionCell(LayoutUtils.inflate(parent.getContext(),
                     R.layout.cell_board_suggestion,
                     parent,
@@ -158,13 +172,13 @@ public class BoardAddLayout
         }
 
         @Override
-        public void onBindViewHolder(SuggestionCell holder, int position) {
-            BoardSetupPresenter.BoardSuggestion boardSuggestion;
+        public void onBindViewHolder(@NonNull SuggestionCell holder, int position) {
+            BoardSuggestion boardSuggestion;
             if (presenter != null) {
-                boardSuggestion = presenter.getSuggestions().get(position);
+                boardSuggestion = suggestionList.get(position);
             } else {
                 //this is here for android studio's layout preview
-                boardSuggestion = new BoardSetupPresenter.BoardSuggestion(Board.getDummyBoard());
+                boardSuggestion = new BoardSuggestion(Board.getDummyBoard());
             }
             holder.setSuggestion(boardSuggestion);
             holder.text.setText(boardSuggestion.getName());
@@ -172,14 +186,14 @@ public class BoardAddLayout
         }
     }
 
-    private class SuggestionCell
+    private static class SuggestionCell
             extends RecyclerView.ViewHolder
-            implements OnClickListener, CompoundButton.OnCheckedChangeListener {
+            implements CompoundButton.OnCheckedChangeListener {
         private TextView text;
         private TextView description;
         private CheckBox check;
 
-        private BoardSetupPresenter.BoardSuggestion suggestion;
+        private BoardSuggestion suggestion;
 
         private boolean ignoreCheckChange = false;
 
@@ -190,10 +204,10 @@ public class BoardAddLayout
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
             check.setOnCheckedChangeListener(this);
-            itemView.setOnClickListener(this);
+            itemView.setOnClickListener(v -> toggle());
         }
 
-        public void setSuggestion(BoardSetupPresenter.BoardSuggestion suggestion) {
+        public void setSuggestion(BoardSuggestion suggestion) {
             this.suggestion = suggestion;
             ignoreCheckChange = true;
             check.setChecked(suggestion.isChecked());
@@ -201,21 +215,14 @@ public class BoardAddLayout
         }
 
         @Override
-        public void onClick(View v) {
-            if (v == itemView) {
-                toggle();
-            }
-        }
-
-        @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!ignoreCheckChange && buttonView == check) {
+            if (!ignoreCheckChange) {
                 toggle();
             }
         }
 
         private void toggle() {
-            onSuggestionClicked(suggestion);
+            suggestion.checked = !suggestion.checked;
             ignoreCheckChange = true;
             check.setChecked(suggestion.isChecked());
             ignoreCheckChange = false;

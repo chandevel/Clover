@@ -17,22 +17,32 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
+
+import com.github.adamantcheese.chan.R;
 
 public class FixedRatioThumbnailView
         extends ThumbnailView {
     private float ratio;
 
     public FixedRatioThumbnailView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public FixedRatioThumbnailView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public FixedRatioThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FixedRatioThumbnailView);
+        try {
+            ratio = a.getFloat(R.styleable.FixedRatioThumbnailView_ratio, 0.0f);
+        } finally {
+            a.recycle();
+        }
     }
 
     public void setRatio(float ratio) {
@@ -41,6 +51,10 @@ public class FixedRatioThumbnailView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (ratio == 0.0f) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            return;
+        }
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
                 || heightMode == MeasureSpec.AT_MOST)) {

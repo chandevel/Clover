@@ -49,31 +49,34 @@ public class ToolbarMenuItem {
 
     public final List<ToolbarMenuSubItem> subItems = new ArrayList<>();
 
-    private ClickCallback clicked;
+    private ToolbarItemClickCallback clickCallback;
 
     @Nullable
-    private ToobarThreedotMenuCallback threedotMenuCallback;
+    private OverflowMenuCallback overflowMenuCallback;
 
     // Views, only non-null if attached to ToolbarMenuView.
     private ImageView view;
 
-    public ToolbarMenuItem(int id, int drawable, ClickCallback clicked) {
-        this(id, getAppContext().getDrawable(drawable), clicked);
+    public ToolbarMenuItem(int id, int drawable, ToolbarItemClickCallback clickCallback) {
+        this(id, getAppContext().getDrawable(drawable), clickCallback);
     }
 
-    public ToolbarMenuItem(int id, Drawable drawable, ClickCallback clicked) {
+    public ToolbarMenuItem(int id, Drawable drawable, ToolbarItemClickCallback clickCallback) {
         this.id = id;
         this.drawable = drawable;
-        this.clicked = clicked;
+        this.clickCallback = clickCallback;
     }
 
     public ToolbarMenuItem(
-            int id, int drawable, ClickCallback clicked, @Nullable ToobarThreedotMenuCallback threedotMenuCallback
+            int id,
+            int drawable,
+            ToolbarItemClickCallback clickCallback,
+            @Nullable OverflowMenuCallback overflowMenuCallback
     ) {
         this.id = id;
         this.drawable = getAppContext().getDrawable(drawable);
-        this.clicked = clicked;
-        this.threedotMenuCallback = threedotMenuCallback;
+        this.clickCallback = clickCallback;
+        this.overflowMenuCallback = overflowMenuCallback;
     }
 
     public void attach(ImageView view) {
@@ -161,17 +164,19 @@ public class ToolbarMenuItem {
             return;
         }
 
-        List<FloatingMenuItem> floatingMenuItems = new ArrayList<>();
+        List<FloatingMenuItem<ToolbarMenuSubItem>> floatingMenuItems = new ArrayList<>();
         for (ToolbarMenuSubItem subItem : this.subItems) {
             if (subItem.enabled) {
-                floatingMenuItems.add(new FloatingMenuItem(subItem, subItem.text));
+                floatingMenuItems.add(new FloatingMenuItem<>(subItem, subItem.text));
             }
         }
 
-        FloatingMenu overflowMenu = new FloatingMenu(view.getContext(), view, floatingMenuItems);
-        overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<ToolbarMenuSubItem> overflowMenu = new FloatingMenu<>(view.getContext(), view, floatingMenuItems);
+        overflowMenu.setCallback(new FloatingMenu.FloatingMenuCallback<ToolbarMenuSubItem>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<ToolbarMenuSubItem> menu, FloatingMenuItem<ToolbarMenuSubItem> item
+            ) {
                 for (ToolbarMenuSubItem subItem : subItems) {
                     if (subItem == item.getId()) {
                         subItem.performClick();
@@ -181,16 +186,16 @@ public class ToolbarMenuItem {
             }
 
             @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
-                if (threedotMenuCallback != null) {
-                    threedotMenuCallback.onMenuHidden();
+            public void onFloatingMenuDismissed(FloatingMenu<ToolbarMenuSubItem> menu) {
+                if (overflowMenuCallback != null) {
+                    overflowMenuCallback.onMenuHidden();
                 }
             }
         });
         overflowMenu.show();
 
-        if (threedotMenuCallback != null) {
-            threedotMenuCallback.onMenuShown(overflowMenu);
+        if (overflowMenuCallback != null) {
+            overflowMenuCallback.onMenuShown(overflowMenu);
         }
     }
 
@@ -199,21 +204,21 @@ public class ToolbarMenuItem {
     }
 
     public void performClick() {
-        if (clicked != null) {
-            clicked.clicked(this);
+        if (clickCallback != null) {
+            clickCallback.onClick(this);
         }
     }
 
-    public void setCallback(ClickCallback callback) {
-        clicked = callback;
+    public void setCallback(ToolbarItemClickCallback callback) {
+        clickCallback = callback;
     }
 
-    public interface ClickCallback {
-        void clicked(ToolbarMenuItem item);
+    public interface ToolbarItemClickCallback {
+        void onClick(ToolbarMenuItem item);
     }
 
-    public interface ToobarThreedotMenuCallback {
-        void onMenuShown(FloatingMenu menu);
+    public interface OverflowMenuCallback {
+        void onMenuShown(FloatingMenu<ToolbarMenuSubItem> menu);
 
         void onMenuHidden();
     }

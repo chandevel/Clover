@@ -30,26 +30,6 @@ internal open class ActiveDownloads {
         }
     }
 
-    fun isGalleryBatchDownload(url: HttpUrl): Boolean {
-        return synchronized(activeDownloads) {
-            return@synchronized activeDownloads[url]
-                    ?.cancelableDownload
-                    ?.downloadType
-                    ?.isGalleryBatchDownload
-                    ?: false
-        }
-    }
-
-    fun isBatchDownload(url: HttpUrl): Boolean {
-        return synchronized(activeDownloads) {
-            return@synchronized activeDownloads[url]
-                    ?.cancelableDownload
-                    ?.downloadType
-                    ?.isAnyKindOfMultiDownload()
-                    ?: false
-        }
-    }
-
     fun containsKey(url: HttpUrl): Boolean {
         return synchronized(activeDownloads) { activeDownloads.containsKey(url) }
     }

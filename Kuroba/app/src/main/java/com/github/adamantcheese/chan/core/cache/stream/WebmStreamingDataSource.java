@@ -248,7 +248,7 @@ public class WebmStreamingDataSource
             throws HttpDataSource.HttpDataSourceException {
         this.fileLength = dataSource.open(new DataSpec(uri, 0, C.LENGTH_UNSET, null));
 
-        Logger.i(this, "detectLength: " + this.fileLength);
+        Logger.d(this, "detectLength: " + this.fileLength);
     }
 
     private void prepare()
@@ -296,7 +296,7 @@ public class WebmStreamingDataSource
 
         transferInitializing(dataSpec);
 
-        Logger.i(this, "opening, position: " + dataSpec.position + " length: " + dataSpec.length);
+        Logger.d(this, "opening, position: " + dataSpec.position + " length: " + dataSpec.length);
         partialFileCache.seek(dataSpec.position);
 
         long bytesRemaining = dataSpec.length == C.LENGTH_UNSET ? fileLength - dataSpec.position : dataSpec.length;
@@ -414,7 +414,7 @@ public class WebmStreamingDataSource
     @Override
     public void close()
             throws IOException {
-        Logger.i(this, "close");
+        Logger.d(this, "close");
         try {
             if (dataSource != null) {
                 dataSource.close();

@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
+import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
@@ -75,7 +75,8 @@ public class VichanAntispam {
 
         Request request = new Request.Builder().url(url).build();
         try {
-            Response response = Chan.instance(ProxiedOkHttpClient.class).getProxiedClient().newCall(request).execute();
+            Response response =
+                    Chan.instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

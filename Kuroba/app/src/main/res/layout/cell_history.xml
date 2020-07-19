@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -27,13 +28,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
-        <com.github.adamantcheese.chan.ui.view.ThumbnailView
+        <com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView
             android:id="@+id/thumbnail"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
-            tools:test_bitmap="true"
-            android:padding="4dp" />
+            android:padding="4dp"
+            app:ratio="1.0"
+            tools:test_bitmap="true" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -46,23 +48,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                tools:text="Thread title"
                 android:paddingLeft="16dp"
-                android:paddingRight="16dp"
                 android:paddingTop="8dp"
+                android:paddingRight="16dp"
                 android:singleLine="true"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:text="Thread title" />
 
             <TextView
                 android:id="@+id/subtext"
-                tools:text="Board title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="8dp"
                 android:paddingLeft="16dp"
                 android:paddingRight="16dp"
+                android:paddingBottom="8dp"
                 android:textColor="?android:textColorSecondary"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                tools:text="Board title" />
 
         </LinearLayout>
 

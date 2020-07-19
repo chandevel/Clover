@@ -19,8 +19,7 @@ package com.github.adamantcheese.chan.core.manager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
-
-import java.util.List;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import javax.inject.Inject;
 
@@ -48,7 +47,7 @@ public class BoardManager {
         boardRepository.initialize();
     }
 
-    public void updateAvailableBoardsForSite(Site site, List<Board> boards) {
+    public void updateAvailableBoardsForSite(Site site, Boards boards) {
         boardRepository.updateAvailableBoardsForSite(site, boards);
     }
 
@@ -64,11 +63,11 @@ public class BoardManager {
         return boardRepository.getFromCode(site, code);
     }
 
-    public List<Board> getSiteBoards(Site site) {
+    public Boards getSiteBoards(Site site) {
         return boardRepository.getSiteBoards(site);
     }
 
-    public List<Board> getSiteSavedBoards(Site site) {
+    public Boards getSiteSavedBoards(Site site) {
         return boardRepository.getSiteSavedBoards(site);
     }
 
@@ -80,7 +79,7 @@ public class BoardManager {
         return boardRepository.getSavedObservable();
     }
 
-    public void updateBoardOrders(List<Board> boards) {
+    public void updateBoardOrders(Boards boards) {
         boardRepository.updateBoardOrders(boards);
     }
 
@@ -88,7 +87,7 @@ public class BoardManager {
         boardRepository.setSaved(board, saved);
     }
 
-    public void setAllSaved(List<Board> boards, boolean saved) {
+    public void setAllSaved(Boards boards, boolean saved) {
         boardRepository.setAllSaved(boards, saved);
     }
 }

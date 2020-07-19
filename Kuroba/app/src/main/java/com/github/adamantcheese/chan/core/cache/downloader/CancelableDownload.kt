@@ -16,8 +16,7 @@ import java.util.concurrent.atomic.AtomicReference
  * ThreadSafe
  * */
 class CancelableDownload(
-        val url: HttpUrl,
-        val downloadType: DownloadType
+        val url: HttpUrl
 ) {
     private val state: AtomicReference<DownloadState> = AtomicReference(DownloadState.Running)
     private val callbacks: MutableMap<Class<*>, FileCacheListener> = mutableMapOf()
@@ -62,65 +61,28 @@ class CancelableDownload(
     }
 
     /**
-     * Use this to cancel prefetches. You can't cancel them via the regular cancel() method
-     * to avoid canceling prefetches when swiping through the images in the album viewer. This
-     * will also cancel a regular download if it's not a prefetch download too. But it's preferred
-     * to use a regular [cancel] for that.
-     * */
-    fun cancelPrefetch() {
-        cancel(true)
-    }
-
-    /**
-     * A regular [cancel] method that cancels active downloads but not prefetch downloads.
-     * */
-    fun cancel() {
-        cancel(false)
-    }
-
-    fun stopBatchDownload() {
-        stop(true)
-    }
-
-    /**
-     * By default, stop is called we don't want to stop it because it will usually be called from
-     * WebmStreamingSource, but we actually want to stop it when stopping a gallery download.
-     * */
-    fun stop() {
-        stop(false)
-    }
-
-    /**
      * Similar to [cancel] but does not delete the output file. Used by [WebmStreamingSource]
      * to stop the download without deleting the output which we will then use in
      * [WebmStreamingDataSource]
+     *
+     * By default, stop is called when we don't want to stop it because it will usually be called from
+     * WebmStreamingSource, but we actually want to stop it when stopping a gallery download.
      * */
-    fun stop(canStopBatchDownloads: Boolean) {
+    fun stop() {
         if (!state.compareAndSet(DownloadState.Running, DownloadState.Stopped)) {
             // Already canceled or stopped
-            return
-        }
-
-        if (downloadType.isAnyKindOfMultiDownload() && !canStopBatchDownloads) {
-            // Do not stop the request in case of it being prefetch/batch download. Just wait until
-            // it downloads normally.
             return
         }
 
         dispose()
     }
 
-    private fun cancel(canCancelBatchDownloads: Boolean) {
+    /**
+     * A regular [cancel] method that cancels active downloads but not prefetch downloads.
+     * */
+    fun cancel() {
         if (!state.compareAndSet(DownloadState.Running, DownloadState.Canceled)) {
             // Already canceled or stopped
-            return
-        }
-
-        if (downloadType.isAnyKindOfMultiDownload() && !canCancelBatchDownloads) {
-            // When prefetching media in a thread and viewing images in the same thread at the
-            // same time we may accidentally cancel a prefetch download which we don't want.
-            // We only want to cancel prefetch downloads when exiting a thread, not when swiping
-            // through the images in the album viewer.
             return
         }
 
@@ -172,13 +134,6 @@ class CancelableDownload(
             // occurs.
             Logger.e(TAG, "Error while trying to dispose of a request for url = (${maskImageUrl(url)})", error)
         }
-    }
-
-    data class DownloadType(
-            val isPrefetchDownload: Boolean,
-            val isGalleryBatchDownload: Boolean
-    ) {
-        fun isAnyKindOfMultiDownload(): Boolean = isPrefetchDownload || isGalleryBatchDownload
     }
 
     companion object {

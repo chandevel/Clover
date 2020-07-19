@@ -69,12 +69,12 @@ public class CaptchaNoJsHtmlParser {
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
     private static final int SUCCESS_STATUS_CODE = 200;
 
-    private NetModule.ProxiedOkHttpClient okHttpClient;
+    private NetModule.OkHttpClientWithUtils okHttpClient;
     private Context context;
 
     public CaptchaNoJsHtmlParser(Context context) {
         this.context = context;
-        this.okHttpClient = Chan.instance(NetModule.ProxiedOkHttpClient.class);
+        this.okHttpClient = Chan.instance(NetModule.OkHttpClientWithUtils.class);
     }
 
     @NonNull

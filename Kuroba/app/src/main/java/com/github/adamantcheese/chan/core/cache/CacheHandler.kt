@@ -25,18 +25,18 @@ import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
 import com.github.adamantcheese.chan.utils.JavaUtils.stringMD5hash
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils
+import com.github.adamantcheese.chan.utils.StringUtils.UTC_DATE_TIME_PRINTER
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
 import okhttp3.HttpUrl
-import org.joda.time.format.DateTimeFormatterBuilder
-import org.joda.time.format.ISODateTimeFormat
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.io.PrintWriter
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit.MINUTES
@@ -876,18 +876,9 @@ class CacheHandler(
 
         override fun toString(): String {
             return "CacheFileMeta{" +
-                    "createdOn=${formatter.print(createdOn)}" +
+                    "createdOn=${UTC_DATE_TIME_PRINTER.format(Instant.ofEpochMilli(createdOn))}" +
                     ", downloaded=$isDownloaded" +
                     '}'
-        }
-
-        companion object {
-            private val formatter = DateTimeFormatterBuilder()
-                    .append(ISODateTimeFormat.date())
-                    .appendLiteral(' ')
-                    .append(ISODateTimeFormat.hourMinuteSecond())
-                    .appendTimeZoneOffset(null, true, 2, 2)
-                    .toFormatter()
         }
     }
 

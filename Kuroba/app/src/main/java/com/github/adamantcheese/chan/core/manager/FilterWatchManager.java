@@ -54,7 +54,7 @@ public class FilterWatchManager
     //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
     //this lets you unpin threads that are pinned by the filter pin manager and not have them come back
     //note that ignoredPosts is currently only saved while the application is running and not in the database
-    private final Map<ChanThreadLoader, BackgroundLoader> filterLoaders = new HashMap<>();
+    private final Map<ChanThreadLoader, CatalogLoader> filterLoaders = new HashMap<>();
     private final Set<Integer> ignoredPosts = Collections.synchronizedSet(new HashSet<>());
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
     private int numBoardsChecked = 0;
@@ -80,15 +80,15 @@ public class FilterWatchManager
     public void onWake() {
         if (!processing) {
             wakeManager.manageLock(true, FilterWatchManager.this);
-            Logger.i(this,
-                    "Processing filter loaders, started at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
-                            Locale.getDefault()
-                    ).format(new Date())
-            );
             processing = true;
             populateFilterLoaders();
-            Logger.d(this, "Number of filter loaders: " + numBoardsChecked);
             if (!filterLoaders.keySet().isEmpty()) {
+                Logger.d(this,
+                        "Processing " + numBoardsChecked + " filter loaders, started at " + DateFormat.getTimeInstance(
+                                DateFormat.DEFAULT,
+                                Locale.getDefault()
+                        ).format(new Date())
+                );
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
                     loader.requestData();
                 }
@@ -127,7 +127,7 @@ public class FilterWatchManager
             for (Board b : siteBoard.boards) {
                 for (String code : boardCodes) {
                     if (b.code.equals(code)) {
-                        BackgroundLoader backgroundLoader = new BackgroundLoader();
+                        CatalogLoader backgroundLoader = new CatalogLoader();
                         ChanThreadLoader catalogLoader =
                                 chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
                         filterLoaders.put(catalogLoader, backgroundLoader);
@@ -159,7 +159,7 @@ public class FilterWatchManager
         PersistableChanState.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
     }
 
-    private class BackgroundLoader
+    private class CatalogLoader
             implements ChanThreadLoader.ChanLoaderCallback {
         @Override
         public void onChanLoaderData(ChanThread result) {
@@ -203,7 +203,7 @@ public class FilterWatchManager
                 PersistableChanState.filterWatchIgnored.set(instance(Gson.class).toJson(ignoredPosts));
                 lastCheckedPosts.clear();
                 processing = false;
-                Logger.i(this,
+                Logger.d(this,
                         "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
                                 Locale.ENGLISH
                         ).format(new Date())

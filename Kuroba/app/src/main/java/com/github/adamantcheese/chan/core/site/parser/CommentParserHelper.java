@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -27,17 +25,15 @@ import androidx.annotation.AnyThread;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import org.joda.time.Period;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
@@ -59,17 +55,17 @@ public class CommentParserHelper {
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    private static Pattern youtubeLinkPattern = Pattern.compile(
+    private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
-    private static Bitmap youtubeIcon = BitmapFactory.decodeResource(AndroidUtils.getRes(), R.drawable.youtube_icon);
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
     public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
 
-    //@formatter:off
-    private static Pattern imageUrlPattern = Pattern.compile("https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)", Pattern.CASE_INSENSITIVE);
-    private static String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
-    //@formatter:on
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
+            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            Pattern.CASE_INSENSITIVE
+    );
+    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
     private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
@@ -114,7 +110,7 @@ public class CommentParserHelper {
                 new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
         StringBuffer newString = new StringBuffer();
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = youtubeLinkPattern.matcher(text);
+        Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(text);
         while (linkMatcher.find()) {
             String URL = linkMatcher.group(0);
             String videoID = linkMatcher.group(1);
@@ -122,6 +118,9 @@ public class CommentParserHelper {
             if (result == null) {
                 result = NetUtils.makeJsonRequestSync(
                         //@formatter:off
+                        //for testing, using 4chanx's api key
+                        //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
+                        //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
                     HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
                             + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
                             + "&id=" + videoID
@@ -161,9 +160,8 @@ public class CommentParserHelper {
                                 reader.nextName(); // content details
                                 reader.beginObject();
                                 reader.nextName(); // duration
-                                String duration = reader.nextString();
-                                duration = StringUtils.getHourMinSecondString(Period.parse(duration));
-                                ret = new Pair<>(title, duration);
+                                String duration = getHourMinSecondString(reader.nextString());
+                                ret = new Pair<>(title, "[" + duration + "]");
                                 reader.endObject();
                             }
                             reader.endObject();
@@ -200,9 +198,11 @@ public class CommentParserHelper {
             post.addLinkable(pl);
 
             //set the youtube icon span for the linkable
-            ImageSpan ytIcon = new ImageSpan(getAppContext(), youtubeIcon);
+            ImageSpan ytIcon = new ImageSpan(getAppContext(), BitmapRepository.youtubeIcon);
             int height = Integer.parseInt(ChanSettings.fontSize.get());
-            int width = (int) (sp(height) / (youtubeIcon.getHeight() / (float) youtubeIcon.getWidth()));
+            int width =
+                    (int) (sp(height) / (BitmapRepository.youtubeIcon.getHeight() / (float) BitmapRepository.youtubeIcon
+                            .getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
             finalizedString.setSpan(
                     ytIcon,
@@ -215,12 +215,36 @@ public class CommentParserHelper {
         return finalizedString;
     }
 
+    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
+
+    private static String getHourMinSecondString(String ISO8601Duration) {
+        Matcher m = iso8601Time.matcher(ISO8601Duration);
+        if (m.matches()) {
+            String hours = m.group(2);
+            String minutes = m.group(4);
+            String seconds = m.group(6);
+            //pad seconds to 2 digits
+            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : null;
+            if (hours != null) {
+                //we have hours, pad minutes to 2 digits
+                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
+                return hours + ":" + (minutes != null ? minutes : "00") + ":" + (seconds != null ? seconds : "00");
+            } else {
+                //no hours, no need to pad anything else
+                return (minutes != null ? minutes : "0") + ":" + (seconds != null ? seconds : "00");
+            }
+        } else {
+            //badly formatted time from youtube's API?
+            return "0:00";
+        }
+    }
+
     public static void addPostImages(Post.Builder post) {
         if (ChanSettings.parsePostImageLinks.get()) {
             for (PostLinkable linkable : post.getLinkables()) {
                 if (post.images != null && post.images.size() >= 5) return; //max 5 images hotlinked
                 if (linkable.type == PostLinkable.Type.LINK) {
-                    Matcher matcher = imageUrlPattern.matcher(((String) linkable.value));
+                    Matcher matcher = IMAGE_URL_PATTERN.matcher((String) linkable.value);
                     if (matcher.matches()) {
                         boolean noThumbnail = StringUtils.endsWithAny((String) linkable.value, noThumbLinkSuffixes);
                         String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";

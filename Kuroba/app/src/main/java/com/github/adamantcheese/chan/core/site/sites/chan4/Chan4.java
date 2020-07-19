@@ -307,7 +307,7 @@ public class Chan4
                 @Override
                 public void onJsonFailure(Exception e) {
                     Logger.e(Chan4.this, "Failed to get boards from server", e);
-                    listener.onBoardsReceived(new Boards(new ArrayList<>()));
+                    listener.onBoardsReceived(new Boards());
                 }
 
                 @Override
@@ -323,7 +323,7 @@ public class Chan4
                 @Override
                 public void onJsonFailure(Exception e) {
                     Logger.e(Chan4.this, "Failed to get pages for board " + board.code, e);
-                    listener.onPagesReceived(board, new ChanPages(new ArrayList<>()));
+                    listener.onPagesReceived(board, new ChanPages());
                 }
 
                 @Override

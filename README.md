@@ -27,6 +27,8 @@ Sites are supported on a PR basis. You want the site, you do the work.
 ##### Themes
 [If you want to add a theme, see here.](https://github.com/Adamantcheese/Kuroba/wiki/New-theme-PRs)
 
+[If you want to request a theme, see here.](https://github.com/Adamantcheese/Kuroba/issues/993)
+
 ##### Guides
 [JS Captcha Cookies](https://github.com/Adamantcheese/Kuroba/wiki/JS-Captcha-Cookies-Guide)
 

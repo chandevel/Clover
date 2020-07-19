@@ -255,12 +255,12 @@ public class ChanThreadLoader {
     @SuppressWarnings("unchecked")
     private Disposable requestMoreDataInternal() {
         return Single.fromCallable(() -> {
-            Call request = getData();
-            if (request == null) {
+            getData();
+            if (call == null) {
                 return ModularResult.error(new ThreadAlreadyArchivedException());
             }
 
-            return ModularResult.value(request);
+            return ModularResult.value(call);
         }).subscribeOn(backgroundScheduler).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result instanceof ModularResult.Error) {
                 Throwable error = ((ModularResult.Error<Throwable>) result).getError();
@@ -299,18 +299,6 @@ public class ChanThreadLoader {
         }
 
         requestMoreData();
-    }
-
-    /**
-     * Request more data and reset the watch timer.
-     */
-    public void requestMoreDataAndResetTimer() {
-        BackgroundUtils.ensureMainThread();
-
-        if (call == null) {
-            clearTimer();
-            requestMoreData();
-        }
     }
 
     @NonNull
@@ -352,7 +340,7 @@ public class ChanThreadLoader {
         }
     }
 
-    private Call getData() {
+    private void getData() {
         BackgroundUtils.ensureBackgroundThread();
 
         if (loadable.mode == THREAD && loadable.getLoadableDownloadingState() == AlreadyDownloaded) {
@@ -360,7 +348,8 @@ public class ChanThreadLoader {
             // the disk. If we couldn't do that then try to send the request to the server
             if (onThreadArchived(true, true)) {
                 Logger.d(this, "Thread is already fully downloaded for loadable " + loadable.toString());
-                return null;
+                call = null;
+                return;
             }
         }
 
@@ -379,11 +368,10 @@ public class ChanThreadLoader {
 
             @Override
             public void onJsonSuccess(ChanLoaderResponse result) {
+                clearTimer();
                 onResponse(result);
             }
         }, new ChanReaderParser(loadable, cached));
-
-        return call;
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {
@@ -673,10 +661,10 @@ public class ChanThreadLoader {
                 return;
             }
 
-            Logger.i(ChanThreadLoader.this, "Loading error", error);
+            Logger.e(ChanThreadLoader.this, "Loading error", error);
             notifyAboutError(error);
         }, throwable -> {
-            Logger.i(ChanThreadLoader.this, "Loading unhandled error", throwable);
+            Logger.e(ChanThreadLoader.this, "Loading unhandled error", throwable);
             notifyAboutError(createError(throwable));
         });
 
@@ -750,7 +738,7 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureMainThread();
 
         if (pendingFuture != null) {
-            Logger.d(this, "Cleared timer");
+            Logger.d(this, "Cleared runnable");
             pendingFuture.cancel(false);
             pendingFuture = null;
         }

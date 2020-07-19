@@ -29,6 +29,9 @@ import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -136,10 +139,10 @@ public class WatchSettingsController
         //@formatter:on
 
         //noinspection unchecked
-        Item<Integer>[] timeoutsItems = new Item[timeouts.length];
+        List<Item<Integer>> timeoutsItems = new ArrayList<>(timeouts.length);
         for (int i = 0; i < timeouts.length; i++) {
             String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
-            timeoutsItems[i] = new Item<>(name, (int) timeouts[i]);
+            timeoutsItems.add(new Item<>(name, (int) timeouts[i]));
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this,
                 ChanSettings.watchBackgroundInterval,
@@ -148,8 +151,7 @@ public class WatchSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.setting_watch_background_timeout_description) + "\n\n"
-                        + items.get(selected).name;
+                return getString(R.string.setting_watch_background_timeout_description) + "\n\n" + selected.name;
             }
         });
 

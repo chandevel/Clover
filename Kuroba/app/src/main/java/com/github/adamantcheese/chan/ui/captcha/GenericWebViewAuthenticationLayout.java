@@ -53,23 +53,17 @@ public class GenericWebViewAuthenticationLayout
 
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);
-        init();
     }
 
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-        init();
     }
 
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        init();
-        setFocusableInTouchMode(true);
-    }
-
-    private void init() {
         inject(this);
+        setFocusableInTouchMode(true);
     }
 
     @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})

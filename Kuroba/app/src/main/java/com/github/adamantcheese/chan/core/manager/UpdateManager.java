@@ -117,7 +117,7 @@ public class UpdateManager {
             dialog.setCanceledOnTouchOutside(true);
             dialog.show();
 
-            PersistableChanState.previousVersion.set(VERSION_CODE);
+            PersistableChanState.previousVersion.setSync(VERSION_CODE);
             cancelApkUpdateNotification();
 
             return;
@@ -127,7 +127,7 @@ public class UpdateManager {
             // Show toast because dev updates may happen every day (to avoid alert dialog spam)
             showToast(context, getApplicationLabel() + " was updated to the latest commit.");
 
-            PersistableChanState.previousDevHash.set(COMMIT_HASH);
+            PersistableChanState.previousDevHash.setSync(COMMIT_HASH);
             cancelApkUpdateNotification();
 
             return;
@@ -152,7 +152,7 @@ public class UpdateManager {
                 }
                 return;
             } else {
-                PersistableChanState.updateCheckTime.set(now);
+                PersistableChanState.updateCheckTime.setSync(now);
             }
         }
 
@@ -172,34 +172,31 @@ public class UpdateManager {
                 }
             }, new UpdateApiParser());
         } else {
-            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT),
-                    new JsonResult<UpdateApiResponse>() {
-                        @Override
-                        public void onJsonFailure(Exception e) {
-                            failedUpdate(manual);
+            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT), new JsonResult<UpdateApiResponse>() {
+                @Override
+                public void onJsonFailure(Exception e) {
+                    failedUpdate(manual);
+                }
+
+                @Override
+                public void onJsonSuccess(UpdateApiResponse result) {
+                    if (result == null) {
+                        failedUpdate(manual);
+                    } else if (result.commitHash.equals(COMMIT_HASH)) {
+                        //same version and commit, no update needed
+                        if (manual && BackgroundUtils.isInForeground()) {
+                            showToast(context,
+                                    getString(R.string.update_none, getApplicationLabel()),
+                                    Toast.LENGTH_LONG
+                            );
                         }
 
-                        @Override
-                        public void onJsonSuccess(UpdateApiResponse result) {
-                            if (result == null) {
-                                failedUpdate(manual);
-                            } else if (result.commitHash.equals(COMMIT_HASH)) {
-                                //same version and commit, no update needed
-                                if (manual && BackgroundUtils.isInForeground()) {
-                                    showToast(context,
-                                            getString(R.string.update_none, getApplicationLabel()),
-                                            Toast.LENGTH_LONG
-                                    );
-                                }
-
-                                cancelApkUpdateNotification();
-                            } else {
-                                processUpdateApiResponse(result, manual);
-                            }
-                        }
-                    },
-                    new UpdateApiParser()
-            );
+                        cancelApkUpdateNotification();
+                    } else {
+                        processUpdateApiResponse(result, manual);
+                    }
+                }
+            }, new UpdateApiParser());
         }
     }
 
@@ -231,12 +228,12 @@ public class UpdateManager {
     }
 
     private void notifyNewApkUpdate() {
-        PersistableChanState.hasNewApkUpdate.set(true);
+        PersistableChanState.hasNewApkUpdate.setSync(true);
         settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
-        PersistableChanState.hasNewApkUpdate.set(false);
+        PersistableChanState.hasNewApkUpdate.setSync(false);
         settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
     }
 
@@ -274,7 +271,7 @@ public class UpdateManager {
             }
 
             @Override
-            public void onSuccess(RawFile file) {
+            public void onSuccess(RawFile file, boolean immediate) {
                 BackgroundUtils.ensureMainThread();
 
                 if (updateDownloadDialog != null) {

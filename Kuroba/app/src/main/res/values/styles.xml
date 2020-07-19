@@ -63,8 +63,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
-        <item name="highlight_color">#48000000</item>
-        <item name="divider_color">#40000000</item>
+        <item name="highlight_color">#1CFFFFFF</item>
+        <item name="divider_color">#28FFFFFF</item>
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>
         <item name="setting_description_bottom">@drawable/setting_description_bottom_dark</item>
     </style>
@@ -80,9 +80,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!--
         1) Make your new theme (light or dark):
-        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseLight">
+        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.Light">
         or
-        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.BaseDark">
+        <style name="Chan.Theme.NAMEHERE" parent="Chan.Theme.Dark">
 
         2) Override any of the following:
         backColor           (your main background color)
@@ -186,9 +186,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <style name="Chan.Theme.Black" parent="Chan.Theme.Dark">
         <item name="backcolor">@color/black</item>
 
-        <item name="highlight_color">#1CFFFFFF</item>
-        <item name="divider_color">#28FFFFFF</item>
-
         <item name="post_spoiler_color">@color/md_grey_800</item>
     </style>
 
@@ -229,7 +226,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="android:textColor">#c5c8c6</item>
         <item name="android:textColorPrimary">#c5c8c6</item>
-        <item name="android:textColorSecondary">#c5c8c6</item>
+        <item name="android:textColorSecondary">#7e7f81</item>
 
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">1.35</item>
@@ -300,6 +297,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#d5c4a1</item>
         <item name="android:textColorHint">#bdae93</item>
 
+        <item name="highlight_color">#48000000</item>
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">1.4</item>
 
@@ -327,7 +325,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
 
-        <item name="highlight_color">#1CFFFFFF</item>
+        <item name="highlight_color">#10FFFFFF</item>
         <item name="divider_color">#20FFFFFF</item>
         <item name="highlight_linkable_blend">.65</item>
 
@@ -369,6 +367,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_500</item>
         <item name="android:textColorHint">@color/md_grey_600</item>
 
+        <item name="highlight_color">#36000000</item>
         <item name="highlight_linkable_blend">0.0</item>
 
         <item name="post_name_color">@color/md_grey_400</item>
@@ -388,7 +387,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#b7aba1</item>
 
         <item name="highlight_color">#30000000</item>
-        <item name="divider_color">#20000000</item>
+        <item name="divider_color">#30000000</item>
         <item name="highlight_linkable_blend">1.2</item>
 
         <item name="post_subject_color">#666ec0</item>
@@ -644,6 +643,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <declare-styleable name="LoadingBar">
         <attr name="color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="FixedRatioLinearLayout">
+        <attr name="layout_ratio" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="FixedRatioThumbnailView">
+        <attr name="ratio" format="float" />
     </declare-styleable>
     <!-- endregion -->
 

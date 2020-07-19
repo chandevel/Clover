@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
@@ -93,6 +94,7 @@ public class Chan
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
         AndroidUtils.init(this);
+        BitmapRepository.initialize(this);
         AndroidUtils.getBuildType(); //spit out the build hash to the log
         // remove this if you need to debug some sort of event bus issue
         try {
@@ -115,12 +117,7 @@ public class Chan
         SavingNotification.setupChannel();
         LastPageNotification.setupChannel();
 
-        feather = Feather.with(
-                new AppModule(this),
-                new NetModule(),
-                new RepositoryModule(),
-                new ManagerModule()
-        );
+        feather = Feather.with(new AppModule(this), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
 
         //Needs to happen before any sites are processed, in case they request archives

@@ -119,12 +119,16 @@ public class HintPopup {
                 popupView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
                 int xoff = -popupView.getMeasuredWidth() + offsetX - dp(2) + (centered ? 0 : anchor.getWidth());
                 int yoff = -dp(25) + offsetY + (top ? -anchor.getHeight() - dp(30) : 0);
-                popupWindow.showAsDropDown(anchor, xoff, yoff);
+                try {
+                    popupWindow.showAsDropDown(anchor, xoff, yoff);
 
-                if (wiggle) {
-                    TimeInterpolator wiggler = input -> (float) Math.sin(60 * input * 2.0 * Math.PI);
-
-                    popupView.animate().translationY(dp(2)).setInterpolator(wiggler).setDuration(60000).start();
+                    if (wiggle) {
+                        TimeInterpolator wiggler = input -> (float) Math.sin(60 * input * 2.0 * Math.PI);
+                        popupView.animate().translationY(dp(2)).setInterpolator(wiggler).setDuration(60000).start();
+                    }
+                } catch (Exception e) {
+                    // if any exceptions are thrown ie no window token or whatever, just don't display the popup
+                    dismissed = true;
                 }
             }
         }, 400);

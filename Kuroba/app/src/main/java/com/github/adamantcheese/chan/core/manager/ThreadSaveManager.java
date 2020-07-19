@@ -187,7 +187,9 @@ public class ThreadSaveManager {
             }
 
             if (parameters == null) {
-                Logger.e(ThreadSaveManager.this, "Could not find download parameters for loadable " + loadable.toShortString());
+                Logger.e(ThreadSaveManager.this,
+                        "Could not find download parameters for loadable " + loadable.toShortString()
+                );
                 return Flowable.just(false);
             }
 
@@ -514,14 +516,20 @@ public class ThreadSaveManager {
             } finally {
                 if (shouldDeleteDownloadedFiles(loadable)) {
                     if (isCurrentDownloadStopped(loadable)) {
-                        Logger.d(ThreadSaveManager.this, "Thread with loadable " + loadable.toShortString() + " has been stopped");
+                        Logger.d(ThreadSaveManager.this,
+                                "Thread with loadable " + loadable.toShortString() + " has been stopped"
+                        );
                     } else {
-                        Logger.d(ThreadSaveManager.this, "Thread with loadable " + loadable.toShortString() + " has been canceled");
+                        Logger.d(ThreadSaveManager.this,
+                                "Thread with loadable " + loadable.toShortString() + " has been canceled"
+                        );
                     }
 
                     deleteThreadFilesFromDisk(snapshotFileManager, loadable);
                 } else {
-                    Logger.d(ThreadSaveManager.this, "Thread with loadable " + loadable.toShortString() + " has been updated");
+                    Logger.d(ThreadSaveManager.this,
+                            "Thread with loadable " + loadable.toShortString() + " has been updated"
+                    );
                 }
             }
 

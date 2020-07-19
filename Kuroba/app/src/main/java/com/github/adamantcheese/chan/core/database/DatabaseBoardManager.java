@@ -7,6 +7,7 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.PreparedUpdate;
 import com.j256.ormlite.stmt.QueryBuilder;
@@ -32,23 +33,6 @@ public class DatabaseBoardManager {
         inject(this);
     }
 
-    public Callable<Board> createOrUpdate(final Board board) {
-        return () -> {
-            QueryBuilder<Board, Integer> q = helper.boardsDao.queryBuilder();
-            q.where().eq("site", board.site.id()).and().eq("value", board.code);
-            Board existing = q.queryForFirst();
-            if (existing != null) {
-                existing.updateExcludingUserFields(board);
-                helper.boardsDao.update(existing);
-                board.updateExcludingUserFields(existing);
-            } else {
-                helper.boardsDao.create(board);
-            }
-
-            return board;
-        };
-    }
-
     public Callable<Void> updateIncludingUserFields(final Board board) {
         return () -> {
             helper.boardsDao.update(board);
@@ -57,7 +41,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> updateIncludingUserFields(final List<Board> boards) {
+    public Callable<Void> updateIncludingUserFields(final Boards boards) {
         return () -> {
             for (Board board : boards) {
                 helper.boardsDao.update(board);
@@ -67,7 +51,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> updateOrders(final List<Board> boards) {
+    public Callable<Void> updateOrders(final Boards boards) {
         return () -> {
             SelectArg id = new SelectArg();
             SelectArg order = new SelectArg();
@@ -89,7 +73,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Boolean> createAll(final Site site, final List<Board> boards) {
+    public Callable<Boolean> createAll(final Site site, final Boards boards) {
         return () -> {
             List<Board> allFromDb = helper.boardsDao.queryForEq("site", site.id());
             Map<String, Board> byCodeFromDb = new HashMap<>();
@@ -98,7 +82,7 @@ public class DatabaseBoardManager {
                 board.site = site;
             }
 
-            List<Board> toCreate = new ArrayList<>();
+            Boards toCreate = new Boards();
             List<Pair<Board, Board>> toUpdate = new ArrayList<>();
             for (Board board : boards) {
                 if (byCodeFromDb.containsKey(board.code)) {
@@ -149,7 +133,7 @@ public class DatabaseBoardManager {
     }
 
     @SuppressLint("UseSparseArrays")
-    public Callable<List<Pair<Site, List<Board>>>> getBoardsForAllSitesOrdered(List<Site> sites) {
+    public Callable<List<Pair<Site, Boards>>> getBoardsForAllSitesOrdered(List<Site> sites) {
         return () -> {
             // Query the orders of the sites.
             QueryBuilder<SiteModel, Integer> q = helper.siteDao.queryBuilder();
@@ -176,23 +160,23 @@ public class DatabaseBoardManager {
             for (Site site : sites) {
                 sitesById.put(site.id(), site);
             }
-            Map<Integer, List<Board>> bySite = new HashMap<>();
+            Map<Integer, Boards> bySite = new HashMap<>();
             for (Board board : allBoards) {
                 board.site = sitesById.get(board.siteId);
 
-                List<Board> boards = bySite.get(board.siteId);
+                Boards boards = bySite.get(board.siteId);
                 if (boards == null) {
-                    boards = new ArrayList<>();
+                    boards = new Boards();
                     bySite.put(board.siteId, boards);
                 }
                 boards.add(board);
             }
 
             // And map the site to the board, and order these boards.
-            List<Pair<Site, List<Board>>> res = new ArrayList<>();
+            List<Pair<Site, Boards>> res = new ArrayList<>();
             for (Site site : sitesOrdered) {
-                List<Board> siteBoards = bySite.get(site.id());
-                if (siteBoards == null) siteBoards = new ArrayList<>();
+                Boards siteBoards = bySite.get(site.id());
+                if (siteBoards == null) siteBoards = new Boards();
                 Collections.sort(siteBoards, (lhs, rhs) -> lhs.order - rhs.order);
                 res.add(new Pair<>(site, siteBoards));
             }
@@ -200,18 +184,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<List<Board>> getSiteBoards(final Site site) {
-        return () -> {
-            List<Board> boards = helper.boardsDao.queryBuilder().where().eq("site", site.id()).query();
-            for (int i = 0; i < boards.size(); i++) {
-                Board board = boards.get(i);
-                board.site = site;
-            }
-            return boards;
-        };
-    }
-
-    public Callable<List<Board>> getSiteSavedBoards(final Site site) {
+    public Callable<Boards> getSiteSavedBoards(final Site site) {
         return () -> {
             List<Board> boards =
                     helper.boardsDao.queryBuilder().where().eq("site", site.id()).and().eq("saved", true).query();
@@ -219,7 +192,7 @@ public class DatabaseBoardManager {
                 Board board = boards.get(i);
                 board.site = site;
             }
-            return boards;
+            return new Boards(boards);
         };
     }
 

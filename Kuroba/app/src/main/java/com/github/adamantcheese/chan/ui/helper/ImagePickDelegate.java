@@ -163,33 +163,32 @@ public class ImagePickDelegate {
             cancelableDownload = null;
         }
 
-        cancelableDownload =
-                fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL, new FileCacheListener() {
-                    @Override
-                    public void onSuccess(RawFile file) {
-                        toast.showToast(activity, R.string.image_url_get_success);
-                        Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                        callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-                    }
+        cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL, new FileCacheListener() {
+            @Override
+            public void onSuccess(RawFile file, boolean immediate) {
+                toast.showToast(activity, R.string.image_url_get_success);
+                Uri imageURL = Uri.parse(finalClipboardURL.toString());
+                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
+            }
 
-                    @Override
-                    public void onNotFound() {
-                        onFail(new IOException("Not found"));
-                    }
+            @Override
+            public void onNotFound() {
+                onFail(new IOException("Not found"));
+            }
 
-                    @Override
-                    public void onFail(Exception exception) {
-                        String message = getString(R.string.image_url_get_failed, exception.getMessage());
+            @Override
+            public void onFail(Exception exception) {
+                String message = getString(R.string.image_url_get_failed, exception.getMessage());
 
-                        toast.showToast(activity, message);
-                        callback.onFilePickError(true);
-                    }
+                toast.showToast(activity, message);
+                callback.onFilePickError(true);
+            }
 
-                    @Override
-                    public void onEnd() {
-                        reset();
-                    }
-                });
+            @Override
+            public void onEnd() {
+                reset();
+            }
+        });
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

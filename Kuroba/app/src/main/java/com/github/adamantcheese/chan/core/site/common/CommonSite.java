@@ -50,7 +50,6 @@ import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,7 +79,7 @@ public abstract class CommonSite
 
     public PostParser postParser;
 
-    private List<Board> staticBoards = new ArrayList<>();
+    private Boards staticBoards = new Boards();
 
     @Override
     public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
@@ -546,7 +545,7 @@ public abstract class CommonSite
 
         @Override
         public void pages(Board board, PagesListener pagesListener) {
-            pagesListener.onPagesReceived(board, new ChanPages(new ArrayList<>()));
+            pagesListener.onPagesReceived(board, new ChanPages());
         }
 
         @Override

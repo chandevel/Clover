@@ -253,14 +253,14 @@ public class ImageViewerPresenter
     }
 
     private void onPageSwipedTo(int position) {
+        PostImage postImage = images.get(selectedPosition);
         // Reset volume icon.
         // If it has audio, we'll know after it is loaded.
-        callback.showVolumeMenuItem(false, true);
+        callback.showVolumeMenuItem(postImage.type == MOVIE, muted);
 
         //Reset the save icon
         callback.showDownloadMenuItem(false);
 
-        PostImage postImage = images.get(selectedPosition);
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
         callback.updatePreviewImage(postImage);
@@ -326,7 +326,6 @@ public class ImageViewerPresenter
     }
 
     private void preloadPrevious() {
-        BackgroundUtils.ensureMainThread();
         int index = selectedPosition - PRELOAD_IMAGE_INDEX;
 
         if (index >= 0 && index < images.size()) {
@@ -337,7 +336,6 @@ public class ImageViewerPresenter
     // This won't actually change any modes, but it will preload the image so that it's
     // available immediately when the user swipes right.
     private void preloadNext() {
-        BackgroundUtils.ensureMainThread();
         int index = selectedPosition + PRELOAD_IMAGE_INDEX;
 
         if (index >= 0 && index < images.size()) {
@@ -413,7 +411,7 @@ public class ImageViewerPresenter
                 );
             } else {
                 preloadDownload[0] =
-                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, false, fileCacheListener);
+                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, fileCacheListener);
             }
 
             if (preloadDownload[0] != null) {
@@ -581,11 +579,6 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void onVideoLoaded(MultiImageView multiImageView) {
-        callback.showVolumeMenuItem(false, muted);
-    }
-
-    @Override
     public void onAudioLoaded(MultiImageView multiImageView) {
         PostImage currentPostImage = getCurrentPostImage();
         if (multiImageView.getPostImage() == currentPostImage) {
@@ -652,15 +645,15 @@ public class ImageViewerPresenter
     }
 
     public void showImageSearchOptions(NavigationItem navigation) {
-        List<FloatingMenuItem> items = new ArrayList<>();
+        List<FloatingMenuItem<Integer>> items = new ArrayList<>();
         for (ImageSearch imageSearch : ImageSearch.engines) {
-            items.add(new FloatingMenuItem(imageSearch.getId(), imageSearch.getName()));
+            items.add(new FloatingMenuItem<>(imageSearch.getId(), imageSearch.getName()));
         }
         ToolbarMenuItem overflowMenuItem = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
-        FloatingMenu menu = new FloatingMenu(context, overflowMenuItem.getView(), items);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<Integer> menu = new FloatingMenu<>(context, overflowMenuItem.getView(), items);
+        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 for (ImageSearch imageSearch : ImageSearch.engines) {
                     if (((Integer) item.getId()) == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(getCurrentPostImage());
@@ -673,10 +666,6 @@ public class ImageViewerPresenter
                         break;
                     }
                 }
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();

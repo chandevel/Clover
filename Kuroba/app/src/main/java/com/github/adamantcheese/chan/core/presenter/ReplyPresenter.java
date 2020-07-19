@@ -297,9 +297,7 @@ public class ReplyPresenter
                         watchManager.createPin(originatingLoadable);
                     }
                 } else {
-                    //new thread, use the new loadable
-                    draft.loadable = newThreadLoadable;
-                    watchManager.createPin(draft);
+                    watchManager.createPin(newThreadLoadable);
                 }
             }
 
@@ -313,7 +311,7 @@ public class ReplyPresenter
             closeAll();
             highlightQuotes();
             String name = draft.name;
-            draft = new Reply(originatingLoadable.isCatalogMode() ? newThreadLoadable : originatingLoadable);
+            draft = new Reply(originatingLoadable);
 
             if (originatingLoadable.isCatalogMode()) {
                 //new thread
@@ -510,7 +508,7 @@ public class ReplyPresenter
     }
 
     private void makeSubmitCall() {
-        loadable.site.actions().post(draft, this);
+        draft.loadable.site.actions().post(draft, this);
         switchPage(Page.LOADING);
     }
 

@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -146,7 +147,7 @@ public class ImageLoaderV2 {
 
                     if (bitmap == null) {
                         Logger.e(TAG, "Could not decode bitmap");
-                        BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapFailure(null,
+                        BackgroundUtils.runOnMainThread(() -> imageListener.onBitmapFailure(BitmapRepository.error,
                                 new Exception("Could not decode bitmap")
                         ));
                         return null;

@@ -363,7 +363,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="delete_image_only">Only delete the image</string>
     <string name="delete_error">Error deleting post</string>
 
-    <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
 
     <string name="history_screen">History</string>
@@ -469,8 +468,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <!-- Appearance gallery group -->
     <string name="setting_hide_images">Hide images</string>
     <string name="setting_hide_images_description">Hides images when with a special spoiler image. If you want to save on data, turn this on.</string>
-    <string name="setting_images_high_res">High resolution cells</string>
-    <string name="setting_images_high_res_description">Make the album view and card catalog images higher resolution by pre-rescaling full size images</string>
     <string name="setting_images_immersive_mode_title">Use immersive mode for image gallery</string>
     <string name="setting_images_immersive_mode_description">This will make image gallery view be fullscreen with statusbar/navbar hidden</string>
     <string name="settings_screen_behavior">Behavior</string>
@@ -553,19 +550,15 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_video_auto_load">Automatically load videos</string>
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
-
     <string name="setting_auto_load_thread_images">Enable media pre-fetching</string>
-
-    <string name="setting_auto_load_thread_images_description">Loads all images or videos in a thread immediately (subject to the settings above). Increases the filecache size to 1GB.</string>
+    <string name="setting_auto_load_thread_images_description">Instead of loading thumbnails, pre-loads full size images into the file cache when thumbnails should be displayed and uses them for thumbnail display. Tapping a thumbnail will load the full size image directly from the cache.</string>
     <string name="save_location_screen">Save location</string>
-
     <string name="save_location_storage_permission_required_title">Storage permission required</string>
     <string name="save_location_storage_permission_required">
 "Permission to access storage is required for browsing files.
 
 Re-enable this permission in the app settings if you permanently disabled it."
     </string>
-
 
     <!-- Save location settings -->
     <string name="setting_folder_pick_ok">Choose</string>
@@ -594,7 +587,6 @@ Setting the themes to the same will function as if dark mode is effectively off.
     <string name="settings_screen_pass">4chan pass</string>
     <string name="setting_pass_token">Token</string>
     <string name="setting_pass_pin">PIN</string>
-
 
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_logout">Logout</string>
@@ -770,8 +762,7 @@ Don't have a 4chan Pass?<br>
     <string name="add_dubs_description">Appends your GET to your post number, for FUN!</string>
     <string name="setting_youtube_dur_title">Enable Youtube durations</string>
     <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with titles off</string>
-    <string name="pdf_not_viewable">PDFs are not internally viewable; you can still download this file.</string>
-    <string name="swf_not_viewable">SWFs are not internally viewable; you can still download this file.</string>
+    <string name="file_not_viewable">%ss are not internally viewable; you can still download this file.</string>
     <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
     <string name="local_threads_base_dir_does_not_exist"><![CDATA[Base directory for local threads does not exist! Set it manually in the settings (Media -> Local threads location). All active download has been stopped! Resume them manually after setting the base directory.]]></string>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
@@ -876,4 +867,9 @@ Don't have a 4chan Pass?<br>
 
     <string name="view_my_posts">View my posts</string>
     <string name="no_saved_posts_for_current_thread">You haven\'t posted in this thread!</string>
+
+    <string name="linkable_copied_to_clipboard">Linkable URL copied to clipboard</string>
+
+    <string name="options_button_sage">Sage</string>
+    <string name="options_button_pass">Since4Pass</string>
 </resources>

@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -79,6 +80,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -93,7 +95,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ImageViewerController
         extends Controller
-        implements ImageViewerPresenter.Callback, ToolbarMenuItem.ToobarThreedotMenuCallback {
+        implements ImageViewerPresenter.Callback, ToolbarMenuItem.OverflowMenuCallback {
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
@@ -261,6 +263,7 @@ public class ImageViewerController
     }
 
     private void rotateImage(ToolbarMenuItem item) {
+        if (getImageMode(presenter.getCurrentPostImage()) == LOWRES) return;
         String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
         Integer[] rotateInts = {90, 180, -90};
         ListView rotateImageList = new ListView(context);
@@ -304,7 +307,7 @@ public class ImageViewerController
 
             shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(loadable, postImage, false, share);
+            ImageSaveTask task = new ImageSaveTask(loadable, postImage, share);
             if (ChanSettings.saveImageBoardFolder.get()) {
                 String subFolderName;
 
@@ -422,7 +425,7 @@ public class ImageViewerController
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
         ToolbarMenuItem rotate = navigation.findItem(ROTATE_ID);
-        rotate.setVisible(getImageMode(postImage) == MultiImageView.Mode.BIGIMAGE);
+        rotate.setVisible(postImage.type == PostImage.Type.STATIC);
     }
 
     public void scrollToImage(PostImage postImage) {
@@ -489,7 +492,7 @@ public class ImageViewerController
     }
 
     @Override
-    public void onMenuShown(FloatingMenu menu) {
+    public void onMenuShown(FloatingMenu<ToolbarMenuSubItem> menu) {
         showSystemUI();
     }
 
@@ -547,8 +550,10 @@ public class ImageViewerController
                     public void onBitmapFailure(Bitmap errormap, Exception e) {
                         Logger.e(
                                 ImageViewerController.this,
-                                "onErrorResponse for preview in transition, cannot show correct transition bitmap"
+                                "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
+                                e
                         );
+                        previewImage.setBitmap(errormap);
                         startAnimation.start();
                     }
 
@@ -629,7 +634,7 @@ public class ImageViewerController
 
         Bitmap bitmap = startView.getBitmap();
         if (bitmap == null) {
-            return false;
+            bitmap = BitmapRepository.error;
         }
 
         int[] loc = new int[2];

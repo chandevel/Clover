@@ -121,8 +121,10 @@ public class ThemeSettingsController
         }
 
         @Override
-        public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu) {
-            menu.add(new FloatingMenuItem(1, "Option"));
+        public Object onPopulatePostOptions(
+                Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+        ) {
+            menu.add(new FloatingMenuItem<Integer>(1, "Option"));
             return 0;
         }
 
@@ -292,22 +294,24 @@ public class ThemeSettingsController
     }
 
     private void showAccentColorPicker() {
-        List<FloatingMenuItem> items = new ArrayList<>();
-        FloatingMenuItem selected = null;
+        List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
+        FloatingMenuItem<MaterialColorStyle> selected = null;
         for (MaterialColorStyle color : MaterialColorStyle.values()) {
-            FloatingMenuItem floatingMenuItem = new FloatingMenuItem(color, color.prettyName());
+            FloatingMenuItem<MaterialColorStyle> floatingMenuItem = new FloatingMenuItem<>(color, color.prettyName());
             items.add(floatingMenuItem);
             if (color == getViewedTheme().accentColor) {
                 selected = floatingMenuItem;
             }
         }
 
-        FloatingMenu menu = getColorsMenu(items, selected, done, true);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<MaterialColorStyle> menu = getColorsMenu(items, selected, done, true);
+        menu.setCallback(new FloatingMenu.ClickCallback<MaterialColorStyle>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<MaterialColorStyle> menu, FloatingMenuItem<MaterialColorStyle> item
+            ) {
                 Theme currentTheme = getViewedTheme();
-                currentTheme.accentColor = (MaterialColorStyle) item.getId();
+                currentTheme.accentColor = item.getId();
                 done.setBackgroundTintList(ColorStateList.valueOf(resolveColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
@@ -322,20 +326,18 @@ public class ThemeSettingsController
                     }
                 }
             }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
-
-            }
         });
         menu.setPopupHeight(dp(300));
         menu.show();
     }
 
-    private FloatingMenu getColorsMenu(
-            List<FloatingMenuItem> items, FloatingMenuItem selected, View anchor, boolean useAccentColors
+    private FloatingMenu<MaterialColorStyle> getColorsMenu(
+            List<FloatingMenuItem<MaterialColorStyle>> items,
+            FloatingMenuItem<MaterialColorStyle> selected,
+            View anchor,
+            boolean useAccentColors
     ) {
-        FloatingMenu menu = new FloatingMenu(context, anchor, items);
+        FloatingMenu<MaterialColorStyle> menu = new FloatingMenu<>(context, anchor, items);
         menu.setAnchorGravity(Gravity.CENTER, 0, 0);
         menu.setAdapter(new ColorsAdapter(items, useAccentColors));
         menu.setSelectedItem(selected);
@@ -464,27 +466,26 @@ public class ThemeSettingsController
             final Toolbar toolbar = new Toolbar(themeContext);
             toolbar.setMenuDrawable(R.drawable.ic_format_paint_white_24dp);
             final View.OnClickListener colorClick = v -> {
-                List<FloatingMenuItem> items = new ArrayList<>();
-                FloatingMenuItem selected = null;
+                List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
+                FloatingMenuItem<MaterialColorStyle> selected = null;
                 for (MaterialColorStyle color : MaterialColorStyle.values()) {
-                    FloatingMenuItem floatingMenuItem = new FloatingMenuItem(color, color.prettyName());
+                    FloatingMenuItem<MaterialColorStyle> floatingMenuItem =
+                            new FloatingMenuItem<>(color, color.prettyName());
                     items.add(floatingMenuItem);
                     if (color == theme.primaryColor) {
                         selected = floatingMenuItem;
                     }
                 }
 
-                FloatingMenu menu = getColorsMenu(items, selected, toolbar, false);
-                menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+                FloatingMenu<MaterialColorStyle> menu = getColorsMenu(items, selected, toolbar, false);
+                menu.setCallback(new FloatingMenu.ClickCallback<MaterialColorStyle>() {
                     @Override
-                    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-                        MaterialColorStyle color = (MaterialColorStyle) item.getId();
+                    public void onFloatingMenuItemClicked(
+                            FloatingMenu<MaterialColorStyle> menu, FloatingMenuItem<MaterialColorStyle> item
+                    ) {
+                        MaterialColorStyle color = item.getId();
                         theme.primaryColor = color;
                         toolbar.setBackgroundColor(resolveColor(color.primaryColorStyleId, R.attr.colorPrimary));
-                    }
-
-                    @Override
-                    public void onFloatingMenuDismissed(FloatingMenu menu) {
                     }
                 });
                 menu.setPopupHeight(dp(300));
@@ -530,11 +531,11 @@ public class ThemeSettingsController
 
     private static class ColorsAdapter
             extends BaseAdapter {
-        private List<FloatingMenuItem> items;
+        private List<FloatingMenuItem<MaterialColorStyle>> colors;
         private boolean useAccentColors;
 
-        public ColorsAdapter(List<FloatingMenuItem> items, boolean useAccentColors) {
-            this.items = items;
+        public ColorsAdapter(List<FloatingMenuItem<MaterialColorStyle>> items, boolean useAccentColors) {
+            this.colors = items;
             this.useAccentColors = useAccentColors;
         }
 
@@ -545,7 +546,7 @@ public class ThemeSettingsController
             textView.setText(getItem(position));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
-            MaterialColorStyle color = (MaterialColorStyle) items.get(position).getId();
+            MaterialColorStyle color = colors.get(position).getId();
 
             int colorForItem = useAccentColors
                     ? resolveColor(color.accentStyleId, R.attr.colorAccent)
@@ -558,12 +559,12 @@ public class ThemeSettingsController
 
         @Override
         public int getCount() {
-            return items.size();
+            return colors.size();
         }
 
         @Override
         public String getItem(int position) {
-            return items.get(position).getText();
+            return colors.get(position).getText();
         }
 
         @Override

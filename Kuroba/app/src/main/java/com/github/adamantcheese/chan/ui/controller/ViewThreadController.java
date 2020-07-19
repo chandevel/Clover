@@ -82,8 +82,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ViewThreadController
         extends ThreadController
-        implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback,
-                   ToolbarMenuItem.ToobarThreedotMenuCallback {
+        implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback, ToolbarMenuItem.OverflowMenuCallback {
     private static final int PIN_ID = 1;
     private static final int SAVE_THREAD_ID = 2;
 
@@ -808,7 +807,7 @@ public class ViewThreadController
     }
 
     @Override
-    public void onMenuShown(FloatingMenu menu) {
+    public void onMenuShown(FloatingMenu<ToolbarMenuSubItem> menu) {
         dismissFloatingMenu();
         floatingMenu = menu;
     }

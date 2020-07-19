@@ -17,8 +17,6 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
@@ -41,6 +39,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -93,8 +92,6 @@ public class DrawerAdapter
 
     private final Callback callback;
     private Pin highlighted;
-    private Bitmap archivedIcon;
-    private Bitmap stickyIcon;
 
     public DrawerAdapter(Callback callback, Context context) {
         inject(this);
@@ -107,9 +104,6 @@ public class DrawerAdapter
 
         downloadIconFilled = context.getDrawable(R.drawable.ic_download_anim1).mutate();
         downloadIconFilled.setTint(Color.GRAY);
-
-        archivedIcon = BitmapFactory.decodeResource(getRes(), R.drawable.archived_icon);
-        stickyIcon = BitmapFactory.decodeResource(getRes(), R.drawable.sticky_icon);
     }
 
     public void setPinHighlighted(Pin highlighted) {
@@ -302,11 +296,11 @@ public class DrawerAdapter
 
         CharSequence text = pin.loadable.title;
         if (pin.archived) {
-            text = PostHelper.prependIcon(context, text, archivedIcon, sp(16));
+            text = PostHelper.prependIcon(context, text, BitmapRepository.archivedIcon, sp(16));
         }
 
-        if(pin.isSticky) {
-            text = PostHelper.prependIcon(context, text, stickyIcon, sp(16));
+        if (pin.isSticky) {
+            text = PostHelper.prependIcon(context, text, BitmapRepository.stickyIcon, sp(16));
         }
 
         TextView bookmarkLabel = holder.textView;

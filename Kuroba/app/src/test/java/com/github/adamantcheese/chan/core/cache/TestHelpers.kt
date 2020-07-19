@@ -26,14 +26,8 @@ internal fun withServer(func: (MockWebServer) -> Unit) {
 internal fun createFileDownloadRequest(
         url: HttpUrl,
         chunksCount: Int = 1,
-        isBatchDownload: Boolean = false,
         file: RawFile
 ): FileDownloadRequest {
-    val cancelableDownload = CancelableDownload(
-            url,
-            CancelableDownload.DownloadType(isPrefetchDownload = false, isGalleryBatchDownload = isBatchDownload)
-    )
-
     return spy(
             FileDownloadRequest(
                     url,
@@ -41,7 +35,7 @@ internal fun createFileDownloadRequest(
                     AtomicInteger(chunksCount),
                     AtomicLong(0),
                     AtomicLong(0),
-                    cancelableDownload,
+                    CancelableDownload(url),
                     DownloadRequestExtraInfo()
             )
     )

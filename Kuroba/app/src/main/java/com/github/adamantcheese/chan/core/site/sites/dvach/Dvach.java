@@ -22,7 +22,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -208,7 +207,7 @@ public class Dvach
                         Logger.e(Dvach.this, "Failed to get boards from server", e);
 
                         // API fail, provide some default boards
-                        List<Board> list = new ArrayList<>();
+                        Boards list = new Boards();
                         list.add(Board.fromSiteNameCode(Dvach.this, "бред", "b"));
                         list.add(Board.fromSiteNameCode(Dvach.this, "Видеоигры, general, официальные треды", "vg"));
                         list.add(Board.fromSiteNameCode(Dvach.this, "новости", "news"));
@@ -217,7 +216,7 @@ public class Dvach
                                 "po"
                         ));
                         Collections.shuffle(list);
-                        listener.onBoardsReceived(new Boards(list));
+                        listener.onBoardsReceived(list);
                     }
 
                     @Override

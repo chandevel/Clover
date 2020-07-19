@@ -24,21 +24,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     app:cardCornerRadius="@dimen/grid_card_corner_radius"
     app:cardElevation="2dp">
 
+    <!-- ratio 9/18 -->
     <com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout
         android:id="@+id/card_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/ripple_item_background"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        app:layout_ratio="0.5"
+        tools:layout_ratio="0.0f">
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- ratio 16/13 -->
             <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:ratio="1.2307692307692307692307692307692"
                 tools:test_bitmap="true" />
 
             <ImageView
@@ -79,6 +84,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="8dp"
             android:paddingTop="8dp"
             android:paddingRight="8dp"
+            tools:layout_height="wrap_content"
+            tools:layout_weight="0"
             tools:text="@string/lorem_ipsum" />
 
         <TextView

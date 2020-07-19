@@ -250,12 +250,6 @@ public class AppearanceSettingsController
             ));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.highResCells,
-                    R.string.setting_images_high_res,
-                    R.string.setting_images_high_res_description
-            )));
-
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.parsePostImageLinks,
                     R.string.setting_image_link_loading_title,
                     R.string.setting_image_link_loading_description
@@ -312,7 +306,7 @@ public class AppearanceSettingsController
         List<Item<Integer>> gridColumnsAlbum = new ArrayList<>();
         gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
         gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
-        for (int columns = 2; columns <= (isPortrait ? 5 : 12); columns++) {
+        for (int columns = 1; columns <= (isPortrait ? 5 : 12); columns++) {
             gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
             gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
         }
@@ -342,11 +336,10 @@ public class AppearanceSettingsController
             fontSizes.add(new Item<>(name, String.valueOf(size)));
         }
 
-        //noinspection unchecked
         requiresUiRefresh.add(post.add(new ListSettingView<>(this,
                 ChanSettings.fontSize,
                 R.string.setting_font_size,
-                fontSizes.toArray(new Item[0])
+                fontSizes
         )));
     }
 }

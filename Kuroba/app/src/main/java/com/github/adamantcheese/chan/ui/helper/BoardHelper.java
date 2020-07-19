@@ -19,12 +19,12 @@ package com.github.adamantcheese.chan.ui.helper;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
@@ -38,7 +38,7 @@ public class BoardHelper {
         return Parser.unescapeEntities(board.description, false);
     }
 
-    public static List<Board> search(List<Board> from, final String query) {
+    public static Boards search(Boards from, final String query) {
         List<Pair<Board, Integer>> ratios = new ArrayList<>();
         Board exact = null;
         for (Board board : from) {
@@ -55,7 +55,7 @@ public class BoardHelper {
 
         Collections.sort(ratios, (o1, o2) -> o2.second - o1.second);
 
-        List<Board> result = new ArrayList<>(ratios.size());
+        Boards result = new Boards(ratios.size());
         for (Pair<Board, Integer> ratio : ratios) {
             result.add(ratio.first);
         }

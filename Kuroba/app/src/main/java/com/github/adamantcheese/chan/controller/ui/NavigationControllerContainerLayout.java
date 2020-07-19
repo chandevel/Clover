@@ -102,21 +102,15 @@ public class NavigationControllerContainerLayout
     Android10GesturesExclusionZonesHolder exclusionZonesHolder;
 
     public NavigationControllerContainerLayout(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public NavigationControllerContainerLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public NavigationControllerContainerLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
         inject(this);
 
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());

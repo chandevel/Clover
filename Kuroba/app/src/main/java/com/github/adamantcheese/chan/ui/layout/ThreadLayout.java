@@ -29,7 +29,6 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -45,7 +44,6 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
@@ -78,7 +76,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
@@ -294,30 +291,6 @@ public class ThreadLayout
         switchVisible(Visible.EMPTY);
     }
 
-    public void showPostInfo(String info) {
-        new AlertDialog.Builder(getContext()).setTitle(R.string.post_info_title)
-                .setMessage(info)
-                .setPositiveButton(R.string.ok, null)
-                .show();
-    }
-
-    public void showPostLinkables(final Post post) {
-        final List<PostLinkable> linkables = post.linkables;
-        String[] keys = new String[linkables.size()];
-        for (int i = 0; i < linkables.size(); i++) {
-            keys[i] = linkables.get(i).key.toString();
-        }
-
-        new AlertDialog.Builder(getContext()).setItems(keys,
-                (dialog, which) -> presenter.onPostLinkableClicked(post, linkables.get(which))
-        ).show();
-    }
-
-    public void clipboardPost(Post post) {
-        setClipboardContent("Post text", post.comment.toString());
-        showToast(getContext(), R.string.post_text_copied);
-    }
-
     @Override
     public void openLink(final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
@@ -528,20 +501,6 @@ public class ThreadLayout
     }
 
     @Override
-    public void confirmPostDelete(final Post post) {
-        @SuppressLint("InflateParams")
-        final View view = LayoutUtils.inflate(getContext(), R.layout.dialog_post_delete, null);
-        CheckBox checkBox = view.findViewById(R.id.image_only);
-        new AlertDialog.Builder(getContext()).setTitle(R.string.delete_confirm)
-                .setView(view)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.delete,
-                        (dialog, which) -> presenter.deletePostConfirmed(post, checkBox.isChecked())
-                )
-                .show();
-    }
-
-    @Override
     public void showDeleting() {
         if (deletingDialog == null) {
             deletingDialog = ProgressDialog.show(getContext(), null, getString(R.string.delete_wait));
@@ -668,10 +627,6 @@ public class ThreadLayout
         }
     }
 
-    private Loadable getLoadable() {
-        return presenter.getLoadable();
-    }
-
     @Override
     public void onDetachedFromWindow() {
         dismissSnackbar();
@@ -686,7 +641,7 @@ public class ThreadLayout
             currentFocus.clearFocus();
         }
         try {
-            presentController(new ImageOptionsController(getContext(), getLoadable(), this));
+            presentController(new ImageOptionsController(getContext(), presenter.getLoadable(), this));
         } catch (Exception e) {
             showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
         }
@@ -739,7 +694,7 @@ public class ThreadLayout
                 if (this.visible == Visible.THREAD) {
                     threadListLayout.cleanup();
                     postPopupHelper.popAll();
-                    if (getLoadable() == null || getLoadable().isThreadMode()) {
+                    if (presenter.getLoadable() == null || presenter.getLoadable().isThreadMode()) {
                         showSearch(false);
                     }
                     dismissSnackbar();

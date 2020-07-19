@@ -44,21 +44,15 @@ public class TransitionImageView
     private PointF statePos;
 
     public TransitionImageView(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public TransitionImageView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public TransitionImageView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    private void init() {
         paint.setAntiAlias(true);
         paint.setFilterBitmap(true);
     }

@@ -30,7 +30,7 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.di.NetModule.ProxiedOkHttpClient;
+import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -74,21 +74,15 @@ public class CaptchaNojsLayoutV1
     private boolean isAutoReply = true;
 
     public CaptchaNojsLayoutV1(Context context) {
-        super(context);
-        init();
+        this(context, null);
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
+        this(context, attrs, 0);
     }
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init();
-    }
-
-    private void init() {
         inject(this);
     }
 
@@ -172,7 +166,7 @@ public class CaptchaNojsLayoutV1
                 .header("User-Agent", webviewUserAgent)
                 .header("Referer", baseUrl)
                 .build();
-        instance(ProxiedOkHttpClient.class).newCall(request).enqueue(new Callback() {
+        instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
             }

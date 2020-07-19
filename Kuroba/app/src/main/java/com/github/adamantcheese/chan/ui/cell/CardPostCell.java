@@ -20,7 +20,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
@@ -79,10 +81,7 @@ public class CardPostCell
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        FixedRatioLinearLayout content = findViewById(R.id.card_content);
-        content.setRatio(9f / 18f);
         thumbView = findViewById(R.id.thumbnail);
-        thumbView.setRatio(16f / 13f);
         thumbView.setOnClickListener(this);
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
@@ -92,32 +91,40 @@ public class CardPostCell
 
         setOnClickListener(this);
 
-        setCompact(compact);
+        if (!isInEditMode()) {
+            setCompact(compact);
+        }
 
         options.setOnClickListener(v -> {
-            List<FloatingMenuItem> items = new ArrayList<>();
-            List<FloatingMenuItem> extraItems = new ArrayList<>();
+            List<FloatingMenuItem<Integer>> items = new ArrayList<>();
+            List<FloatingMenuItem<Integer>> extraItems = new ArrayList<>();
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
+
+        if (!isInEditMode() && ChanSettings.getBoardColumnCount() == 1) {
+            ((LinearLayout.LayoutParams) comment.getLayoutParams()).height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            ((LinearLayout.LayoutParams) comment.getLayoutParams()).weight = 0;
+            ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
+            invalidate();
+        }
     }
 
     private void showOptions(
-            View anchor, List<FloatingMenuItem> items, List<FloatingMenuItem> extraItems, Object extraOption
+            View anchor,
+            List<FloatingMenuItem<Integer>> items,
+            List<FloatingMenuItem<Integer>> extraItems,
+            Object extraOption
     ) {
-        FloatingMenu menu = new FloatingMenu(getContext(), anchor, items);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+        FloatingMenu<Integer> menu = new FloatingMenu<>(getContext(), anchor, items);
+        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 if (item.getId() == extraOption) {
                     showOptions(anchor, extraItems, null, null);
                 }
 
                 callback.onPostOptionClicked(anchor, post, item.getId(), false);
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();
@@ -137,7 +144,7 @@ public class CardPostCell
         super.onDetachedFromWindow();
 
         if (post != null && bound) {
-            thumbView.setPostImage(loadable, null, false, 0, 0);
+            thumbView.setPostImage(loadable, null, 0, 0);
             bound = false;
         }
     }
@@ -203,16 +210,10 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            thumbView.setPostImage(
-                    loadable,
-                    post.image(),
-                    true,
-                    ChanSettings.highResCells.get() ? 2 * thumbView.getWidth() : thumbView.getWidth(),
-                    ChanSettings.highResCells.get() ? 2 * thumbView.getHeight() : thumbView.getHeight()
-            );
+            thumbView.setPostImage(loadable, post.image(), thumbView.getWidth(), thumbView.getHeight());
         } else {
             thumbView.setVisibility(GONE);
-            thumbView.setPostImage(loadable, null, false, 0, 0);
+            thumbView.setPostImage(loadable, null, 0, 0);
         }
 
         if (post.filterHighlightedColor != 0) {
@@ -231,7 +232,7 @@ public class CardPostCell
         }
 
         CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH) {
+        if (post.comment.length() > COMMENT_MAX_LENGTH && ChanSettings.getBoardColumnCount() != 1) {
             commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH);
         } else {
             commentText = post.comment;

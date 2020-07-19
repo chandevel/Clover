@@ -18,14 +18,12 @@ internal abstract class FileDownloader(
     protected fun isRequestStoppedOrCanceled(url: HttpUrl): Boolean {
         BackgroundUtils.ensureBackgroundThread()
 
-        val request = activeDownloads.get(url)
-                ?: return true
+        val request = activeDownloads.get(url) ?: return true
 
         return !request.cancelableDownload.isRunning()
     }
 
     companion object {
         internal const val BUFFER_SIZE: Long = 8192L
-        internal const val MAX_RETRIES = 5L
     }
 }

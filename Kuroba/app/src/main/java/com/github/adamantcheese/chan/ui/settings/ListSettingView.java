@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -34,23 +33,16 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ListSettingView<T>
         extends SettingView
-        implements FloatingMenu.FloatingMenuCallback, View.OnClickListener {
+        implements View.OnClickListener {
     public final List<Item<T>> items;
-
-    public int selected;
+    public Item<T> selected;
 
     private Setting<T> setting;
 
     public ListSettingView(
             SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, T[] keys
     ) {
-        this(settingsController, setting, getString(name), itemNames, keys);
-    }
-
-    public ListSettingView(
-            SettingsController settingsController, Setting<T> setting, String name, String[] itemNames, T[] keys
-    ) {
-        super(settingsController, name);
+        super(settingsController, getString(name));
 
         this.setting = setting;
 
@@ -62,16 +54,8 @@ public class ListSettingView<T>
         updateSelection();
     }
 
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, Item<T>[] items) {
-        this(settingsController, setting, getString(name), items);
-    }
-
     public ListSettingView(SettingsController settingsController, Setting<T> setting, int name, List<Item<T>> items) {
         this(settingsController, setting, getString(name), items);
-    }
-
-    public ListSettingView(SettingsController settingsController, Setting<T> setting, String name, Item<T>[] items) {
-        this(settingsController, setting, name, Arrays.asList(items));
     }
 
     public ListSettingView(
@@ -85,7 +69,7 @@ public class ListSettingView<T>
     }
 
     public String getBottomDescription() {
-        return items.get(selected).name;
+        return selected.name;
     }
 
     public Setting<T> getSetting() {
@@ -110,36 +94,30 @@ public class ListSettingView<T>
 
     @Override
     public void onClick(View v) {
-        List<FloatingMenuItem> menuItems = new ArrayList<>(items.size());
-        for (Item<?> item : items) {
+        List<FloatingMenuItem<T>> menuItems = new ArrayList<>(items.size());
+        for (Item<T> item : items) {
             if (item.enabled) {
-                menuItems.add(new FloatingMenuItem(item.key, item.name));
+                menuItems.add(new FloatingMenuItem<>(item.key, item.name));
             }
         }
 
-        FloatingMenu menu = new FloatingMenu(v.getContext(), v, menuItems);
+        FloatingMenu<T> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
         menu.setAnchorGravity(Gravity.LEFT, dp(5), dp(5));
-        menu.setCallback(this);
+        menu.setCallback(new FloatingMenu.ClickCallback<T>() {
+            @Override
+            public void onFloatingMenuItemClicked(FloatingMenu<T> menu, FloatingMenuItem<T> item) {
+                setting.set(item.getId());
+                updateSelection();
+                settingsController.onPreferenceChange(ListSettingView.this);
+            }
+        });
         menu.show();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
-        T selectedKey = (T) item.getId();
-        setting.set(selectedKey);
-        updateSelection();
-        settingsController.onPreferenceChange(this);
-    }
-
-    @Override
-    public void onFloatingMenuDismissed(FloatingMenu menu) {
     }
 
     public void updateSelection() {
         T selectedKey = setting.get();
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).key.equals(selectedKey)) {
+        for (Item<T> i : items) {
+            if (i.key.equals(selectedKey)) {
                 selected = i;
                 break;
             }

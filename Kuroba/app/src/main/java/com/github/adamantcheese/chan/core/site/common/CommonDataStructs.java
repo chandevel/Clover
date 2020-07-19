@@ -3,24 +3,27 @@ package com.github.adamantcheese.chan.core.site.common;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommonDataStructs {
-    public static class Boards {
-        public final List<Board> boards;
+    public static class Boards
+            extends ArrayList<Board> {
+        public Boards(int size) {
+            super(size);
+        }
 
         public Boards(List<Board> boards) {
-            this.boards = boards;
+            super(boards);
+        }
+
+        public Boards() {
+            super();
         }
     }
 
-    public static class ChanPages {
-        public final List<ChanPage> pages;
-
-        public ChanPages(List<ChanPage> pages) {
-            this.pages = pages;
-        }
-    }
+    public static class ChanPages
+            extends ArrayList<ChanPage> {}
 
     public static class ChanPage {
         public final int page;

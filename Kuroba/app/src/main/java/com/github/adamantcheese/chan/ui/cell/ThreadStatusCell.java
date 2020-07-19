@@ -74,7 +74,7 @@ public class ThreadStatusCell
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if(isInEditMode()) return;
+        if (isInEditMode()) return;
 
         text = findViewById(R.id.text);
         text.setTypeface(ThemeHelper.getTheme().mainFont);

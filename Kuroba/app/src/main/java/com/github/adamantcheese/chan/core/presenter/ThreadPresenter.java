@@ -21,6 +21,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -31,8 +34,6 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
@@ -52,6 +53,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -73,6 +75,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -86,13 +89,14 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
@@ -134,8 +138,6 @@ public class ThreadPresenter
     private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
-    private final FileCacheV2 fileCacheV2;
-    private final CacheHandler cacheHandler;
     private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
@@ -148,10 +150,7 @@ public class ThreadPresenter
     private boolean historyAdded;
     private boolean addToLocalBackHistory;
     private Context context;
-    private List<FloatingMenuItem> filterMenu;
-
-    @Nullable
-    private List<CancelableDownload> activePrefetches = null;
+    private List<FloatingMenuItem<Integer>> filterMenu;
     //endregion
 
     @Inject
@@ -161,8 +160,6 @@ public class ThreadPresenter
             ChanLoaderManager chanLoaderManager,
             PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
-            FileCacheV2 fileCacheV2,
-            CacheHandler cacheHandler,
             FileManager fileManager,
             MockReplyManager mockReplyManager
     ) {
@@ -172,8 +169,6 @@ public class ThreadPresenter
         this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
-        this.fileCacheV2 = fileCacheV2;
-        this.cacheHandler = cacheHandler;
         this.mockReplyManager = mockReplyManager;
     }
 
@@ -214,23 +209,9 @@ public class ThreadPresenter
             loadable = null;
             historyAdded = false;
             addToLocalBackHistory = true;
-            cancelPrefetching();
 
             threadPresenterCallback.showLoading();
         }
-    }
-
-    private void cancelPrefetching() {
-        if (activePrefetches == null) {
-            return;
-        }
-
-        for (CancelableDownload cancelableDownload : activePrefetches) {
-            cancelableDownload.cancelPrefetch();
-        }
-
-        activePrefetches.clear();
-        activePrefetches = null;
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
@@ -320,7 +301,7 @@ public class ThreadPresenter
     public void onForegroundChanged(boolean foreground) {
         if (isBound()) {
             if (foreground && isWatching()) {
-                chanLoader.requestMoreDataAndResetTimer();
+                chanLoader.requestMoreData();
                 if (chanLoader.getThread() != null) {
                     // Show loading indicator in the status cell
                     showPosts();
@@ -571,31 +552,6 @@ public class ThreadPresenter
                     forcePageUpdate = false;
                 }
             }
-
-            if (ChanSettings.autoLoadThreadImages.get() && !loadable.isLocal() && !loadable.isDownloading()) {
-                List<PostImage> postImageList = new ArrayList<>();
-                cancelPrefetching();
-
-                for (Post p : result.getPosts()) {
-                    for (PostImage postImage : p.images) {
-                        if (cacheHandler.exists(postImage.imageUrl)) {
-                            continue;
-                        }
-
-                        if ((postImage.type == PostImage.Type.STATIC || postImage.type == PostImage.Type.GIF)
-                                && shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get())) {
-                            postImageList.add(postImage);
-                        } else if (postImage.type == PostImage.Type.MOVIE
-                                && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get())) {
-                            postImageList.add(postImage);
-                        }
-                    }
-                }
-
-                if (postImageList.size() > 0) {
-                    activePrefetches = fileCacheV2.enqueueMediaPrefetchRequestBatch(loadable, postImageList);
-                }
-            }
         }
 
         if (loadable.markedNo >= 0) {
@@ -844,59 +800,61 @@ public class ThreadPresenter
     }
 
     @Override
-    public Object onPopulatePostOptions(Post post, List<FloatingMenuItem> menu, List<FloatingMenuItem> extraMenu) {
+    public Object onPopulatePostOptions(
+            Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+    ) {
         if (!isBound()) return null;
         if (loadable.isCatalogMode()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_PIN, R.string.action_pin));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         } else if (!loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE, R.string.post_quote));
-            menu.add(new FloatingMenuItem(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_REPORT, R.string.post_report));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_REPORT, R.string.post_report));
         }
 
         if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) && !loadable.isLocal()) {
             if (!post.filterStub) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIDE, R.string.post_hide));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIDE, R.string.post_hide));
             }
-            menu.add(new FloatingMenuItem(POST_OPTION_REMOVE, R.string.post_remove));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
         if (loadable.isThreadMode()) {
             if (!TextUtils.isEmpty(post.id)) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
 
             if (!TextUtils.isEmpty(post.tripcode)) {
-                menu.add(new FloatingMenuItem(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
+                menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
             }
         }
 
         filterMenu = new ArrayList<>();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
         }
         if (!TextUtils.isEmpty(post.comment)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
         }
         if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_NAME, R.string.filter_name));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, R.string.filter_name));
         }
         if (!TextUtils.isEmpty(post.id)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_ID, R.string.filter_id));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, R.string.filter_id));
         }
         if (!TextUtils.isEmpty(post.tripcode)) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
         }
         if (loadable.board.countryFlags) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
         }
         if (!post.images.isEmpty()) {
-            filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
             if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
-                filterMenu.add(new FloatingMenuItem(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
+                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
             }
         }
 
@@ -904,38 +862,38 @@ public class ThreadPresenter
         //in some cases a post will have nothing in it to filter (for example a post with no text and an image
         //that is removed by a filter), in such cases there is no filter menu option.
         if (filterMenu.size() > 1) {
-            menu.add(new FloatingMenuItem(POST_OPTION_FILTER, R.string.post_filter));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
         } else if (filterMenu.size() == 1) {
-            FloatingMenuItem menuItem = filterMenu.remove(0);
-            menu.add(new FloatingMenuItem(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
+            FloatingMenuItem<Integer> menuItem = filterMenu.remove(0);
+            menu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
                 .isSaved(post.board, post.no) && !loadable.isLocal()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_DELETE, R.string.post_delete));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_DELETE, R.string.post_delete));
         }
 
         if (ChanSettings.accessibleInfo.get()) {
-            menu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
         } else {
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_INFO, R.string.post_info));
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
         }
 
-        menu.add(new FloatingMenuItem(POST_OPTION_EXTRA, R.string.post_more));
+        menu.add(new FloatingMenuItem<>(POST_OPTION_EXTRA, R.string.post_more));
 
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_LINKS, R.string.post_show_links));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_SHARE, R.string.post_share));
-        extraMenu.add(new FloatingMenuItem(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_show_links));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SHARE, R.string.post_share));
+        extraMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_TEXT, R.string.post_copy_text));
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem(POST_OPTION_SAVE,
+            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
 
             if (BuildConfig.DEV_BUILD && loadable.no > 0) {
-                extraMenu.add(new FloatingMenuItem(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
+                extraMenu.add(new FloatingMenuItem<>(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
             }
         }
 
@@ -957,11 +915,46 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_LINKS:
                 if (post.linkables.size() > 0) {
-                    threadPresenterCallback.showPostLinkables(post);
+                    Set<String> added = new HashSet<>();
+                    List<CharSequence> keys = new ArrayList<>();
+                    for (int i = 0; i < post.linkables.size(); i++) {
+                        //skip SPOILER linkables, they aren't useful to display
+                        if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
+                        String key = post.linkables.get(i).key.toString();
+                        String value = post.linkables.get(i).value.toString();
+                        if (value.contains("youtu.be") || value.contains("youtube")) {
+                            //need to trim off starting spaces for youtube links
+                            String url = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
+                            if (added.contains(url)) continue;
+                            keys.add(PostHelper.prependIcon(context, url, BitmapRepository.youtubeIcon, sp(16)));
+                            added.add(url);
+                        } else {
+                            keys.add(key);
+                        }
+                    }
+
+                    AlertDialog dialog = new AlertDialog.Builder(context).create();
+
+                    ListView clickables = new ListView(context);
+                    clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
+                    clickables.setOnItemClickListener((parent, view, position, id1) -> {
+                        onPostLinkableClicked(post, post.linkables.get(position));
+                        dialog.dismiss();
+                    });
+                    clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
+                        setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
+                        showToast(context, R.string.linkable_copied_to_clipboard);
+                        return false;
+                    });
+
+                    dialog.setView(clickables);
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.show();
                 }
                 break;
             case POST_OPTION_COPY_TEXT:
-                threadPresenterCallback.clipboardPost(post);
+                setClipboardContent("Post text", post.comment.toString());
+                showToast(context, R.string.post_text_copied);
                 break;
             case POST_OPTION_REPORT:
                 if (inPopup) {
@@ -1103,16 +1096,12 @@ public class ThreadPresenter
         }
     }
 
-    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem> options) {
-        FloatingMenu menu = new FloatingMenu(context, anchor, options);
-        menu.setCallback(new FloatingMenu.FloatingMenuCallback() {
+    private void showFilterOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
+        FloatingMenu<Integer> menu = new FloatingMenu<>(context, anchor, options);
+        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu menu, FloatingMenuItem item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 onPostOptionClicked(anchor, post, item.getId(), inPopup);
-            }
-
-            @Override
-            public void onFloatingMenuDismissed(FloatingMenu menu) {
             }
         });
         menu.show();
@@ -1224,7 +1213,7 @@ public class ThreadPresenter
         if (!isBound()) return;
         //noinspection ConstantConditions
         if (!chanLoader.getThread().isArchived()) {
-            chanLoader.requestMoreDataAndResetTimer();
+            chanLoader.requestMoreData();
         } else {
             @SuppressLint("InflateParams")
             final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
@@ -1251,7 +1240,7 @@ public class ThreadPresenter
     @Override
     public void requestNewPostLoad() {
         if (isBound() && loadable.isThreadMode()) {
-            chanLoader.requestMoreDataAndResetTimer();
+            chanLoader.requestMoreData();
             //put in a "request" for a page update whenever the next set of data comes in
             forcePageUpdate = true;
         }
@@ -1265,11 +1254,20 @@ public class ThreadPresenter
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
         if (reply != null) {
-            threadPresenterCallback.confirmPostDelete(post);
+            @SuppressLint("InflateParams")
+            final View view = LayoutUtils.inflate(context, R.layout.dialog_post_delete, null);
+            CheckBox checkBox = view.findViewById(R.id.image_only);
+            new AlertDialog.Builder(context).setTitle(R.string.delete_confirm)
+                    .setView(view)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.delete,
+                            (dialog, which) -> deletePostConfirmed(post, checkBox.isChecked())
+                    )
+                    .show();
         }
     }
 
-    public void deletePostConfirmed(Post post, boolean onlyImageDelete) {
+    private void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
         SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
@@ -1354,7 +1352,10 @@ public class ThreadPresenter
             text.append("\nCapcode: ").append(post.capcode);
         }
 
-        threadPresenterCallback.showPostInfo(text.toString());
+        new AlertDialog.Builder(context).setTitle(R.string.post_info_title)
+                .setMessage(text.toString())
+                .setPositiveButton(R.string.ok, null)
+                .show();
     }
 
     private void showPosts() {
@@ -1464,12 +1465,6 @@ public class ThreadPresenter
 
         void showEmpty();
 
-        void showPostInfo(String info);
-
-        void showPostLinkables(Post post);
-
-        void clipboardPost(Post post);
-
         void showThread(Loadable threadLoadable);
 
         void showBoard(Loadable catalogLoadable);
@@ -1527,8 +1522,6 @@ public class ThreadPresenter
         void quote(Post post, boolean withText);
 
         void quote(Post post, CharSequence text);
-
-        void confirmPostDelete(Post post);
 
         void showDeleting();
 

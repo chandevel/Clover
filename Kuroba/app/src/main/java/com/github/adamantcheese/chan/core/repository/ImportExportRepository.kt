@@ -98,7 +98,7 @@ constructor(
         databaseManager.runTask {
             try {
                 if (!fileManager.exists(settingsFile)) {
-                    Logger.i(TAG, "There is nothing to import, importFile does not exist "
+                    Logger.e(TAG, "There is nothing to import, importFile does not exist "
                             + settingsFile.getFullPath())
                     callbacks.onNothingToImportExport(Import)
                     return@runTask
@@ -119,7 +119,7 @@ constructor(
                         val appSettings = gson.fromJson(reader, ExportedAppSettings::class.java)
 
                         if (appSettings.isEmpty) {
-                            Logger.i(TAG, "There is nothing to import, appSettings is empty")
+                            Logger.d(TAG, "There is nothing to import, appSettings is empty")
                             callbacks.onNothingToImportExport(Import)
                             return@use
                         }

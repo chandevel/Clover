@@ -24,9 +24,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Chan420BoardsParser
@@ -40,7 +38,7 @@ public class Chan420BoardsParser
     @Override
     public Boards parse(JsonReader reader)
             throws Exception {
-        List<Board> list = new ArrayList<>();
+        Boards list = new Boards();
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -62,7 +60,7 @@ public class Chan420BoardsParser
         }
         reader.endObject();
 
-        return new Boards(list);
+        return list;
     }
 
     private Board readBoardEntry(JsonReader reader)

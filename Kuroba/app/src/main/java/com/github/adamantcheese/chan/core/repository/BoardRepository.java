@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ public class BoardRepository
         }
     }
 
-    public void updateAvailableBoardsForSite(Site site, List<Board> availableBoards) {
+    public void updateAvailableBoardsForSite(Site site, Boards availableBoards) {
         boolean changed = databaseManager.runTask(databaseBoardManager.createAll(site, availableBoards));
         Logger.d(this, "updateAvailableBoardsForSite changed = " + changed);
         if (changed) {
@@ -97,36 +98,37 @@ public class BoardRepository
         return savedBoards.get();
     }
 
-    public List<Board> getSiteBoards(Site site) {
+    public Boards getSiteBoards(Site site) {
         for (SiteBoards item : allBoards.siteBoards) {
             if (item.site.id() == site.id()) {
                 return item.boards;
             }
         }
-        return new ArrayList<>();
+        return new Boards();
     }
 
-    public List<Board> getSiteSavedBoards(Site site) {
+    public Boards getSiteSavedBoards(Site site) {
         for (SiteBoards item : savedBoards.siteBoards) {
             if (item.site.id() == site.id()) {
                 return item.boards;
             }
         }
-        return new ArrayList<>();
+        return new Boards();
     }
 
-    public void updateBoardOrders(List<Board> boards) {
+    public void updateBoardOrders(Boards boards) {
         databaseManager.runTaskAsync(databaseBoardManager.updateOrders(boards), (e) -> updateObservablesAsync());
     }
 
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
+        board.order = saved ? board.order : 0;
         databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
                 (e) -> updateObservablesAsync()
         );
     }
 
-    public void setAllSaved(List<Board> boards, boolean saved) {
+    public void setAllSaved(Boards boards, boolean saved) {
         for (Board board : boards) {
             board.saved = saved;
         }
@@ -145,13 +147,13 @@ public class BoardRepository
         );
     }
 
-    private void updateWith(List<Pair<Site, List<Board>>> databaseData) {
+    private void updateWith(List<Pair<Site, Boards>> databaseData) {
         List<SiteBoards> all = new ArrayList<>();
         List<SiteBoards> saved = new ArrayList<>();
-        for (Pair<Site, List<Board>> item : databaseData) {
+        for (Pair<Site, Boards> item : databaseData) {
             all.add(new SiteBoards(item.first, item.second));
 
-            List<Board> savedBoards = new ArrayList<>();
+            Boards savedBoards = new Boards();
             for (Board board : item.second) {
                 if (board.saved) savedBoards.add(board);
             }
@@ -181,9 +183,9 @@ public class BoardRepository
 
     public static class SiteBoards {
         public final Site site;
-        public final List<Board> boards;
+        public final Boards boards;
 
-        public SiteBoards(Site site, List<Board> boards) {
+        public SiteBoards(Site site, Boards boards) {
             this.site = site;
             this.boards = boards;
         }

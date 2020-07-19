@@ -287,8 +287,8 @@ public class MediaSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.media_settings_image_click_preload_strategy_description) + "\n\n" + items.get(
-                        selected).name;
+                return getString(R.string.media_settings_image_click_preload_strategy_description) + "\n\n"
+                        + selected.name;
             }
         });
     }

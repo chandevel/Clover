@@ -45,8 +45,6 @@ import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
-import java.io.IOException;
-
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -54,7 +52,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class ThumbnailView
+public abstract class ThumbnailView
         extends View
         implements NetUtils.BitmapResult {
     private Call bitmapCall;
@@ -119,8 +117,8 @@ public class ThumbnailView
         if (url == null || bitmapCall != null) {
             if (bitmapCall != null) {
                 bitmapCall.cancel();
+                bitmapCall = null;
             }
-            bitmapCall = null;
             error = false;
             setImageBitmap(null);
             animate().cancel();
@@ -340,14 +338,12 @@ public class ThumbnailView
     public void onBitmapFailure(Bitmap errormap, Exception e) {
         if (e instanceof NetUtils.HttpCodeException) {
             errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
-        } else if (e instanceof IOException && "Canceled".equals(e.getMessage())) {
-            return;
         } else {
             errorText = getString(R.string.thumbnail_load_failed_network);
         }
         error = true;
 
-        onImageSet(false);
+        onImageSet(true);
         invalidate();
     }
 

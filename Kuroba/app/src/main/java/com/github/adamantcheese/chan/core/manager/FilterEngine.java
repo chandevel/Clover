@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -170,7 +171,7 @@ public class FilterEngine {
         }
     }
 
-    public void saveBoardsToFilter(List<Board> appliedBoards, boolean all, Filter filter) {
+    public void saveBoardsToFilter(Boards appliedBoards, boolean all, Filter filter) {
         filter.allBoards = all;
         if (all) {
             filter.boards = "";
@@ -246,6 +247,8 @@ public class FilterEngine {
 
     @AnyThread
     public boolean matches(Filter filter, String text, boolean forceCompile) {
+        if (text == null) return false;
+
         Pattern pattern = null;
         if (!forceCompile) {
             synchronized (patternCache) {

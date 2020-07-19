@@ -15,15 +15,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!-- ratio 300/57 -->
     <com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        app:ratio="5.2631578947368421052631578947368"
         tools:test_bitmap="true" />
 
     <LinearLayout

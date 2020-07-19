@@ -24,11 +24,10 @@ import android.media.MediaMetadataRetriever;
 
 import com.github.adamantcheese.chan.R;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.BitmapUtils.decodeFile;
 
 public class ImageDecoder {
 
@@ -74,19 +73,5 @@ public class ImageDecoder {
 
     public interface ImageDecoderCallback {
         void onImageBitmap(Bitmap bitmap);
-    }
-
-    public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
-        if (file == null || !file.exists()) return null;
-
-        try (FileInputStream fis = new FileInputStream(file)) {
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                IOUtils.copy(fis, baos);
-                return BitmapUtils.decode(baos.toByteArray(), maxWidth, maxHeight);
-            }
-        } catch (Throwable e) {
-            Logger.e("ImageDecoder", "", e);
-            return null;
-        }
     }
 }

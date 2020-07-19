@@ -16,16 +16,18 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.text.TextUtils;
+
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -40,28 +42,23 @@ public class BoardSetupPresenter
         implements Observer {
     private BoardManager boardManager;
 
-    private Callback callback;
-    private AddCallback addCallback;
+    private PresenterCallback callback;
+    private LayoutCallback addCallback;
 
     private Site site;
 
-    private List<Board> savedBoards;
+    private Boards savedBoards;
 
     private BoardRepository.SitesBoards allBoardsObservable;
 
     private BackgroundUtils.Cancelable suggestionCall;
-
-    private List<BoardSuggestion> suggestions = new ArrayList<>();
-    private List<String> selectedSuggestions = new LinkedList<>();
-
-    private String suggestionsQuery = null;
 
     @Inject
     public BoardSetupPresenter(BoardManager boardManager) {
         this.boardManager = boardManager;
     }
 
-    public void create(Callback callback, Site site) {
+    public void create(PresenterCallback callback, Site site) {
         this.callback = callback;
         this.site = site;
 
@@ -82,8 +79,7 @@ public class BoardSetupPresenter
     public void update(Observable o, Object arg) {
         if (o == allBoardsObservable) {
             if (addCallback != null) {
-                // Update the boards shown in the query.
-                queryBoardsWithQueryAndShowInAddDialog();
+                searchEntered(null);
             }
         }
     }
@@ -92,47 +88,23 @@ public class BoardSetupPresenter
         callback.showAddDialog();
     }
 
-    public void bindAddDialog(AddCallback addCallback) {
+    public void bindAddDialog(LayoutCallback addCallback) {
         this.addCallback = addCallback;
-
-        queryBoardsWithQueryAndShowInAddDialog();
+        searchEntered(null);
     }
 
     public void unbindAddDialog() {
         this.addCallback = null;
-        suggestions.clear();
-        selectedSuggestions.clear();
-        suggestionsQuery = null;
-    }
-
-    public void onSelectAllClicked() {
-        for (BoardSuggestion suggestion : suggestions) {
-            suggestion.checked = true;
-            selectedSuggestions.add(suggestion.getCode());
-        }
-        addCallback.suggestionsWereChanged();
-    }
-
-    public void onSuggestionClicked(BoardSuggestion suggestion) {
-        suggestion.checked = !suggestion.checked;
-        if (suggestion.checked) {
-            selectedSuggestions.add(suggestion.getCode());
-        } else {
-            selectedSuggestions.remove(suggestion.getCode());
-        }
-    }
-
-    public List<BoardSuggestion> getSuggestions() {
-        return suggestions;
     }
 
     public void onAddDialogPositiveClicked() {
         int count = 0;
 
-        List<Board> boardsToSave = new ArrayList<>();
+        List<String> selectedSuggestions = addCallback.getCheckedSuggestions();
+        Boards boardsToSave = new Boards();
 
         if (site.boardsType().canList) {
-            List<Board> siteBoards = boardManager.getSiteBoards(site);
+            Boards siteBoards = boardManager.getSiteBoards(site);
             Map<String, Board> siteBoardsByCode = new HashMap<>();
             for (Board siteBoard : siteBoards) {
                 siteBoardsByCode.put(siteBoard.code, siteBoard);
@@ -169,7 +141,7 @@ public class BoardSetupPresenter
         callback.setSavedBoards(savedBoards);
     }
 
-    public void remove(int position) {
+    public void removeBoard(int position) {
         Board board = savedBoards.remove(position);
         boardManager.setSaved(board, false);
 
@@ -187,30 +159,25 @@ public class BoardSetupPresenter
     }
 
     public void searchEntered(String userQuery) {
-        suggestionsQuery = userQuery;
-        queryBoardsWithQueryAndShowInAddDialog();
-    }
-
-    private void queryBoardsWithQueryAndShowInAddDialog() {
         if (suggestionCall != null) {
             suggestionCall.cancel();
         }
 
-        final String query = suggestionsQuery == null ? null : suggestionsQuery.replace("/", "").replace("\\", "");
+        final String query = userQuery == null ? null : userQuery.replace("/", "").replace("\\", "");
         suggestionCall = BackgroundUtils.runWithExecutor(instance(ExecutorService.class), () -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
-                List<Board> siteBoards = boardManager.getSiteBoards(site);
-                List<Board> allUnsavedBoards = new ArrayList<>();
+                Boards siteBoards = boardManager.getSiteBoards(site);
+                Boards allUnsavedBoards = new Boards();
                 for (Board siteBoard : siteBoards) {
                     if (!siteBoard.saved) {
                         allUnsavedBoards.add(siteBoard);
                     }
                 }
 
-                List<Board> toSuggest;
-                if (query == null || query.equals("")) {
-                    toSuggest = new ArrayList<>(allUnsavedBoards);
+                Boards toSuggest;
+                if (TextUtils.isEmpty(query)) {
+                    toSuggest = new Boards(allUnsavedBoards);
                 } else {
                     toSuggest = BoardHelper.search(allUnsavedBoards, query);
                 }
@@ -220,26 +187,22 @@ public class BoardSetupPresenter
                     suggestions.add(suggestion);
                 }
             } else {
-                if (query != null && !query.equals("")) {
+                if (!TextUtils.isEmpty(query)) {
                     suggestions.add(new BoardSuggestion(query));
                 }
             }
 
             return suggestions;
         }, result -> {
-            updateSuggestions(result);
-
             if (addCallback != null) {
-                addCallback.suggestionsWereChanged();
+                List<String> currentlySelectedSuggestions = addCallback.getCheckedSuggestions();
+                for (BoardSuggestion suggestion : result) {
+                    suggestion.checked = currentlySelectedSuggestions.contains(suggestion.code);
+                }
+
+                addCallback.suggestionsWereChanged(result);
             }
         });
-    }
-
-    private void updateSuggestions(List<BoardSuggestion> suggestions) {
-        this.suggestions = suggestions;
-        for (BoardSuggestion suggestion : this.suggestions) {
-            suggestion.checked = selectedSuggestions.contains(suggestion.getCode());
-        }
     }
 
     private void setOrder() {
@@ -248,25 +211,27 @@ public class BoardSetupPresenter
         }
     }
 
-    public interface Callback {
+    public interface PresenterCallback {
         void showAddDialog();
 
-        void setSavedBoards(List<Board> savedBoards);
+        void setSavedBoards(Boards savedBoards);
 
         void showRemovedSnackbar(Board board);
 
         void boardsWereAdded(int count);
     }
 
-    public interface AddCallback {
-        void suggestionsWereChanged();
+    public interface LayoutCallback {
+        List<String> getCheckedSuggestions();
+
+        void suggestionsWereChanged(List<BoardSuggestion> suggestions);
     }
 
     public static class BoardSuggestion {
         private final Board board;
-        private final String code;
+        public final String code;
 
-        private boolean checked = false;
+        public boolean checked = false;
 
         public BoardSuggestion(Board board) {
             this.board = board;
@@ -292,10 +257,6 @@ public class BoardSetupPresenter
             } else {
                 return "";
             }
-        }
-
-        public String getCode() {
-            return code;
         }
 
         public boolean isChecked() {

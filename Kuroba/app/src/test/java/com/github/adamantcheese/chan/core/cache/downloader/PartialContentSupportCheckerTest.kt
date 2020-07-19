@@ -49,24 +49,6 @@ class PartialContentSupportCheckerTest {
     }
 
     @Test
-    fun `test check for batch request should return supportsPartialContentDownload == false`() {
-        val url = "http://4chan.org/image1.jpg".toHttpUrl()
-        val output = cacheHandler.getOrCreateCacheFile(url) as RawFile
-        val request = createFileDownloadRequest(url, isBatchDownload = true, file = output)
-        activeDownloads.put(url, request)
-
-        partialContentSupportChecker.check(url)
-                .test()
-                .assertValue { value ->
-                    assertFalse(value.supportsPartialContentDownload)
-                    true
-                }
-                .assertComplete()
-                .assertNoErrors()
-                .assertNoTimeout()
-    }
-
-    @Test
     fun `test small body size should return supportsPartialContentDownload == false with actual body size`() {
         withServer { server ->
             server.enqueue(

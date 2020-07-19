@@ -29,9 +29,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import okhttp3.HttpUrl;
 
@@ -103,13 +101,13 @@ public class Chan420
                     @Override
                     public void onJsonFailure(Exception e) {
                         Logger.e(Chan420.this, "Failed to get boards from server", e);
-                        List<Board> list = new ArrayList<>();
+                        Boards list = new Boards();
                         list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
                         list.add(Board.fromSiteNameCode(Chan420.this, "Alcohol Discussion", "hooch"));
                         list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
                         list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
                         Collections.shuffle(list);
-                        listener.onBoardsReceived(new Boards(list));
+                        listener.onBoardsReceived(list);
                     }
 
                     @Override
