@@ -868,4 +868,5 @@ Don't have a 4chan Pass?<br>
 
     <string name="options_button_sage">Sage</string>
     <string name="options_button_pass">Since4Pass</string>
+    <string name="options_button_fortune">Fortune</string>
 </resources>
