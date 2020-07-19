@@ -66,8 +66,10 @@ public class MediaSettingsController
         implements SaveLocationSetupDelegate.MediaControllerCallbacks,
                    ThreadsLocationSetupDelegate.MediaControllerCallbacks {
     // Special setting views
-    private BooleanSettingView boardFolderSetting;
-    private BooleanSettingView threadFolderSetting;
+    private BooleanSettingView imageBoardFolderSetting;
+    private BooleanSettingView imageThreadFolderSetting;
+    private BooleanSettingView albumBoardFolderSetting;
+    private BooleanSettingView albumThreadFolderSetting;
     private BooleanSettingView videoDefaultMutedSetting;
     private BooleanSettingView headsetDefaultMutedSetting;
     private LinkSettingView saveLocation;
@@ -119,7 +121,8 @@ public class MediaSettingsController
 
         onPreferenceChange(imageAutoLoadView);
 
-        threadFolderSetting.setEnabled(ChanSettings.saveBoardFolder.get());
+        imageThreadFolderSetting.setEnabled(ChanSettings.saveImageBoardFolder.get());
+        albumThreadFolderSetting.setEnabled(ChanSettings.saveAlbumBoardFolder.get());
         headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
 
@@ -137,8 +140,10 @@ public class MediaSettingsController
 
         if (item == imageAutoLoadView) {
             updateVideoLoadModes();
-        } else if (item == boardFolderSetting) {
-            updateThreadFolderSetting();
+        } else if (item == imageBoardFolderSetting) {
+            updateImageThreadFolderSetting();
+        } else if (item == albumBoardFolderSetting) {
+            updateAlbumThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
             updateHeadsetDefaultMutedSetting();
         } else if (item == incrementalThreadDownloadingSetting
@@ -176,16 +181,28 @@ public class MediaSettingsController
             setupLocalThreadLocationSetting(media);
 
             //Save modifications
-            boardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
-                    ChanSettings.saveBoardFolder,
-                    R.string.setting_save_board_folder,
-                    R.string.setting_save_board_folder_description
+            imageBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.saveImageBoardFolder,
+                    R.string.setting_save_image_board_folder,
+                    R.string.setting_save_image_board_folder_description
             ));
 
-            threadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
-                    ChanSettings.saveThreadFolder,
-                    R.string.setting_save_thread_folder,
-                    R.string.setting_save_thread_folder_description
+            imageThreadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.saveImageThreadFolder,
+                    R.string.setting_save_image_thread_folder,
+                    R.string.setting_save_image_thread_folder_description
+            ));
+
+            albumBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.saveAlbumBoardFolder,
+                    R.string.setting_save_album_board_folder,
+                    R.string.setting_save_album_board_folder_description
+            ));
+
+            albumThreadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+                    ChanSettings.saveAlbumThreadFolder,
+                    R.string.setting_save_album_thread_folder,
+                    R.string.setting_save_album_thread_folder_description
             ));
 
             media.add(new BooleanSettingView(this,
@@ -424,15 +441,27 @@ public class MediaSettingsController
         }
     }
 
-    private void updateThreadFolderSetting() {
-        if (ChanSettings.saveBoardFolder.get()) {
-            threadFolderSetting.setEnabled(true);
+    private void updateImageThreadFolderSetting() {
+        if (ChanSettings.saveImageBoardFolder.get()) {
+            imageThreadFolderSetting.setEnabled(true);
         } else {
-            if (ChanSettings.saveThreadFolder.get()) {
-                threadFolderSetting.onClick(threadFolderSetting.view);
+            if (ChanSettings.saveImageThreadFolder.get()) {
+                imageThreadFolderSetting.onClick(imageThreadFolderSetting.view);
             }
-            threadFolderSetting.setEnabled(false);
-            ChanSettings.saveThreadFolder.set(false);
+            imageThreadFolderSetting.setEnabled(false);
+            ChanSettings.saveImageThreadFolder.set(false);
+        }
+    }
+
+    private void updateAlbumThreadFolderSetting() {
+        if (ChanSettings.saveAlbumBoardFolder.get()) {
+            albumThreadFolderSetting.setEnabled(true);
+        } else {
+            if (ChanSettings.saveAlbumThreadFolder.get()) {
+                albumThreadFolderSetting.onClick(albumThreadFolderSetting.view);
+            }
+            albumThreadFolderSetting.setEnabled(false);
+            ChanSettings.saveAlbumThreadFolder.set(false);
         }
     }
 

@@ -112,7 +112,7 @@ public class AlbumDownloadController
                 showToast(context, R.string.album_download_none_checked);
             } else {
                 String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(loadable.site.name());
-                String subFolder = ChanSettings.saveBoardFolder.get() ? (ChanSettings.saveThreadFolder.get()
+                String subFolder = ChanSettings.saveAlbumBoardFolder.get() ? (ChanSettings.saveAlbumThreadFolder.get()
                         ? appendAdditionalSubDirectories()
                         : siteNameSafe + File.separator + loadable.boardCode) : null;
                 String message = getString(

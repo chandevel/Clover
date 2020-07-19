@@ -305,10 +305,10 @@ public class ImageViewerController
             shareLink(postImage.imageUrl.toString());
         } else {
             ImageSaveTask task = new ImageSaveTask(loadable, postImage, false, share);
-            if (ChanSettings.saveBoardFolder.get()) {
+            if (ChanSettings.saveImageBoardFolder.get()) {
                 String subFolderName;
 
-                if (ChanSettings.saveThreadFolder.get()) {
+                if (ChanSettings.saveImageThreadFolder.get()) {
                     subFolderName = appendAdditionalSubDirectories(postImage);
                 } else {
                     String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().site.name());
