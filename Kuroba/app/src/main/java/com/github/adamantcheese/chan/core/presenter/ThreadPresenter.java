@@ -1306,12 +1306,54 @@ public class ThreadPresenter
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
             text.append("Subject: ").append(post.subject).append("\n");
         }
+
+        if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
+            text.append("Name: ").append(post.name).append("\n");
+        }
+
+        if (!TextUtils.isEmpty(post.tripcode)) {
+            text.append("Tripcode: ").append(post.tripcode).append("\n");
+        }
+
+        if (!TextUtils.isEmpty(post.capcode)) {
+            text.append("Capcode: ").append(post.capcode).append("\n");
+        }
+
+        if (!TextUtils.isEmpty(post.id) && isBound() && chanLoader.getThread() != null) {
+            text.append("Id: ").append(post.id).append("\n");
+            int count = 0;
+            try {
+                for (Post p : chanLoader.getThread().getPosts()) {
+                    if (p.id.equals(post.id)) count++;
+                }
+            } catch (Exception ignored) {
+            }
+            text.append("Post count: ").append(count).append("\n");
+        }
+
+        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
+            for (PostHttpIcon icon : post.httpIcons) {
+                if (icon.url.toString().contains("troll")) {
+                    text.append("Troll Country: ").append(icon.name).append("\n");
+                } else if (icon.url.toString().contains("country")) {
+                    text.append("Country: ").append(icon.name).append("\n");
+                } else if (icon.url.toString().contains("minileaf")) {
+                    text.append("4chan Pass Year: ").append(icon.name).append("\n");
+                }
+            }
+        }
+
+        text.append("Posted: ").append(PostHelper.getLocalDate(post));
+
         for (PostImage image : post.images) {
-            text.append("Filename: ").append(image.filename).append(".").append(image.extension);
+            text.append("\n\nFilename: ")
+                    .append(image.filename)
+                    .append(".")
+                    .append(image.extension);
             if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
-                text.append(" \nDimensions: ")
+                text.append("\nDimensions: ")
                         .append(image.imageWidth)
                         .append("x")
                         .append(image.imageHeight)
@@ -1322,43 +1364,8 @@ public class ThreadPresenter
             if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that
                 text.append("\nSpoilered");
             }
-
-            text.append("\n");
         }
 
-        text.append("Posted: ").append(PostHelper.getLocalDate(post));
-
-        if (!TextUtils.isEmpty(post.id) && isBound() && chanLoader.getThread() != null) {
-            text.append("\nId: ").append(post.id);
-            int count = 0;
-            try {
-                for (Post p : chanLoader.getThread().getPosts()) {
-                    if (p.id.equals(post.id)) count++;
-                }
-            } catch (Exception ignored) {
-            }
-            text.append("\nCount: ").append(count);
-        }
-
-        if (!TextUtils.isEmpty(post.tripcode)) {
-            text.append("\nTripcode: ").append(post.tripcode);
-        }
-
-        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
-            for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.url.toString().contains("troll")) {
-                    text.append("\nTroll Country: ").append(icon.name);
-                } else if (icon.url.toString().contains("country")) {
-                    text.append("\nCountry: ").append(icon.name);
-                } else if (icon.url.toString().contains("minileaf")) {
-                    text.append("\n4chan Pass Year: ").append(icon.name);
-                }
-            }
-        }
-
-        if (!TextUtils.isEmpty(post.capcode)) {
-            text.append("\nCapcode: ").append(post.capcode);
-        }
         AlertDialog.Builder alertDialogbuilder = new AlertDialog.Builder(context);
         AlertDialog dialog = alertDialogbuilder
                 .setMessage(text.toString())
