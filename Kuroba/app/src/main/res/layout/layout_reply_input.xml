@@ -307,7 +307,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:scaleX="1.25"
                 android:scaleY="1.25"
                 android:src="@drawable/ic_expand_more_white_24dp"
-                android:tint="?attr/themeDrawableColor" />
+                app:tint="?attr/themeDrawableColor" />
 
             <ImageView
                 android:id="@+id/attach"
@@ -316,7 +316,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:background="@drawable/ripple_item_background"
                 android:padding="6dp"
                 android:src="@drawable/ic_image_themed_24dp"
-                android:tint="?attr/themeDrawableColor" />
+                app:tint="?attr/themeDrawableColor" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/submit"

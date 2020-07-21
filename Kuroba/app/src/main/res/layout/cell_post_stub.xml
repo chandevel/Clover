@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.cell.PostStubCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -34,8 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:singleLine="true"
         android:textColor="?android:textColorSecondary"
         tools:paddingLeft="8dp"
-        tools:textsize="8sp"
-        tools:text="Title for the stubbed cell" />
+        tools:text="Title for the stubbed cell"
+        tools:textsize="8sp" />
 
     <ImageView
         android:id="@+id/options"
@@ -49,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingRight="2dp"
         android:paddingBottom="2dp"
         android:src="@drawable/ic_overflow"
-        android:tint="?android:textColorSecondary"
+        app:tint="?android:textColorSecondary"
         tools:ignore="ContentDescription" />
 
     <View

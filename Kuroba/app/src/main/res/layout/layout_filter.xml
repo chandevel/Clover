@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -52,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:background="@drawable/ripple_item_background"
                 android:padding="4dp"
                 android:src="@drawable/ic_help_outline_white_24dp"
-                android:tint="?attr/themeDrawableColor" />
+                app:tint="?attr/themeDrawableColor" />
 
         </LinearLayout>
 
