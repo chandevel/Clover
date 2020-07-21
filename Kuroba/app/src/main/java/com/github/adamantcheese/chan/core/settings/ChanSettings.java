@@ -277,8 +277,10 @@ public class ChanSettings {
     // Saving
     public static final SavedFilesBaseDirSetting saveLocation;
     public static final LocalThreadsBaseDirSetting localThreadLocation;
-    public static final BooleanSetting saveBoardFolder;
-    public static final BooleanSetting saveThreadFolder;
+    public static final BooleanSetting saveImageBoardFolder;
+    public static final BooleanSetting saveImageThreadFolder;
+    public static final BooleanSetting saveAlbumBoardFolder;
+    public static final BooleanSetting saveAlbumThreadFolder;
     public static final BooleanSetting saveServerFilename;
     public static final BooleanSetting incrementalThreadDownloadingEnabled;
 
@@ -442,8 +444,10 @@ public class ChanSettings {
             // Saving
             saveLocation = new SavedFilesBaseDirSetting(p);
             localThreadLocation = new LocalThreadsBaseDirSetting(p);
-            saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
-            saveThreadFolder = new BooleanSetting(p, "preference_save_subthread", false);
+            saveImageBoardFolder = new BooleanSetting(p, "preference_save_image_subboard", false);
+            saveImageThreadFolder = new BooleanSetting(p, "preference_save_image_subthread", false);
+            saveAlbumBoardFolder = new BooleanSetting(p, "preference_save_album_subboard", false);
+            saveAlbumThreadFolder = new BooleanSetting(p, "preference_save_album_subthread", false);
             saveServerFilename = new BooleanSetting(p, "preference_image_save_original", false);
             incrementalThreadDownloadingEnabled = new BooleanSetting(p, "incremental_thread_downloading", true);
 

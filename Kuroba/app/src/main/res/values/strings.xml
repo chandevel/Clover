@@ -516,18 +516,22 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
 
     <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
-    <string name="settings_screen_media">Media</string>
-    <string name="settings_group_saving">Media saving</string>
-    <string name="setting_save_board_folder">Save images in board folders</string>
+
 
 
     <!-- Media -->
-    <string name="setting_save_board_folder_description">Create a folder for each board when saving</string>
+    <string name="settings_screen_media">Media</string>
 
     <!-- Media general group -->
-    <string name="setting_save_thread_folder">Save images in thread folders</string>
-
-    <string name="setting_save_thread_folder_description">Create a folder for each thread when saving</string>
+    <string name="settings_group_saving">Media saving</string>
+    <string name="setting_save_image_board_folder">Save images in board folders</string>
+    <string name="setting_save_image_board_folder_description">Create a folder for each board when saving individual images</string>
+    <string name="setting_save_image_thread_folder">Save images in thread folders</string>
+    <string name="setting_save_image_thread_folder_description">Create a folder for each thread when saving individual images</string>
+    <string name="setting_save_album_board_folder">Save albums in board folders</string>
+    <string name="setting_save_album_board_folder_description">Create a folder for each board when saving image albums</string>
+    <string name="setting_save_album_thread_folder">Save albums in thread folders</string>
+    <string name="setting_save_album_thread_folder_description">Create a folder for each thread when saving image albums</string>
     <string name="setting_save_server_filename">Save server filename</string>
     <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
