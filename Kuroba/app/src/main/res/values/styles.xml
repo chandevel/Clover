@@ -660,7 +660,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="AlertDialogStyle" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
-        <item name="android:background">?backcolor</item>
+        <item name="android:windowBackground">?backcolor</item>
     </style>
 
     <style name="ListPopupWindowStyle" parent="Widget.AppCompat.ListPopupWindow">
