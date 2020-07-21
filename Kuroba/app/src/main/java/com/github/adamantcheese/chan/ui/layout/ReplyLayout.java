@@ -843,7 +843,6 @@ public class ReplyLayout
                 }
 
                 if (processed) {
-                    mode.finish();
                     processed = false;
                     return true;
                 } else {
@@ -868,22 +867,15 @@ public class ReplyLayout
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (callback.getThread() == null) return true;
                 Loadable threadLoadable = callback.getThread().getLoadable();
-                sageMenuItem = menu.add(Menu.NONE,
-                        R.id.options_selection_action_sage,
-                        1,
-                        R.string.options_button_sage
-                );
+                sageMenuItem = menu.add(Menu.NONE, R.id.options_selection_action_sage, 1, R.string.options_button_sage);
                 if (threadLoadable.board.site instanceof Chan4) {
-                    passMenuItem = menu.add(Menu.NONE,
-                                    R.id.options_selection_action_pass,
-                                    2,
-                                    R.string.options_button_pass
-                    );
+                    passMenuItem =
+                            menu.add(Menu.NONE, R.id.options_selection_action_pass, 2, R.string.options_button_pass);
                     if (threadLoadable.boardCode.equals("s4s")) {
                         fortuneMenuItem = menu.add(Menu.NONE,
-                                        R.id.options_selection_action_fortune,
-                                        3,
-                                        R.string.options_button_fortune
+                                R.id.options_selection_action_fortune,
+                                3,
+                                R.string.options_button_fortune
                         );
                     }
                 }
@@ -899,14 +891,13 @@ public class ReplyLayout
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 String currentText = options.getText() == null ? "" : options.getText().toString();
                 if (item == sageMenuItem) {
-                    options.setText(String.format("%ssage ", currentText));
+                    options.setText(String.format("%ssage", currentText));
                 } else if (item == passMenuItem) {
-                    options.setText(String.format("%ssince4pass ", currentText));
+                    options.setText(String.format("%ssince4pass", currentText));
                 } else if (item == fortuneMenuItem) {
                     options.setText(String.format("%sfortune", currentText));
                 }
 
-                mode.finish();
                 return true;
             }
 

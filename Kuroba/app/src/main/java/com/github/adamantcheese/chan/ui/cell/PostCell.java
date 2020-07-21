@@ -481,7 +481,6 @@ public class PostCell
                     }
 
                     if (processed) {
-                        mode.finish();
                         processed = false;
                         return true;
                     } else {

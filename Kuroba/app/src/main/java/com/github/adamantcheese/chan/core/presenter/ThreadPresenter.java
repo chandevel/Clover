@@ -943,11 +943,13 @@ public class ThreadPresenter
                 showSubMenuOptions(anchor, post, inPopup, copyMenu);
                 break;
             case POST_OPTION_COPY_POST_LINK:
-                setClipboardContent("Post link", String.format(Locale.ENGLISH,">>%d", post.no));
+                setClipboardContent("Post link", String.format(Locale.ENGLISH, ">>%d", post.no));
                 showToast(context, R.string.post_link_copied);
                 break;
             case POST_OPTION_COPY_CROSS_BOARD_LINK:
-                setClipboardContent("Cross-board link", String.format(Locale.ENGLISH,">>>/%s/%d", post.boardId, post.no));
+                setClipboardContent("Cross-board link",
+                        String.format(Locale.ENGLISH, ">>>/%s/%d", post.boardId, post.no)
+                );
                 showToast(context, R.string.post_cross_board_link_copied);
                 break;
             case POST_OPTION_COPY_POST_URL:
@@ -1346,10 +1348,7 @@ public class ThreadPresenter
         text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
         for (PostImage image : post.images) {
-            text.append("\n\nFilename: ")
-                    .append(image.filename)
-                    .append(".")
-                    .append(image.extension);
+            text.append("\n\nFilename: ").append(image.filename).append(".").append(image.extension);
             if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
@@ -1367,8 +1366,7 @@ public class ThreadPresenter
         }
 
         AlertDialog.Builder alertDialogbuilder = new AlertDialog.Builder(context);
-        AlertDialog dialog = alertDialogbuilder
-                .setMessage(text.toString())
+        AlertDialog dialog = alertDialogbuilder.setMessage(text.toString())
                 .setTitle(R.string.post_info)
                 .setPositiveButton(R.string.ok, null)
                 .create();
