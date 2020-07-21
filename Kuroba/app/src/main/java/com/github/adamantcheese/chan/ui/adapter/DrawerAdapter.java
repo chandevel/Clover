@@ -75,10 +75,8 @@ public class DrawerAdapter
     private static final int PIN_OFFSET = 3;
     private static final int SETTINGS_OFFSET = 0;
 
-    //NOTE: TYPE_PIN is public so that in DrawerController we can set it's recycled count to 0 in the pool
-    //We avoid recycling them as it was causing issues with the TextViews internal to those holders which update their text style
     private static final int TYPE_HEADER = 0;
-    public static final int TYPE_PIN = 1;
+    private static final int TYPE_PIN = 1;
     private static final int TYPE_LINK = 2;
 
     @Inject
@@ -221,13 +219,17 @@ public class DrawerAdapter
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder.getItemViewType() == TYPE_PIN) {
-            PinViewHolder pinViewHolder = (PinViewHolder) holder;
-            if (pinViewHolder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
+            PinViewHolder pinHolder = (PinViewHolder) holder;
+            if (pinHolder.threadDownloadIcon.getDrawable() instanceof AnimatedVectorDrawableCompat) {
                 AnimatedVectorDrawableCompat downloadIcon =
-                        (AnimatedVectorDrawableCompat) pinViewHolder.threadDownloadIcon.getDrawable();
+                        (AnimatedVectorDrawableCompat) pinHolder.threadDownloadIcon.getDrawable();
                 downloadIcon.stop();
                 downloadIcon.clearAnimationCallbacks();
             }
+
+            Typeface cleanedTypeface = Typeface.create(pinHolder.watchCountText.getTypeface(), Typeface.NORMAL);
+            pinHolder.watchCountText.setTypeface(cleanedTypeface);
+            pinHolder.watchCountText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
         }
     }
 
@@ -382,10 +384,8 @@ public class DrawerAdapter
 
         if (pinWatcher.latestKnownPage >= pinBoard.pages && pinBoard.pages > 0) {
             //underline for page limit
-            watchCount.setPaintFlags(watchCount.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+            watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG | Paint.UNDERLINE_TEXT_FLAG);
         }
-
-        watchCount.setPaintFlags(watchCount.getPaintFlags());
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {

@@ -68,7 +68,6 @@ import java.util.List;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -167,10 +166,8 @@ public class ThreadListLayout
                 ThemeHelper.getTheme()
         );
         recyclerView.setAdapter(postAdapter);
-        if (ChanSettings.shiftPostFormat.get()) {
-            recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
-        }
         recyclerView.addOnScrollListener(scrollListener);
+        recyclerView.setItemViewCacheSize(10);
 
         setFastScroll(false);
 

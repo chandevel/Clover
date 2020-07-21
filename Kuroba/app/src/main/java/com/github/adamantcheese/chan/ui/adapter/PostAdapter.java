@@ -19,7 +19,10 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -35,12 +38,18 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.widget.RelativeLayout.BELOW;
+import static android.widget.RelativeLayout.RIGHT_OF;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    //we don't recycle POST cells because of layout changes between cell contents
-    public static final int TYPE_POST = 0;
+    private static final int TYPE_POST = 0;
     private static final int TYPE_STATUS = 1;
     private static final int TYPE_POST_STUB = 2;
     private static final int TYPE_LAST_SEEN = 3;
@@ -225,6 +234,33 @@ public class PostAdapter
             PostCell cell = (PostCell) holder.itemView;
             cell.findViewById(R.id.comment).setEnabled(false);
             cell.findViewById(R.id.comment).setEnabled(true);
+        }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == LIST && ChanSettings.shiftPostFormat.get()) {
+            PostCell postCell = (PostCell) holder.itemView;
+            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+            int paddingPx = dp(textSizeSp - 6);
+            // reset this view to be in a "default" state so it can be recycled
+            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            commentParams.alignWithParent = true;
+            commentParams.addRule(BELOW, R.id.icons);
+            commentParams.addRule(ALIGN_PARENT_RIGHT);
+            commentParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+            TextView comment = postCell.findViewById(R.id.comment);
+            comment.setLayoutParams(commentParams);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+
+            RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            replyParams.alignWithParent = true;
+            replyParams.addRule(BELOW, R.id.comment);
+            replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+            TextView replies = postCell.findViewById(R.id.replies);
+            replies.setLayoutParams(replyParams);
+            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
         }
     }
 

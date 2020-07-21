@@ -74,7 +74,6 @@ import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -459,9 +458,6 @@ public class ThemeSettingsController
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
             postsView.setAdapter(adapter);
-            if (ChanSettings.shiftPostFormat.get()) {
-                postsView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
-            }
 
             final Toolbar toolbar = new Toolbar(themeContext);
             toolbar.setMenuDrawable(R.drawable.ic_format_paint_white_24dp);

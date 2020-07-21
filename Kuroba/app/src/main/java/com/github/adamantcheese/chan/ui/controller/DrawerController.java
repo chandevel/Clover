@@ -56,7 +56,6 @@ import io.reactivex.disposables.Disposable;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
-import static com.github.adamantcheese.chan.ui.adapter.DrawerAdapter.TYPE_PIN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
@@ -95,7 +94,6 @@ public class DrawerController
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_PIN, 0);
 
         drawerAdapter = new DrawerAdapter(this, context);
         recyclerView.setAdapter(drawerAdapter);

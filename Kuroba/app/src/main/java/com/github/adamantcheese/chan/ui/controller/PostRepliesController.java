@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.TYPE_POST;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostRepliesController
@@ -165,9 +164,7 @@ public class PostRepliesController
             }
         };
         recyclerView.setAdapter(adapter);
-        if (ChanSettings.shiftPostFormat.get()) {
-            recyclerView.getRecycledViewPool().setMaxRecycledViews(TYPE_POST, 0);
-        }
+        recyclerView.setItemViewCacheSize(5);
         adapter.setThread(loadable, displayingData.posts, false);
         adapter.setLastSeenIndicatorPosition(-1); //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
