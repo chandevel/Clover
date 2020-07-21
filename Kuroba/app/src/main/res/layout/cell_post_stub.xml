@@ -62,6 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:background="?attr/divider_color"
+        tools:layout_alignParentBottom="false"
         tools:layout_marginLeft="8dp"
         tools:layout_marginRight="8dp" />
 
