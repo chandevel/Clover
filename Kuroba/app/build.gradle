@@ -218,12 +218,12 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.+'
     implementation 'androidx.browser:browser:1.+'
     implementation 'androidx.constraintlayout:constraintlayout:1.+'
     implementation 'androidx.preference:preference:1.+'
     implementation 'androidx.slidingpanelayout:slidingpanelayout:1.+'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.+'
+    implementation 'androidx.appcompat:appcompat:1.2.0-rc01'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'com.google.android.exoplayer:exoplayer:2.11.+'
     implementation 'com.squareup.okhttp3:okhttp:4.7.+'
