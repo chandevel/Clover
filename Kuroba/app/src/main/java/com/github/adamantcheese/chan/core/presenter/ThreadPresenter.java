@@ -816,7 +816,10 @@ public class ThreadPresenter
         copyMenu = populateCopyMenuOptions(post);
         filterMenu = populateFilterMenuOptions(post);
 
-        if (loadable.isCatalogMode()) {
+        if (loadable.isCatalogMode() && watchManager.getPinByLoadable(Loadable.forThread(post.board,
+                post.no,
+                PostHelper.getTitle(post, loadable)
+        )) == null) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         } else if (!loadable.isLocal()) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
