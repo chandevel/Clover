@@ -21,6 +21,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -230,6 +231,8 @@ public class DrawerAdapter
             Typeface cleanedTypeface = Typeface.create(pinHolder.watchCountText.getTypeface(), Typeface.NORMAL);
             pinHolder.watchCountText.setTypeface(cleanedTypeface);
             pinHolder.watchCountText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
+
+            pinHolder.image.setUrl(null);
         }
     }
 
@@ -389,24 +392,19 @@ public class DrawerAdapter
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        SavedThread savedThread = null;
+        holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
 
         if (PinType.hasDownloadFlag(pin.pinType)) {
-            savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
+            if (savedThread == null || !savedThread.isFullyDownloaded) {
+                return;
+            }
+            String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
+            if (TextUtils.isEmpty(filename)) {
+                return;
+            }
+            holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(48), dp(48));
         }
-
-        if (savedThread == null || !savedThread.isFullyDownloaded) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
-            return;
-        }
-
-        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
-        if (filename == null || filename.isEmpty()) {
-            holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
-            return;
-        }
-
-        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(48), dp(48));
     }
 
     private void setPinDownloadIcon(PinViewHolder holder, Pin pin) {

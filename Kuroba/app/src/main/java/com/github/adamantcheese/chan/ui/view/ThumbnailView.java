@@ -114,17 +114,17 @@ public abstract class ThumbnailView
     }
 
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
-        if (url == null || bitmapCall != null) {
-            if (bitmapCall != null) {
-                bitmapCall.cancel();
-                bitmapCall = null;
-            }
-            error = false;
-            setImageBitmap(null);
-            animate().cancel();
-            if (url == null) {
-                return;
-            }
+        error = false;
+        setImageBitmap(null);
+        animate().cancel();
+
+        if (url == null) {
+            return;
+        }
+
+        if (bitmapCall != null) {
+            bitmapCall.cancel();
+            bitmapCall = null;
         }
 
         bitmapCall = NetUtils.makeBitmapRequest(url, this, maxWidth, maxHeight);
