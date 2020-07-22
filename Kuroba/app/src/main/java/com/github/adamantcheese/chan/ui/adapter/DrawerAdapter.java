@@ -389,6 +389,8 @@ public class DrawerAdapter
             //underline for page limit
             watchCount.setPaintFlags(Paint.ANTI_ALIAS_FLAG | Paint.UNDERLINE_TEXT_FLAG);
         }
+        //prevent italic text from being cut off https://stackoverflow.com/a/61870394
+        watchCount.setShadowLayer(watchCount.getTextSize(), 0f, 0f, Color.TRANSPARENT);
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
