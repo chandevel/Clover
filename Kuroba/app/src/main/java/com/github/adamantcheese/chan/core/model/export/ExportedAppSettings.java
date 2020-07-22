@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.model.export;
 
+import android.text.TextUtils;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -74,7 +76,7 @@ public class ExportedAppSettings {
      * (probably only settings)
      */
     public boolean isEmpty() {
-        return exportedSites.isEmpty() && exportedBoards.isEmpty() && (settings == null || settings.isEmpty());
+        return exportedSites.isEmpty() && exportedBoards.isEmpty() && TextUtils.isEmpty(settings);
     }
 
     public List<ExportedSite> getExportedSites() {

@@ -22,6 +22,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
@@ -118,7 +119,7 @@ public class CaptchaNoJsHtmlParser {
             throw error;
         }
 
-        if (token == null || token.isEmpty()) {
+        if (TextUtils.isEmpty(token)) {
             throw new CaptchaNoJsV2ParsingError("Verification token is null or empty");
         }
 
