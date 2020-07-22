@@ -136,7 +136,7 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onPostNoClicked(Post post) {
+        public void onPostNoClicked(Post post, boolean withText) {
         }
 
         @Override

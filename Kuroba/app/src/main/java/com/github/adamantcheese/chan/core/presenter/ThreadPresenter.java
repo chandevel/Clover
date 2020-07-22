@@ -107,37 +107,35 @@ public class ThreadPresenter
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
     //region Private Variables
-    private static final int POST_OPTION_QUOTE = 0;
-    private static final int POST_OPTION_QUOTE_TEXT = 1;
-    private static final int POST_OPTION_INFO = 2;
-    private static final int POST_OPTION_LINKS = 3;
-    private static final int POST_OPTION_COPY = 4;
-    private static final int POST_OPTION_REPORT = 5;
-    private static final int POST_OPTION_HIGHLIGHT_ID = 6;
-    private static final int POST_OPTION_DELETE = 7;
-    private static final int POST_OPTION_SAVE = 8;
-    private static final int POST_OPTION_PIN = 9;
-    private static final int POST_OPTION_SHARE = 10;
-    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
-    private static final int POST_OPTION_HIDE = 12;
-    private static final int POST_OPTION_OPEN_BROWSER = 13;
-    private static final int POST_OPTION_FILTER = 14;
-    private static final int POST_OPTION_FILTER_TRIPCODE = 15;
-    private static final int POST_OPTION_FILTER_IMAGE_HASH = 16;
-    private static final int POST_OPTION_FILTER_SUBJECT = 17;
-    private static final int POST_OPTION_FILTER_COMMENT = 18;
-    private static final int POST_OPTION_FILTER_NAME = 19;
-    private static final int POST_OPTION_FILTER_ID = 20;
-    private static final int POST_OPTION_FILTER_FILENAME = 21;
-    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 22;
-    private static final int POST_OPTION_EXTRA = 23;
-    private static final int POST_OPTION_REMOVE = 24;
-    private static final int POST_OPTION_MOCK_REPLY = 25;
-    private static final int POST_OPTION_COPY_POST_LINK = 26;
-    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 27;
-    private static final int POST_OPTION_COPY_POST_TEXT = 28;
-    private static final int POST_OPTION_COPY_IMG_URL = 29;
-    private static final int POST_OPTION_COPY_POST_URL = 30;
+    private static final int POST_OPTION_INFO = 1;
+    private static final int POST_OPTION_LINKS = 2;
+    private static final int POST_OPTION_COPY = 3;
+    private static final int POST_OPTION_REPORT = 4;
+    private static final int POST_OPTION_HIGHLIGHT_ID = 5;
+    private static final int POST_OPTION_DELETE = 6;
+    private static final int POST_OPTION_SAVE = 7;
+    private static final int POST_OPTION_PIN = 8;
+    private static final int POST_OPTION_SHARE = 9;
+    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 10;
+    private static final int POST_OPTION_HIDE = 11;
+    private static final int POST_OPTION_OPEN_BROWSER = 12;
+    private static final int POST_OPTION_FILTER = 13;
+    private static final int POST_OPTION_FILTER_TRIPCODE = 14;
+    private static final int POST_OPTION_FILTER_IMAGE_HASH = 15;
+    private static final int POST_OPTION_FILTER_SUBJECT = 16;
+    private static final int POST_OPTION_FILTER_COMMENT = 17;
+    private static final int POST_OPTION_FILTER_NAME = 18;
+    private static final int POST_OPTION_FILTER_ID = 19;
+    private static final int POST_OPTION_FILTER_FILENAME = 20;
+    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 21;
+    private static final int POST_OPTION_EXTRA = 22;
+    private static final int POST_OPTION_REMOVE = 23;
+    private static final int POST_OPTION_MOCK_REPLY = 24;
+    private static final int POST_OPTION_COPY_POST_LINK = 25;
+    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 26;
+    private static final int POST_OPTION_COPY_POST_TEXT = 27;
+    private static final int POST_OPTION_COPY_IMG_URL = 28;
+    private static final int POST_OPTION_COPY_POST_URL = 29;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -821,9 +819,6 @@ public class ThreadPresenter
                 PostHelper.getTitle(post, loadable)
         )) == null) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
-        } else if (!loadable.isLocal()) {
-            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
-            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
@@ -894,14 +889,6 @@ public class ThreadPresenter
 
     public void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup) {
         switch ((Integer) id) {
-            case POST_OPTION_QUOTE:
-                threadPresenterCallback.hidePostsPopup();
-                threadPresenterCallback.quote(post, false);
-                break;
-            case POST_OPTION_QUOTE_TEXT:
-                threadPresenterCallback.hidePostsPopup();
-                threadPresenterCallback.quote(post, true);
-                break;
             case POST_OPTION_INFO:
                 showPostInfo(post);
                 break;
@@ -1158,8 +1145,9 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onPostNoClicked(Post post) {
-        threadPresenterCallback.quote(post, false);
+    public void onPostNoClicked(Post post, boolean withText) {
+        threadPresenterCallback.hidePostsPopup();
+        threadPresenterCallback.quote(post, withText);
     }
 
     @Override
