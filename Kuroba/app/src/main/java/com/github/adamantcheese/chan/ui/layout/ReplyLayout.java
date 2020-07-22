@@ -247,8 +247,6 @@ public class ReplyLayout
         previewHolder.setOnLongClickListener(v -> presenter.filenameNewClicked(true));
 
         if (!isInEditMode()) {
-            more.setRotation(0f);
-        } else {
             more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
         }
         more.setOnClickListener(this);
