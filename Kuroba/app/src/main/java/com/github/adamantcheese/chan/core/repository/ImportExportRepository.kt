@@ -403,7 +403,7 @@ constructor(
                     pin.order,
                     pin.quoteLastCount,
                     pin.quoteNewCount,
-                    pin.thumbnailUrl.toString(),
+                    pin.thumbnailUrl?.toString(),
                     pin.watchLastCount,
                     pin.watchNewCount,
                     pin.watching,
