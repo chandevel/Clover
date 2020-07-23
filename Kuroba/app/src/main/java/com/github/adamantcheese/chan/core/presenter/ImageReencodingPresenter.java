@@ -109,10 +109,9 @@ public class ImageReencodingPresenter {
 
         callback.disableOrEnableButtons(false);
         try {
-            reply.file = BitmapUtils.reencodeBitmapFile(reply.file,
-                    options,
-                    callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat()
-            );
+            CompressFormat reencodeFormat =
+                    callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat();
+            reply.file = BitmapUtils.reencodeBitmapFile(reply.file, options, reencodeFormat);
             replyManager.putReply(reply);
         } catch (Throwable error) {
             showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));

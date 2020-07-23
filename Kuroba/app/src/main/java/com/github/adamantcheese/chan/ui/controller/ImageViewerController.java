@@ -21,7 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -33,8 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -80,7 +77,6 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -101,7 +97,6 @@ public class ImageViewerController
 
     private static final int VOLUME_ID = 1;
     private static final int SAVE_ID = 2;
-    private static final int ROTATE_ID = 3;
 
     @Inject
     ImageSaver imageSaver;
@@ -142,8 +137,6 @@ public class ImageViewerController
         navigation.subtitle = "0";
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
-        menuBuilder.withItem(ROTATE_ID, R.drawable.ic_rotate_90_deg_white_24dp, this::rotateImage);
-
         if (goPostCallback != null) {
             menuBuilder.withItem(R.drawable.ic_subdirectory_arrow_left_white_24dp, this::goPostClicked);
         }
@@ -260,26 +253,6 @@ public class ImageViewerController
 
     private void toggleTransparency(ToolbarMenuSubItem item) {
         ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
-    }
-
-    private void rotateImage(ToolbarMenuItem item) {
-        if (getImageMode(presenter.getCurrentPostImage()) == LOWRES) return;
-        String[] rotateOptions = {"Clockwise", "Flip", "Counterclockwise"};
-        Integer[] rotateInts = {90, 180, -90};
-        ListView rotateImageList = new ListView(context);
-
-        AlertDialog dialog = new AlertDialog.Builder(context).setView(rotateImageList).create();
-        dialog.setCanceledOnTouchOutside(true);
-
-        rotateImageList.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, rotateOptions));
-        rotateImageList.setOnItemClickListener((parent, view, position, id) -> {
-            ((ImageViewerAdapter) pager.getAdapter()).rotateImage(presenter.getCurrentPostImage(),
-                    rotateInts[position]
-            );
-            dialog.dismiss();
-        });
-
-        dialog.show();
     }
 
     private void forceReload(ToolbarMenuSubItem item) {
@@ -423,9 +396,6 @@ public class ImageViewerController
         }
         navigation.subtitle = (index + 1) + "/" + count;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
-
-        ToolbarMenuItem rotate = navigation.findItem(ROTATE_ID);
-        rotate.setVisible(postImage.type == PostImage.Type.STATIC);
     }
 
     public void scrollToImage(PostImage postImage) {

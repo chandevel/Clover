@@ -57,8 +57,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:background="?backcolor"
                 android:orientation="vertical"
                 android:paddingLeft="12dp"
-                android:paddingRight="12dp"
-                android:paddingTop="12dp">
+                android:paddingTop="12dp"
+                android:paddingRight="12dp">
 
                 <TextView
                     android:id="@+id/reencode_title"
@@ -182,9 +182,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                     <Button
                         android:id="@+id/image_options_cancel"
+                        style="@style/Widget.AppCompat.Button.Borderless"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        style="@style/Widget.AppCompat.Button.Borderless"
                         android:text="@string/cancel" />
 
                     <Space

@@ -32,7 +32,6 @@ public class CustomScaleImageView
 
     public CustomScaleImageView(Context context) {
         super(context);
-        setPreferredBitmapConfig(Bitmap.Config.ARGB_8888);
         setOnImageEventListener(new DefaultOnImageEventListener() {
             @Override
             public void onReady() {

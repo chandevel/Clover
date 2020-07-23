@@ -35,7 +35,6 @@ import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -686,40 +685,6 @@ public class MultiImageView
             ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
             ((GifImageView) activeView).getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
-        }
-    }
-
-    public void rotateImage(int degrees) {
-        View activeView = getActiveView();
-        if (!(activeView instanceof CustomScaleImageView)) return;
-        CustomScaleImageView imageView = (CustomScaleImageView) activeView;
-        if (degrees % 90 != 0 && degrees >= -90 && degrees <= 180)
-            throw new IllegalArgumentException("Degrees must be a multiple of 90 and in the range -90 < deg < 180");
-        //swap the current scale to the opposite one every 90 degree increment
-        //0 degrees is X scale, 90 is Y, 180 is X, 270 is Y
-        float curScale = imageView.getScale();
-        float scaleX = imageView.getWidth() / (float) imageView.getSWidth();
-        float scaleY = imageView.getHeight() / (float) imageView.getSHeight();
-        imageView.setScaleAndCenter(curScale == scaleX ? scaleY : scaleX, imageView.getCenter());
-        //apply the rotation through orientation rather than rotation, as
-        //orientation is internal to the subsamplingimageview's internal bitmap while rotation is on the entire view
-        switch (imageView.getAppliedOrientation()) {
-            case SubsamplingScaleImageView.ORIENTATION_0:
-                //rotate from 0 (0 is 0, 90 is 90, 180 is 180, -90 is 270)
-                imageView.setOrientation(degrees >= 0 ? degrees : 360 + degrees);
-                break;
-            case SubsamplingScaleImageView.ORIENTATION_90:
-                //rotate from 90 (0 is 90, 90 is 180, 180 is 270, -90 is 0)
-                imageView.setOrientation(90 + degrees);
-                break;
-            case SubsamplingScaleImageView.ORIENTATION_180:
-                //rotate from 180 (0 is 180, 90 is 270, 180 is 0, -90 is 90)
-                imageView.setOrientation(degrees == 180 ? 0 : 180 + degrees);
-                break;
-            case SubsamplingScaleImageView.ORIENTATION_270:
-                //rotate from 270 (0 is 270, 90 is 0, 180 is 90, -90 is 180)
-                imageView.setOrientation(degrees >= 90 ? degrees - 90 : 270 + degrees);
-                break;
         }
     }
 

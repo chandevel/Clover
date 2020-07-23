@@ -629,6 +629,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- endregion -->
 
     <!-- region STYLED ELEMENTS -->
+    <declare-styleable name="SubsamplingScaleImageView">
+        <attr name="src" format="reference"/>
+        <attr name="assetName" format="string"/>
+        <attr name="panEnabled" format="boolean"/>
+        <attr name="zoomEnabled" format="boolean"/>
+        <attr name="quickScaleEnabled" format="boolean"/>
+        <attr name="tileBackgroundColor" format="color"/>
+    </declare-styleable>
+
     <declare-styleable name="MaxWidthLinearLayout">
         <attr name="maxWidth" format="dimension" />
     </declare-styleable>

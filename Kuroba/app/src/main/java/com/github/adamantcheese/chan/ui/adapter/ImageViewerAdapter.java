@@ -125,13 +125,6 @@ public class ImageViewerAdapter
         }
     }
 
-    public void rotateImage(PostImage postImage, int degrees) {
-        MultiImageView view = find(postImage);
-        if (view != null) {
-            view.rotateImage(degrees);
-        }
-    }
-
     public void onImageSaved(PostImage postImage) {
         MultiImageView view = find(postImage);
         if (view != null) {
