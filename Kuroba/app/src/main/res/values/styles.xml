@@ -321,7 +321,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
         <item name="android:textColor">@color/md_grey_550</item>
-        <item name="android:textColorPrimary">@color/md_grey_550</item>
+        <item name="android:textColorPrimary">@color/md_grey_350</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
 
@@ -342,7 +342,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#002b36</item>
         <item name="backcolor_secondary">#073642</item>
 
-        <item name="android:textColor">#839496</item>
+        <item name="android:textColor">@color/md_grey_550</item>
         <item name="android:textColorPrimary">#839496</item>
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
