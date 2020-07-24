@@ -26,8 +26,20 @@ public class LastReplyRepository {
     private Map<Board, Long> lastReplyMap = new HashMap<>();
     private Map<Board, Long> lastThreadMap = new HashMap<>();
 
-    public void putLastReply(Board b) {
-        lastReplyMap.put(b, System.currentTimeMillis());
+    public void putLastReply(Reply reply) {
+        if (reply.loadable.isCatalogMode()) {
+            lastThreadMap.put(reply.loadable.board, System.currentTimeMillis());
+        } else {
+            lastReplyMap.put(reply.loadable.board, System.currentTimeMillis());
+        }
+    }
+
+    public long getTimeUntilDraftPostable(Reply draft) {
+        if (draft.loadable.isCatalogMode()) {
+            return getTimeUntilThread(draft.loadable.board);
+        } else {
+            return getTimeUntilReply(draft.loadable.board, draft.file != null);
+        }
     }
 
     /**
@@ -43,10 +55,6 @@ public class LastReplyRepository {
         return waitTime - ((System.currentTimeMillis() - lastReplyTime) / 1000L);
     }
 
-    public void putLastThread(Board b) {
-        lastThreadMap.put(b, System.currentTimeMillis());
-    }
-
     /**
      * @param b board for a new thread
      * @return seconds until a new thread can be posted on this board; negative if postable
@@ -57,13 +65,5 @@ public class LastReplyRepository {
         long waitTime = b.cooldownThreads;
         if (b.site.actions().isLoggedIn()) waitTime /= 2;
         return waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
-    }
-
-    public long getTimeUntilDraftPostable(Reply draft) {
-        if (draft.loadable.isThreadMode()) {
-            return getTimeUntilReply(draft.loadable.board, draft.file != null);
-        } else {
-            return getTimeUntilThread(draft.loadable.board);
-        }
     }
 }

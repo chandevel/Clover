@@ -275,17 +275,12 @@ public class ReplyPresenter
     @Override
     public void onPostComplete(ReplyResponse replyResponse) {
         if (replyResponse.posted) {
+            lastReplyRepository.putLastReply(replyResponse.originatingReply);
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
             Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.board,
                     replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
                     "Title will update shortly…"
             );
-
-            if (originatingLoadable.isCatalogMode()) {
-                lastReplyRepository.putLastThread(originatingLoadable.board);
-            } else {
-                lastReplyRepository.putLastReply(originatingLoadable.board);
-            }
 
             if (ChanSettings.postPinThread.get()) {
                 if (originatingLoadable.isThreadMode()) {
