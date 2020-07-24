@@ -261,6 +261,9 @@ public class PostAdapter
             TextView replies = postCell.findViewById(R.id.replies);
             replies.setLayoutParams(replyParams);
             replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+
+            View divider = postCell.findViewById(R.id.divider);
+            divider.setVisibility(View.VISIBLE);
         }
     }
 
