@@ -42,8 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:animateLayoutChanges="true"
             android:orientation="vertical"
             android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:paddingVertical="8dp">
 
             <TextView
                 android:id="@+id/message"

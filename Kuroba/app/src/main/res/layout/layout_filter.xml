@@ -78,8 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
                 android:paddingLeft="4dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
+                android:paddingVertical="4dp"
                 tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
                 tools:drawableTint="?themeDrawableColor"
                 tools:text="Types (1)" />
@@ -116,9 +115,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
-                android:paddingLeft="4dp"
+                android:paddingHorizontal="4dp"
                 android:paddingTop="4dp"
-                android:paddingBottom="4dp"
                 tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
                 tools:drawableTint="?themeDrawableColor"
                 tools:text="Hide post" />

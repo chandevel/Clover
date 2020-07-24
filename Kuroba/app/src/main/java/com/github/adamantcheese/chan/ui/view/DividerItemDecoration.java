@@ -17,23 +17,31 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.IntDef;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.R;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import static android.widget.LinearLayout.HORIZONTAL;
+import static android.widget.LinearLayout.VERTICAL;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 /**
  * DividerItemDecoration is a {@link RecyclerView.ItemDecoration} that can be used as a divider
- * between items of a {@link LinearLayoutManager}. It supports both {@link #HORIZONTAL} and
- * {@link #VERTICAL} orientations.
+ * between items of a {@link LinearLayoutManager}. It supports both {@link LinearLayout#HORIZONTAL} and
+ * {@link LinearLayout#VERTICAL} orientations.
  *
  * <pre>
  *     mDividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
@@ -43,61 +51,20 @@ import com.github.adamantcheese.chan.utils.Logger;
  */
 public class DividerItemDecoration
         extends RecyclerView.ItemDecoration {
-    public static final int HORIZONTAL = LinearLayout.HORIZONTAL;
-    public static final int VERTICAL = LinearLayout.VERTICAL;
 
-    private static final int[] ATTRS = new int[]{android.R.attr.listDivider};
+    @IntDef({HORIZONTAL, VERTICAL})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface OrientationMode {}
 
     private Drawable mDivider;
-
-    /**
-     * Current orientation. Either {@link #HORIZONTAL} or {@link #VERTICAL}.
-     */
+    private int mSize;
     private int mOrientation;
-
     private final Rect mBounds = new Rect();
 
-    /**
-     * Creates a divider {@link RecyclerView.ItemDecoration} that can be used with a
-     * {@link LinearLayoutManager}.
-     *
-     * @param context     Current context, it will be used to access resources.
-     * @param orientation Divider orientation. Should be {@link #HORIZONTAL} or {@link #VERTICAL}.
-     */
-    public DividerItemDecoration(Context context, int orientation) {
-        final TypedArray a = context.obtainStyledAttributes(ATTRS);
-        mDivider = a.getDrawable(0);
-        if (mDivider == null) {
-            Logger.w(
-                    this,
-                    "@android:attr/listDivider was not set in the theme used for this "
-                            + "DividerItemDecoration. Please set that attribute all call setDrawable()"
-            );
-        }
-        a.recycle();
-        setOrientation(orientation);
-    }
-
-    /**
-     * Sets the orientation for this divider. This should be called if
-     * {@link RecyclerView.LayoutManager} changes orientation.
-     *
-     * @param orientation {@link #HORIZONTAL} or {@link #VERTICAL}
-     */
-    public void setOrientation(int orientation) {
-        if (orientation != HORIZONTAL && orientation != VERTICAL) {
-            throw new IllegalArgumentException("Invalid orientation. It should be either HORIZONTAL or VERTICAL");
-        }
+    public DividerItemDecoration(Context context, @OrientationMode int orientation) {
+        mDivider = new ColorDrawable(getAttrColor(context, R.attr.divider_color));
+        mSize = dp(context, 1);
         mOrientation = orientation;
-    }
-
-    /**
-     * Sets the {@link Drawable} for this divider.
-     *
-     * @param drawable Drawable that should be used as a divider.
-     */
-    public void setDrawable(@NonNull Drawable drawable) {
-        mDivider = drawable;
     }
 
     @Override
@@ -114,12 +81,9 @@ public class DividerItemDecoration
 
     private void drawVertical(Canvas canvas, RecyclerView parent) {
         canvas.save();
-        final int left;
-        final int right;
-        // Clover changed: still apply insets even when it's not set to clipPadding, plus don't
-        // clip the top and bottom.
-        left = parent.getPaddingLeft();
-        right = parent.getWidth() - parent.getPaddingRight();
+
+        final int left = parent.getPaddingLeft();
+        final int right = parent.getWidth() - parent.getPaddingRight();
         canvas.clipRect(left, 0, right, parent.getHeight());
 
         final int childCount = parent.getChildCount();
@@ -127,7 +91,7 @@ public class DividerItemDecoration
             final View child = parent.getChildAt(i);
             parent.getDecoratedBoundsWithMargins(child, mBounds);
             final int bottom = mBounds.bottom + Math.round(child.getTranslationY());
-            final int top = bottom - mDivider.getIntrinsicHeight();
+            final int top = bottom - mSize;
             mDivider.setBounds(left, top, right, bottom);
             mDivider.draw(canvas);
         }
@@ -136,23 +100,17 @@ public class DividerItemDecoration
 
     private void drawHorizontal(Canvas canvas, RecyclerView parent) {
         canvas.save();
-        final int top;
-        final int bottom;
-        if (parent.getClipToPadding()) {
-            top = parent.getPaddingTop();
-            bottom = parent.getHeight() - parent.getPaddingBottom();
-            canvas.clipRect(parent.getPaddingLeft(), top, parent.getWidth() - parent.getPaddingRight(), bottom);
-        } else {
-            top = 0;
-            bottom = parent.getHeight();
-        }
+
+        final int top = parent.getPaddingTop();
+        final int bottom = parent.getHeight() - parent.getPaddingBottom();
+        canvas.clipRect(0, top, parent.getWidth(), bottom);
 
         final int childCount = parent.getChildCount();
         for (int i = 0; i < childCount; i++) {
             final View child = parent.getChildAt(i);
             parent.getLayoutManager().getDecoratedBoundsWithMargins(child, mBounds);
             final int right = mBounds.right + Math.round(child.getTranslationX());
-            final int left = right - mDivider.getIntrinsicWidth();
+            final int left = right - mSize;
             mDivider.setBounds(left, top, right, bottom);
             mDivider.draw(canvas);
         }
@@ -166,9 +124,9 @@ public class DividerItemDecoration
             return;
         }
         if (mOrientation == VERTICAL) {
-            outRect.set(0, 0, 0, mDivider.getIntrinsicHeight());
+            outRect.set(0, 0, 0, mSize);
         } else {
-            outRect.set(0, 0, mDivider.getIntrinsicWidth(), 0);
+            outRect.set(0, 0, mSize, 0);
         }
     }
 }

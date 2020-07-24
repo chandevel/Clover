@@ -48,9 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:paddingLeft="16dp"
+                android:paddingHorizontal="16dp"
                 android:paddingTop="8dp"
-                android:paddingRight="16dp"
                 android:singleLine="true"
                 android:textSize="14sp"
                 tools:text="Thread title" />
@@ -59,8 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/subtext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp"
+                android:paddingHorizontal="16dp"
                 android:paddingBottom="8dp"
                 android:textColor="?android:textColorSecondary"
                 android:textSize="12sp"
@@ -78,11 +76,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:ignore="ContentDescription" />
 
     </LinearLayout>
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/divider_color" />
 
 </LinearLayout>

@@ -85,8 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/title"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
-            tools:paddingLeft="8dp"
-            tools:paddingRight="8dp"
+            tools:paddingHorizontal="8dp"
             tools:paddingTop="4dp" />
 
         <TextView
@@ -97,8 +96,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_below="@id/icons"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_view"
-            tools:paddingLeft="8dp"
-            tools:paddingRight="8dp"
+            tools:paddingHorizontal="8dp"
             tools:paddingTop="8dp"
             tools:text="@string/lorem_ipsum" />
 

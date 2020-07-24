@@ -31,8 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingHorizontal="4dp"
             android:textColor="#FFBEBEBE"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -48,8 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:includeFontPadding="false"
-            android:paddingLeft="4dp"
-            android:paddingRight="4dp"
+            android:paddingHorizontal="4dp"
             android:textColor="#FFBEBEBE"
             android:textSize="14sp"
             android:textStyle="bold" />

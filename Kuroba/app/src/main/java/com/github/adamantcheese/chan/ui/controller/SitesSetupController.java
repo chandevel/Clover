@@ -50,6 +50,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -113,7 +114,7 @@ public class SitesSetupController
 
         // View setup
         sitesRecyclerview.setAdapter(sitesAdapter);
-        sitesRecyclerview.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        sitesRecyclerview.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
         addButton.setOnClickListener(this);

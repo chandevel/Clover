@@ -22,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingHorizontal="16dp"
         android:textColor="?setting_description_top"
         android:textSize="16sp"
         tools:text="Setting name" />
@@ -32,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
+        android:paddingHorizontal="16dp"
         android:textColor="?setting_description_bottom"
         android:textSize="14sp"
         tools:text="Setting description" />

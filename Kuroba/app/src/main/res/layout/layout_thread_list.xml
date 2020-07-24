@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:scrollbars="vertical"
-        tools:listitem="@layout/cell_post"
-        tools:itemCount="3"/>
+        tools:itemCount="3"
+        tools:listitem="@layout/cell_post" />
 
     <com.github.adamantcheese.chan.ui.layout.ReplyLayout
         android:id="@+id/reply"

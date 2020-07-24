@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
+import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -100,6 +102,7 @@ public class HistoryController
         crossfade = view.findViewById(R.id.crossfade);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
+        recyclerView.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);

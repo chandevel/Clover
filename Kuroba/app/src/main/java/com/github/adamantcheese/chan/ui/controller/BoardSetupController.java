@@ -49,6 +49,7 @@ import javax.inject.Inject;
 import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -125,7 +126,7 @@ public class BoardSetupController
 
         // View setup
         savedBoardsRecycler.setAdapter(savedAdapter);
-        savedBoardsRecycler.addItemDecoration(new DividerItemDecoration(context, DividerItemDecoration.VERTICAL));
+        savedBoardsRecycler.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);

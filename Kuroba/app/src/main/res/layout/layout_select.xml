@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingHorizontal="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,14 +31,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp" />
+            android:paddingVertical="8dp" />
 
         <Button
             android:id="@+id/select_all"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            style="@style/Widget.AppCompat.Button.Borderless"
             tools:text="@string/select_all" />
 
     </LinearLayout>
