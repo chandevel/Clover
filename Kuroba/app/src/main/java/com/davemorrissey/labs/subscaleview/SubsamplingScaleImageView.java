@@ -68,9 +68,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * </p><p>
  * <a href="https://github.com/davemorrissey/subsampling-scale-image-view">View project on GitHub</a>
  * </p><p>
- * This code has been modified from the original source to include a three-finger tap event to rotate the image by 90
+ * This code has been modified from the original source to include a single finger hold/second finger tap event to rotate the image by 90
  * degrees clockwise per tap event. Additionally, the preferred bitmap config is defaulted to ARGB_8888. And also the
- * Logger logging resource class has been used in place of LOG.
+ * Logger logging resource class has been used in place of Android's Log.
  * </p>
  */
 @SuppressWarnings("unused")
@@ -785,7 +785,6 @@ public class SubsamplingScaleImageView
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_1_DOWN:
             case MotionEvent.ACTION_POINTER_2_DOWN:
-            case MotionEvent.ACTION_POINTER_3_DOWN:
                 anim = null;
                 requestDisallowInterceptTouchEvent(true);
                 maxTouchCount = Math.max(maxTouchCount, touchCount);
@@ -815,9 +814,7 @@ public class SubsamplingScaleImageView
             case MotionEvent.ACTION_MOVE:
                 boolean consumed = false;
                 if (maxTouchCount > 0) {
-                    if (touchCount >= 3) {
-
-                    } else if (touchCount == 2) {
+                    if (touchCount >= 2) {
                         // Calculate new distance between touch points, to scale and pan relative to start values.
                         float vDistEnd = distance(event.getX(0), event.getX(1), event.getY(0), event.getY(1));
                         float vCenterEndX = (event.getX(0) + event.getX(1)) / 2;
@@ -970,30 +967,8 @@ public class SubsamplingScaleImageView
                 }
                 break;
 
-            case MotionEvent.ACTION_POINTER_UP:
-                if (event.getPointerCount() == 3) {
-                    // Perform rotate action
-                    float curScale = getScale();
-                    float scaleX = getWidth() / (float) getSWidth();
-                    float scaleY = getHeight() / (float) getSHeight();
-                    setScaleAndCenter(curScale == scaleX ? scaleY : scaleX, getCenter());
-                    switch (getAppliedOrientation()) {
-                        case ORIENTATION_0:
-                            setOrientation(ORIENTATION_90);
-                            break;
-                        case ORIENTATION_90:
-                            setOrientation(ORIENTATION_180);
-                            break;
-                        case ORIENTATION_180:
-                            setOrientation(ORIENTATION_270);
-                            break;
-                        case ORIENTATION_270:
-                            setOrientation(ORIENTATION_0);
-                            break;
-                    }
-                    return true;
-                }
             case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
             case MotionEvent.ACTION_POINTER_2_UP:
                 handler.removeMessages(MESSAGE_LONG_CLICK);
                 if (isQuickScaling) {
@@ -1025,6 +1000,13 @@ public class SubsamplingScaleImageView
                     // Trigger load of tiles now required
                     refreshRequiredTiles(true);
                     return true;
+                }
+                if (touchCount == 2 && !isPanning) {
+                    // Perform rotate 90 degree clockwise action; set scale back to default and center
+                    float scaleX = getWidth() / (float) getSWidth();
+                    float scaleY = getHeight() / (float) getSHeight();
+                    setScaleAndCenter(getAppliedOrientation() % 180 == 0 ? scaleY : scaleX, getCenter());
+                    setOrientation((getAppliedOrientation() + 90) % 360);
                 }
                 if (touchCount == 1) {
                     isZooming = false;
@@ -1296,23 +1278,19 @@ public class SubsamplingScaleImageView
         }
 
         if (debug) {
-            canvas.drawText(
-                    "Scale: " + String.format(Locale.ENGLISH, "%.2f", scale) + " (" + String.format(Locale.ENGLISH,
-                            "%.2f",
-                            minScale()
-                    ) + " - " + String.format(Locale.ENGLISH, "%.2f", maxScale) + ")",
+            canvas.drawText(String.format(Locale.ENGLISH, "Scale: %.2f (%.2f - %.2f)", scale, minScale(), maxScale),
                     px(5),
                     px(15),
                     debugTextPaint
             );
-            canvas.drawText("Translate: " + String.format(Locale.ENGLISH, "%.2f", vTranslate.x) + ":" + String.format(Locale.ENGLISH, "%.2f", vTranslate.y),
+            canvas.drawText(String.format(Locale.ENGLISH, "Translate: %.2f:%.2f", vTranslate.x, vTranslate.y),
                     px(5),
                     px(30),
                     debugTextPaint
             );
             PointF center = getCenter();
             //noinspection ConstantConditions
-            canvas.drawText("Source center: " + String.format(Locale.ENGLISH, "%.2f", center.x) + ":" + String.format(Locale.ENGLISH, "%.2f", center.y),
+            canvas.drawText(String.format(Locale.ENGLISH, "Source center: %.2f:%.2f", center.x, center.y),
                     px(5),
                     px(45),
                     debugTextPaint
