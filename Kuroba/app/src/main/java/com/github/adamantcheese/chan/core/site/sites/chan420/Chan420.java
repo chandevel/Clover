@@ -56,11 +56,7 @@ public class Chan420
         @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
-                if (postNo > 0) {
-                    return "https://boards.420chan.org/" + loadable.boardCode + "/thread/" + postNo;
-                } else {
-                    return "https://boards.420chan.org/" + loadable.boardCode + "/";
-                }
+                return "https://boards.420chan.org/" + loadable.boardCode + "/thread/" + (postNo > 0 ? postNo : "");
             } else if (loadable.isThreadMode()) {
                 String url = "https://boards.420chan.org/" + loadable.boardCode + "/thread/" + loadable.no;
                 if (postNo > 0 && loadable.no != postNo) {

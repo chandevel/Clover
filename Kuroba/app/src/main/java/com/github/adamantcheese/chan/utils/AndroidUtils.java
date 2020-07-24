@@ -610,11 +610,7 @@ public class AndroidUtils {
 
     public static String getClipboardContent() {
         ClipData primary = getClipboardManager().getPrimaryClip();
-        if (primary != null) {
-            return primary.getItemAt(0).getText().toString();
-        } else {
-            return "";
-        }
+        return primary != null ? primary.getItemAt(0).getText().toString() : "";
     }
 
     public static void setClipboardContent(String label, String content) {

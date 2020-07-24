@@ -231,11 +231,7 @@ public class DefaultPostParser
 
             CharSequence result =
                     commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
-            if (result != null) {
-                return result;
-            } else {
-                return "";
-            }
+            return result != null ? result : "";
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());
             return ""; // ?

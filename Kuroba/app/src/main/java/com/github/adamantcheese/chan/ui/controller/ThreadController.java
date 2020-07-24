@@ -229,11 +229,7 @@ public abstract class ThreadController
 
     @Override
     public Toolbar getToolbar() {
-        if (navigationController instanceof ToolbarNavigationController) {
-            return navigationController.getToolbar();
-        } else {
-            return null;
-        }
+        return navigationController instanceof ToolbarNavigationController ? navigationController.getToolbar() : null;
     }
 
     @Override

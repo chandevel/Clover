@@ -50,11 +50,7 @@ public class UpdateApiParser
     @Override
     public UpdateApiResponse parse(JsonReader reader)
             throws Exception {
-        if (DEV_BUILD) {
-            return parseDev(reader);
-        } else {
-            return parseRelease(reader);
-        }
+        return DEV_BUILD ? parseDev(reader) : parseRelease(reader);
     }
 
     @SuppressWarnings({"ConstantConditions", "PointlessArithmeticExpression"})

@@ -191,11 +191,7 @@ public class ThreadLayout
     }
 
     public boolean canChildScrollUp() {
-        if (visible == Visible.THREAD) {
-            return threadListLayout.canChildScrollUp();
-        } else {
-            return true;
-        }
+        return visible != Visible.THREAD || threadListLayout.canChildScrollUp();
     }
 
     public boolean onBack() {

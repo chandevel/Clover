@@ -42,11 +42,7 @@ public class PostHelper {
 
         imageSpan.getDrawable().setBounds(0, 0, width, height);
         string.setSpan(imageSpan, 0, 1, 0);
-        if (total == null) {
-            return string;
-        } else {
-            return TextUtils.concat(string, " ", total);
-        }
+        return total == null ? string : TextUtils.concat(string, " ", total);
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -60,11 +56,7 @@ public class PostHelper {
                 return "/" + post.boardId + "/" + post.no;
             }
         } else if (loadable != null) {
-            if (loadable.isThreadMode()) {
-                return "/" + loadable.boardCode + "/" + loadable.no;
-            } else {
-                return "/" + loadable.boardCode + "/";
-            }
+            return "/" + loadable.boardCode + "/" + (loadable.isThreadMode() ? loadable.no : "");
         } else {
             return "";
         }

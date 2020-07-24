@@ -35,6 +35,7 @@ public class BoardHelper {
     }
 
     public static String getDescription(Board board) {
+        if (board == null) return "";
         return Parser.unescapeEntities(board.description, false);
     }
 

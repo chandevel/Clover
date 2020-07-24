@@ -252,11 +252,7 @@ public class BoardSetupPresenter
         }
 
         public String getDescription() {
-            if (board != null) {
-                return BoardHelper.getDescription(board);
-            } else {
-                return "";
-            }
+            return BoardHelper.getDescription(board);
         }
 
         public boolean isChecked() {

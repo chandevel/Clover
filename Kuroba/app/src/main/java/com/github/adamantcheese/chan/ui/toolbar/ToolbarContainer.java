@@ -431,11 +431,7 @@ public class ToolbarContainer
         }
 
         private LinearLayout createNavigationItemView(final NavigationItem item, Theme theme) {
-            if (item.search) {
-                return createSearchLayout(item);
-            } else {
-                return createNavigationLayout(item, theme);
-            }
+            return item.search ? createSearchLayout(item) : createNavigationLayout(item, theme);
         }
 
         @NonNull

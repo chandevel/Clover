@@ -1177,11 +1177,7 @@ public class ThreadPresenter
      */
     @Override
     public long getTimeUntilLoadMore() {
-        if (isBound()) {
-            return chanLoader.getTimeUntilLoadMore();
-        } else {
-            return 0L;
-        }
+        return isBound() ? chanLoader.getTimeUntilLoadMore() : 0L;
     }
 
     @Override

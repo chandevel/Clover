@@ -578,11 +578,7 @@ public class FastScroller
         int totalPossibleOffset = scrollRange - viewLength;
         int scrollingBy = (int) (percentage * totalPossibleOffset);
         int absoluteOffset = scrollOffset + scrollingBy;
-        if (absoluteOffset < totalPossibleOffset && absoluteOffset >= 0) {
-            return scrollingBy;
-        } else {
-            return 0;
-        }
+        return (absoluteOffset < totalPossibleOffset && absoluteOffset >= 0) ? scrollingBy : 0;
     }
 
     @VisibleForTesting
