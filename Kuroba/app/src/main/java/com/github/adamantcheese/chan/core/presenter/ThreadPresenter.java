@@ -80,7 +80,10 @@ import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.RawFile;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1334,8 +1337,26 @@ public class ThreadPresenter
 
         text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
+        CacheHandler cacheHandler = instance(CacheHandler.class);
         for (PostImage image : post.images) {
             text.append("\n\nFilename: ").append(image.filename).append(".").append(image.extension);
+            if ("webm".equals(image.extension.toLowerCase()) && cacheHandler.exists(image.imageUrl)) {
+                RawFile file = cacheHandler.getOrCreateCacheFile(image.imageUrl);
+                try (InputStream stream = new FileInputStream(file.getFullPath())) {
+                    byte[] bytes = new byte[1024];
+                    stream.read(bytes);
+                    for (int i = 0; i < bytes.length - 1; i++) {
+                        if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
+                            text.append("\nMetadata title: ");
+                            byte len = (byte) (bytes[i + 2] ^ 0x80);
+                            for (byte j = 0; j < len; j++) {
+                                text.append((char) bytes[i + 2 + j + 1]);
+                            }
+                            break;
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
             if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
