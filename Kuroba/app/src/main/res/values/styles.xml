@@ -193,6 +193,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="backcolor">#d6daf0</item>
         <item name="backcolor_secondary">#eef2ff</item>
 
+        <item name="highlight_linkable_blend">2</item>
+
         <item name="android:textColorLink">#DD0000</item>
     </style>
 
@@ -212,6 +214,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="Chan.Theme.Photon" parent="Chan.Theme.Light">
         <item name="backcolor">@color/md_grey_200</item>
+
+        <item name="highlight_linkable_blend">0.75</item>
 
         <item name="post_name_color">#004A99</item>
         <item name="post_subject_color">@color/md_grey_950</item>
@@ -327,7 +331,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="highlight_color">#10FFFFFF</item>
         <item name="divider_color">#20FFFFFF</item>
-        <item name="highlight_linkable_blend">.65</item>
+        <item name="highlight_linkable_blend">0.6</item>
 
         <item name="post_name_color">#669900</item>
         <item name="post_subject_color">#33b5e5</item>
