@@ -34,8 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:padding="4dp"
-            app:ratio="1.0"
-            tools:test_bitmap="true" />
+            app:ratio="1.0" />
 
         <LinearLayout
             android:layout_width="0dp"

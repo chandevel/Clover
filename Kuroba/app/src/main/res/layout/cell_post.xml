@@ -42,22 +42,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
             android:id="@+id/thumbnail_view"
             android:layout_width="@dimen/cell_post_thumbnail_size"
-            android:layout_height="@dimen/cell_post_thumbnail_size"
-            app:test_bitmap="true"/>
+            android:layout_height="@dimen/cell_post_thumbnail_size" />
 
         <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
             android:id="@+id/thumbnail_view_2"
             android:layout_width="@dimen/cell_post_thumbnail_size"
             android:layout_height="@dimen/cell_post_thumbnail_size"
-            android:layout_below="@+id/thumbnail_view"
-            app:test_bitmap="true"/>
+            android:layout_below="@+id/thumbnail_view" />
 
         <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
             android:id="@+id/thumbnail_view_3"
             android:layout_width="@dimen/cell_post_thumbnail_size"
             android:layout_height="@dimen/cell_post_thumbnail_size"
-            android:layout_below="@+id/thumbnail_view_2"
-            app:test_bitmap="true"/>
+            android:layout_below="@+id/thumbnail_view_2" />
          -->
 
         <TextView

@@ -43,8 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:ratio="1.2307692307692307692307692307692"
-                tools:test_bitmap="true" />
+                app:ratio="1.2307692307692307692307692307692" />
 
             <ImageView
                 android:id="@+id/options"
@@ -55,7 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:paddingTop="5dp"
                 android:paddingRight="5dp"
                 android:src="@drawable/ic_overflow"
-                android:tint="?android:textColorSecondary"
+                app:tint="?android:textColorSecondary"
                 tools:ignore="ContentDescription" />
 
         </FrameLayout>

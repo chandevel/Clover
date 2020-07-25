@@ -646,10 +646,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="maxWidth" format="dimension" />
     </declare-styleable>
 
-    <declare-styleable name="ThumbnailView">
-        <attr name="test_bitmap" format="boolean" />
-    </declare-styleable>
-
     <declare-styleable name="GridRecyclerView">
         <attr name="spanWidth" format="dimension" />
     </declare-styleable>

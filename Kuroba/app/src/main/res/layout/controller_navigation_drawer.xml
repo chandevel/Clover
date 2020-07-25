@@ -19,7 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:openDrawer="start">
 
     <com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout
         android:id="@+id/container"
@@ -45,8 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/cell_pin"
-            tools:translationX="336dp" />
+            tools:listitem="@layout/cell_pin"/>
 
     </com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>
 

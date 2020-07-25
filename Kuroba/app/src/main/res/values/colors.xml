@@ -9,9 +9,6 @@
     <color name="gestures_zone_view_added_zones">#50FFB55B</color>
     <color name="gestures_zone_view_current_zone">#50FF4C82</color>
 
-    <color name="new_apk_update_icon_color">@color/md_green_500</color>
-    <color name="new_crash_log_icon_color">@color/md_red_400</color>
-
     <color name="textColorSecondary">?android:textColorSecondary</color>
 
     <!-- basic colors -->

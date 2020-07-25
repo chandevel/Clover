@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -92,15 +91,8 @@ public abstract class ThumbnailView
         textPaint.setTextSize(sp(context, 14));
 
         // for Android Studio to display some sort of bitmap in preview windows
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ThumbnailView);
-        try {
-            if (a.getBoolean(R.styleable.ThumbnailView_test_bitmap, false)) {
-                setImageBitmap(BitmapFactory.decodeResource(context.getResources(),
-                        android.R.drawable.ic_menu_gallery
-                ));
-            }
-        } finally {
-            a.recycle();
+        if (isInEditMode()) {
+            setImageBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_gallery));
         }
     }
 

@@ -12,10 +12,10 @@ enum class SettingNotificationType(@ColorInt val notificationIconTintColor: Int)
     /**
      * New apk update is available notification
      * */
-    ApkUpdate(R.color.new_apk_update_icon_color),
+    ApkUpdate(R.color.md_green_500),
 
     /**
      * There is at least one crash log available notification
      * */
-    CrashLog(R.color.new_crash_log_icon_color)
+    CrashLog(R.color.md_red_400)
 }
