@@ -594,7 +594,7 @@ public class ImageViewerController
 
     private void previewOutAnimationEnded() {
         setBackgroundAlpha(0f);
-        navigationController.stopPresenting(false);
+        navigationController.stopPresenting();
     }
 
     private boolean setTransitionViewData(ThumbnailView startView) {
@@ -634,6 +634,7 @@ public class ImageViewerController
             getWindow(context).setStatusBarColor(Color.argb(255, r, g, b));
         }
 
+        toolbar.setAlpha(alpha);
         loadingBar.setAlpha(alpha);
     }
 
