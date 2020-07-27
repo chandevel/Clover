@@ -60,6 +60,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DrawerAdapter
         extends RecyclerView.Adapter<ViewHolder> {
@@ -389,7 +390,11 @@ public class DrawerAdapter
             TextView text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
             ImageView refresh = itemView.findViewById(R.id.refresh);
-            refresh.setOnClickListener(v -> watchManager.onWake());
+            refresh.setOnClickListener(v -> {
+                watchManager.onWake();
+                refresh.setVisibility(GONE);
+                refresh.postDelayed(() -> refresh.setVisibility(VISIBLE), MINUTES.toMillis(5));
+            });
 
             ImageView clear = itemView.findViewById(R.id.clear);
             clear.setOnClickListener(v -> callback.onHeaderClicked(HeaderAction.CLEAR));
