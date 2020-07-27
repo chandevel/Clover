@@ -20,7 +20,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -55,13 +56,13 @@ import javax.inject.Inject;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getBuildType;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isEmulator;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.lang.Thread.currentThread;
 
 public class Chan
         extends Application
-        implements Application.ActivityLifecycleCallbacks {
+        implements DefaultActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;
 
     @Inject
@@ -85,9 +86,8 @@ public class Chan
         return feather.instance(tClass);
     }
 
-    public static <T> T inject(T instance) {
+    public static <T> void inject(T instance) {
         feather.injectFields(instance);
-        return instance;
     }
 
     @Override
@@ -95,7 +95,6 @@ public class Chan
         super.attachBaseContext(base);
         AndroidUtils.init(this);
         BitmapRepository.initialize(this);
-        AndroidUtils.getBuildType(); //spit out the build hash to the log
         // remove this if you need to debug some sort of event bus issue
         try {
             EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
@@ -183,7 +182,6 @@ public class Chan
             Logger.e("UNCAUGHT", "------------------------------");
             Logger.e("UNCAUGHT", "Android API Level: " + Build.VERSION.SDK_INT);
             Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
-            Logger.e("UNCAUGHT", "Development Build: " + getBuildType().name());
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
 
             /*
@@ -206,11 +204,6 @@ public class Chan
                 settingsNotificationManager.notify(SettingNotificationType.CrashLog);
             }
         }
-    }
-
-    private boolean isEmulator() {
-        return Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
-                "Android SDK");
     }
 
     private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {
@@ -246,7 +239,12 @@ public class Chan
         }
     }
 
-    private void activityEnteredForeground() {
+    public boolean getApplicationInForeground() {
+        return activityForegroundCounter > 0;
+    }
+
+    @Override
+    public void onActivityStarted(@NonNull Activity activity) {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter++;
@@ -256,7 +254,8 @@ public class Chan
         }
     }
 
-    private void activityEnteredBackground() {
+    @Override
+    public void onActivityStopped(@NonNull Activity activity) {
         boolean lastForeground = getApplicationInForeground();
 
         activityForegroundCounter--;
@@ -269,10 +268,6 @@ public class Chan
         }
     }
 
-    public boolean getApplicationInForeground() {
-        return activityForegroundCounter > 0;
-    }
-
     public static class ForegroundChangedMessage {
         public boolean inForeground;
 
@@ -280,41 +275,4 @@ public class Chan
             this.inForeground = inForeground;
         }
     }
-
-    //region Empty Methods
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-    }
-
-    @Override
-    public void onActivityStarted(Activity activity) {
-        activityEnteredForeground();
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onActivityResumed(Activity activity) {
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onActivityPaused(Activity activity) {
-    }
-
-    @Override
-    public void onActivityStopped(Activity activity) {
-        activityEnteredBackground();
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
-    }
-
-    @SuppressWarnings("EmptyMethod")
-    @Override
-    public void onActivityDestroyed(Activity activity) {
-    }
-    //endregion Empty Methods
 }
