@@ -190,6 +190,7 @@ public abstract class ThumbnailView
         ColorMatrix greyMatrix = new ColorMatrix();
         greyMatrix.setSaturation(0);
         paint.setColorFilter(grey ? new ColorMatrixColorFilter(greyMatrix) : null);
+        invalidate();
     }
 
     @Override

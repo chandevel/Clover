@@ -143,7 +143,6 @@ public class ThreadPresenter
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
     private final ChanLoaderManager chanLoaderManager;
-    private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
     private final MockReplyManager mockReplyManager;
@@ -167,7 +166,6 @@ public class ThreadPresenter
             WatchManager watchManager,
             DatabaseManager databaseManager,
             ChanLoaderManager chanLoaderManager,
-            PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager,
             MockReplyManager mockReplyManager
@@ -175,7 +173,6 @@ public class ThreadPresenter
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderManager = chanLoaderManager;
-        this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
         this.mockReplyManager = mockReplyManager;
@@ -557,7 +554,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showNewPostsNotification(true, more);
                 //deal with any "requests" for a page update
                 if (forcePageUpdate) {
-                    pageRequestManager.forceUpdateForBoard(loadable.board);
+                    instance(PageRequestManager.class).forceUpdateForBoard(loadable.board);
                     forcePageUpdate = false;
                 }
             }
@@ -819,7 +816,8 @@ public class ThreadPresenter
 
         if (loadable.isCatalogMode() && watchManager.getPinByLoadable(Loadable.forThread(post.board,
                 post.no,
-                PostHelper.getTitle(post, loadable)
+                PostHelper.getTitle(post, loadable),
+                false
         )) == null) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         }

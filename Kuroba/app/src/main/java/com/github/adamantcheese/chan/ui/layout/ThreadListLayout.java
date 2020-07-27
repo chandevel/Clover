@@ -311,7 +311,7 @@ public class ThreadListLayout
             List<Post> toRemove = new ArrayList<>();
             for (Pin pin : instance(WatchManager.class).getAllPins()) {
                 for (Post post : filteredPosts) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, ""))) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, "", false))) {
                         toRemove.add(post);
                     }
                 }

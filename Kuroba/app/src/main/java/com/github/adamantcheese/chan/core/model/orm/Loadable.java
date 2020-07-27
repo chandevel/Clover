@@ -155,6 +155,13 @@ public class Loadable
     }
 
     public static Loadable forThread(Board board, int no, String title) {
+        return forThread(board, no, title, true);
+    }
+
+    /**
+     * DON'T USE THIS METHOD WITH addToDatabase SET TO false UNLESS YOU KNOW WHAT YOU'RE DOING.
+     */
+    public static Loadable forThread(Board board, int no, String title, boolean addToDatabase) {
         Loadable loadable = new Loadable();
         loadable.siteId = board.siteId;
         loadable.site = board.site;
@@ -163,6 +170,7 @@ public class Loadable
         loadable.boardCode = board.code;
         loadable.no = no;
         loadable.title = title;
+        if (!addToDatabase) return loadable;
         return instance(DatabaseManager.class).getDatabaseLoadableManager().get(loadable);
     }
 
