@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,6 +78,8 @@ public class DrawerAdapter
 
     private static final int TYPE_PIN = 2;
     private static final int PIN_OFFSET = LINK_COUNT + HEADER_COUNT;
+
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Inject
     WatchManager watchManager;
@@ -168,13 +172,20 @@ public class DrawerAdapter
     @Override
     public void onViewRecycled(@NonNull ViewHolder holder) {
         super.onViewRecycled(holder);
-        if (holder.getItemViewType() == TYPE_PIN) {
-            PinViewHolder pinHolder = (PinViewHolder) holder;
-
-            pinHolder.image.setUrl(null);
-            pinHolder.watchCountText.setText("");
-            pinHolder.title.setText("");
-            pinHolder.threadInfo.setText("");
+        switch (holder.getItemViewType()) {
+            case TYPE_LINK:
+                break;
+            case TYPE_HEADER:
+                HeaderHolder headerHolder = (HeaderHolder) holder;
+                mainHandler.removeCallbacks(headerHolder.refreshRunnable);
+                break;
+            case TYPE_PIN:
+                PinViewHolder pinHolder = (PinViewHolder) holder;
+                pinHolder.image.setUrl(null);
+                pinHolder.watchCountText.setText("");
+                pinHolder.title.setText("");
+                pinHolder.threadInfo.setText("");
+                break;
         }
     }
 
@@ -392,16 +403,17 @@ public class DrawerAdapter
 
     public class HeaderHolder
             extends ViewHolder {
+        private ImageView refresh;
 
         private HeaderHolder(View itemView) {
             super(itemView);
             TextView text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
-            ImageView refresh = itemView.findViewById(R.id.refresh);
+            refresh = itemView.findViewById(R.id.refresh);
             refresh.setOnClickListener(v -> {
                 watchManager.onWake();
                 refresh.setVisibility(GONE);
-                refresh.postDelayed(() -> refresh.setVisibility(VISIBLE), MINUTES.toMillis(5));
+                mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
             });
 
             ImageView clear = itemView.findViewById(R.id.clear);
@@ -411,6 +423,13 @@ public class DrawerAdapter
                 return true;
             });
         }
+
+        private Runnable refreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                refresh.setVisibility(VISIBLE);
+            }
+        };
     }
 
     public enum HeaderAction {
