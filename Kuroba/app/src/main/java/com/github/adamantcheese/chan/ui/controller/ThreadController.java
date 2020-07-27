@@ -79,6 +79,9 @@ public abstract class ThreadController
             }
         };
         swipeRefreshLayout.addView(threadLayout);
+        // allows the recycler to have inertia and the drawer to be opened without the recycler taking the event away from
+        // the drawer slide-to-open event
+        swipeRefreshLayout.setLegacyRequestDisallowInterceptTouchEventEnabled(true);
 
         swipeRefreshLayout.setOnRefreshListener(this);
 
