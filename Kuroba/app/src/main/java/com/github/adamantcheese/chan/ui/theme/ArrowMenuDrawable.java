@@ -26,9 +26,8 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.ui.helper.PinHelper;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
 public class ArrowMenuDrawable
         extends Drawable {
@@ -194,7 +193,7 @@ public class ArrowMenuDrawable
     }
 
     public void setBadge(int count, boolean red) {
-        String text = count == 0 ? null : (PinHelper.getShortUnreadCount(count));
+        String text = count == 0 ? null : (getShortString(count));
         if (badgeRed != red || !TextUtils.equals(text, badgeText)) {
             badgeText = text;
             badgeRed = red;

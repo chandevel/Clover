@@ -184,4 +184,23 @@ public class StringUtils {
         return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "\u2026" + string.substring(
                 string.length() - maxLength / 2 - maxLength % 2);
     }
+
+    public static String getShortString(int value) {
+        String count;
+        if (value < 0) {
+            count = "?";
+        } else if (value < 1000) {
+            count = String.valueOf(value);
+        } else {
+            int k = value / 1000;
+            if (k < 10) {
+                count = k + "k+";
+            } else if (k < 100) {
+                count = k + "k";
+            } else {
+                count = "XD";
+            }
+        }
+        return count;
+    }
 }

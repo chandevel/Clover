@@ -37,7 +37,6 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.helper.PinHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -60,6 +59,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
+import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DrawerAdapter
@@ -169,7 +169,12 @@ public class DrawerAdapter
     public void onViewRecycled(@NonNull ViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder.getItemViewType() == TYPE_PIN) {
-            ((PinViewHolder) holder).image.setUrl(null);
+            PinViewHolder pinHolder = (PinViewHolder) holder;
+
+            pinHolder.image.setUrl(null);
+            pinHolder.watchCountText.setText("");
+            pinHolder.title.setText("");
+            pinHolder.threadInfo.setText("");
         }
     }
 
@@ -288,7 +293,10 @@ public class DrawerAdapter
 
         if (ChanSettings.watchEnabled.get()) {
             holder.watchCountText.setVisibility(View.VISIBLE);
-            holder.watchCountText.setText(PinHelper.getShortUnreadCount(pin.getNewPostCount()));
+            int newPostCount = pin.getNewPostCount();
+            int newQuoteCount = pin.getNewQuoteCount();
+            String text = getShortString(newPostCount) + (newQuoteCount > 0 ? "/" + getShortString(newQuoteCount) : "");
+            holder.watchCountText.setText(text);
 
             SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
 

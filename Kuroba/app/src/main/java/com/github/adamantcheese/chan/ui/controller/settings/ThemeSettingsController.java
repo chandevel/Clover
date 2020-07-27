@@ -63,7 +63,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -81,7 +80,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -213,10 +211,10 @@ public class ThemeSettingsController
             @Override
             public void onPageSelected(int position) {
                 Theme currentTheme = getViewedTheme();
-                done.setBackgroundTintList(ColorStateList.valueOf(AndroidUtils.getAttrColor(currentTheme.accentColor.accentStyleId,
+                done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
-                wrapper.setBackgroundColor(AndroidUtils.getAttrColor(currentTheme.resValue, R.attr.backcolor));
+                wrapper.setBackgroundColor(getAttrColor(currentTheme.resValue, R.attr.backcolor));
             }
 
             @Override
@@ -281,10 +279,10 @@ public class ThemeSettingsController
             }
         }
         //update button color manually, in case onPageSelected isn't called
-        done.setBackgroundTintList(ColorStateList.valueOf(AndroidUtils.getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
+        done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
                 R.attr.colorAccent
         )));
-        wrapper.setBackgroundColor(AndroidUtils.getAttrColor(ThemeHelper.getTheme().resValue, R.attr.backcolor));
+        wrapper.setBackgroundColor(getAttrColor(ThemeHelper.getTheme().resValue, R.attr.backcolor));
     }
 
     private void showAccentColorPicker() {
@@ -306,7 +304,7 @@ public class ThemeSettingsController
             ) {
                 Theme currentTheme = getViewedTheme();
                 currentTheme.accentColor = item.getId();
-                done.setBackgroundTintList(ColorStateList.valueOf(AndroidUtils.getAttrColor(currentTheme.accentColor.accentStyleId,
+                done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
                 //force update all the views to have the right accent color
@@ -471,7 +469,7 @@ public class ThemeSettingsController
                     ) {
                         MaterialColorStyle color = item.getId();
                         theme.primaryColor = color;
-                        toolbar.setBackgroundColor(AndroidUtils.getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
+                        toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
                     }
                 });
                 menu.setPopupHeight(dp(300));
@@ -498,7 +496,7 @@ public class ThemeSettingsController
             toolbar.setOnClickListener(colorClick);
             toolbar.setTag(theme.name);
             if (theme.name.equals(getViewedTheme().name)) {
-                toolbar.setBackgroundColor(AndroidUtils.getAttrColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId,
+                toolbar.setBackgroundColor(getAttrColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId,
                         R.attr.colorPrimary
                 ));
             }
@@ -535,8 +533,8 @@ public class ThemeSettingsController
             MaterialColorStyle color = colors.get(position).getId();
 
             int colorForItem = useAccentColors
-                    ? AndroidUtils.getAttrColor(color.accentStyleId, R.attr.colorAccent)
-                    : AndroidUtils.getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary);
+                    ? getAttrColor(color.accentStyleId, R.attr.colorAccent)
+                    : getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary);
             textView.setBackgroundColor(colorForItem);
             textView.setTextColor(getContrastColor(colorForItem));
 
