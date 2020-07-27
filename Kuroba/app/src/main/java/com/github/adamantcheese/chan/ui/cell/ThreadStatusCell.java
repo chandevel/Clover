@@ -18,11 +18,8 @@ package com.github.adamantcheese.chan.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.os.Handler;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.style.StyleSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -32,9 +29,6 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
@@ -67,7 +61,6 @@ public class ThreadStatusCell
 
     public ThreadStatusCell(Context context, AttributeSet attrs) {
         super(context, attrs);
-
         setBackgroundResource(R.drawable.ripple_item_background);
     }
 
@@ -136,56 +129,14 @@ public class ThreadStatusCell
                 if (!callback.isWatching()) {
                     builder.append(getString(R.string.thread_refresh_bar_inactive));
                 } else if (time <= 0) {
-                    builder.append(getString(R.string.thread_refresh_now));
+                    builder.append(getString(R.string.loading));
                 } else {
                     builder.append(getString(R.string.thread_refresh_countdown, time));
                 }
                 update = true;
             }
 
-            builder.append('\n'); //to split up the cell into the top and bottom rows
-
-            Post op = chanThread.getOp();
-            Board board = op.board;
-            if (board != null) {
-                boolean hasReplies = op.getReplies() >= 0 || chanThread.getPostsCount() - 1 > 0;
-                boolean hasImages = op.getImagesCount() >= 0 || chanThread.getImagesCount() > 0;
-                if (hasReplies && hasImages) {
-                    boolean hasBumpLimit = board.bumpLimit > 0;
-                    boolean hasImageLimit = board.imageLimit > 0;
-
-                    SpannableString replies = new SpannableString(
-                            (op.getReplies() >= 0 ? op.getReplies() : chanThread.getPostsCount() - 1) + "R");
-                    if (hasBumpLimit && op.getReplies() >= board.bumpLimit) {
-                        replies.setSpan(new StyleSpan(Typeface.ITALIC), 0, replies.length(), 0);
-                    }
-
-                    SpannableString images = new SpannableString(
-                            (op.getImagesCount() >= 0 ? op.getImagesCount() : chanThread.getImagesCount()) + "I");
-                    if (hasImageLimit && op.getImagesCount() >= board.imageLimit) {
-                        images.setSpan(new StyleSpan(Typeface.ITALIC), 0, images.length(), 0);
-                    }
-
-                    builder.append(replies).append(" / ").append(images);
-
-                    if (op.getUniqueIps() >= 0) {
-                        String ips = op.getUniqueIps() + "P";
-                        builder.append(" / ").append(ips);
-                    }
-
-                    if (!chanThread.getLoadable().isLocal()) {
-                        ChanPage p = callback.getPage(op);
-                        if (p != null) {
-                            SpannableString page = new SpannableString(String.valueOf(p.page));
-                            if (p.page >= board.pages) {
-                                page.setSpan(new StyleSpan(Typeface.ITALIC), 0, page.length(), 0);
-                            }
-                            builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
-                        }
-                    }
-                }
-            }
-
+            builder.append('\n').append(chanThread.summarize(false));
             text.setText(builder);
 
             return update;
@@ -248,8 +199,6 @@ public class ThreadStatusCell
 
         @Nullable
         ChanThread getChanThread();
-
-        ChanPage getPage(Post op);
 
         void onListStatusClicked();
     }

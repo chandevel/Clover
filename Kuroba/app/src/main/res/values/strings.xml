@@ -101,6 +101,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="submit">Submit</string>
     <string name="select_all">Select all</string>
     <string name="select_none">Select none</string>
+    <string name="loading">Loading…</string>
 
     <string name="mark_as_my_post">Mark as my post</string>
     <string name="unmark_as_my_post">Unmark as my post</string>
@@ -178,7 +179,6 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_load_failed_server">Server error</string>
     <string name="thread_load_failed_not_found">404 not found</string>
     <string name="thread_refresh_bar_inactive">Tap to refresh</string>
-    <string name="thread_refresh_now">Loading…</string>
     <string name="thread_refresh_countdown">Loading in %1$ds</string>
     <string name="thread_load_failed_retry">Retry</string>
     <string name="thread_archived">Archived</string>
@@ -442,7 +442,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="settings_group_appearance">Appearance</string>
     <string name="setting_theme">Theme</string>
 
-
     <!-- Appearance -->
     <string name="settings_group_layout">Layout</string>
     <string name="setting_layout_mode">Layout mode</string>
@@ -513,11 +512,8 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_proxy_enabled">Enable proxy</string>
     <string name="setting_proxy_address">Proxy server address</string>
 
-
     <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
-
-
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>
@@ -601,7 +597,6 @@ Setting the themes to the same will function as if dark mode is effectively off.
 
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_logging_in">Loading…</string>
     <string name="setting_pass_error">Connection error</string>
     <string name="setting_pass_bottom_description">"
 <![CDATA[
@@ -683,8 +678,6 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_remove_site_error_message">Could not remove site %1$s (error message: %2$s)</string>
 
     <string name="reply_comment_empty">Comment body is empty.</string>
-    <string name="setting_bookmark_short_info">Short bookmark info</string>
-    <string name="setting_bookmark_short_info_description">Shorter information in the bookmark menu for unread and quoted posts</string>
     <string name="filter_removed_undo">Removed filter %1$s</string>
     <string name="image_url_get_attempt">Getting image from clipboard URL…</string>
     <string name="image_url_get_failed">Failed to get image from clipboard, reason = %1$s</string>

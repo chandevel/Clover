@@ -114,12 +114,6 @@ public class WatchSettingsController
     private void populatePreferences() {
         SettingsGroup settings = new SettingsGroup(R.string.settings_group_watch);
 
-        settings.add(new BooleanSettingView(this,
-                ChanSettings.shortPinInfo,
-                R.string.setting_bookmark_short_info,
-                R.string.setting_bookmark_short_info_description
-        ));
-
         enableBackground = settings.add(new BooleanSettingView(this,
                 ChanSettings.watchBackground,
                 R.string.setting_watch_enable_background,

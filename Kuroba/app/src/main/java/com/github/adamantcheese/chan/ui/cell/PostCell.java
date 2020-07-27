@@ -53,6 +53,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
+import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -371,6 +372,8 @@ public class PostCell
             );
         }
 
+        int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
+
         String noText = "No. " + post.no;
         if (ChanSettings.addDubs.get()) {
             String repeat = CommentParserHelper.getRepeatDigits(post.no);
@@ -379,7 +382,7 @@ public class PostCell
             }
         }
         SpannableString date = new SpannableString(noText + " " + time);
-        date.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, date.length(), 0);
+        date.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
         titleParts.add(date);
@@ -392,7 +395,7 @@ public class PostCell
                         ? getString(R.string.image_hidden_filename)
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
                 SpannableString fileInfo = new SpannableString("\n" + filename);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
                 titleParts.add(fileInfo);
@@ -404,7 +407,7 @@ public class PostCell
                 fileInfo.append(image.extension.toUpperCase());
                 fileInfo.append(image.isInlined ? "" : " " + getReadableFileSize(image.size));
                 fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 titleParts.add(fileInfo);
             }
@@ -420,7 +423,7 @@ public class PostCell
         icons.set(PostIcons.HTTP_ICONS, post.httpIcons != null);
 
         if (post.httpIcons != null) {
-            icons.setHttpIcons(post.httpIcons, theme, iconSizePx);
+            icons.setHttpIcons(post.httpIcons, iconSizePx);
             comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
         } else {
             comment.setPadding(paddingPx, paddingPx / 2, paddingPx, 0);
@@ -545,7 +548,7 @@ public class PostCell
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
-                ChanPage p = callback.getPage(post);
+                ChanPage p = instance(PageRequestManager.class).getPage(post);
                 if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
                     text += ", page " + p.page;
                 }
@@ -867,8 +870,8 @@ public class PostCell
             }
         }
 
-        public void setHttpIcons(List<PostHttpIcon> icons, Theme theme, int size) {
-            httpIconTextColor = theme.detailsColor;
+        public void setHttpIcons(List<PostHttpIcon> icons, int size) {
+            httpIconTextColor = getAttrColor(getContext(), R.attr.post_details_color);
             httpIconTextSize = size;
             httpIcons = new ArrayList<>(icons.size());
             for (PostHttpIcon icon : icons) {

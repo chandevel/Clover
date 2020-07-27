@@ -43,9 +43,7 @@ import javax.inject.Inject;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Release;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getBuildType;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -281,7 +279,7 @@ public class MainSettingsController
 
     private LinkSettingView createUpdateSettingView() {
         updateSettingView = new LinkSettingView(this,
-                getApplicationLabel() + " " + BuildConfig.VERSION_NAME + " " + (getBuildType() == Release ? "✓" : "✗"),
+                getApplicationLabel() + " " + BuildConfig.VERSION_NAME,
                 "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         );

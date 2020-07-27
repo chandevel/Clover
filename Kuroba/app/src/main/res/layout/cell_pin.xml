@@ -18,61 +18,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="48dp"
+    android:layout_height="52dp"
+    android:animateLayoutChanges="true"
     android:background="@drawable/ripple_item_background"
     tools:background="?backcolor">
 
     <com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView
         android:id="@+id/thumb"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="52dp"
+        android:layout_height="match_parent"
         android:layout_marginLeft="4dp"
         android:padding="4dp"
         app:ratio="1.0" />
 
-    <TextView
-        android:id="@+id/text"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:ellipsize="end"
         android:gravity="center_vertical"
+        android:orientation="vertical"
         android:paddingLeft="8dp"
-        android:paddingRight="16dp"
-        android:singleLine="true"
-        android:textSize="14sp"
-        tools:ellipsize="end"
-        tools:text="Test pin title" />
-
-    <LinearLayout
-        android:id="@+id/info_container"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_margin="4dp">
+        android:paddingRight="16dp">
 
         <TextView
-            android:id="@+id/watch_count"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:background="@drawable/ripple_item_background"
-            android:gravity="center"
-            android:minWidth="32dp"
-            android:padding="4dp"
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:singleLine="true"
-            android:textSize="14sp"
-            tools:ignore="HardcodedText"
-            tools:text="9999/9999" />
+            android:textSize="15sp"
+            tools:text="@string/lorem_ipsum" />
 
-        <ImageView
-            android:id="@+id/thread_download_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="4dp"
-            android:src="@drawable/ic_download_anim0"
-            android:visibility="gone"
-            tools:visibility="visible" />
-
+        <TextView
+            android:id="@+id/thread_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="?android:textColorSecondary"
+            android:textSize="11sp"
+            tools:text="137R / 54I / 37P / Page 6" />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/watch_count"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="4dp"
+        android:background="@drawable/ripple_item_background"
+        android:gravity="center"
+        android:minWidth="32dp"
+        android:padding="4dp"
+        android:singleLine="true"
+        android:textSize="16sp"
+        tools:ignore="HardcodedText"
+        tools:text="128"
+        tools:textColor="@color/md_light_blue_400"/>
 
 </LinearLayout>

@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -138,7 +138,7 @@ public class DefaultPostParser
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
             capcodeSpan = new SpannableString(StringUtils.caseAndSpace(builder.moderatorCapcode, null));
-            int accentColor = resolveColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
+            int accentColor = getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
             capcodeSpan.setSpan(new ForegroundColorSpanHashed(accentColor), 0, capcodeSpan.length(), 0);
             capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, capcodeSpan.length(), 0);
         }

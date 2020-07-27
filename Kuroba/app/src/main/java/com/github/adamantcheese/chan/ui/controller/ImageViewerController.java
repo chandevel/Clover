@@ -83,7 +83,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
@@ -623,7 +623,7 @@ public class ImageViewerController
         ));
 
         int currentThemePrimaryColor =
-                resolveColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId, R.attr.colorPrimary);
+                getAttrColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId, R.attr.colorPrimary);
         toolbar.setBackgroundColor(ColorUtils.blendARGB(currentThemePrimaryColor, Color.BLACK, alpha));
         if (alpha == 0f) {
             getWindow(context).setStatusBarColor(statusBarColorPrevious);

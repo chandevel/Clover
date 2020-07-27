@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    tools:background="?backcolor">
 
     <TextView
         android:id="@+id/text"
@@ -33,14 +34,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textSize="14sp" />
 
     <ImageView
-        android:id="@+id/clear"
-        android:layout_width="56dp"
+        android:id="@+id/refresh"
+        android:layout_width="48dp"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
+        android:layout_marginRight="8dp"
         android:background="@drawable/ripple_item_background"
-        android:paddingHorizontal="8dp"
         android:scaleType="center"
-        android:src="@drawable/ic_clear_themed_24dp"
-        tools:ignore="ContentDescription" />
+        android:src="@drawable/ic_refresh_themed_24dp" />
+
+    <ImageView
+        android:id="@+id/clear"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="8dp"
+        android:background="@drawable/ripple_item_background"
+        android:scaleType="center"
+        android:src="@drawable/ic_clear_themed_24dp" />
 
 </LinearLayout>

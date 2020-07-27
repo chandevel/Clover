@@ -31,7 +31,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -58,7 +57,6 @@ import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.PreferenceManager;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 
 import org.greenrobot.eventbus.EventBus;
@@ -76,9 +74,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Development;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Other;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.BuildType.Release;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -143,19 +138,9 @@ public class AndroidUtils {
         Other
     }
 
-    public static BuildType getBuildType() {
-        try {
-            @SuppressLint("PackageManagerGetSignatures")
-            Signature sig = application.getPackageManager()
-                    .getPackageInfo(application.getPackageName(), PackageManager.GET_SIGNATURES).signatures[0];
-            String buildSig = Integer.toHexString(sig.toCharsString().hashCode());
-            Logger.d(TAG, "Build Signature: " + buildSig);
-            boolean isRelease = BuildConfig.SIGNATURE.equals(buildSig);
-            boolean isDev = BuildConfig.DEV_SIGNATURE.equals(buildSig);
-            return isRelease ? Release : (isDev ? Development : Other);
-        } catch (Exception ignored) {
-            return Other;
-        }
+    public static boolean isEmulator() {
+        return Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
+                "Android SDK");
     }
 
     /**
@@ -253,11 +238,8 @@ public class AndroidUtils {
         }
     }
 
-    public static int resolveColor(int themeId, int colorId) {
-        TypedValue typedValue = new TypedValue();
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
-        wrapper.getTheme().resolveAttribute(colorId, typedValue, true);
-        return typedValue.data;
+    public static int getAttrColor(int themeId, int attr) {
+        return getAttrColor(new ContextThemeWrapper(application, themeId), attr);
     }
 
     public static int getAttrColor(Context context, int attr) {
@@ -275,14 +257,7 @@ public class AndroidUtils {
         return getRes().getColor(colorId);
     }
 
-    public static boolean resolveBool(int themeId, int boolId) {
-        TypedValue typedValue = new TypedValue();
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
-        wrapper.getTheme().resolveAttribute(boolId, typedValue, true);
-        return typedValue.data != 0;
-    }
-
-    public static float resolveFloat(int themeId, int floatId) {
+    public static float getAttrFloat(int themeId, int floatId) {
         TypedValue typedValue = new TypedValue();
         ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
         wrapper.getTheme().resolveAttribute(floatId, typedValue, true);

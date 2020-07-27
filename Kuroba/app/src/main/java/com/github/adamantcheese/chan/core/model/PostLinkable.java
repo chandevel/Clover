@@ -33,8 +33,8 @@ import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveFloat;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrFloat;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
@@ -63,9 +63,9 @@ public class PostLinkable
     private int markedNo = -1;
 
     public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
-        blendRatio = resolveFloat(theme.resValue, R.attr.highlight_linkable_blend);
-        quoteColor = resolveColor(theme.resValue, R.attr.post_quote_color);
-        spoilerColor = resolveColor(theme.resValue, R.attr.post_spoiler_color);
+        blendRatio = getAttrFloat(theme.resValue, R.attr.highlight_linkable_blend);
+        quoteColor = getAttrColor(theme.resValue, R.attr.post_quote_color);
+        spoilerColor = getAttrColor(theme.resValue, R.attr.post_spoiler_color);
         this.key = key;
         this.value = value;
         this.type = type;

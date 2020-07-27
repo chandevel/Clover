@@ -56,7 +56,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -281,7 +281,7 @@ public class CommentParser {
 
         // Overrides the text (possibly) parsed by child nodes.
         return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
-                new ForegroundColorSpanHashed(resolveColor(theme.resValue, R.attr.post_inline_quote_color)),
+                new ForegroundColorSpanHashed(getAttrColor(theme.resValue, R.attr.post_inline_quote_color)),
                 new AbsoluteSizeSpanHashed(sp(12f))
         );
     }

@@ -94,8 +94,10 @@ public class DrawerController
         drawer = view.findViewById(R.id.drawer);
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
+        //TODO change stuff here
+        //((LinearLayoutManager) recyclerView.getLayoutManager()).setReverseLayout(put some settitng here);
 
-        drawerAdapter = new DrawerAdapter(this, context);
+        drawerAdapter = new DrawerAdapter(this);
         recyclerView.setAdapter(drawerAdapter);
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
@@ -188,11 +190,6 @@ public class DrawerController
     }
 
     @Override
-    public void onWatchCountClicked(Pin pin) {
-        watchManager.toggleWatch(pin);
-    }
-
-    @Override
     public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
         if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
             final boolean all =
@@ -277,8 +274,7 @@ public class DrawerController
     }
 
     public void setPinHighlighted(Pin pin) {
-        drawerAdapter.setPinHighlighted(pin);
-        drawerAdapter.updateHighlighted(recyclerView);
+        drawerAdapter.setPinHighlighted(recyclerView, pin);
     }
 
     @Subscribe

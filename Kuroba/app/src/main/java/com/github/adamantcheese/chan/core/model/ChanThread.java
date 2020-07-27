@@ -16,11 +16,22 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import android.graphics.Typeface;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.StyleSpan;
+
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ChanThread {
     private Loadable loadable;
@@ -95,5 +106,53 @@ public class ChanThread {
      */
     public Loadable getLoadable() {
         return loadable;
+    }
+
+    public CharSequence summarize(boolean bold) {
+        Post op;
+        try {
+            op = getOp();
+        } catch (Exception e) {
+            return null;
+        }
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        boolean hasReplies = op.getReplies() >= 0 || getPostsCount() - 1 > 0;
+        boolean hasImages = op.getImagesCount() >= 0 || getImagesCount() > 0;
+        int style = bold ? Typeface.BOLD_ITALIC : Typeface.ITALIC;
+        if (hasReplies && hasImages) {
+            boolean hasBumpLimit = loadable.board.bumpLimit > 0;
+            boolean hasImageLimit = loadable.board.imageLimit > 0;
+
+            SpannableString replies =
+                    new SpannableString((op.getReplies() >= 0 ? op.getReplies() : getPostsCount() - 1) + "R");
+            if (hasBumpLimit && op.getReplies() >= loadable.board.bumpLimit) {
+                replies.setSpan(new StyleSpan(style), 0, replies.length(), 0);
+            }
+
+            SpannableString images =
+                    new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : getImagesCount()) + "I");
+            if (hasImageLimit && op.getImagesCount() >= loadable.board.imageLimit) {
+                images.setSpan(new StyleSpan(style), 0, images.length(), 0);
+            }
+
+            builder.append(replies).append(" / ").append(images);
+
+            if (op.getUniqueIps() >= 0) {
+                String ips = op.getUniqueIps() + "P";
+                builder.append(" / ").append(ips);
+            }
+
+            if (!getLoadable().isLocal()) {
+                CommonDataStructs.ChanPage p = instance(PageRequestManager.class).getPage(op);
+                if (p != null) {
+                    SpannableString page = new SpannableString(String.valueOf(p.page));
+                    if (p.page >= loadable.board.pages) {
+                        page.setSpan(new StyleSpan(style), 0, page.length(), 0);
+                    }
+                    builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
+                }
+            }
+        }
+        return builder;
     }
 }

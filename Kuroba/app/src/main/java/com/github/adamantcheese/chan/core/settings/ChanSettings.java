@@ -180,7 +180,6 @@ public class ChanSettings {
     //region Declarations
     //region THREAD WATCHER
     public static final BooleanSetting watchEnabled;
-    public static final BooleanSetting shortPinInfo;
     public static final BooleanSetting watchBackground;
     public static final IntegerSetting watchBackgroundInterval;
     public static final BooleanSetting removeWatchedFromCatalog;
@@ -335,7 +334,6 @@ public class ChanSettings {
             //region THREAD WATCHER
             watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
             watchEnabled.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchEnabled)));
-            shortPinInfo = new BooleanSetting(p, "preference_short_pin_info", true);
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
             watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
             watchBackgroundInterval =

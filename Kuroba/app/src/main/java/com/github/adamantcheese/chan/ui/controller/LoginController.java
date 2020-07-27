@@ -100,17 +100,29 @@ public class LoginController
                 site.actions().logout();
                 crossfadeView.toggle(true, true);
                 button.setText(R.string.submit);
-                hideError();
             } else {
-                auth();
+                hideKeyboard(view);
+                inputToken.setEnabled(false);
+                inputPin.setEnabled(false);
+                button.setEnabled(false);
+                button.setText(R.string.loading);
+
+                String user = inputToken.getText().toString();
+                String pass = inputPin.getText().toString();
+                site.actions().login(new LoginRequest(user, pass), this);
             }
+
+            errors.setText(null);
+            errors.setVisibility(GONE);
         }
     }
 
     @Override
     public void onLoginComplete(LoginResponse loginResponse) {
         if (loginResponse.success) {
-            authSuccess(loginResponse);
+            crossfadeView.toggle(false, true);
+            button.setText(R.string.setting_pass_logout);
+            authenticated.setText(loginResponse.message);;
         } else {
             authFail(loginResponse);
         }
@@ -124,19 +136,14 @@ public class LoginController
         authAfter();
     }
 
-    private void authSuccess(LoginResponse response) {
-        crossfadeView.toggle(false, true);
-        button.setText(R.string.setting_pass_logout);
-        authenticated.setText(response.message);
-    }
-
     private void authFail(LoginResponse response) {
         String message = getString(R.string.setting_pass_error);
         if (response != null && response.message != null) {
             message = response.message;
         }
 
-        showError(message);
+        errors.setText(message);
+        errors.setVisibility(VISIBLE);
         button.setText(R.string.submit);
     }
 
@@ -144,28 +151,5 @@ public class LoginController
         button.setEnabled(true);
         inputToken.setEnabled(true);
         inputPin.setEnabled(true);
-    }
-
-    private void auth() {
-        hideKeyboard(view);
-        inputToken.setEnabled(false);
-        inputPin.setEnabled(false);
-        button.setEnabled(false);
-        button.setText(R.string.setting_pass_logging_in);
-        hideError();
-
-        String user = inputToken.getText().toString();
-        String pass = inputPin.getText().toString();
-        site.actions().login(new LoginRequest(user, pass), this);
-    }
-
-    private void showError(String error) {
-        errors.setText(error);
-        errors.setVisibility(VISIBLE);
-    }
-
-    private void hideError() {
-        errors.setText(null);
-        errors.setVisibility(GONE);
     }
 }

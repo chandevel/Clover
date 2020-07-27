@@ -1148,21 +1148,8 @@ public class WatchManager
             pageRequestManager.addListener(this);
         }
 
-        public boolean getIsSticky() {
-            return pin.isSticky;
-        }
-
-        public int getImageCount() {
-            if (chanLoader != null && chanLoader.getThread() != null) {
-                int total = 0;
-                List<Post> posts = chanLoader.getThread().getPosts();
-                if (posts == null) return 0;
-                for (Post p : posts) {
-                    if (!p.isOP) total += p.images.size();
-                }
-                return total;
-            }
-            return 0;
+        public CharSequence getSummary() {
+            return chanLoader != null && chanLoader.getThread() != null ? chanLoader.getThread().summarize(true) : null;
         }
 
         public List<Post> getPosts() {

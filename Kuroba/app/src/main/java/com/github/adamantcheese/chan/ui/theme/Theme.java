@@ -23,9 +23,10 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.resolveColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 /**
  * A Theme object, a wrapper around a Android theme<br>
@@ -69,7 +70,6 @@ public class Theme {
     // Span colors, kept here for performance reasons
     public int subjectColor;
     public int nameColor;
-    public int detailsColor;
 
     private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
     private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
@@ -85,9 +85,8 @@ public class Theme {
         defaultAccent = accentColor;
 
         // Span color setup
-        subjectColor = resolveColor(resValue, R.attr.post_subject_color);
-        nameColor = resolveColor(resValue, R.attr.post_name_color);
-        detailsColor = resolveColor(resValue, R.attr.post_details_color);
+        subjectColor = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
+        nameColor = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
     }
 
     public Theme(

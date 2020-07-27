@@ -58,7 +58,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -1198,10 +1197,6 @@ public class ThreadPresenter
     @Override
     public ChanThread getChanThread() {
         return isBound() ? chanLoader.getThread() : null;
-    }
-
-    public ChanPage getPage(Post op) {
-        return pageRequestManager.getPage(op);
     }
 
     @Override

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="pin_posts_not_watching_color">@color/md_grey_600</color>
-    <color name="pin_posts_has_replies_color">@color/md_red_500</color>
-    <color name="pin_posts_normal_color">#33B5E5</color>
-
     <!-- alpha 50, these need to be transparent -->
     <color name="gestures_zone_view_background">#5038FFB2</color>
     <color name="gestures_zone_view_added_zones">#50FFB55B</color>
