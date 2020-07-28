@@ -173,10 +173,11 @@ public class WatchNotification
         Set<Post> unviewedPosts = new HashSet<>();
         //A set of posts that quote the user
         Set<Post> listQuoting = new HashSet<>();
-        //A list of pins that aren't errored or unwatched
-        List<Pin> pins = new ArrayList<>();
-        //A list of pins that had new posts in them, or had new quotes in them, depending on settings
-        List<Pin> subjectPins = new ArrayList<>();
+        //Count of pins that aren't errored or unwatched
+        int pinCount = 0;
+        //Lists of pins that had new posts or quotes in them, depending on settings
+        List<Pin> newPostPins = new ArrayList<>();
+        List<Pin> newQuotePins = new ArrayList<>();
         // A list of pins that download threads
         List<Pin> threadDownloaderPins = new ArrayList<>();
         // Used for ThreadSaveManager
@@ -212,7 +213,7 @@ public class WatchNotification
             }
 
             if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
-                pins.add(pin);
+                pinCount++;
 
                 if (notifyQuotesOnly) {
                     unviewedPosts.addAll(watcher.getUnviewedQuotes());
@@ -221,7 +222,7 @@ public class WatchNotification
                         flags |= NOTIFICATION_LIGHT | NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                     }
                     if (pin.getNewQuoteCount() > 0) {
-                        subjectPins.add(pin);
+                        newQuotePins.add(pin);
                     }
                 } else {
                     unviewedPosts.addAll(watcher.getUnviewedPosts());
@@ -235,8 +236,10 @@ public class WatchNotification
                     if (watcher.getWereNewQuotes()) {
                         flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
                     }
-                    if (pin.getNewPostCount() > 0) {
-                        subjectPins.add(pin);
+                    if (pin.getNewQuoteCount() > 0) {
+                        newQuotePins.add(pin);
+                    } else if (pin.getNewPostCount() > 0) {
+                        newPostPins.add(pin);
                     }
                 }
             }
@@ -255,13 +258,14 @@ public class WatchNotification
             updateSavedThreads(unviewedPostsByThread);
         }
 
-        if (pins.isEmpty() && threadDownloaderPins.isEmpty()) {
+        if (pinCount == 0 && threadDownloaderPins.isEmpty()) {
             Logger.d(this, "Both pins or threadDownloaderPins are empty");
             return null;
         }
 
-        return setupNotificationTextFields(pins,
-                subjectPins,
+        return setupNotificationTextFields(pinCount,
+                newPostPins,
+                newQuotePins,
                 threadDownloaderPins,
                 unviewedPosts,
                 listQuoting,
@@ -289,8 +293,9 @@ public class WatchNotification
     }
 
     private Notification setupNotificationTextFields(
-            List<Pin> pins,
-            List<Pin> subjectPins,
+            int pinCount,
+            List<Pin> newPostPins,
+            List<Pin> newQuotePins,
             List<Pin> threadDownloaderPins,
             Set<Post> unviewedPosts,
             Set<Post> listQuoting,
@@ -300,13 +305,13 @@ public class WatchNotification
         if (unviewedPosts.isEmpty()) {
             // Idle notification
             PersistableChanState.watchLastCount.set(0);
-            return buildNotification(formatNotificationTitle(pins.size(), threadDownloaderPins.size()),
+            return buildNotification(formatNotificationTitle(pinCount, threadDownloaderPins.size()),
                     Collections.singletonList(getString(R.string.watch_idle)),
                     0,
                     false,
                     false,
-                    pins.size() > 0 ? pins.get(0) : null,
-                    pins.size() > 0
+                    null,
+                    pinCount > 0
             );
         } else {
             // New posts notification
@@ -375,8 +380,8 @@ public class WatchNotification
                     flags,
                     alert,
                     PersistableChanState.watchLastCount.get() > 0,
-                    subjectPins.size() == 1 ? subjectPins.get(0) : null,
-                    pins.size() > 0
+                    newQuotePins.isEmpty() ? (newPostPins.isEmpty() ? null : newPostPins.get(0)) : newQuotePins.get(0),
+                    pinCount > 0
             );
         }
     }
