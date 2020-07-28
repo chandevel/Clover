@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.reactivex.Scheduler;
@@ -86,10 +86,6 @@ public class ImageSaver {
      * We use unbounded queue and this variable is it's initial capacity.
      */
     private static final int UNBOUNDED_QUEUE_MIN_CAPACITY = 32;
-    /**
-     * Since FileCacheV2 is fully asynchronous we can just use a single thread to enqueue requests.
-     */
-    private static final int THREADS_COUNT = 1;
 
     /**
      * Amount of successfully downloaded images
@@ -116,19 +112,13 @@ public class ImageSaver {
     private FlowableProcessor<ImageSaveTask> imageSaverQueue = PublishProcessor.create();
 
     /**
-     * Id of a thread in the workerScheduler
-     */
-    private AtomicInteger imagesSaverThreadIndex = new AtomicInteger(0);
-    /**
      * Only for batch downloads. Holds the urls of all images in a batch. Use for batch canceling.
      * If an image url is not present in the activeDownloads that means that it was canceled.
      */
     @GuardedBy("itself")
     private final Set<HttpUrl> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(Executors.newFixedThreadPool(THREADS_COUNT,
-            r -> new Thread(r, "ImageSaverThread-" + imagesSaverThreadIndex.getAndIncrement())
-    ));
+    private Scheduler workerScheduler = Schedulers.from(new ForkJoinPool(1));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should
@@ -288,8 +278,9 @@ public class ImageSaver {
             AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
 
             if (innerDirectory == null) {
-                Logger.e(this,
-                        "getSaveLocation() failed to create subdirectory " + "(" + subFolder + ") for a base dir: "
+                Logger.e(
+                        this,
+                        "getSaveLocation() failed to create subdirectory (" + subFolder + ") for a base dir: "
                                 + baseSaveDir.getFullPath()
                 );
             }

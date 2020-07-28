@@ -34,15 +34,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 
@@ -56,18 +53,8 @@ import static com.github.adamantcheese.chan.Chan.instance;
  */
 public class ChanReaderParser
         implements NetUtils.JsonParser<ChanLoaderResponse> {
-    private static final int THREAD_COUNT;
-    private static final ExecutorService EXECUTOR;
-    private static final String threadFactoryName = "post_parser_thread_%d";
-    private static final AtomicInteger threadIndex = new AtomicInteger(0);
 
-    static {
-        THREAD_COUNT = Runtime.getRuntime().availableProcessors();
-        EXECUTOR = Executors.newFixedThreadPool(THREAD_COUNT, r -> {
-            String threadName = String.format(Locale.ENGLISH, threadFactoryName, threadIndex.getAndIncrement());
-            return new Thread(r, threadName);
-        });
-    }
+    private static final ForkJoinPool pool = new ForkJoinPool();
 
     @Inject
     FilterEngine filterEngine;
@@ -151,13 +138,11 @@ public class ChanReaderParser
             ));
         }
 
-        if (!tasks.isEmpty()) {
-            List<Future<Post>> futures = EXECUTOR.invokeAll(tasks);
-            for (Future<Post> future : futures) {
-                Post parsedPost = future.get();
-                if (parsedPost != null) {
-                    total.add(parsedPost);
-                }
+        List<Future<Post>> futures = pool.invokeAll(tasks);
+        for (Future<Post> future : futures) {
+            Post parsedPost = future.get();
+            if (parsedPost != null) {
+                total.add(parsedPost);
             }
         }
 
