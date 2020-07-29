@@ -302,88 +302,74 @@ public class WatchNotification
             boolean notifyQuotesOnly,
             int flags
     ) {
-        if (unviewedPosts.isEmpty()) {
-            // Idle notification
-            PersistableChanState.watchLastCount.set(0);
-            return buildNotification(formatNotificationTitle(pinCount, threadDownloaderPins.size()),
-                    Collections.singletonList(getString(R.string.watch_idle)),
-                    0,
-                    false,
-                    false,
-                    null,
-                    pinCount > 0
-            );
+        String message;
+        Set<Post> postsForExpandedLines;
+        if (notifyQuotesOnly) {
+            message = formatNotificationTitleNewQuotes(listQuoting.size(), threadDownloaderPins.size());
+            postsForExpandedLines = listQuoting;
         } else {
-            // New posts notification
-            String message;
-            Set<Post> postsForExpandedLines;
-            if (notifyQuotesOnly) {
-                message = formatNotificationTitleNewQuotes(listQuoting.size(), threadDownloaderPins.size());
-                postsForExpandedLines = listQuoting;
+            postsForExpandedLines = unviewedPosts;
+            if (listQuoting.size() > 0) {
+                message = formatNotificationTitleNewQuoting(unviewedPosts.size(),
+                        listQuoting.size(),
+                        threadDownloaderPins.size()
+                );
             } else {
-                postsForExpandedLines = unviewedPosts;
-                if (listQuoting.size() > 0) {
-                    message = formatNotificationTitleNewQuoting(unviewedPosts.size(),
-                            listQuoting.size(),
-                            threadDownloaderPins.size()
-                    );
-                } else {
-                    message = formatNotificationTitleNewPosts(unviewedPosts.size(), threadDownloaderPins.size());
-                }
+                message = formatNotificationTitleNewPosts(unviewedPosts.size(), threadDownloaderPins.size());
             }
-
-            List<Post> finalPosts = new ArrayList<>(postsForExpandedLines);
-            Collections.sort(finalPosts);
-            List<CharSequence> expandedLines = new ArrayList<>();
-            for (Post postForExpandedLine : finalPosts) {
-                CharSequence prefix;
-                if (postForExpandedLine.getTitle().length() <= 6) {
-                    prefix = postForExpandedLine.getTitle();
-                } else {
-                    prefix = postForExpandedLine.getTitle().subSequence(0, 6);
-                }
-
-                CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";
-                if (postForExpandedLine.comment.length() > 0) {
-                    // FIXME: this thing is pretty slow sometimes (50-200ms).
-                    //  Can we replace it with something faster?
-                    comment = TextUtils.concat(comment, postForExpandedLine.comment);
-                }
-
-                // Replace >>123456789 with >789 to shorten the notification
-                // Also replace spoilered shit with █
-                // All spans are deleted by the replaceAll call and you can't modify their ranges easily so this will have to do
-                Editable toFix = new SpannableStringBuilder(comment);
-                PostLinkable[] spans = toFix.getSpans(0, comment.length(), PostLinkable.class);
-                for (PostLinkable span : spans) {
-                    if (span.type == PostLinkable.Type.SPOILER) {
-                        int start = toFix.getSpanStart(span);
-                        int end = toFix.getSpanEnd(span);
-
-                        char[] chars = new char[end - start];
-                        Arrays.fill(chars, '█');
-                        String s = new String(chars);
-
-                        toFix.replace(start, end, s);
-                    }
-                }
-                comment = SHORTEN_NO_PATTERN.matcher(toFix).replaceAll(">$1");
-
-                expandedLines.add(prefix + ": " + comment);
-            }
-
-            boolean alert = PersistableChanState.watchLastCount.get() < listQuoting.size();
-            PersistableChanState.watchLastCount.set(listQuoting.size());
-
-            return buildNotification(message,
-                    expandedLines,
-                    flags,
-                    alert,
-                    PersistableChanState.watchLastCount.get() > 0,
-                    newQuotePins.isEmpty() ? (newPostPins.isEmpty() ? null : newPostPins.get(0)) : newQuotePins.get(0),
-                    pinCount > 0
-            );
         }
+
+        List<Post> finalPosts = new ArrayList<>(postsForExpandedLines);
+        Collections.sort(finalPosts);
+        List<CharSequence> expandedLines = new ArrayList<>();
+        for (Post postForExpandedLine : finalPosts) {
+            CharSequence prefix;
+            if (postForExpandedLine.getTitle().length() <= 6) {
+                prefix = postForExpandedLine.getTitle();
+            } else {
+                prefix = postForExpandedLine.getTitle().subSequence(0, 6);
+            }
+
+            CharSequence comment = postForExpandedLine.image() != null ? "(img) " : "";
+            if (postForExpandedLine.comment.length() > 0) {
+                // FIXME: this thing is pretty slow sometimes (50-200ms).
+                //  Can we replace it with something faster?
+                comment = TextUtils.concat(comment, postForExpandedLine.comment);
+            }
+
+            // Replace >>123456789 with >789 to shorten the notification
+            // Also replace spoilered shit with █
+            // All spans are deleted by the replaceAll call and you can't modify their ranges easily so this will have to do
+            Editable toFix = new SpannableStringBuilder(comment);
+            PostLinkable[] spans = toFix.getSpans(0, comment.length(), PostLinkable.class);
+            for (PostLinkable span : spans) {
+                if (span.type == PostLinkable.Type.SPOILER) {
+                    int start = toFix.getSpanStart(span);
+                    int end = toFix.getSpanEnd(span);
+
+                    char[] chars = new char[end - start];
+                    Arrays.fill(chars, '█');
+                    String s = new String(chars);
+
+                    toFix.replace(start, end, s);
+                }
+            }
+            comment = SHORTEN_NO_PATTERN.matcher(toFix).replaceAll(">$1");
+
+            expandedLines.add(prefix + ": " + comment);
+        }
+
+        boolean alert = PersistableChanState.watchLastCount.get() < listQuoting.size();
+        PersistableChanState.watchLastCount.set(listQuoting.size());
+
+        return buildNotification(message,
+                expandedLines,
+                flags,
+                alert,
+                PersistableChanState.watchLastCount.get() > 0,
+                newQuotePins.isEmpty() ? (newPostPins.isEmpty() ? null : newPostPins.get(0)) : newQuotePins.get(0),
+                pinCount > 0
+        );
     }
 
     private String formatNotificationTitleNewPosts(int unviewedPostsCount, int threadDownloaderPinsCount) {
@@ -437,20 +423,6 @@ public class WatchNotification
         }
 
         return String.format("%s, %s", watchNewTitle, downloadTitle);
-    }
-
-    private String formatNotificationTitle(int pinsCount, int threadDownloaderPinsCount) {
-        String watchTitle = getQuantityString(R.plurals.watch_title, pinsCount, pinsCount);
-        String downloadTitle =
-                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
-
-        if (pinsCount != 0 && threadDownloaderPinsCount == 0) {
-            return watchTitle;
-        } else if (pinsCount == 0 && threadDownloaderPinsCount != 0) {
-            return downloadTitle;
-        }
-
-        return String.format("%s, %s", watchTitle, downloadTitle);
     }
 
     /**

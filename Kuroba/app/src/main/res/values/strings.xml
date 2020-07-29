@@ -55,10 +55,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%1$d post removed</item>
         <item quantity="other">%1$d posts removed</item>
     </plurals>
-    <plurals name="watch_title">
-        <item quantity="one">Watching one thread</item>
-        <item quantity="other">Watching %d threads</item>
-    </plurals>
     <plurals name="download_title">
         <item quantity="one">Downloading one thread</item>
         <item quantity="other">Downloading %d threads</item>
