@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,17 +41,6 @@ public class CommonDataStructs {
         public ThreadNoTimeModPair(int no, long modified) {
             this.no = no;
             this.modified = modified;
-        }
-    }
-
-    public enum CaptchaType
-            implements OptionSettingItem {
-        V2JS,
-        V2NOJS;
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
         }
     }
 }
