@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
@@ -42,6 +41,7 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
@@ -69,7 +69,7 @@ import java.util.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
@@ -480,23 +480,6 @@ public class Chan4
     private final StringSetting passPass;
     private final StringSetting passToken;
 
-    public enum CaptchaType
-            implements OptionSettingItem {
-        V2JS("v2js"),
-        V2NOJS("v2nojs");
-
-        String name;
-
-        CaptchaType(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getKey() {
-            return name;
-        }
-    }
-
     private OptionsSetting<CaptchaType> captchaType;
     public static StringSetting flagType;
 
@@ -514,7 +497,8 @@ public class Chan4
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2JS);
+        captchaType =
+                new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2NOJS);
         flagType = new StringSetting(settingsProvider, "preference_flag_chan4", "0");
     }
 

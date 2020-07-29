@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -17,11 +18,11 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +30,7 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.core.site.sites.chan4.Chan4.CaptchaType.V2JS;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
 
 public class Dvach
         extends CommonSite {
@@ -67,22 +68,19 @@ public class Dvach
         }
     };
     static final String CAPTCHA_KEY = "6LeQYz4UAAAAAL8JCk35wHSv6cuEV5PyLhI6IxsM";
-    private OptionsSetting<Chan4.CaptchaType> captchaType;
+    private OptionsSetting<CaptchaType> captchaType;
 
     @Override
     public void initializeSettings() {
         super.initializeSettings();
-        captchaType =
-                new OptionsSetting<>(settingsProvider, "preference_captcha_type_dvach", Chan4.CaptchaType.class, V2JS);
+        captchaType = new OptionsSetting<>(settingsProvider, "preference_captcha_type_dvach", CaptchaType.class, V2JS);
     }
 
     @Override
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
-        SiteSetting<?> captchaSetting = new SiteSetting<>("Captcha type",
-                captchaType,
-                Arrays.asList("Javascript", "Noscript")
-        );
+        SiteSetting<?> captchaSetting =
+                new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
         settings.add(captchaSetting);
         return settings;
     }
