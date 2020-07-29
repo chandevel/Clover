@@ -93,7 +93,6 @@ public class AlbumDownloadController
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
         AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);

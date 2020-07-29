@@ -22,6 +22,7 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -62,7 +63,6 @@ public class AlbumViewController
         view = inflate(context, R.layout.controller_album_view);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setItemAnimator(null);
-        recyclerView.getRecycledViewPool().setMaxRecycledViews(0, 0);
 
         AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
         recyclerView.setAdapter(albumAdapter);
@@ -187,6 +187,14 @@ public class AlbumViewController
         public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
             PostImage postImage = postImages.get(position);
             holder.cell.setPostImage(loadable, postImage);
+        }
+
+        @Override
+        public void onViewRecycled(
+                @NonNull AlbumItemCellHolder holder
+        ) {
+            super.onViewRecycled(holder);
+            holder.thumbnailView.setUrl(null);
         }
 
         @Override
