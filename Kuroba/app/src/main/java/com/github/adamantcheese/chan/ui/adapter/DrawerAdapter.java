@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -294,12 +295,13 @@ public class DrawerAdapter
             CharSequence summary = pinWatcher.getSummary();
             if (summary != null) {
                 holder.threadInfo.setVisibility(VISIBLE);
-                holder.threadInfo.setText(summary);
+                holder.threadInfo.setText(String.format("/%s/ - %s", pin.loadable.boardCode, summary));
             } else {
-                holder.threadInfo.setVisibility(GONE);
+                holder.threadInfo.setText(BoardHelper.getName(pin.loadable.board));
             }
         } else {
             holder.threadInfo.setVisibility(GONE);
+            holder.title.setText(String.format("/%s/ - %s", pin.loadable.boardCode, holder.title.getText()));
         }
 
         if (ChanSettings.watchEnabled.get()) {
