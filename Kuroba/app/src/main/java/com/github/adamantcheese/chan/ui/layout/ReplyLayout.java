@@ -233,6 +233,10 @@ public class ReplyLayout
         commentEqnButton.setOnClickListener(this);
         commentSJISButton.setOnClickListener(this);
 
+        name.addTextChangedListener(this);
+        flag.addTextChangedListener(this);
+        options.addTextChangedListener(this);
+        subject.addTextChangedListener(this);
         comment.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
@@ -520,14 +524,20 @@ public class ReplyLayout
             draft.comment = EmojiParser.parseToUnicode(draft.comment);
         }
 
-        name.setText(draft.name);
-        subject.setText(draft.subject);
-        flag.setText(draft.flag);
-        options.setText(draft.options);
+        if (!name.getText().toString().equals(draft.name))
+            name.setText(draft.name);
+        if (!subject.getText().toString().equals(draft.subject))
+            subject.setText(draft.subject);
+        if (!flag.getText().toString().equals(draft.flag))
+            flag.setText(draft.flag);
+        if (!options.getText().toString().equals(draft.options))
+            options.setText(draft.options);
         blockSelectionChange = true;
-        comment.setText(draft.comment);
+        if (!comment.getText().toString().equals(draft.comment))
+            comment.setText(draft.comment);
         blockSelectionChange = false;
-        fileName.setText(draft.fileName);
+        if (!fileName.getText().toString().equals(draft.fileName))
+            fileName.setText(draft.fileName);
         spoiler.setChecked(draft.spoilerImage);
     }
 
@@ -917,7 +927,12 @@ public class ReplyLayout
 
     @Override
     public void afterTextChanged(Editable s) {
-        presenter.onCommentTextChanged(comment.getText());
+        if (s.equals(comment.getText())) {
+            presenter.onCommentTextChanged(comment.getText());
+        }
+        else {
+            presenter.onTextChanged();
+        }
     }
 
     @Override

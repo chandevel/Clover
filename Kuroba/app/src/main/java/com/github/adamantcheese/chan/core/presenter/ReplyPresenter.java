@@ -392,6 +392,10 @@ public class ReplyPresenter
         callback.updateCommentCount(length, board.maxCommentChars, length > board.maxCommentChars);
     }
 
+    public void onTextChanged() {
+        callback.loadViewsIntoDraft(draft);
+    }
+
     public void onSelectionChanged() {
         callback.loadViewsIntoDraft(draft);
         highlightQuotes();
@@ -399,11 +403,7 @@ public class ReplyPresenter
 
     public boolean filenameNewClicked(boolean showToast) {
         String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
-        if (currentExt == null) {
-            currentExt = "";
-        } else {
-            currentExt = "." + currentExt;
-        }
+        currentExt = (currentExt == null) ? "" : "." + currentExt;
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);
         if (showToast) {
