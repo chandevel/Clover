@@ -108,6 +108,10 @@ public class CardPostCell
             ((LinearLayout.LayoutParams) comment.getLayoutParams()).height = ViewGroup.LayoutParams.WRAP_CONTENT;
             ((LinearLayout.LayoutParams) comment.getLayoutParams()).weight = 0;
             ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
+            thumbView.setOnLongClickListener(v -> {
+                callback.onPostClicked(post);
+                return true;
+            });
             invalidate();
         }
     }
