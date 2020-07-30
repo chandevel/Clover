@@ -216,13 +216,7 @@ public class PostCell
             }
         });
 
-        doubleTapComment = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onDoubleTap(MotionEvent e) {
-                callback.onPostDoubleClicked(post);
-                return true;
-            }
-        });
+        doubleTapComment = new GestureDetector(getContext(), new DoubleTapCommentGestureListener());
     }
 
     private void showOptions(
@@ -507,17 +501,10 @@ public class PostCell
 
             // And this sets clickable to appropriate values again.
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
-            title.setOnClickListener(v -> {
-                if (!loadable.isLocal()) {
-                    callback.onPostNoClicked(post, false);
-                }
-            });
+
             title.setOnLongClickListener(v -> {
-                if (!loadable.isLocal()) {
-                    callback.onPostNoClicked(post, true);
-                    return true;
-                }
-                return false;
+                callback.onPostNoClicked(post);
+                return true;
             });
         } else {
             comment.setText(commentText);
@@ -528,8 +515,7 @@ public class PostCell
             comment.setMovementMethod(null);
 
             title.setBackgroundResource(0);
-            title.setOnClickListener(null);
-            title.setOnLongClickListener(null);
+            title.setLongClickable(false);
         }
 
         int repliesFromSize;
@@ -988,6 +974,15 @@ public class PostCell
                 request.cancel();
                 request = null;
             }
+        }
+    }
+
+    private class DoubleTapCommentGestureListener
+            extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            callback.onPostDoubleClicked(post);
+            return true;
         }
     }
 }

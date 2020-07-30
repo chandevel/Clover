@@ -68,7 +68,7 @@ public interface PostCellInterface {
 
         void onPostLinkableClicked(Post post, PostLinkable linkable);
 
-        void onPostNoClicked(Post post, boolean withText);
+        void onPostNoClicked(Post post);
 
         void onPostSelectionQuoted(Post post, CharSequence quoted);
     }
