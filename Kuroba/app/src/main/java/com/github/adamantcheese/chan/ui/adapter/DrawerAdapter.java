@@ -373,8 +373,6 @@ public class DrawerAdapter
             watchCountText = itemView.findViewById(R.id.watch_count);
             watchCountText.setTypeface(ThemeHelper.getTheme().mainFont);
             watchCountText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
-            //prevent italic text from being cut off https://stackoverflow.com/a/61870394
-            watchCountText.setShadowLayer(watchCountText.getTextSize(), 0f, 0f, Color.TRANSPARENT);
 
             image.setOnClickListener(v -> {
                 int pos = getAdjustedAdapterPosition();
