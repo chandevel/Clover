@@ -1,6 +1,6 @@
 package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.widget.Toast
 import com.github.adamantcheese.chan.R

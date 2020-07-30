@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.text.InputType;
 import android.view.View;
 import android.view.WindowManager;

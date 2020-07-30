@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.MotionEvent;

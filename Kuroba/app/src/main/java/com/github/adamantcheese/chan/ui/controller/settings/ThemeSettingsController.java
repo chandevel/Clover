@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;

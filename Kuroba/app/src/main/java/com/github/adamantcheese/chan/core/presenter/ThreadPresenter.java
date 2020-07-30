@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;

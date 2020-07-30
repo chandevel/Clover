@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.view.Gravity;

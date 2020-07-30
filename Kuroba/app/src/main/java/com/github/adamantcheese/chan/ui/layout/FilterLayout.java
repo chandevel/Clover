@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
