@@ -73,7 +73,6 @@ public class NetModule {
         return new CacheHandler(fileManager,
                 cacheDirFile,
                 chunksCacheDirFile,
-                ChanSettings.autoLoadThreadImages.get(),
                 executor
         );
     }

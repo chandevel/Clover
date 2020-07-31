@@ -21,6 +21,7 @@ import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -38,6 +39,7 @@ import com.github.adamantcheese.chan.ui.controller.settings.base_directory.Share
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.ThreadsLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
@@ -268,6 +270,13 @@ public class MediaSettingsController
                     ChanSettings.autoLoadThreadImages,
                     R.string.setting_auto_load_thread_images,
                     R.string.setting_auto_load_thread_images_description
+            )));
+
+            requiresRestart.add(loading.add(new IntegerSettingView(this,
+                    ChanSettings.fileCacheSize,
+                    "File cache size (in MB)",
+                    "File cache size in MB\nDefault 512MB, 2x for prefetch",
+                    new Pair<>(100, 2000)
             )));
 
             groups.add(loading);

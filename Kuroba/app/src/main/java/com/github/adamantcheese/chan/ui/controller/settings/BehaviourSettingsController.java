@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 import android.widget.Toast;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -224,7 +226,8 @@ public class BehaviourSettingsController
             requiresRestart.add(proxy.add(new IntegerSettingView(this,
                     ChanSettings.proxyPort,
                     R.string.setting_proxy_port,
-                    R.string.setting_proxy_port
+                    R.string.setting_proxy_port,
+                    new Pair<>(Integer.MIN_VALUE, Integer.MAX_VALUE)
             )));
 
             groups.add(proxy);

@@ -283,6 +283,7 @@ public class ChanSettings {
     public static final OptionsSetting<MediaAutoLoadMode> videoAutoLoadNetwork;
     public static final OptionsSetting<ImageClickPreloadStrategy> imageClickPreloadStrategy;
     public static final BooleanSetting autoLoadThreadImages;
+    public static final IntegerSetting fileCacheSize;
     //endregion
 
     //region EXPERIMENTAL
@@ -461,6 +462,7 @@ public class ChanSettings {
                     ImageClickPreloadStrategy.PreloadNext
             );
             autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
+            fileCacheSize = new IntegerSetting(p, "preference_file_cache_size", 512);
             //endregion
 
             //region EXPERIMENTAL

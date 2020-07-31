@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import androidx.appcompat.app.AlertDialog;
 import android.text.InputType;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
@@ -32,6 +34,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
  * Created by Zetsubou on 02.07.2015
@@ -41,17 +44,31 @@ public class IntegerSettingView
         implements View.OnClickListener {
     private final Setting<Integer> setting;
     private final String dialogTitle;
+    private int minimumValue;
+    private int maximumValue;
 
-    public IntegerSettingView(SettingsController controller, Setting<Integer> setting, int name, int dialogTitle) {
-        this(controller, setting, getString(name), getString(dialogTitle));
+    public IntegerSettingView(
+            SettingsController controller,
+            Setting<Integer> setting,
+            int name,
+            int dialogTitle,
+            Pair<Integer, Integer> limits
+    ) {
+        this(controller, setting, getString(name), getString(dialogTitle), limits);
     }
 
     public IntegerSettingView(
-            SettingsController settingsController, Setting<Integer> setting, String name, String dialogTitle
+            SettingsController settingsController,
+            Setting<Integer> setting,
+            String name,
+            String dialogTitle,
+            Pair<Integer, Integer> limits
     ) {
         super(settingsController, name);
         this.setting = setting;
         this.dialogTitle = dialogTitle;
+        minimumValue = limits.first;
+        maximumValue = limits.second;
     }
 
     @Override
@@ -81,7 +98,13 @@ public class IntegerSettingView
 
         AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
             try {
-                setting.set(Integer.parseInt(editText.getText().toString()));
+                int value = Integer.parseInt(editText.getText().toString());
+                if (value >= minimumValue && value <= maximumValue) {
+                    setting.set(value);
+                } else {
+                    showToast(v.getContext(), "Value not in range <" + minimumValue + ", " + maximumValue + ">");
+                    setting.set(setting.getDefault());
+                }
             } catch (Exception e) {
                 setting.set(setting.getDefault());
             }

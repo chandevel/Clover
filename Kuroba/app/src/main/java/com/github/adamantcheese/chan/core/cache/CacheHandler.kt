@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
 import android.text.TextUtils
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.ConversionUtils.charArrayToInt
@@ -67,7 +68,6 @@ class CacheHandler(
         private val fileManager: FileManager,
         private val cacheDirFile: RawFile,
         private val chunksCacheDirFile: RawFile,
-        autoLoadThreadImages: Boolean,
         private val executor: ExecutorService
 ) {
     /**
@@ -79,10 +79,10 @@ class CacheHandler(
     private val trimRunning = AtomicBoolean(false)
     private val recalculationRunning = AtomicBoolean(false)
     private val trimChunksRunning = AtomicBoolean(false)
-    private val fileCacheDiskSize = if (autoLoadThreadImages) {
-        PREFETCH_CACHE_SIZE
+    private val fileCacheDiskSize = if (ChanSettings.autoLoadThreadImages.get()) {
+        ChanSettings.fileCacheSize.get() * 2 * 1024 * 1024 * 1L
     } else {
-        DEFAULT_CACHE_SIZE
+        ChanSettings.fileCacheSize.get() * 1024 * 1024 * 1L
     }
 
     init {
@@ -712,10 +712,10 @@ class CacheHandler(
         val now = System.currentTimeMillis()
 
         val sizeToFree = size.get().let { currentCacheSize ->
-            if (currentCacheSize > DEFAULT_CACHE_SIZE) {
+            if (currentCacheSize > fileCacheDiskSize) {
                 currentCacheSize / 2
             } else {
-                DEFAULT_CACHE_SIZE / 2
+                fileCacheDiskSize / 2
             }
         }
 
@@ -884,15 +884,6 @@ class CacheHandler(
 
     companion object {
         private const val TAG = "CacheHandler"
-
-        // 1GB for prefetching, so that entire threads can be loaded at once more easily,
-        // otherwise 512MB. 100MB is actually not that much for some boards like /wsg/ where every file
-        // may weigh up to 5MB (I believe). So it's like 20 files before we have to clean the cache.
-        // And there are other chans (like 2ch.hk) where a webm may weigh up to 25MB
-        // (or even more I don't remember how much exactly). Also when downloading albums, the cache
-        // will be cleaned a lot of times with the old size.
-        private const val DEFAULT_CACHE_SIZE = 512L * 1024L * 1024L
-        private const val PREFETCH_CACHE_SIZE = 1024L * 1024L * 1024L
         private const val CACHE_FILE_META_HEADER_SIZE = 4
 
         // I don't think it will ever get this big but just in case don't forget to update it if it
