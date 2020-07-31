@@ -132,12 +132,6 @@ public class AndroidUtils {
         return getAppContext().getSharedPreferences(CHAN_STATE_PREFS_NAME, MODE_PRIVATE);
     }
 
-    public enum BuildType {
-        Development,
-        Release,
-        Other
-    }
-
     public static boolean isEmulator() {
         return Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
                 "Android SDK");

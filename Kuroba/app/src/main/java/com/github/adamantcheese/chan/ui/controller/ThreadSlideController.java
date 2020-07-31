@@ -95,11 +95,11 @@ public class ThreadSlideController
     }
 
     @Override
-    public void onPanelSlide(View panel, float slideOffset) {
+    public void onPanelSlide(@NonNull View panel, float slideOffset) {
     }
 
     @Override
-    public void onPanelOpened(View panel) {
+    public void onPanelOpened(@NonNull View panel) {
         if (this.leftOpen != leftOpen()) {
             this.leftOpen = leftOpen();
             slideStateChanged();
@@ -107,7 +107,7 @@ public class ThreadSlideController
     }
 
     @Override
-    public void onPanelClosed(View panel) {
+    public void onPanelClosed(@NonNull View panel) {
         if (this.leftOpen != leftOpen()) {
             this.leftOpen = leftOpen();
             slideStateChanged();

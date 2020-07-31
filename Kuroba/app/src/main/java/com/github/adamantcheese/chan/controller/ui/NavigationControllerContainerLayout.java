@@ -56,9 +56,9 @@ public class NavigationControllerContainerLayout
     private int slopPixels;
 
     /**
-     * How many pixels we should move a finger to the right before we start moving the whole
-     * controller to the right when in Phone layout. (The lower it is the easier it is to start
-     * moving the controller which may make it harder to click other views)
+     * How many pixels we should move a finger to the right before we start moving the whole controller to the right
+     * when a controller is being swiped. (The lower it is the easier it is to start moving the controller which may
+     * make it harder to click other views)
      */
     private int minimalMovedPixels = dp(10);
     private int maxFlingPixels;

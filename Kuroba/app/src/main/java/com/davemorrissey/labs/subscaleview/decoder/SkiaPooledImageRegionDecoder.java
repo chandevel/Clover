@@ -13,17 +13,16 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Build;
+import android.text.TextUtils;
+import android.util.Log;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.TextUtils;
-import android.util.Log;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.regex.Pattern;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
@@ -55,7 +53,8 @@ import static android.content.Context.ACTIVITY_SERVICE;
  * {@link SkiaImageRegionDecoder} on old or low powered devices you could not test.
  * </p>
  */
-public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
+public class SkiaPooledImageRegionDecoder
+        implements ImageRegionDecoder {
 
     private static final String TAG = SkiaPooledImageRegionDecoder.class.getSimpleName();
 
@@ -97,6 +96,7 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
 
     /**
      * Controls logging of debug messages. All instances are affected.
+     *
      * @param debug true to enable debug logging, false to disable.
      */
     @Keep
@@ -112,7 +112,8 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
      */
     @Override
     @NonNull
-    public Point init(final Context context, @NonNull final Uri uri) throws Exception {
+    public Point init(final Context context, @NonNull final Uri uri)
+            throws Exception {
         this.context = context;
         this.uri = uri;
         initialiseDecoder();
@@ -155,7 +156,8 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
      * Initialises a new {@link BitmapRegionDecoder} and adds it to the pool, unless the pool has
      * been recycled while it was created.
      */
-    private void initialiseDecoder() throws Exception {
+    private void initialiseDecoder()
+            throws Exception {
         String uriString = uri.toString();
         BitmapRegionDecoder decoder;
         long fileLength = Long.MAX_VALUE;
@@ -196,7 +198,9 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
             } catch (Exception e) {
                 // Pooling disabled
             }
-            decoder = BitmapRegionDecoder.newInstance(context.getAssets().open(assetName, AssetManager.ACCESS_RANDOM), false);
+            decoder = BitmapRegionDecoder.newInstance(context.getAssets().open(assetName, AssetManager.ACCESS_RANDOM),
+                    false
+            );
         } else if (uriString.startsWith(FILE_PREFIX)) {
             decoder = BitmapRegionDecoder.newInstance(uriString.substring(FILE_PREFIX.length()), false);
             try {
@@ -266,7 +270,8 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
                         options.inPreferredConfig = bitmapConfig;
                         Bitmap bitmap = decoder.decodeRegion(sRect, options);
                         if (bitmap == null) {
-                            throw new RuntimeException("Skia image decoder returned null bitmap - image format may not be supported");
+                            throw new RuntimeException(
+                                    "Skia image decoder returned null bitmap - image format may not be supported");
                         }
                         return bitmap;
                     }
@@ -314,8 +319,9 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
      * Called before creating a new decoder. Based on number of CPU cores, available memory, and the
      * size of the image file, determines whether another decoder can be created. Subclasses can
      * override and customise this.
+     *
      * @param numberOfDecoders the number of decoders that have been created so far
-     * @param fileLength the size of the image file in bytes. Creating another decoder will use approximately this much native memory.
+     * @param fileLength       the size of the image file in bytes. Creating another decoder will use approximately this much native memory.
      * @return true if another decoder can be created.
      */
     @SuppressWarnings("WeakerAccess")
@@ -326,17 +332,18 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
         } else if (numberOfDecoders * fileLength > 20 * 1024 * 1024) {
             debug("No additional encoders allowed, reached hard memory limit (20Mb)");
             return false;
-        } else if (numberOfDecoders >= getNumberOfCores()) {
-            debug("No additional encoders allowed, limited by CPU cores (" + getNumberOfCores() + ")");
+        } else if (numberOfDecoders >= Runtime.getRuntime().availableProcessors()) {
+            debug("No additional encoders allowed, limited by CPU cores (" + Runtime.getRuntime().availableProcessors()
+                    + ")");
             return false;
         } else if (isLowMemory()) {
             debug("No additional encoders allowed, memory is low");
             return false;
         }
-        debug("Additional decoder allowed, current count is " + numberOfDecoders + ", estimated native memory " + ((fileLength * numberOfDecoders)/(1024 * 1024)) + "Mb");
+        debug("Additional decoder allowed, current count is " + numberOfDecoders + ", estimated native memory " + (
+                (fileLength * numberOfDecoders) / (1024 * 1024)) + "Mb");
         return true;
     }
-
 
     /**
      * A simple pool of {@link BitmapRegionDecoder} instances, all loading from the same source.
@@ -422,40 +429,10 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
             }
             return false;
         }
-
-    }
-
-    private int getNumberOfCores() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return Runtime.getRuntime().availableProcessors();
-        } else {
-            return getNumCoresOldPhones();
-        }
-    }
-
-    /**
-     * Gets the number of cores available in this device, across all processors.
-     * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
-     * @return The number of cores, or 1 if failed to get result
-     */
-    private int getNumCoresOldPhones() {
-        class CpuFilter implements FileFilter {
-            @Override
-            public boolean accept(File pathname) {
-                return Pattern.matches("cpu[0-9]+", pathname.getName());
-            }
-        }
-        try {
-            File dir = new File("/sys/devices/system/cpu/");
-            File[] files = dir.listFiles(new CpuFilter());
-            return files.length;
-        } catch(Exception e) {
-            return 1;
-        }
     }
 
     private boolean isLowMemory() {
-        ActivityManager activityManager = (ActivityManager)context.getSystemService(ACTIVITY_SERVICE);
+        ActivityManager activityManager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
         if (activityManager != null) {
             ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
             activityManager.getMemoryInfo(memoryInfo);
@@ -470,5 +447,4 @@ public class SkiaPooledImageRegionDecoder implements ImageRegionDecoder {
             Log.d(TAG, message);
         }
     }
-
 }
