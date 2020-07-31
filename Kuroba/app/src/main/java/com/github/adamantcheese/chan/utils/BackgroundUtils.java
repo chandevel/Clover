@@ -101,7 +101,7 @@ public class BackgroundUtils {
                 try {
                     final T res = background.call();
                     runOnMainThread(() -> {
-                        if (!canceled.get()) {
+                        if (!canceled.get() && result != null) {
                             result.onResult(res);
                         }
                     });
