@@ -155,31 +155,27 @@ public class NetUtils {
     }
 
     private static void performBitmapSuccess(@NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache) {
-        BackgroundUtils.runOnMainThread(() -> {
-            synchronized (resultListeners) {
-                List<BitmapResult> results = resultListeners.get(url);
-                if (results == null) return;
-                for (BitmapResult bitmapResult : results) {
-                    if (bitmapResult == null) continue;
-                    bitmapResult.onBitmapSuccess(bitmap, fromCache);
-                }
-                resultListeners.remove(url);
+        synchronized (resultListeners) {
+            List<BitmapResult> results = resultListeners.get(url);
+            if (results == null) return;
+            for (BitmapResult bitmapResult : results) {
+                if (bitmapResult == null) continue;
+                BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(bitmap, fromCache));
             }
-        });
+            resultListeners.remove(url);
+        }
     }
 
     private static void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
-        BackgroundUtils.runOnMainThread(() -> {
-            synchronized (resultListeners) {
-                List<BitmapResult> results = resultListeners.get(url);
-                if (results == null) return;
-                for (BitmapResult bitmapResult : results) {
-                    if (bitmapResult == null) continue;
-                    bitmapResult.onBitmapFailure(BitmapRepository.error, e);
-                }
-                resultListeners.remove(url);
+        synchronized (resultListeners) {
+            List<BitmapResult> results = resultListeners.get(url);
+            if (results == null) return;
+            for (BitmapResult bitmapResult : results) {
+                if (bitmapResult == null) continue;
+                BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(BitmapRepository.error, e));
             }
-        });
+            resultListeners.remove(url);
+        }
     }
 
     public interface BitmapResult {

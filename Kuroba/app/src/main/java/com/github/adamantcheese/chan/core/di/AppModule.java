@@ -177,6 +177,6 @@ public class AppModule {
     @Provides
     @Singleton
     public ExecutorService provideBackgroundPool() {
-        return Executors.newFixedThreadPool(16);
+        return Executors.newCachedThreadPool();
     }
 }

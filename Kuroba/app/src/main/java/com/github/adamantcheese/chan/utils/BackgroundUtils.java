@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.adamantcheese.chan.Chan.instance;
@@ -55,27 +56,14 @@ public class BackgroundUtils {
         if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");
         }
-        runOnMainThread(() -> {
-            try {
-                instance(ExecutorService.class).submit(runnable).get();
-            } catch (Exception ignored) {
-            }
-        });
+        runWithExecutor(instance(ExecutorService.class), Executors.callable(runnable), null);
     }
 
     public static void runOnBackgroundThread(Runnable runnable, long delay) {
         if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");
         }
-        runOnMainThread(() -> {
-            try {
-                if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
-                    throw new AssertionError("Executor pool is terminated, this should never occur.");
-                }
-                instance(ExecutorService.class).submit(runnable).get();
-            } catch (Exception ignored) {
-            }
-        }, delay);
+        runOnMainThread(() -> runOnBackgroundThread(runnable), delay);
     }
 
     private static boolean isMainThread() {
