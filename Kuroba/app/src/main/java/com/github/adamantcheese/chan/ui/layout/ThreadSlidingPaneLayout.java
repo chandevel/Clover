@@ -21,16 +21,16 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
-
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
+import com.github.adamantcheese.chan.ui.view.OverhangSizeSlidingPaneLayout;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ThreadSlidingPaneLayout
-        extends SlidingPaneLayout {
+        extends OverhangSizeSlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 
@@ -84,8 +84,8 @@ public class ThreadSlidingPaneLayout
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int width = MeasureSpec.getSize(widthMeasureSpec);
 
-        SlidingPaneLayout.LayoutParams leftParams = (LayoutParams) leftPane.getLayoutParams();
-        SlidingPaneLayout.LayoutParams rightParams = (LayoutParams) rightPane.getLayoutParams();
+        OverhangSizeSlidingPaneLayout.LayoutParams leftParams = (LayoutParams) leftPane.getLayoutParams();
+        OverhangSizeSlidingPaneLayout.LayoutParams rightParams = (LayoutParams) rightPane.getLayoutParams();
         leftParams.width = width - dp(getContext(), (width < dp(getContext(), 500)) ? 30 : 60);
         rightParams.width = width;
 

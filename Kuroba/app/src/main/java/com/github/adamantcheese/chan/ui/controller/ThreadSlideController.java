@@ -20,14 +20,17 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.ThreadSlidingPaneLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.github.adamantcheese.chan.ui.view.OverhangSizeSlidingPaneLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -38,7 +41,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ThreadSlideController
         extends Controller
-        implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener,
+        implements DoubleNavigationController, OverhangSizeSlidingPaneLayout.PanelSlideListener,
                    ToolbarNavigationController.ToolbarSearchCallback {
     public Controller leftController;
     public Controller rightController;
@@ -71,6 +74,11 @@ public class ThreadSlideController
         int fadeColor = (getAttrColor(context, R.attr.backcolor) & 0xffffff) + 0xCC000000;
         slidingPaneLayout.setSliderFadeColor(fadeColor);
         slidingPaneLayout.openPane();
+        // Emulate the Clover phone layout by removing the side drag bar; effectively works like phone mode, but with
+        // more consistency because we're using the same layout as slide mode
+        if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
+            slidingPaneLayout.setOverhangSize(0);
+        }
 
         setLeftController(null);
         setRightController(null);

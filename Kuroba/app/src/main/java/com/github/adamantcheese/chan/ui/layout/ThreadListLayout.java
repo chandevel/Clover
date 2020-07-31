@@ -436,7 +436,7 @@ public class ThreadListLayout
             if (open) {
                 searchStatus.setText(R.string.search_empty);
             } else {
-                threadListLayoutCallback.getToolbar().closeSearchPhoneMode();
+                threadListLayoutCallback.getToolbar().closeSearch();
             }
 
             attachToolbarScroll(!(open || replyOpen));

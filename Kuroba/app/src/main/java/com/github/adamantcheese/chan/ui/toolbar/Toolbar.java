@@ -217,14 +217,6 @@ public class Toolbar
         return presenter.closeSearch();
     }
 
-    public void closeSearchPhoneMode() {
-        if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
-            presenter.closeSearchIfNeeded();
-        } else {
-            presenter.closeSearch();
-        }
-    }
-
     public boolean isTransitioning() {
         return navigationItemContainer.isTransitioning();
     }

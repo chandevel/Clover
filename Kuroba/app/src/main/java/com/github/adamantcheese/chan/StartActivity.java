@@ -83,6 +83,10 @@ import kotlin.jvm.functions.Function1;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
@@ -271,11 +275,11 @@ public class StartActivity
         mainNavigationController = new StyledToolbarNavigationController(this);
 
         ChanSettings.LayoutMode layoutMode = ChanSettings.layoutMode.get();
-        if (layoutMode == ChanSettings.LayoutMode.AUTO) {
+        if (layoutMode == AUTO) {
             if (isTablet()) {
-                layoutMode = ChanSettings.LayoutMode.SPLIT;
+                layoutMode = SPLIT;
             } else {
-                layoutMode = ChanSettings.LayoutMode.SLIDE;
+                layoutMode = SLIDE;
             }
         }
 
@@ -296,7 +300,7 @@ public class StartActivity
 
         browseController = new BrowseController(this);
 
-        if (layoutMode == ChanSettings.LayoutMode.SLIDE) {
+        if (layoutMode == SLIDE || layoutMode == PHONE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
             slideController.setEmptyView(inflate(this, R.layout.layout_split_empty));
             mainNavigationController.pushController(slideController, false);

@@ -459,7 +459,7 @@ public class ViewThreadController
     private void showBoardInternal(Loadable catalogLoadable, String searchQuery) {
         if (doubleNavigationController != null
                 && doubleNavigationController.getLeftController() instanceof BrowseController) {
-            //slide layout
+            //slide or phone layout
             doubleNavigationController.switchToController(true);
             ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
             if (searchQuery != null) {
@@ -472,27 +472,6 @@ public class ViewThreadController
                     catalogLoadable.board);
             if (searchQuery != null) {
                 Toolbar toolbar = doubleNavigationController.getLeftController().childControllers.get(0).getToolbar();
-                if (toolbar != null) {
-                    toolbar.openSearch();
-                    toolbar.searchInput(searchQuery);
-                }
-            }
-        } else {
-            //phone layout
-            BrowseController browseController = null;
-            for (Controller c : navigationController.childControllers) {
-                if (c instanceof BrowseController) {
-                    browseController = (BrowseController) c;
-                    break;
-                }
-            }
-            if (browseController != null) {
-                browseController.setBoard(catalogLoadable.board);
-            }
-            navigationController.popController(false);
-            //search after we're at the browse controller
-            if (searchQuery != null && browseController != null) {
-                Toolbar toolbar = browseController.getToolbar();
                 if (toolbar != null) {
                     toolbar.openSearch();
                     toolbar.searchInput(searchQuery);

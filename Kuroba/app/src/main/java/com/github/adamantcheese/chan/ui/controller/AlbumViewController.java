@@ -117,11 +117,8 @@ public class AlbumViewController
     public ImageViewerController.ImageViewerCallback goToPost(PostImage postImage) {
         ThreadController threadController = null;
 
-        if (previousSiblingController instanceof ThreadController) {
-            //phone mode
-            threadController = (ThreadController) previousSiblingController;
-        } else if (previousSiblingController instanceof DoubleNavigationController) {
-            //slide mode
+        if (previousSiblingController instanceof DoubleNavigationController) {
+            //slide or phone mode
             DoubleNavigationController doubleNav = (DoubleNavigationController) previousSiblingController;
             if (doubleNav.getRightController() instanceof ThreadController) {
                 threadController = (ThreadController) doubleNav.getRightController();
