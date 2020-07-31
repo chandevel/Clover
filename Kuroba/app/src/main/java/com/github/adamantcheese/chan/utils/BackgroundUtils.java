@@ -56,7 +56,7 @@ public class BackgroundUtils {
         if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");
         }
-        runWithExecutor(instance(ExecutorService.class), Executors.callable(runnable), null);
+        runWithExecutor(instance(ExecutorService.class), Executors.callable(runnable), new EmptyResult());
     }
 
     public static void runOnBackgroundThread(Runnable runnable, long delay) {
@@ -101,7 +101,7 @@ public class BackgroundUtils {
                 try {
                     final T res = background.call();
                     runOnMainThread(() -> {
-                        if (!canceled.get() && result != null) {
+                        if (!canceled.get()) {
                             result.onResult(res);
                         }
                     });
@@ -118,6 +118,12 @@ public class BackgroundUtils {
 
     public interface BackgroundResult<T> {
         void onResult(T result);
+    }
+
+    public static class EmptyResult
+            implements BackgroundResult<Object> {
+        @Override
+        public void onResult(Object result) {}
     }
 
     public interface Cancelable {
