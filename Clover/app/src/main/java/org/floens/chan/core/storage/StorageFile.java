@@ -1,6 +1,7 @@
 package org.floens.chan.core.storage;
 
 import android.content.ContentResolver;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 
 import org.floens.chan.utils.IOUtils;
@@ -14,29 +15,34 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static org.floens.chan.utils.AndroidUtils.getAppContext;
+
 public class StorageFile {
     private final ContentResolver contentResolver;
     private final Uri uriOpenableByContentResolvers;
     private final File file;
+    private final String name;
 
-    public static StorageFile fromFile(File file) {
+    public static StorageFile fromLegacyFile(File file) {
         return new StorageFile(file);
     }
 
-    public static StorageFile fromUri(ContentResolver contentResolver, Uri uriOpenableByContentResolvers) {
-        return new StorageFile(contentResolver, uriOpenableByContentResolvers);
+    public static StorageFile fromUri(ContentResolver contentResolver, Uri uriOpenableByContentResolvers, String name) {
+        return new StorageFile(contentResolver, uriOpenableByContentResolvers, name);
     }
 
-    private StorageFile(ContentResolver contentResolver, Uri uriOpenableByContentResolvers) {
+    private StorageFile(ContentResolver contentResolver, Uri uriOpenableByContentResolvers, String name) {
         this.contentResolver = contentResolver;
         this.uriOpenableByContentResolvers = uriOpenableByContentResolvers;
         this.file = null;
+        this.name = name;
     }
 
     private StorageFile(File file) {
         this.contentResolver = null;
         this.uriOpenableByContentResolvers = null;
         this.file = file;
+        this.name = file.getName();
     }
 
     public InputStream inputStream() throws IOException {
@@ -65,23 +71,14 @@ public class StorageFile {
     }
 
     public String name() {
-        return "dummy name";
+        return this.name;
     }
 
     public boolean exists() {
         if (isFile()) {
             return file.exists() && file.isFile();
         } else {
-            return false; // we don't know?
-        }
-    }
-
-    public boolean delete() {
-        if (isFile()) {
-            return file.delete();
-        } else {
-            // TODO
-            return true;
+            return false; // TODO
         }
     }
 
@@ -96,6 +93,17 @@ public class StorageFile {
             IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(os);
         }
+    }
+
+    public void runMediaScanIfNeeded() {
+        if (!isFile()) return;
+
+        MediaScannerConnection.scanFile(
+                getAppContext(),
+                new String[]{file.getAbsolutePath()},
+                null,
+                (path, uri) -> {
+                });
     }
 
     private boolean isFile() {

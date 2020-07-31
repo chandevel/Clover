@@ -107,7 +107,7 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                         .setPositiveButton(R.string.ok, null)
                         .show();
             } else {
-                final String folderForAlbum = imageSaver.getSubFolder(loadable.title);
+                final String folderForAlbum = imageSaver.getSafeNameForFolder(loadable.title);
 
                 String message = context.getString(R.string.album_download_confirm,
                         context.getResources().getQuantityString(R.plurals.image, checkCount, checkCount),
@@ -122,13 +122,12 @@ public class AlbumDownloadController extends Controller implements View.OnClickL
                                 List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                                 for (AlbumDownloadItem item : items) {
                                     if (item.checked) {
-                                        tasks.add(new ImageSaveTask(item.postImage));
+                                        tasks.add(ImageSaveTask.fromPostImage(item.postImage, false));
                                     }
                                 }
 
-                                if (imageSaver.startBundledTask(context, folderForAlbum, tasks)) {
-                                    navigationController.popController();
-                                }
+                                imageSaver.addTasks(tasks, folderForAlbum,
+                                        () -> navigationController.popController());
                             }
                         })
                         .show();

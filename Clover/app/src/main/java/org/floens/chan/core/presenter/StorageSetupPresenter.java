@@ -40,10 +40,11 @@ public class StorageSetupPresenter {
     }
 
     public void saveLocationClicked(boolean forceFile) {
-        if (!forceFile &&
-                storage.getModeForNewLocation() == Storage.Mode.STORAGE_ACCESS_FRAMEWORK) {
+        if (!forceFile && storage.mode() == Storage.Mode.STORAGE_ACCESS_FRAMEWORK) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) { // lint
-                storage.setupNewSAFSaveLocation(this::updateDescription);
+                storage.startOpenTreeIntentAndHandle(() -> {
+                    updateDescription();
+                });
             }
         } else {
             String fileSaveLocation = storage.getFileSaveLocation();

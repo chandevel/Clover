@@ -25,8 +25,11 @@ import org.floens.chan.core.cache.FileCacheDownloader;
 import org.floens.chan.core.cache.FileCacheListener;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.orm.Loadable;
+import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.view.MultiImageView;
+import org.floens.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,6 +48,9 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
 
     @Inject
     FileCache fileCache;
+
+    @Inject
+    ImageSaver imageSaver;
 
     private boolean entering = true;
     private boolean exiting = false;
@@ -389,6 +395,18 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             other.add(images.get(position + 1));
         }
         return other;
+    }
+
+    public void saveClicked(PostImage postImage) {
+        imageSaver.addTask(ImageSaveTask.fromPostImage(postImage, false));
+    }
+
+    public void shareClicked(PostImage postImage) {
+        if (ChanSettings.shareUrl.get()) {
+            AndroidUtils.shareLink(postImage.imageUrl.toString());
+        } else {
+            imageSaver.share(postImage);
+        }
     }
 
     public interface Callback {

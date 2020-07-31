@@ -55,9 +55,15 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
 
     private boolean success = false;
 
-    public ImageSaveTask(PostImage postImage) {
+    private ImageSaveTask(PostImage postImage) {
         inject(this);
         this.postImage = postImage;
+    }
+
+    public static ImageSaveTask fromPostImage(PostImage postImage, boolean share) {
+        ImageSaveTask task = new ImageSaveTask(postImage);
+        task.setShare(share);
+        return task;
     }
 
     public void setSubFolder(String boardName) {
@@ -127,7 +133,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            deleteDestination();
             postFinished(false);
         } catch (Exception e) {
             Logger.e(TAG, "Uncaught exception", e);
@@ -139,8 +144,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
     public void onSuccess(File file) {
         if (copyToDestination(file)) {
             onDestination();
-        } else {
-            deleteDestination();
         }
     }
 
@@ -149,17 +152,9 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         postFinished(success);
     }
 
-    private void deleteDestination() {
-        if (destination.exists()) {
-            if (!destination.delete()) {
-                Logger.e(TAG, "Could not delete destination after an interrupt");
-            }
-        }
-    }
-
     private void onDestination() {
         success = true;
-        scanDestination();
+        destination.runMediaScanIfNeeded();
         if (makeBitmap) {
             try {
                 bitmap = ImageDecoder.decodeFile(destination.inputStream(), dp(512), dp(256));
@@ -179,14 +174,6 @@ public class ImageSaveTask extends FileCacheListener implements Runnable {
         }
 
         return false;
-    }
-
-    private void scanDestination() {
-        // TODO
-//        MediaScannerConnection.scanFile(getAppContext(), new String[]{destination.getAbsolutePath()}, null, (path, uri) -> {
-//             Runs on a binder thread
-//            AndroidUtils.runOnUiThread(() -> afterScan(uri));
-//        });
     }
 
     private void afterScan(final Uri uri) {

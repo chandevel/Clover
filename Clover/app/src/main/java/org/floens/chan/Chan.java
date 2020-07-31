@@ -34,6 +34,8 @@ import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.site.SiteService;
 import org.floens.chan.ui.activity.ActivityResultHelper;
+import org.floens.chan.ui.activity.RuntimePermissionsHelper;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.LocaleUtils;
 import org.floens.chan.utils.Logger;
@@ -195,6 +197,16 @@ public class Chan extends Application implements
         }
         version = version.toLowerCase(Locale.ENGLISH).replace(" ", "_");
         return getString(R.string.app_name) + "/" + version;
+    }
+
+    public RuntimePermissionsHelper getRuntimePermissionsHelper() {
+        for (int i = activities.size() - 1; i >= 0; i--) {
+            Activity activity = activities.get(i);
+            if (activity instanceof StartActivity) {
+                return ((StartActivity) activity).getRuntimePermissionsHelper();
+            }
+        }
+        return null;
     }
 
     @Override

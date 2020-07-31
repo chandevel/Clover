@@ -118,6 +118,7 @@ public class PostImage {
         }
 
         public Builder extension(String extension) {
+            if (extension.equals("jpeg")) extension = "jpg";
             this.extension = extension;
             return this;
         }

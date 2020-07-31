@@ -50,7 +50,6 @@ import org.floens.chan.core.site.SiteService;
 import org.floens.chan.ui.controller.BrowseController;
 import org.floens.chan.ui.controller.DoubleNavigationController;
 import org.floens.chan.ui.controller.DrawerController;
-import org.floens.chan.ui.controller.MediaSettingsController;
 import org.floens.chan.ui.controller.SplitNavigationController;
 import org.floens.chan.ui.controller.StyledToolbarNavigationController;
 import org.floens.chan.ui.controller.ThreadSlideController;
@@ -193,10 +192,6 @@ public class StartActivity extends AppCompatActivity implements
         } else {
             browseController.loadWithDefaultBoard();
         }
-
-        contentView.post(() -> {
-            mainNavigationController.pushController(new MediaSettingsController(this), false);
-        });
     }
 
     private boolean restoreFromUrl() {

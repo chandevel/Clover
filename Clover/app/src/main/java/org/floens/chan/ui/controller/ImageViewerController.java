@@ -49,11 +49,8 @@ import org.floens.chan.R;
 import org.floens.chan.controller.Controller;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.presenter.ImageViewerPresenter;
-import org.floens.chan.core.saver.ImageSaveTask;
-import org.floens.chan.core.saver.ImageSaver;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.site.ImageSearch;
-import org.floens.chan.core.storage.Storage;
 import org.floens.chan.ui.adapter.ImageViewerAdapter;
 import org.floens.chan.ui.toolbar.NavigationItem;
 import org.floens.chan.ui.toolbar.Toolbar;
@@ -71,7 +68,6 @@ import org.floens.chan.ui.view.TransitionImageView;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,12 +88,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Inject
     ImageLoader imageLoader;
-
-    @Inject
-    Storage storage;
-
-    @Inject
-    ImageSaver imageSaver;
 
     private int statusBarColorPrevious;
     private AnimatorSet startAnimation;
@@ -187,7 +177,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void saveClicked(ToolbarMenuItem item) {
-        saveShare(false, presenter.getCurrentPostImage());
+        presenter.saveClicked(presenter.getCurrentPostImage());
     }
 
     private void openBrowserClicked(ToolbarMenuSubItem item) {
@@ -200,8 +190,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
     }
 
     private void shareClicked(ToolbarMenuSubItem item) {
-        PostImage postImage = presenter.getCurrentPostImage();
-        saveShare(true, postImage);
+        presenter.shareClicked(presenter.getCurrentPostImage());
     }
 
     private void searchClicked(ToolbarMenuSubItem item) {
@@ -220,24 +209,6 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         super.onDestroy();
 
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
-
-    private void saveShare(boolean share, PostImage postImage) {
-        if (share && ChanSettings.shareUrl.get()) {
-            AndroidUtils.shareLink(postImage.imageUrl.toString());
-        } else {
-            ImageSaveTask task = new ImageSaveTask(postImage);
-            task.setShare(share);
-            if (ChanSettings.saveBoardFolder.get()) {
-                task.setSubFolder(presenter.getLoadable().site.name() +
-                        File.separator +
-                        presenter.getLoadable().boardCode);
-            }
-
-            storage.prepareForSave(() -> {
-                imageSaver.startDownloadTask(context, task);
-            });
-        }
     }
 
     @Override

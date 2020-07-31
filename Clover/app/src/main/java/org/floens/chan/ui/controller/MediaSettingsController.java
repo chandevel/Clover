@@ -135,11 +135,6 @@ public class MediaSettingsController extends SettingsController implements
             setupSaveLocationSetting(media);
 
             media.add(new BooleanSettingView(this,
-                    ChanSettings.saveBoardFolder,
-                    R.string.setting_save_board_folder,
-                    R.string.setting_save_board_folder_description));
-
-            media.add(new BooleanSettingView(this,
                     ChanSettings.saveOriginalFilename,
                     R.string.setting_save_original_filename,
                     R.string.setting_save_original_filename_description));

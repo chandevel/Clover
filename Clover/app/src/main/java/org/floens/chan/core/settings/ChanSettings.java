@@ -131,7 +131,7 @@ public class ChanSettings {
     public static final BooleanSetting postFilename;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting controllerSwipeable;
-    public static final BooleanSetting saveBoardFolder;
+
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting videoAutoLoop;
 
@@ -212,7 +212,7 @@ public class ChanSettings {
         postFilename = new BooleanSetting(p, "preference_post_filename", true);
         neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
         controllerSwipeable = new BooleanSetting(p, "preference_controller_swipeable", true);
-        saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
+//        saveBoardFolder = new BooleanSetting(p, "preference_save_subboard", false);
         videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
         videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
 
