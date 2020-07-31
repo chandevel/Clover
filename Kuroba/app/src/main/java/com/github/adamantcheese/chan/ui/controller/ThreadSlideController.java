@@ -30,7 +30,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.ThreadSlidingPaneLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.view.OverhangSizeSlidingPaneLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -41,7 +40,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ThreadSlideController
         extends Controller
-        implements DoubleNavigationController, OverhangSizeSlidingPaneLayout.PanelSlideListener,
+        implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener,
                    ToolbarNavigationController.ToolbarSearchCallback {
     public Controller leftController;
     public Controller rightController;
@@ -77,7 +76,12 @@ public class ThreadSlideController
         // Emulate the Clover phone layout by removing the side drag bar; effectively works like phone mode, but with
         // more consistency because we're using the same layout as slide mode
         if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
-            slidingPaneLayout.setOverhangSize(0);
+            try {
+                Field overhang = SlidingPaneLayout.class.getDeclaredField("mOverhangSize");
+                overhang.setAccessible(true);
+                overhang.set(slidingPaneLayout, 0);
+                overhang.setAccessible(false);
+            } catch (Exception ignored) {}
         }
 
         setLeftController(null);

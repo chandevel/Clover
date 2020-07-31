@@ -21,14 +21,15 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
+import androidx.slidingpanelayout.widget.SlidingPaneLayout;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
-import com.github.adamantcheese.chan.ui.view.OverhangSizeSlidingPaneLayout;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ThreadSlidingPaneLayout
-        extends OverhangSizeSlidingPaneLayout {
+        extends SlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 
