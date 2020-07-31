@@ -690,7 +690,7 @@ public class ImageViewerController
 
         //setting this to the toolbar height because VISIBLE doesn't seem to work?
         ViewGroup.LayoutParams params = navigationController.getToolbar().getLayoutParams();
-        params.height = getDimen(R.dimen.toolbar_height);
+        params.height = getDimen(context, R.dimen.toolbar_height);
         navigationController.getToolbar().setLayoutParams(params);
     }
 

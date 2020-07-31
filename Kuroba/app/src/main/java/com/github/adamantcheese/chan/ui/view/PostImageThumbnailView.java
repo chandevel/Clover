@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -54,6 +55,7 @@ public class PostImageThumbnailView
     private PostImage postImage;
     private Drawable playIcon;
     private Rect bounds = new Rect();
+    private float decodeSize;
 
     private CancelableDownload fullsizeDownload;
 
@@ -70,6 +72,13 @@ public class PostImageThumbnailView
         this.setOnLongClickListener(this);
 
         playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
+
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PostImageThumbnailView);
+        try {
+            decodeSize = a.getDimension(R.styleable.PostImageThumbnailView_decode_dimen, -1);
+        } finally {
+            a.recycle();
+        }
     }
 
     @Override
@@ -81,13 +90,16 @@ public class PostImageThumbnailView
         }
     }
 
-    public void setPostImage(Loadable loadable, PostImage postImage, int width, int height) {
+    public void setPostImage(Loadable loadable, PostImage postImage) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
             if (postImage == null) {
                 setUrl(null);
                 return;
             }
+
+            int width = decodeSize == -1 ? getWidth() : (int) decodeSize;
+            int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
 
             if (!loadable.isLocal()) {
                 if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF)) {
@@ -143,16 +155,10 @@ public class PostImageThumbnailView
         super.draw(canvas);
 
         if (postImage != null && postImage.type == PostImage.Type.MOVIE && !error) {
-            int iconScale = 1;
-            double scalar = (Math.pow(2.0, iconScale) - 1) / Math.pow(2.0, iconScale);
-            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);
-            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * scalar);
+            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * 0.5);
+            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * 0.5);
 
-            bounds.set(x,
-                    y,
-                    x + playIcon.getIntrinsicWidth() * iconScale,
-                    y + playIcon.getIntrinsicHeight() * iconScale
-            );
+            bounds.set(x, y, x + playIcon.getIntrinsicWidth(), y + playIcon.getIntrinsicHeight());
             playIcon.setBounds(bounds);
             playIcon.draw(canvas);
         }

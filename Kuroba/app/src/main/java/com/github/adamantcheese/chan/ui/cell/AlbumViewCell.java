@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class AlbumViewCell
@@ -59,8 +58,7 @@ public class AlbumViewCell
     public void setPostImage(Loadable loadable, PostImage postImage) {
         this.postImage = postImage;
 
-        int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
-        thumbnailView.setPostImage(loadable, postImage, thumbnailSize, thumbnailSize);
+        thumbnailView.setPostImage(loadable, postImage);
 
         String details =
                 postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight + " "

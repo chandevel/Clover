@@ -555,7 +555,7 @@ public class PostCell
             //display width, we don't care about height here
             Point displaySize = getDisplaySize();
 
-            int thumbnailSize = getDimen(R.dimen.cell_post_thumbnail_size);
+            int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
             boolean isSplitMode =
                     ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
 
@@ -627,7 +627,7 @@ public class PostCell
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
                 final int idToSet = first ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
-                final int size = getDimen(R.dimen.cell_post_thumbnail_size);
+                final int size = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
 
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;
@@ -636,7 +636,7 @@ public class PostCell
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(loadable, image, size, size);
+                v.setPostImage(loadable, image);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
                 if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
@@ -665,7 +665,7 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         for (PostImageThumbnailView view : thumbnailViews) {
-            view.setPostImage(loadable, null, 0, 0);
+            view.setPostImage(loadable, null);
         }
         setPostLinkableListener(post, false);
     }

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -30,6 +29,7 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -501,7 +501,10 @@ public class ThemeSettingsController
                 ));
             }
 
-            linearLayout.addView(toolbar, new LayoutParams(MATCH_PARENT, getDimen(R.dimen.toolbar_height)));
+            linearLayout.addView(
+                    toolbar,
+                    new LayoutParams(MATCH_PARENT, getDimen(themeContext, R.dimen.toolbar_height))
+            );
             linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
             return linearLayout;

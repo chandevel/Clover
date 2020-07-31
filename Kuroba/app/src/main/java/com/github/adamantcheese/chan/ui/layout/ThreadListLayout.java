@@ -479,7 +479,8 @@ public class ThreadListLayout
                         // PostStubCell does not have grid_card_margin
                         return top.getTop() != searchExtraHeight + dp(1);
                     } else {
-                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
+                        return top.getTop()
+                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
                     }
                 }
             }
@@ -492,7 +493,8 @@ public class ThreadListLayout
                         // PostStubCell does not have grid_card_margin
                         return top.getTop() != toolbarHeight() + dp(1);
                     } else {
-                        return top.getTop() != getDimen(R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                        return top.getTop()
+                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
                     }
             }
         }

@@ -274,10 +274,6 @@ public class AndroidUtils {
         return getRes().getBoolean(R.bool.is_tablet);
     }
 
-    public static int getDimen(int dimen) {
-        return getRes().getDimensionPixelSize(dimen);
-    }
-
     public static int getDimen(Context context, int dimen) {
         return context.getResources().getDimensionPixelSize(dimen);
     }

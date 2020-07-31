@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
@@ -111,7 +110,7 @@ public class Toolbar
         arrowMenuView.setImageDrawable(arrowMenuDrawable);
         arrowMenuView.setBackgroundResource(R.drawable.ripple_item_background);
 
-        int toolbarSize = getDimen(R.dimen.toolbar_height);
+        int toolbarSize = getDimen(context, R.dimen.toolbar_height);
         FrameLayout.LayoutParams leftButtonContainerLp =
                 new FrameLayout.LayoutParams(toolbarSize, MATCH_PARENT, Gravity.CENTER_VERTICAL);
         leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);

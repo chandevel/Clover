@@ -634,12 +634,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!-- region STYLED ELEMENTS -->
     <declare-styleable name="SubsamplingScaleImageView">
-        <attr name="src" format="reference"/>
-        <attr name="assetName" format="string"/>
-        <attr name="panEnabled" format="boolean"/>
-        <attr name="zoomEnabled" format="boolean"/>
-        <attr name="quickScaleEnabled" format="boolean"/>
-        <attr name="tileBackgroundColor" format="color"/>
+        <attr name="src" format="reference" />
+        <attr name="assetName" format="string" />
+        <attr name="panEnabled" format="boolean" />
+        <attr name="zoomEnabled" format="boolean" />
+        <attr name="quickScaleEnabled" format="boolean" />
+        <attr name="tileBackgroundColor" format="color" />
     </declare-styleable>
 
     <declare-styleable name="MaxWidthLinearLayout">
@@ -660,6 +660,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <declare-styleable name="FixedRatioThumbnailView">
         <attr name="ratio" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="PostImageThumbnailView">
+        <attr name="decode_dimen" format="dimension" />
     </declare-styleable>
     <!-- endregion -->
 
