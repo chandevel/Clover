@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -274,22 +275,7 @@ public class AppearanceSettingsController
     private void setupLayoutModeSetting(SettingsGroup layout) {
         List<Item<LayoutMode>> layoutModes = new ArrayList<>();
         for (LayoutMode mode : LayoutMode.values()) {
-            int name = 0;
-            switch (mode) {
-                case AUTO:
-                    name = R.string.setting_layout_mode_auto;
-                    break;
-                case PHONE:
-                    name = R.string.setting_layout_mode_phone;
-                    break;
-                case SLIDE:
-                    name = R.string.setting_layout_mode_slide;
-                    break;
-                case SPLIT:
-                    name = R.string.setting_layout_mode_split;
-                    break;
-            }
-            layoutModes.add(new Item<>(getString(name), mode));
+            layoutModes.add(new Item<>(StringUtils.caseAndSpace(mode.name(), null) + " mode", mode));
         }
 
         requiresRestart.add(layout.add(new ListSettingView<>(this,

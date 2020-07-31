@@ -69,21 +69,15 @@ public class ChanSettings {
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
         // ALways auto load, either wifi or mobile
-        ALL("all"),
+        ALL,
         // Only auto load if on wifi
-        WIFI("wifi"),
+        WIFI,
         // Never auto load
-        NONE("none");
-
-        String name;
-
-        MediaAutoLoadMode(String name) {
-            this.name = name;
-        }
+        NONE;
 
         @Override
         public String getKey() {
-            return name;
+            return name().toLowerCase();
         }
 
         public static boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
@@ -116,20 +110,14 @@ public class ChanSettings {
 
     public enum LayoutMode
             implements OptionSettingItem {
-        AUTO("auto"),
-        PHONE("phone"),
-        SLIDE("slide"),
-        SPLIT("split");
-
-        String name;
-
-        LayoutMode(String name) {
-            this.name = name;
-        }
+        AUTO,
+        PHONE,
+        SLIDE,
+        SPLIT;
 
         @Override
         public String getKey() {
-            return name;
+            return name().toLowerCase();
         }
     }
 
@@ -395,7 +383,7 @@ public class ChanSettings {
             //Elsewhere
             boardViewMode =
                     new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
-            boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name);
+            boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name().toLowerCase());
             //endregion
 
             //region BEHAVIOUR

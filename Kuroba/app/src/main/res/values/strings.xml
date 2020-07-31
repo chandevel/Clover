@@ -442,12 +442,8 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <!-- Appearance -->
     <string name="settings_group_layout">Layout</string>
     <string name="setting_layout_mode">Layout mode</string>
-    <string name="setting_layout_mode_auto">Auto</string>
 
     <!-- Appearance layout group -->
-    <string name="setting_layout_mode_phone">Phone layout</string>
-    <string name="setting_layout_mode_slide">Slide mode</string>
-    <string name="setting_layout_mode_split">Split mode</string>
     <string name="setting_board_grid_span_count_portrait">Catalog mode column count (portrait)</string>
     <string name="setting_album_grid_span_count_portrait">Album mode column count (portrait)</string>
     <string name="setting_board_grid_span_count_landscape">Catalog mode column count (landscape)</string>

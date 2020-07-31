@@ -139,23 +139,17 @@ public class PostsFilter {
     }
 
     public enum Order {
-        BUMP("bump"),
-        REPLY("reply"),
-        IMAGE("image"),
-        NEWEST("newest"),
-        OLDEST("oldest"),
-        MODIFIED("modified"),
-        ACTIVITY("activity");
-
-        public String name;
-
-        Order(String storeName) {
-            this.name = storeName;
-        }
+        BUMP,
+        REPLY,
+        IMAGE,
+        NEWEST,
+        OLDEST,
+        MODIFIED,
+        ACTIVITY;
 
         public static Order find(String name) {
             for (Order mode : Order.values()) {
-                if (mode.name.equals(name)) {
+                if (mode.name().toLowerCase().equals(name)) {
                     return mode;
                 }
             }

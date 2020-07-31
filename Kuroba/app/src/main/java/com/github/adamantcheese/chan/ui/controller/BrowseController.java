@@ -392,7 +392,7 @@ public class BrowseController
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu<Order> menu, FloatingMenuItem<Order> item) {
                 Order order = item.getId();
-                ChanSettings.boardOrder.set(order.name);
+                ChanSettings.boardOrder.set(order.name().toLowerCase());
                 BrowseController.this.order = order;
                 presenter.setOrder(order);
             }
