@@ -39,14 +39,14 @@ def getCommitHash = { ->
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     // update the travis config when changing this
-    buildToolsVersion '28.0.3'
+    buildToolsVersion '29.0.3'
 
     defaultConfig {
         applicationId "org.floens.chan"
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 29
 
         versionName "v3.0.2"
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch

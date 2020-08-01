@@ -93,7 +93,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:exported="false">
 
             <intent-filter>
-                <action android:name="org.floens.chan.intent.action.WATCHER_UPDATE" />
+                <action android:name="${applicationId}.intent.action.WATCHER_UPDATE" />
             </intent-filter>
 
         </receiver>
