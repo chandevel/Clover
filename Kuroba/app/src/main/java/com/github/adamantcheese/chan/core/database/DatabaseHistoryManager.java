@@ -33,8 +33,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseHistoryManager {
-    private static final long HISTORY_TRIM_TRIGGER = 100;
-    private static final long HISTORY_TRIM_COUNT = 50;
+    private static final long TRIM_TRIGGER = 100;
+    private static final long TRIM_COUNT = 50;
 
     @Inject
     DatabaseHelper helper;
@@ -47,9 +47,7 @@ public class DatabaseHistoryManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.instance(DatabaseManager.class)
-                    .trimTable(helper.historyDao, "history", HISTORY_TRIM_TRIGGER, HISTORY_TRIM_COUNT);
-
+            Chan.instance(DatabaseManager.class).trimTable(helper.historyDao, TRIM_TRIGGER, TRIM_COUNT);
             return null;
         };
     }

@@ -174,21 +174,22 @@ public class DatabaseManager {
      * Trim a table with the specified trigger and trim count.
      *
      * @param dao     {@link Dao} to use.
-     * @param table   name of the table, used in the query (not escaped).
      * @param trigger Trim if there are more rows than {@code trigger}.
      * @param trim    Count of rows to trim.
      */
-    /*package*/ <T, ID> void trimTable(Dao<T, ID> dao, String table, long trigger, long trim) {
+    /*package*/ <T, ID> void trimTable(Dao<T, ID> dao, long trigger, long trim) {
         try {
             long count = dao.countOf();
             if (count > trigger) {
                 dao.executeRaw(
-                        "DELETE FROM " + table + " WHERE id IN (SELECT id FROM " + table + " ORDER BY id ASC LIMIT ?)",
+                        "DELETE FROM ? WHERE id IN (SELECT id FROM ? ORDER BY id ASC LIMIT ?)",
+                        dao.getTableName(),
+                        dao.getTableName(),
                         String.valueOf(trim)
                 );
             }
         } catch (SQLException e) {
-            Logger.e(this, "Error trimming table " + table, e);
+            Logger.e(this, "Error trimming table " + dao.getTableName(), e);
         }
     }
 

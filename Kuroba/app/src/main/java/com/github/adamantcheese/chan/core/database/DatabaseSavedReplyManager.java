@@ -40,8 +40,8 @@ import static com.github.adamantcheese.chan.Chan.instance;
  * and used to delete posts.
  */
 public class DatabaseSavedReplyManager {
-    private static final long SAVED_REPLY_TRIM_TRIGGER = 250;
-    private static final long SAVED_REPLY_TRIM_COUNT = 50;
+    private static final long TRIM_TRIGGER = 250;
+    private static final long TRIM_COUNT = 50;
 
     @Inject
     DatabaseHelper helper;
@@ -69,11 +69,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            instance(DatabaseManager.class).trimTable(helper.savedDao,
-                    "savedreply",
-                    SAVED_REPLY_TRIM_TRIGGER,
-                    SAVED_REPLY_TRIM_COUNT
-            );
+            instance(DatabaseManager.class).trimTable(helper.savedDao, TRIM_TRIGGER, TRIM_COUNT);
             final List<SavedReply> all = helper.savedDao.queryForAll();
 
             synchronized (savedRepliesByNo) {

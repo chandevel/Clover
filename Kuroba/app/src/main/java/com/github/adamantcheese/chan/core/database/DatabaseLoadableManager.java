@@ -80,6 +80,9 @@ public class DatabaseLoadableManager {
                         helper.loadableDao.delete(l);
                     }
                 }
+                // history loadables may not exist after this, clear out the history as well
+                helper.historyDao.executeRawNoArgs("DELETE FROM " + helper.historyDao.getTableName());
+                // don't do anything about pins, as they're loaded on app start and should never be purged
                 PersistableChanState.loadablesPurged.setSync(true);
             } else if (dayOfMonth > 1) {
                 PersistableChanState.loadablesPurged.setSync(false);

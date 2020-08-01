@@ -29,8 +29,8 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabaseHideManager {
-    private static final long POST_HIDE_TRIM_TRIGGER = 25000;
-    private static final long POST_HIDE_TRIM_COUNT = 5000;
+    private static final long TRIM_TRIGGER = 25000;
+    private static final long TRIM_COUNT = 5000;
 
     @Inject
     DatabaseHelper helper;
@@ -41,9 +41,7 @@ public class DatabaseHideManager {
 
     public Callable<Void> load() {
         return () -> {
-            Chan.instance(DatabaseManager.class)
-                    .trimTable(helper.postHideDao, "posthide", POST_HIDE_TRIM_TRIGGER, POST_HIDE_TRIM_COUNT);
-
+            Chan.instance(DatabaseManager.class).trimTable(helper.postHideDao, TRIM_TRIGGER, TRIM_COUNT);
             return null;
         };
     }
