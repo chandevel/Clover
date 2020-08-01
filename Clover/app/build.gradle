@@ -127,7 +127,7 @@ android {
             resValue "string", "app_name", "Clover"
             resValue "string", "app_flavor_name", "F-Droid"
             buildConfigField "String", "BUILD_HASH", "\"$hash\""
-            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://floens.github.io/Clover/api/update\""
+            buildConfigField "String", "UPDATE_API_ENDPOINT", "\"https://chandevel.github.io/Clover/api/update\""
             buildConfigField "String", "CRASH_REPORT_TOKEN", "\"https://d453201738b8469da2113a922c543a3b@sentry.io/1413946\""
         }
     }
