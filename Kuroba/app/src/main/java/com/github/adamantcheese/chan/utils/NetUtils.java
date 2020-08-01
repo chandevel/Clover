@@ -233,7 +233,7 @@ public class NetUtils {
 
     public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
         Call call = instance(OkHttpClientWithUtils.class).newBuilder()
-                .callTimeout(2500, TimeUnit.MILLISECONDS)
+                .callTimeout(1, TimeUnit.SECONDS)
                 .build()
                 .newCall(new Request.Builder().url(url).build());
         try (Response response = call.execute()) {

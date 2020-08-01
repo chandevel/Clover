@@ -177,6 +177,8 @@ public class AppModule {
     @Provides
     @Singleton
     public ExecutorService provideBackgroundPool() {
+        Logger.d(DI_TAG, "ExecutorService (Background Thread Pool)");
+
         return Executors.newCachedThreadPool();
     }
 }

@@ -420,7 +420,7 @@ public class ChanThreadLoader {
         }
 
         // Normal thread, not archived/deleted/closed
-        if (response == null || (response.posts != null && response.posts.isEmpty())) {
+        if (response == null || response.posts == null || response.posts.isEmpty()) {
             onErrorResponse(new Exception("Post size is 0"));
             return false;
         }

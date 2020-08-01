@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -28,45 +30,48 @@ import java.util.concurrent.Callable;
 
 // Called concurrently to parse the post html and the filters on it belong to ChanReaderRequest
 class PostParseCallable
-        implements Callable<Post> {
+        implements Callable<Pair<Integer, Post>> {
+    private int ordering;
     private FilterEngine filterEngine;
     private List<Filter> filters;
     private DatabaseSavedReplyManager savedReplyManager;
-    private Post.Builder post;
+    private Post.Builder postBuilder;
     private ChanReader reader;
     private final Set<Integer> internalIds;
     private Theme theme;
 
     public PostParseCallable(
+            int ordering,
             FilterEngine filterEngine,
             List<Filter> filters,
             DatabaseSavedReplyManager savedReplyManager,
-            Post.Builder post,
+            Post.Builder builder,
             ChanReader reader,
             Set<Integer> internalIds,
             Theme theme
     ) {
+        this.ordering = ordering;
         this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
-        this.post = post;
+        this.postBuilder = builder;
         this.reader = reader;
         this.internalIds = internalIds;
         this.theme = theme;
     }
 
     @Override
-    public Post call() {
+    public Pair<Integer, Post> call() {
         // needed for "Apply to own posts" to work correctly
-        post.isSavedReply(savedReplyManager.isSaved(post.board, post.id));
+        postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.id));
 
         // Process the filters before finish, because parsing the html is dependent on filter matches
-        processPostFilter(post);
+        processPostFilter(postBuilder);
 
-        return reader.getParser().parse(theme, post, new PostParser.Callback() {
+        Post post = reader.getParser().parse(theme, postBuilder, new PostParser.Callback() {
             @Override
             public boolean isSaved(int postNo) {
-                return savedReplyManager.isSaved(post.board, postNo);
+                return savedReplyManager.isSaved(postBuilder.board, postNo);
             }
 
             @Override
@@ -74,6 +79,8 @@ class PostParseCallable
                 return internalIds.contains(postNo);
             }
         });
+
+        return new Pair<>(ordering, post);
     }
 
     private void processPostFilter(Post.Builder post) {
