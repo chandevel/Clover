@@ -24,6 +24,7 @@ import org.jsoup.nodes.Document;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -255,6 +256,9 @@ public class NetUtils {
                 }
                 return null;
             }
+        } catch (InterruptedIOException e) {
+            //timeout
+            return null;
         } catch (IOException e) {
             Logger.e(TAG, "Error with request: ", e);
             return null;
