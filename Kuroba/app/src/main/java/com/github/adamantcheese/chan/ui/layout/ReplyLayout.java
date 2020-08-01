@@ -524,21 +524,19 @@ public class ReplyLayout
             draft.comment = EmojiParser.parseToUnicode(draft.comment);
         }
 
-        if (!name.getText().toString().equals(draft.name))
-            name.setText(draft.name);
-        if (!subject.getText().toString().equals(draft.subject))
-            subject.setText(draft.subject);
-        if (!flag.getText().toString().equals(draft.flag))
-            flag.setText(draft.flag);
-        if (!options.getText().toString().equals(draft.options))
-            options.setText(draft.options);
+        if (isTextDifferent(name, draft.name)) name.setText(draft.name);
+        if (isTextDifferent(subject, draft.subject)) subject.setText(draft.subject);
+        if (isTextDifferent(flag, draft.flag)) flag.setText(draft.flag);
+        if (isTextDifferent(options, draft.options)) options.setText(draft.options);
         blockSelectionChange = true;
-        if (!comment.getText().toString().equals(draft.comment))
-            comment.setText(draft.comment);
+        if (isTextDifferent(comment, draft.comment)) comment.setText(draft.comment);
         blockSelectionChange = false;
-        if (!fileName.getText().toString().equals(draft.fileName))
-            fileName.setText(draft.fileName);
+        if (isTextDifferent(fileName, draft.fileName)) fileName.setText(draft.fileName);
         spoiler.setChecked(draft.spoilerImage);
+    }
+
+    private boolean isTextDifferent(EditText text, String compare) {
+        return !text.getText().toString().equals(compare);
     }
 
     @Override
@@ -929,8 +927,7 @@ public class ReplyLayout
     public void afterTextChanged(Editable s) {
         if (s.equals(comment.getText())) {
             presenter.onCommentTextChanged(comment.getText());
-        }
-        else {
+        } else {
             presenter.onTextChanged();
         }
     }
