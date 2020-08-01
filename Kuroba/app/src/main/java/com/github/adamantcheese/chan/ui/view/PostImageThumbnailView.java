@@ -102,7 +102,7 @@ public class PostImageThumbnailView
             int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
 
             if (!loadable.isLocal()) {
-                if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF)) {
+                if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF) && !postImage.isInlined) {
                     HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
                     fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(url,
                             new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
