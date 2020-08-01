@@ -27,7 +27,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
-import android.support.annotation.RequiresApi;
+
+import androidx.annotation.RequiresApi;
+
 import android.util.Pair;
 
 import org.floens.chan.core.settings.ChanSettings;

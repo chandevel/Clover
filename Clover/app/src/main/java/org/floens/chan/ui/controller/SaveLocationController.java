@@ -19,7 +19,9 @@ package org.floens.chan.ui.controller;
 
 import android.Manifest;
 import android.content.Context;
-import android.support.design.widget.FloatingActionButton;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import android.view.View;
 
 import org.floens.chan.R;

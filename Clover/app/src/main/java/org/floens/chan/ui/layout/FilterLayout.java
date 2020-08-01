@@ -21,7 +21,9 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
-import android.support.v7.app.AlertDialog;
+
+import androidx.appcompat.app.AlertDialog;
+
 import android.text.Editable;
 import android.text.Html;
 import android.text.SpannableStringBuilder;

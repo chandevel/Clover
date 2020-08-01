@@ -18,7 +18,9 @@
 package org.floens.chan.ui.view;
 
 import android.content.Context;
-import android.support.v7.widget.ListPopupWindow;
+
+import androidx.appcompat.widget.ListPopupWindow;
+
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;

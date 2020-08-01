@@ -18,7 +18,8 @@
 package org.floens.chan.core.presenter;
 
 import android.net.ConnectivityManager;
-import android.support.v4.view.ViewPager;
+
+import androidx.viewpager.widget.ViewPager;
 
 import org.floens.chan.core.cache.FileCache;
 import org.floens.chan.core.cache.FileCacheDownloader;

@@ -18,7 +18,8 @@
 package org.floens.chan.ui.controller;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import org.floens.chan.R;
 import org.floens.chan.core.presenter.SiteSetupPresenter;

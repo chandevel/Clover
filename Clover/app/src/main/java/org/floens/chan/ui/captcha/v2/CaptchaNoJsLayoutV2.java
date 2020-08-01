@@ -20,11 +20,13 @@ package org.floens.chan.ui.captcha.v2;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.AppCompatButton;
-import android.support.v7.widget.AppCompatTextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.AppCompatTextView;
+
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;

@@ -18,7 +18,8 @@
 package org.floens.chan.core.site.common;
 
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
+
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;

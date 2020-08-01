@@ -18,7 +18,8 @@
 package org.floens.chan.ui.captcha.v2;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 import org.floens.chan.utils.BackgroundUtils;
 import org.floens.chan.utils.Logger;

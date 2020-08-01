@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.presenter;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.floens.chan.core.manager.BoardManager;
 import org.floens.chan.core.model.orm.Board;

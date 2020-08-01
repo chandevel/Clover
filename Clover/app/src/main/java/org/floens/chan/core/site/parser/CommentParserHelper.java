@@ -17,7 +17,8 @@
  */
 package org.floens.chan.core.site.parser;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
+
 import android.text.SpannableString;
 
 import org.floens.chan.core.model.Post;

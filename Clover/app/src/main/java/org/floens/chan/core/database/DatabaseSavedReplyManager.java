@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.database;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
 
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.table.TableUtils;

@@ -17,7 +17,8 @@
  */
 package org.floens.chan.core.manager;
 
-import android.support.annotation.AnyThread;
+import androidx.annotation.AnyThread;
+
 import android.text.TextUtils;
 
 import org.floens.chan.core.database.DatabaseFilterManager;

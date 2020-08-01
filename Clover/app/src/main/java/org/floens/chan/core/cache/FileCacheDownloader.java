@@ -19,9 +19,10 @@ package org.floens.chan.core.cache;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.AnyThread;
-import android.support.annotation.MainThread;
-import android.support.annotation.WorkerThread;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
+import androidx.annotation.WorkerThread;
 
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.utils.Logger;

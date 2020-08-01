@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.cache;
 
-import android.support.annotation.MainThread;
+import androidx.annotation.MainThread;
 
 import org.floens.chan.utils.Logger;
 import org.floens.chan.utils.Time;

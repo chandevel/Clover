@@ -20,7 +20,9 @@ package org.floens.chan.ui.helper;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
+
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;

@@ -17,7 +17,8 @@
  */
 package org.floens.chan.core.model.orm;
 
-import android.support.v4.util.ObjectsCompat;
+import androidx.core.util.ObjectsCompat;
+
 import android.text.TextUtils;
 
 import com.j256.ormlite.field.DatabaseField;

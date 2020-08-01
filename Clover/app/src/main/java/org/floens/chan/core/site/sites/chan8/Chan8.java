@@ -1,6 +1,6 @@
 package org.floens.chan.core.site.sites.chan8;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Loadable;

@@ -42,9 +42,13 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityManagerCompat;
+
+import androidx.browser.customtabs.CustomTabsIntent;
+
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.core.app.ActivityManagerCompat;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;

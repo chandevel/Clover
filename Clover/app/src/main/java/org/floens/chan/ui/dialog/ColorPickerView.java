@@ -24,7 +24,9 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+
 import android.view.MotionEvent;
 import android.view.View;
 

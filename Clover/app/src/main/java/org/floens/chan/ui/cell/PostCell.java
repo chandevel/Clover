@@ -28,7 +28,9 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
+
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;

@@ -117,7 +117,7 @@ public class Chan extends Application implements
         Time.endTiming("Initializing application", startTime);
 
         // Start watching for slow disk reads and writes after the heavy initializing is done
-        if (BuildConfig.DEVELOPER_MODE && false) {
+        if (BuildConfig.DEVELOPER_MODE) {
             StrictMode.setThreadPolicy(
                     new StrictMode.ThreadPolicy.Builder()
                             .detectCustomSlowCalls()

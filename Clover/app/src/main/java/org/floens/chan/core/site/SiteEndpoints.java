@@ -17,7 +17,7 @@
  */
 package org.floens.chan.core.site;
 
-import android.support.v4.util.ArrayMap;
+import androidx.collection.ArrayMap;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
