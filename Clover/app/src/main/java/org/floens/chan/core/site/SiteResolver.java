@@ -116,6 +116,7 @@ public class SiteResolver {
                     Loadable resolved = loadableProvider.get(resolvedLoadable);
 
                     if (resolved != null) {
+                        resolved.markedNo = resolvedLoadable.markedNo;
                         return new LoadableResult(resolved);
                     }
                 }

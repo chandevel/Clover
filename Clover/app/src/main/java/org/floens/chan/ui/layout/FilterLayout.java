@@ -69,7 +69,6 @@ import static org.floens.chan.utils.AndroidUtils.getString;
 public class FilterLayout extends LinearLayout implements View.OnClickListener {
     private TextView typeText;
     private TextView boardsSelector;
-    private boolean patternContainerErrorShowing = false;
     private TextView pattern;
     private TextView patternPreview;
     private TextView patternPreviewStatus;
@@ -343,11 +342,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updateFilterValidity() {
         boolean valid = !TextUtils.isEmpty(filter.pattern) && filterEngine.compile(filter.pattern) != null;
-
-        if (valid != patternContainerErrorShowing) {
-            patternContainerErrorShowing = valid;
-            pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
-        }
+        pattern.setError(valid ? null : getString(R.string.filter_invalid_pattern));
 
         if (callback != null) {
             callback.setSaveButtonEnabled(valid);
@@ -387,7 +382,7 @@ public class FilterLayout extends LinearLayout implements View.OnClickListener {
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = text.length() > 0 && filterEngine.matches(filter, true, text, true);
+        boolean matches = filterEngine.matches(filter, true, text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

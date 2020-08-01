@@ -20,6 +20,9 @@ package org.floens.chan.ui.view;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -74,6 +77,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     private static final String TAG = "MultiImageView";
+    //for checkstyle to not be dumb about local final vars
+    private static final int BACKGROUND_COLOR = Color.argb(255, 211, 217, 241);
 
     @Inject
     FileCache fileCache;
@@ -101,6 +106,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     private boolean videoError = false;
     private MediaPlayer mediaPlayer;
     private SimpleExoPlayer exoPlayer;
+
+    private boolean backgroundToggle;
 
     public MultiImageView(Context context) {
         this(context, null);
@@ -134,7 +141,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return postImage;
     }
 
-    public void setMode(final Mode newMode) {
+    public void setMode(final Mode newMode, boolean center) {
         if (this.mode != newMode) {
 //            Logger.test("Changing mode from " + this.mode + " to " + newMode + " for " + postImage.thumbnailUrl);
             this.mode = newMode;
@@ -144,7 +151,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 public boolean onMeasured(View view) {
                     switch (newMode) {
                         case LOWRES:
-                            setThumbnail(postImage.getThumbnailUrl().toString());
+                            setThumbnail(postImage.getThumbnailUrl().toString(), center);
                             break;
                         case BIGIMAGE:
                             setBigImage(postImage.imageUrl.toString());
@@ -180,6 +187,16 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return bigImage;
     }
 
+    public GifImageView findGifImageView() {
+        GifImageView gif = null;
+        for (int i = 0; i < getChildCount(); i++) {
+            if (getChildAt(i) instanceof GifImageView) {
+                gif = (GifImageView) getChildAt(i);
+            }
+        }
+        return gif;
+    }
+
     public void setVolume(boolean muted) {
         final float volume = muted ? 0f : 1f;
         if (exoPlayer != null) {
@@ -203,7 +220,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         cancelLoad();
     }
 
-    private void setThumbnail(String thumbnailUrl) {
+    private void setThumbnail(String thumbnailUrl, boolean center) {
         if (getWidth() == 0 || getHeight() == 0) {
             Logger.e(TAG, "getWidth() or getHeight() returned 0, not loading");
             return;
@@ -218,7 +235,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             @Override
             public void onErrorResponse(VolleyError error) {
                 thumbnailRequest = null;
-                onError();
+                if (center) {
+                    onError(error);
+                }
             }
 
             @Override
@@ -268,7 +287,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -317,7 +336,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -348,7 +367,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
             }
         } catch (IOException e) {
             e.printStackTrace();
-            onError();
+            onError(new Exception());
             return;
         } catch (OutOfMemoryError e) {
             Runtime.getRuntime().gc();
@@ -386,7 +405,7 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                 if (notFound) {
                     onNotFoundError();
                 } else {
-                    onError();
+                    onError(new Exception());
                 }
             }
 
@@ -424,9 +443,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
-            callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
+            onModeLoaded(Mode.MOVIE, exoVideoView);
+            callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
@@ -507,6 +527,20 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         videoView.getPlayer().release();
     }
 
+    public void toggleTransparency() {
+        CustomScaleImageView imageView = findScaleImageView();
+        GifImageView gifView = findGifImageView();
+        if (imageView == null && gifView == null) return;
+        boolean isImage = imageView != null && gifView == null;
+        int backgroundColor = backgroundToggle ? Color.TRANSPARENT : BACKGROUND_COLOR;
+        if (isImage) {
+            imageView.setTileBackgroundColor(backgroundColor);
+        } else {
+            gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
+        }
+        backgroundToggle = !backgroundToggle;
+    }
+
     private void setBitImageFileInternal(File file, boolean tiling, final Mode forMode) {
         final CustomScaleImageView image = new CustomScaleImageView(getContext());
         image.setImage(ImageSource.uri(file.getAbsolutePath()).tiling(tiling));
@@ -528,8 +562,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         });
     }
 
-    private void onError() {
-        Toast.makeText(getContext(), R.string.image_preview_failed, Toast.LENGTH_SHORT).show();
+    private void onError(Exception e) {
+        String message = getContext().getString(R.string.image_preview_failed);
+        String extra = e.getMessage() == null ? "" : ": " + e.getMessage();
+        Toast.makeText(getContext(), message + extra, Toast.LENGTH_SHORT).show();
         callback.showProgress(this, false);
     }
 
@@ -597,6 +633,21 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
 
         hasContent = true;
         callback.onModeLoaded(this, mode);
+    }
+
+    @Override
+    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
+        if (child instanceof GifImageView) {
+            GifImageView gif = (GifImageView) child;
+            if (gif.getDrawable() instanceof GifDrawable) {
+                GifDrawable drawable = (GifDrawable) gif.getDrawable();
+                if (drawable.getFrameByteCount() > 100 * 1024 * 1024) { //max size from RecordingCanvas
+                    onError(new Exception("Uncompressed GIF too large (>100MB)"));
+                    return false;
+                }
+            }
+        }
+        return super.drawChild(canvas, child, drawingTime);
     }
 
     public interface Callback {

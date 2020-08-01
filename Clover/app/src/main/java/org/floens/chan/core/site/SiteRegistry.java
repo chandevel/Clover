@@ -19,12 +19,12 @@ package org.floens.chan.core.site;
 
 import android.util.SparseArray;
 
-import org.floens.chan.core.site.sites.chan4.Chan4;
-import org.floens.chan.core.site.sites.lainchan.Lainchan;
-import org.floens.chan.core.site.sites.chan8.Chan8;
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
-import org.floens.chan.core.site.sites.sushichan.Sushichan;
+import org.floens.chan.core.site.sites.chan4.Chan4;
+import org.floens.chan.core.site.sites.chan8.Chan8;
 import org.floens.chan.core.site.sites.dvach.Dvach;
+import org.floens.chan.core.site.sites.lainchan.Lainchan;
+import org.floens.chan.core.site.sites.sushichan.Sushichan;
 
 import java.util.ArrayList;
 import java.util.List;

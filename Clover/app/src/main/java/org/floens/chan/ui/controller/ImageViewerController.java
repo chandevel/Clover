@@ -31,9 +31,6 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Build;
-
-import androidx.appcompat.app.AlertDialog;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +72,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import androidx.appcompat.app.AlertDialog;
 import okhttp3.HttpUrl;
 
 import static org.floens.chan.Chan.inject;
@@ -133,6 +131,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
         overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
 
         overflowBuilder.build().build();
 
@@ -206,6 +205,10 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         navigationController.pushController(albumDownloadController);
     }
 
+    private void toggleTransparency(ToolbarMenuSubItem item) {
+        ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -215,6 +218,7 @@ public class ImageViewerController extends Controller implements ImageViewerPres
 
     @Override
     public boolean onBack() {
+        if (presenter.isTransitioning()) return false;
         presenter.onExit();
         return true;
     }
@@ -246,8 +250,8 @@ public class ImageViewerController extends Controller implements ImageViewerPres
         pager.setCurrentItem(initialIndex);
     }
 
-    public void setImageMode(PostImage postImage, MultiImageView.Mode mode) {
-        ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode);
+    public void setImageMode(PostImage postImage, MultiImageView.Mode mode, boolean center) {
+        ((ImageViewerAdapter) pager.getAdapter()).setMode(postImage, mode, center);
     }
 
     @Override

@@ -42,8 +42,8 @@ import org.floens.chan.R;
 import org.floens.chan.core.model.ChanThread;
 import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.presenter.ReplyPresenter;
-import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.Site;
+import org.floens.chan.core.site.SiteAuthentication;
 import org.floens.chan.core.site.http.Reply;
 import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -377,7 +377,7 @@ public class ReplyLayout extends LoadView implements
         options.setText(draft.options);
         blockSelectionChange = true;
         comment.setText(draft.comment);
-        comment.setSelection(draft.selection);
+        comment.setSelection(draft.selectionStart, draft.selectionEnd);
         blockSelectionChange = false;
         fileName.setText(draft.fileName);
         spoiler.setChecked(draft.spoilerImage);
@@ -389,7 +389,8 @@ public class ReplyLayout extends LoadView implements
         draft.subject = subject.getText().toString();
         draft.options = options.getText().toString();
         draft.comment = comment.getText().toString();
-        draft.selection = comment.getSelectionStart();
+        draft.selectionStart = comment.getSelectionStart();
+        draft.selectionEnd = comment.getSelectionEnd();
         draft.fileName = fileName.getText().toString();
         draft.spoilerImage = spoiler.isChecked();
     }
@@ -492,6 +493,7 @@ public class ReplyLayout extends LoadView implements
 
     @Override
     public void openPreview(boolean show, File previewFile) {
+        preview.setClickable(false);
         if (show) {
             theme().clearDrawable.apply(attach);
         } else {
@@ -505,6 +507,9 @@ public class ReplyLayout extends LoadView implements
             preview.setVisibility(View.GONE);
             previewMessage.setVisibility(View.GONE);
         }
+        // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
+        // only allow the preview to be clicked if it is fully visible
+        postDelayed(() -> preview.setClickable(true), 300);
     }
 
     @Override

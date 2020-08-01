@@ -52,6 +52,8 @@ public class MediaSettingsController extends SettingsController implements
     private StorageSetupPresenter presenter;
 
     // Special setting views
+    private BooleanSettingView boardFolderSetting;
+    private BooleanSettingView threadFolderSetting;
     private LinkSettingView saveLocation;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<ChanSettings.MediaAutoLoadMode> videoAutoLoadView;
@@ -170,9 +172,9 @@ public class MediaSettingsController extends SettingsController implements
             setupMediaLoadTypesSetting(loading);
 
             loading.add(new BooleanSettingView(this,
-                ChanSettings.videoAutoLoop,
-                R.string.setting_video_auto_loop,
-                R.string.setting_video_auto_loop_description));
+                    ChanSettings.videoAutoLoop,
+                    R.string.setting_video_auto_loop,
+                    R.string.setting_video_auto_loop_description));
 
             groups.add(loading);
         }

@@ -17,10 +17,10 @@
  */
 package org.floens.chan.ui.cell;
 
-import org.floens.chan.core.model.PostImage;
-import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.model.Post;
+import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.model.PostLinkable;
+import org.floens.chan.core.model.orm.Loadable;
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.ui.theme.Theme;
 import org.floens.chan.ui.view.FloatingMenuItem;

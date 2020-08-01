@@ -308,7 +308,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
     public ThumbnailView getThumbnailView(PostImage postImage) {
         for (int i = 0; i < post.images.size(); i++) {
             if (post.images.get(i).equalUrl(postImage)) {
-                return thumbnailViews.get(i);
+                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(i);
             }
         }
 
@@ -409,7 +409,7 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
                 if (ChanSettings.postFileInfo.get()) {
                     SpannableString fileInfo = new SpannableString((postFileName ? " " : "\n") + image.extension.toUpperCase() + " " +
-                            AndroidUtils.getReadableFileSize(image.size, false) + " " +
+                            AndroidUtils.getReadableFileSize(image.size) + " " +
                             image.imageWidth + "x" + image.imageHeight);
                     fileInfo.setSpan(new ForegroundColorSpanHashed(theme.detailsColor), 0, fileInfo.length(), 0);
                     fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
@@ -647,17 +647,41 @@ public class PostCell extends LinearLayout implements PostCellInterface {
 
                 ClickableSpan[] link = buffer.getSpans(off, off, ClickableSpan.class);
 
-                if (link.length != 0) {
-                    ClickableSpan clickableSpan = link[0];
+                if (link.length > 0) {
+                    ClickableSpan clickableSpan1 = link[0];
+                    ClickableSpan clickableSpan2 = link.length > 1 ? link[1] : null;
+                    PostLinkable linkable1 = clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
+                    PostLinkable linkable2 = clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
                     if (action == MotionEvent.ACTION_UP) {
                         ignoreNextOnClick = true;
-                        clickableSpan.onClick(widget);
-                        if (clickableSpan instanceof PostLinkable) {
-                            callback.onPostLinkableClicked(post, (PostLinkable) clickableSpan);
+                        if (linkable2 == null && linkable1 != null) {
+                            //regular, non-spoilered link
+                            callback.onPostLinkableClicked(post, linkable1);
+                        } else if (linkable2 != null && linkable1 != null) {
+                            //spoilered link, figure out which span is the spoiler
+                            if (linkable1.type == PostLinkable.Type.SPOILER && linkable1.isSpoilerVisible()) {
+                                //linkable2 is the link
+                                callback.onPostLinkableClicked(post, linkable2);
+                            } else if (linkable2.type == PostLinkable.Type.SPOILER && linkable2.isSpoilerVisible()) {
+                                //linkable 1 is the link
+                                callback.onPostLinkableClicked(post, linkable1);
+                            } else {
+                                //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
+                                callback.onPostLinkableClicked(post, linkable1);
+                            }
                         }
+
+                        //do onclick on all postlinkables afterwards, so that we don't update the spoiler state early
+                        for (ClickableSpan s : link) {
+                            if (s instanceof PostLinkable) {
+                                PostLinkable item = (PostLinkable) s;
+                                item.onClick(widget);
+                            }
+                        }
+
                         buffer.removeSpan(BACKGROUND_SPAN);
-                    } else if (action == MotionEvent.ACTION_DOWN && clickableSpan instanceof PostLinkable) {
-                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(clickableSpan), buffer.getSpanEnd(clickableSpan), 0);
+                    } else if (action == MotionEvent.ACTION_DOWN && clickableSpan1 instanceof PostLinkable) {
+                        buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(clickableSpan1), buffer.getSpanEnd(clickableSpan1), 0);
                     } else if (action == MotionEvent.ACTION_CANCEL) {
                         buffer.removeSpan(BACKGROUND_SPAN);
                     }
