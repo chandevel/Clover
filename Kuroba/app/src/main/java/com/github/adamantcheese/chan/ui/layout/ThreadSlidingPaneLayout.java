@@ -21,15 +21,13 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
-import androidx.slidingpanelayout.widget.SlidingPaneLayout;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ThreadSlidingPaneLayout
-        extends SlidingPaneLayout {
+        extends AnimationlessSlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 

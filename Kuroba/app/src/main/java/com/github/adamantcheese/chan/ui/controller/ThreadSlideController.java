@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +35,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -68,20 +70,26 @@ public class ThreadSlideController
         slidingPaneLayout = view.findViewById(R.id.sliding_pane_layout);
         slidingPaneLayout.setThreadSlideController(this);
         slidingPaneLayout.setPanelSlideListener(this);
-        slidingPaneLayout.setParallaxDistance(dp(100));
-        slidingPaneLayout.setShadowResourceLeft(R.drawable.panel_shadow);
-        int fadeColor = (getAttrColor(context, R.attr.backcolor) & 0xffffff) + 0xCC000000;
-        slidingPaneLayout.setSliderFadeColor(fadeColor);
-        slidingPaneLayout.openPane();
+        slidingPaneLayout.openPaneNoAnimation();
         // Emulate the Clover phone layout by removing the side drag bar; effectively works like phone mode, but with
         // more consistency because we're using the same layout as slide mode
-        if (ChanSettings.layoutMode.get() == ChanSettings.LayoutMode.PHONE) {
+        if (ChanSettings.layoutMode.get() == PHONE) {
             try {
                 Field overhang = SlidingPaneLayout.class.getDeclaredField("mOverhangSize");
                 overhang.setAccessible(true);
                 overhang.set(slidingPaneLayout, 0);
                 overhang.setAccessible(false);
             } catch (Exception ignored) {}
+            // In order to "snap", no parallax and no dimming, and remove the shadow because you can't drag anyways
+            slidingPaneLayout.setParallaxDistance(0);
+            slidingPaneLayout.setShadowDrawableLeft(null);
+            slidingPaneLayout.setSliderFadeColor(Color.TRANSPARENT);
+        } else {
+            //regular slide stuff, with view dimming
+            slidingPaneLayout.setParallaxDistance(dp(100));
+            slidingPaneLayout.setShadowResourceLeft(R.drawable.panel_shadow);
+            int fadeColor = (getAttrColor(context, R.attr.backcolor) & 0xffffff) + 0xCC000000;
+            slidingPaneLayout.setSliderFadeColor(fadeColor);
         }
 
         setLeftController(null);
@@ -129,10 +137,19 @@ public class ThreadSlideController
     @Override
     public void switchToController(boolean leftController) {
         if (leftController != leftOpen()) {
-            if (leftController) {
-                slidingPaneLayout.openPane();
+            if (ChanSettings.layoutMode.get() == PHONE) {
+                if (leftController) {
+                    slidingPaneLayout.openPaneNoAnimation();
+                    setRightController(null);
+                } else {
+                    slidingPaneLayout.closePaneNoAnimation();
+                }
             } else {
-                slidingPaneLayout.closePane();
+                if (leftController) {
+                    slidingPaneLayout.openPane();
+                } else {
+                    slidingPaneLayout.closePane();
+                }
             }
             Toolbar toolbar = ((ToolbarNavigationController) navigationController).toolbar;
             toolbar.processScrollCollapse(Toolbar.TOOLBAR_COLLAPSE_SHOW, true);

@@ -199,7 +199,7 @@ public class StartActivity
                 browseController.setBoard(loadableResult.board);
 
                 if (loadableResult.isThreadMode()) {
-                    browseController.showThread(loadableResult, false);
+                    browseController.showThread(loadableResult);
                 }
                 return true;
             } else {
@@ -226,7 +226,7 @@ public class StartActivity
                 browseController.setBoard(boardThreadPair.first.board);
 
                 if (boardThreadPair.second != null) {
-                    browseController.showThread(boardThreadPair.second, false);
+                    browseController.showThread(boardThreadPair.second);
                 }
                 return true;
             }
@@ -325,7 +325,7 @@ public class StartActivity
                 } else {
                     Pin pin = watchManager.findPinById(pinId);
                     if (pin != null) {
-                        browseController.showThread(pin.loadable, false);
+                        browseController.showThread(pin.loadable);
                     }
                 }
             } else if (pinId != -2 && mainNavigationController.getTop() instanceof ThreadSlideController) {

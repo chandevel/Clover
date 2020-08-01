@@ -433,11 +433,6 @@ public class BrowseController
     }
 
     @Override
-    public void showThread(Loadable threadLoadable) {
-        showThread(threadLoadable, true);
-    }
-
-    @Override
     public void showBoard(Loadable catalogLoadable) {
         //we don't actually need to do anything here because you can't tap board links in the browse controller
         //set the board just in case?
@@ -456,7 +451,8 @@ public class BrowseController
 
     // Creates or updates the target ViewThreadController
     // This controller can be in various places depending on the layout, so we dynamically search for it
-    public void showThread(Loadable threadLoadable, boolean animated) {
+    @Override
+    public void showThread(Loadable threadLoadable) {
         // The target ThreadViewController is in a split nav
         // (BrowseController -> ToolbarNavigationController -> SplitNavigationController)
         SplitNavigationController splitNav = null;
@@ -498,11 +494,6 @@ public class BrowseController
                 slideNav.setRightController(viewThreadController);
             }
             slideNav.switchToController(false);
-        } else {
-            // the target ThreadNav must be pushed to the parent nav controller
-            // (BrowseController -> ToolbarNavigationController)
-            ViewThreadController viewThreadController = new ViewThreadController(context, threadLoadable);
-            navigationController.pushController(viewThreadController, animated);
         }
     }
 
