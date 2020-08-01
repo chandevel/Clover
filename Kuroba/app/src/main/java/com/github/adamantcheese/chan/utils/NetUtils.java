@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -318,6 +319,37 @@ public class NetUtils {
 
     public interface HTMLReader<T> {
         T read(Document document);
+    }
+
+    public static Call makeHeadersRequest(
+            @NonNull final HttpUrl url, @NonNull final HeaderResult result
+    ) {
+        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).head().build());
+        call.enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                BackgroundUtils.runOnMainThread(() -> result.onHeaderFailure(e));
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                if (response.code() != 200) {
+                    BackgroundUtils.runOnMainThread(() -> result.onHeaderFailure(new HttpCodeException(response.code())));
+                    response.close();
+                    return;
+                }
+
+                BackgroundUtils.runOnMainThread(() -> result.onHeaderSuccess(response.headers()));
+                response.close();
+            }
+        });
+        return call;
+    }
+
+    public interface HeaderResult {
+        void onHeaderFailure(Exception e);
+
+        void onHeaderSuccess(Headers result);
     }
 
     public static class HttpCodeException

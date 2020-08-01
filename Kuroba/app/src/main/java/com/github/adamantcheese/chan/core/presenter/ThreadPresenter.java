@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
@@ -28,6 +27,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -1365,12 +1365,11 @@ public class ThreadPresenter
             if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
-                text.append("\nDimensions: ")
-                        .append(image.imageWidth)
-                        .append("x")
-                        .append(image.imageHeight)
-                        .append("\nSize: ")
-                        .append(getReadableFileSize(image.size));
+                text.append("\nDimensions: ").append(image.imageWidth).append("x").append(image.imageHeight);
+            }
+
+            if (image.size > 0) {
+                text.append("\nSize: ").append(getReadableFileSize(image.size));
             }
 
             if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that

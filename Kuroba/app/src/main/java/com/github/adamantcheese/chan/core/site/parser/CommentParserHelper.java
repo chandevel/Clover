@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -254,7 +255,7 @@ public class CommentParserHelper {
                             continue;
                         }
 
-                        post.images(Collections.singletonList(new PostImage.Builder().serverFilename(matcher.group(1))
+                        PostImage inlinedImage = new PostImage.Builder().serverFilename(matcher.group(1))
                                 //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
                                 .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
                                 .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
@@ -264,7 +265,20 @@ public class CommentParserHelper {
                                 .spoiler(true)
                                 .isInlined(true)
                                 .size(-1)
-                                .build()));
+                                .build();
+
+                        post.images(Collections.singletonList(inlinedImage));
+
+                        NetUtils.makeHeadersRequest(imageUrl, new NetUtils.HeaderResult() {
+                            @Override
+                            public void onHeaderFailure(Exception e) {}
+
+                            @Override
+                            public void onHeaderSuccess(Headers result) {
+                                String size = result.get("Content-Length");
+                                inlinedImage.size = size == null ? 0 : Long.parseLong(size);
+                            }
+                        });
                     }
                 }
             }

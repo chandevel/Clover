@@ -53,7 +53,7 @@ public class PostImage {
     public final int imageHeight;
     private final boolean spoiler;
     public final boolean isInlined;
-    public final long size;
+    public long size;
     @Nullable
     public final String fileHash;
 
