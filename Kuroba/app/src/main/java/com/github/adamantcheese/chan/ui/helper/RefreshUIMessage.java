@@ -17,9 +17,15 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 public class RefreshUIMessage {
-    public String reason;
+    public enum Reason {
+        FILTERS_CHANGED,
+        THREAD_HIDES_CLEARED,
+        SETTINGS_REFRESH_REQUEST
+    }
 
-    public RefreshUIMessage(String reason) {
+    public Reason reason;
+
+    public RefreshUIMessage(Reason reason) {
         this.reason = reason;
     }
 }

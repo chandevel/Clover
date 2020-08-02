@@ -109,9 +109,22 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public FilterWatchManager provideFilterWatchManager(WakeManager wakeManager, BoardRepository boardRepository) {
+    public FilterWatchManager provideFilterWatchManager(
+            WakeManager wakeManager,
+            BoardRepository boardRepository,
+            FilterEngine filterEngine,
+            WatchManager watchManager,
+            Gson gson,
+            ChanLoaderManager chanLoaderManager
+    ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager, boardRepository);
+        return new FilterWatchManager(wakeManager,
+                boardRepository,
+                filterEngine,
+                watchManager,
+                gson,
+                chanLoaderManager
+        );
     }
 
     @Provides

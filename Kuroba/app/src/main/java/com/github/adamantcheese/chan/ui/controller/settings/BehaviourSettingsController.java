@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.THREAD_HIDES_CLEARED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -118,7 +119,7 @@ public class BehaviourSettingsController
                 DatabaseManager databaseManager = instance(DatabaseManager.class);
                 databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
                 showToast(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
-                postToEventBus(new RefreshUIMessage("clearhides"));
+                postToEventBus(new RefreshUIMessage(THREAD_HIDES_CLEARED));
             }));
 
             groups.add(general);
