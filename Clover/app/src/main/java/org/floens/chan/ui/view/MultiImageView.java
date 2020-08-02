@@ -35,6 +35,10 @@ import android.widget.MediaController;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
@@ -58,6 +62,7 @@ import org.floens.chan.core.cache.FileCacheProvider;
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.model.PostImage;
 import org.floens.chan.core.settings.ChanSettings;
+import org.floens.chan.ui.activity.StartActivity;
 import org.floens.chan.utils.AndroidUtils;
 import org.floens.chan.utils.Logger;
 
@@ -71,7 +76,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static org.floens.chan.Chan.inject;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener {
+public class MultiImageView extends FrameLayout implements View.OnClickListener, LifecycleObserver {
     public enum Mode {
         UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
     }
@@ -197,6 +202,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
         return gif;
     }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    private void pauseVideo() {
+        if (exoPlayer != null) {
+            exoPlayer.setPlayWhenReady(false);
+        } else if (videoView != null) {
+            videoView.pause();
+        }
+    }
+
     public void setVolume(boolean muted) {
         final float volume = muted ? 0f : 1f;
         if (exoPlayer != null) {
@@ -215,8 +229,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener 
     }
 
     @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        ((StartActivity) getContext()).getLifecycle().addObserver(this);
+    }
+
+    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+        ((StartActivity) getContext()).getLifecycle().removeObserver(this);
         cancelLoad();
     }
 
