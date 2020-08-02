@@ -30,15 +30,15 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
 
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getRes().getColor(R.color.gestures_zone_view_background)
+        color = getRes().getColor(R.color.gestures_zone_view_background, null)
     }
     private val addedZonesPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getRes().getColor(R.color.gestures_zone_view_added_zones)
+        color = getRes().getColor(R.color.gestures_zone_view_added_zones, null)
     }
     private val currentEditableZonePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = getRes().getColor(R.color.gestures_zone_view_current_zone)
+        color = getRes().getColor(R.color.gestures_zone_view_current_zone, null)
     }
     private val handlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
