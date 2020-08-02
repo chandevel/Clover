@@ -259,7 +259,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_500</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
 
-        <item name="divider_color">#20FFFFFF</item>
+        <item name="divider_color">#00222222</item>
         <item name="highlight_linkable_blend">1.3</item>
 
         <item name="post_name_color">#566e78</item>
@@ -302,7 +302,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorHint">#bdae93</item>
 
         <item name="highlight_color">#48000000</item>
-        <item name="divider_color">#20FFFFFF</item>
+        <item name="divider_color">#38FFFFFF</item>
         <item name="highlight_linkable_blend">1.4</item>
 
         <item name="post_name_color">#427b58</item>
@@ -324,13 +324,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </style>
 
     <style name="Chan.Theme.Neon" parent="Chan.Theme.Dark">
-        <item name="android:textColor">@color/md_grey_550</item>
+        <item name="android:textColor">@color/md_grey_350</item>
         <item name="android:textColorPrimary">@color/md_grey_350</item>
         <item name="android:textColorSecondary">@color/md_grey_300</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
 
-        <item name="highlight_color">#10FFFFFF</item>
-        <item name="divider_color">#20FFFFFF</item>
+        <item name="highlight_color">#25FFFFFF</item>
+        <item name="divider_color">#99FFFFFF</item>
         <item name="highlight_linkable_blend">0.6</item>
 
         <item name="post_name_color">#669900</item>
@@ -351,6 +351,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">#586e75</item>
         <item name="android:textColorHint">@color/md_grey_575</item>
 
+        <item name="divider_color">#99FFFFFF</item>
         <item name="highlight_linkable_blend">2</item>
 
         <item name="post_name_color">@color/md_red_A700</item>
