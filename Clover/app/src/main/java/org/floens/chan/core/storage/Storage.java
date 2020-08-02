@@ -27,10 +27,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
+import android.util.Pair;
 
 import androidx.annotation.RequiresApi;
-
-import android.util.Pair;
 
 import org.floens.chan.core.settings.ChanSettings;
 import org.floens.chan.core.settings.StringSetting;
@@ -201,15 +200,14 @@ public class Storage {
             callback.onPrepared();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (folder == null) {
-                if (saveLocationTreeUri.get().isEmpty()) {
+                if (saveLocationTreeUri.get().isEmpty() || !hasPermission(saveLocationTreeUri.get())) {
                     startOpenTreeIntentAndHandle(callback);
                 } else {
                     callback.onPrepared();
                 }
-
             } else {
                 saveLocationTreeUriFolder = null;
-                if (saveLocationTreeUri.get().isEmpty()) {
+                if (saveLocationTreeUri.get().isEmpty() || !hasPermission(saveLocationTreeUri.get())) {
                     startOpenTreeIntentAndHandle(() -> {
                         saveLocationTreeUriFolder = createDirectoryForSafUri(Uri.parse(saveLocationTreeUri.get()), folder);
                         if (saveLocationTreeUriFolder == null) {
@@ -251,6 +249,16 @@ public class Storage {
 //                }
             }
         }
+    }
+
+    private boolean hasPermission(String treeUri) {
+        try {
+            listTree(Uri.parse(treeUri));
+        } catch (SecurityException e) {
+            Logger.e(TAG, "No permission for the given uri", e);
+            return false;
+        }
+        return true;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
