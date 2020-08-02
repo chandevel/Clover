@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
-        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.24'
+        classpath 'io.sentry:sentry-android-gradle-plugin:1.7.35'
     }
 }
 

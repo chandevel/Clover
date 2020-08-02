@@ -55,6 +55,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:name="com.sec.android.multiwindow.DEFAULT_SIZE_H"
             android:value="598.0dip" />
 
+        <meta-data android:name="io.sentry.auto-init" android:value="false" />
+
         <activity
             android:name=".ui.activity.BoardActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"

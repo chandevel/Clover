@@ -19,8 +19,7 @@ package org.floens.chan;
 
 import org.floens.chan.core.settings.ChanSettings;
 
-import io.sentry.Sentry;
-import io.sentry.android.AndroidSentryClientFactory;
+import io.sentry.android.core.SentryAndroid;
 
 /**
  * The ChanApplication wrapping our Chan application.
@@ -34,13 +33,14 @@ public class ChanApplication extends Chan {
         initialize();
 
         if (!BuildConfig.DEVELOPER_MODE && ChanSettings.isCrashReportingEnabled()) {
-            Sentry.init(
-                    BuildConfig.CRASH_REPORT_TOKEN +
-                            "?release=" + BuildConfig.VERSION_NAME +
-                            "&environment=" + BuildConfig.FLAVOR +
-                            "&extra=commit=" + BuildConfig.BUILD_HASH,
-                    new AndroidSentryClientFactory(this)
-            );
+            SentryAndroid.init(this, options -> {
+                options.setDsn(BuildConfig.CRASH_REPORT_TOKEN +
+                        "?release=" + BuildConfig.VERSION_NAME +
+                        "&environment=" + BuildConfig.FLAVOR +
+                        "&extra=commit=" + BuildConfig.BUILD_HASH);
+            });
+        } else {
+            SentryAndroid.init(this, options -> options.setDsn(""));
         }
     }
 }
