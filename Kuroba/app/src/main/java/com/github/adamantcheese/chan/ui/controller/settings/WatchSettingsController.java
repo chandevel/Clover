@@ -132,11 +132,10 @@ public class WatchSettingsController
                 HOURS.toMillis(2)};
         //@formatter:on
 
-        //noinspection unchecked
         List<Item<Integer>> timeoutsItems = new ArrayList<>(timeouts.length);
-        for (int i = 0; i < timeouts.length; i++) {
-            String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeouts[i]));
-            timeoutsItems.add(new Item<>(name, (int) timeouts[i]));
+        for (long timeout : timeouts) {
+            String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeout));
+            timeoutsItems.add(new Item<>(name, (int) timeout));
         }
         backgroundTimeout = settings.add(new ListSettingView<Integer>(this,
                 ChanSettings.watchBackgroundInterval,

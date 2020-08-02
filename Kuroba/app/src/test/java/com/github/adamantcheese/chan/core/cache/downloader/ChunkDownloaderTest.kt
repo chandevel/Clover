@@ -8,7 +8,6 @@ import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
 import io.reactivex.schedulers.Schedulers
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import org.junit.After

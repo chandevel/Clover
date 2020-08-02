@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.RectF;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;

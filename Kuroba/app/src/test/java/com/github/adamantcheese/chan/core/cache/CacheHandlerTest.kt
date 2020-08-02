@@ -4,7 +4,6 @@ import com.github.adamantcheese.chan.core.cache.downloader.TestModule
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
-import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import org.junit.After
 import org.junit.Assert.assertFalse

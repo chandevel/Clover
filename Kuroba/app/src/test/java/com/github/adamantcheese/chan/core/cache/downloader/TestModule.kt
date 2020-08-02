@@ -137,7 +137,6 @@ class TestModule {
                     provideFileManager(),
                     provideCacheDirFile(),
                     provideChunksCacheDirFile(),
-                    false,
                     Executors.newSingleThreadExecutor()
             )
         }

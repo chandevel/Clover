@@ -26,8 +26,6 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-
 /**
  * A Theme object, a wrapper around a Android theme<br>
  * Used for setting the toolbar color, and passed around {@link PostParser} to give spans their correct colors.<br>

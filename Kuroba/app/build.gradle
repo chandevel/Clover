@@ -101,6 +101,7 @@ android {
 
     lintOptions {
         abortOnError false
+        disable 'UseSwitchCompatOrMaterialCode'
     }
 
     packagingOptions {
