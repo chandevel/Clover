@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.audio.AudioListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -76,7 +77,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static org.floens.chan.Chan.inject;
 
-public class MultiImageView extends FrameLayout implements View.OnClickListener, LifecycleObserver {
+public class MultiImageView extends FrameLayout implements View.OnClickListener, LifecycleObserver, AudioListener {
     public enum Mode {
         UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
     }
@@ -464,10 +465,12 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.prepare(videoSource);
+            exoPlayer.addAudioListener(this);
+
             addView(exoVideoView);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.MOVIE, exoVideoView);
-            callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(exoPlayer));
+            callback.onVideoLoaded(this);
         } else {
             Context proxyContext = new NoMusicServiceCommandContext(getContext());
 
@@ -486,7 +489,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 mp.setLooping(ChanSettings.videoAutoLoop.get());
                 mp.setVolume(0f, 0f);
                 onModeLoaded(Mode.MOVIE, videoView);
-                callback.onVideoLoaded(this, hasMediaPlayerAudioTracks(mp));
+                callback.onVideoLoaded(this);
+                if (hasMediaPlayerAudioTracks(mp)) {
+                    callback.onAudioLoaded(this);
+                }
             });
 
             videoView.setOnErrorListener((mp, what, extra) -> {
@@ -504,6 +510,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 onVideoError();
             }
         }
+    }
+
+    @Override
+    public void onAudioSessionId(int audioSessionId) {
+        if (exoPlayer.getAudioFormat() == null) {
+            return;
+        }
+
+        callback.onAudioLoaded(this);
     }
 
     private boolean hasMediaPlayerAudioTracks(MediaPlayer mediaPlayer) {
@@ -680,9 +695,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
 
         void onVideoError(MultiImageView multiImageView);
 
-        void onVideoLoaded(MultiImageView multiImageView, boolean hasAudio);
+        void onVideoLoaded(MultiImageView multiImageView);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
+
+        void onAudioLoaded(MultiImageView multiImageView);
     }
 
     public static class NoMusicServiceCommandContext extends ContextWrapper {
