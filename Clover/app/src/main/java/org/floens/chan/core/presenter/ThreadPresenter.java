@@ -554,12 +554,12 @@ public class ThreadPresenter implements
                 watchManager.createPin(pinLoadable, post);
                 break;
             case POST_OPTION_OPEN_BROWSER: {
-                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
+                String url = loadable.site.resolvable().desktopUrl(loadable, post);
                 AndroidUtils.openLink(url);
                 break;
             }
             case POST_OPTION_SHARE: {
-                String url = loadable.site.resolvable().desktopUrl(loadable, post.isOP ? null : post);
+                String url = loadable.site.resolvable().desktopUrl(loadable, post);
                 AndroidUtils.shareLink(url);
                 break;
             }

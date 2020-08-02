@@ -17,10 +17,10 @@
  */
 package org.floens.chan.core.site.sites.chan4;
 
-import androidx.annotation.Nullable;
-
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+
+import androidx.annotation.Nullable;
 
 import org.floens.chan.core.model.Post;
 import org.floens.chan.core.model.orm.Board;
@@ -88,7 +88,12 @@ public class Chan4 extends SiteBase {
         @Override
         public String desktopUrl(Loadable loadable, @Nullable Post post) {
             if (loadable.isCatalogMode()) {
-                return "https://boards.4chan.org/" + loadable.board.code + "/";
+                String thread = "";
+                if (post != null && post.isOP) {
+                    thread = "thread/" + post.no;
+                }
+
+                return "https://boards.4chan.org/" + loadable.board.code + "/" + thread;
             } else if (loadable.isThreadMode()) {
                 String url = "https://boards.4chan.org/" + loadable.board.code + "/thread/" + loadable.no;
                 if (post != null) {
