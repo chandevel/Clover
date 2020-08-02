@@ -22,11 +22,15 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
 
+import org.floens.chan.Chan;
 import org.floens.chan.R;
 import org.floens.chan.core.model.PostImage;
+import org.floens.chan.core.saver.ImageSaveTask;
+import org.floens.chan.core.saver.ImageSaver;
 
-public class PostImageThumbnailView extends ThumbnailView {
+public class PostImageThumbnailView extends ThumbnailView implements View.OnLongClickListener {
     private PostImage postImage;
     private Drawable playIcon;
     private Rect bounds = new Rect();
@@ -43,6 +47,7 @@ public class PostImageThumbnailView extends ThumbnailView {
     @SuppressWarnings("deprecation")
     public PostImageThumbnailView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        setOnLongClickListener(this);
 
         playIcon = getResources().getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
     }
@@ -91,5 +96,17 @@ public class PostImageThumbnailView extends ThumbnailView {
                 super.onMeasure(widthMeasureSpec, heightMeasureSpec);
             }
         }
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        if (postImage == null || postImage.imageUrl == null) {
+            return false;
+        }
+
+        ImageSaver imageSaver = Chan.injector().instance(ImageSaver.class);
+        imageSaver.addTask(ImageSaveTask.fromPostImage(postImage, false));
+
+        return true;
     }
 }
