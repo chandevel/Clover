@@ -270,6 +270,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="dropdown_dark_pressed_color">#6633b5e5</item>
     </style>
 
+    <style name="Chan.Theme.Gee" parent="Chan.Theme.Dark">
+        <item name="colorAccent">#999999</item>
+
+        <item name="backcolor">#222222</item>
+        <item name="backcolor_secondary">#555555</item>
+
+        <item name="android:textColor">#888888</item>
+        <item name="text_color_primary">#cccccc</item>
+        <item name="text_color_secondary">#dddddd</item>
+        <item name="text_color_hint">#808080</item>
+        <item name="text_color_reveal_spoiler">#282828</item>
+
+        <item name="post_name_color">#C36C5D</item>
+        <item name="post_subject_color">#C38277</item>
+        <item name="post_details_color">#888888</item>
+        <item name="post_quote_color">#C38277</item>
+        <item name="post_highlight_quote_color">#C36C5D</item>
+        <item name="post_inline_quote_color">#93C35D</item>
+        <item name="post_link_color">#C36C5D</item>
+        <item name="post_spoiler_color">#bbbbbb</item>
+        <item name="post_capcode_color">#93C35D</item>
+        <item name="post_last_seen_color">#93C35D</item>
+
+        <item name="post_id_background_light">#C38277</item>
+        <item name="post_saved_reply_color">#333333</item>
+        <item name="post_highlighted_color">#282828</item>
+        <item name="post_selected_color">#282828</item>
+
+        <item name="divider_color">#999999</item>
+        <item name="divider_split_color">#999999</item>
+
+        <item name="dropdown_dark_color">#5F7E3C</item>
+        <item name="dropdown_dark_pressed_color">#5F7E3C</item>
+    </style>
+
     <style name="Chan.Theme.SolarizedDark" parent="Chan.Theme.Dark">
         <item name="colorAccent">#999999</item>
 
