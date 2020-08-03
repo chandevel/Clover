@@ -7,18 +7,17 @@ import androidx.annotation.Nullable;
 
 import com.vdurmont.emoji.EmojiParser;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
 public class StringUtils {
-    private static final String TAG = "StringUtils";
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase(Locale.ENGLISH).toCharArray();
     @SuppressWarnings("RegExpRedundantEscape")
@@ -26,8 +25,11 @@ public class StringUtils {
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
     private static final String RESERVED_CHARACTERS_FILE = "[" + RESERVED_CHARACTERS + "]";
 
-    public static final DateTimeFormatter UTC_DATE_TIME_PRINTER =
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG).withZone(ZoneId.of("UTC"));
+    public static DateFormat UTCFormat = SimpleDateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG);
+
+    static {
+        UTCFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+    }
 
     public static String bytesToHex(byte[] bytes) {
         char[] hexChars = new char[bytes.length * 2];
@@ -101,7 +103,7 @@ public class StringUtils {
         try {
             bytes = Base64.decode(base64Encoded, Base64.DEFAULT);
         } catch (Throwable error) {
-            Logger.e(TAG, "Error decoding base64 string! Msg: " + error.getMessage());
+            Logger.e("decodeBase64", "Error decoding base64 string! Msg: " + error.getMessage());
             return null;
         }
 
@@ -173,7 +175,7 @@ public class StringUtils {
     }
 
     public static String getCurrentDateAndTimeUTC() {
-        return UTC_DATE_TIME_PRINTER.format(Instant.now());
+        return UTCFormat.format(new Date());
     }
 
     public static String centerEllipsize(String string, int maxLength) {
