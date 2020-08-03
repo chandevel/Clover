@@ -32,10 +32,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
-    public static List<String> BLOCKED = Collections.singletonList(
-            "f"
-    );
-
 //    public static List<String> TREAT_AS_NOT_WORKSAFE = Arrays.asList(
 //            "a", "c", "w", "cm", "jp", "mlp", "lgbt"
 //    );
@@ -174,10 +170,6 @@ public class Chan4BoardsRequest extends JsonReaderRequest<List<Board>> {
 
         if (!board.finish()) {
             // Invalid data, ignore
-            return null;
-        }
-
-        if (BLOCKED.contains(board.code)) {
             return null;
         }
 
