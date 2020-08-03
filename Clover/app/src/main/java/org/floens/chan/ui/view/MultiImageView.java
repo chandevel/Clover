@@ -79,7 +79,7 @@ import static org.floens.chan.Chan.inject;
 
 public class MultiImageView extends FrameLayout implements View.OnClickListener, LifecycleObserver, AudioListener {
     public enum Mode {
-        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE
+        UNLOADED, LOWRES, BIGIMAGE, GIF, MOVIE, OTHER
     }
 
     private static final String TAG = "MultiImageView";
@@ -167,6 +167,9 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                             break;
                         case MOVIE:
                             setVideo(postImage.imageUrl.toString());
+                            break;
+                        case OTHER:
+                            setOther(postImage.imageUrl.toString());
                             break;
                     }
                     return true;
@@ -441,6 +444,10 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
                 callback.showProgress(MultiImageView.this, false);
             }
         });
+    }
+
+    private void setOther(String fileUrl) {
+        Toast.makeText(getContext(), R.string.file_not_viewable, Toast.LENGTH_LONG).show();
     }
 
     private void setVideoFile(final File file) {
