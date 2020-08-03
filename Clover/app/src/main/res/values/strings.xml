@@ -138,6 +138,8 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="image_open_failed">Failed to open image</string>
     <string name="image_spoiler_filename">Spoiler image</string>
 
+    <string name="file_not_viewable">File not internally viewable; you can still download this file or open it in your browser.</string>
+
     <string name="thread_boards_search_hint">Search</string>
     <string name="thread_load_failed_ssl">HTTPS error</string>
     <string name="thread_load_failed_network">Network error</string>
