@@ -235,7 +235,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
             } else if (postImage.type == PostImage.Type.MOVIE && videoAutoLoad(postImage)) {
                 callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
             } else if (postImage.type == PostImage.Type.SWF) {
-                callback.setImageMode(postImage, MultiImageView.Mode.OTHER);
+                callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
             }
         }
 
@@ -308,7 +308,7 @@ public class ImageViewerPresenter implements MultiImageView.Callback, ViewPager.
                 } else if (postImage.type == PostImage.Type.MOVIE && currentMode != MultiImageView.Mode.MOVIE) {
                     callback.setImageMode(postImage, MultiImageView.Mode.MOVIE, true);
                 } else if (postImage.type == PostImage.Type.SWF && currentMode != MultiImageView.Mode.OTHER) {
-                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER);
+                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
                 } else {
                     onExit();
                 }
