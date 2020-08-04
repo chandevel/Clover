@@ -240,8 +240,10 @@ public class CommentParserHelper {
                 calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
                     @Override
                     public void onJsonFailure(Exception e) {
-                        //failed to get, replace with just the URL and append the youtube icon
-                        performLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate);
+                        if (!"Canceled".equals(e.getMessage())) {
+                            //failed to get, replace with just the URL and append the youtube icon
+                            performLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate);
+                        }
                     }
 
                     @Override
