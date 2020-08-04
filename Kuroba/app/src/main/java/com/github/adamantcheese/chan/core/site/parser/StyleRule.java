@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
@@ -250,7 +251,7 @@ public class StyleRule {
         }
 
         if (link != null) {
-            PostLinkable pl = new PostLinkable(theme, result, result, link);
+            PostLinkable pl = new PostLinkable(theme, link.name(), result, link);
             post.addLinkable(pl);
             spansToApply.add(pl);
         }
@@ -265,7 +266,7 @@ public class StyleRule {
         }
 
         if (linkify) {
-            CommentParserHelper.detectLinks(theme, post, result.toString(), new SpannableString(result));
+            CommentParserHelper.detectLinks(theme, post, result.toString(), new SpannableStringBuilder(result));
         }
 
         return result;

@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.mapper;
 
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.CharacterStyle;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
@@ -35,7 +36,7 @@ import static com.github.adamantcheese.chan.Chan.instance;
 
 public class SpannableStringMapper {
     @Nullable
-    public static SerializableSpannableString serializeSpannableString(@Nullable CharSequence charSequence) {
+    public static SerializableSpannableString serializeSpannableString(@Nullable SpannableStringBuilder charSequence) {
         if (charSequence == null || charSequence.length() == 0) {
             return null;
         }
@@ -240,14 +241,14 @@ public class SpannableStringMapper {
     }
 
     @NonNull
-    public static CharSequence deserializeSpannableString(
+    public static SpannableStringBuilder deserializeSpannableString(
             @Nullable SerializableSpannableString serializableSpannableString
     ) {
         if (serializableSpannableString == null || serializableSpannableString.getText().isEmpty()) {
-            return "";
+            return new SpannableStringBuilder("");
         }
 
-        SpannableString spannableString = new SpannableString(serializableSpannableString.getText());
+        SpannableStringBuilder spannableString = new SpannableStringBuilder(serializableSpannableString.getText());
 
         for (SerializableSpannableString.SpanInfo spanInfo : serializableSpannableString.getSpanInfoList()) {
             switch (SerializableSpannableString.SpanType.from(spanInfo.getSpanType())) {
@@ -324,7 +325,7 @@ public class SpannableStringMapper {
     }
 
     private static void deserializeAndApplyPostLinkableSpan(
-            SpannableString spannableString, SerializableSpannableString.SpanInfo spanInfo
+            SpannableStringBuilder spannableString, SerializableSpannableString.SpanInfo spanInfo
     ) {
 
         SerializablePostLinkableSpan serializablePostLinkableSpan =

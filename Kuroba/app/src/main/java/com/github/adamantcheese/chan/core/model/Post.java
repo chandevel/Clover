@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Color;
+import android.text.SpannableStringBuilder;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
@@ -48,7 +49,7 @@ public class Post
 
     public final String name;
 
-    public final CharSequence comment;
+    public final SpannableStringBuilder comment;
 
     public final String subject;
 
@@ -171,7 +172,7 @@ public class Post
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = Collections.unmodifiableList(new ArrayList<>(builder.linkables));
+        linkables = new ArrayList<>(builder.linkables);
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
     }
 
@@ -328,7 +329,7 @@ public class Post
 
         public String subject = "";
         public String name = "";
-        public CharSequence comment = "";
+        public SpannableStringBuilder comment = new SpannableStringBuilder("");
         public String tripcode = "";
 
         public long unixTimestampSeconds = -1L;
@@ -433,8 +434,13 @@ public class Post
             return this;
         }
 
-        public Builder comment(CharSequence comment) {
+        public Builder comment(SpannableStringBuilder comment) {
             this.comment = comment;
+            return this;
+        }
+
+        public Builder comment(String comment) {
+            this.comment = new SpannableStringBuilder(comment);
             return this;
         }
 

@@ -24,7 +24,6 @@ import org.jsoup.nodes.Document;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +34,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -187,9 +187,14 @@ public class NetUtils {
     }
 
     public static <T> Call makeJsonRequest(
-            @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
+            @NonNull final HttpUrl url,
+            @NonNull final JsonResult<T> result,
+            @NonNull final JsonParser<T> parser,
+            int timeoutMs
     ) {
-        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).build());
+        OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
+        clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
+        Call call = clientBuilder.build().newCall(new Request.Builder().url(url).build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -233,37 +238,10 @@ public class NetUtils {
         return call;
     }
 
-    public static <T> T makeJsonRequestSync(@NonNull final HttpUrl url, @NonNull final JsonParser<T> parser) {
-        Call call = instance(OkHttpClientWithUtils.class).newBuilder()
-                .callTimeout(1, TimeUnit.SECONDS)
-                .build()
-                .newCall(new Request.Builder().url(url).build());
-        try (Response response = call.execute()) {
-            if (response.code() != 200) {
-                Logger.e(TAG, "Response code was not OK:" + response.code());
-                response.close();
-                return null;
-            }
-
-            //noinspection ConstantConditions
-            try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
-                    .bytes()), UTF_8))) {
-                return parser.parse(jsonReader);
-            } catch (Exception e) {
-                Logger.e(TAG, "Error parsing JSON: ", e);
-                if (response.body() != null) {
-                    //noinspection ConstantConditions
-                    Logger.e(TAG, "Bad JSON: " + response.body().string());
-                }
-                return null;
-            }
-        } catch (InterruptedIOException e) {
-            //timeout
-            return null;
-        } catch (IOException e) {
-            Logger.e(TAG, "Error with request: ", e);
-            return null;
-        }
+    public static <T> Call makeJsonRequest(
+            @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
+    ) {
+        return makeJsonRequest(url, result, parser, 0);
     }
 
     public interface JsonResult<T> {

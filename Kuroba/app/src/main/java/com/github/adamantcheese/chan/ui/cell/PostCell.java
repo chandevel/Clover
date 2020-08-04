@@ -30,7 +30,6 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
@@ -132,6 +131,7 @@ public class PostCell
     private boolean selected;
     private int markedNo;
     private boolean showDivider;
+    private List<Call> extraCalls;
 
     private GestureDetector doubleTapComment;
 
@@ -242,6 +242,13 @@ public class PostCell
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        if (extraCalls != null) {
+            for (Call c : extraCalls) {
+                c.cancel();
+            }
+            extraCalls = null;
+        }
 
         if (post != null && bound) {
             unbindPost(post);
@@ -601,6 +608,10 @@ public class PostCell
                 replies.setLayoutParams(replyParams);
             }
         }
+
+        if (ChanSettings.parseYoutubeTitles.get()) {
+            extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
+        }
     }
 
     private void buildThumbnails() {
@@ -671,18 +682,14 @@ public class PostCell
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {
-        if (post.comment instanceof Spanned) {
-            Spanned commentSpanned = (Spanned) post.comment;
-            PostLinkable[] linkables = commentSpanned.getSpans(0, commentSpanned.length(), PostLinkable.class);
+        if (post.comment != null) {
+            PostLinkable[] linkables = post.comment.getSpans(0, post.comment.length(), PostLinkable.class);
             for (PostLinkable linkable : linkables) {
                 linkable.setMarkedNo(bind ? markedNo : -1);
             }
 
             if (!bind) {
-                if (commentSpanned instanceof Spannable) {
-                    Spannable commentSpannable = (Spannable) commentSpanned;
-                    commentSpannable.removeSpan(BACKGROUND_SPAN);
-                }
+                post.comment.removeSpan(BACKGROUND_SPAN);
             }
         }
     }

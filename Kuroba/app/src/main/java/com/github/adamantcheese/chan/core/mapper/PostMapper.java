@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.mapper;
 
+import android.text.SpannableStringBuilder;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.save.SerializablePost;
@@ -28,7 +30,7 @@ public class PostMapper {
                 post.isOP,
                 post.name,
                 SpannableStringMapper.serializeSpannableString(post.comment),
-                SpannableStringMapper.serializeSpannableString(post.subject),
+                SpannableStringMapper.serializeSpannableString(new SpannableStringBuilder(post.subject)),
                 post.time,
                 PostImageMapper.toSerializablePostImageList(post.images),
                 post.tripcode,
@@ -43,7 +45,7 @@ public class PostMapper {
                 post.filterOnlyOP,
                 post.filterSaved,
                 post.repliesTo,
-                SpannableStringMapper.serializeSpannableString(post.nameTripcodeIdCapcodeSpan),
+                SpannableStringMapper.serializeSpannableString(new SpannableStringBuilder(post.nameTripcodeIdCapcodeSpan)),
                 post.deleted.get(),
                 repliesFrom,
                 post.isSticky(),
