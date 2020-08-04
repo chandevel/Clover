@@ -27,6 +27,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
+import java.util.Locale;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
@@ -60,10 +62,15 @@ public class AlbumViewCell
 
         thumbnailView.setPostImage(loadable, postImage);
 
-        String details =
-                postImage.extension.toUpperCase() + " " + postImage.imageWidth + "x" + postImage.imageHeight + " "
-                        + getReadableFileSize(postImage.size);
-        text.setText(postImage.isInlined ? postImage.extension.toUpperCase() : details);
+        String details = String.format(
+                Locale.ENGLISH,
+                "%s %dx%d %s",
+                postImage.extension.toUpperCase(),
+                postImage.imageWidth,
+                postImage.imageHeight,
+                getReadableFileSize(postImage.size)
+        );
+        text.setText(details);
     }
 
     public PostImage getPostImage() {
