@@ -64,15 +64,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:id="@+id/reencode_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:textSize="16sp"
                     tools:text="Reencode XXX image as" />
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="8dp" />
 
                 <RadioGroup
                     android:id="@+id/reencode_image_radio_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
                     android:orientation="horizontal">
 
                     <RadioButton
@@ -90,6 +92,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:text="@string/reencode_image_as_png" />
 
                 </RadioGroup>
+
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="8dp" />
 
                 <LinearLayout
                     android:id="@+id/quality_group"
@@ -124,10 +130,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 </LinearLayout>
 
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="8dp"
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -155,11 +164,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 </LinearLayout>
 
+                <Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="8dp" />
+
                 <LinearLayout
                     android:id="@+id/reencode_options_extras"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:orientation="vertical">
 
                     <CheckBox
