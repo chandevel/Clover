@@ -26,6 +26,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.text.InputFilter;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -73,7 +74,6 @@ import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
-import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,7 +104,7 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 public class PostCell
         extends LinearLayout
         implements PostCellInterface {
-    private static final int COMMENT_MAX_LENGTH_BOARD = 350;
+    private static final int COMMENT_MAX_LENGTH_BOARD = 400;
 
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
 
@@ -432,11 +432,10 @@ public class PostCell
 
         icons.apply();
 
-        CharSequence commentText;
-        if (!threadMode && post.comment.length() > COMMENT_MAX_LENGTH_BOARD) {
-            commentText = truncatePostComment(post);
+        if (!threadMode) {
+            comment.setFilters(new InputFilter.LengthFilter[]{new InputFilter.LengthFilter(COMMENT_MAX_LENGTH_BOARD)});
         } else {
-            commentText = post.comment;
+            comment.setFilters(new InputFilter[]{});
         }
 
         if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
@@ -448,15 +447,15 @@ public class PostCell
         }
 
         if (ChanSettings.shiftPostFormat.get()) {
-            comment.setVisibility(isEmpty(commentText) ? GONE : VISIBLE);
+            comment.setVisibility(isEmpty(post.comment) ? GONE : VISIBLE);
         } else {
             //noinspection ConstantConditions
-            comment.setVisibility(isEmpty(commentText) && post.images == null ? GONE : VISIBLE);
+            comment.setVisibility(isEmpty(post.comment) && post.images == null ? GONE : VISIBLE);
         }
 
         if (threadMode) {
             comment.setTextIsSelectable(true);
-            comment.setText(commentText, TextView.BufferType.SPANNABLE);
+            comment.setText(post.comment, TextView.BufferType.SPANNABLE);
             comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                 private MenuItem quoteMenuItem;
                 private MenuItem webSearchItem;
@@ -514,7 +513,7 @@ public class PostCell
                 return true;
             });
         } else {
-            comment.setText(commentText);
+            comment.setText(post.comment);
             comment.setOnTouchListener(null);
             comment.setClickable(false);
 
@@ -692,17 +691,6 @@ public class PostCell
                 post.comment.removeSpan(BACKGROUND_SPAN);
             }
         }
-    }
-
-    private CharSequence truncatePostComment(Post post) {
-        BreakIterator bi = BreakIterator.getWordInstance();
-        bi.setText(post.comment.toString());
-        int precedingBoundary = bi.following(PostCell.COMMENT_MAX_LENGTH_BOARD);
-        // Fallback to old method in case the comment does not have any spaces/individual words
-        CharSequence commentText = precedingBoundary > 0
-                ? post.comment.subSequence(0, precedingBoundary)
-                : post.comment.subSequence(0, PostCell.COMMENT_MAX_LENGTH_BOARD);
-        return TextUtils.concat(commentText, "\u2026"); // append ellipsis
     }
 
     private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
