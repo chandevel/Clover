@@ -609,7 +609,7 @@ public class PostCell
             }
         }
 
-        if (ChanSettings.parseYoutubeTitles.get()) {
+        if (ChanSettings.parseYoutubeTitles.get() && extraCalls == null) {
             extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
         }
     }

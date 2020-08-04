@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -194,6 +195,16 @@ public class CommentParserHelper {
      */
 
     public static List<Call> replaceYoutubeLinks(Theme theme, Post post, @Nullable TextView toInvalidate) {
+        // if we've already got an image span with a youtube link in it, this post has already been processed/is processing, ignore this
+        ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
+        for (ImageSpan image : imageSpans) {
+            if (image.getDrawable() instanceof BitmapDrawable) {
+                if (((BitmapDrawable) image.getDrawable()).getBitmap() == BitmapRepository.youtubeIcon) {
+                    return null;
+                }
+            }
+        }
+
         List<Call> calls = new ArrayList<>();
         //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(post.comment);
