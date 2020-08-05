@@ -269,7 +269,7 @@ public class CardPostCell
 
         replies.setText(status);
 
-        if (ChanSettings.parseYoutubeTitles.get() && extraCalls == null) {
+        if (post.needsExtraParse && extraCalls == null) {
             extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
         }
     }

@@ -120,6 +120,8 @@ public class Post
     private long lastModified;
     private String title = "";
 
+    public final boolean needsExtraParse;
+
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
     }
@@ -174,6 +176,8 @@ public class Post
 
         linkables = new ArrayList<>(builder.linkables);
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
+
+        needsExtraParse = builder.needsExtraParse;
     }
 
     @AnyThread
@@ -356,6 +360,8 @@ public class Post
 
         private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
+
+        public boolean needsExtraParse;
 
         public Builder() {
         }

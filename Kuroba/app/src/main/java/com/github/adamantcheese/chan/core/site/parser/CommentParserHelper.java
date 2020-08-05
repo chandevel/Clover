@@ -99,8 +99,13 @@ public class CommentParserHelper {
         final Iterable<LinkSpan> links = LINK_EXTRACTOR.extractLinks(text);
         for (final LinkSpan link : links) {
             final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
-            //if this URL is a youtube link and we're parsing those, skip it, it'll be taken care of later
-            if (ChanSettings.parseYoutubeTitles.get() && YOUTUBE_LINK_PATTERN.matcher(linkText).matches()) continue;
+            // if this URL is a youtube link and we're parsing those, skip it, it'll be taken care of later
+            // cheap match instead of full matcher for speed
+            if (ChanSettings.parseYoutubeTitles.get() && (linkText.contains("youtu\\.be")
+                    || linkText.contains("youtube"))) {
+                post.needsExtraParse = true;
+                continue;
+            }
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
