@@ -37,7 +37,7 @@ public class PostImage {
         STATIC, // static images, uses CustomScaleImageView
         GIF, // GIF images, uses GifImageView
         MOVIE, // movies/audio, uses PlayerView from Exoplayer
-        PDF, // not supported in-app
+        PDF, // things openable in mupdf
         SWF // not supported in-app
     }
 
@@ -86,6 +86,10 @@ public class PostImage {
             case "flac":
                 type = MOVIE;
                 break;
+            case "xps":
+            case "cbz":
+            case "epub":
+            case "fb2":
             case "pdf":
                 type = PDF;
                 break;
