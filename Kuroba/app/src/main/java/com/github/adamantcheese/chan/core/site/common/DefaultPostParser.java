@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 
@@ -45,8 +46,8 @@ import org.jsoup.parser.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -68,12 +69,12 @@ public class DefaultPostParser
             builder.subject = Parser.unescapeEntities(builder.subject, false);
         }
 
-        parseSpans(theme, builder);
+        parseInfoSpans(theme, builder);
 
         if (builder.comment != null) {
-            builder.comment = parseComment(theme, builder, builder.comment, callback);
+            builder.comment = parseComment(theme, builder, callback);
         } else {
-            builder.comment = new SpannableString("");
+            builder.comment = new SpannableStringBuilder("");
         }
 
         return builder.build();
@@ -87,7 +88,7 @@ public class DefaultPostParser
      * @param theme   Theme to use for parsing
      * @param builder Post builder to get data from
      */
-    private void parseSpans(Theme theme, Post.Builder builder) {
+    private void parseInfoSpans(Theme theme, Post.Builder builder) {
         boolean anonymize = ChanSettings.anonymize.get();
         boolean anonymizeIds = ChanSettings.anonymizeIds.get();
 
@@ -163,25 +164,16 @@ public class DefaultPostParser
         builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
     }
 
-    private CharSequence parseComment(Theme theme, Post.Builder post, CharSequence commentRaw, Callback callback) {
-        CharSequence total = new SpannableString("");
+    private SpannableStringBuilder parseComment(Theme theme, Post.Builder post, Callback callback) {
+        SpannableStringBuilder total = new SpannableStringBuilder("");
 
         try {
-            String comment = commentRaw.toString().replace("<wbr>", "");
-
+            String comment = post.comment.toString().replace("<wbr>", "");
             Document document = Jsoup.parseBodyFragment(comment);
 
-            List<Node> nodes = document.body().childNodes();
-            List<CharSequence> texts = new ArrayList<>(nodes.size());
-
-            for (Node node : nodes) {
-                CharSequence nodeParsed = parseNode(theme, post, callback, node);
-                if (nodeParsed != null) {
-                    texts.add(nodeParsed);
-                }
+            for (Node node : document.body().childNodes()) {
+                total.append(parseNode(theme, post, callback, node));
             }
-
-            total = TextUtils.concat(texts.toArray(new CharSequence[0]));
         } catch (Exception e) {
             Logger.e(this, "Error parsing comment html", e);
         }
@@ -191,7 +183,7 @@ public class DefaultPostParser
         return total;
     }
 
-    private CharSequence parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
+    private SpannableStringBuilder parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]
@@ -199,18 +191,8 @@ public class DefaultPostParser
                             || text.startsWith("[eqn]"))) {
                 text = processEmojiMath(text);
             }
-            //we need to replace youtube links with their titles before linkifying anything else
-            //because the string itself changes as a result of the titles shrinking/expanding the string length
-            //this would mess up the rest of the spans if we did it afterwards, so we do it as the first step
-            SpannableString spannable;
-            if (ChanSettings.parseYoutubeTitles.get()) {
-                spannable = CommentParserHelper.replaceYoutubeLinks(theme, post, text);
-                CommentParserHelper.detectLinks(theme, post, spannable.toString(), spannable);
-            } else {
-                spannable = new SpannableString(text);
-                CommentParserHelper.detectLinks(theme, post, text, spannable);
-            }
-
+            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
+            CommentParserHelper.detectLinks(theme, post, text, spannable);
             return spannable;
         } else if (node instanceof Element) {
             String nodeName = node.nodeName();
@@ -231,10 +213,10 @@ public class DefaultPostParser
 
             CharSequence result =
                     commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
-            return result != null ? result : "";
+            return new SpannableStringBuilder(result != null ? result : "");
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());
-            return ""; // ?
+            return new SpannableStringBuilder(""); // ?
         }
     }
 

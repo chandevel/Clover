@@ -234,7 +234,9 @@ public class FutabaChanReader
 
         // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null && !fileDeleted) {
-            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
+            // /f/ is a strange case where the actual filename is used for the file on the server
+            Map<String, String> args =
+                    makeArgument("tim", "f".equals(queue.getLoadable().boardCode) ? fileName : fileId, "ext", fileExt);
             PostImage image = new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
@@ -340,6 +342,7 @@ public class FutabaChanReader
         reader.endObject();
 
         if (fileId != null && fileName != null && fileExt != null) {
+            // /f/ does not allow image posts not in the OP, so no special handling is needed here
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
             return new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))

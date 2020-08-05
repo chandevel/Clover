@@ -87,9 +87,6 @@ android {
     }
 
     compileOptions {
-        // Flag to enable support for the new language APIs
-        coreLibraryDesugaringEnabled true
-
         encoding = 'UTF-8'
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -252,6 +249,7 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.K1rakishou:Fuck-Storage-Access-Framework:v1.0-alpha40'
+    implementation 'com.artifex.mupdf:viewer:1.17.0'
 
     testImplementation 'junit:junit:4.13'
     testImplementation 'org.robolectric:robolectric:4.3.1'
@@ -260,8 +258,6 @@ dependencies {
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
-
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.0.10'
 }
 
 // Download the current archives.json file for the build

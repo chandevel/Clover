@@ -359,8 +359,7 @@ public class ThemeSettingsController
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
                     .subject("Lorem ipsum")
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
-                            + "This text is normally colored.<br>"
-                            + "<span class=\"spoiler\">This text is spoilered.</span><br>"
+                            + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
                     .idColor(Color.WHITE);
 
@@ -370,8 +369,9 @@ public class ThemeSettingsController
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
-                                    + "This is a spacer post for divider color display, and for displaying the new posts indicator.");
+                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a> This is a spacer "
+                                    + "post for seeing the divider color; below is a youtube link for title/duration testing:<br>"
+                                    + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
                     .id(345678901)
@@ -501,8 +501,7 @@ public class ThemeSettingsController
                 ));
             }
 
-            linearLayout.addView(
-                    toolbar,
+            linearLayout.addView(toolbar,
                     new LayoutParams(MATCH_PARENT, getDimen(themeContext, R.dimen.toolbar_height))
             );
             linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));

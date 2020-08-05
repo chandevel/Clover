@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
+import android.text.InputFilter;
+import android.text.InputFilter.LengthFilter;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -34,6 +36,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -43,6 +46,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
@@ -59,6 +64,8 @@ public class CardPostCell
     private Loadable loadable;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
+    private Theme theme;
+    private List<Call> extraCalls;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -149,6 +156,13 @@ public class CardPostCell
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
+        if (extraCalls != null) {
+            for (Call c : extraCalls) {
+                c.cancel();
+            }
+            extraCalls = null;
+        }
+
         if (post != null && bound) {
             thumbView.setPostImage(loadable, null);
             bound = false;
@@ -160,7 +174,7 @@ public class CardPostCell
         super.onAttachedToWindow();
 
         if (post != null && !bound) {
-            bindPost(post);
+            bindPost(theme, post);
         }
     }
 
@@ -189,8 +203,9 @@ public class CardPostCell
         this.loadable = loadable;
         this.post = post;
         this.callback = callback;
+        this.theme = theme;
 
-        bindPost(post);
+        bindPost(theme, post);
 
         if (this.compact != compact) {
             this.compact = compact;
@@ -211,7 +226,7 @@ public class CardPostCell
         return false;
     }
 
-    private void bindPost(Post post) {
+    private void bindPost(Theme theme, Post post) {
         bound = true;
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
@@ -237,14 +252,12 @@ public class CardPostCell
             title.setText(null);
         }
 
-        CharSequence commentText;
-        if (post.comment.length() > COMMENT_MAX_LENGTH && ChanSettings.getBoardColumnCount() != 1) {
-            commentText = post.comment.subSequence(0, COMMENT_MAX_LENGTH);
+        if (ChanSettings.getBoardColumnCount() != 1) {
+            comment.setFilters(new LengthFilter[]{new LengthFilter(COMMENT_MAX_LENGTH)});
         } else {
-            commentText = post.comment;
+            comment.setFilters(new InputFilter[]{});
         }
-
-        comment.setText(commentText);
+        comment.setText(post.comment);
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
@@ -255,6 +268,10 @@ public class CardPostCell
         }
 
         replies.setText(status);
+
+        if (post.needsExtraParse && extraCalls == null) {
+            extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
+        }
     }
 
     private void setCompact(boolean compact) {

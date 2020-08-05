@@ -51,6 +51,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.SETTINGS_REFRESH_REQUEST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
@@ -116,7 +117,7 @@ public class SettingsController
         }
 
         if (requiresUiRefresh.contains(item)) {
-            postToEventBus(new RefreshUIMessage("SettingsController refresh"));
+            postToEventBus(new RefreshUIMessage(SETTINGS_REFRESH_REQUEST));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
         }

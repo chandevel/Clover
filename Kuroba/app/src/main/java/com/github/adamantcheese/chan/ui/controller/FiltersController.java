@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.MotionEvent;
@@ -26,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,6 +54,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
@@ -170,6 +171,7 @@ public class FiltersController
                 setFilters(enabledFilters, false);
                 enableButton.setImageResource(R.drawable.ic_done_white_24dp);
             }
+            postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         }
     }
 
@@ -197,7 +199,7 @@ public class FiltersController
                     } else {
                         enable.setImageResource(R.drawable.ic_clear_white_24dp);
                     }
-                    postToEventBus(new RefreshUIMessage("filters"));
+                    postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
                     adapter.reload();
                 }).show();
 
@@ -208,7 +210,7 @@ public class FiltersController
     private void deleteFilter(Filter filter) {
         Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
-        postToEventBus(new RefreshUIMessage("filters"));
+        postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         adapter.reload();
 
         Snackbar s = Snackbar.make(view, getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);

@@ -16,12 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.text.SpannableString;
+import android.graphics.drawable.BitmapDrawable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.util.LruCache;
+import android.widget.TextView;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -38,13 +42,14 @@ import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 
@@ -58,15 +63,17 @@ public class CommentParserHelper {
 
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
+    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
     public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
 
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|xps|cbz|epub|fb2|bmp|webp|mp3|swf|m4a|ogg|flac)",
             Pattern.CASE_INSENSITIVE
     );
-    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
+    private static final String[] noThumbLinkSuffixes =
+            {"webm", "pdf", "xps", "cbz", "epub", "fb2", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
     private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
@@ -89,10 +96,17 @@ public class CommentParserHelper {
      * @param text      Text to find links in
      * @param spannable Spannable to set the spans on.
      */
-    public static void detectLinks(Theme theme, Post.Builder post, String text, SpannableString spannable) {
+    public static void detectLinks(Theme theme, Post.Builder post, String text, SpannableStringBuilder spannable) {
         final Iterable<LinkSpan> links = LINK_EXTRACTOR.extractLinks(text);
         for (final LinkSpan link : links) {
             final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
+            // if this URL is a youtube link and we're parsing those, skip it, it'll be taken care of later
+            // cheap match instead of full matcher for speed
+            if (ChanSettings.parseYoutubeTitles.get() && (linkText.contains("youtu\\.be")
+                    || linkText.contains("youtube"))) {
+                post.needsExtraParse = true;
+                continue;
+            }
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
@@ -103,140 +117,6 @@ public class CommentParserHelper {
                     (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
             );
             post.addLinkable(pl);
-        }
-    }
-
-    public static SpannableString replaceYoutubeLinks(Theme theme, Post.Builder post, String text) {
-        Map<String, String> titleURLMap =
-                new HashMap<>(); //this map is inverted i.e. the title maps to the URL rather than the other way around
-        StringBuffer newString = new StringBuffer();
-        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(text);
-        while (linkMatcher.find()) {
-            String URL = linkMatcher.group(0);
-            String videoID = linkMatcher.group(1);
-            Pair<String, String> result = youtubeCache.get(URL);
-            if (result == null) {
-                result = NetUtils.makeJsonRequestSync(
-                        //@formatter:off
-                        //for testing, using 4chanx's api key
-                        //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
-                        //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
-                    HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
-                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
-                            + "&id=" + videoID
-                            + "&fields=items%28id%2Csnippet%28title%29"
-                            + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
-                            + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get()),
-                    //@formatter:on
-                        reader -> {
-                        /*
-                            {
-                              "items": [
-                                {
-                                  "id": "UyXlt9PP4eM",
-                                  "snippet": {
-                                    "title": "ATC Spindle Part 3: Designing the Spindle Mount"
-                                  },
-                                    "contentDetails": {
-                                      "duration": "PT22M27S"
-                                    }
-                                }
-                              ]
-                            }
-                         */
-                            reader.beginObject();
-                            reader.nextName();
-                            reader.beginArray();
-                            reader.beginObject();
-                            reader.nextName(); // video ID
-                            reader.nextString();
-                            reader.nextName(); // snippet
-                            reader.beginObject();
-                            reader.nextName(); // title
-                            String title = reader.nextString();
-                            Pair<String, String> ret = new Pair<>(title, null);
-                            reader.endObject();
-                            if (ChanSettings.parseYoutubeDuration.get()) {
-                                reader.nextName(); // content details
-                                reader.beginObject();
-                                reader.nextName(); // duration
-                                String duration = getHourMinSecondString(reader.nextString());
-                                ret = new Pair<>(title, "[" + duration + "]");
-                                reader.endObject();
-                            }
-                            reader.endObject();
-                            reader.endArray();
-                            reader.endObject();
-                            return ret;
-                        }
-                );
-                if (result != null) {
-                    youtubeCache.put(URL, result);
-                }
-            }
-            //prepend two spaces for the youtube icon later
-            String title = result != null ? result.first : URL;
-            String duration = result != null ? result.second : null;
-            String extraDur = duration != null ? " " + duration : "";
-            titleURLMap.put("  " + title + extraDur, URL);
-            linkMatcher.appendReplacement(newString, "  " + Matcher.quoteReplacement(title + extraDur));
-        }
-        linkMatcher.appendTail(newString);
-
-        //we have a new string here with all the links replaced by their text equivalents, we need to add the linkables now using the map
-        //we reference newString internally because SpannableString instances don't have an indexOf method, but the two are otherwise the same
-        SpannableString finalizedString = new SpannableString(newString);
-        for (String key : titleURLMap.keySet()) {
-            //set the linkable to be the entire length, including the icon
-            PostLinkable pl = new PostLinkable(theme, key, titleURLMap.get(key), PostLinkable.Type.LINK);
-            finalizedString.setSpan(
-                    pl,
-                    newString.indexOf(key),
-                    newString.indexOf(key) + key.length(),
-                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
-            );
-            post.addLinkable(pl);
-
-            //set the youtube icon span for the linkable
-            ImageSpan ytIcon = new ImageSpan(getAppContext(), BitmapRepository.youtubeIcon);
-            int height = Integer.parseInt(ChanSettings.fontSize.get());
-            int width =
-                    (int) (sp(height) / (BitmapRepository.youtubeIcon.getHeight() / (float) BitmapRepository.youtubeIcon
-                            .getWidth()));
-            ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
-            finalizedString.setSpan(
-                    ytIcon,
-                    newString.indexOf(key),
-                    newString.indexOf(key) + 1,
-                    (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
-            );
-        }
-
-        return finalizedString;
-    }
-
-    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
-
-    private static String getHourMinSecondString(String ISO8601Duration) {
-        Matcher m = iso8601Time.matcher(ISO8601Duration);
-        if (m.matches()) {
-            String hours = m.group(2);
-            String minutes = m.group(4);
-            String seconds = m.group(6);
-            //pad seconds to 2 digits
-            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : null;
-            if (hours != null) {
-                //we have hours, pad minutes to 2 digits
-                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
-                return hours + ":" + (minutes != null ? minutes : "00") + ":" + (seconds != null ? seconds : "00");
-            } else {
-                //no hours, no need to pad anything else
-                return (minutes != null ? minutes : "0") + ":" + (seconds != null ? seconds : "00");
-            }
-        } else {
-            //badly formatted time from youtube's API?
-            return "0:00";
         }
     }
 
@@ -298,5 +178,184 @@ public class CommentParserHelper {
         if (tripsPattern.matcher(number).find()) return "Trips";
         if (dubsPattern.matcher(number).find()) return "Dubs";
         return null;
+    }
+
+    //for testing, using 4chanx's api key
+    //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
+    //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
+
+    /* SAMPLE JSON FOR DURATION (skip the contentDetails stuff for without)
+        {
+          "items": [
+            {
+              "id": "UyXlt9PP4eM",
+              "snippet": {
+                "title": "ATC Spindle Part 3: Designing the Spindle Mount"
+              },
+                "contentDetails": {
+                  "duration": "PT22M27S"
+                }
+            }
+          ]
+        }
+     */
+
+    public static List<Call> replaceYoutubeLinks(Theme theme, Post post, @Nullable TextView toInvalidate) {
+        // if we've already got an image span with a youtube link in it, this post has already been processed/is processing, ignore this
+        ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
+        for (ImageSpan image : imageSpans) {
+            if (image.getDrawable() instanceof BitmapDrawable) {
+                if (((BitmapDrawable) image.getDrawable()).getBitmap() == BitmapRepository.youtubeIcon) {
+                    return null;
+                }
+            }
+        }
+
+        List<Call> calls = new ArrayList<>();
+        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
+        Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(post.comment);
+        while (linkMatcher.find()) {
+            String URL = linkMatcher.group(0);
+
+            //@formatter:off
+            HttpUrl requestUrl = HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
+                    + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
+                    + "&id=" + linkMatcher.group(1)
+                    + "&fields=items%28id%2Csnippet%28title%29"
+                    + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
+                    + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get());
+            //@formatter:on
+
+            boolean needsRequest = false;
+            Pair<String, String> result = youtubeCache.get(URL);
+            if (result != null) {
+                if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
+                    // remove the entry; it needs additional info now
+                    youtubeCache.remove(URL);
+                    needsRequest = true;
+                }
+            } else {
+                needsRequest = true;
+            }
+
+            if (!needsRequest) {
+                // we've previously cached this youtube title/duration and we don't need additional information
+                performLinkReplacement(theme, post, result, URL, toInvalidate);
+            } else {
+                // we haven't cached this youtube title/duration, or we need additional information
+                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
+                    @Override
+                    public void onJsonFailure(Exception e) {
+                        if (!"Canceled".equals(e.getMessage())) {
+                            //failed to get, replace with just the URL and append the youtube icon
+                            performLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate);
+                        }
+                    }
+
+                    @Override
+                    public void onJsonSuccess(Pair<String, String> result) {
+                        //got a result, replace with the result and also cache the result
+                        youtubeCache.put(URL, result);
+                        performLinkReplacement(theme, post, result, URL, toInvalidate);
+                    }
+                }, reader -> {
+                    reader.beginObject(); // JSON start
+                    reader.nextName();
+                    reader.beginArray();
+                    reader.beginObject();
+                    reader.nextName(); // video ID
+                    reader.nextString();
+                    reader.nextName(); // snippet
+                    reader.beginObject();
+                    reader.nextName(); // title
+                    String title = reader.nextString();
+                    Pair<String, String> ret = new Pair<>(title, null);
+                    reader.endObject();
+                    if (ChanSettings.parseYoutubeDuration.get()) {
+                        reader.nextName(); // content details
+                        reader.beginObject();
+                        reader.nextName(); // duration
+                        ret = new Pair<>(title, getHourMinSecondString(reader.nextString()));
+                        reader.endObject();
+                    }
+                    reader.endObject();
+                    reader.endArray();
+                    reader.endObject();
+                    return ret;
+                }, 2500));
+            }
+        }
+        return calls;
+    }
+
+    private static String getHourMinSecondString(String ISO8601Duration) {
+        Matcher m = iso8601Time.matcher(ISO8601Duration);
+        if (m.matches()) {
+            String hours = m.group(2);
+            String minutes = m.group(4);
+            String seconds = m.group(6);
+            //pad seconds to 2 digits
+            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : "00";
+            if (hours != null) {
+                //we have hours, pad minutes to 2 digits
+                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
+                return hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
+            } else {
+                //no hours, no need to pad anything else
+                return (minutes != null ? minutes : "0") + ":" + seconds;
+            }
+        } else {
+            //badly formatted time from youtube's API?
+            return "?:??";
+        }
+    }
+
+    private static void performLinkReplacement(
+            Theme theme, Post post, @NonNull Pair<String, String> titleDurPair, String URL, TextView toSetAndInvalidate
+    ) {
+        synchronized (post.comment) {
+            int startIndex = post.comment.toString().indexOf(URL);
+            int endIndex = startIndex + URL.length();
+
+            if (startIndex == -1) {
+                return; // don't know where to do replacement
+            }
+
+            SpannableStringBuilder replacement = new SpannableStringBuilder(
+                    "  " + titleDurPair.first + (titleDurPair.second != null ? " [" + titleDurPair.second + "]" : ""));
+
+            //set the youtube icon span for the linkable
+            ImageSpan ytIcon = new ImageSpan(getAppContext(), BitmapRepository.youtubeIcon);
+            int height = Integer.parseInt(ChanSettings.fontSize.get());
+            int width =
+                    (int) (sp(height) / (BitmapRepository.youtubeIcon.getHeight() / (float) BitmapRepository.youtubeIcon
+                            .getWidth()));
+            ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
+            replacement.setSpan(
+                    ytIcon,
+                    0,
+                    1,
+                    ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            );
+
+            //set the linkable to be the entire length, including the icon
+            PostLinkable pl = new PostLinkable(theme, replacement, URL, PostLinkable.Type.LINK);
+            replacement.setSpan(
+                    pl,
+                    0,
+                    replacement.length(),
+                    ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            );
+
+            //replace the proper section of the comment with the link
+            post.comment.replace(startIndex, endIndex, replacement);
+
+            post.linkables.add(pl);
+
+            if (toSetAndInvalidate != null) {
+                toSetAndInvalidate.setText(post.comment);
+                toSetAndInvalidate.postInvalidate();
+            }
+        }
     }
 }
