@@ -14,33 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.manager;
-
-import android.content.Context;
+package com.github.adamantcheese.chan.core.repository;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 /**
  * Manages replies.
  */
-public class ReplyManager {
-    private final Context context;
+public class ReplyRepository {
+    private static Map<Loadable, Reply> drafts = new HashMap<>();
 
-    private Map<Loadable, Reply> drafts = new HashMap<>();
-
-    @Inject
-    public ReplyManager(Context context) {
-        this.context = context;
-    }
-
-    public Reply getReply(Loadable loadable) {
+    public static Reply getReply(Loadable loadable) {
         Reply reply = drafts.get(loadable);
         if (reply == null) {
             reply = new Reply(loadable);
@@ -49,7 +37,7 @@ public class ReplyManager {
         return reply;
     }
 
-    public void putReply(Reply reply) {
+    public static void putReply(Reply reply) {
         // Remove files from all other replies because there can only be one picked_file at the same time.
         // Not doing this would be confusing and cause invalid fileNames.
         if (reply.file != null) {
@@ -63,14 +51,5 @@ public class ReplyManager {
         }
 
         drafts.put(reply.loadable, reply);
-    }
-
-    public File getPickFile() {
-        File cacheFile = new File(context.getCacheDir(), "picked_file");
-        try {
-            if (!cacheFile.exists()) cacheFile.createNewFile(); //ensure the file exists for writing to
-        } catch (Exception ignored) {
-        }
-        return cacheFile;
     }
 }

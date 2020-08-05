@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -67,8 +66,6 @@ public class ImagePickDelegate {
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    @Inject
-    ReplyManager replyManager;
     @Inject
     FileManager fileManager;
     @Inject
@@ -245,7 +242,7 @@ public class ImagePickDelegate {
     }
 
     private void run() {
-        RawFile cacheFile = fileManager.fromRawFile(replyManager.getPickFile());
+        RawFile cacheFile = fileManager.fromRawFile(getPickFile());
 
         try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {
             if (fileDescriptor == null) {
@@ -280,6 +277,15 @@ public class ImagePickDelegate {
             }
             reset();
         });
+    }
+
+    public File getPickFile() {
+        File cacheFile = new File(activity.getCacheDir(), "picked_file");
+        try {
+            if (!cacheFile.exists()) cacheFile.createNewFile(); //ensure the file exists for writing to
+        } catch (Exception ignored) {
+        }
+        return cacheFile;
     }
 
     private void reset() {

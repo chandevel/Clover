@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import android.content.Context;
-
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
@@ -25,7 +23,6 @@ import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
-import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
@@ -64,13 +61,6 @@ public class ManagerModule {
     public FilterEngine provideFilterEngine(DatabaseManager databaseManager) {
         Logger.d(AppModule.DI_TAG, "Filter engine");
         return new FilterEngine(databaseManager);
-    }
-
-    @Provides
-    @Singleton
-    public ReplyManager provideReplyManager(Context applicationContext) {
-        Logger.d(AppModule.DI_TAG, "Reply manager");
-        return new ReplyManager(applicationContext);
     }
 
     @Provides

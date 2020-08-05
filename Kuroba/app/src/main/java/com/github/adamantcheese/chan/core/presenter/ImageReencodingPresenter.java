@@ -26,18 +26,15 @@ import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.ReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.repository.ReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.google.gson.Gson;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
@@ -46,25 +43,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageReencodingPresenter {
     private Context context;
-
-    @Inject
-    ReplyManager replyManager;
-
     private ImageReencodingPresenterCallback callback;
     private Loadable loadable;
 
     public ImageReencodingPresenter(
             Context context, ImageReencodingPresenterCallback callback, Loadable loadable
     ) {
-        inject(this);
-
         this.context = context;
         this.loadable = loadable;
         this.callback = callback;
     }
 
     public void loadImagePreview() {
-        Reply reply = replyManager.getReply(loadable);
+        Reply reply = ReplyRepository.getReply(loadable);
         Point displaySize = getDisplaySize();
         ImageDecoder.decodeFileOnBackgroundThread(reply.file,
                 //decode to the device width/height, whatever is smaller
@@ -82,7 +73,7 @@ public class ImageReencodingPresenter {
 
     public boolean hasExif() {
         try {
-            Reply reply = replyManager.getReply(loadable);
+            Reply reply = ReplyRepository.getReply(loadable);
             ExifInterface exif = new ExifInterface(reply.file.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
             if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
@@ -94,17 +85,17 @@ public class ImageReencodingPresenter {
 
     @Nullable
     public CompressFormat getCurrentFileFormat() {
-        Reply reply = replyManager.getReply(loadable);
+        Reply reply = ReplyRepository.getReply(loadable);
         return BitmapUtils.getImageFormat(reply.file);
     }
 
     public Pair<Integer, Integer> getImageDims() {
-        Reply reply = replyManager.getReply(loadable);
+        Reply reply = ReplyRepository.getReply(loadable);
         return BitmapUtils.getImageDims(reply.file);
     }
 
     public void applyImageOptions(ImageOptions options) {
-        Reply reply = replyManager.getReply(loadable);
+        Reply reply = ReplyRepository.getReply(loadable);
         ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(options));
 
         callback.disableOrEnableButtons(false);
@@ -112,7 +103,7 @@ public class ImageReencodingPresenter {
             CompressFormat reencodeFormat =
                     callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat();
             reply.file = BitmapUtils.reencodeBitmapFile(reply.file, options, reencodeFormat);
-            replyManager.putReply(reply);
+            ReplyRepository.putReply(reply);
         } catch (Throwable error) {
             showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
             return;

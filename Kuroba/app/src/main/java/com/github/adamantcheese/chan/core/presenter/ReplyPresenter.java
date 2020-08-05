@@ -25,7 +25,8 @@ import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.manager.ReplyManager;
+import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
+import com.github.adamantcheese.chan.core.repository.ReplyRepository;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -33,7 +34,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -78,10 +78,8 @@ public class ReplyPresenter
 
     private ReplyPresenterCallback callback;
 
-    private ReplyManager replyManager;
     private WatchManager watchManager;
     private DatabaseManager databaseManager;
-    private LastReplyRepository lastReplyRepository;
 
     private boolean bound = false;
     private Loadable loadable;
@@ -97,16 +95,12 @@ public class ReplyPresenter
     @Inject
     public ReplyPresenter(
             Context context,
-            ReplyManager replyManager,
             WatchManager watchManager,
-            DatabaseManager databaseManager,
-            LastReplyRepository lastReplyRepository
+            DatabaseManager databaseManager
     ) {
         this.context = context;
-        this.replyManager = replyManager;
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
-        this.lastReplyRepository = lastReplyRepository;
     }
 
     public void create(ReplyPresenterCallback callback) {
@@ -122,7 +116,7 @@ public class ReplyPresenter
 
         this.board = loadable.board;
 
-        draft = replyManager.getReply(loadable);
+        draft = ReplyRepository.getReply(loadable);
 
         if (TextUtils.isEmpty(draft.name)) {
             draft.name = ChanSettings.postDefaultName.get();
@@ -147,7 +141,7 @@ public class ReplyPresenter
         if (bound) {
             bound = false;
             callback.loadViewsIntoDraft(draft);
-            replyManager.putReply(draft);
+            ReplyRepository.putReply(draft);
 
             closeAll();
         }
@@ -238,7 +232,7 @@ public class ReplyPresenter
     }
 
     public void onSubmitClicked(boolean longClicked) {
-        long timeLeft = lastReplyRepository.getTimeUntilDraftPostable(draft);
+        long timeLeft = LastReplyRepository.getTimeUntilDraftPostable(draft);
 
         boolean authenticateOnly = timeLeft > 0L && !longClicked;
         if (!onPrepareToSubmit(authenticateOnly)) {
@@ -275,7 +269,7 @@ public class ReplyPresenter
     @Override
     public void onPostComplete(ReplyResponse replyResponse) {
         if (replyResponse.posted) {
-            lastReplyRepository.putLastReply(replyResponse.originatingReply);
+            LastReplyRepository.putLastReply(replyResponse.originatingReply);
             Loadable originatingLoadable = replyResponse.originatingReply.loadable;
             Loadable newThreadLoadable = Loadable.forThread(originatingLoadable.board,
                     replyResponse.threadNo == 0 ? replyResponse.postNo : replyResponse.threadNo,
@@ -314,7 +308,7 @@ public class ReplyPresenter
             }
 
             draft.name = name;
-            replyManager.putReply(draft);
+            ReplyRepository.putReply(draft);
             callback.loadDraftIntoViews(draft);
             callback.onPosted();
         } else if (replyResponse.requireAuthentication) {
@@ -361,7 +355,7 @@ public class ReplyPresenter
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
 
-        long timeLeft = lastReplyRepository.getTimeUntilDraftPostable(draft);
+        long timeLeft = LastReplyRepository.getTimeUntilDraftPostable(draft);
         if (timeLeft > 0L && !autoReply) {
             String errorMessage = getString(R.string.reply_error_message_timer, timeLeft);
             switchPage(Page.INPUT);

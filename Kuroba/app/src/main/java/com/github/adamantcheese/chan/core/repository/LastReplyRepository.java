@@ -23,10 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LastReplyRepository {
-    private Map<Board, Long> lastReplyMap = new HashMap<>();
-    private Map<Board, Long> lastThreadMap = new HashMap<>();
+    private static Map<Board, Long> lastReplyMap = new HashMap<>();
+    private static Map<Board, Long> lastThreadMap = new HashMap<>();
 
-    public void putLastReply(Reply reply) {
+    public static void putLastReply(Reply reply) {
         if (reply.loadable.isCatalogMode()) {
             lastThreadMap.put(reply.loadable.board, System.currentTimeMillis());
         } else {
@@ -34,7 +34,7 @@ public class LastReplyRepository {
         }
     }
 
-    public long getTimeUntilDraftPostable(Reply draft) {
+    public static long getTimeUntilDraftPostable(Reply draft) {
         if (draft.loadable.isCatalogMode()) {
             return getTimeUntilThread(draft.loadable.board);
         } else {
@@ -47,7 +47,7 @@ public class LastReplyRepository {
      * @param hasImage if the reply has an image attached to it
      * @return seconds until a new reply can be posted on this board; negative if postable
      */
-    private long getTimeUntilReply(Board b, boolean hasImage) {
+    private static long getTimeUntilReply(Board b, boolean hasImage) {
         Long lastTime = lastReplyMap.get(b);
         long lastReplyTime = lastTime != null ? lastTime : 0L;
         long waitTime = hasImage ? b.cooldownImages : b.cooldownReplies;
@@ -59,7 +59,7 @@ public class LastReplyRepository {
      * @param b board for a new thread
      * @return seconds until a new thread can be posted on this board; negative if postable
      */
-    private long getTimeUntilThread(Board b) {
+    private static long getTimeUntilThread(Board b) {
         Long lastTime = lastThreadMap.get(b);
         long lastThreadTime = lastTime != null ? lastTime : 0L;
         long waitTime = b.cooldownThreads;
