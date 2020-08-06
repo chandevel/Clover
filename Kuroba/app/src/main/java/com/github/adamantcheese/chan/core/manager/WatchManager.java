@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
+import android.text.SpannableStringBuilder;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -1148,7 +1149,7 @@ public class WatchManager
             pageRequestManager.addListener(this);
         }
 
-        public CharSequence getSummary() {
+        public SpannableStringBuilder getSummary() {
             return chanLoader != null && chanLoader.getThread() != null ? chanLoader.getThread().summarize(true) : null;
         }
 

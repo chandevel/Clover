@@ -20,6 +20,7 @@ import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -291,10 +292,12 @@ public class DrawerAdapter
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
-            CharSequence summary = pinWatcher.getSummary();
+            SpannableStringBuilder summary = pinWatcher.getSummary();
             if (summary != null) {
+                SpannableStringBuilder info = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - ");
+                info.append(summary);
                 holder.threadInfo.setVisibility(VISIBLE);
-                holder.threadInfo.setText(String.format("/%s/ - %s", pin.loadable.boardCode, summary));
+                holder.threadInfo.setText(info);
             } else {
                 holder.threadInfo.setText(BoardHelper.getName(pin.loadable.board));
             }
