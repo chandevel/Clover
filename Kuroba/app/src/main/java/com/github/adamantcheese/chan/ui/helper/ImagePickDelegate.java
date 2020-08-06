@@ -280,7 +280,7 @@ public class ImagePickDelegate {
     }
 
     public File getPickFile() {
-        File cacheFile = new File(activity.getCacheDir(), "picked_file");
+        File cacheFile = new File(getAppContext().getCacheDir(), "picked_file");
         try {
             if (!cacheFile.exists()) cacheFile.createNewFile(); //ensure the file exists for writing to
         } catch (Exception ignored) {
