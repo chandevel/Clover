@@ -32,7 +32,7 @@ public class IOUtils {
     public static String assetAsString(Context context, String assetName) {
         String res = null;
         try {
-            res = IOUtils.readString(context.getResources().getAssets().open(assetName));
+            res = readString(context.getResources().getAssets().open(assetName));
         } catch (IOException ignored) {
         }
         return res;

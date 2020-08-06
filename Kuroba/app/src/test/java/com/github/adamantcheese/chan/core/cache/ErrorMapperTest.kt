@@ -3,8 +3,8 @@ package com.github.adamantcheese.chan.core.cache
 import com.github.adamantcheese.chan.core.cache.downloader.ActiveDownloads
 import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException
 import com.github.adamantcheese.chan.core.cache.downloader.FileDownloadResult
-import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl.Companion.toHttpUrl
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ErrorMapperTest {

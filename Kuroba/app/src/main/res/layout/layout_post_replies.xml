@@ -56,11 +56,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:drawableLeft="@drawable/ic_arrow_back_themed_24dp"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/back" />
+                    android:text="@string/back"
+                    app:drawableLeftCompat="@drawable/ic_arrow_back_themed_24dp" />
             </FrameLayout>
 
             <FrameLayout
@@ -77,11 +77,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:drawableLeft="@drawable/ic_done_themed_24dp"
                     android:drawablePadding="8dp"
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
-                    android:text="@string/close" />
+                    android:text="@string/close"
+                    app:drawableLeftCompat="@drawable/ic_done_themed_24dp" />
             </FrameLayout>
         </LinearLayout>
 

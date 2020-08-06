@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;

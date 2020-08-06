@@ -17,7 +17,6 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.MediaStore;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -341,16 +340,14 @@ public class SubsamplingScaleImageView
         setDoubleTapZoomDpi(160);
         setMinimumTileDpi(320);
         setGestureDetector(context);
-        this.handler = new Handler(new Handler.Callback() {
-            public boolean handleMessage(Message message) {
-                if (message.what == MESSAGE_LONG_CLICK && onLongClickListener != null) {
-                    maxTouchCount = 0;
-                    SubsamplingScaleImageView.super.setOnLongClickListener(onLongClickListener);
-                    performLongClick();
-                    SubsamplingScaleImageView.super.setOnLongClickListener(null);
-                }
-                return true;
+        this.handler = new Handler(message -> {
+            if (message.what == MESSAGE_LONG_CLICK && onLongClickListener != null) {
+                maxTouchCount = 0;
+                SubsamplingScaleImageView.super.setOnLongClickListener(onLongClickListener);
+                performLongClick();
+                SubsamplingScaleImageView.super.setOnLongClickListener(null);
             }
+            return true;
         });
         // Handle XML attributes
         if (attr != null) {
@@ -1147,6 +1144,7 @@ public class SubsamplingScaleImageView
                     for (Tile tile : tileMapEntry.getValue()) {
                         if (tile.visible && (tile.loading || tile.bitmap == null)) {
                             hasMissingTiles = true;
+                            break;
                         }
                     }
                 }
@@ -1359,6 +1357,7 @@ public class SubsamplingScaleImageView
                     for (Tile tile : tileMapEntry.getValue()) {
                         if (tile.loading || tile.bitmap == null) {
                             baseLayerReady = false;
+                            break;
                         }
                     }
                 }
@@ -1573,7 +1572,7 @@ public class SubsamplingScaleImageView
             // Choose the smallest ratio as inSampleSize value, this will guarantee
             // a final image with both dimensions larger than or equal to the
             // requested height and width.
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+            inSampleSize = Math.min(heightRatio, widthRatio);
         }
 
         // We want the actual sample size that will be used, so round down to nearest power of 2.
@@ -1736,7 +1735,7 @@ public class SubsamplingScaleImageView
         ) {
             this.viewRef = new WeakReference<>(view);
             this.contextRef = new WeakReference<>(context);
-            this.decoderFactoryRef = new WeakReference<DecoderFactory<? extends ImageRegionDecoder>>(decoderFactory);
+            this.decoderFactoryRef = new WeakReference<>(decoderFactory);
             this.source = source;
         }
 
@@ -1932,7 +1931,7 @@ public class SubsamplingScaleImageView
         ) {
             this.viewRef = new WeakReference<>(view);
             this.contextRef = new WeakReference<>(context);
-            this.decoderFactoryRef = new WeakReference<DecoderFactory<? extends ImageDecoder>>(decoderFactory);
+            this.decoderFactoryRef = new WeakReference<>(decoderFactory);
             this.source = source;
             this.preview = preview;
         }

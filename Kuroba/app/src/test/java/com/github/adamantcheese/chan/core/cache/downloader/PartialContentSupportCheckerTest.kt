@@ -5,7 +5,6 @@ import com.github.adamantcheese.chan.core.cache.createFileDownloadRequest
 import com.github.adamantcheese.chan.core.cache.withServer
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.k1rakishou.fsaf.file.RawFile
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import org.junit.After

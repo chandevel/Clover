@@ -121,7 +121,7 @@ public class ThemeSettingsController
         public Object onPopulatePostOptions(
                 Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
         ) {
-            menu.add(new FloatingMenuItem<Integer>(1, "Option"));
+            menu.add(new FloatingMenuItem<>(1, "Option"));
             return 0;
         }
 

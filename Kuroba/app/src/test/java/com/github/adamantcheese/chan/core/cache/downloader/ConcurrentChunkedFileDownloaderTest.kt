@@ -69,7 +69,7 @@ class ConcurrentChunkedFileDownloaderTest {
                     .setResponseCode(200)
                     .setBody(buffer)
 
-            singleChunkTestProlog(server, response) { url, output, request, testObserver ->
+            singleChunkTestProlog(server, response) { _, output, request, testObserver ->
                 request.cancelableDownload.cancel()
 
                 val (events, errors, completes) = testObserver
@@ -99,7 +99,7 @@ class ConcurrentChunkedFileDownloaderTest {
         withServer { server ->
             val response = MockResponse().setResponseCode(404)
 
-            singleChunkTestProlog(server, response) { url, output, request, testObserver ->
+            singleChunkTestProlog(server, response) { _, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
                         .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
                         .events
@@ -282,7 +282,7 @@ class ConcurrentChunkedFileDownloaderTest {
                     .setResponseCode(200)
                     .setBody(buffer)
 
-            singleChunkTestProlog(server, response) { url, output, request, testObserver ->
+            singleChunkTestProlog(server, response) { url, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
                         .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
                         .events
@@ -314,7 +314,7 @@ class ConcurrentChunkedFileDownloaderTest {
                 stream.available()
             }
 
-            multiChunkTestPrologue(server, fileSize.toLong(), 4, imageName) { url, output, request, testObserver ->
+            multiChunkTestPrologue(server, fileSize.toLong(), 4, imageName) { url, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
                         .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
                         .events

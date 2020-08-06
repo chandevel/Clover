@@ -122,7 +122,7 @@ public class LoginController
         if (loginResponse.success) {
             crossfadeView.toggle(false, true);
             button.setText(R.string.setting_pass_logout);
-            authenticated.setText(loginResponse.message);;
+            authenticated.setText(loginResponse.message);
         } else {
             authFail(loginResponse);
         }
