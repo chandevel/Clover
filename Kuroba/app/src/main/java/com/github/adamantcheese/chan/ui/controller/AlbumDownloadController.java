@@ -16,9 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -26,6 +24,7 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -185,7 +184,7 @@ public class AlbumDownloadController
             AlbumDownloadItem item = items.get(i);
             if (item.checked == allChecked) {
                 item.checked = !allChecked;
-                AlbumDownloadCell cell = (AlbumDownloadCell) recyclerView.findViewHolderForAdapterPosition(i);
+                AlbumDownloadHolder cell = (AlbumDownloadHolder) recyclerView.findViewHolderForAdapterPosition(i);
                 if (cell != null) {
                     setItemChecked(cell, item.checked, true);
                 }
@@ -258,23 +257,29 @@ public class AlbumDownloadController
     }
 
     private class AlbumAdapter
-            extends RecyclerView.Adapter<AlbumDownloadCell> {
+            extends RecyclerView.Adapter<AlbumDownloadHolder> {
         public AlbumAdapter() {
             setHasStableIds(true);
         }
 
         @Override
-        public AlbumDownloadCell onCreateViewHolder(ViewGroup parent, int viewType) {
+        public AlbumDownloadHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = inflate(parent.getContext(), R.layout.cell_album_download, parent, false);
 
-            return new AlbumDownloadCell(view);
+            return new AlbumDownloadHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(AlbumDownloadCell holder, int position) {
+        public void onBindViewHolder(AlbumDownloadHolder holder, int position) {
             AlbumDownloadItem item = items.get(position);
             holder.thumbnailView.setPostImage(loadable, item.postImage);
             setItemChecked(holder, item.checked, false);
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull AlbumDownloadHolder holder) {
+            holder.thumbnailView.setPostImage(loadable, null);
+            setItemChecked(holder, false, false);
         }
 
         @Override
@@ -288,13 +293,13 @@ public class AlbumDownloadController
         }
     }
 
-    private class AlbumDownloadCell
+    private class AlbumDownloadHolder
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         private ImageView checkbox;
         private PostImageThumbnailView thumbnailView;
 
-        public AlbumDownloadCell(View itemView) {
+        public AlbumDownloadHolder(View itemView) {
             super(itemView);
             itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             checkbox = itemView.findViewById(R.id.checkbox);
@@ -313,7 +318,7 @@ public class AlbumDownloadController
         }
     }
 
-    private void setItemChecked(AlbumDownloadCell cell, boolean checked, boolean animated) {
+    private void setItemChecked(AlbumDownloadHolder cell, boolean checked, boolean animated) {
         float scale = checked ? 0.75f : 1f;
         if (animated) {
             Interpolator slowdown = new DecelerateInterpolator(3f);
@@ -323,9 +328,8 @@ public class AlbumDownloadController
             cell.thumbnailView.setScaleY(scale);
         }
 
-        Drawable drawable = context.getDrawable(checked
+        cell.checkbox.setImageResource(checked
                 ? R.drawable.ic_blue_checkmark_24dp
                 : R.drawable.ic_radio_button_unchecked_white_24dp);
-        cell.checkbox.setImageDrawable(drawable);
     }
 }

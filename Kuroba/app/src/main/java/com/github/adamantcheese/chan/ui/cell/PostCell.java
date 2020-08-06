@@ -613,11 +613,15 @@ public class PostCell
         }
     }
 
-    private void buildThumbnails() {
+    public void clearThumbnails() {
         for (PostImageThumbnailView thumbnailView : thumbnailViews) {
             relativeLayoutContainer.removeView(thumbnailView);
         }
         thumbnailViews.clear();
+    }
+
+    private void buildThumbnails() {
+        clearThumbnails();
 
         // Places the thumbnails below each other.
         // The placement is done using the RelativeLayout BELOW rule, with generated view ids.

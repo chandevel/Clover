@@ -85,6 +85,7 @@ public class BrowseBoardsFloatingMenu
     private Point position = new Point(0, 0);
     private boolean dismissed = false;
 
+    @SuppressWarnings("unused")
     @Inject
     private BoardsMenuPresenter presenter;
     private BoardsMenuPresenter.Items items;
@@ -342,16 +343,28 @@ public class BrowseBoardsFloatingMenu
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             Item item = items.getAtPosition(position);
-            //noinspection StatementWithEmptyBody
-            if (holder instanceof InputViewHolder) {
-            } else if (holder instanceof SiteViewHolder) {
+            if (holder instanceof SiteViewHolder) {
                 SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
                 siteViewHolder.bind(item.site);
             } else if (holder instanceof BoardViewHolder) {
                 BoardViewHolder boardViewHolder = ((BoardViewHolder) holder);
                 boardViewHolder.bind(item.board);
-            } else {
-                throw new IllegalArgumentException();
+            }
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull ViewHolder holder) {
+            if (holder instanceof SiteViewHolder) {
+                SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
+                siteViewHolder.image.setImageDrawable(null);
+                siteViewHolder.text.setText("");
+                siteViewHolder.site = null;
+                siteViewHolder.itemView.setOnClickListener(null);
+            } else if (holder instanceof BoardViewHolder) {
+                BoardViewHolder boardViewHolder = ((BoardViewHolder) holder);
+                boardViewHolder.text.setText("");
+                boardViewHolder.board = null;
+                boardViewHolder.itemView.setOnClickListener(null);
             }
         }
     }
@@ -415,25 +428,17 @@ public class BrowseBoardsFloatingMenu
 
         public SiteViewHolder(View itemView) {
             super(itemView);
-
-            itemView.setOnClickListener(v -> itemClicked(site, null));
-
-            // View binding
             divider = itemView.findViewById(R.id.divider);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
-
-            // View setup
             text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Site site) {
             this.site = site;
-
+            itemView.setOnClickListener(v -> itemClicked(site, null));
             divider.setVisibility(getAdapterPosition() == 0 ? GONE : VISIBLE);
-
             site.icon().get(image::setImageDrawable);
-
             text.setText(site.name());
         }
     }
@@ -446,18 +451,13 @@ public class BrowseBoardsFloatingMenu
 
         public BoardViewHolder(View itemView) {
             super(itemView);
-
-            itemView.setOnClickListener(v -> itemClicked(null, board));
-
-            // View binding
             text = (TextView) itemView;
-
-            // View setup
             text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Board board) {
             this.board = board;
+            itemView.setOnClickListener(v -> itemClicked(null, board));
             text.setText(BoardHelper.getName(board));
         }
     }

@@ -264,6 +264,8 @@ public class PostAdapter
 
             View divider = postCell.findViewById(R.id.divider);
             divider.setVisibility(View.VISIBLE);
+
+            postCell.clearThumbnails();
         }
     }
 

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
@@ -26,7 +25,9 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -53,6 +54,7 @@ import javax.inject.Inject;
 import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class HistoryController
@@ -153,8 +155,12 @@ public class HistoryController
     }
 
     private void openThread(History history) {
-        ViewThreadController viewThreadController = new ViewThreadController(context, history.loadable);
-        navigationController.pushController(viewThreadController);
+        if (history != null) {
+            ViewThreadController viewThreadController = new ViewThreadController(context, history.loadable);
+            navigationController.pushController(viewThreadController);
+        } else {
+            showToast(context, "Error opening history, null???");
+        }
     }
 
     private void deleteHistory(History history) {
@@ -200,6 +206,13 @@ public class HistoryController
             holder.text.setText(history.loadable.title);
             Board board = history.loadable.board;
             holder.subtext.setText(board == null ? null : ("/" + board.code + "/ \u2013 " + board.name));
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull HistoryCell holder) {
+            holder.thumbnail.setUrl(null);
+            holder.text.setText("");
+            holder.subtext.setText("");
         }
 
         @Override
@@ -251,12 +264,10 @@ public class HistoryController
     }
 
     private class HistoryCell
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            extends RecyclerView.ViewHolder {
         private ThumbnailView thumbnail;
         private TextView text;
         private TextView subtext;
-        private ImageView delete;
 
         public HistoryCell(View itemView) {
             super(itemView);
@@ -265,23 +276,18 @@ public class HistoryController
             thumbnail.setCircular(true);
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
-            delete = itemView.findViewById(R.id.delete);
+            ImageView delete = itemView.findViewById(R.id.delete);
 
-            delete.setOnClickListener(this);
-            itemView.setOnClickListener(this);
+            delete.setOnClickListener(v -> deleteHistory(getHistory()));
+            itemView.setOnClickListener(v -> openThread(getHistory()));
         }
 
-        @Override
-        public void onClick(View v) {
+        private History getHistory() {
             int position = getAdapterPosition();
             if (position >= 0 && position < adapter.getItemCount()) {
-                History history = adapter.displayList.get(position);
-                if (v == itemView) {
-                    openThread(history);
-                } else if (v == delete) {
-                    deleteHistory(history);
-                }
+                return adapter.displayList.get(position);
             }
+            return null;
         }
     }
 }

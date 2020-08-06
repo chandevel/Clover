@@ -62,15 +62,16 @@ public class AlbumViewCell
 
         thumbnailView.setPostImage(loadable, postImage);
 
-        String details = String.format(
-                Locale.ENGLISH,
-                "%s %dx%d %s",
-                postImage.extension.toUpperCase(),
-                postImage.imageWidth,
-                postImage.imageHeight,
-                getReadableFileSize(postImage.size)
-        );
-        text.setText(details);
+        if (postImage != null) {
+            text.setText(String.format(
+                    Locale.ENGLISH,
+                    "%s %dx%d %s",
+                    postImage.extension.toUpperCase(),
+                    postImage.imageWidth,
+                    postImage.imageHeight,
+                    getReadableFileSize(postImage.size)
+            ));
+        }
     }
 
     public PostImage getPostImage() {

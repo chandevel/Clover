@@ -249,7 +249,7 @@ public class FiltersController
     }
 
     private class FilterAdapter
-            extends RecyclerView.Adapter<FilterCell> {
+            extends RecyclerView.Adapter<FilterHolder> {
         private List<Filter> sourceList = new ArrayList<>();
         private List<Filter> displayList = new ArrayList<>();
         private String searchQuery;
@@ -261,12 +261,12 @@ public class FiltersController
         }
 
         @Override
-        public FilterCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new FilterCell(inflate(parent.getContext(), R.layout.cell_filter, parent, false));
+        public FilterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new FilterHolder(inflate(parent.getContext(), R.layout.cell_filter, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(FilterCell holder, int position) {
+        public void onBindViewHolder(FilterHolder holder, int position) {
             Filter filter = displayList.get(position);
             holder.text.setText(filter.pattern);
             holder.text.setTextColor(getAttrColor(context,
@@ -352,14 +352,14 @@ public class FiltersController
         }
     }
 
-    private class FilterCell
+    private class FilterHolder
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
         private TextView text;
         private TextView subtext;
 
         @SuppressLint("ClickableViewAccessibility")
-        public FilterCell(View itemView) {
+        public FilterHolder(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
@@ -368,7 +368,7 @@ public class FiltersController
 
             reorder.setOnTouchListener((v, event) -> {
                 if (!locked && event.getActionMasked() == MotionEvent.ACTION_DOWN && attached) {
-                    itemTouchHelper.startDrag(FilterCell.this);
+                    itemTouchHelper.startDrag(FilterHolder.this);
                 }
                 return false;
             });
