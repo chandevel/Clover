@@ -181,12 +181,9 @@ public class DatabaseManager {
         try {
             long count = dao.countOf();
             if (count > trigger) {
-                dao.executeRaw(
-                        "DELETE FROM ? WHERE id IN (SELECT id FROM ? ORDER BY id ASC LIMIT ?)",
-                        dao.getTableName(),
-                        dao.getTableName(),
-                        String.valueOf(trim)
-                );
+                dao.executeRawNoArgs(
+                        "DELETE FROM " + dao.getTableName() + " WHERE id IN (SELECT id FROM " + dao.getTableName()
+                                + " ORDER BY id ASC LIMIT " + trim + ")");
             }
         } catch (SQLException e) {
             Logger.e(this, "Error trimming table " + dao.getTableName(), e);
