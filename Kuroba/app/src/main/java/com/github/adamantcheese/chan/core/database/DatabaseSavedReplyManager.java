@@ -98,7 +98,7 @@ public class DatabaseSavedReplyManager {
         };
     }
 
-    public Callable<SavedReply> saveReply(final SavedReply savedReply) {
+    public Callable<SavedReply> saveReply(SavedReply savedReply) {
         return () -> {
             helper.savedDao.create(savedReply);
             synchronized (savedRepliesByNo) {
@@ -114,18 +114,17 @@ public class DatabaseSavedReplyManager {
         };
     }
 
-    public Callable<SavedReply> unsaveReply(final SavedReply savedReply) {
+    public Callable<SavedReply> unsaveReply(SavedReply savedReply) {
         return () -> {
-            helper.savedDao.create(savedReply);
             helper.savedDao.delete(savedReply);
             synchronized (savedRepliesByNo) {
                 List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
-                if (list == null) {
-                    list = new ArrayList<>(1);
-                    savedRepliesByNo.put(savedReply.no, list);
+                if (list != null) {
+                    list.remove(savedReply);
+                    if (list.isEmpty()) {
+                        savedRepliesByNo.remove(savedReply.no);
+                    }
                 }
-
-                list.remove(savedReply);
             }
             return savedReply;
         };

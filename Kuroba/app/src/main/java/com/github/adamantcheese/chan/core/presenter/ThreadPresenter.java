@@ -118,28 +118,29 @@ public class ThreadPresenter
     private static final int POST_OPTION_HIGHLIGHT_ID = 6;
     private static final int POST_OPTION_DELETE = 7;
     private static final int POST_OPTION_SAVE = 8;
-    private static final int POST_OPTION_PIN = 9;
-    private static final int POST_OPTION_SHARE = 10;
-    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 11;
-    private static final int POST_OPTION_HIDE = 12;
-    private static final int POST_OPTION_OPEN_BROWSER = 13;
-    private static final int POST_OPTION_FILTER = 14;
-    private static final int POST_OPTION_FILTER_TRIPCODE = 15;
-    private static final int POST_OPTION_FILTER_IMAGE_HASH = 16;
-    private static final int POST_OPTION_FILTER_SUBJECT = 17;
-    private static final int POST_OPTION_FILTER_COMMENT = 18;
-    private static final int POST_OPTION_FILTER_NAME = 19;
-    private static final int POST_OPTION_FILTER_ID = 20;
-    private static final int POST_OPTION_FILTER_FILENAME = 21;
-    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 22;
-    private static final int POST_OPTION_EXTRA = 23;
-    private static final int POST_OPTION_REMOVE = 24;
-    private static final int POST_OPTION_MOCK_REPLY = 25;
-    private static final int POST_OPTION_COPY_POST_LINK = 26;
-    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 27;
-    private static final int POST_OPTION_COPY_POST_TEXT = 28;
-    private static final int POST_OPTION_COPY_IMG_URL = 29;
-    private static final int POST_OPTION_COPY_POST_URL = 30;
+    private static final int POST_OPTION_UNSAVE = 9;
+    private static final int POST_OPTION_PIN = 10;
+    private static final int POST_OPTION_SHARE = 11;
+    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 12;
+    private static final int POST_OPTION_HIDE = 13;
+    private static final int POST_OPTION_OPEN_BROWSER = 14;
+    private static final int POST_OPTION_FILTER = 15;
+    private static final int POST_OPTION_FILTER_TRIPCODE = 16;
+    private static final int POST_OPTION_FILTER_IMAGE_HASH = 17;
+    private static final int POST_OPTION_FILTER_SUBJECT = 18;
+    private static final int POST_OPTION_FILTER_COMMENT = 19;
+    private static final int POST_OPTION_FILTER_NAME = 20;
+    private static final int POST_OPTION_FILTER_ID = 21;
+    private static final int POST_OPTION_FILTER_FILENAME = 22;
+    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 23;
+    private static final int POST_OPTION_EXTRA = 24;
+    private static final int POST_OPTION_REMOVE = 25;
+    private static final int POST_OPTION_MOCK_REPLY = 26;
+    private static final int POST_OPTION_COPY_POST_LINK = 27;
+    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 28;
+    private static final int POST_OPTION_COPY_POST_TEXT = 29;
+    private static final int POST_OPTION_COPY_IMG_URL = 30;
+    private static final int POST_OPTION_COPY_POST_URL = 31;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
@@ -880,7 +881,7 @@ public class ThreadPresenter
 
         if (!loadable.isLocal()) {
             boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SAVE,
+            extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
 
@@ -1011,24 +1012,25 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_SAVE:
                 if (!isBound()) break;
-                Set<Post> matchingPosts = new HashSet<>(1);
-                if (TextUtils.isEmpty(post.id)) {
-                    //just this post
-                    matchingPosts.add(post);
-                } else {
-                    //match all post IDs
-                    //noinspection ConstantConditions, isBound check takes care of this
-                    for (Post p : getChanThread().getPosts()) {
-                        if (!TextUtils.isEmpty(p.id) && p.id.equals(post.id)) {
-                            matchingPosts.add(p);
+                for (Post p : getMatchingIds(post)) {
+                    SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
+                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
+                    Pin watchedPin = watchManager.getPinByLoadable(loadable);
+                    if (watchedPin != null) {
+                        synchronized (this) {
+                            watchedPin.quoteLastCount += p.repliesFrom.size();
                         }
                     }
                 }
-
-                if (databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no)) {
-                    //unsave all matching posts
-                    for (Post p : matchingPosts) {
-                        SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
+                //force reload for reply highlighting
+                requestData();
+                break;
+            case POST_OPTION_UNSAVE:
+                if (!isBound()) break;
+                for (Post p : getMatchingIds(post)) {
+                    SavedReply saved = databaseManager.getDatabaseSavedReplyManager().getSavedReply(p.board, p.no);
+                    if (saved != null) {
+                        //unsave
                         databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(saved));
                         Pin watchedPin = watchManager.getPinByLoadable(loadable);
                         if (watchedPin != null) {
@@ -1036,18 +1038,8 @@ public class ThreadPresenter
                                 watchedPin.quoteLastCount -= p.repliesFrom.size();
                             }
                         }
-                    }
-                } else {
-                    //save all matching posts
-                    for (Post p : matchingPosts) {
-                        SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
-                        databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
-                        Pin watchedPin = watchManager.getPinByLoadable(loadable);
-                        if (watchedPin != null) {
-                            synchronized (this) {
-                                watchedPin.quoteLastCount += p.repliesFrom.size();
-                            }
-                        }
+                    } else {
+                        Logger.w(this, "SavedReply null, can't unsave");
                     }
                 }
                 //force reload for reply highlighting
@@ -1105,6 +1097,23 @@ public class ThreadPresenter
                 }
                 break;
         }
+    }
+
+    private Set<Post> getMatchingIds(Post post) {
+        Set<Post> matching = new HashSet<>(1);
+        if (TextUtils.isEmpty(post.id)) {
+            //just this post
+            matching.add(post);
+        } else {
+            //match all post IDs
+            //noinspection ConstantConditions, isBound check takes care of this
+            for (Post p : getChanThread().getPosts()) {
+                if (!TextUtils.isEmpty(p.id) && p.id.equals(post.id)) {
+                    matching.add(p);
+                }
+            }
+        }
+        return matching;
     }
 
     private void showSubMenuOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
