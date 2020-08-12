@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
-import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
@@ -67,6 +66,7 @@ public class AlbumViewController
         AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
         recyclerView.setAdapter(albumAdapter);
         recyclerView.scrollToPosition(targetIndex);
+        recyclerView.getLayoutManager().setItemPrefetchEnabled(false);
     }
 
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
@@ -153,18 +153,8 @@ public class AlbumViewController
         return loadable;
     }
 
-    private void openImage(AlbumItemCellHolder albumItemCellHolder, PostImage postImage) {
-        // Just ignore the showImages request when the image is not loaded
-        if (albumItemCellHolder.thumbnailView.getBitmap() != null) {
-            final ImageViewerNavigationController imageViewer = new ImageViewerNavigationController(context);
-            int index = postImages.indexOf(postImage);
-            presentController(imageViewer, false);
-            imageViewer.showImages(postImages, index, loadable, this, this);
-        }
-    }
-
     private class AlbumAdapter
-            extends RecyclerView.Adapter<AlbumItemCellHolder> {
+            extends RecyclerView.Adapter<AlbumAdapter.AlbumItemCellHolder> {
         private Loadable loadable;
 
         public AlbumAdapter(Loadable loadable) {
@@ -173,8 +163,9 @@ public class AlbumViewController
             this.loadable = loadable;
         }
 
+        @NonNull
         @Override
-        public AlbumItemCellHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public AlbumItemCellHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = inflate(parent.getContext(), R.layout.cell_album_view, parent, false);
 
             return new AlbumItemCellHolder(view);
@@ -182,16 +173,12 @@ public class AlbumViewController
 
         @Override
         public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
-            PostImage postImage = postImages.get(position);
-            holder.cell.setPostImage(loadable, postImage);
+            holder.cell.setPostImage(loadable, postImages.get(position));
         }
 
         @Override
-        public void onViewRecycled(
-                @NonNull AlbumItemCellHolder holder
-        ) {
-            super.onViewRecycled(holder);
-            holder.thumbnailView.setUrl(null);
+        public void onViewRecycled(@NonNull AlbumItemCellHolder holder) {
+            holder.cell.setPostImage(loadable, null);
         }
 
         @Override
@@ -203,27 +190,27 @@ public class AlbumViewController
         public long getItemId(int position) {
             return position;
         }
-    }
 
-    private class AlbumItemCellHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
-        private AlbumViewCell cell;
-        private PostImageThumbnailView thumbnailView;
+        private class AlbumItemCellHolder
+                extends RecyclerView.ViewHolder {
+            private AlbumViewCell cell;
 
-        public AlbumItemCellHolder(View itemView) {
-            super(itemView);
-            itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
-            cell = (AlbumViewCell) itemView;
-            thumbnailView = itemView.findViewById(R.id.thumbnail_view);
-            thumbnailView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            PostImage postImage = postImages.get(adapterPosition);
-            openImage(this, postImage);
+            public AlbumItemCellHolder(View itemView) {
+                super(itemView);
+                cell = (AlbumViewCell) itemView;
+                cell.getLayoutParams().height = recyclerView.getRealSpanWidth();
+                cell.findViewById(R.id.thumbnail_view).setOnClickListener(v -> {
+                    final ImageViewerNavigationController imageViewer = new ImageViewerNavigationController(context);
+                    int index = postImages.indexOf(cell.getPostImage());
+                    presentController(imageViewer, false);
+                    imageViewer.showImages(postImages,
+                            index,
+                            loadable,
+                            AlbumViewController.this,
+                            AlbumViewController.this
+                    );
+                });
+            }
         }
     }
 }

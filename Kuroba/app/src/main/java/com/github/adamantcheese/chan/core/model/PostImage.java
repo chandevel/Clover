@@ -31,6 +31,7 @@ import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.SWF;
 
 public class PostImage {
     public enum Type {
@@ -94,7 +95,7 @@ public class PostImage {
                 type = PDF;
                 break;
             case "swf":
-                type = Type.SWF;
+                type = SWF;
                 break;
             default:
                 type = STATIC;

@@ -184,6 +184,16 @@ public class BoardAddLayout
             holder.text.setText(boardSuggestion.getName());
             holder.description.setText(boardSuggestion.getDescription());
         }
+
+        @Override
+        public void onViewRecycled(@NonNull SuggestionCell holder) {
+            holder.description.setText("");
+            holder.text.setText("");
+            holder.ignoreCheckChange = true;
+            holder.check.setChecked(false);
+            holder.ignoreCheckChange = false;
+            holder.suggestion = null;
+        }
     }
 
     private static class SuggestionCell

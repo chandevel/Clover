@@ -30,10 +30,12 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.cell.CardPostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
@@ -45,6 +47,7 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -150,7 +153,8 @@ public class PostAdapter
                         showDivider(position),
                         getPostViewMode(),
                         isCompact(),
-                        theme
+                        theme,
+                        recyclerView
                 );
 
                 if (itemViewType == TYPE_POST_STUB && postAdapterCallback != null) {
@@ -268,6 +272,11 @@ public class PostAdapter
 
             View divider = postCell.findViewById(R.id.divider);
             divider.setVisibility(View.VISIBLE);
+
+            postCell.clearThumbnails();
+        } else if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == CARD) {
+            CardPostCell postCell = (CardPostCell) holder.itemView;
+            ((PostImageThumbnailView) postCell.getThumbnailView(null)).setPostImage(loadable, null);
         }
     }
 

@@ -112,7 +112,7 @@ public class ChanThread {
         return loadable;
     }
 
-    public CharSequence summarize(boolean extraStyling) {
+    public SpannableStringBuilder summarize(boolean extraStyling) {
         Post op;
         try {
             op = getOp();

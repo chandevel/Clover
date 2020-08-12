@@ -152,7 +152,7 @@ public class ArchiveController
     }
 
     private class ArchiveAdapter
-            extends RecyclerView.Adapter<ArchiveCell> {
+            extends RecyclerView.Adapter<ArchiveHolder> {
         private List<Archive.ArchiveItem> archiveItems = new ArrayList<>();
 
         @Override
@@ -161,12 +161,12 @@ public class ArchiveController
         }
 
         @Override
-        public ArchiveCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new ArchiveCell(inflate(parent.getContext(), R.layout.cell_archive, parent, false));
+        public ArchiveHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new ArchiveHolder(inflate(parent.getContext(), R.layout.cell_archive, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(ArchiveCell holder, int position) {
+        public void onBindViewHolder(ArchiveHolder holder, int position) {
             Archive.ArchiveItem archiveItem = archiveItems.get(position);
 
             holder.item = archiveItem;
@@ -179,12 +179,12 @@ public class ArchiveController
         }
     }
 
-    private class ArchiveCell
+    private class ArchiveHolder
             extends RecyclerView.ViewHolder {
         private TextView text;
         private Archive.ArchiveItem item;
 
-        public ArchiveCell(View itemView) {
+        public ArchiveHolder(View itemView) {
             super(itemView);
 
             itemView.setOnClickListener(v -> onItemClicked(item));

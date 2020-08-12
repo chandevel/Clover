@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -49,6 +48,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
@@ -85,8 +85,6 @@ import static android.view.View.MeasureSpec.AT_MOST;
 import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.UNSPECIFIED;
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -94,7 +92,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
@@ -130,6 +127,8 @@ public class PostCell
     private boolean selected;
     private int markedNo;
     private boolean showDivider;
+
+    private RecyclerView recyclerView;
     private List<Call> extraCalls;
 
     private GestureDetector doubleTapComment;
@@ -274,7 +273,8 @@ public class PostCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            Theme theme
+            Theme theme,
+            RecyclerView attachedTo
     ) {
         if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.selected == selected
                 && this.markedNo == markedNo && this.showDivider == showDivider) {
@@ -294,6 +294,7 @@ public class PostCell
         this.selected = selected;
         this.markedNo = markedNo;
         this.showDivider = showDivider;
+        this.recyclerView = attachedTo;
 
         bindPost(theme, post);
 
@@ -556,18 +557,13 @@ public class PostCell
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
         if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
-            //display width, we don't care about height here
-            Point displaySize = getDisplaySize();
-
+            int widthMax = recyclerView.getMeasuredWidth();
+            int heightMax = recyclerView.getMeasuredHeight();
             int thumbnailSize = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
-            boolean isSplitMode =
-                    ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
-            //0.35 is from SplitNavigationControllerLayout; measure for the smaller of the two sides
-            this.measure(
-                    MeasureSpec.makeMeasureSpec(isSplitMode ? (int) (displaySize.x * 0.35) : displaySize.x, AT_MOST),
-                    MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
+            this.measure(MeasureSpec.makeMeasureSpec(inPopup ? getDisplaySize().x : widthMax, AT_MOST),
+                    MeasureSpec.makeMeasureSpec(heightMax, AT_MOST)
             );
 
             int totalThumbnailWidth = thumbnailSize + paddingPx + (post.filterHighlightedColor != 0 ? filterMatchColor.getLayoutParams().width : 0);
@@ -608,11 +604,16 @@ public class PostCell
         }
     }
 
-    private void buildThumbnails() {
+    public void clearThumbnails() {
         for (PostImageThumbnailView thumbnailView : thumbnailViews) {
+            thumbnailView.setPostImage(loadable, null);
             relativeLayoutContainer.removeView(thumbnailView);
         }
         thumbnailViews.clear();
+    }
+
+    private void buildThumbnails() {
+        clearThumbnails();
 
         // Places the thumbnails below each other.
         // The placement is done using the RelativeLayout BELOW rule, with generated view ids.
@@ -669,9 +670,6 @@ public class PostCell
         title.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
-        for (PostImageThumbnailView view : thumbnailViews) {
-            view.setPostImage(loadable, null);
-        }
         setPostLinkableListener(post, false);
     }
 

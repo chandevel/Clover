@@ -195,10 +195,17 @@ public class DefaultPostParser
             CommentParserHelper.detectLinks(theme, post, text, spannable);
             return spannable;
         } else if (node instanceof Element) {
-            String nodeName = node.nodeName();
+            StringBuilder nodeName = new StringBuilder(node.nodeName());
             String styleAttr = node.attr("style");
-            if (!styleAttr.isEmpty() && !nodeName.equals("span")) {
-                nodeName = nodeName + '-' + styleAttr.split(":")[1].trim();
+            if (!styleAttr.isEmpty() && !nodeName.toString().equals("span")) {
+                nodeName.append('-');
+                String[] split = styleAttr.split(";");
+                for (int i = 0; i < split.length; i++) {
+                    nodeName.append(split[i].trim());
+                    if (i < split.length - 1) {
+                        nodeName.append('-');
+                    }
+                }
             }
 
             // Recursively call parseNode with the nodes of the paragraph.
@@ -212,7 +219,7 @@ public class DefaultPostParser
             CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
             CharSequence result =
-                    commentParser.handleTag(callback, theme, post, nodeName, allInnerText, (Element) node);
+                    commentParser.handleTag(callback, theme, post, nodeName.toString(), allInnerText, (Element) node);
             return new SpannableStringBuilder(result != null ? result : "");
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());

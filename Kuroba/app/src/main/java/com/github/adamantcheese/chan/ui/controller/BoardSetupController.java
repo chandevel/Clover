@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -28,6 +27,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -204,7 +204,7 @@ public class BoardSetupController
     }
 
     private class SavedBoardsAdapter
-            extends RecyclerView.Adapter<SavedBoardCell> {
+            extends RecyclerView.Adapter<SavedBoardHolder> {
         private Boards savedBoards;
 
         public SavedBoardsAdapter() {
@@ -222,12 +222,12 @@ public class BoardSetupController
         }
 
         @Override
-        public SavedBoardCell onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardCell(inflate(parent.getContext(), R.layout.cell_board, parent, false));
+        public SavedBoardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new SavedBoardHolder(inflate(parent.getContext(), R.layout.cell_board, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(SavedBoardCell holder, int position) {
+        public void onBindViewHolder(SavedBoardHolder holder, int position) {
             Board savedBoard = savedBoards.get(position);
             holder.text.setText(BoardHelper.getName(savedBoard));
             String description = BoardHelper.getDescription(savedBoard);
@@ -257,13 +257,13 @@ public class BoardSetupController
         }
     }
 
-    private class SavedBoardCell
+    private class SavedBoardHolder
             extends RecyclerView.ViewHolder {
         private TextView text;
         private TextView description;
 
         @SuppressLint("ClickableViewAccessibility")
-        public SavedBoardCell(View itemView) {
+        public SavedBoardHolder(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
@@ -272,7 +272,7 @@ public class BoardSetupController
 
             reorder.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    itemTouchHelper.startDrag(SavedBoardCell.this);
+                    itemTouchHelper.startDrag(SavedBoardHolder.this);
                 }
                 return false;
             });

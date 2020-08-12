@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -76,6 +78,8 @@ public abstract class ThumbnailView
     private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect tmpTextRect = new Rect();
 
+    private ValueAnimator fadeIn;
+
     public ThumbnailView(Context context) {
         this(context, null);
     }
@@ -96,27 +100,21 @@ public abstract class ThumbnailView
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (bitmapCall != null) {
-            bitmapCall.cancel();
-            bitmapCall = null;
-        }
-    }
-
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
         error = false;
         setImageBitmap(null);
-        animate().cancel();
-
-        if (url == null) {
-            return;
+        if (fadeIn != null) {
+            fadeIn.end();
+            fadeIn = null;
         }
 
         if (bitmapCall != null) {
             bitmapCall.cancel();
             bitmapCall = null;
+        }
+
+        if (url == null) {
+            return;
         }
 
         bitmapCall = NetUtils.makeBitmapRequest(url, this, maxWidth, maxHeight);
@@ -127,7 +125,10 @@ public abstract class ThumbnailView
     }
 
     public void setUrlFromDisk(Loadable loadable, String filename, boolean isSpoiler, int width, int height) {
-        animate().cancel();
+        if (fadeIn != null) {
+            fadeIn.end();
+            fadeIn = null;
+        }
         setImageBitmap(null);
         try {
             bitmapCall = ImageLoaderV2.getFromDisk(loadable, filename, isSpoiler, this, width, height, null);
@@ -308,10 +309,14 @@ public abstract class ThumbnailView
         clearAnimation();
         if (!isImmediate) {
             setAlpha(0f);
-            animate().alpha(1f).setDuration(200);
+            fadeIn = ObjectAnimator.ofFloat(this, View.ALPHA, 0f, 1f).setDuration(200);
+            fadeIn.start();
         } else {
+            if (fadeIn != null) {
+                fadeIn.cancel();
+                fadeIn = null;
+            }
             setAlpha(1f);
-            animate().cancel();
         }
     }
 
@@ -338,11 +343,13 @@ public abstract class ThumbnailView
 
         onImageSet(true);
         invalidate();
+        bitmapCall = null;
     }
 
     @Override
     public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
         setImageBitmap(bitmap);
         onImageSet(fromCache);
+        bitmapCall = null;
     }
 }

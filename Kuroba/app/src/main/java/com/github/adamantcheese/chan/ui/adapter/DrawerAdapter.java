@@ -18,8 +18,7 @@ package com.github.adamantcheese.chan.ui.adapter;
 
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Handler;
-import android.os.Looper;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,6 +52,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.repository.StaticResourceRepository.mainHandler;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
@@ -78,8 +78,6 @@ public class DrawerAdapter
 
     private static final int TYPE_PIN = 2;
     private static final int PIN_OFFSET = LINK_COUNT + HEADER_COUNT;
-
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Inject
     WatchManager watchManager;
@@ -291,10 +289,12 @@ public class DrawerAdapter
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
-            CharSequence summary = pinWatcher.getSummary();
+            SpannableStringBuilder summary = pinWatcher.getSummary();
             if (summary != null) {
+                SpannableStringBuilder info = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - ");
+                info.append(summary);
                 holder.threadInfo.setVisibility(VISIBLE);
-                holder.threadInfo.setText(String.format("/%s/ - %s", pin.loadable.boardCode, summary));
+                holder.threadInfo.setText(info);
             } else {
                 holder.threadInfo.setText(BoardHelper.getName(pin.loadable.board));
             }

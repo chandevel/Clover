@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +29,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -210,7 +210,7 @@ public class SitesSetupController
     }
 
     private class SitesAdapter
-            extends RecyclerView.Adapter<SiteCell> {
+            extends RecyclerView.Adapter<SiteHolder> {
         public SitesAdapter() {
             setHasStableIds(true);
         }
@@ -222,12 +222,12 @@ public class SitesSetupController
 
         @NonNull
         @Override
-        public SiteCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SiteCell(inflate(parent.getContext(), R.layout.cell_site, parent, false));
+        public SiteHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new SiteHolder(inflate(parent.getContext(), R.layout.cell_site, parent, false));
         }
 
         @Override
-        public void onBindViewHolder(@NonNull SiteCell holder, int position) {
+        public void onBindViewHolder(@NonNull SiteHolder holder, int position) {
             SiteBoardCount site = sites.get(position);
             holder.setSite(site.site);
             holder.text.setText(site.site.name());
@@ -247,12 +247,19 @@ public class SitesSetupController
         }
 
         @Override
+        public void onViewRecycled(@NonNull SiteHolder holder) {
+            holder.image.setImageDrawable(null);
+            holder.text.setText("");
+            holder.description.setText("");
+        }
+
+        @Override
         public int getItemCount() {
             return sites.size();
         }
     }
 
-    private class SiteCell
+    private class SiteHolder
             extends ViewHolder
             implements View.OnClickListener {
         private ImageView image;
@@ -264,7 +271,7 @@ public class SitesSetupController
         private Site site;
 
         @SuppressLint("ClickableViewAccessibility")
-        public SiteCell(View itemView) {
+        public SiteHolder(View itemView) {
             super(itemView);
 
             // Bind views

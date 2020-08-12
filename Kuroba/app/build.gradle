@@ -229,9 +229,7 @@ dependencies {
 
     implementation 'com.google.android.exoplayer:exoplayer-core:2.11.7'
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.11.7'
-    // Don't update to 4.8.0 - see https://github.com/Adamantcheese/Kuroba/issues/1016
-    //noinspection GradleDependency
-    implementation 'com.squareup.okhttp3:okhttp:4.7.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.8.1'
     implementation 'com.j256.ormlite:ormlite-core:5.1'
     implementation 'com.j256.ormlite:ormlite-android:5.1'
     implementation 'org.jsoup:jsoup:1.13.1'

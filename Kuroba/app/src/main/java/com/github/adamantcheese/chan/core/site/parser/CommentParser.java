@@ -106,7 +106,10 @@ public class CommentParser {
         rule(tagRule("s").link(PostLinkable.Type.SPOILER));
 
         rule(tagRule("strong").bold());
-        rule(tagRule("strong-red;").bold().foregroundColor(StyleRule.ForegroundColor.RED));
+        // these ones are css inline style specific
+        rule(tagRule("strong-color: red").bold().foregroundColor(StyleRule.ForegroundColor.RED));
+        rule(tagRule("p-font-size:15px-font-weight:bold").bold());
+
         rule(tagRule("b").bold());
 
         rule(tagRule("i").italic());
