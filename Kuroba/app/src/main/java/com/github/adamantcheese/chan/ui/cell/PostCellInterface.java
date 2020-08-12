@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.ui.cell;
 
 import android.view.View;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -41,7 +43,8 @@ public interface PostCellInterface {
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            Theme theme
+            Theme theme,
+            RecyclerView attachedTo
     );
 
     Post getPost();

@@ -151,7 +151,8 @@ public class PostAdapter
                         showDivider(position),
                         getPostViewMode(),
                         isCompact(),
-                        theme
+                        theme,
+                        recyclerView
                 );
 
                 if (itemViewType == TYPE_POST_STUB && postAdapterCallback != null) {

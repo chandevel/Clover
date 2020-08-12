@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
@@ -186,7 +187,8 @@ public class CardPostCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            Theme theme
+            Theme theme,
+            RecyclerView attachedTo
     ) {
         if (this.post == post) {
             return;

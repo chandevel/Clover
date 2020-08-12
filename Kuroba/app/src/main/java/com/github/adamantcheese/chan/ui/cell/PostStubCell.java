@@ -24,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -149,7 +151,8 @@ public class PostStubCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            Theme theme
+            Theme theme,
+            RecyclerView attachedTo
     ) {
         if (this.post == post) {
             return;
