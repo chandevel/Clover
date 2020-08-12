@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.layout;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
-import androidx.appcompat.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
@@ -34,9 +33,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterType;
@@ -329,8 +330,8 @@ public class ThreadLayout
     }
 
     public void showPostsPopup(Post forPost, List<Post> posts) {
-        if (this.getFocusedChild() != null) {
-            View currentFocus = this.getFocusedChild();
+        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
+        if (currentFocus != null) {
             hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
@@ -358,8 +359,8 @@ public class ThreadLayout
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
-        if (this.getFocusedChild() != null) {
-            View currentFocus = this.getFocusedChild();
+        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
+        if (currentFocus != null) {
             hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
@@ -631,8 +632,8 @@ public class ThreadLayout
 
     @Override
     public void showImageReencodingWindow() {
-        if (this.getFocusedChild() != null) {
-            View currentFocus = this.getFocusedChild();
+        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
+        if (currentFocus != null) {
             hideKeyboard(currentFocus);
             currentFocus.clearFocus();
         }
