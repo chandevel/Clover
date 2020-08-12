@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -83,6 +84,7 @@ import kotlin.jvm.functions.Function1;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.repository.StaticResourceRepository.mainHandler;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
@@ -610,5 +612,11 @@ public class StartActivity
         //store parsed youtube stuff, extra prevention of unneeded API calls
         Gson gson = instance(Gson.class);
         PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        // remove all callbacks, to prevent any memory leaks
+        mainHandler.removeCallbacksAndMessages(null);
     }
 }
