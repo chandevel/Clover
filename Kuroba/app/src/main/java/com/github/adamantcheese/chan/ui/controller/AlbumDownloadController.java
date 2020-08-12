@@ -94,6 +94,7 @@ public class AlbumDownloadController
 
         AlbumAdapter adapter = new AlbumAdapter();
         recyclerView.setAdapter(adapter);
+        recyclerView.getLayoutManager().setItemPrefetchEnabled(false);
     }
 
     @Override

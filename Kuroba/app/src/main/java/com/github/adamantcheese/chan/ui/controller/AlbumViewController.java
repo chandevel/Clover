@@ -66,6 +66,7 @@ public class AlbumViewController
         AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
         recyclerView.setAdapter(albumAdapter);
         recyclerView.scrollToPosition(targetIndex);
+        recyclerView.getLayoutManager().setItemPrefetchEnabled(false);
     }
 
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {

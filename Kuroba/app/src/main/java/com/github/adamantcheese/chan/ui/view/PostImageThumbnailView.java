@@ -81,20 +81,16 @@ public class PostImageThumbnailView
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (fullsizeDownload != null) {
-            fullsizeDownload.cancel();
-            fullsizeDownload = null;
-        }
-    }
-
     public void setPostImage(Loadable loadable, PostImage postImage) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
+            setUrl(null);
+            if (fullsizeDownload != null) {
+                fullsizeDownload.cancel();
+                fullsizeDownload = null;
+            }
+
             if (postImage == null) {
-                setUrl(null);
                 return;
             }
 
@@ -102,9 +98,11 @@ public class PostImageThumbnailView
             int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
 
             if (!loadable.isLocal()) {
-                if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF) && !postImage.isInlined) {
+                if (ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF)
+                        && !postImage.isInlined) {
                     HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
-                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(url,
+                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(
+                            url,
                             new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
                             new FileCacheListener() {
                                 @Override

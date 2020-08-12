@@ -126,10 +126,7 @@ public class PostStubCell
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        if (post != null && bound) {
-            unbindPost();
-        }
+        bound = false;
     }
 
     @Override
@@ -159,7 +156,7 @@ public class PostStubCell
         }
 
         if (this.post != null && bound) {
-            unbindPost();
+            bound = false;
             this.post = null;
         }
 
@@ -200,9 +197,5 @@ public class PostStubCell
         }
 
         divider.setVisibility(postViewMode == ChanSettings.PostViewMode.CARD ? GONE : (showDivider ? VISIBLE : GONE));
-    }
-
-    private void unbindPost() {
-        bound = false;
     }
 }

@@ -615,6 +615,7 @@ public class PostCell
 
     public void clearThumbnails() {
         for (PostImageThumbnailView thumbnailView : thumbnailViews) {
+            thumbnailView.setPostImage(loadable, null);
             relativeLayoutContainer.removeView(thumbnailView);
         }
         thumbnailViews.clear();
@@ -678,9 +679,6 @@ public class PostCell
         title.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
-        for (PostImageThumbnailView view : thumbnailViews) {
-            view.setPostImage(loadable, null);
-        }
         setPostLinkableListener(post, false);
     }
 

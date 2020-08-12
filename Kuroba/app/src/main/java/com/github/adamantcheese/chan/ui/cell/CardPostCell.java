@@ -163,10 +163,7 @@ public class CardPostCell
             extraCalls = null;
         }
 
-        if (post != null && bound) {
-            thumbView.setPostImage(loadable, null);
-            bound = false;
-        }
+        bound = false;
     }
 
     @Override
