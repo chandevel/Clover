@@ -197,6 +197,7 @@ public class ChanSettings {
     public static final BooleanSetting neverShowPages;
 
     //Post
+    public static final IntegerSetting thumbnailSize;
     public static final StringSetting fontSize;
     public static final BooleanSetting fontAlternate;
     public static final BooleanSetting shiftPostFormat;
@@ -356,6 +357,7 @@ public class ChanSettings {
             neverShowPages = new BooleanSetting(p, "never_show_page_number", false);
 
             // Post
+            thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
             fontSize = new StringSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? "16" : "14");
             fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);

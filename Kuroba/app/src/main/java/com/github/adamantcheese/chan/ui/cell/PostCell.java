@@ -26,7 +26,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.text.InputFilter;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -104,7 +103,7 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 public class PostCell
         extends LinearLayout
         implements PostCellInterface {
-    private static final int COMMENT_MAX_LENGTH_BOARD = 400;
+    private static final int COMMENT_MAX_LINES_BOARD = 25;
 
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
 
@@ -433,9 +432,8 @@ public class PostCell
         icons.apply();
 
         if (!threadMode) {
-            comment.setFilters(new InputFilter.LengthFilter[]{new InputFilter.LengthFilter(COMMENT_MAX_LENGTH_BOARD)});
-        } else {
-            comment.setFilters(new InputFilter[]{});
+            comment.setMaxLines(COMMENT_MAX_LINES_BOARD);
+            comment.setEllipsize(TextUtils.TruncateAt.END);
         }
 
         if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
@@ -561,7 +559,7 @@ public class PostCell
             //display width, we don't care about height here
             Point displaySize = getDisplaySize();
 
-            int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
+            int thumbnailSize = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
             boolean isSplitMode =
                     ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
 
@@ -572,14 +570,15 @@ public class PostCell
                     MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
             );
 
+            int totalThumbnailWidth = thumbnailSize + paddingPx + (post.filterHighlightedColor != 0 ? filterMatchColor.getLayoutParams().width : 0);
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
-            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+            title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - totalThumbnailWidth, EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+            icons.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - totalThumbnailWidth, EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
-            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - thumbnailSize, EXACTLY),
+            comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - totalThumbnailWidth, EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
@@ -600,10 +599,6 @@ public class PostCell
 
                 RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
                 replyParams.removeRule(RelativeLayout.RIGHT_OF);
-                replies.setLayoutParams(replyParams);
-            } else if (comment.getVisibility() == GONE) {
-                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
-                replyParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
                 replies.setLayoutParams(replyParams);
             }
         }
@@ -637,7 +632,7 @@ public class PostCell
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
                 final int idToSet = first ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
-                final int size = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
+                final int size = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
 
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;
@@ -653,9 +648,9 @@ public class PostCell
                     v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 }
                 v.setRounding(dp(2));
-                p.setMargins(dp(4), first ? dp(4) : 0, 0,
+                p.setMargins(paddingPx, first ? paddingPx + dp(2) : 0, 0,
                         //1 extra for bottom divider
-                        i + 1 == post.images.size() ? dp(1) + dp(4) : dp(2)
+                        i + 1 == post.images.size() ? dp(1) + paddingPx : dp(2)
                 );
 
                 relativeLayoutContainer.addView(v, p);
