@@ -556,7 +556,7 @@ public class PostCell
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        if (ChanSettings.shiftPostFormat.get() && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
+        if (ChanSettings.shiftPostFormat.get() && comment.getVisibility() == VISIBLE && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             int widthMax = recyclerView.getMeasuredWidth();
             int heightMax = recyclerView.getMeasuredHeight();
             int thumbnailSize = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
@@ -577,15 +577,17 @@ public class PostCell
             comment.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - totalThumbnailWidth, EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
             );
+            int thumbnailHeight = thumbnailSize + paddingPx + dp(2);
             int wrapHeight = title.getMeasuredHeight() + icons.getMeasuredHeight();
             int extraWrapHeight = wrapHeight + comment.getMeasuredHeight();
             //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
-            if ((wrapHeight >= 0.8f * thumbnailSize) || extraWrapHeight >= 1.6f * thumbnailSize) {
+            if ((wrapHeight >= 0.8f * thumbnailHeight) || extraWrapHeight >= 1.6f * thumbnailHeight) {
                 RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
                 commentParams.removeRule(RelativeLayout.RIGHT_OF);
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0)
-                        < thumbnailSize) {
+                        < thumbnailHeight) {
                     commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
+
                 } else {
                     commentParams.addRule(RelativeLayout.BELOW,
                             (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
