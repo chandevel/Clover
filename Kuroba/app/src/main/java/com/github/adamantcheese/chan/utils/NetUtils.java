@@ -330,6 +330,13 @@ public class NetUtils {
         void onHeaderSuccess(Headers result);
     }
 
+    public abstract static class IgnoreFailureCallback
+            implements Callback {
+        public final void onFailure(@NotNull Call call, @NotNull IOException e) {}
+
+        public abstract void onResponse(@NonNull Call call, @NonNull Response response);
+    }
+
     public static class HttpCodeException
             extends Exception {
         public int code;

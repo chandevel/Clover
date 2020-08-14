@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -29,15 +30,18 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import org.jetbrains.annotations.NotNull;
 import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
@@ -52,8 +56,14 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
@@ -67,6 +77,11 @@ public class CommentParserHelper {
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
     public static LruCache<String, Pair<String, String>> youtubeCache = new LruCache<>(500);
+
+    private static final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(?:math|eqn)].*?\\[/(?:math|eqn)]");
+    private static final Pattern QUICK_LATEX_RESPONSE =
+            Pattern.compile(".*?\r\n(\\S+)\\s.*?\\s\\d+\\s\\d+(?:\r\n([\\s\\S]+))?");
+    public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
             "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|xps|cbz|epub|fb2|bmp|webp|mp3|swf|m4a|ogg|flac)",
@@ -110,8 +125,7 @@ public class CommentParserHelper {
             final PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.LINK);
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
-            spannable.setSpan(
-                    pl,
+            spannable.setSpan(pl,
                     link.getBeginIndex(),
                     link.getEndIndex(),
                     (500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
@@ -216,6 +230,7 @@ public class CommentParserHelper {
         Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(post.comment);
         while (linkMatcher.find()) {
             String URL = linkMatcher.group(0);
+            if (URL == null) continue;
 
             //@formatter:off
             HttpUrl requestUrl = HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
@@ -240,7 +255,7 @@ public class CommentParserHelper {
 
             if (!needsRequest) {
                 // we've previously cached this youtube title/duration and we don't need additional information
-                performLinkReplacement(theme, post, result, URL, toInvalidate);
+                performYoutubeLinkReplacement(theme, post, result, URL, toInvalidate);
             } else {
                 // we haven't cached this youtube title/duration, or we need additional information
                 calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
@@ -248,7 +263,7 @@ public class CommentParserHelper {
                     public void onJsonFailure(Exception e) {
                         if (!"Canceled".equals(e.getMessage())) {
                             //failed to get, replace with just the URL and append the youtube icon
-                            performLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate);
+                            performYoutubeLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate);
                         }
                     }
 
@@ -256,7 +271,7 @@ public class CommentParserHelper {
                     public void onJsonSuccess(Pair<String, String> result) {
                         //got a result, replace with the result and also cache the result
                         youtubeCache.put(URL, result);
-                        performLinkReplacement(theme, post, result, URL, toInvalidate);
+                        performYoutubeLinkReplacement(theme, post, result, URL, toInvalidate);
                     }
                 }, reader -> {
                     reader.beginObject(); // JSON start
@@ -310,8 +325,12 @@ public class CommentParserHelper {
         }
     }
 
-    private static void performLinkReplacement(
-            Theme theme, Post post, @NonNull Pair<String, String> titleDurPair, String URL, TextView toSetAndInvalidate
+    private static void performYoutubeLinkReplacement(
+            Theme theme,
+            Post post,
+            @NonNull Pair<String, String> titleDurPair,
+            @NonNull String URL,
+            @Nullable TextView toSetAndInvalidate
     ) {
         synchronized (post.comment) {
             int startIndex = post.comment.toString().indexOf(URL);
@@ -331,8 +350,7 @@ public class CommentParserHelper {
                     (int) (sp(height) / (BitmapRepository.youtubeIcon.getHeight() / (float) BitmapRepository.youtubeIcon
                             .getWidth()));
             ytIcon.getDrawable().setBounds(0, 0, width, sp(height));
-            replacement.setSpan(
-                    ytIcon,
+            replacement.setSpan(ytIcon,
                     0,
                     1,
                     ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -340,8 +358,7 @@ public class CommentParserHelper {
 
             //set the linkable to be the entire length, including the icon
             PostLinkable pl = new PostLinkable(theme, replacement, URL, PostLinkable.Type.LINK);
-            replacement.setSpan(
-                    pl,
+            replacement.setSpan(pl,
                     0,
                     replacement.length(),
                     ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
@@ -357,5 +374,125 @@ public class CommentParserHelper {
                 toSetAndInvalidate.postInvalidate();
             }
         }
+    }
+
+    public static void addMathSpans(Post post, @Nullable TextView toInvalidate) {
+        Matcher linkMatcher = MATH_EQN_PATTERN.matcher(post.comment);
+        while (linkMatcher.find()) {
+            final String math = linkMatcher.group(0);
+            if (math == null) continue;
+
+            String rawMath = math.replace("[math]", "$$")
+                    .replace("[eqn]", "$")
+                    .replace("[/math]", "$$")
+                    .replace("[/eqn]", "$")
+                    .replace("%", "%25")
+                    .replace("&", "%26");
+            HttpUrl imageUrl = mathCache.get(math);
+            if (imageUrl != null) {
+                // have a previous image URL
+                performMathSpanAdditions(post, imageUrl, math, toInvalidate);
+            } else {
+                // need to request an image URL
+                Call call = instance(NetModule.OkHttpClientWithUtils.class).newCall(setupMathImageUrlRequest(rawMath));
+                call.enqueue(new NetUtils.IgnoreFailureCallback() {
+                    @Override
+                    public void onResponse(@NotNull Call call, @NotNull Response response) {
+                        if (response.code() != 200) {
+                            response.close();
+                            return;
+                        }
+
+                        try (ResponseBody body = response.body()) {
+                            //noinspection ConstantConditions
+                            String responseString = body.string();
+                            Matcher matcher = QUICK_LATEX_RESPONSE.matcher(responseString);
+                            if (matcher.matches()) {
+                                //noinspection ConstantConditions
+                                HttpUrl url = HttpUrl.get(matcher.group(1));
+                                String err = matcher.group(2);
+                                if (err == null) {
+                                    mathCache.put(math, url);
+                                    performMathSpanAdditions(post, url, math, toInvalidate);
+                                }
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private static Request setupMathImageUrlRequest(String formula) {
+        Request.Builder requestBuilder = new Request.Builder();
+
+        //noinspection StringBufferReplaceableByString
+        StringBuilder postBody = new StringBuilder();
+        postBody.append("formula=")
+                .append(formula)
+                .append("&fsize=")
+                .append(sp(Integer.parseInt(ChanSettings.fontSize.get())))
+                .append("px")
+                .append("&fcolor=")
+                .append(String.format("%06X",
+                        (0xFFFFFF & getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor))
+                ))
+                .append("&mode=0")
+                .append("&out=1")
+                .append("&preamble=")
+                .append("\\usepackage{amsmath}\r\n\\usepackage{amsfonts}\r\n\\usepackage{amssymb}")
+                .append("&rnd=")
+                .append(Math.random() * 100)
+                .append("&remhost=quicklatex.com");
+
+        RequestBody body = RequestBody.create(postBody.toString(), null);
+
+        requestBuilder.url("https://www.quicklatex.com/latex3.f");
+        requestBuilder.post(body);
+
+        return requestBuilder.build();
+    }
+
+    private static void performMathSpanAdditions(
+            Post post, @NonNull final HttpUrl imageUrl, final String rawMath, @Nullable TextView toInvalidate
+    ) {
+        NetUtils.makeBitmapRequest(imageUrl, new NetUtils.BitmapResult() {
+            @Override
+            public void onBitmapFailure(Bitmap errormap, Exception e) {}
+
+            @Override
+            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                synchronized (post.comment) {
+                    for (int i = 0; i < post.comment.length(); ) {
+                        int startIndex = post.comment.toString().indexOf(rawMath, i);
+                        int endIndex = startIndex + rawMath.length();
+
+                        i = endIndex + 1;
+
+                        if (startIndex == -1) {
+                            return; // don't know where to do replacement or finished all replacements (in the case of multiple of the same latex)
+                        }
+
+                        if (post.comment.getSpans(startIndex, endIndex, ImageSpan.class).length > 0) {
+                            continue; // we've already got an image span attached here
+                        }
+
+                        ImageSpan mathImage = new ImageSpan(getAppContext(), bitmap);
+                        post.comment.setSpan(mathImage,
+                                startIndex,
+                                endIndex,
+                                ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
+                                        | Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                        );
+
+                        if (toInvalidate != null) {
+                            toInvalidate.setText(post.comment);
+                            toInvalidate.postInvalidate();
+                        }
+                    }
+                }
+            }
+        });
     }
 }

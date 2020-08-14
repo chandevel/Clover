@@ -268,6 +268,7 @@ public class CardPostCell
 
         replies.setText(status);
 
+        CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
             extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
         }
