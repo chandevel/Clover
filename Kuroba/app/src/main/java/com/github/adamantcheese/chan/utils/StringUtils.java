@@ -19,7 +19,7 @@ import okhttp3.HttpUrl;
 
 public class StringUtils {
     private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
-    private static final char[] HEX_ARRAY = "0123456789ABCDEF".toLowerCase(Locale.ENGLISH).toCharArray();
+    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
     @SuppressWarnings("RegExpRedundantEscape")
     private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[\\]/'\\\\\\s";
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
