@@ -26,6 +26,8 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -75,7 +77,6 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.repository.StaticResourceRepository.mainHandler;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -115,6 +116,7 @@ public class ImageViewerController
     private LoadingBar loadingBar;
 
     private boolean isInImmersiveMode = false;
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable uiHideCall = this::hideSystemUI;
 
     public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {

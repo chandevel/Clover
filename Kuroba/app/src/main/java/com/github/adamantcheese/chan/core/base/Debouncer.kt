@@ -1,16 +1,18 @@
 package com.github.adamantcheese.chan.core.base
 
-import com.github.adamantcheese.chan.core.repository.StaticResourceRepository.mainHandler
+import android.os.Handler
+import android.os.Looper
 import java.util.concurrent.atomic.AtomicBoolean
 
 open class Debouncer(
         private val eagerInitialization: Boolean
 ) {
     private val eagerlyInitialized = AtomicBoolean(!eagerInitialization)
+    private val handler: Handler = Handler(Looper.getMainLooper())
 
     open fun post(runnable: Runnable, delayMs: Long) {
         if (eagerInitialization && !eagerlyInitialized.get()) {
-            mainHandler.post {
+            handler.post {
                 if (eagerlyInitialized.compareAndSet(false, true)) {
                     runnable.run()
                 }
@@ -19,7 +21,7 @@ open class Debouncer(
             return
         }
 
-        mainHandler.removeCallbacksAndMessages(null)
-        mainHandler.postDelayed(runnable, delayMs)
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed(runnable, delayMs)
     }
 }

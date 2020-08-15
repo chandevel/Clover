@@ -2,6 +2,9 @@ package com.github.adamantcheese.chan.ui.layout.crashlogs
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -9,15 +12,15 @@ import android.widget.CheckBox
 import android.widget.FrameLayout
 import android.widget.TextView
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.core.repository.StaticResourceRepository.mainHandler
-import com.github.adamantcheese.chan.utils.LayoutUtils.inflate
 
 internal class CrashLogsListArrayAdapter(
         context: Context,
         crashLogs: List<CrashLog>,
         private val callbacks: CrashLogsListCallbacks
 ) : ArrayAdapter<CrashLog>(context, R.layout.cell_crashlog_item) {
-    private val notify: Runnable = Runnable { notifyDataSetChanged() }
+    private val inflater: LayoutInflater =
+            context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private val handler = Handler(Looper.getMainLooper())
 
     init {
         clear()
@@ -30,7 +33,7 @@ internal class CrashLogsListArrayAdapter(
             "Item with position $position is null! Items count = $count"
         }
 
-        val cellView = inflate(context, R.layout.cell_crashlog_item, parent, false)
+        val cellView = inflater.inflate(R.layout.cell_crashlog_item, parent, false)
         val fileNameView = cellView.findViewById<TextView>(R.id.cell_crashlog_file_name)
         val checkBox = cellView.findViewById<CheckBox>(R.id.cell_crashlog_send_checkbox)
         val clickArea = cellView.findViewById<FrameLayout>(R.id.cell_crashlog_click_area)
@@ -48,10 +51,10 @@ internal class CrashLogsListArrayAdapter(
             crashLogItem.markedToSend = !crashLogItem.markedToSend
             checkBox.isChecked = crashLogItem.markedToSend
 
-            mainHandler.removeCallbacks(notify)
+            handler.removeCallbacksAndMessages(null)
 
             // Wait 100ms so that we have a little bit of time to show ripple effect
-            mainHandler.postDelayed(notify, 100)
+            handler.postDelayed({ notifyDataSetChanged() }, 100)
         }
 
         return cellView
@@ -86,6 +89,6 @@ internal class CrashLogsListArrayAdapter(
     }
 
     fun onDestroy() {
-        mainHandler.removeCallbacks(notify)
+        handler.removeCallbacksAndMessages(null)
     }
 }
