@@ -515,15 +515,17 @@ public class Post
                 boolean onlyOnOp,
                 boolean filterSaved
         ) {
-            // for any filter effect, OR it with any previous filters; the highlighted color will be the last one in the list
-            filterHighlightedColor = highlightedColor;
-            filterStub = filterStub | stub;
-            filterRemove = filterRemove | remove;
-            filterWatch = filterWatch | watch;
-            this.filterReplies = this.filterReplies | filterReplies;
-            filterOnlyOP = filterOnlyOP | onlyOnOp;
-            this.filterSaved = this.filterSaved | filterSaved;
-            return this;
+            synchronized (this) {
+                // for any filter effect, OR it with any previous filters; the highlighted color will be the last one in the list
+                filterHighlightedColor = highlightedColor;
+                filterStub = filterStub | stub;
+                filterRemove = filterRemove | remove;
+                filterWatch = filterWatch | watch;
+                this.filterReplies = this.filterReplies | filterReplies;
+                filterOnlyOP = filterOnlyOP | onlyOnOp;
+                this.filterSaved = this.filterSaved | filterSaved;
+                return this;
+            }
         }
 
         public Builder isSavedReply(boolean isSavedReply) {

@@ -269,12 +269,7 @@ public class FilterEngine {
 
         if (pattern != null) {
             Matcher matcher = pattern.matcher(HtmlCompat.fromHtml(text, 0).toString());
-            try {
-                return matcher.find();
-            } catch (IllegalArgumentException e) {
-                Logger.w(this, "matcher.find() exception", e);
-                return false;
-            }
+            return matcher.find();
         } else {
             Logger.e(this, "Invalid pattern");
             return false;

@@ -186,7 +186,7 @@ public class FilterWatchManager
         //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
         if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
         ignoredPosts.addAll(toAdd);
-        PersistableChanState.filterWatchIgnored.set(gson.toJson(ignoredPosts));
+        PersistableChanState.filterWatchIgnored.setSync(gson.toJson(ignoredPosts));
     }
 
     private class CatalogLoader
@@ -230,7 +230,7 @@ public class FilterWatchManager
                     lastCheckedPostNumbers.add(post.no);
                 }
                 ignoredPosts.retainAll(lastCheckedPostNumbers);
-                PersistableChanState.filterWatchIgnored.set(gson.toJson(ignoredPosts));
+                PersistableChanState.filterWatchIgnored.setSync(gson.toJson(ignoredPosts));
                 lastCheckedPosts.clear();
                 processing = false;
                 Logger.d(this,

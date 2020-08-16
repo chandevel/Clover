@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.util.JsonReader;
 
-import androidx.core.util.Pair;
-
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -128,50 +126,29 @@ public class ChanReaderParser
         // Do not modify internalIds after this point.
         internalIds = Collections.unmodifiableSet(internalIds);
 
-        List<Callable<Pair<Integer, Post>>> tasks = new ArrayList<>(toParse.size());
+        List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
         Theme currentTheme = ThemeHelper.getTheme();
-        // this ID is used to sort the parsed posts later on, as they may not end up in the correct order after
-        // the multithreaded processing is complete; 0 because each ++i call adds one, so our "first" post is ID 1
-        int i = 0;
+
         for (Post.Builder post : toParse) {
-            tasks.add(new PostParseCallable(++i,
+            tasks.add(new PostParseCallable(
                     filterEngine,
                     filters,
                     databaseSavedReplyManager,
                     post,
                     reader,
                     internalIds,
-                    currentTheme
+                    currentTheme,
+                    loadable.isCatalogMode(),
+                    pool
             ));
         }
 
-        List<Future<Pair<Integer, Post>>> futures = pool.invokeAll(tasks);
-        List<Future<Pair<Integer, Post>>> toRemove = new ArrayList<>();
-        List<Pair<Integer, Post>> completed = new ArrayList<>();
-
-        while (!futures.isEmpty()) { // blocking here, waiting for everything to be done
-            toRemove.clear();
-            for (Future<Pair<Integer, Post>> future : futures) {
-                if (future.isDone()) {
-                    Pair<Integer, Post> post = future.get(); // not blocking here, processing already done
-                    if (post != null) {
-                        completed.add(post);
-                    }
-                    toRemove.add(future);
-                }
+        List<Future<Post>> futures = pool.invokeAll(tasks);
+        for (Future<Post> f : futures) {
+            Post p = f.get();
+            if (p != null) {
+                total.add(p);
             }
-            for (Future<Pair<Integer, Post>> remove : toRemove) {
-                futures.remove(remove);
-            }
-        }
-
-        // Because of the multithreading, completed isn't necessarily sorted on the ID part of the Pair the
-        // PostParseCallable returns, so we need to sort them here (this is the sort for "BUMP" order)
-        // previously each PostParseCallable was processed sequentially, so this step was not needed
-        //noinspection ConstantConditions
-        Collections.sort(completed, (o1, o2) -> o1.first.compareTo(o2.first));
-        for (Pair<Integer, Post> ordered : completed) {
-            total.add(ordered.second);
         }
         return total;
     }
