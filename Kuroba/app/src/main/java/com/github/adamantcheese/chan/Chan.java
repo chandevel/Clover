@@ -20,6 +20,8 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
@@ -266,6 +268,11 @@ public class Chan
         if (getApplicationInForeground() != lastForeground) {
             postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
         }
+    }
+
+    @Override
+    public void onActivityDestroyed(@NonNull Activity activity) {
+        new Handler(Looper.getMainLooper()).removeCallbacksAndMessages(null);
     }
 
     public static class ForegroundChangedMessage {
