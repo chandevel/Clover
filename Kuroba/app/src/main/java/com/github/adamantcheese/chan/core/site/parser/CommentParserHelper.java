@@ -382,10 +382,10 @@ public class CommentParserHelper {
             final String math = linkMatcher.group(0);
             if (math == null) continue;
 
-            String rawMath = math.replace("[math]", "$$")
-                    .replace("[eqn]", "$")
-                    .replace("[/math]", "$$")
-                    .replace("[/eqn]", "$")
+            String rawMath = math.replace("[math]", "$")
+                    .replace("[eqn]", "$$")
+                    .replace("[/math]", "$")
+                    .replace("[/eqn]", "$$")
                     .replace("%", "%25")
                     .replace("&", "%26");
             HttpUrl imageUrl = mathCache.get(math);
@@ -432,7 +432,7 @@ public class CommentParserHelper {
         postBody.append("formula=")
                 .append(formula)
                 .append("&fsize=")
-                .append(sp(Integer.parseInt(ChanSettings.fontSize.get())))
+                .append((int) (sp(Integer.parseInt(ChanSettings.fontSize.get())) * 1.2))
                 .append("px")
                 .append("&fcolor=")
                 .append(String.format("%06X",
