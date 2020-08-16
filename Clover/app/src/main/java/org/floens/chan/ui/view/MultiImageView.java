@@ -17,6 +17,7 @@
  */
 package org.floens.chan.ui.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
@@ -25,8 +26,10 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -53,6 +56,8 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
 import org.floens.chan.R;
@@ -74,6 +79,10 @@ import javax.inject.Inject;
 
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
+
+import at.huber.youtubeExtractor.VideoMeta;
+import at.huber.youtubeExtractor.YouTubeExtractor;
+import at.huber.youtubeExtractor.YtFile;
 
 import static org.floens.chan.Chan.inject;
 
@@ -411,39 +420,70 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             return;
         }
 
-        callback.showProgress(this, true);
-        videoRequest = fileCache.downloadFile(videoUrl, new FileCacheListener() {
-            @Override
-            public void onProgress(long downloaded, long total) {
-                callback.onProgress(MultiImageView.this, downloaded, total);
-            }
+        if (videoUrl.contains("://youtu.be/") || videoUrl.contains("youtube.com/watch?v=")) {
+            @SuppressLint("StaticFieldLeak") YouTubeExtractor mExtractor = new YouTubeExtractor(getContext()) {
+                @Override
+                protected void onExtractionComplete(SparseArray<YtFile> ytFiles, VideoMeta vMeta) {
+                    if (ytFiles != null) {
+                        String ytlink = ytFiles.get(18).getUrl();
 
-            @Override
-            public void onSuccess(File file) {
-                if (!hasContent || mode == Mode.MOVIE) {
-                    setVideoFile(file);
+                        exoVideoView = new PlayerView(getContext());
+                        exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+                        exoVideoView.setPlayer(exoPlayer);
+
+                        DataSource.Factory dataSourceFactory = new DefaultHttpDataSourceFactory(
+                                Util.getUserAgent(getContext(), userAgent.getUserAgent()),
+                                null,
+                                DefaultHttpDataSource.DEFAULT_CONNECT_TIMEOUT_MILLIS,
+                                DefaultHttpDataSource.DEFAULT_READ_TIMEOUT_MILLIS,
+                                true
+                        );
+
+                        MediaSource ytSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+                                .createMediaSource(Uri.parse(ytlink));
+                        exoPlayer.prepare(ytSource);
+
+                        addView(exoVideoView);
+                        exoPlayer.setPlayWhenReady(true);
+                    }
                 }
-            }
-
-            @Override
-            public void onFail(boolean notFound) {
-                if (notFound) {
-                    onNotFoundError();
-                } else {
-                    onError(new Exception());
+            };
+            mExtractor.extract(videoUrl, true, true);
+        } else {
+            callback.showProgress(this, true);
+            videoRequest = fileCache.downloadFile(videoUrl, new FileCacheListener() {
+                @Override
+                public void onProgress(long downloaded, long total) {
+                    callback.onProgress(MultiImageView.this, downloaded, total);
                 }
-            }
 
-            @Override
-            public void onCancel() {
-            }
+                @Override
+                public void onSuccess(File file) {
+                    if (!hasContent || mode == Mode.MOVIE) {
+                        setVideoFile(file);
+                    }
+                }
 
-            @Override
-            public void onEnd() {
-                videoRequest = null;
-                callback.showProgress(MultiImageView.this, false);
-            }
-        });
+                @Override
+                public void onFail(boolean notFound) {
+                    if (notFound) {
+                        onNotFoundError();
+                    } else {
+                        onError(new Exception());
+                    }
+                }
+
+                @Override
+                public void onCancel() {
+                }
+
+                @Override
+                public void onEnd() {
+                    videoRequest = null;
+                    callback.showProgress(MultiImageView.this, false);
+                }
+            });
+        }
     }
 
     private void setOther(String fileUrl) {

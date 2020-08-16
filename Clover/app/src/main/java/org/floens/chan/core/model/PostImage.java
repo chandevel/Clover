@@ -61,6 +61,7 @@ public class PostImage {
             case "m4a":
             case "ogg":
             case "flac":
+            case "YT":
                 type = Type.MOVIE;
                 break;
             case "swf":
