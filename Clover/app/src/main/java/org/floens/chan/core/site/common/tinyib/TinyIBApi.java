@@ -86,7 +86,7 @@ public class TinyIBApi extends CommonSite.CommonApi {
         String thumbnailpath = null;
         String originalName = null;
 
-		/* prevent API parse error
+        /* prevent API parse error
 
            resto is not available on opening board overview the first time
            so, we manually set the opId to 0, builder.op to true and builder.opId to 0 */
@@ -132,7 +132,7 @@ public class TinyIBApi extends CommonSite.CommonApi {
                     builder.subject(reader.nextString());
                     break;
                 case "message":
-				    postcom = reader.nextString();
+                    postcom = reader.nextString();
                     builder.comment(postcom);
                     break;
                 case "file":
@@ -189,7 +189,7 @@ public class TinyIBApi extends CommonSite.CommonApi {
                 fileExt = "YT";
                 path = file;
             } else {
-			    fileName = file.substring(0, file.lastIndexOf("."));
+                fileName = file.substring(0, file.lastIndexOf("."));
                 fileExt = file.substring(file.lastIndexOf(".") + 1);
                 path = file;
 			}
@@ -284,7 +284,7 @@ public class TinyIBApi extends CommonSite.CommonApi {
                     fileSpoiler = Integer.valueOf(reader.nextString()) == 1;
                     break;
                 case "file":
-					file = reader.nextString();
+                    file = reader.nextString();
                     break;
                 case "thumb":
                     thumbnail = reader.nextString();
@@ -306,7 +306,7 @@ public class TinyIBApi extends CommonSite.CommonApi {
                 fileExt = "YT";
                 path = file;
             } else {
-			    fileName = file.substring(0, file.lastIndexOf("."));
+                fileName = file.substring(0, file.lastIndexOf("."));
                 fileExt = file.substring(file.lastIndexOf(".") + 1);
                 path = file;
 			}

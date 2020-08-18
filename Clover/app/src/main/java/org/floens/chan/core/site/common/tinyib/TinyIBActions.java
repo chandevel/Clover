@@ -64,7 +64,7 @@ public class TinyIBActions extends CommonSite.CommonActions {
     public void handlePost(ReplyResponse replyResponse, Response response, String result) {
         // extract the data we need from matching the result
         int threadNo = 0;
-		int postNo = 0;
+        int postNo = 0;
         Matcher res = resultPattern().matcher(result);
         if (res.find()) {
             threadNo = Integer.parseInt(res.group(1));

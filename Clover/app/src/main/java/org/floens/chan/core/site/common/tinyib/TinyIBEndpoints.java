@@ -63,9 +63,9 @@ public class TinyIBEndpoints extends CommonSite.CommonEndpoints {
     public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
         if (arg.get("path").contains("<iframe")) {
             String youtubeId = arg.get("path");
-			youtubeId = youtubeId.replaceAll("<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/", "");
-			youtubeId = youtubeId.replaceAll("\\?", "");
-			youtubeId = youtubeId.replaceAll("feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>", "");
+            youtubeId = youtubeId.replaceAll("<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/", "");
+            youtubeId = youtubeId.replaceAll("\\?", "");
+            youtubeId = youtubeId.replaceAll("feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>", "");
             return yt.builder().s(youtubeId).url();
         } else {
             return sys.builder().s(post.board.code).s("src").s(arg.get("path")).url();
