@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.helper;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 
@@ -34,15 +35,15 @@ import java.util.Date;
 import java.util.Locale;
 
 public class PostHelper {
-    public static CharSequence prependIcon(Context context, CharSequence total, Bitmap bitmap, int height) {
-        SpannableString string = new SpannableString("  ");
-        ImageSpan imageSpan = new ImageSpan(context, bitmap);
-
+    public static CharSequence prependIcon(
+            @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, int height
+    ) {
         int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
-
+        SpannableString string = new SpannableString("  " + total);
+        ImageSpan imageSpan = new ImageSpan(context, bitmap);
         imageSpan.getDrawable().setBounds(0, 0, width, height);
-        string.setSpan(imageSpan, 0, 1, 0);
-        return total == null ? string : TextUtils.concat(string, " ", total);
+        string.setSpan(imageSpan, 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        return string;
     }
 
     @SuppressWarnings("ConstantConditions")

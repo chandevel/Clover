@@ -46,7 +46,7 @@ public class PostsFilter {
             (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
 
     private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR = (lhs, rhs) -> {
-        long currentTimeSeconds = System.currentTimeMillis() / 1000;
+        long currentTimeSeconds = System.currentTimeMillis() / 1000L;
 
         //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
         long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0

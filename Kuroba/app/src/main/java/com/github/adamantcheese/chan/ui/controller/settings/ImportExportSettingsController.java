@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;

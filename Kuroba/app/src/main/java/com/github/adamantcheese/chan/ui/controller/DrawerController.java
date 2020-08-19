@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import androidx.appcompat.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.view.Gravity;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
