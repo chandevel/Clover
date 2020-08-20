@@ -311,7 +311,7 @@ public class MediaSettingsController
 
         LinkSettingView localThreadsLocationSetting = new LinkSettingView(this,
                 R.string.media_settings_local_threads_location_title,
-                0,
+                R.string.empty,
                 v -> threadsLocationSetupDelegate.showUseSAFOrOldAPIForLocalThreadsLocationDialog()
         );
 
@@ -322,7 +322,7 @@ public class MediaSettingsController
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
                 R.string.save_location_screen,
-                0,
+                R.string.empty,
                 v -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
         );
 

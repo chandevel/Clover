@@ -80,7 +80,7 @@ public class AppearanceSettingsController
             requiresRestart.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.neverHideToolbar,
                     R.string.setting_never_hide_toolbar,
-                    0
+                    R.string.empty
             )));
 
             requiresRestart.add(layout.add(new BooleanSettingView(this,
@@ -92,7 +92,7 @@ public class AppearanceSettingsController
             layout.add(new BooleanSettingView(this,
                     ChanSettings.repliesButtonsBottom,
                     R.string.setting_buttons_bottom,
-                    0
+                    R.string.empty
             ));
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
@@ -155,19 +155,19 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFullDate,
                     R.string.setting_post_full_date,
-                    0
+                    R.string.empty
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFileInfo,
                     R.string.setting_post_file_info,
-                    0
+                    R.string.empty
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.postFilename,
                     R.string.setting_post_filename,
-                    0
+                    R.string.empty
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
@@ -197,7 +197,7 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.anonymizeIds,
                     R.string.setting_anonymize_ids,
-                    0
+                    R.string.empty
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,

@@ -70,25 +70,25 @@ public class BehaviourSettingsController
             general.add(new BooleanSettingView(this,
                     ChanSettings.autoRefreshThread,
                     R.string.setting_auto_refresh_thread,
-                    0
+                    R.string.empty
             ));
 
             requiresRestart.add(general.add(new BooleanSettingView(this,
                     ChanSettings.controllerSwipeable,
                     R.string.setting_controller_swipeable,
-                    0
+                    R.string.empty
             )));
 
             general.add(new BooleanSettingView(this,
                     ChanSettings.openLinkConfirmation,
                     R.string.setting_open_link_confirmation,
-                    0
+                    R.string.empty
             ));
 
             general.add(new BooleanSettingView(this,
                     ChanSettings.openLinkBrowser,
                     R.string.setting_open_link_browser,
-                    0
+                    R.string.empty
             ));
 
             general.add(new BooleanSettingView(this,
@@ -100,7 +100,7 @@ public class BehaviourSettingsController
             general.add(new BooleanSettingView(this,
                     ChanSettings.alwaysOpenDrawer,
                     R.string.settings_always_open_drawer,
-                    0
+                    R.string.empty
             ));
 
             general.add(new LinkSettingView(this,
@@ -114,7 +114,7 @@ public class BehaviourSettingsController
                     v -> navigationController.pushController(new JsCaptchaCookiesEditorController(context))
             ));
 
-            general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, 0, v -> {
+            general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, R.string.empty, v -> {
                 // TODO: don't do this here.
                 DatabaseManager databaseManager = instance(DatabaseManager.class);
                 databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
@@ -129,7 +129,11 @@ public class BehaviourSettingsController
         {
             SettingsGroup reply = new SettingsGroup(R.string.settings_group_reply);
 
-            reply.add(new BooleanSettingView(this, ChanSettings.postPinThread, R.string.setting_post_pin, 0));
+            reply.add(new BooleanSettingView(this,
+                    ChanSettings.postPinThread,
+                    R.string.setting_post_pin,
+                    R.string.empty
+            ));
 
             reply.add(new StringSettingView(this,
                     ChanSettings.postDefaultName,
@@ -147,7 +151,7 @@ public class BehaviourSettingsController
             post.add(new BooleanSettingView(this,
                     ChanSettings.volumeKeysScrolling,
                     R.string.setting_volume_key_scrolling,
-                    0
+                    R.string.empty
             ));
 
             post.add(new BooleanSettingView(this,
@@ -184,7 +188,7 @@ public class BehaviourSettingsController
             requiresRestart.add(other.add(new BooleanSettingView(this,
                     ChanSettings.fullUserRotationEnable,
                     R.string.setting_full_screen_rotation,
-                    0
+                    R.string.empty
             )));
 
             other.add(new BooleanSettingView(this,
@@ -215,7 +219,7 @@ public class BehaviourSettingsController
             requiresRestart.add(proxy.add(new BooleanSettingView(this,
                     ChanSettings.proxyEnabled,
                     R.string.setting_proxy_enabled,
-                    0
+                    R.string.empty
             )));
 
             requiresRestart.add(proxy.add(new StringSettingView(this,
