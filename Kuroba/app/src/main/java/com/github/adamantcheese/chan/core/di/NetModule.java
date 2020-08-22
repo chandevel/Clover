@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import android.net.ConnectivityManager;
-
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -76,14 +74,13 @@ public class NetModule {
     @Provides
     @Singleton
     public FileCacheV2 provideFileCacheV2(
-            ConnectivityManager connectivityManager,
             FileManager fileManager,
             CacheHandler cacheHandler,
             SiteResolver siteResolver,
             OkHttpClientWithUtils okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient, connectivityManager);
+        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient);
     }
 
     @Provides

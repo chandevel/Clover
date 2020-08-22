@@ -53,7 +53,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.PreferenceManager;
 
@@ -504,6 +503,10 @@ public class AndroidUtils {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    public static ConnectivityManager getConnectivityManager() {
+        return (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
     /**
      * @return the display size of the full display, no subtractions
      */
@@ -614,7 +617,11 @@ public class AndroidUtils {
     /**
      * Change to ConnectivityManager#registerDefaultNetworkCallback when minSdk == 24, basically never
      */
-    public static String getNetworkClass(@NonNull ConnectivityManager connectivityManager) {
+    public static String getNetworkClass() {
+        ConnectivityManager connectivityManager = getConnectivityManager();
+        if (connectivityManager == null) {
+            return "No Connectivity Manager Service";
+        }
         NetworkInfo info = connectivityManager.getActiveNetworkInfo();
         if (info == null || !info.isConnected()) {
             return "No connected"; // not connected

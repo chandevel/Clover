@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
-import android.net.ConnectivityManager
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
@@ -39,8 +38,7 @@ class FileCacheV2(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         siteResolver: SiteResolver,
-        okHttpClient: OkHttpClient,
-        private val connectivityManager: ConnectivityManager
+        okHttpClient: OkHttpClient
 ) {
     private val activeDownloads = ActiveDownloads()
 
@@ -652,7 +650,7 @@ class FileCacheV2(
             is FileDownloadResult.Success,
             FileDownloadResult.Canceled,
             FileDownloadResult.Stopped,
-            is FileDownloadResult.KnownException -> getNetworkClass(connectivityManager)
+            is FileDownloadResult.KnownException -> getNetworkClass()
             is FileDownloadResult.Progress,
             is FileDownloadResult.UnknownException -> {
                 "Unsupported result: ${result::class.java.simpleName}"
