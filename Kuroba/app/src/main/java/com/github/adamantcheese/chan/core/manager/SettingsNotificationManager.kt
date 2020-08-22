@@ -1,97 +1,66 @@
 package com.github.adamantcheese.chan.core.manager
 
-import androidx.annotation.GuardedBy
-import com.github.adamantcheese.chan.ui.settings.SettingNotificationType
-import com.github.adamantcheese.chan.utils.Logger
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.processors.BehaviorProcessor
+import android.annotation.SuppressLint
+import androidx.annotation.ColorInt
+import com.github.adamantcheese.chan.R
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification
+import org.greenrobot.eventbus.EventBus
 
-class SettingsNotificationManager {
-    @GuardedBy("this")
-    private val notifications: MutableSet<SettingNotificationType> = mutableSetOf()
-
-    /**
-     * A reactive stream that is being used to notify observers about [notifications] changes
-     * */
-    private val activeNotificationsSubject = BehaviorProcessor.createDefault(Unit)
-
-    /**
-     * If [notifications] doesn't contain [notificationType] yet, then notifies
-     * all observers that there is a new notification
-     * */
-    @Synchronized
-    fun notify(notificationType: SettingNotificationType) {
-        if (notifications.add(notificationType)) {
-            Logger.d(TAG, "Added ${notificationType.name} notification")
-            activeNotificationsSubject.onNext(Unit)
-        }
+object SettingsNotificationManager {
+    @JvmStatic
+    fun postNotification(notification: SettingNotification) {
+        val currentType = EventBus.getDefault().getStickyEvent(SettingNotification::class.java)
+        val newType = currentType?.addType(notification) ?: notification
+        EventBus.getDefault().postSticky(newType)
     }
 
-    @Synchronized
-    fun getNotificationByPriority(): SettingNotificationType? {
-        if (contains(SettingNotificationType.ApkUpdate)) {
-            return SettingNotificationType.ApkUpdate
-        }
-
-        if (contains(SettingNotificationType.CrashLog)) {
-            return SettingNotificationType.CrashLog
-        }
-
-        // Add new notifications here. Don't forget that order matters! The order affects priority.
-        // For now "Apk update" has higher priority than "Crash log".
-
-        return null
+    @JvmStatic
+    fun cancelNotification(notification: SettingNotification) {
+        val currentType = EventBus.getDefault().getStickyEvent(SettingNotification::class.java)
+        val newType = currentType?.removeType(notification) ?: SettingNotification.Default
+        EventBus.getDefault().postSticky(newType)
     }
 
-    @Synchronized
-    fun hasNotifications(notificationType: SettingNotificationType): Boolean {
-        return contains(notificationType)
-    }
+    @SuppressLint("ResourceAsColor")
+    enum class SettingNotification(var typeFlags: Int, @param:ColorInt var notificationIconTintColor: Int) {
+        /**
+         * No active notification
+         */
+        Default(0, android.R.color.transparent),
 
-    @Synchronized
-    fun notificationsCount(): Int = notifications.count()
+        /**
+         * New apk update is available notification
+         */
+        ApkUpdate(1, R.color.md_green_500),
 
-    @Synchronized
-    fun getOrDefault(notificationType: SettingNotificationType): SettingNotificationType {
-        if (!contains(notificationType)) {
-            return SettingNotificationType.Default
+        /**
+         * There is at least one crash log available notification
+         */
+        CrashLog(2, R.color.md_red_400),
+
+        /**
+         * There are both ApkUpdate and CrashLog notifications; use crashlog color
+         */
+        Both(3, R.color.md_red_400);
+
+        fun addType(add: SettingNotification): SettingNotification {
+            return fromTypeInt(typeFlags or add.typeFlags)
         }
 
-        return notificationType
-    }
-
-    @Synchronized
-    fun count(): Int = notifications.size
-
-    @Synchronized
-    fun contains(notificationType: SettingNotificationType): Boolean {
-        return notifications.contains(notificationType)
-    }
-
-    /**
-     * If [notifications] contains [notificationType], then notifies all observers that this
-     * notification has been canceled
-     * */
-    @Synchronized
-    fun cancel(notificationType: SettingNotificationType) {
-        if (notifications.remove(notificationType)) {
-            Logger.d(TAG, "Removed ${notificationType.name} notification")
-            activeNotificationsSubject.onNext(Unit)
+        fun removeType(remove: SettingNotification): SettingNotification {
+            return fromTypeInt(typeFlags and remove.typeFlags.inv())
         }
-    }
 
-    /**
-     * Use this to observe current notification state. Duplicates checks and everything else is done
-     * internally so you don't have to worry that you will get the same state twice. All updates
-     * come on main thread so there is no need to worry about that as well.
-     * */
-    fun listenForNotificationUpdates(): Flowable<Unit> = activeNotificationsSubject
-            .onBackpressureBuffer()
-            .observeOn(AndroidSchedulers.mainThread())
-            .hide()
+        companion object {
+            private fun fromTypeInt(typeFlags: Int): SettingNotification {
+                for (n in values()) {
+                    if (n.typeFlags == typeFlags) {
+                        return n
+                    }
+                }
+                return Default
+            }
+        }
 
-    companion object {
-        private const val TAG = "SettingsNotificationManager"
     }
 }

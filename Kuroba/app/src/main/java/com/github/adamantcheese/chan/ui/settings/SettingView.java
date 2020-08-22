@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 public abstract class SettingView {
@@ -25,7 +26,7 @@ public abstract class SettingView {
     public final String name;
     public View view;
     public View divider;
-    public SettingNotificationType settingNotificationType = SettingNotificationType.Default;
+    public SettingNotification settingNotificationType = SettingNotification.Default;
 
     public SettingView(SettingsController settingsController, String name) {
         this.settingsController = settingsController;
@@ -43,8 +44,8 @@ public abstract class SettingView {
     public void setEnabled(boolean enabled) {
     }
 
-    public void setSettingNotificationType(SettingNotificationType type) {
-        this.settingNotificationType = type;
+    public void setSettingNotificationType(SettingNotification type) {
+        settingNotificationType = type;
     }
 
     public String getTopDescription() {
@@ -55,7 +56,7 @@ public abstract class SettingView {
         return null;
     }
 
-    public SettingNotificationType getSettingNotificationType() {
+    public SettingNotification getSettingNotificationType() {
         return settingNotificationType;
     }
 }

@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/preference_item"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -33,6 +34,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </LinearLayout>
 
-    <include layout="@layout/setting_notification" />
+    <ImageView
+        android:id="@+id/setting_notification_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:paddingTop="4dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="4dp"
+        android:src="@drawable/ic_setting_alert"
+        android:visibility="gone"
+        tools:tint="@color/md_green_500"
+        tools:visibility="visible" />
 
 </LinearLayout>

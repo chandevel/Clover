@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -154,21 +153,11 @@ public class ManagerModule {
     @Provides
     @Singleton
     public ReportManager provideReportManager(
-            Gson gson, ThreadSaveManager threadSaveManager, SettingsNotificationManager settingsNotificationManager
+            Gson gson, ThreadSaveManager threadSaveManager
     ) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
 
-        return new ReportManager(threadSaveManager,
-                settingsNotificationManager,
-                gson,
-                new File(cacheDir, CRASH_LOGS_DIR_NAME)
-        );
-    }
-
-    @Provides
-    @Singleton
-    public SettingsNotificationManager provideSettingsNotificationManager() {
-        return new SettingsNotificationManager();
+        return new ReportManager(threadSaveManager, gson, new File(cacheDir, CRASH_LOGS_DIR_NAME));
     }
 }

@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
@@ -41,26 +41,24 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -191,26 +189,13 @@ public class DrawerAdapter
     }
 
     private void updateNotificationIcon(LinkHolder linkHolder) {
-        SettingsNotificationManager settingsNotificationManager = instance(SettingsNotificationManager.class);
-        SettingNotificationType notificationType = settingsNotificationManager.getNotificationByPriority();
+        SettingNotification type = EventBus.getDefault().getStickyEvent(SettingNotification.class);
 
-        Logger.d(this, "updateNotificationIcon() called for type  " + notificationType);
-
-        if (notificationType != null) {
-            int color = getRes().getColor(notificationType.getNotificationIconTintColor());
-
+        if (type != SettingNotification.Default) {
             linkHolder.notificationIcon.setVisibility(VISIBLE);
-            linkHolder.notificationIcon.setColorFilter(color);
-
-            if (settingsNotificationManager.notificationsCount() > 1) {
-                linkHolder.totalNotificationsCount.setVisibility(VISIBLE);
-                linkHolder.totalNotificationsCount.setText(String.valueOf(settingsNotificationManager.notificationsCount()));
-            } else {
-                linkHolder.totalNotificationsCount.setVisibility(GONE);
-            }
+            linkHolder.notificationIcon.setColorFilter(getRes().getColor(type.getNotificationIconTintColor()));
         } else {
             linkHolder.notificationIcon.setVisibility(GONE);
-            linkHolder.totalNotificationsCount.setVisibility(GONE);
         }
     }
 
@@ -444,7 +429,6 @@ public class DrawerAdapter
         private ImageView image;
         private TextView text;
         private ImageView notificationIcon;
-        private TextView totalNotificationsCount;
 
         private LinkHolder(View itemView) {
             super(itemView);
@@ -452,8 +436,6 @@ public class DrawerAdapter
             text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
             notificationIcon = itemView.findViewById(R.id.setting_notification_icon);
-            totalNotificationsCount = itemView.findViewById(R.id.setting_notification_total_count);
-            updatePaddings(notificationIcon, dp(4), dp(4), dp(4), dp(4));
 
             itemView.setOnClickListener(v -> {
                 switch (getAdapterPosition()) {

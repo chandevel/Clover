@@ -36,12 +36,12 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
@@ -89,8 +89,6 @@ public class UpdateManager {
     FileCacheV2 fileCacheV2;
     @Inject
     FileManager fileManager;
-    @Inject
-    SettingsNotificationManager settingsNotificationManager;
     @Inject
     FileChooser fileChooser;
 
@@ -229,12 +227,12 @@ public class UpdateManager {
 
     private void notifyNewApkUpdate() {
         PersistableChanState.hasNewApkUpdate.setSync(true);
-        settingsNotificationManager.notify(SettingNotificationType.ApkUpdate);
+        SettingsNotificationManager.postNotification(SettingNotification.ApkUpdate);
     }
 
     private void cancelApkUpdateNotification() {
         PersistableChanState.hasNewApkUpdate.setSync(false);
-        settingsNotificationManager.cancel(SettingNotificationType.ApkUpdate);
+        SettingsNotificationManager.cancelNotification(SettingNotification.ApkUpdate);
     }
 
     private void failedUpdate(boolean manual) {

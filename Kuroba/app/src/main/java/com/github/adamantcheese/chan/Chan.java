@@ -35,13 +35,13 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
-import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -78,9 +78,6 @@ public class Chan
 
     @Inject
     ReportManager reportManager;
-
-    @Inject
-    SettingsNotificationManager settingsNotificationManager;
 
     private static Feather feather;
 
@@ -201,9 +198,10 @@ public class Chan
             System.exit(999);
         });
 
+        SettingsNotificationManager.postNotification(SettingNotification.Default);
         if (ChanSettings.collectCrashLogs.get()) {
             if (reportManager.hasCrashLogs()) {
-                settingsNotificationManager.notify(SettingNotificationType.CrashLog);
+                SettingsNotificationManager.postNotification(SettingNotification.CrashLog);
             }
         }
     }

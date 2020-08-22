@@ -32,12 +32,12 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager.Wakeable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
-import com.github.adamantcheese.chan.ui.settings.SettingNotificationType;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -206,7 +206,7 @@ public class DeveloperSettingsController
             PersistableChanState.previousDevHash.setSync(NO_HASH_SET);
             PersistableChanState.updateCheckTime.setSync(0L);
             PersistableChanState.hasNewApkUpdate.setSync(false);
-            instance(SettingsNotificationManager.class).cancel(SettingNotificationType.ApkUpdate);
+            SettingsNotificationManager.cancelNotification(SettingNotification.ApkUpdate);
         });
         resetPrevApkHash.setText("Make app updated");
         wrapper.addView(resetPrevApkHash);
@@ -218,7 +218,7 @@ public class DeveloperSettingsController
             PersistableChanState.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
             PersistableChanState.updateCheckTime.setSync(0L);
             PersistableChanState.hasNewApkUpdate.setSync(true);
-            instance(SettingsNotificationManager.class).notify(SettingNotificationType.ApkUpdate);
+            SettingsNotificationManager.postNotification(SettingNotification.ApkUpdate);
         });
         setCurrentApkHashAsPrevApkHash.setText("Make app not updated");
         wrapper.addView(setCurrentApkHashAsPrevApkHash);

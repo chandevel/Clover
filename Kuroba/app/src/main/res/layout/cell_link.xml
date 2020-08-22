@@ -41,11 +41,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:singleLine="true"
         android:textSize="14sp" />
 
-    <include layout="@layout/setting_notification" />
+    <ImageView
+        android:id="@+id/setting_notification_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:padding="4dp"
+        android:src="@drawable/ic_setting_alert"
+        android:visibility="gone"
+        tools:tint="@color/md_green_500"
+        tools:visibility="visible" />
 
-    <View
+    <Space
         android:layout_width="11dp"
-        android:layout_height="match_parent"
-        android:visibility="invisible" />
+        android:layout_height="match_parent" />
 
 </LinearLayout>
