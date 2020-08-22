@@ -391,7 +391,6 @@ public class ReplyPresenter
     }
 
     public void onSelectionChanged() {
-        callback.loadViewsIntoDraft(draft);
         highlightQuotes();
     }
 

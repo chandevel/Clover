@@ -106,7 +106,7 @@ public class ReplyLayout
 
     private AuthenticationLayoutInterface authenticationLayout;
 
-    private boolean blockSelectionChange = false;
+    private boolean blockTextChange = false;
 
     // Progress view (when sending request to the server)
     private View progressLayout;
@@ -238,6 +238,7 @@ public class ReplyLayout
         options.addTextChangedListener(this);
         subject.addTextChangedListener(this);
         comment.addTextChangedListener(this);
+        fileName.addTextChangedListener(this);
         comment.setSelectionChangedListener(this);
         comment.setOnFocusChangeListener((view, focused) -> {
             if (!focused) hideKeyboard(comment);
@@ -523,20 +524,15 @@ public class ReplyLayout
             draft.name = EmojiParser.parseToUnicode(draft.name);
             draft.comment = EmojiParser.parseToUnicode(draft.comment);
         }
-
-        if (isTextDifferent(name, draft.name)) name.setText(draft.name);
-        if (isTextDifferent(subject, draft.subject)) subject.setText(draft.subject);
-        if (isTextDifferent(flag, draft.flag)) flag.setText(draft.flag);
-        if (isTextDifferent(options, draft.options)) options.setText(draft.options);
-        blockSelectionChange = true;
-        if (isTextDifferent(comment, draft.comment)) comment.setText(draft.comment);
-        blockSelectionChange = false;
-        if (isTextDifferent(fileName, draft.fileName)) fileName.setText(draft.fileName);
+        blockTextChange = true;
+        name.setText(draft.name);
+        subject.setText(draft.subject);
+        flag.setText(draft.flag);
+        options.setText(draft.options);
+        fileName.setText(draft.fileName);
+        comment.setText(draft.comment);
+        blockTextChange = false;
         spoiler.setChecked(draft.spoilerImage);
-    }
-
-    private boolean isTextDifferent(EditText text, String compare) {
-        return !text.getText().toString().equals(compare);
     }
 
     @Override
@@ -755,9 +751,7 @@ public class ReplyLayout
 
     @Override
     public void onSelectionChanged() {
-        if (!blockSelectionChange) {
             presenter.onSelectionChanged();
-        }
     }
 
     private void setupCommentContextMenu() {
@@ -925,10 +919,11 @@ public class ReplyLayout
 
     @Override
     public void afterTextChanged(Editable s) {
-        if (s.equals(comment.getText())) {
-            presenter.onCommentTextChanged(comment.getText());
-        } else {
+        if (!blockTextChange) {
             presenter.onTextChanged();
+            if (s.equals(comment.getText())) {
+                presenter.onCommentTextChanged(comment.getText());
+            }
         }
     }
 
