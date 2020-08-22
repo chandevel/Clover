@@ -218,7 +218,7 @@ public class WatchManager
 
         if (opPost != null) {
             PostImage image = opPost.image();
-            pin.thumbnailUrl = image == null ? null : image.getThumbnailUrl();
+            pin.loadable.thumbnailUrl = image == null ? null : image.getThumbnailUrl(); // TODO REMOVE
         }
         return createPin(pin, sendBroadcast);
     }
@@ -1258,13 +1258,6 @@ public class WatchManager
             }
 
             pin.isError = false;
-
-            //Forcibly update the thumbnail if there is no thumbnail currently
-            try {
-                if (pin.thumbnailUrl == null) {
-                    pin.thumbnailUrl = thread.getOp().image().getThumbnailUrl();
-                }
-            } catch (Exception ignored) {}
 
             // Populate posts list
             posts.clear();

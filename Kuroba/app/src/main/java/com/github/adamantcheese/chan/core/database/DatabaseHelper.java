@@ -509,6 +509,21 @@ public class DatabaseHelper
                 Logger.e(this, "Error upgrading to version 47");
             }
         }
+
+        if (oldVersion < 48) {
+            try {
+                getLoadableDao().executeRawNoArgs("ALTER TABLE loadable ADD COLUMN thumbnailUrl STRING default NULL");
+                getPinDao().executeRawNoArgs("BEGIN TRANSACTION;\n"
+                        + "CREATE TEMPORARY TABLE pin_backup(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,thumbnailUrl,order,archived,pin_type);\n"
+                        + "INSERT INTO pin_backup SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,thumbnailUrl,order,archived,pin_type FROM board;\n"
+                        + "DROP TABLE pin;\n"
+                        + "CREATE TABLE pin(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type);\n"
+                        + "INSERT INTO pin SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type FROM pin_backup;\n"
+                        + "DROP TABLE pin_backup;\n" + "COMMIT;");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 48");
+            }
+        }
     }
 
     @Override

@@ -328,14 +328,14 @@ public class DrawerAdapter
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
         if (holder.image.getBitmap() != null) return;
-        holder.image.setUrl(pin.thumbnailUrl, dp(48), dp(48));
+        holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
 
         SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
         if (savedThread == null || !savedThread.isFullyDownloaded) {
             return;
         }
 
-        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.thumbnailUrl);
+        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.loadable.thumbnailUrl);
         if (TextUtils.isEmpty(filename)) {
             return;
         }

@@ -21,6 +21,7 @@ import android.os.Parcel;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -31,6 +32,8 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
@@ -92,6 +95,9 @@ public class Loadable
 
     @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd HH:mm:ss")
     public Date lastLoadDate = GregorianCalendar.getInstance().getTime();
+
+    @DatabaseField(persisterClass = HttpUrlType.class)
+    public HttpUrl thumbnailUrl;
 
     public int markedNo = -1;
 

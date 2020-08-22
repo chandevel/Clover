@@ -23,6 +23,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Locale;
 
+import okhttp3.HttpUrl;
+
 public class ExportedLoadable {
     @SerializedName("board_code")
     private String boardCode;
@@ -45,6 +47,9 @@ public class ExportedLoadable {
     @SerializedName("title")
     @Nullable
     private String title;
+    @SerializedName("thumbnail_url")
+    @Nullable
+    private String thumbnailUrl;
 
     public ExportedLoadable(
             String boardCode,
@@ -56,7 +61,8 @@ public class ExportedLoadable {
             int mode,
             int no,
             int siteId,
-            @NonNull String title
+            @NonNull String title,
+            String thumbnailUrl
     ) {
         this.boardCode = boardCode;
         this.loadableId = loadableId;
@@ -68,6 +74,7 @@ public class ExportedLoadable {
         this.no = no;
         this.siteId = siteId;
         this.title = title;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public String getBoardCode() {
@@ -111,18 +118,24 @@ public class ExportedLoadable {
         return title;
     }
 
+    @Nullable
+    public HttpUrl getThumbnailUrl() {
+        return thumbnailUrl == null ? null : HttpUrl.get(thumbnailUrl);
+    }
+
     @NonNull
     @Override
     public String toString() {
         return String.format(
                 Locale.ENGLISH,
-                "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s",
+                "boardCode = %s, loadableId = %d, no = %d, mode= %d, siteId = %d, title = %s, thumbnailUrl = %s",
                 boardCode,
                 loadableId,
                 no,
                 mode,
                 siteId,
-                title
+                title,
+                thumbnailUrl
         );
     }
 }

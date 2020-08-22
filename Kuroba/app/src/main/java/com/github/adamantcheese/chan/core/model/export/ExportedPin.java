@@ -36,8 +36,6 @@ public class ExportedPin {
     private int quoteLastCount;
     @SerializedName("quote_new_count")
     private int quoteNewCount;
-    @SerializedName("thumbnail_url")
-    private String thumbnailUrl;
     @SerializedName("watch_last_count")
     private int watchLastCount;
     @SerializedName("watch_new_count")
@@ -57,7 +55,6 @@ public class ExportedPin {
             int order,
             int quoteLastCount,
             int quoteNewCount,
-            String thumbnailUrl,
             int watchLastCount,
             int watchNewCount,
             boolean watching,
@@ -71,7 +68,6 @@ public class ExportedPin {
         this.order = order;
         this.quoteLastCount = quoteLastCount;
         this.quoteNewCount = quoteNewCount;
-        this.thumbnailUrl = thumbnailUrl;
         this.watchLastCount = watchLastCount;
         this.watchNewCount = watchNewCount;
         this.watching = watching;
@@ -105,10 +101,6 @@ public class ExportedPin {
 
     public int getQuoteNewCount() {
         return quoteNewCount;
-    }
-
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
     }
 
     public int getWatchLastCount() {

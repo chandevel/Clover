@@ -241,12 +241,6 @@ constructor(
                     ))
                 }
 
-                val thumbnailUrl = try {
-                    exportedPin.thumbnailUrl.toHttpUrl()
-                } catch (e: Exception) {
-                    null
-                }
-
                 val pin = Pin(
                         insertedLoadable,
                         exportedPin.isWatching,
@@ -255,7 +249,6 @@ constructor(
                         exportedPin.quoteLastCount,
                         exportedPin.quoteNewCount,
                         exportedPin.isError,
-                        thumbnailUrl,
                         exportedPin.order,
                         exportedPin.isArchived,
                         exportedPin.pinType
@@ -397,7 +390,8 @@ constructor(
                     loadable.mode,
                     loadable.no,
                     loadable.siteId,
-                    loadable.title
+                    loadable.title,
+                    loadable.thumbnailUrl?.toString()
             )
 
             // When exporting a localThreadLocation that points to a directory located at places like
@@ -421,7 +415,6 @@ constructor(
                     pin.order,
                     pin.quoteLastCount,
                     pin.quoteNewCount,
-                    pin.thumbnailUrl?.toString(),
                     pin.watchLastCount,
                     pin.watchNewCount,
                     pin.watching,
