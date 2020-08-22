@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.loader;
 
-import android.text.TextUtils;
 import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
@@ -565,9 +564,7 @@ public class ChanThreadLoader {
         ChanThread localThread = thread;
         processResponse(fakeOp);
 
-        if (TextUtils.isEmpty(loadable.title)) {
-            loadable.setTitle(PostHelper.getTitle(localThread.getOp(), loadable));
-        }
+        loadable.title = PostHelper.getTitle(localThread.getOp(), loadable);
 
         for (Post post : localThread.getPosts()) {
             post.setTitle(loadable.title);
@@ -582,6 +579,8 @@ public class ChanThreadLoader {
         } else {
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
+
+        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
 
         BackgroundUtils.runOnMainThread(() -> {
             for (ChanLoaderCallback l : listeners) {

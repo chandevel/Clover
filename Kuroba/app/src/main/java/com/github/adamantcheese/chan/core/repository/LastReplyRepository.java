@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.http.Reply;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,19 +26,19 @@ public class LastReplyRepository {
     private static Map<Board, Long> lastReplyMap = new HashMap<>();
     private static Map<Board, Long> lastThreadMap = new HashMap<>();
 
-    public static void putLastReply(Reply reply) {
-        if (reply.loadable.isCatalogMode()) {
-            lastThreadMap.put(reply.loadable.board, System.currentTimeMillis());
+    public static void putLastReply(Loadable loadable) {
+        if (loadable.isCatalogMode()) {
+            lastThreadMap.put(loadable.board, System.currentTimeMillis());
         } else {
-            lastReplyMap.put(reply.loadable.board, System.currentTimeMillis());
+            lastReplyMap.put(loadable.board, System.currentTimeMillis());
         }
     }
 
-    public static long getTimeUntilDraftPostable(Reply draft) {
-        if (draft.loadable.isCatalogMode()) {
-            return getTimeUntilThread(draft.loadable.board);
+    public static long getTimeUntilDraftPostable(Loadable loadable) {
+        if (loadable.isCatalogMode()) {
+            return getTimeUntilThread(loadable.board);
         } else {
-            return getTimeUntilReply(draft.loadable.board, draft.file != null);
+            return getTimeUntilReply(loadable.board, loadable.draft.file != null);
         }
     }
 

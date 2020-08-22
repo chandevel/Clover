@@ -348,7 +348,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
     <string name="reply_error_message_timer">Error posting: You must wait %d seconds before posting.</string>
-    <string name="reply_success">Post successful</string>
 
     <string name="reply_captcha_text">Type the text</string>
     <string name="reply_comment_button_quote" translatable="false">&gt;</string>

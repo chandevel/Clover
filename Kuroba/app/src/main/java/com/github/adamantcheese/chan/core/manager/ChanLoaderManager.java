@@ -37,7 +37,20 @@ import static com.github.adamantcheese.chan.Chan.instance;
  * <p>Each reference to a loader is a {@link ChanLoaderCallback}, these references can be obtained with
  * {@link #obtain(Loadable, ChanLoaderCallback)} and released with {@link #release(ChanThreadLoader, ChanLoaderCallback)}.
  * A loader is only cached if it has no more listeners, therefore you can call {@link #obtain(Loadable, ChanLoaderCallback)}
- * as many times as you want as long as you call release an equal amount of times.
+ * as many times as you want as long as you call release an equal amount of times.<br>
+ * <br>
+ * The internal cache here acts as a sort of cache for recently visited threads, preserving their already processed API
+ * responses and allows threads to be returned quickly and switched between with minimal overhead.
+ * <br>
+ * In addition, this class acts as a sort of "reply draft" cache; this is effectively the only place that loadables should
+ * have a constant reference to them held. As a result, reply drafts are available in the following situations:<br><br>
+ * 1) You are currently viewing a thread. When you navigate away from that thread, it will be available until it is ejected
+ * from the thread loader cache (ie you may visit up to {@link #THREAD_LOADERS_CACHE_SIZE} threads before your draft is
+ * deleted). This is filter-watch safe ie filter watches won't prematurely remove your draft.<br>
+ * 2) Pins have their loadables and drafts managed by {@link WatchManager} and are never erased.<br>
+ * 3) You are writing up a new thread. If you navigate away from a board, YOUR DRAFT WILL BE DELETED. This is a result of
+ * catalog loaders not being cached, which means their loadable (and therefore draft) is no longer referenced and garbage
+ * collected as a result.
  */
 public class ChanLoaderManager {
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;

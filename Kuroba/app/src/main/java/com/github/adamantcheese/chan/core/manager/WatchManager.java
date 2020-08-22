@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
@@ -215,7 +214,6 @@ public class WatchManager
     public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
-        pin.loadable.title = PostHelper.getTitle(opPost, loadable);
         pin.pinType = pinType;
 
         if (opPost != null) {
@@ -1260,15 +1258,6 @@ public class WatchManager
             }
 
             pin.isError = false;
-            /*
-             * Forcibly update watched thread titles
-             * This solves the issue of when you post a thread and the site doesn't have the thread listed yet,
-             * resulting in the thread title being something like /test/918324919 instead of a proper title
-             *
-             * The thread title will be updated as soon as the site has the thread listed in the thread directory
-             *
-             */
-            pin.loadable.setTitle(PostHelper.getTitle(thread.getOp(), pin.loadable));
 
             //Forcibly update the thumbnail if there is no thumbnail currently
             try {

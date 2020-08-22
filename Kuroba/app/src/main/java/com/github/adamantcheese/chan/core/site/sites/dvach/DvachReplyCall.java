@@ -20,7 +20,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -43,25 +43,25 @@ public class DvachReplyCall
             Pattern.compile("^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
     private static final String PROBABLY_BANNED_TEXT = "banned";
 
-    DvachReplyCall(Site site, Reply reply) {
-        super(site, reply);
+    DvachReplyCall(Loadable loadable) {
+        super(loadable);
     }
 
     @Override
     public void addParameters(
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
-        Reply reply = replyResponse.originatingReply;
+        Reply reply = replyResponse.originatingLoadable.draft;
 
         formBuilder.addFormDataPart("task", "post");
-        formBuilder.addFormDataPart("board", reply.loadable.boardCode);
+        formBuilder.addFormDataPart("board", replyResponse.originatingLoadable.boardCode);
         formBuilder.addFormDataPart("comment", reply.comment);
-        formBuilder.addFormDataPart("thread", String.valueOf(reply.loadable.no));
+        formBuilder.addFormDataPart("thread", String.valueOf(replyResponse.originatingLoadable.no));
 
         formBuilder.addFormDataPart("name", reply.name);
         formBuilder.addFormDataPart("email", reply.options);
 
-        if (!reply.loadable.isThreadMode() && !TextUtils.isEmpty(reply.subject)) {
+        if (!replyResponse.originatingLoadable.isThreadMode() && !TextUtils.isEmpty(reply.subject)) {
             formBuilder.addFormDataPart("subject", reply.subject);
         }
 
@@ -86,18 +86,21 @@ public class DvachReplyCall
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         RequestBody requestBody;
-        Reply reply = replyResponse.originatingReply;
 
         if (progressListener == null) {
-            requestBody = RequestBody.create(reply.file, MediaType.parse("application/octet-stream"));
+            requestBody = RequestBody.create(replyResponse.originatingLoadable.draft.file,
+                    MediaType.parse("application/octet-stream")
+            );
         } else {
-            requestBody =
-                    new ProgressRequestBody(RequestBody.create(reply.file, MediaType.parse("application/octet-stream")),
-                            progressListener
-                    );
+            requestBody = new ProgressRequestBody(
+                    RequestBody.create(replyResponse.originatingLoadable.draft.file,
+                            MediaType.parse("application/octet-stream")
+                    ),
+                    progressListener
+            );
         }
 
-        formBuilder.addFormDataPart("image", reply.fileName, requestBody);
+        formBuilder.addFormDataPart("image", replyResponse.originatingLoadable.draft.fileName, requestBody);
     }
 
     @Override

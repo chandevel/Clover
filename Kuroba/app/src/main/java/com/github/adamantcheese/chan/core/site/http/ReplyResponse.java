@@ -16,15 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 
 /**
  * Generic response for
- * {@link com.github.adamantcheese.chan.core.site.SiteActions#post(Reply, SiteActions.PostListener)} that the
+ * {@link com.github.adamantcheese.chan.core.site.SiteActions#post(Loadable, SiteActions.PostListener)} that the
  * reply presenter uses.
  */
 public class ReplyResponse {
-    public Reply originatingReply;
+    public Loadable originatingLoadable;
 
     /**
      * {@code true} if the post when through, {@code false} otherwise.
@@ -42,7 +43,7 @@ public class ReplyResponse {
     public boolean probablyBanned = false;
     public boolean requireAuthentication = false;
 
-    public ReplyResponse(Reply reply) {
-        originatingReply = reply;
+    public ReplyResponse(Loadable originatingLoadable) {
+        this.originatingLoadable = originatingLoadable;
     }
 }

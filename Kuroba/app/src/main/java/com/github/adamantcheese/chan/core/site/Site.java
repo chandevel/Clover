@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 
 import java.util.List;
@@ -35,7 +34,7 @@ public interface Site {
         /**
          * This site supports posting. (Or rather, we've implemented support for it.)
          *
-         * @see SiteActions#post(Reply, SiteActions.PostListener)
+         * @see SiteActions#post(Loadable, SiteActions.PostListener)
          * @see SiteEndpoints#reply(Loadable)
          */
         POSTING,

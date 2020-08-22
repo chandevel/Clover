@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -42,11 +43,12 @@ public class VichanActions
     }
 
     @Override
-    public void setupPost(Reply reply, MultipartHttpCall call) {
-        call.parameter("board", reply.loadable.boardCode);
+    public void setupPost(Loadable loadable, MultipartHttpCall call) {
+        Reply reply = loadable.draft;
+        call.parameter("board", loadable.boardCode);
 
-        if (reply.loadable.isThreadMode()) {
-            call.parameter("thread", String.valueOf(reply.loadable.no));
+        if (loadable.isThreadMode()) {
+            call.parameter("thread", String.valueOf(loadable.no));
         }
 
         // Added with VichanAntispam.
@@ -77,8 +79,8 @@ public class VichanActions
     }
 
     @Override
-    public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
-        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(reply.loadable.desktopUrl()));
+    public void prepare(MultipartHttpCall call, ReplyResponse replyResponse) {
+        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(replyResponse.originatingLoadable.desktopUrl()));
         antispam.addDefaultIgnoreFields();
         for (Map.Entry<String, String> e : antispam.get().entrySet()) {
             call.parameter(e.getKey(), e.getValue());

@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -40,14 +41,15 @@ public class TaimabaActions
     }
 
     @Override
-    public void setupPost(Reply reply, MultipartHttpCall call) {
+    public void setupPost(Loadable loadable, MultipartHttpCall call) {
+        Reply reply = loadable.draft;
         call.parameter("fart", Integer.toString((int) (Math.random() * 15000) + 5000));
 
-        call.parameter("board", reply.loadable.boardCode);
+        call.parameter("board", loadable.boardCode);
         call.parameter("task", "post");
 
-        if (reply.loadable.isThreadMode()) {
-            call.parameter("parent", String.valueOf(reply.loadable.no));
+        if (loadable.isThreadMode()) {
+            call.parameter("parent", String.valueOf(loadable.no));
         }
 
         call.parameter("password", reply.password);
@@ -74,7 +76,7 @@ public class TaimabaActions
         if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
-            replyResponse.threadNo = replyResponse.originatingReply.loadable.no;
+            replyResponse.threadNo = replyResponse.originatingLoadable.no;
             replyResponse.posted = true;
         }
     }

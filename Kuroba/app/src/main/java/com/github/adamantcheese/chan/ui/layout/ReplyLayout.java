@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -23,8 +27,10 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.style.AbsoluteSizeSpan;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -40,6 +46,7 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -97,7 +104,7 @@ public class ReplyLayout
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
                    ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
                    CaptchaHolder.CaptchaValidationListener {
-    @Inject
+
     ReplyPresenter presenter;
     @Inject
     CaptchaHolder captchaHolder;
@@ -110,6 +117,7 @@ public class ReplyLayout
 
     // Progress view (when sending request to the server)
     private View progressLayout;
+    private ProgressBar progressBar;
     private TextView currentProgress;
 
     // Reply views:
@@ -194,6 +202,8 @@ public class ReplyLayout
             inject(this);
         }
 
+        presenter = new ReplyPresenter(getContext(), this);
+
         // Inflate reply input
         replyInputLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
         message = replyInputLayout.findViewById(R.id.message);
@@ -222,6 +232,7 @@ public class ReplyLayout
         submit = replyInputLayout.findViewById(R.id.submit);
 
         progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
+        progressBar = progressLayout.findViewById(R.id.progress_bar);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
         // Setup reply layout views
@@ -277,11 +288,6 @@ public class ReplyLayout
         captchaHardReset.setOnClickListener(this);
 
         setView(replyInputLayout);
-
-        // Presenter
-        if (!isInEditMode()) {
-            presenter.create(this);
-        }
     }
 
     public void setCallback(ReplyLayoutCallback callback) {
@@ -582,15 +588,53 @@ public class ReplyLayout
     }
 
     @Override
-    public void onPosted() {
-        showToast(getContext(), R.string.reply_success);
-        callback.openReply(false);
-        callback.requestNewPostLoad();
+    public void onPosted(boolean newThread, Loadable newLoadable) {
+        AnimatorSet fade = new AnimatorSet();
+
+        ObjectAnimator fadeOutProg = ObjectAnimator.ofFloat(progressBar, View.ALPHA, 0f).setDuration(150);
+        ObjectAnimator fadeOutText = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 0f).setDuration(150);
+
+        AnimatorSet fadeOutPair = new AnimatorSet();
+        fadeOutPair.playTogether(fadeOutProg, fadeOutText);
+        fadeOutPair.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                SpannableString done;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
+                        && ChanSettings.addDubs.get()) {
+                    done = new SpannableString("\uD83D\uDE29\uD83D\uDC4C");
+                } else {
+                    done = new SpannableString("✓");
+                }
+                done.setSpan(new AbsoluteSizeSpan(36, true), 0, done.length(), 0);
+                currentProgress.setText(done);
+            }
+        });
+
+        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 1f).setDuration(150);
+        fade.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                postDelayed(() -> {
+                    presenter.switchPage(ReplyPresenter.Page.INPUT);
+                    callback.openReply(false);
+                    progressBar.setAlpha(1f);
+                    currentProgress.setText("");
+                    if (newThread) {
+                        callback.showThread(newLoadable);
+                    }
+                    callback.requestNewPostLoad();
+                }, 2000);
+            }
+        });
+
+        fade.playSequentially(fadeOutPair, fadeIn);
+        fade.start();
     }
 
     @Override
-    public void setCommentHint(String hint) {
-        comment.setHint(hint);
+    public void setCommentHint(boolean isThreadMode) {
+        comment.setHint(getString(isThreadMode ? R.string.reply_comment_thread : R.string.reply_comment_board));
     }
 
     @Override
@@ -933,11 +977,6 @@ public class ReplyLayout
     }
 
     @Override
-    public void showThread(Loadable loadable) {
-        callback.showThread(loadable);
-    }
-
-    @Override
     public ImagePickDelegate getImagePickDelegate() {
         return ((StartActivity) getContext()).getImagePickDelegate();
     }
@@ -973,7 +1012,7 @@ public class ReplyLayout
 
     @Override
     public void onUploadingProgress(int percent) {
-        currentProgress.setVisibility(percent > 0 ? VISIBLE : INVISIBLE);
+        currentProgress.setAlpha(percent > 0 ? 1f : 0f);
         currentProgress.setText(String.valueOf(percent));
     }
 

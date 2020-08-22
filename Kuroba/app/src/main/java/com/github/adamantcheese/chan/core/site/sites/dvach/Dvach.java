@@ -16,7 +16,6 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
@@ -138,10 +137,10 @@ public class Dvach
         setActions(new VichanActions(this) {
 
             @Override
-            public void setupPost(Reply reply, MultipartHttpCall call) {
-                super.setupPost(reply, call);
+            public void setupPost(Loadable loadable, MultipartHttpCall call) {
+                super.setupPost(loadable, call);
 
-                if (reply.loadable.isThreadMode()) {
+                if (loadable.isThreadMode()) {
                     // "thread" is already added in VichanActions.
                     call.parameter("post", "New Reply");
                 } else {
@@ -156,8 +155,8 @@ public class Dvach
             }
 
             @Override
-            public void post(Reply reply, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(Dvach.this, reply), new HttpCallback<CommonReplyHttpCall>() {
+            public void post(Loadable loadableWithDraft, final PostListener postListener) {
+                NetUtils.makeHttpCall(new DvachReplyCall(loadableWithDraft), new HttpCallback<CommonReplyHttpCall>() {
                     @Override
                     public void onHttpSuccess(CommonReplyHttpCall httpPost) {
                         postListener.onPostComplete(httpPost.replyResponse);

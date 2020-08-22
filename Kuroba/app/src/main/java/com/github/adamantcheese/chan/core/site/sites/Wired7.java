@@ -122,11 +122,12 @@ public class Wired7
         }
 
         @Override
-        public void setupPost(Reply reply, MultipartHttpCall call) {
-            call.parameter("board", reply.loadable.boardCode);
+        public void setupPost(Loadable loadable, MultipartHttpCall call) {
+            Reply reply = loadable.draft;
+            call.parameter("board", loadable.boardCode);
 
-            if (reply.loadable.isThreadMode()) {
-                call.parameter("thread", String.valueOf(reply.loadable.no));
+            if (loadable.isThreadMode()) {
+                call.parameter("thread", String.valueOf(loadable.no));
             }
 
             // Added with VichanAntispam.

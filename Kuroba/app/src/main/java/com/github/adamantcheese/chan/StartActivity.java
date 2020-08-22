@@ -69,6 +69,9 @@ import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;
@@ -254,11 +257,6 @@ public class StartActivity
             if (board != null) {
                 stateLoadable.site = site;
                 stateLoadable.board = board;
-
-                // When restarting the parcelable isn't actually deserialized, but the same
-                // object instance is reused. This means that the loadables we gave to the
-                // state are the same instance, and also have the id set etc. We don't need to
-                // query these from the loadablemanager.
                 if (forThread && stateLoadable.id == 0) {
                     DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
                     stateLoadable = loadableManager.get(stateLoadable);
@@ -584,6 +582,13 @@ public class StartActivity
         Runtime.getRuntime().exit(0);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(Chan.ForegroundChangedMessage message) {
+        if (!message.inForeground) {
+            databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().purgeOld());
+        }
+    }
+
     @Override
     public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
@@ -594,6 +599,7 @@ public class StartActivity
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
         super.onStart();
+        EventBus.getDefault().register(this);
         //restore parsed youtube stuff
         Gson gson = instance(Gson.class);
         Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.youtubeCache.get(), lruType);
@@ -607,6 +613,7 @@ public class StartActivity
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
         //store parsed youtube stuff, extra prevention of unneeded API calls
         Gson gson = instance(Gson.class);
         PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));

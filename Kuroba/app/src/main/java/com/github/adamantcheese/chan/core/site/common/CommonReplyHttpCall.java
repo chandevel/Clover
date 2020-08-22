@@ -18,10 +18,9 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import org.jsoup.Jsoup;
@@ -42,9 +41,9 @@ public abstract class CommonReplyHttpCall
 
     public final ReplyResponse replyResponse;
 
-    public CommonReplyHttpCall(Site site, Reply reply) {
-        super(site);
-        replyResponse = new ReplyResponse(reply);
+    public CommonReplyHttpCall(Loadable loadable) {
+        super(loadable.site);
+        replyResponse = new ReplyResponse(loadable);
     }
 
     @Override
@@ -56,7 +55,7 @@ public abstract class CommonReplyHttpCall
 
         addParameters(formBuilder, progressListener);
 
-        HttpUrl replyUrl = getSite().endpoints().reply(replyResponse.originatingReply.loadable);
+        HttpUrl replyUrl = getSite().endpoints().reply(replyResponse.originatingLoadable);
         requestBuilder.url(replyUrl);
         requestBuilder.addHeader("Referer", replyUrl.toString());
         requestBuilder.post(formBuilder.build());
@@ -74,7 +73,9 @@ public abstract class CommonReplyHttpCall
         <!-- thread:0,no:204393073 -->
                     ^    ^^^^^^^^^
               catalog    thread#
-         */
+
+        First parameter is always parsed as threadNo, second always as postNo
+        */
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();

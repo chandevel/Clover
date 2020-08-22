@@ -20,7 +20,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -31,27 +31,27 @@ import okhttp3.RequestBody;
 
 public class Chan4ReplyCall
         extends CommonReplyHttpCall {
-    public Chan4ReplyCall(Site site, Reply reply) {
-        super(site, reply);
+    public Chan4ReplyCall(Loadable loadable) {
+        super(loadable);
     }
 
     @Override
     public void addParameters(
             MultipartBody.Builder formBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
-        Reply reply = replyResponse.originatingReply;
+        Reply reply = replyResponse.originatingLoadable.draft;
 
         formBuilder.addFormDataPart("mode", "regist");
         formBuilder.addFormDataPart("pwd", reply.password);
 
-        if (reply.loadable.isThreadMode()) {
-            formBuilder.addFormDataPart("resto", String.valueOf(reply.loadable.no));
+        if (replyResponse.originatingLoadable.isThreadMode()) {
+            formBuilder.addFormDataPart("resto", String.valueOf(replyResponse.originatingLoadable.no));
         }
 
         formBuilder.addFormDataPart("name", reply.name);
         formBuilder.addFormDataPart("email", reply.options);
 
-        if (!reply.loadable.isThreadMode() && !TextUtils.isEmpty(reply.subject)) {
+        if (!replyResponse.originatingLoadable.isThreadMode() && !TextUtils.isEmpty(reply.subject)) {
             formBuilder.addFormDataPart("sub", reply.subject);
         }
 
@@ -66,7 +66,7 @@ public class Chan4ReplyCall
             }
         }
 
-        if (getSite() instanceof Chan4 && reply.loadable.boardCode.equals("pol")) {
+        if (getSite() instanceof Chan4 && replyResponse.originatingLoadable.boardCode.equals("pol")) {
             if (!reply.flag.isEmpty()) {
                 formBuilder.addFormDataPart("flag", reply.flag);
             } else {
@@ -88,16 +88,19 @@ public class Chan4ReplyCall
     ) {
         RequestBody requestBody;
 
-        Reply reply = replyResponse.originatingReply;
         if (progressListener == null) {
-            requestBody = RequestBody.create(reply.file, MediaType.parse("application/octet-stream"));
+            requestBody = RequestBody.create(replyResponse.originatingLoadable.draft.file,
+                    MediaType.parse("application/octet-stream")
+            );
         } else {
-            requestBody =
-                    new ProgressRequestBody(RequestBody.create(reply.file, MediaType.parse("application/octet-stream")),
-                            progressListener
-                    );
+            requestBody = new ProgressRequestBody(
+                    RequestBody.create(replyResponse.originatingLoadable.draft.file,
+                            MediaType.parse("application/octet-stream")
+                    ),
+                    progressListener
+            );
         }
 
-        formBuilder.addFormDataPart("upfile", reply.fileName, requestBody);
+        formBuilder.addFormDataPart("upfile", replyResponse.originatingLoadable.draft.fileName, requestBody);
     }
 }

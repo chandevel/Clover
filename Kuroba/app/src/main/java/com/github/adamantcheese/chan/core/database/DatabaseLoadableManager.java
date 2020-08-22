@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
-import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
@@ -28,10 +27,8 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -39,53 +36,31 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
-import static java.util.concurrent.TimeUnit.DAYS;
 
 public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
-    // This map converts a loadable without an ID to a loadable with an ID, which is obtained from the database
-    // Loadables without an ID are gotten from Loadable factory methods and must be put into the database before having
-    // an ID, which is used by other data items for indexing and whatnot
-    private Map<Loadable, Loadable> cachedLoadables = new HashMap<>();
-
     public DatabaseLoadableManager() {
         inject(this);
     }
 
-    public int cacheSize() {
-        return cachedLoadables.size();
-    }
-
     /**
-     * Called when the application goes into the background, to do intensive update calls for loadables
-     * whose list indexes or titles have changed.
+     * Called when the application goes into the background, to purge any old loadables that won't be used anymore; keeps
+     * the database clean and small.
      */
-    public Callable<Void> flush() {
+    public Callable<Void> purgeOld() {
         return () -> {
-            for (Loadable loadable : cachedLoadables.values()) {
-                if (loadable.dirty) {
-                    loadable.dirty = false;
-                    helper.loadableDao.update(loadable);
-                }
-            }
-            // if we haven't purged loadables yet and we're on the first day of the month, then
-            // purge loadables that haven'tbeen loaded for more than one month
-            int dayOfMonth = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-            if (!PersistableChanState.loadablesPurged.get() && dayOfMonth == 1) {
-                List<Loadable> allLoadables = helper.loadableDao.queryForAll();
-                for (Loadable l : allLoadables) {
-                    if (l.lastLoadDate.getTime() + DAYS.toMillis(30) < System.currentTimeMillis()) {
-                        helper.loadableDao.delete(l);
-                    }
-                }
-                // history loadables may not exist after this, clear out the history as well
-                helper.historyDao.executeRawNoArgs("DELETE FROM " + helper.historyDao.getTableName());
-                // don't do anything about pins, as they're loaded on app start and should never be purged
-                PersistableChanState.loadablesPurged.setSync(true);
-            } else if (dayOfMonth > 1) {
-                PersistableChanState.loadablesPurged.setSync(false);
+            Calendar oneMonthAgo = GregorianCalendar.getInstance();
+            oneMonthAgo.add(Calendar.MONTH, -1);
+            List<Loadable> toPurge = helper.getLoadableDao()
+                    .query(helper.getLoadableDao()
+                            .queryBuilder()
+                            .where()
+                            .lt("lastLoadDate", oneMonthAgo.getTime())
+                            .prepare());
+            for (Loadable l : toPurge) {
+                helper.getLoadableDao().delete(l);
             }
             return null;
         };
@@ -106,16 +81,15 @@ public class DatabaseLoadableManager {
         }
 
         // We only cache THREAD loadables in the db
-        if (loadable.isThreadMode()) {
-            return Chan.instance(DatabaseManager.class).runTask(getLoadable(loadable));
-        } else {
+        if (loadable.isCatalogMode()) {
             return loadable;
+        } else {
+            return Chan.instance(DatabaseManager.class).runTask(getLoadable(loadable));
         }
     }
 
     /**
      * Call this when you use a thread loadable as a foreign object on your table
-     * <p>It will correctly update the loadable cache
      *
      * @param loadable Loadable that only has its id loaded
      * @return a loadable ready to use.
@@ -128,86 +102,43 @@ public class DatabaseLoadableManager {
             throw new IllegalArgumentException("This only works loadables that have their id loaded");
         }
 
-        // If the loadable was already loaded in the cache, return that entry
-        Loadable cachedLoadable = cachedLoadables.get(loadable);
-        if (cachedLoadable != null) {
-            cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            cachedLoadable.dirty = true;
-            return cachedLoadable;
-        }
-
         // refresh contents
         helper.getLoadableDao().refresh(loadable);
         loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-        loadable.dirty = true;
-        cachedLoadables.put(loadable, loadable);
+        helper.getLoadableDao().update(loadable);
         return loadable;
     }
 
     private Callable<Loadable> getLoadable(final Loadable loadable) {
-        if (!loadable.isThreadMode()) {
-            return () -> loadable;
-        }
-
         return () -> {
-            Loadable cachedLoadable = cachedLoadables.get(loadable);
-            if (cachedLoadable != null) {
-                Logger.v(DatabaseLoadableManager.this, "Cached loadable found " + cachedLoadable);
-                cachedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-                cachedLoadable.dirty = true;
-                return cachedLoadable;
-            } else {
-                QueryBuilder<Loadable, Integer> builder = helper.loadableDao.queryBuilder();
-                List<Loadable> results = builder.where()
-                        .eq("site", loadable.siteId)
-                        .and()
-                        .eq("mode", loadable.mode)
-                        .and()
-                        .eq("board", loadable.boardCode)
-                        .and()
-                        .eq("no", loadable.no)
-                        .query();
+            QueryBuilder<Loadable, Integer> builder = helper.getLoadableDao().queryBuilder();
+            List<Loadable> results = builder.where()
+                    .eq("site", loadable.siteId)
+                    .and()
+                    .eq("mode", loadable.mode)
+                    .and()
+                    .eq("board", loadable.boardCode)
+                    .and()
+                    .eq("no", loadable.no)
+                    .query();
 
-                if (results.size() > 1) {
-                    Logger.w(
-                            DatabaseLoadableManager.this,
-                            "Multiple loadables found for where Loadable.equals() would return true"
-                    );
-                    for (Loadable result : results) {
-                        Logger.w(DatabaseLoadableManager.this, result.toString());
-                    }
-                }
-
-                Loadable result = results.isEmpty() ? null : results.get(0);
-                if (result == null) {
-                    helper.loadableDao.create(loadable);
-                    Logger.d(DatabaseLoadableManager.this, "Created loadable " + loadable);
-                    result = loadable;
-                } else {
-                    Logger.d(DatabaseLoadableManager.this, "Loadable found in db");
-                    result.site = instance(SiteRepository.class).forId(result.siteId);
-                    result.board = result.site.board(result.boardCode);
-                }
-
-                cachedLoadables.put(result, result);
-                result.lastLoadDate = GregorianCalendar.getInstance().getTime();
-                result.dirty = true;
-                return result;
+            Loadable result = results.isEmpty() ? loadable : results.get(0);
+            if (results.isEmpty()) {
+                helper.getLoadableDao().create(loadable);
             }
+
+            result.site = instance(SiteRepository.class).forId(result.siteId);
+            result.board = result.site.board(result.boardCode);
+            result.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            helper.getLoadableDao().update(result);
+            return result;
         };
     }
 
     public Callable<List<Loadable>> getLoadables(Site site) {
-        return () -> {
-            List<Loadable> loadables = helper.loadableDao.queryForEq("site", site.id());
-            for (Loadable l : loadables) {
-                l.lastLoadDate = GregorianCalendar.getInstance().getTime();
-                l.dirty = true;
-            }
-            return loadables;
-        };
+        return () -> helper.getLoadableDao().queryForEq("site", site.id());
     }
 
     public Callable<Object> deleteLoadables(List<Loadable> siteLoadables) {
@@ -234,16 +165,9 @@ public class DatabaseLoadableManager {
 
     public Callable<Void> updateLoadable(Loadable updatedLoadable) {
         return () -> {
-            for (Loadable key : cachedLoadables.keySet()) {
-                if (key.id == updatedLoadable.id) {
-                    cachedLoadables.remove(key);
-                    cachedLoadables.put(key, updatedLoadable);
-                    break;
-                }
+            if (updatedLoadable.isThreadMode()) {
+                helper.getLoadableDao().update(updatedLoadable);
             }
-
-            updatedLoadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            helper.loadableDao.update(updatedLoadable);
             return null;
         };
     }

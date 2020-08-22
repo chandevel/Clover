@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -442,8 +441,8 @@ public abstract class CommonSite
         }
 
         @Override
-        public void post(Reply reply, PostListener postListener) {
-            ReplyResponse replyResponse = new ReplyResponse(reply);
+        public void post(Loadable loadableWithDraft, PostListener postListener) {
+            ReplyResponse replyResponse = new ReplyResponse(loadableWithDraft);
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
@@ -452,23 +451,23 @@ public abstract class CommonSite
                 }
             };
 
-            call.url(site.endpoints().reply(reply.loadable));
+            call.url(site.endpoints().reply(loadableWithDraft));
 
             if (requirePrepare()) {
                 BackgroundUtils.runOnBackgroundThread(() -> {
-                    prepare(call, reply, replyResponse);
+                    prepare(call, replyResponse);
                     BackgroundUtils.runOnMainThread(() -> {
-                        setupPost(reply, call);
+                        setupPost(loadableWithDraft, call);
                         makePostCall(call, replyResponse, postListener);
                     });
                 });
             } else {
-                setupPost(reply, call);
+                setupPost(loadableWithDraft, call);
                 makePostCall(call, replyResponse, postListener);
             }
         }
 
-        public void setupPost(Reply reply, MultipartHttpCall call) {
+        public void setupPost(Loadable loadable, MultipartHttpCall call) {
         }
 
         public void handlePost(ReplyResponse response, Response httpResponse, String responseBody) {
@@ -502,7 +501,7 @@ public abstract class CommonSite
             return false;
         }
 
-        public void prepare(MultipartHttpCall call, Reply reply, ReplyResponse replyResponse) {
+        public void prepare(MultipartHttpCall call, ReplyResponse replyResponse) {
         }
 
         @Override

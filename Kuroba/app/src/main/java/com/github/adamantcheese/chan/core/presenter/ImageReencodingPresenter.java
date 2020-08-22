@@ -28,7 +28,6 @@ import androidx.exifinterface.media.ExifInterface;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.core.repository.ReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
@@ -44,20 +43,19 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ImageReencodingPresenter {
     private Context context;
     private ImageReencodingPresenterCallback callback;
-    private Loadable loadable;
+    private Reply draft;
 
     public ImageReencodingPresenter(
             Context context, ImageReencodingPresenterCallback callback, Loadable loadable
     ) {
         this.context = context;
-        this.loadable = loadable;
+        this.draft = loadable.draft;
         this.callback = callback;
     }
 
     public void loadImagePreview() {
-        Reply reply = ReplyRepository.getReply(loadable);
         Point displaySize = getDisplaySize();
-        ImageDecoder.decodeFileOnBackgroundThread(reply.file,
+        ImageDecoder.decodeFileOnBackgroundThread(draft.file,
                 //decode to the device width/height, whatever is smaller
                 dp(Math.min(displaySize.x, displaySize.y)), 0, bitmap -> {
                     if (bitmap == null) {
@@ -73,8 +71,7 @@ public class ImageReencodingPresenter {
 
     public boolean hasExif() {
         try {
-            Reply reply = ReplyRepository.getReply(loadable);
-            ExifInterface exif = new ExifInterface(reply.file.getAbsolutePath());
+            ExifInterface exif = new ExifInterface(draft.file.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
             if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
                 return true;
@@ -85,25 +82,21 @@ public class ImageReencodingPresenter {
 
     @Nullable
     public CompressFormat getCurrentFileFormat() {
-        Reply reply = ReplyRepository.getReply(loadable);
-        return BitmapUtils.getImageFormat(reply.file);
+        return BitmapUtils.getImageFormat(draft.file);
     }
 
     public Pair<Integer, Integer> getImageDims() {
-        Reply reply = ReplyRepository.getReply(loadable);
-        return BitmapUtils.getImageDims(reply.file);
+        return BitmapUtils.getImageDims(draft.file);
     }
 
     public void applyImageOptions(ImageOptions options) {
-        Reply reply = ReplyRepository.getReply(loadable);
         ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(options));
 
         callback.disableOrEnableButtons(false);
         try {
             CompressFormat reencodeFormat =
                     callback.getReencodeFormat() == null ? getCurrentFileFormat() : callback.getReencodeFormat();
-            reply.file = BitmapUtils.reencodeBitmapFile(reply.file, options, reencodeFormat);
-            ReplyRepository.putReply(reply);
+            draft.file = BitmapUtils.reencodeBitmapFile(draft.file, options, reencodeFormat);
         } catch (Throwable error) {
             showToast(context, getString(R.string.could_not_apply_image_options, error.getMessage()));
             return;

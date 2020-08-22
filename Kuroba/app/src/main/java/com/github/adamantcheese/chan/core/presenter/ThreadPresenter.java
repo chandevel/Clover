@@ -214,6 +214,10 @@ public class ThreadPresenter
         }
     }
 
+    public void updateDatabaseLoadable() {
+        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+    }
+
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
         if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()
                 // Do not stop prev thread saving if background watcher is enabled
@@ -539,9 +543,9 @@ public class ThreadPresenter
                 }
             }
 
-            loadable.setLastLoaded(result.getPosts().get(result.getPostsCount() - 1).no);
+            loadable.lastLoaded = result.getPosts().get(result.getPostsCount() - 1).no;
             if (loadable.lastViewed == -1) {
-                loadable.setLastViewed(loadable.lastLoaded);
+                loadable.lastViewed = loadable.lastLoaded;
             }
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
@@ -572,8 +576,7 @@ public class ThreadPresenter
         storeNewPostsIfThreadIsBeingDownloaded(result.getPosts());
         addHistory();
 
-        // Update loadable in the database
-        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+        updateDatabaseLoadable();
 
         if (!ChanSettings.watchEnabled.get() && !ChanSettings.watchBackground.get()
                 && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
@@ -638,7 +641,7 @@ public class ThreadPresenter
         if (!isBound()) return;
         if (chanLoader.getThread() != null && loadable.isThreadMode() && chanLoader.getThread().getPostsCount() > 0) {
             List<Post> posts = chanLoader.getThread().getPosts();
-            loadable.setLastViewed(posts.get(posts.size() - 1).no);
+            loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
@@ -650,9 +653,6 @@ public class ThreadPresenter
 
         // Update the last seen indicator
         showPosts();
-
-        // Update loadable in the database
-        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
     }
 
     public void onNewPostsViewClicked() {

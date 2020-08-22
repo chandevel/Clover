@@ -18,14 +18,10 @@ package com.github.adamantcheese.chan.core.database;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.sql.SQLException;
 import java.util.concurrent.Callable;
@@ -80,7 +76,6 @@ public class DatabaseManager {
         databaseSiteManager = new DatabaseSiteManager();
         databaseHideManager = new DatabaseHideManager();
         databaseSavedThreadManager = new DatabaseSavedThreadManager();
-        EventBus.getDefault().register(this);
     }
 
     public void initializeAndTrim() {
@@ -128,14 +123,6 @@ public class DatabaseManager {
         return databaseSavedThreadManager;
     }
 
-    // Called when the app changes foreground state
-    @Subscribe
-    public void onEvent(Chan.ForegroundChangedMessage message) {
-        if (!message.inForeground) {
-            runTaskAsync(databaseLoadableManager.flush());
-        }
-    }
-
     /**
      * Reset all tables in the database. Used for the developer screen.
      */
@@ -154,7 +141,6 @@ public class DatabaseManager {
 
         try {
             o += "Loadable rows: " + helper.loadableDao.countOf() + "\n";
-            o += "Currently cached loadables: " + databaseLoadableManager.cacheSize() + "\n";
             o += "Pin rows: " + helper.pinDao.countOf() + "\n";
             o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
             o += "Board rows: " + helper.boardsDao.countOf() + "\n";

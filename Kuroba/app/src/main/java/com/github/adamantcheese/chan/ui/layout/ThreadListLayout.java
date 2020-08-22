@@ -104,13 +104,13 @@ public class ThreadListLayout
 
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            // onScrolled can be called after cleanup()
-            if (showingThread != null) {
+        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+            // onScrollStateChanged can be called after cleanup()
+            if (showingThread != null && newState == RecyclerView.SCROLL_STATE_IDLE) {
                 int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
-                showingThread.getLoadable().setListViewIndex(indexTop[0]);
-                showingThread.getLoadable().setListViewTop(indexTop[1]);
+                showingThread.getLoadable().listViewIndex = indexTop[0];
+                showingThread.getLoadable().listViewTop = indexTop[1];
 
                 int last = getCompleteBottomAdapterPosition();
                 if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
@@ -120,6 +120,8 @@ public class ThreadListLayout
                     // while in a layout pass. Postpone to the next frame.
                     BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
+
+                callback.updateDatabaseLoadable();
             }
         }
     };
@@ -820,6 +822,8 @@ public class ThreadListLayout
         void requestNewPostLoad();
 
         void onListScrolledToBottom();
+
+        void updateDatabaseLoadable();
     }
 
     public interface ThreadListLayoutCallback {

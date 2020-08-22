@@ -27,8 +27,6 @@ public class PersistableChanState {
     public static StringSetting filterWatchIgnored;
     public static StringSetting youtubeCache;
 
-    public static BooleanSetting loadablesPurged;
-
     private static final String EMPTY_VALUE = "EMPTY_VALUE";
 
     static {
@@ -43,8 +41,6 @@ public class PersistableChanState {
 
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
             youtubeCache = new StringSetting(p, "yt_cache", EMPTY_VALUE);
-
-            loadablesPurged = new BooleanSetting(p, "loadables_purged", false);
 
             // for any of the following persistables, ensure that these exist and are set to the following defaults
             // a call to get() does not forcibly generate these shared preferences and set their defaults

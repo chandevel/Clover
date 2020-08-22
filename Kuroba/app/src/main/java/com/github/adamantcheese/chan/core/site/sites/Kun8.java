@@ -12,7 +12,6 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
-import com.github.adamantcheese.chan.core.site.http.Reply;
 
 import java.util.Map;
 
@@ -101,10 +100,10 @@ public class Kun8
 
         setActions(new VichanActions(this) {
             @Override
-            public void setupPost(Reply reply, MultipartHttpCall call) {
-                super.setupPost(reply, call);
+            public void setupPost(Loadable loadable, MultipartHttpCall call) {
+                super.setupPost(loadable, call);
 
-                if (reply.loadable.isThreadMode()) {
+                if (loadable.isThreadMode()) {
                     // "thread" is already added in VichanActions.
                     call.parameter("post", "New Reply");
                 } else {

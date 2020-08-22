@@ -17,11 +17,13 @@
 package com.github.adamantcheese.chan.core.model.orm;
 
 import android.os.Parcel;
-import android.text.TextUtils;
+
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -93,8 +95,8 @@ public class Loadable
 
     public int markedNo = -1;
 
-    // when the title, listViewTop, listViewIndex or lastViewed were changed
-    public boolean dirty = false;
+    // a reply draft that is specific to this loadable and is not stored in the database
+    public final Reply draft = new Reply();
 
     /**
      * Tells us whether this loadable (when in THREAD mode) contains information about
@@ -173,41 +175,6 @@ public class Loadable
         loadable.title = title;
         if (!addToDatabase) return loadable;
         return instance(DatabaseManager.class).getDatabaseLoadableManager().get(loadable);
-    }
-
-    public void setTitle(String title) {
-        if (!TextUtils.equals(this.title, title)) {
-            this.title = title;
-            dirty = true;
-        }
-    }
-
-    public void setLastViewed(int lastViewed) {
-        if (this.lastViewed != lastViewed) {
-            this.lastViewed = lastViewed;
-            dirty = true;
-        }
-    }
-
-    public void setLastLoaded(int lastLoaded) {
-        if (this.lastLoaded != lastLoaded) {
-            this.lastLoaded = lastLoaded;
-            dirty = true;
-        }
-    }
-
-    public void setListViewTop(int listViewTop) {
-        if (this.listViewTop != listViewTop) {
-            this.listViewTop = listViewTop;
-            dirty = true;
-        }
-    }
-
-    public void setListViewIndex(int listViewIndex) {
-        if (this.listViewIndex != listViewIndex) {
-            this.listViewIndex = listViewIndex;
-            dirty = true;
-        }
     }
 
     /**
