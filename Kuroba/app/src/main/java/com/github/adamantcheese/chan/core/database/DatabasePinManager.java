@@ -45,14 +45,14 @@ public class DatabasePinManager {
         }
 
         return () -> {
-            helper.pinDao.create(pin);
+            helper.getPinDao().create(pin);
             return pin;
         };
     }
 
     public Callable<Void> deletePin(final Pin pin) {
         return () -> {
-            helper.pinDao.delete(pin);
+            helper.getPinDao().delete(pin);
 
             return null;
         };
@@ -61,7 +61,7 @@ public class DatabasePinManager {
     public Callable<Void> deletePins(final List<Pin> pins) {
         return () -> {
             for (Pin pin : pins) {
-                helper.pinDao.delete(pin);
+                helper.getPinDao().delete(pin);
             }
 
             return null;
@@ -70,7 +70,7 @@ public class DatabasePinManager {
 
     public Callable<Pin> updatePin(final Pin pin) {
         return () -> {
-            helper.pinDao.update(pin);
+            helper.getPinDao().update(pin);
             return pin;
         };
     }
@@ -78,7 +78,7 @@ public class DatabasePinManager {
     public Callable<List<Pin>> updatePins(final List<Pin> pins) {
         return () -> {
             for (Pin pin : pins) {
-                helper.pinDao.update(pin);
+                helper.getPinDao().update(pin);
             }
 
             return null;
@@ -87,7 +87,7 @@ public class DatabasePinManager {
 
     public Callable<List<Pin>> getPins() {
         return () -> {
-            List<Pin> list = helper.pinDao.queryForAll();
+            List<Pin> list = helper.getPinDao().queryForAll();
             for (int i = 0; i < list.size(); i++) {
                 Pin p = list.get(i);
                 p.loadable = databaseLoadableManager.refreshForeign(p.loadable);
@@ -104,7 +104,7 @@ public class DatabasePinManager {
                 loadableIdSet.add(loadable.id);
             }
 
-            DeleteBuilder<Pin, Integer> builder = helper.pinDao.deleteBuilder();
+            DeleteBuilder<Pin, Integer> builder = helper.getPinDao().deleteBuilder();
             builder.where().in("loadable_id", loadableIdSet);
             builder.delete();
 
@@ -113,6 +113,6 @@ public class DatabasePinManager {
     }
 
     public Callable<Pin> getPinByLoadableId(int loadableId) {
-        return () -> helper.pinDao.queryBuilder().where().eq("loadable_id", loadableId).queryForFirst();
+        return () -> helper.getPinDao().queryBuilder().where().eq("loadable_id", loadableId).queryForFirst();
     }
 }

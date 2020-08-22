@@ -136,8 +136,8 @@ public class DatabaseLoadableManager {
             return cachedLoadable;
         }
 
-        // Add it to the cache, refresh contents
-        helper.loadableDao.refresh(loadable);
+        // refresh contents
+        helper.getLoadableDao().refresh(loadable);
         loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
@@ -218,7 +218,7 @@ public class DatabaseLoadableManager {
                 loadableIdSet.add(loadable.id);
             }
 
-            DeleteBuilder<Loadable, Integer> builder = helper.loadableDao.deleteBuilder();
+            DeleteBuilder<Loadable, Integer> builder = helper.getLoadableDao().deleteBuilder();
             builder.where().in("id", loadableIdSet);
 
             int deletedCount = builder.delete();

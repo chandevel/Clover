@@ -69,8 +69,8 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            instance(DatabaseManager.class).trimTable(helper.savedDao, TRIM_TRIGGER, TRIM_COUNT);
-            final List<SavedReply> all = helper.savedDao.queryForAll();
+            instance(DatabaseManager.class).trimTable(helper.getSavedReplyDao(), TRIM_TRIGGER, TRIM_COUNT);
+            final List<SavedReply> all = helper.getSavedReplyDao().queryForAll();
 
             synchronized (savedRepliesByNo) {
                 savedRepliesByNo.clear();
@@ -100,7 +100,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<SavedReply> saveReply(SavedReply savedReply) {
         return () -> {
-            helper.savedDao.create(savedReply);
+            helper.getSavedReplyDao().create(savedReply);
             synchronized (savedRepliesByNo) {
                 List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                 if (list == null) {
@@ -116,7 +116,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<SavedReply> unsaveReply(SavedReply savedReply) {
         return () -> {
-            helper.savedDao.delete(savedReply);
+            helper.getSavedReplyDao().delete(savedReply);
             synchronized (savedRepliesByNo) {
                 List<SavedReply> list = savedRepliesByNo.get(savedReply.no);
                 if (list != null) {
@@ -146,7 +146,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> deleteSavedReplies(Site site) {
         return () -> {
-            DeleteBuilder<SavedReply, Integer> builder = helper.savedDao.deleteBuilder();
+            DeleteBuilder<SavedReply, Integer> builder = helper.getSavedReplyDao().deleteBuilder();
             builder.where().eq("site", site.id());
             builder.delete();
 

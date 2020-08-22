@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
@@ -60,8 +59,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import javax.inject.Inject;
-
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class DatabaseHelper
@@ -71,37 +69,84 @@ public class DatabaseHelper
     private static final String DATABASE_NAME = "ChanDB";
     private static final int DATABASE_VERSION = 46;
 
-    public Dao<Pin, Integer> pinDao;
-    public Dao<Loadable, Integer> loadableDao;
-    public Dao<SavedReply, Integer> savedDao;
-    public Dao<Board, Integer> boardsDao;
-    public Dao<PostHide, Integer> postHideDao;
-    public Dao<History, Integer> historyDao;
-    public Dao<Filter, Integer> filterDao;
-    public Dao<SiteModel, Integer> siteDao;
-    public Dao<SavedThread, Integer> savedThreadDao;
+    // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
+    // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
+    private Dao<Pin, Integer> pinDao;
+    private Dao<Loadable, Integer> loadableDao;
+    private Dao<SavedReply, Integer> savedDao;
+    private Dao<Board, Integer> boardsDao;
+    private Dao<PostHide, Integer> postHideDao;
+    private Dao<Filter, Integer> filterDao;
+    private Dao<SiteModel, Integer> siteDao;
+    private Dao<SavedThread, Integer> savedThreadDao;
 
-    private final Context context;
+    public DatabaseHelper() {
+        super(getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
+    }
 
-    @Inject
-    public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
-
-        this.context = context;
-
+    private <T> Dao<T, Integer> getDaoForClass(Class<T> c) {
         try {
-            pinDao = getDao(Pin.class);
-            loadableDao = getDao(Loadable.class);
-            savedDao = getDao(SavedReply.class);
-            boardsDao = getDao(Board.class);
-            postHideDao = getDao(PostHide.class);
-            historyDao = getDao(History.class);
-            filterDao = getDao(Filter.class);
-            siteDao = getDao(SiteModel.class);
-            savedThreadDao = getDao(SavedThread.class);
-        } catch (SQLException e) {
-            Logger.e(this, "Error creating dao's", e);
+            return getDao(c);
+        } catch (Exception e) {
+            Logger.e(this, "Failed to get DAO for " + c.getSimpleName(), e);
+            return null;
         }
+    }
+
+    public Dao<Pin, Integer> getPinDao() {
+        if (pinDao == null) {
+            pinDao = getDaoForClass(Pin.class);
+        }
+        return pinDao;
+    }
+
+    public Dao<Loadable, Integer> getLoadableDao() {
+        if (loadableDao == null) {
+            loadableDao = getDaoForClass(Loadable.class);
+        }
+        return loadableDao;
+    }
+
+    public Dao<SavedReply, Integer> getSavedReplyDao() {
+        if (savedDao == null) {
+            savedDao = getDaoForClass(SavedReply.class);
+        }
+        return savedDao;
+    }
+
+    public Dao<Board, Integer> getBoardDao() {
+        if (boardsDao == null) {
+            boardsDao = getDaoForClass(Board.class);
+        }
+        return boardsDao;
+    }
+
+    public Dao<PostHide, Integer> getPostHideDao() {
+        if (postHideDao == null) {
+            postHideDao = getDaoForClass(PostHide.class);
+        }
+        return postHideDao;
+    }
+
+    public Dao<Filter, Integer> getFilterDao() {
+        if (filterDao == null) {
+            filterDao = getDaoForClass(Filter.class);
+        }
+        return filterDao;
+    }
+
+    public Dao<SiteModel, Integer> getSiteModelDao() {
+        if (siteDao == null) {
+            siteDao = getDaoForClass(SiteModel.class);
+        }
+        return siteDao;
+    }
+
+    public Dao<SavedThread, Integer> getSavedThreadDao() {
+        if (savedThreadDao == null) {
+            savedThreadDao = getDaoForClass(SavedThread.class);
+        }
+        return savedThreadDao;
     }
 
     @Override
@@ -150,9 +195,9 @@ public class DatabaseHelper
 
         if (oldVersion < 25) {
             try {
-                boardsDao.executeRawNoArgs("CREATE INDEX board_site_idx ON board(site);");
-                boardsDao.executeRawNoArgs("CREATE INDEX board_saved_idx ON board(saved);");
-                boardsDao.executeRawNoArgs("CREATE INDEX board_value_idx ON board(value);");
+                getBoardDao().executeRawNoArgs("CREATE INDEX board_site_idx ON board(site);");
+                getBoardDao().executeRawNoArgs("CREATE INDEX board_saved_idx ON board(saved);");
+                getBoardDao().executeRawNoArgs("CREATE INDEX board_value_idx ON board(value);");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 25", e);
             }
@@ -160,8 +205,8 @@ public class DatabaseHelper
 
         if (oldVersion < 26) {
             try {
-                postHideDao.executeRawNoArgs("ALTER TABLE threadhide RENAME TO posthide;");
-                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN whole_thread INTEGER default 0");
+                getPostHideDao().executeRawNoArgs("ALTER TABLE threadhide RENAME TO posthide;");
+                getPostHideDao().executeRawNoArgs("ALTER TABLE posthide ADD COLUMN whole_thread INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 26", e);
             }
@@ -170,9 +215,9 @@ public class DatabaseHelper
         if (oldVersion < 27) {
             try {
                 // Create indexes for PostHides to speed up posts filtering
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_site_idx ON posthide(site);");
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_board_idx ON posthide(board);");
-                postHideDao.executeRawNoArgs("CREATE INDEX posthide_no_idx ON posthide(no);");
+                getPostHideDao().executeRawNoArgs("CREATE INDEX posthide_site_idx ON posthide(site);");
+                getPostHideDao().executeRawNoArgs("CREATE INDEX posthide_board_idx ON posthide(board);");
+                getPostHideDao().executeRawNoArgs("CREATE INDEX posthide_no_idx ON posthide(no);");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 27", e);
             }
@@ -180,10 +225,10 @@ public class DatabaseHelper
 
         if (oldVersion < 28) {
             try {
-                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide INTEGER default 0");
-                postHideDao.executeRawNoArgs(
+                getPostHideDao().executeRawNoArgs("ALTER TABLE posthide ADD COLUMN hide INTEGER default 0");
+                getPostHideDao().executeRawNoArgs(
                         "ALTER TABLE posthide ADD COLUMN hide_replies_to_this_post INTEGER default 0");
-                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN apply_to_replies INTEGER default 0");
+                getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN apply_to_replies INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 28", e);
             }
@@ -191,7 +236,7 @@ public class DatabaseHelper
 
         if (oldVersion < 29) {
             try {
-                postHideDao.executeRawNoArgs("ALTER TABLE posthide ADD COLUMN thread_no INTEGER default 0");
+                getPostHideDao().executeRawNoArgs("ALTER TABLE posthide ADD COLUMN thread_no INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 29", e);
             }
@@ -199,7 +244,7 @@ public class DatabaseHelper
 
         if (oldVersion < 30) {
             try {
-                boardsDao.executeRawNoArgs("BEGIN TRANSACTION;\n"
+                getBoardDao().executeRawNoArgs("BEGIN TRANSACTION;\n"
                         + "CREATE TEMPORARY TABLE board_backup(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
                         + "INSERT INTO board_backup SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board;\n"
                         + "DROP TABLE board;\n"
@@ -213,7 +258,7 @@ public class DatabaseHelper
 
         if (oldVersion < 31) {
             try {
-                loadableDao.executeRawNoArgs("UPDATE loadable SET mode = 1 WHERE mode = 2");
+                getLoadableDao().executeRawNoArgs("UPDATE loadable SET mode = 1 WHERE mode = 2");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 31");
             }
@@ -221,7 +266,7 @@ public class DatabaseHelper
 
         if (oldVersion < 32) {
             try {
-                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN \"order\" INTEGER");
+                getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN \"order\" INTEGER");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 32");
             }
@@ -231,7 +276,7 @@ public class DatabaseHelper
 
         if (oldVersion < 34) {
             try {
-                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
+                getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 34");
             }
@@ -239,7 +284,7 @@ public class DatabaseHelper
 
         if (oldVersion < 35) {
             try {
-                filterDao.executeRawNoArgs("ALTER TABLE filter ADD COLUMN applyToSaved INTEGER default 0");
+                getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN applyToSaved INTEGER default 0");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 35");
             }
@@ -247,14 +292,14 @@ public class DatabaseHelper
 
         if (oldVersion < 36) {
             try {
-                filterDao.executeRawNoArgs(
+                getFilterDao().executeRawNoArgs(
                         "CREATE TABLE `saved_thread` (`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `loadable_id` INTEGER NOT NULL , `last_saved_post_no` INTEGER NOT NULL DEFAULT 0, `is_fully_downloaded` INTEGER NOT NULL DEFAULT 0 , `is_stopped` INTEGER NOT NULL DEFAULT 0);");
-                filterDao.executeRawNoArgs("CREATE INDEX loadable_id_idx ON saved_thread(loadable_id);");
+                getFilterDao().executeRawNoArgs("CREATE INDEX loadable_id_idx ON saved_thread(loadable_id);");
 
                 // Because pins now has different type (the ones that watch threads and ones that
                 // download them (also they can do both at the same time)) we need to use DEFAULT 1
                 // to set flag WatchNewPosts for all of the old pins
-                filterDao.executeRawNoArgs("ALTER TABLE pin ADD COLUMN pin_type INTEGER NOT NULL DEFAULT 1");
+                getFilterDao().executeRawNoArgs("ALTER TABLE pin ADD COLUMN pin_type INTEGER NOT NULL DEFAULT 1");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 36", e);
             }
@@ -263,7 +308,7 @@ public class DatabaseHelper
         if (oldVersion < 37) {
             try {
                 //reset all settings, key was never saved which caused issues
-                siteDao.executeRawNoArgs("UPDATE site SET userSettings='{}'");
+                getSiteModelDao().executeRawNoArgs("UPDATE site SET userSettings='{}'");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 37", e);
             }
@@ -295,7 +340,7 @@ public class DatabaseHelper
                 ChanSettings.parseYoutubeTitles.set(false);
 
                 //remove arisuchan boards that don't exist anymore
-                Where<Board, Integer> where = boardsDao.queryBuilder().where();
+                Where<Board, Integer> where = getBoardDao().queryBuilder().where();
                 where.and(where.eq("site", 3), where.or(
                         where.eq("value", "cyb"),
                         where.eq("value", "feels"),
@@ -311,34 +356,34 @@ public class DatabaseHelper
 
                 //some descriptions changed for arisuchan
                 try {
-                    Board art = boardsDao.queryForEq("key", "art and design").get(0);
+                    Board art = getBoardDao().queryForEq("key", "art and design").get(0);
                     if (art != null) {
                         art.name = "art and creative";
-                        boardsDao.update(art);
+                        getBoardDao().update(art);
                     }
                 } catch (Exception ignored) {
                 }
                 try {
-                    Board sci = boardsDao.queryForEq("key", "science and technology").get(0);
+                    Board sci = getBoardDao().queryForEq("key", "science and technology").get(0);
                     if (sci != null) {
                         sci.name = "technology";
-                        boardsDao.update(sci);
+                        getBoardDao().update(sci);
                     }
                 } catch (Exception ignored) {
                 }
                 try {
-                    Board diy = boardsDao.queryForEq("key", "diy and projects").get(0);
+                    Board diy = getBoardDao().queryForEq("key", "diy and projects").get(0);
                     if (diy != null) {
                         diy.name = "shape your world";
-                        boardsDao.update(diy);
+                        getBoardDao().update(diy);
                     }
                 } catch (Exception ignored) {
                 }
                 try {
-                    Board ru = boardsDao.queryForEq("key", "киберпанк-доска").get(0);
+                    Board ru = getBoardDao().queryForEq("key", "киберпанк-доска").get(0);
                     if (ru != null) {
                         ru.name = "Киберпанк";
-                        boardsDao.update(ru);
+                        getBoardDao().update(ru);
                     }
                 } catch (Exception ignored) {
                 }
@@ -356,7 +401,7 @@ public class DatabaseHelper
         if (oldVersion < 42) {
             try {
                 //remove wired-7 boards that don't exist anymore
-                Where<Board, Integer> where = boardsDao.queryBuilder().where();
+                Where<Board, Integer> where = getBoardDao().queryBuilder().where();
                 where.and(where.eq("site", 6), where.eq("value", "18"));
                 List<Board> toRemove = where.query();
                 for (Board b : toRemove) {
@@ -423,11 +468,11 @@ public class DatabaseHelper
 
         if (oldVersion < 45) {
             try {
-                loadableDao.executeRawNoArgs(
+                getLoadableDao().executeRawNoArgs(
                         "ALTER TABLE loadable ADD COLUMN lastLoadDate TIMESTAMP default '1970-01-01 00:00:01'");
                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                 String currentTime = format.format(GregorianCalendar.getInstance().getTime());
-                loadableDao.executeRawNoArgs("UPDATE loadable SET lastLoadDate='" + currentTime + "'");
+                getLoadableDao().executeRawNoArgs("UPDATE loadable SET lastLoadDate='" + currentTime + "'");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 45");
             }
@@ -436,10 +481,10 @@ public class DatabaseHelper
         if (oldVersion < 46) {
             try {
                 //sqlite doesn't have a proper modify command to remove the NOT NULL constraint from thumbnailUrl
-                pinDao.executeRawNoArgs("ALTER TABLE pin RENAME TO pin_old"); // rename existing table
+                getPinDao().executeRawNoArgs("ALTER TABLE pin RENAME TO pin_old"); // rename existing table
                 TableUtils.createTable(connectionSource, Pin.class); // recreate table
-                pinDao.executeRawNoArgs("INSERT INTO pin SELECT * FROM pin_old"); // copy table
-                pinDao.executeRawNoArgs("DROP TABLE pin_old"); // delete old table
+                getPinDao().executeRawNoArgs("INSERT INTO pin SELECT * FROM pin_old"); // copy table
+                getPinDao().executeRawNoArgs("DROP TABLE pin_old"); // delete old table
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 46");
             }
@@ -454,7 +499,7 @@ public class DatabaseHelper
     public void reset() {
         Logger.i(this, "Resetting database!");
 
-        if (context.deleteDatabase(DATABASE_NAME)) {
+        if (getAppContext().deleteDatabase(DATABASE_NAME)) {
             Logger.i(this, "Deleted database!");
         }
     }
@@ -469,7 +514,7 @@ public class DatabaseHelper
             throws SQLException {
         //NOTE: most of this is a copy of the methods used by the runtime version, but condensed down into one method
         //convert the SiteRegistry id to the actual database id
-        List<SiteModel> allSites = siteDao.queryForAll();
+        List<SiteModel> allSites = getSiteModelDao().queryForAll();
         SiteModel toDelete = null;
         for (SiteModel siteModel : allSites) {
             Pair<SiteConfig, JsonSettings> siteModelConfig = siteModel.loadConfigFields();
@@ -484,7 +529,7 @@ public class DatabaseHelper
         //filters
         List<Filter> filtersToDelete = new ArrayList<>();
 
-        for (Filter filter : filterDao.queryForAll()) {
+        for (Filter filter : getFilterDao().queryForAll()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
                 continue;
             }
@@ -503,7 +548,7 @@ public class DatabaseHelper
             filterIdSet.add(filter.id);
         }
 
-        DeleteBuilder<Filter, Integer> filterDelete = filterDao.deleteBuilder();
+        DeleteBuilder<Filter, Integer> filterDelete = getFilterDao().deleteBuilder();
         filterDelete.where().in("id", filterIdSet);
 
         int deletedCountFilters = filterDelete.delete();
@@ -514,24 +559,24 @@ public class DatabaseHelper
         }
 
         //boards
-        DeleteBuilder<Board, Integer> boardDelete = boardsDao.deleteBuilder();
+        DeleteBuilder<Board, Integer> boardDelete = getBoardDao().deleteBuilder();
         boardDelete.where().eq("site", toDelete.id);
         boardDelete.delete();
 
         //loadables (saved threads, pins, history, loadables)
-        List<Loadable> siteLoadables = loadableDao.queryForEq("site", toDelete.id);
+        List<Loadable> siteLoadables = getLoadableDao().queryForEq("site", toDelete.id);
         if (!siteLoadables.isEmpty()) {
             Set<Integer> loadableIdSet = new HashSet<>();
             for (Loadable loadable : siteLoadables) {
                 loadableIdSet.add(loadable.id);
             }
             //saved threads
-            DeleteBuilder<SavedThread, Integer> savedThreadDelete = savedThreadDao.deleteBuilder();
+            DeleteBuilder<SavedThread, Integer> savedThreadDelete = getSavedThreadDao().deleteBuilder();
             savedThreadDelete.where().in("loadable_id", loadableIdSet);
             savedThreadDelete.delete();
 
             //pins
-            DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
+            DeleteBuilder<Pin, Integer> pinDelete = getPinDao().deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);
             pinDelete.delete();
 
@@ -541,7 +586,7 @@ public class DatabaseHelper
             historyDelete.delete();
 
             //loadables
-            DeleteBuilder<Loadable, Integer> loadableDelete = loadableDao.deleteBuilder();
+            DeleteBuilder<Loadable, Integer> loadableDelete = getLoadableDao().deleteBuilder();
             loadableDelete.where().in("id", loadableIdSet);
 
             int deletedCountLoadables = loadableDelete.delete();
@@ -553,17 +598,17 @@ public class DatabaseHelper
         }
 
         //saved replies
-        DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
+        DeleteBuilder<SavedReply, Integer> savedReplyDelete = getSavedReplyDao().deleteBuilder();
         savedReplyDelete.where().eq("site", toDelete.id);
         savedReplyDelete.delete();
 
         //thread hides
-        DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
+        DeleteBuilder<PostHide, Integer> threadHideDelete = getPostHideDao().deleteBuilder();
         threadHideDelete.where().eq("site", toDelete.id);
         threadHideDelete.delete();
 
         //site itself
-        DeleteBuilder<SiteModel, Integer> siteDelete = siteDao.deleteBuilder();
+        DeleteBuilder<SiteModel, Integer> siteDelete = getSiteModelDao().deleteBuilder();
         siteDelete.where().eq("id", toDelete.id);
         siteDelete.delete();
     }
@@ -574,7 +619,7 @@ public class DatabaseHelper
     public void deleteBoard(Board board)
             throws SQLException {
         //filters
-        for (Filter filter : filterDao.queryForAll()) {
+        for (Filter filter : getFilterDao().queryForAll()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
                 continue;
             }
@@ -592,11 +637,11 @@ public class DatabaseHelper
                 filter.enabled = false;
             }
 
-            filterDao.update(filter);
+            getFilterDao().update(filter);
         }
 
         //loadables (saved threads, pins, history, loadables)
-        List<Loadable> siteLoadables = loadableDao.queryForEq("site", board.siteId);
+        List<Loadable> siteLoadables = getLoadableDao().queryForEq("site", board.siteId);
         if (!siteLoadables.isEmpty()) {
             Set<Integer> loadableIdSet = new HashSet<>();
             for (Loadable loadable : siteLoadables) {
@@ -606,12 +651,12 @@ public class DatabaseHelper
                 }
             }
             //saved threads
-            DeleteBuilder<SavedThread, Integer> savedThreadDelete = savedThreadDao.deleteBuilder();
+            DeleteBuilder<SavedThread, Integer> savedThreadDelete = getSavedThreadDao().deleteBuilder();
             savedThreadDelete.where().in("loadable_id", loadableIdSet);
             savedThreadDelete.delete();
 
             //pins
-            DeleteBuilder<Pin, Integer> pinDelete = pinDao.deleteBuilder();
+            DeleteBuilder<Pin, Integer> pinDelete = getPinDao().deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);
             pinDelete.delete();
 
@@ -621,7 +666,7 @@ public class DatabaseHelper
             historyDelete.delete();
 
             //loadables
-            DeleteBuilder<Loadable, Integer> loadableDelete = loadableDao.deleteBuilder();
+            DeleteBuilder<Loadable, Integer> loadableDelete = getLoadableDao().deleteBuilder();
             loadableDelete.where().in("id", loadableIdSet);
 
             int deletedCountLoadables = loadableDelete.delete();
@@ -633,17 +678,17 @@ public class DatabaseHelper
         }
 
         //saved replies
-        DeleteBuilder<SavedReply, Integer> savedReplyDelete = savedDao.deleteBuilder();
+        DeleteBuilder<SavedReply, Integer> savedReplyDelete = getSavedReplyDao().deleteBuilder();
         savedReplyDelete.where().eq("site", board.siteId).and().eq("board", board.code);
         savedReplyDelete.delete();
 
         //thread hides
-        DeleteBuilder<PostHide, Integer> threadHideDelete = postHideDao.deleteBuilder();
+        DeleteBuilder<PostHide, Integer> threadHideDelete = getPostHideDao().deleteBuilder();
         threadHideDelete.where().eq("site", board.siteId).and().eq("board", board.code);
         threadHideDelete.delete();
 
         //board itself
-        DeleteBuilder<Board, Integer> boardDelete = boardsDao.deleteBuilder();
+        DeleteBuilder<Board, Integer> boardDelete = getBoardDao().deleteBuilder();
         boardDelete.where().eq("site", board.siteId).and().eq("value", board.code);
         boardDelete.delete();
     }

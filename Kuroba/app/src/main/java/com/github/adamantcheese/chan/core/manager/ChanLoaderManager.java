@@ -32,7 +32,7 @@ import java.util.Map;
 import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
- * ChanLoaderManager is a manager/factory for ChanLoaders. ChanLoaders for threads are cached.
+ * ChanLoaderManager is a manager/factory for ChanLoaders. Only ChanLoaders for threads are cached.
  * Only one instance of this class should exist, and is dependency injected; as a result, the methods inside are synchronized.
  * <p>Each reference to a loader is a {@link ChanLoaderCallback}, these references can be obtained with
  * {@link #obtain(Loadable, ChanLoaderCallback)} and released with {@link #release(ChanThreadLoader, ChanLoaderCallback)}.

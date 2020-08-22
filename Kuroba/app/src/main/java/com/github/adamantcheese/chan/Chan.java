@@ -118,7 +118,7 @@ public class Chan
         SavingNotification.setupChannel();
         LastPageNotification.setupChannel();
 
-        feather = Feather.with(new AppModule(this), new NetModule(), new RepositoryModule(), new ManagerModule());
+        feather = Feather.with(new AppModule(), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
 
         //Needs to happen before any sites are processed, in case they request archives

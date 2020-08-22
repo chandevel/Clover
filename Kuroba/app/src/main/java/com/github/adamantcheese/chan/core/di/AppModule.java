@@ -16,9 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
@@ -52,25 +49,13 @@ import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.Replace
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
 public class AppModule {
-    private Context applicationContext;
     public static final String DI_TAG = "Dependency Injection";
 
-    public AppModule(Context applicationContext) {
-        this.applicationContext = applicationContext;
-    }
-
     @Provides
     @Singleton
-    public Context provideApplicationContext() {
-        Logger.d(DI_TAG, "App Context");
-        return applicationContext;
-    }
-
-    @Provides
-    @Singleton
-    public DatabaseHelper provideDatabaseHelper(Context applicationContext) {
+    public DatabaseHelper provideDatabaseHelper() {
         Logger.d(AppModule.DI_TAG, "Database helper");
-        return new DatabaseHelper(applicationContext);
+        return new DatabaseHelper();
     }
 
     @Provides
@@ -118,7 +103,7 @@ public class AppModule {
     @Provides
     @Singleton
     public FileManager provideFileManager() {
-        DirectoryManager directoryManager = new DirectoryManager(applicationContext);
+        DirectoryManager directoryManager = new DirectoryManager(getAppContext());
 
         // Add new base directories here
         LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
@@ -127,7 +112,7 @@ public class AppModule {
         BadPathSymbolResolutionStrategy resolutionStrategy =
                 BuildConfig.DEV_BUILD ? ThrowAnException : ReplaceBadSymbols;
 
-        FileManager fileManager = new FileManager(applicationContext, resolutionStrategy, directoryManager);
+        FileManager fileManager = new FileManager(getAppContext(), resolutionStrategy, directoryManager);
 
         fileManager.registerBaseDir(LocalThreadsBaseDirectory.class, localThreadsBaseDirectory);
         fileManager.registerBaseDir(SavedFilesBaseDirectory.class, savedFilesBaseDirectory);
@@ -138,7 +123,7 @@ public class AppModule {
     @Provides
     @Singleton
     public FileChooser provideFileChooser() {
-        return new FileChooser(applicationContext);
+        return new FileChooser(getAppContext());
     }
 
     static File getCacheDir() {
