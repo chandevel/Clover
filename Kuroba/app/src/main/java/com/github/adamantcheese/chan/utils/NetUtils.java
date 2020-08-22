@@ -92,7 +92,7 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        synchronized (resultListeners) {
+        synchronized (NetUtils.class) {
             List<BitmapResult> results = resultListeners.get(url);
             if (results != null) {
                 results.add(result);
@@ -118,7 +118,7 @@ public class NetUtils {
                     performBitmapFailure(url, e);
                     return;
                 }
-                synchronized (resultListeners) {
+                synchronized (NetUtils.class) {
                     resultListeners.remove(url);
                 }
             }
@@ -156,27 +156,23 @@ public class NetUtils {
         return call;
     }
 
-    private static void performBitmapSuccess(@NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache) {
-        synchronized (resultListeners) {
-            List<BitmapResult> results = resultListeners.get(url);
-            if (results == null) return;
-            for (BitmapResult bitmapResult : results) {
-                if (bitmapResult == null) continue;
-                BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(bitmap, fromCache));
-            }
-            resultListeners.remove(url);
+    private static synchronized void performBitmapSuccess(
+            @NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache
+    ) {
+        final List<BitmapResult> results = resultListeners.remove(url);
+        if (results == null) return;
+        for (final BitmapResult bitmapResult : results) {
+            if (bitmapResult == null) continue;
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(bitmap, fromCache));
         }
     }
 
-    private static void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
-        synchronized (resultListeners) {
-            List<BitmapResult> results = resultListeners.get(url);
-            if (results == null) return;
-            for (BitmapResult bitmapResult : results) {
-                if (bitmapResult == null) continue;
-                BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(BitmapRepository.error, e));
-            }
-            resultListeners.remove(url);
+    private static synchronized void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
+        final List<BitmapResult> results = resultListeners.remove(url);
+        if (results == null) return;
+        for (final BitmapResult bitmapResult : results) {
+            if (bitmapResult == null) continue;
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(BitmapRepository.error, e));
         }
     }
 
