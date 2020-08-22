@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.utils;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -31,13 +30,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
+@SuppressWarnings("unused")
 public class BackgroundUtils {
     private static final String TAG = "BackgroundUtils";
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public static boolean isInForeground() {
-        return ((Chan) instance(Context.class)).getApplicationInForeground();
+        return ((Chan) getAppContext()).getApplicationInForeground();
     }
 
     /**

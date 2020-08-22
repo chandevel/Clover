@@ -30,7 +30,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -91,6 +90,7 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -103,6 +103,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
+@SuppressWarnings("unused")
 public class ThreadPresenter
         implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
@@ -140,11 +141,20 @@ public class ThreadPresenter
     private static final int POST_OPTION_COPY_IMG_URL = 29;
     private static final int POST_OPTION_COPY_POST_URL = 30;
 
-    private final WatchManager watchManager;
-    private final DatabaseManager databaseManager;
-    private final ChanLoaderManager chanLoaderManager;
-    private final ThreadSaveManager threadSaveManager;
-    private final FileManager fileManager;
+    @Inject
+    private WatchManager watchManager;
+
+    @Inject
+    private DatabaseManager databaseManager;
+
+    @Inject
+    private ChanLoaderManager chanLoaderManager;
+
+    @Inject
+    private ThreadSaveManager threadSaveManager;
+
+    @Inject
+    private FileManager fileManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -160,23 +170,10 @@ public class ThreadPresenter
     private List<FloatingMenuItem<Integer>> copyMenu;
     //endregion
 
-    @Inject
-    public ThreadPresenter(
-            WatchManager watchManager,
-            DatabaseManager databaseManager,
-            ChanLoaderManager chanLoaderManager,
-            ThreadSaveManager threadSaveManager,
-            FileManager fileManager,
-    ) {
-        this.watchManager = watchManager;
-        this.databaseManager = databaseManager;
-        this.chanLoaderManager = chanLoaderManager;
-        this.threadSaveManager = threadSaveManager;
-        this.fileManager = fileManager;
-    }
-
-    public void create(ThreadPresenterCallback threadPresenterCallback) {
-        this.threadPresenterCallback = threadPresenterCallback;
+    public ThreadPresenter(Context context, ThreadPresenterCallback callback) {
+        this.context = context;
+        threadPresenterCallback = callback;
+        inject(this);
     }
 
     public void showNoContent() {
@@ -321,7 +318,7 @@ public class ThreadPresenter
         if (pin == null) {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().getOp();
-                watchManager.createPin(loadable, op, PinType.WATCH_NEW_POSTS);
+                watchManager.createPin(loadable, op);
             } else {
                 watchManager.createPin(loadable);
             }
@@ -754,7 +751,8 @@ public class ThreadPresenter
      */
     @Override
     public void onPostClicked(Post post) {
-        if (isBound() && loadable.isCatalogMode()) {
+        if (!isBound() || threadPresenterCallback.isLoadingReply()) return;
+        if (loadable.isCatalogMode()) {
             highlightPost(post);
             threadPresenterCallback.showThread(Loadable.forThread(post.board,
                     post.no,
@@ -1114,14 +1112,15 @@ public class ThreadPresenter
 
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-        if (linkable.type == PostLinkable.Type.QUOTE && isBound()) {
+        if (!isBound() || threadPresenterCallback.isLoadingReply()) return;
+        if (linkable.type == PostLinkable.Type.QUOTE) {
             Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
             }
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
-        } else if (linkable.type == PostLinkable.Type.THREAD && isBound()) {
+        } else if (linkable.type == PostLinkable.Type.THREAD) {
             CommentParser.ThreadLink link = (CommentParser.ThreadLink) linkable.value;
 
             Board board = loadable.site.board(link.board);
@@ -1131,7 +1130,7 @@ public class ThreadPresenter
 
                 threadPresenterCallback.showThread(thread);
             }
-        } else if (linkable.type == PostLinkable.Type.BOARD && isBound()) {
+        } else if (linkable.type == PostLinkable.Type.BOARD) {
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, (String) linkable.value));
             if (board == null) {
@@ -1139,7 +1138,7 @@ public class ThreadPresenter
             } else {
                 threadPresenterCallback.showBoard(Loadable.forCatalog(board));
             }
-        } else if (linkable.type == PostLinkable.Type.SEARCH && isBound()) {
+        } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
             Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
                     .getBoard(loadable.site, search.board));
@@ -1453,11 +1452,7 @@ public class ThreadPresenter
         }
     }
 
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public void updateLoadable(Loadable.LoadableDownloadingState loadableDownloadingState) {
+    public void updateLoadableDownloadState(Loadable.LoadableDownloadingState loadableDownloadingState) {
         if (isBound()) {
             loadable.setLoadableState(loadableDownloadingState);
         }
@@ -1612,5 +1607,7 @@ public class ThreadPresenter
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
+
+        boolean isLoadingReply();
     }
 }

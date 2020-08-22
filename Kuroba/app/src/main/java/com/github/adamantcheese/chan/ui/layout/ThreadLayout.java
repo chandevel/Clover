@@ -98,7 +98,6 @@ public class ThreadLayout
     @Inject
     DatabaseManager databaseManager;
 
-    @Inject
     ThreadPresenter presenter;
 
     private ThreadLayoutCallback callback;
@@ -155,7 +154,7 @@ public class ThreadLayout
         progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
 
         // View setup
-        presenter.setContext(getContext());
+        presenter = new ThreadPresenter(getContext(), this);
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
@@ -170,8 +169,6 @@ public class ThreadLayout
             replyButton.setOnClickListener(this);
             replyButton.setToolbar(callback.getToolbar());
         }
-
-        presenter.create(this);
     }
 
     public void destroy() {
@@ -197,6 +194,11 @@ public class ThreadLayout
 
     public boolean onBack() {
         return threadListLayout.onBack();
+    }
+
+    @Override
+    public boolean isLoadingReply() {
+        return threadListLayout.getReplyPresenter().getPage() == Page.LOADING;
     }
 
     public boolean sendKeyEvent(KeyEvent event) {
@@ -246,7 +248,7 @@ public class ThreadLayout
             }
         }
 
-        getPresenter().updateLoadable(thread.getLoadable().getLoadableDownloadingState());
+        getPresenter().updateLoadableDownloadState(thread.getLoadable().getLoadableDownloadingState());
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
 
         switchVisible(Visible.THREAD);

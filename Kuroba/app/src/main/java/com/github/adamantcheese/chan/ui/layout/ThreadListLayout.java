@@ -31,6 +31,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -267,8 +268,7 @@ public class ThreadListLayout
     ) {
         showingThread = thread;
         if (initial) {
-            reply.getPresenter().bindLoadable(showingThread.getLoadable());
-
+            reply.getPresenter().bindLoadable(thread.getLoadable());
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();

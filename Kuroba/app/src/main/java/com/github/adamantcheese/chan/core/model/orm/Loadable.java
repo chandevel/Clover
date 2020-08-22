@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -87,7 +88,7 @@ public class Loadable
     @DatabaseField
     public int lastLoaded = -1;
 
-    @DatabaseField(canBeNull = false, format = "yyyy-MM-dd HH:mm:ss")
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd HH:mm:ss")
     public Date lastLoadDate = GregorianCalendar.getInstance().getTime();
 
     public int markedNo = -1;
@@ -240,7 +241,7 @@ public class Loadable
 
     @Override
     public int hashCode() {
-        int result = mode;
+        int result = mode + 1;
 
         if (mode == Mode.THREAD || mode == Mode.CATALOG) {
             result = 31 * result + boardCode.hashCode();
@@ -252,11 +253,12 @@ public class Loadable
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "Loadable{mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
                 + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(
                 lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo)
-                + ", dirty=" + dirty + ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
+                + ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
     }
 
     public boolean isThreadMode() {
@@ -295,8 +297,6 @@ public class Loadable
 
     public static Loadable readFromParcel(Parcel parcel) {
         Loadable loadable = new Loadable();
-        /*loadable.id = */
-        parcel.readInt();
         loadable.siteId = parcel.readInt();
         loadable.mode = parcel.readInt();
         loadable.boardCode = parcel.readString();
@@ -304,11 +304,12 @@ public class Loadable
         loadable.title = parcel.readString();
         loadable.listViewIndex = parcel.readInt();
         loadable.listViewTop = parcel.readInt();
+        //noinspection ConstantConditions
+        loadable.thumbnailUrl = HttpUrl.get(parcel.readString());
         return loadable;
     }
 
     public void writeToParcel(Parcel parcel) {
-        parcel.writeInt(id);
         // TODO(multi-site)
         parcel.writeInt(siteId);
         parcel.writeInt(mode);
@@ -318,6 +319,7 @@ public class Loadable
         parcel.writeString(title);
         parcel.writeInt(listViewIndex);
         parcel.writeInt(listViewTop);
+        parcel.writeString(thumbnailUrl.toString());
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
