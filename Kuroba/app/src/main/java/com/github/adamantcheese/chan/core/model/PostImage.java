@@ -29,17 +29,15 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.SWF;
 
 public class PostImage {
     public enum Type {
         STATIC, // static images, uses CustomScaleImageView
         GIF, // GIF images, uses GifImageView
         MOVIE, // movies/audio, uses PlayerView from Exoplayer
-        PDF, // things openable in mupdf
-        SWF // not supported in-app
+        OTHER
     }
 
     public boolean hidden = ChanSettings.hideImages.get();
@@ -87,15 +85,9 @@ public class PostImage {
             case "flac":
                 type = MOVIE;
                 break;
-            case "xps":
-            case "cbz":
-            case "epub":
-            case "fb2":
             case "pdf":
-                type = PDF;
-                break;
             case "swf":
-                type = SWF;
+                type = OTHER;
                 break;
             default:
                 type = STATIC;

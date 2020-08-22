@@ -84,11 +84,10 @@ public class CommentParserHelper {
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|xps|cbz|epub|fb2|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
             Pattern.CASE_INSENSITIVE
     );
-    private static final String[] noThumbLinkSuffixes =
-            {"webm", "pdf", "xps", "cbz", "epub", "fb2", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
+    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
 
     private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
     private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");

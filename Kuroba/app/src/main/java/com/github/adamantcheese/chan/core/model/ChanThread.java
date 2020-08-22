@@ -38,7 +38,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ChanThread {
-    private Loadable loadable;
+    private final Loadable loadable;
     // Unmodifiable list of posts. We need it to make this class "thread-safe" (it's actually
     // still not fully thread-safe because Loadable and the Post classes are not thread-safe but
     // there is no easy way to fix them right now) and to avoid copying the whole list of posts

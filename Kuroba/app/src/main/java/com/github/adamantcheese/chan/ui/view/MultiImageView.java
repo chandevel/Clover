@@ -34,7 +34,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
 
-import com.artifex.mupdf.viewer.DocumentActivity;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -119,7 +118,7 @@ public class MultiImageView
     private CancelableDownload bigImageRequest;
     private CancelableDownload gifRequest;
     private CancelableDownload videoRequest;
-    private CancelableDownload pdfRequest;
+    private CancelableDownload otherRequest;
     private SimpleExoPlayer exoPlayer;
     private CancellableToast cancellableToast;
 
@@ -665,74 +664,72 @@ public class MultiImageView
     }
 
     private void setOther(Loadable loadable, PostImage image) {
-        if (image.type == PostImage.Type.PDF) {
-            BackgroundUtils.ensureMainThread();
+        BackgroundUtils.ensureMainThread();
 
-            if (pdfRequest != null) {
-                return;
-            }
-
-            DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
-            pdfRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable,
-                    postImage,
-                    extraInfo,
-                    new FileCacheListener() {
-
-                        @Override
-                        public void onStart(int chunksCount) {
-                            BackgroundUtils.ensureMainThread();
-
-                            callback.onStartDownload(MultiImageView.this, chunksCount);
-                        }
-
-                        @Override
-                        public void onProgress(int chunkIndex, long downloaded, long total) {
-                            BackgroundUtils.ensureMainThread();
-
-                            callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
-                        }
-
-                        @Override
-                        public void onSuccess(RawFile file, boolean immediate) {
-                            BackgroundUtils.ensureMainThread();
-
-                            if (!hasContent || mode == Mode.OTHER) {
-                                Intent intent = new Intent(getContext(), DocumentActivity.class);
-                                intent.setAction(Intent.ACTION_VIEW);
-                                intent.setData(Uri.fromFile(new File(file.getFullPath())));
-                                getContext().startActivity(intent);
-                            }
-                            callback.onDownloaded(postImage);
-                        }
-
-                        @Override
-                        public void onNotFound() {
-                            BackgroundUtils.ensureMainThread();
-
-                            onNotFoundError();
-                        }
-
-                        @Override
-                        public void onFail(Exception exception) {
-                            BackgroundUtils.ensureMainThread();
-
-                            onError(exception);
-                        }
-
-                        @Override
-                        public void onEnd() {
-                            BackgroundUtils.ensureMainThread();
-
-                            pdfRequest = null;
-                            callback.hideProgress(MultiImageView.this);
-                        }
-                    }
-            );
-        } else {
-            cancellableToast.showToast(getContext(), getString(R.string.file_not_viewable, image.type.name()));
-            callback.onDownloaded(image);
+        if (otherRequest != null) {
+            return;
         }
+
+        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
+
+        otherRequest =
+                fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
+
+                    @Override
+                    public void onStart(int chunksCount) {
+                        BackgroundUtils.ensureMainThread();
+
+                        callback.onStartDownload(MultiImageView.this, chunksCount);
+                    }
+
+                    @Override
+                    public void onProgress(int chunkIndex, long downloaded, long total) {
+                        BackgroundUtils.ensureMainThread();
+
+                        callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
+                    }
+
+                    @Override
+                    public void onSuccess(RawFile file, boolean immediate) {
+                        BackgroundUtils.ensureMainThread();
+
+                        if (!hasContent || mode == Mode.OTHER) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            Uri uriForFile = FileProvider.getUriForFile(getAppContext(),
+                                    getAppFileProvider(),
+                                    new File(file.getFullPath())
+                            );
+
+                            intent.setDataAndType(uriForFile, getAppContext().getContentResolver().getType(uriForFile));
+                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                            openIntent(intent);
+                            onModeLoaded(Mode.OTHER, null);
+                        }
+                        callback.onDownloaded(postImage);
+                    }
+
+                    @Override
+                    public void onNotFound() {
+                        BackgroundUtils.ensureMainThread();
+
+                        onNotFoundError();
+                    }
+
+                    @Override
+                    public void onFail(Exception exception) {
+                        BackgroundUtils.ensureMainThread();
+
+                        onError(exception);
+                    }
+
+                    @Override
+                    public void onEnd() {
+                        BackgroundUtils.ensureMainThread();
+
+                        otherRequest = null;
+                        callback.hideProgress(MultiImageView.this);
+                    }
+                });
     }
 
     public void toggleTransparency() {
@@ -832,9 +829,9 @@ public class MultiImageView
             videoRequest.cancel();
             videoRequest = null;
         }
-        if (pdfRequest != null) {
-            pdfRequest.cancel();
-            pdfRequest = null;
+        if (otherRequest != null) {
+            otherRequest.cancel();
+            otherRequest = null;
         }
 
         synchronized (this) {

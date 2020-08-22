@@ -56,14 +56,11 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.PDF;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.SWF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.OTHER;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -296,8 +293,8 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, GIFIMAGE, true);
             } else if (postImage.type == MOVIE && videoAutoLoad(loadable, postImage)) {
                 callback.setImageMode(postImage, VIDEO, true);
-            } else if (postImage.type == PDF || postImage.type == SWF) {
-                callback.setImageMode(postImage, OTHER, true);
+            } else if (postImage.type == PostImage.Type.OTHER) {
+                callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
             }
         }
 
@@ -481,8 +478,8 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
-                } else if ((postImage.type == PDF || postImage.type == SWF) && currentMode != OTHER) {
-                    callback.setImageMode(postImage, OTHER, true);
+                } else if ((postImage.type == PostImage.Type.OTHER) && currentMode != MultiImageView.Mode.OTHER) {
+                    callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
                 } else {
                     if (callback.isImmersive()) {
                         callback.showSystemUI(true);
@@ -655,7 +652,7 @@ public class ImageViewerPresenter
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 for (ImageSearch imageSearch : ImageSearch.engines) {
-                    if (((Integer) item.getId()) == imageSearch.getId()) {
+                    if (item.getId() == imageSearch.getId()) {
                         final HttpUrl searchImageUrl = getSearchImageUrl(getCurrentPostImage());
                         if (searchImageUrl == null) {
                             Logger.e(this, "onFloatingMenuItemClicked() searchImageUrl == null");
