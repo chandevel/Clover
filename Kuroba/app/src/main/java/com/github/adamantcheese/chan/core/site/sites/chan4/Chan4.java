@@ -175,9 +175,9 @@ public class Chan4
         }
 
         @Override
-        public HttpUrl thread(Board board, Loadable loadable) {
+        public HttpUrl thread(Loadable loadable) {
             return a.newBuilder()
-                    .addPathSegment(board.code)
+                    .addPathSegment(loadable.boardCode)
                     .addPathSegment("thread")
                     .addPathSegment(loadable.no + ".json")
                     .build();

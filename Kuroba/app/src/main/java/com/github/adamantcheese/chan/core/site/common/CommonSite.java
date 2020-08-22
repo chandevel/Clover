@@ -354,7 +354,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public HttpUrl thread(Board board, Loadable loadable) {
+        public HttpUrl thread(Loadable loadable) {
             return null;
         }
 

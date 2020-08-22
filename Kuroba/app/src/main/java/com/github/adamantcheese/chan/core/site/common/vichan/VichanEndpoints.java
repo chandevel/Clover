@@ -43,8 +43,8 @@ public class VichanEndpoints
     }
 
     @Override
-    public HttpUrl thread(Board board, Loadable loadable) {
-        return root.builder().s(board.code).s("res").s(loadable.no + ".json").url();
+    public HttpUrl thread(Loadable loadable) {
+        return root.builder().s(loadable.boardCode).s("res").s(loadable.no + ".json").url();
     }
 
     @Override

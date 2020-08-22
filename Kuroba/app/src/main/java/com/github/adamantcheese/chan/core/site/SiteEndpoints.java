@@ -33,7 +33,7 @@ public interface SiteEndpoints {
 
     HttpUrl catalog(Board board);
 
-    HttpUrl thread(Board board, Loadable loadable);
+    HttpUrl thread(Loadable loadable);
 
     HttpUrl imageUrl(Post.Builder post, Map<String, String> arg);
 
