@@ -4,10 +4,8 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
@@ -87,13 +85,8 @@ public class SiteRepository {
                 break;
             }
 
-            Site site = holder.site;
-            SiteConfig config = holder.config;
-            JsonSettings settings = holder.settings;
-
-            site.initialize(siteModel.id, config, settings);
-
-            sites.add(site);
+            holder.site.initialize(siteModel.id, holder.settings);
+            sites.add(holder.site);
         }
 
         sitesObservable.addAll(sites);
@@ -108,16 +101,14 @@ public class SiteRepository {
     public Site createFromClass(Class<? extends Site> siteClass) {
         Site site = instantiateSiteClass(siteClass);
 
-        SiteConfig config = new SiteConfig();
         JsonSettings settings = new JsonSettings();
 
         //the index doesn't necessarily match the key value to get the class ID anymore since sites were removed
-        config.classId = SITE_CLASSES.keyAt(SITE_CLASSES.indexOfValue(site.getClass()));
-        config.external = false;
+        int classId = SITE_CLASSES.keyAt(SITE_CLASSES.indexOfValue(site.getClass()));
 
-        SiteModel model = createFromClass(config, settings);
+        SiteModel model = createFromClass(classId, settings);
 
-        site.initialize(model.id, config, settings);
+        site.initialize(model.id, settings);
 
         sitesObservable.add(site);
 
@@ -128,9 +119,9 @@ public class SiteRepository {
         return site;
     }
 
-    private SiteModel createFromClass(SiteConfig config, JsonSettings userSettings) {
+    private SiteModel createFromClass(int classID, JsonSettings userSettings) {
         SiteModel siteModel = new SiteModel();
-        siteModel.storeConfig(config);
+        siteModel.classID = classID;
         siteModel.storeUserSettings(userSettings);
         databaseManager.runTask(databaseManager.getDatabaseSiteManager().add(siteModel));
 
@@ -138,11 +129,7 @@ public class SiteRepository {
     }
 
     private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
-        Pair<SiteConfig, JsonSettings> configFields = siteModel.loadConfigFields();
-        SiteConfig config = configFields.first;
-        JsonSettings settings = configFields.second;
-
-        return new SiteConfigSettingsHolder(instantiateSiteClass(config.classId), config, settings);
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig());
     }
 
     @NonNull
@@ -264,15 +251,12 @@ public class SiteRepository {
         @NonNull
         Site site;
         @NonNull
-        SiteConfig config;
-        @NonNull
         JsonSettings settings;
 
         public SiteConfigSettingsHolder(
-                @NonNull Site site, @NonNull SiteConfig config, @NonNull JsonSettings settings
+                @NonNull Site site, @NonNull JsonSettings settings
         ) {
             this.site = site;
-            this.config = config;
             this.settings = settings;
         }
     }

@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
@@ -39,7 +38,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 public abstract class SiteBase
         implements Site {
     protected int id;
-    protected SiteConfig config;
 
     protected BoardManager boardManager;
     protected SettingProvider<Object> settingsProvider;
@@ -47,9 +45,8 @@ public abstract class SiteBase
     private boolean initialized = false;
 
     @Override
-    public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
+    public void initialize(int id, JsonSettings userSettings) {
         this.id = id;
-        this.config = config;
         this.userSettings = userSettings;
 
         if (initialized) {

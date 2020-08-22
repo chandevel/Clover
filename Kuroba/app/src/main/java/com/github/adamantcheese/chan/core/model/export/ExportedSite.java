@@ -36,18 +36,22 @@ public class ExportedSite {
     private String userSettings;
     @SerializedName("exported_pins")
     private List<ExportedPin> exportedPins;
+    @SerializedName("class_id")
+    private int classId;
 
     public ExportedSite(
             int siteId,
             @NonNull String configuration,
             int order,
             @NonNull String userSettings,
+            int classId,
             List<ExportedPin> exportedPins
     ) {
         this.siteId = siteId;
         this.configuration = configuration;
         this.order = order;
         this.userSettings = userSettings;
+        this.classId = classId;
         this.exportedPins = exportedPins;
     }
 
@@ -67,6 +71,14 @@ public class ExportedSite {
     @NonNull
     public String getUserSettings() {
         return userSettings;
+    }
+
+    public int getClassId() {
+        return classId;
+    }
+
+    public void setClassId(int classId) {
+        this.classId = classId;
     }
 
     public void setUserSettings(String settingsJson) {

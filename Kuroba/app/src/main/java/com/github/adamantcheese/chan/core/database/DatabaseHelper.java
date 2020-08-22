@@ -19,9 +19,6 @@ package com.github.adamantcheese.chan.core.database;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
-import androidx.core.util.Pair;
-
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.History;
@@ -35,7 +32,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.primitives.LongSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
@@ -44,6 +40,7 @@ import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSet
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.GenericRawResults;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
@@ -58,6 +55,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
@@ -489,6 +488,27 @@ public class DatabaseHelper
                 Logger.e(this, "Error upgrading to version 46");
             }
         }
+
+        if (oldVersion < 47) {
+            //can't directly use gson here, gotta use regex instead
+            //noinspection RegExpRedundantEscape I don't know why, but for some reason Android fails to compile this without the redundant escape??
+            Pattern config = Pattern.compile("\\{\"internal_site_id\":(\\d+),\"external\":.+?\\}");
+            try {
+                getSiteModelDao().executeRawNoArgs("ALTER TABLE site ADD COLUMN classID INTEGER default -1");
+
+                GenericRawResults<String[]> configs = getSiteModelDao().queryRaw("SELECT id,configuration FROM site");
+                List<String[]> results = configs.getResults();
+                for (String[] res : results) {
+                    Matcher m = config.matcher(res[1]); // 0 is id, 1 is the raw result
+                    if (m.matches()) { // shouldn't fail
+                        getSiteModelDao().executeRawNoArgs(
+                                "UPDATE site SET classID = " + Integer.parseInt(m.group(1)) + " WHERE id = " + res[0]);
+                    }
+                }
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 47");
+            }
+        }
     }
 
     @Override
@@ -517,8 +537,7 @@ public class DatabaseHelper
         List<SiteModel> allSites = getSiteModelDao().queryForAll();
         SiteModel toDelete = null;
         for (SiteModel siteModel : allSites) {
-            Pair<SiteConfig, JsonSettings> siteModelConfig = siteModel.loadConfigFields();
-            if (siteModelConfig.first.classId == id) {
+            if (siteModel.classID == id) {
                 toDelete = siteModel;
                 break;
             }

@@ -21,7 +21,6 @@ import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseManager
 import com.github.adamantcheese.chan.core.model.export.*
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig
 import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Import
@@ -39,6 +38,7 @@ import java.io.FileWriter
 import java.io.IOException
 import java.sql.SQLException
 import java.util.*
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 class ImportExportRepository @Inject
@@ -316,20 +316,26 @@ constructor(
             }
         }
 
+        //can't directly use gson here, gotta use regex instead
+        //I don't know why, but for some reason Android fails to compile this without the redundant escape??
+        @Suppress("RegExpRedundantEscape") val oldConfigPattern = Pattern.compile("\\{\"internal_site_id\":(\\d+),\"external\":.+\\}")
+
         if (version < 4) {
             //55chan and 8chan were removed for this version
             var chan8: ExportedSite? = null
             var chan55: ExportedSite? = null
 
             for (site in appSettings.exportedSites) {
-                val config = gson.fromJson(site.configuration, SiteConfig::class.java)
+                val matcher = oldConfigPattern.matcher(site.configuration.toString())
+                if (matcher.matches()) {
+                    val classID = matcher.group(1)?.let { Integer.parseInt(it) }
+                    if (classID == 1 && chan8 == null) {
+                        chan8 = site
+                    }
 
-                if (config.classId == 1 && chan8 == null) {
-                    chan8 = site
-                }
-
-                if (config.classId == 7 && chan55 == null) {
-                    chan55 = site
+                    if (classID == 7 && chan55 == null) {
+                        chan55 = site
+                    }
                 }
             }
 
@@ -342,6 +348,18 @@ constructor(
             }
         }
 
+        if (version < 5) {
+            // siteconfig class removed, move stuff over
+            for (site in appSettings.exportedSites) {
+                val matcher = oldConfigPattern.matcher(site.configuration.toString())
+                if (matcher.matches()) {
+                    val classID = matcher.group(1)?.let { Integer.parseInt(it) }
+                    if (classID != null) {
+                        site.classId = classID
+                    };
+                }
+            }
+        }
         return appSettings
     }
 
@@ -422,6 +440,7 @@ constructor(
                     key.configuration,
                     key.order,
                     key.userSettings,
+                    key.classID,
                     value
             )
 

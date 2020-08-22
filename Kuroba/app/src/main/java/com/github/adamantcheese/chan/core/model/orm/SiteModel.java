@@ -16,9 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import androidx.core.util.Pair;
-
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
@@ -46,19 +43,19 @@ public class SiteModel {
     @DatabaseField
     public int order;
 
-    public SiteModel(int id, String configuration, String userSettings, int order) {
+    @DatabaseField
+    public int classID;
+
+    public SiteModel(int id, String configuration, String userSettings, int order, int classID) {
         this.id = id;
         this.configuration = configuration;
         this.userSettings = userSettings;
         this.order = order;
+        this.classID = classID;
     }
 
     public SiteModel() {
         inject(this);
-    }
-
-    public void storeConfig(SiteConfig config) {
-        this.configuration = gson.toJson(config);
     }
 
     public void storeUserSettings(JsonSettings userSettings) {
@@ -66,11 +63,10 @@ public class SiteModel {
         Logger.test("userSettings = " + this.userSettings);
     }
 
-    public Pair<SiteConfig, JsonSettings> loadConfigFields() {
-        SiteConfig config = gson.fromJson(this.configuration, SiteConfig.class);
+    public JsonSettings loadConfig() {
         JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
         Logger.d(this, "Config: " + configuration + ", Settings: " + userSettings);
 
-        return Pair.create(config, settings);
+        return settings;
     }
 }

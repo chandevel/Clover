@@ -22,7 +22,6 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.json.site.SiteConfig;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
@@ -61,7 +60,7 @@ import okhttp3.Response;
 import static android.text.TextUtils.isEmpty;
 
 /**
- * Your base site implementation; take a look at {@link #initialize(int, SiteConfig, JsonSettings)} for the exact items you need to specify.
+ * Your base site implementation; take a look at {@link #initialize(int, JsonSettings)} for the exact items you need to specify.
  * Do note that {@link #setName(String)} and {@link #setIcon(SiteIcon)} should be called in the constructor, otherwise site selection will break.
  * This is an optimization on the site selector that prevents extra work from being done.
  */
@@ -82,8 +81,8 @@ public abstract class CommonSite
     private Boards staticBoards = new Boards();
 
     @Override
-    public void initialize(int id, SiteConfig config, JsonSettings userSettings) {
-        super.initialize(id, config, userSettings);
+    public void initialize(int id, JsonSettings userSettings) {
+        super.initialize(id, userSettings);
         setup();
 
         if ("App Setup".equals(name)) return; // for this special site, we don't need any of the rest of the items
