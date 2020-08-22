@@ -62,7 +62,6 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -135,19 +134,17 @@ public class ThreadPresenter
     private static final int POST_OPTION_FILTER_COUNTRY_CODE = 23;
     private static final int POST_OPTION_EXTRA = 24;
     private static final int POST_OPTION_REMOVE = 25;
-    private static final int POST_OPTION_MOCK_REPLY = 26;
-    private static final int POST_OPTION_COPY_POST_LINK = 27;
-    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 28;
-    private static final int POST_OPTION_COPY_POST_TEXT = 29;
-    private static final int POST_OPTION_COPY_IMG_URL = 30;
-    private static final int POST_OPTION_COPY_POST_URL = 31;
+    private static final int POST_OPTION_COPY_POST_LINK = 26;
+    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 27;
+    private static final int POST_OPTION_COPY_POST_TEXT = 28;
+    private static final int POST_OPTION_COPY_IMG_URL = 29;
+    private static final int POST_OPTION_COPY_POST_URL = 30;
 
     private final WatchManager watchManager;
     private final DatabaseManager databaseManager;
     private final ChanLoaderManager chanLoaderManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
-    private final MockReplyManager mockReplyManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -170,14 +167,12 @@ public class ThreadPresenter
             ChanLoaderManager chanLoaderManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager,
-            MockReplyManager mockReplyManager
     ) {
         this.watchManager = watchManager;
         this.databaseManager = databaseManager;
         this.chanLoaderManager = chanLoaderManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
-        this.mockReplyManager = mockReplyManager;
     }
 
     public void create(ThreadPresenterCallback threadPresenterCallback) {
@@ -884,10 +879,6 @@ public class ThreadPresenter
             extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
-
-            if (BuildConfig.DEV_BUILD && loadable.no > 0) {
-                extraMenu.add(new FloatingMenuItem<>(POST_OPTION_MOCK_REPLY, R.string.mock_reply));
-            }
         }
 
         return POST_OPTION_EXTRA;
@@ -1088,12 +1079,6 @@ public class ThreadPresenter
                                 chanLoader.getThread().getOp().no
                         );
                     }
-                }
-                break;
-            case POST_OPTION_MOCK_REPLY:
-                if (isBound()) {
-                    mockReplyManager.addMockReply(post.board.siteId, loadable.boardCode, loadable.no, post.no);
-                    showToast(context, "Refresh to add mock replies");
                 }
                 break;
         }

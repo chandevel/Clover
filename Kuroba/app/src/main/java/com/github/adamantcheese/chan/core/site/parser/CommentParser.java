@@ -50,9 +50,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -66,9 +63,6 @@ public class CommentParser {
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
 
-    @Inject
-    MockReplyManager mockReplyManager;
-
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
     private Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
@@ -80,8 +74,6 @@ public class CommentParser {
     private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
     public CommentParser() {
-        inject(this);
-
         // Required tags.
         rule(tagRule("p"));
         rule(tagRule("div"));
@@ -164,14 +156,7 @@ public class CommentParser {
             Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
-
-        int mockReplyPostNo = mockReplyManager.getLastMockReply(post.board.siteId, post.board.code, post.opId);
-
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
-
-        if (mockReplyPostNo >= 0) {
-            addMockReply(theme, post, spannableStringBuilder, mockReplyPostNo);
-        }
 
         if (handlerLink != null) {
             addReply(theme, callback, post, handlerLink, spannableStringBuilder);

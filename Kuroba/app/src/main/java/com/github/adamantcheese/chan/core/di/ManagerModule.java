@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
-import com.github.adamantcheese.chan.core.site.parser.MockReplyManager;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.google.gson.Gson;
@@ -150,13 +149,6 @@ public class ManagerModule {
     ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
         return new SavedThreadLoaderManager(savedThreadLoaderRepository, fileManager);
-    }
-
-    @Provides
-    @Singleton
-    public MockReplyManager provideMockReplyManager() {
-        Logger.d(AppModule.DI_TAG, "Mock reply manager");
-        return new MockReplyManager();
     }
 
     @Provides

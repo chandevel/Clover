@@ -386,7 +386,7 @@ public class ChanThreadLoader {
         }
 
         if (loadable.isThreadMode()) {
-            url = loadable.site.endpoints().thread(loadable.board, loadable);
+            url = loadable.site.endpoints().thread(loadable);
         } else if (loadable.isCatalogMode()) {
             url = loadable.site.endpoints().catalog(loadable.board);
         } else {
