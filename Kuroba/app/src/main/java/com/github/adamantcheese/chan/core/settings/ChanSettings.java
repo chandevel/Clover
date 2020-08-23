@@ -294,7 +294,6 @@ public class ChanSettings {
     //endregion
 
     //region OTHER
-    public static final BooleanSetting historyEnabled;
     public static final BooleanSetting collectCrashLogs;
     //endregion
 
@@ -309,7 +308,6 @@ public class ChanSettings {
 
     // While these are not "settings", they are here instead of in PersistableChanState because they control the appearance of hints.
     // Hints should not be shown if re-imported.
-    public static final CounterSetting historyOpenCounter;
     public static final CounterSetting threadOpenCounter;
     public static final IntegerSetting drawerAutoOpenCount;
     public static final BooleanSetting reencodeHintShown;
@@ -477,7 +475,6 @@ public class ChanSettings {
             //endregion
 
             //region OTHER
-            historyEnabled = new BooleanSetting(p, "preference_history_enabled", true);
             collectCrashLogs = new BooleanSetting(p, "collect_crash_logs", true);
             //endregion
 
@@ -488,7 +485,6 @@ public class ChanSettings {
 
             //region DATA
             lastImageOptions = new StringSetting(p, "last_image_options", "");
-            historyOpenCounter = new CounterSetting(p, "counter_history_open");
             threadOpenCounter = new CounterSetting(p, "counter_thread_open");
             drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);
             reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);

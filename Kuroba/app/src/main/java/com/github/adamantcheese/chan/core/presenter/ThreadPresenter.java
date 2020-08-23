@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.History;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
@@ -574,7 +573,6 @@ public class ThreadPresenter
         }
 
         storeNewPostsIfThreadIsBeingDownloaded(result.getPosts());
-        addHistory();
 
         updateDatabaseLoadable();
 
@@ -1392,23 +1390,6 @@ public class ThreadPresenter
                     new PostsFilter(order, searchQuery),
                     refreshAfterHideOrRemovePosts
             );
-        }
-    }
-
-    private void addHistory() {
-        if (!isBound() || chanLoader.getThread() == null) {
-            return;
-        }
-
-        if (!historyAdded && addToLocalBackHistory && ChanSettings.historyEnabled.get() && loadable.isThreadMode()
-                // Do not attempt to add a saved thread to the history
-                && !loadable.isLocal()) {
-            historyAdded = true;
-            History history = new History();
-            history.loadable = loadable;
-            PostImage opImage = chanLoader.getThread().getOp().image();
-            history.thumbnailUrl = opImage != null ? opImage.getThumbnailUrl() : null;
-            databaseManager.runTaskAsync(databaseManager.getDatabaseHistoryManager().addHistory(history));
         }
     }
 

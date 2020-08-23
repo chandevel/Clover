@@ -283,10 +283,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="filter_country_code">Country code</string>
     <string name="filter_image_hash">Image hash</string>
 
-    <string name="history_clear">Clear history</string>
-    <string name="history_clear_confirm">Clear history?</string>
-    <string name="history_clear_confirm_button">Clear</string>
-    <string name="history_toggle_hint">Enable or disable history</string>
     <string name="history_empty_info">No history</string>
 
     <string name="saved_reply_clear">Clear posting history</string>

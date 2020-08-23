@@ -32,7 +32,6 @@ import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.ExternalFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
 import com.google.gson.Gson
-import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
@@ -166,7 +165,7 @@ constructor(
 
         for (exportedBoard in appSettings.exportedBoards) {
             assert(exportedBoard.description != null)
-            databaseHelper.boardsDao.createIfNotExists(Board(
+            databaseHelper.boardDao.createIfNotExists(Board(
                     exportedBoard.siteId,
                     exportedBoard.isSaved,
                     exportedBoard.order,
@@ -196,11 +195,12 @@ constructor(
         }
 
         for (exportedSite in appSettings.exportedSites) {
-            val inserted = databaseHelper.siteDao.createIfNotExists(SiteModel(
+            val inserted = databaseHelper.siteModelDao.createIfNotExists(SiteModel(
                     exportedSite.siteId,
                     exportedSite.configuration,
                     exportedSite.userSettings,
-                    exportedSite.order
+                    exportedSite.order,
+                    exportedSite.classId
             ))
 
             val exportedSavedThreads = appSettings.exportedSavedThreads
@@ -442,7 +442,7 @@ constructor(
 
         val exportedBoards = ArrayList<ExportedBoard>()
 
-        for (board in databaseHelper.boardsDao.queryForAll()) {
+        for (board in databaseHelper.boardDao.queryForAll()) {
             exportedBoards.add(ExportedBoard(
                     board.siteId,
                     board.saved,
@@ -548,7 +548,7 @@ constructor(
 
     private fun fillSitesMap(): Map<Int, SiteModel> {
         val map = hashMapOf<Int, SiteModel>()
-        val sites = databaseHelper.siteDao.queryForAll()
+        val sites = databaseHelper.siteModelDao.queryForAll()
 
         for (site in sites) {
             map[site.id] = site

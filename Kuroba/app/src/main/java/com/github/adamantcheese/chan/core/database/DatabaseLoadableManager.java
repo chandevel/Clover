@@ -171,4 +171,15 @@ public class DatabaseLoadableManager {
             return null;
         };
     }
+
+    public Callable<List<Loadable>> getHistory() {
+        return () -> {
+            List<Loadable> history = helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).query();
+            for (Loadable l : history) {
+                l.site = instance(SiteRepository.class).forId(l.siteId);
+                l.board = l.site.board(l.boardCode);
+            }
+            return history;
+        };
+    }
 }

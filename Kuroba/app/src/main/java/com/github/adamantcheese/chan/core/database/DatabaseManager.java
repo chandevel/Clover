@@ -53,7 +53,6 @@ public class DatabaseManager {
 
     private final DatabasePinManager databasePinManager;
     private final DatabaseLoadableManager databaseLoadableManager;
-    private final DatabaseHistoryManager databaseHistoryManager;
     private final DatabaseSavedReplyManager databaseSavedReplyManager;
     private final DatabaseFilterManager databaseFilterManager;
     private final DatabaseBoardManager databaseBoardManager;
@@ -69,7 +68,6 @@ public class DatabaseManager {
 
         databaseLoadableManager = new DatabaseLoadableManager();
         databasePinManager = new DatabasePinManager(databaseLoadableManager);
-        databaseHistoryManager = new DatabaseHistoryManager(databaseLoadableManager);
         databaseSavedReplyManager = new DatabaseSavedReplyManager();
         databaseFilterManager = new DatabaseFilterManager();
         databaseBoardManager = new DatabaseBoardManager();
@@ -83,7 +81,6 @@ public class DatabaseManager {
         runTask(databaseSavedReplyManager.load());
 
         // Only trims.
-        runTaskAsync(databaseHistoryManager.load());
         runTaskAsync(databaseHideManager.load());
     }
 
@@ -93,10 +90,6 @@ public class DatabaseManager {
 
     public DatabaseLoadableManager getDatabaseLoadableManager() {
         return databaseLoadableManager;
-    }
-
-    public DatabaseHistoryManager getDatabaseHistoryManager() {
-        return databaseHistoryManager;
     }
 
     public DatabaseSavedReplyManager getDatabaseSavedReplyManager() {
@@ -140,15 +133,14 @@ public class DatabaseManager {
         String o = "";
 
         try {
-            o += "Loadable rows: " + helper.loadableDao.countOf() + "\n";
-            o += "Pin rows: " + helper.pinDao.countOf() + "\n";
-            o += "SavedReply rows: " + helper.savedDao.countOf() + "\n";
-            o += "Board rows: " + helper.boardsDao.countOf() + "\n";
-            o += "PostHide rows: " + helper.postHideDao.countOf() + "\n";
-            o += "History rows: " + helper.historyDao.countOf() + "\n";
-            o += "Filter rows: " + helper.filterDao.countOf() + "\n";
-            o += "Site rows: " + helper.siteDao.countOf() + "\n";
-            o += "Local thread rows: " + helper.savedThreadDao.countOf() + "\n";
+            o += "Loadable rows: " + helper.getLoadableDao().countOf() + "\n";
+            o += "Pin rows: " + helper.getPinDao().countOf() + "\n";
+            o += "SavedReply rows: " + helper.getSavedReplyDao().countOf() + "\n";
+            o += "Board rows: " + helper.getBoardDao().countOf() + "\n";
+            o += "PostHide rows: " + helper.getPostHideDao().countOf() + "\n";
+            o += "Filter rows: " + helper.getFilterDao().countOf() + "\n";
+            o += "Site rows: " + helper.getSiteModelDao().countOf() + "\n";
+            o += "Local thread rows: " + helper.getSavedThreadDao().countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }

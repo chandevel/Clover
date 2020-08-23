@@ -159,7 +159,6 @@ public class SiteRepository {
             if (!siteLoadables.isEmpty()) {
                 databaseManager.getDatabaseSavedThreadManager().deleteSavedThreads(siteLoadables).call();
                 databaseManager.getDatabasePinManager().deletePinsFromLoadables(siteLoadables).call();
-                databaseManager.getDatabaseHistoryManager().deleteHistory(siteLoadables).call();
                 databaseManager.getDatabaseLoadableManager().deleteLoadables(siteLoadables).call();
             }
 

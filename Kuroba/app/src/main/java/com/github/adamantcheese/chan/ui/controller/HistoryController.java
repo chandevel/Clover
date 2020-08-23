@@ -20,25 +20,18 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.database.DatabaseHistoryManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.History;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.helper.HintPopup;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -59,18 +52,15 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class HistoryController
         extends Controller
-        implements CompoundButton.OnCheckedChangeListener, ToolbarNavigationController.ToolbarSearchCallback {
+        implements ToolbarNavigationController.ToolbarSearchCallback {
     @Inject
     DatabaseManager databaseManager;
 
-    private DatabaseHistoryManager databaseHistoryManager;
+    private DatabaseLoadableManager databaseLoadableManager;
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private CrossfadeView crossfade;
     private HistoryAdapter adapter;
-
-    @Nullable
-    private HintPopup hintPopup = null;
 
     public HistoryController(Context context) {
         super(context);
@@ -81,7 +71,7 @@ public class HistoryController
         super.onCreate();
         inject(this);
 
-        databaseHistoryManager = databaseManager.getDatabaseHistoryManager();
+        databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
         databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
 
         // Navigation
@@ -90,15 +80,9 @@ public class HistoryController
         navigation.buildMenu()
                 .withItem(R.drawable.ic_search_white_24dp, this::searchClicked)
                 .withOverflow()
-                .withSubItem(R.string.history_clear, this::clearHistoryClicked)
                 .withSubItem(R.string.saved_reply_clear, this::clearSavedReplyClicked)
                 .build()
                 .build();
-
-        Switch historyEnabledSwitch = new Switch(context);
-        historyEnabledSwitch.setChecked(ChanSettings.historyEnabled.get());
-        historyEnabledSwitch.setOnCheckedChangeListener(this);
-        navigation.setRightView(historyEnabledSwitch);
 
         view = inflate(context, R.layout.controller_history);
         crossfade = view.findViewById(R.id.crossfade);
@@ -109,34 +93,10 @@ public class HistoryController
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
         adapter.load();
-
-        if (ChanSettings.historyOpenCounter.increase() == 1) {
-            hintPopup = HintPopup.show(context, historyEnabledSwitch, R.string.history_toggle_hint);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if (hintPopup != null) {
-            hintPopup.dismiss();
-            hintPopup = null;
-        }
     }
 
     private void searchClicked(ToolbarMenuItem item) {
         ((ToolbarNavigationController) navigationController).showSearch();
-    }
-
-    private void clearHistoryClicked(ToolbarMenuSubItem item) {
-        new AlertDialog.Builder(context).setTitle(R.string.history_clear_confirm)
-                .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.history_clear_confirm_button, (dialog, which) -> {
-                    databaseManager.runTaskAsync(databaseHistoryManager.clearHistory());
-                    adapter.load();
-                })
-                .show();
     }
 
     private void clearSavedReplyClicked(ToolbarMenuSubItem item) {
@@ -149,23 +109,13 @@ public class HistoryController
                 .show();
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        ChanSettings.historyEnabled.set(isChecked);
-    }
-
-    private void openThread(History history) {
+    private void openThread(Loadable history) {
         if (history != null) {
-            ViewThreadController viewThreadController = new ViewThreadController(context, history.loadable);
+            ViewThreadController viewThreadController = new ViewThreadController(context, history);
             navigationController.pushController(viewThreadController);
         } else {
             showToast(context, "Error opening history, null???");
         }
-    }
-
-    private void deleteHistory(History history) {
-        databaseManager.runTask(databaseHistoryManager.removeHistory(history));
-        adapter.load();
     }
 
     @Override
@@ -182,9 +132,9 @@ public class HistoryController
 
     private class HistoryAdapter
             extends RecyclerView.Adapter<HistoryCell>
-            implements DatabaseManager.TaskResult<List<History>> {
-        private List<History> sourceList = new ArrayList<>();
-        private List<History> displayList = new ArrayList<>();
+            implements DatabaseManager.TaskResult<List<Loadable>> {
+        private List<Loadable> sourceList = new ArrayList<>();
+        private List<Loadable> displayList = new ArrayList<>();
         private String searchQuery;
 
         private boolean resultPending = false;
@@ -200,12 +150,11 @@ public class HistoryController
 
         @Override
         public void onBindViewHolder(HistoryCell holder, int position) {
-            History history = displayList.get(position);
+            Loadable history = displayList.get(position);
             holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
 
-            holder.text.setText(history.loadable.title);
-            Board board = history.loadable.board;
-            holder.subtext.setText(board == null ? null : ("/" + board.code + "/ \u2013 " + board.name));
+            holder.text.setText(history.title);
+            holder.subtext.setText(String.format("/%s/ – %s", history.board.code, history.board.name));
         }
 
         @Override
@@ -233,12 +182,12 @@ public class HistoryController
         private void load() {
             if (!resultPending) {
                 resultPending = true;
-                databaseManager.runTaskAsync(databaseHistoryManager.getHistory(), this);
+                databaseManager.runTaskAsync(databaseLoadableManager.getHistory(), this);
             }
         }
 
         @Override
-        public void onComplete(List<History> result) {
+        public void onComplete(List<Loadable> result) {
             resultPending = false;
             sourceList.clear();
             sourceList.addAll(result);
@@ -250,8 +199,8 @@ public class HistoryController
             displayList.clear();
             if (!TextUtils.isEmpty(searchQuery)) {
                 String query = searchQuery.toLowerCase(Locale.ENGLISH);
-                for (History history : sourceList) {
-                    if (history.loadable.title.toLowerCase(Locale.ENGLISH).contains(query)) {
+                for (Loadable history : sourceList) {
+                    if (history.title.toLowerCase(Locale.ENGLISH).contains(query)) {
                         displayList.add(history);
                     }
                 }
@@ -276,13 +225,11 @@ public class HistoryController
             thumbnail.setCircular(true);
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
-            ImageView delete = itemView.findViewById(R.id.delete);
 
-            delete.setOnClickListener(v -> deleteHistory(getHistory()));
             itemView.setOnClickListener(v -> openThread(getHistory()));
         }
 
-        private History getHistory() {
+        private Loadable getHistory() {
             int position = getAdapterPosition();
             if (position >= 0 && position < adapter.getItemCount()) {
                 return adapter.displayList.get(position);

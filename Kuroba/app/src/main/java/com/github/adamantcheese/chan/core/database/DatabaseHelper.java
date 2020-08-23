@@ -21,7 +21,6 @@ import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.History;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
@@ -66,7 +65,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 46;
+    private static final int DATABASE_VERSION = 49;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -165,7 +164,6 @@ public class DatabaseHelper
         TableUtils.createTable(connectionSource, SavedReply.class);
         TableUtils.createTable(connectionSource, Board.class);
         TableUtils.createTable(connectionSource, PostHide.class);
-        TableUtils.createTable(connectionSource, History.class);
         TableUtils.createTable(connectionSource, Filter.class);
         TableUtils.createTable(connectionSource, SiteModel.class);
         TableUtils.createTable(connectionSource, SavedThread.class);
@@ -178,7 +176,6 @@ public class DatabaseHelper
         TableUtils.dropTable(connectionSource, SavedReply.class, true);
         TableUtils.dropTable(connectionSource, Board.class, true);
         TableUtils.dropTable(connectionSource, PostHide.class, true);
-        TableUtils.dropTable(connectionSource, History.class, true);
         TableUtils.dropTable(connectionSource, Filter.class, true);
         TableUtils.dropTable(connectionSource, SiteModel.class, true);
         TableUtils.dropTable(connectionSource, SavedThread.class, true);
@@ -524,6 +521,14 @@ public class DatabaseHelper
                 Logger.e(this, "Error upgrading to version 48");
             }
         }
+
+        if (oldVersion < 49) {
+            try {
+                database.execSQL("DROP TABLE history");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 49");
+            }
+        }
     }
 
     @Override
@@ -614,11 +619,6 @@ public class DatabaseHelper
             pinDelete.where().in("loadable_id", loadableIdSet);
             pinDelete.delete();
 
-            //history
-            DeleteBuilder<History, Integer> historyDelete = historyDao.deleteBuilder();
-            historyDelete.where().in("loadable_id", loadableIdSet);
-            historyDelete.delete();
-
             //loadables
             DeleteBuilder<Loadable, Integer> loadableDelete = getLoadableDao().deleteBuilder();
             loadableDelete.where().in("id", loadableIdSet);
@@ -693,11 +693,6 @@ public class DatabaseHelper
             DeleteBuilder<Pin, Integer> pinDelete = getPinDao().deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);
             pinDelete.delete();
-
-            //history
-            DeleteBuilder<History, Integer> historyDelete = historyDao.deleteBuilder();
-            historyDelete.where().in("loadable_id", loadableIdSet);
-            historyDelete.delete();
 
             //loadables
             DeleteBuilder<Loadable, Integer> loadableDelete = getLoadableDao().deleteBuilder();
