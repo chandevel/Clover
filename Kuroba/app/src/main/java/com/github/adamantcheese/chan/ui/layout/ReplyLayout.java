@@ -921,9 +921,9 @@ public class ReplyLayout
     public void afterTextChanged(Editable s) {
         if (!blockTextChange) {
             presenter.onTextChanged();
-            if (s.equals(comment.getText())) {
-                presenter.onCommentTextChanged(comment.getText());
-            }
+        }
+        if (s.equals(comment.getText())) {
+            presenter.onCommentTextChanged(comment.getText());
         }
     }
 

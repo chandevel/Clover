@@ -123,7 +123,8 @@ public class ReplyPresenter
         }
 
         callback.loadDraftIntoViews(draft);
-        callback.updateCommentCount(0, board.maxCommentChars, false);
+        int length = draft.comment.getBytes(UTF_8).length;
+        callback.updateCommentCount(length, board.maxCommentChars, length > board.maxCommentChars);
         callback.setCommentHint(getString(loadable.isThreadMode()
                 ? R.string.reply_comment_thread
                 : R.string.reply_comment_board));
