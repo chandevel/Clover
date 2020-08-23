@@ -179,7 +179,8 @@ public class FilterWatchManager
             if (p.filterWatch && !ignoredPosts.contains(p.no)) {
                 final Loadable pinLoadable =
                         Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
-                BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable, p));
+                pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
+                BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
                 toAdd.add(p.no);
             }
         }
@@ -199,7 +200,8 @@ public class FilterWatchManager
                 if (p.filterWatch && !ignoredPosts.contains(p.no)) {
                     final Loadable pinLoadable =
                             Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
-                    BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable, p));
+                    pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
+                    BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
                     toAdd.add(p.no);
                 }
             }

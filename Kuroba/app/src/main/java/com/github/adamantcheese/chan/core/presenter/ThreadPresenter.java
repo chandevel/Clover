@@ -321,10 +321,9 @@ public class ThreadPresenter
         if (pin == null) {
             if (chanLoader.getThread() != null) {
                 Post op = chanLoader.getThread().getOp();
-                watchManager.createPin(loadable, op);
-            } else {
-                watchManager.createPin(loadable);
+                loadable.thumbnailUrl = op.image() == null ? null : op.image().getThumbnailUrl();
             }
+            watchManager.createPin(loadable);
             return true;
         }
 
@@ -381,6 +380,7 @@ public class ThreadPresenter
 
         Post op = chanLoader.getThread().getOp();
         List<Post> postsToSave = chanLoader.getThread().getPosts();
+        loadable.thumbnailUrl = op.image() == null ? null : op.image().getThumbnailUrl();
 
         Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
         if (oldPin != null) {
@@ -405,7 +405,7 @@ public class ThreadPresenter
 
             // We don't want to send PinAddedMessage broadcast right away. We will send it after
             // the thread has been saved
-            if (!watchManager.createPin(loadable, op, PinType.DOWNLOAD_NEW_POSTS, false)) {
+            if (!watchManager.createPin(loadable, PinType.DOWNLOAD_NEW_POSTS, false)) {
                 throw new IllegalStateException("Could not create pin for loadable " + loadable);
             }
 
@@ -1033,10 +1033,9 @@ public class ThreadPresenter
                 requestData();
                 break;
             case POST_OPTION_PIN:
-                watchManager.createPin(Loadable.forThread(post.board, post.no, PostHelper.getTitle(post, loadable)),
-                        post,
-                        PinType.WATCH_NEW_POSTS
-                );
+                Loadable threadPin = Loadable.forThread(post.board, post.no, PostHelper.getTitle(post, loadable));
+                threadPin.thumbnailUrl = post.image() == null ? null : post.image().getThumbnailUrl();
+                watchManager.createPin(threadPin);
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 if (isBound()) {

@@ -248,11 +248,11 @@ public class ReplyPresenter
                     //ensure that the thread's loadable matches the one from the original reply, in case the user navigated away
                     if (thread != null && thread.getLoadable() == originatingLoadable) {
                         // we know the OP, we're in the thread
-                        watchManager.createPin(originatingLoadable, thread.getOp());
-                    } else {
-                        // we don't know the OP, can't do anything about that really
-                        watchManager.createPin(originatingLoadable);
+                        if (thread.getOp().image() != null) {
+                            originatingLoadable.thumbnailUrl = thread.getOp().image().getThumbnailUrl();
+                        }
                     }
+                    watchManager.createPin(originatingLoadable);
                 } else {
                     // this is a new thread, we can construct an OP for initial display
                     Post fakeOP = new Post.Builder().subject(originatingLoadable.draft.subject)
@@ -263,7 +263,7 @@ public class ReplyPresenter
                             .setUnixTimestampSeconds(System.currentTimeMillis() / 1000L)
                             .build();
                     newThreadLoadable.title = PostHelper.getTitle(fakeOP, newThreadLoadable);
-                    watchManager.createPin(newThreadLoadable, fakeOP);
+                    watchManager.createPin(newThreadLoadable);
                 }
             }
 

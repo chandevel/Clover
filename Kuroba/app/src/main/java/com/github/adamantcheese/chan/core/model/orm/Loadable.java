@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.model.orm;
 
 import android.os.Parcel;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -277,8 +278,8 @@ public class Loadable
         loadable.title = parcel.readString();
         loadable.listViewIndex = parcel.readInt();
         loadable.listViewTop = parcel.readInt();
-        //noinspection ConstantConditions
-        loadable.thumbnailUrl = HttpUrl.get(parcel.readString());
+        String s = parcel.readString();
+        loadable.thumbnailUrl = TextUtils.isEmpty(s) ? null : HttpUrl.get(s);
         return loadable;
     }
 
@@ -292,7 +293,7 @@ public class Loadable
         parcel.writeString(title);
         parcel.writeInt(listViewIndex);
         parcel.writeInt(listViewTop);
-        parcel.writeString(thumbnailUrl.toString());
+        parcel.writeString(thumbnailUrl == null ? "" : thumbnailUrl.toString());
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")

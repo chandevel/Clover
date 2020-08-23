@@ -200,26 +200,17 @@ public class WatchManager
     }
 
     public void createPin(Loadable loadable) {
-        createPin(loadable, null, WATCH_NEW_POSTS);
+        createPin(loadable, WATCH_NEW_POSTS);
     }
 
-    public void createPin(Loadable loadable, @Nullable Post opPost) {
-        createPin(loadable, opPost, WATCH_NEW_POSTS);
+    public void createPin(Loadable loadable, int pinType) {
+        createPin(loadable, pinType, true);
     }
 
-    public void createPin(Loadable loadable, @Nullable Post opPost, int pinType) {
-        createPin(loadable, opPost, pinType, true);
-    }
-
-    public boolean createPin(Loadable loadable, @Nullable Post opPost, int pinType, boolean sendBroadcast) {
+    public boolean createPin(Loadable loadable, int pinType, boolean sendBroadcast) {
         Pin pin = new Pin();
         pin.loadable = loadable;
         pin.pinType = pinType;
-
-        if (opPost != null) {
-            PostImage image = opPost.image();
-            pin.loadable.thumbnailUrl = image == null ? null : image.getThumbnailUrl(); // TODO REMOVE
-        }
         return createPin(pin, sendBroadcast);
     }
 
