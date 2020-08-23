@@ -30,24 +30,17 @@ import okhttp3.HttpUrl;
 public class TinyIBEndpoints extends CommonSite.CommonEndpoints {
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
-    protected final CommonSite.SimpleHttpUrl yt;
 
     public TinyIBEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
         super(commonSite); 
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
-        yt = new CommonSite.SimpleHttpUrl("https://youtu.be/");
     }
 
     @Override
     public HttpUrl catalog(Board board) {
 		return root.builder().s(board.code).s("catalog.json").url();
     }
-
-    /*@Override
-    public HttpUrl boards() {
-        return root.builder().s("boards.json").url();
-    }*/
 
     @Override
     public HttpUrl thread(Board board, Loadable loadable) {
@@ -61,15 +54,7 @@ public class TinyIBEndpoints extends CommonSite.CommonEndpoints {
 
     @Override
     public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-        if (arg.get("path").contains("<iframe")) {
-            String youtubeId = arg.get("path");
-            youtubeId = youtubeId.replaceAll("<iframe width=\"480\" height=\"270\" src=\"//www.youtube.com/embed/", "");
-            youtubeId = youtubeId.replaceAll("\\?", "");
-            youtubeId = youtubeId.replaceAll("feature=oembed\" frameborder=\"0\" allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>", "");
-            return yt.builder().s(youtubeId).url();
-        } else {
-            return sys.builder().s(post.board.code).s("src").s(arg.get("path")).url();
-        }
+        return sys.builder().s(post.board.code).s("src").s(arg.get("path")).url();
     }
 
     @Override
@@ -82,7 +67,6 @@ public class TinyIBEndpoints extends CommonSite.CommonEndpoints {
 
         return stat.url();
     }
-
 
     @Override
     public HttpUrl reply(Loadable loadable) {
