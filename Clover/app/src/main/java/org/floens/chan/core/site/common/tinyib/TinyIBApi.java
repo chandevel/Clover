@@ -184,16 +184,9 @@ public class TinyIBApi extends CommonSite.CommonApi {
 
         // The file from between the other values.
         if (file != null && file.length() > 0) {
-                if (file.contains("<iframe")) {
-                fileName = originalName;
-                fileExt = "YT";
-                path = file;
-            } else {
-                fileName = file.substring(0, file.lastIndexOf("."));
-                fileExt = file.substring(file.lastIndexOf(".") + 1);
-                path = file;
-			}
-            Map<String, String> args = makeArgument("path", path,
+            fileName = file.substring(0, file.lastIndexOf("."));
+            fileExt = file.substring(file.lastIndexOf(".") + 1);
+            Map<String, String> args = makeArgument("path", file,
                     "thumbnailpath", thumbnail);
             PostImage image = new PostImage.Builder()
                     .originalName(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
@@ -301,16 +294,9 @@ public class TinyIBApi extends CommonSite.CommonApi {
         reader.endObject();
 
         if (file != null && file.length() > 0) {
-            if (file.contains("<iframe")) {
-                fileName = originalName;
-                fileExt = "YT";
-                path = file;
-            } else {
-                fileName = file.substring(0, file.lastIndexOf("."));
-                fileExt = file.substring(file.lastIndexOf(".") + 1);
-                path = file;
-			}
-            Map<String, String> args = makeArgument("path", path,
+            fileName = file.substring(0, file.lastIndexOf("."));
+            fileExt = file.substring(file.lastIndexOf(".") + 1);
+            Map<String, String> args = makeArgument("path", file,
                     "thumbnailpath", thumbnail);
             return new PostImage.Builder()
                     .originalName(org.jsoup.parser.Parser.unescapeEntities(fileName, false))
