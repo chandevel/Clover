@@ -260,6 +260,7 @@ public class DrawerController
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
+        if (drawerAdapter == null) return;
         drawerAdapter.onPinAdded(message.pin);
         if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
@@ -279,24 +280,28 @@ public class DrawerController
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
+        if (drawerAdapter == null) return;
         drawerAdapter.onPinRemoved(message.index);
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
+        if (drawerAdapter == null) return;
         drawerAdapter.onPinChanged(recyclerView, message.pin);
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
+        if (drawerAdapter == null) return;
         drawerAdapter.notifyDataSetChanged();
         updateBadge();
     }
 
     @Subscribe(sticky = true)
     public void onEvent(SettingNotification notification) {
+        if (drawerAdapter == null) return;
         drawerAdapter.onNotificationsChanged();
     }
 
