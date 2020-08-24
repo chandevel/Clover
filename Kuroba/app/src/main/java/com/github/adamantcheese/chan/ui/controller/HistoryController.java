@@ -92,6 +92,15 @@ public class HistoryController
 
         adapter = new HistoryAdapter();
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+        adapter.displayList.clear();
+        adapter.sourceList.clear();
+        adapter.searchQuery = null;
+        adapter.notifyDataSetChanged();
         adapter.load();
     }
 

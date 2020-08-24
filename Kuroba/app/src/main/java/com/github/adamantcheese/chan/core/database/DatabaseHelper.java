@@ -65,7 +65,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 49;
+    private static final int DATABASE_VERSION = 50;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -527,6 +527,16 @@ public class DatabaseHelper
                 database.execSQL("DROP TABLE history");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 49");
+            }
+        }
+
+        if (oldVersion < 50) {
+            try {
+                DeleteBuilder deleteBuilder = getLoadableDao().deleteBuilder();
+                deleteBuilder.where().eq("title", "");
+                deleteBuilder.delete();
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 50");
             }
         }
     }
