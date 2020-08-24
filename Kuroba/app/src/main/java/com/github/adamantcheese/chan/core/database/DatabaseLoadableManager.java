@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.support.DatabaseConnection;
 
 import java.sql.SQLException;
 import java.util.Calendar;
@@ -52,11 +53,14 @@ public class DatabaseLoadableManager {
      */
     public Callable<Void> purgeOld() {
         return () -> {
+            DatabaseConnection connection = helper.getLoadableDao().startThreadConnection();
             Calendar oneMonthAgo = GregorianCalendar.getInstance();
             oneMonthAgo.add(Calendar.MONTH, -1);
             DeleteBuilder<Loadable, Integer> delete = helper.getLoadableDao().deleteBuilder();
             delete.where().lt("lastLoadDate", oneMonthAgo.getTime()).prepare();
             delete.delete();
+            connection.commit(null);
+            helper.getLoadableDao().endThreadConnection(connection);
             return null;
         };
     }
@@ -169,7 +173,8 @@ public class DatabaseLoadableManager {
 
     public Callable<List<Loadable>> getHistory() {
         return () -> {
-            List<Loadable> history = helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
+            List<Loadable> history =
+                    helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
             for (Loadable l : history) {
                 l.site = instance(SiteRepository.class).forId(l.siteId);
                 l.board = l.site.board(l.boardCode);

@@ -67,9 +67,7 @@ class PostParseCallable
         postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.id));
 
         // Process the filters before finish, because parsing the html is dependent on filter matches
-        try {
-            processPostFilter(postBuilder);
-        } catch (Exception ignored) {}
+        processPostFilter(postBuilder);
 
         return reader.getParser().parse(theme, postBuilder, new PostParser.Callback() {
             @Override
@@ -84,8 +82,7 @@ class PostParseCallable
         });
     }
 
-    private void processPostFilter(Post.Builder post)
-            throws InterruptedException {
+    private void processPostFilter(Post.Builder post) {
         for (Filter f : filters) {
             FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
             if (action == WATCH && !forCatalog)
