@@ -41,11 +41,11 @@ constructor(
             return null
         }
 
-        return fileManager.getInputStream(threadFile)?.use { inputStream ->
-            return@use DataInputStream(inputStream).use { dis ->
+        return fileManager.getInputStream(threadFile)?.use fileStream@{ inputStream ->
+            return@fileStream DataInputStream(inputStream).use jsonStream@{ dis ->
                 val json = String(dis.readBytes(), StandardCharsets.UTF_8)
 
-                return@use gson.fromJson(
+                return@jsonStream gson.fromJson(
                         json,
                         SerializableThread::class.java)
             }
@@ -70,9 +70,9 @@ constructor(
             throw CouldNotCreateThreadFile(threadFile)
         }
 
-        fileManager.getOutputStream(createdThreadFile)?.use { outputStream ->
+        fileManager.getOutputStream(createdThreadFile)?.use fileStream@{ outputStream ->
             // Update the thread file
-            return@use DataOutputStream(outputStream).use { dos ->
+            return@fileStream DataOutputStream(outputStream).use jsonStream@{ dos ->
                 val serializableThread = if (oldSerializableThread != null) {
                     // Merge with old posts if there are any
                     oldSerializableThread.merge(posts)
@@ -86,7 +86,7 @@ constructor(
                 dos.write(bytes)
                 dos.flush()
 
-                return@use
+                return@jsonStream
             }
         } ?: throw IOException("threadFile.getOutputStream() returned null, threadFile = "
                 + createdThreadFile.getFullPath())

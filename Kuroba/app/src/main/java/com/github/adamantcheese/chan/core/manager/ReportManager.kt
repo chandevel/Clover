@@ -159,17 +159,17 @@ class ReportManager(
             val resultString = buildString {
                 // To avoid log spam that may happen because of, let's say, server failure for
                 // couple of days, we want some kind of marker to be able to filter them
-                appendln("=== LOGS(${getCurrentDateAndTimeUTC()}) ===")
+                appendLine("=== LOGS(${getCurrentDateAndTimeUTC()}) ===")
                 logs?.let { append(it) }
                 append("\n\n")
 
                 if (!logsAlreadyContainCrash) {
-                    appendln("=== STACKTRACE ===")
+                    appendLine("=== STACKTRACE ===")
                     append(error)
                     append("\n\n")
                 }
 
-                appendln("=== SETTINGS ===")
+                appendLine("=== SETTINGS ===")
                 append(settings)
             }
 
@@ -294,18 +294,18 @@ class ReportManager(
 
     private fun getSettingsStateString(): String {
         return buildString {
-            appendln("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
-            appendln("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
+            appendLine("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
+            appendLine("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
                     "active downloads = ${threadSaveManager.countActiveDownloads()}")
-            appendln("Youtube titles parsing enabled: ${ChanSettings.parseYoutubeTitles.get()}")
-            appendln("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
-            appendln("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
-            appendln("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
-            appendln("Saved files base dir info: ${getFilesLocationInfo()}")
-            appendln("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
-            appendln("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
-            appendln("OkHttp IPv6 support enabled: ${ChanSettings.okHttpAllowIpv6.get()}")
-            appendln("OkHttp HTTP/2 support enabled: ${ChanSettings.okHttpAllowHttp2.get()}")
+            appendLine("Youtube titles parsing enabled: ${ChanSettings.parseYoutubeTitles.get()}")
+            appendLine("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
+            appendLine("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
+            appendLine("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
+            appendLine("Saved files base dir info: ${getFilesLocationInfo()}")
+            appendLine("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
+            appendLine("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
+            appendLine("OkHttp IPv6 support enabled: ${ChanSettings.okHttpAllowIpv6.get()}")
+            appendLine("OkHttp HTTP/2 support enabled: ${ChanSettings.okHttpAllowHttp2.get()}")
         }
     }
 

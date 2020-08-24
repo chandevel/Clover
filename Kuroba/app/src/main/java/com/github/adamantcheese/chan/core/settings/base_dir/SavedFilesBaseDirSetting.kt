@@ -70,6 +70,7 @@ class SavedFilesBaseDirSetting(
         private const val FILES_DIR = "files"
 
         fun getDefaultSaveLocationDir(): String {
+            @Suppress("DEPRECATION")
             return (Environment.getExternalStorageDirectory().toString()
                     + File.separator
                     + getApplicationLabel()

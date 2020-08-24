@@ -69,6 +69,7 @@ class LocalThreadsBaseDirSetting(
 
     companion object {
         fun getDefaultLocalThreadsLocation(): String {
+            @Suppress("DEPRECATION")
             return (Environment.getExternalStorageDirectory().toString()
                     + File.separator
                     + getApplicationLabel()

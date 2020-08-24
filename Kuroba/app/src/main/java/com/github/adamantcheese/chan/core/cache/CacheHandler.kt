@@ -469,8 +469,8 @@ class CacheHandler(
                 return@synchronized false
             }
 
-            return@synchronized outputStream.use { stream ->
-                return@use PrintWriter(stream).use { pw ->
+            return@synchronized outputStream.use fileStream@{ stream ->
+                return@fileStream PrintWriter(stream).use printStream@{ pw ->
                     val toWrite = String.format(
                             Locale.ENGLISH,
                             CACHE_FILE_META_CONTENT_FORMAT,
@@ -483,7 +483,7 @@ class CacheHandler(
                     pw.write(toWrite)
                     pw.flush()
 
-                    return@use true
+                    return@printStream true
                 }
             }
         }
