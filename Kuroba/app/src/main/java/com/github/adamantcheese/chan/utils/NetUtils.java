@@ -207,8 +207,7 @@ public class NetUtils {
                 }
 
                 //noinspection ConstantConditions
-                try (JsonReader jsonReader = new JsonReader(new InputStreamReader(new ByteArrayInputStream(response.body()
-                        .bytes()), UTF_8))) {
+                try (JsonReader jsonReader = new JsonReader(new InputStreamReader(response.body().byteStream(), UTF_8))) {
                     T read = parser.parse(jsonReader);
                     if (read != null) {
                         BackgroundUtils.runOnMainThread(() -> result.onJsonSuccess(read));
