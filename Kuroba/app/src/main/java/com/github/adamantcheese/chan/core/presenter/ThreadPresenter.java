@@ -191,7 +191,7 @@ public class ThreadPresenter
             this.addToLocalBackHistory = addToLocalBackHistory;
 
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            databaseManager.getDatabaseLoadableManager().updateLoadable(loadable);
+            databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, this);
