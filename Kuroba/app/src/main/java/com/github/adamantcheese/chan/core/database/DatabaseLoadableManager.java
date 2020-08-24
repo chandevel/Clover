@@ -40,6 +40,8 @@ public class DatabaseLoadableManager {
     @Inject
     DatabaseHelper helper;
 
+    private static long HISTORY_LIMIT = 250L;
+
     public DatabaseLoadableManager() {
         inject(this);
     }
@@ -167,7 +169,7 @@ public class DatabaseLoadableManager {
 
     public Callable<List<Loadable>> getHistory() {
         return () -> {
-            List<Loadable> history = helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).query();
+            List<Loadable> history = helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
             for (Loadable l : history) {
                 l.site = instance(SiteRepository.class).forId(l.siteId);
                 l.board = l.site.board(l.boardCode);
