@@ -20,7 +20,6 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 
@@ -53,15 +52,9 @@ public class DatabaseLoadableManager {
         return () -> {
             Calendar oneMonthAgo = GregorianCalendar.getInstance();
             oneMonthAgo.add(Calendar.MONTH, -1);
-            List<Loadable> toPurge = helper.getLoadableDao()
-                    .query(helper.getLoadableDao()
-                            .queryBuilder()
-                            .where()
-                            .lt("lastLoadDate", oneMonthAgo.getTime())
-                            .prepare());
-            for (Loadable l : toPurge) {
-                helper.getLoadableDao().delete(l);
-            }
+            DeleteBuilder<Loadable, Integer> delete = helper.getLoadableDao().deleteBuilder();
+            delete.where().lt("lastLoadDate", oneMonthAgo.getTime()).prepare();
+            delete.delete();
             return null;
         };
     }
