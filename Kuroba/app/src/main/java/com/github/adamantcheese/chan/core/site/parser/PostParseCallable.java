@@ -22,7 +22,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -41,7 +40,6 @@ class PostParseCallable
     private final Set<Integer> internalIds;
     private Theme theme;
     private final boolean forCatalog;
-    private ExecutorService pool;
 
     public PostParseCallable(
             FilterEngine filterEngine,
@@ -51,8 +49,7 @@ class PostParseCallable
             ChanReader reader,
             Set<Integer> internalIds,
             Theme theme,
-            boolean forCatalog,
-            ExecutorService pool
+            boolean forCatalog
     ) {
         this.filterEngine = filterEngine;
         this.filters = filters;
@@ -62,7 +59,6 @@ class PostParseCallable
         this.internalIds = internalIds;
         this.theme = theme;
         this.forCatalog = forCatalog;
-        this.pool = pool;
     }
 
     @Override
@@ -90,32 +86,26 @@ class PostParseCallable
 
     private void processPostFilter(Post.Builder post)
             throws InterruptedException {
-        List<Callable<Void>> tasks = new ArrayList<>();
         for (Filter f : filters) {
             FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
             if (action == WATCH && !forCatalog)
                 continue; // filter watches are only on catalogs, shortcut the expensive filter stuff
-            tasks.add(() -> {
-                if (filterEngine.matches(f, post)) {
-                    switch (action) {
-                        case COLOR:
-                            post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
-                            break;
-                        case HIDE:
-                            post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
-                            break;
-                        case REMOVE:
-                            post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
-                            break;
-                        case WATCH:
-                            post.filter(0, false, false, true, false, true, false);
-                            break;
-                    }
+            if (filterEngine.matches(f, post)) {
+                switch (action) {
+                    case COLOR:
+                        post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
+                        break;
+                    case HIDE:
+                        post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
+                        break;
+                    case REMOVE:
+                        post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
+                        break;
+                    case WATCH:
+                        post.filter(0, false, false, true, false, true, false);
+                        break;
                 }
-                return null;
-            });
+            }
         }
-
-        pool.invokeAll(tasks); // wait for filtering to be done
     }
 }

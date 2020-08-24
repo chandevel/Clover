@@ -138,8 +138,7 @@ public class ChanReaderParser
                     reader,
                     internalIds,
                     currentTheme,
-                    loadable.isCatalogMode(),
-                    pool
+                    loadable.isCatalogMode()
             ));
         }
 
