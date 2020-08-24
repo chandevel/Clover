@@ -82,6 +82,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -188,6 +189,9 @@ public class ThreadPresenter
 
             this.loadable = loadable;
             this.addToLocalBackHistory = addToLocalBackHistory;
+
+            loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            databaseManager.getDatabaseLoadableManager().updateLoadable(loadable);
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, this);
