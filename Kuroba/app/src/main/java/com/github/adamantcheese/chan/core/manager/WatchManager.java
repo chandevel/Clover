@@ -35,7 +35,6 @@ import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
@@ -468,7 +467,11 @@ public class WatchManager
     public void updatePins(List<Pin> updatedPins, boolean updateState) {
         databaseManager.runTask(() -> {
             updatePinsInternal(updatedPins);
-            databasePinManager.updatePins(pins).call();
+            List<Pin> cloned = new ArrayList<>();
+            for (Pin p : pins) {
+                cloned.add(p.clone());
+            }
+            databasePinManager.updatePins(cloned).call();
             return null;
         });
 
