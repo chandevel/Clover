@@ -88,13 +88,13 @@ public class BoardsMenuPresenter
     public static class Items
             extends Observable {
         public List<Item> items = new ArrayList<>();
-        private int itemIdCounter = 1;
 
         public Items() {
         }
 
         public void update(List<BoardRepository.SiteBoards> allBoards, String filter) {
             items.clear();
+            int itemIdCounter = 1;
 
             items.add(new Item(0, SEARCH));
 
@@ -111,8 +111,11 @@ public class BoardsMenuPresenter
                         }
                     }
                 } else {
+                    int count = 0;
                     for (Board b : BoardHelper.search(boards, filter)) {
+                        if (count == 5) break;
                         items.add(new Item(itemIdCounter++, b));
+                        count++;
                     }
                 }
             }
