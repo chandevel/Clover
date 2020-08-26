@@ -248,6 +248,26 @@ public class ThreadSlideController
     }
 
     @Override
+    public void enableDrawer() {
+        navigationController.enableDrawer();
+    }
+
+    @Override
+    public void disableDrawer() {
+        navigationController.disableDrawer();
+    }
+
+    @Override
+    public void lockSwipe() {
+        slidingPaneLayout.setSlideable(false);
+    }
+
+    @Override
+    public void unlockSwipe() {
+        slidingPaneLayout.setSlideable(true);
+    }
+
+    @Override
     public boolean onBack() {
         if (!leftOpen()) {
             if (rightController != null && rightController.onBack()) {

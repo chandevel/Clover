@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
@@ -23,6 +24,8 @@ public class AnimationlessSlidingPaneLayout
     private Method dispatchOnPanelClosedMethod = null;
     private Field mPreservedOpenStateField = null;
     private Method parallaxOtherViewsMethod = null;
+
+    private boolean slideable = true;
 
     public AnimationlessSlidingPaneLayout(Context context) {
         this(context, null, 0);
@@ -85,5 +88,19 @@ public class AnimationlessSlidingPaneLayout
         } catch (Exception e) {
             closePane();
         }
+    }
+
+    public void setSlideable(boolean slideable) {
+        this.slideable = slideable;
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return slideable && super.onInterceptTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+        return slideable && super.onTouchEvent(ev);
     }
 }

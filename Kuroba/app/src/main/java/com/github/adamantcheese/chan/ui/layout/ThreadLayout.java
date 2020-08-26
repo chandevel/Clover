@@ -235,6 +235,26 @@ public class ThreadLayout
     }
 
     @Override
+    public void disableDrawer() {
+        callback.disableDrawer();
+    }
+
+    @Override
+    public void enableDrawer() {
+        callback.enableDrawer();
+    }
+
+    @Override
+    public void lockSwipe() {
+        callback.lockSwipe();
+    }
+
+    @Override
+    public void unlockSwipe() {
+        callback.unlockSwipe();
+    }
+
+    @Override
     public void showPosts(
             ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts
     ) {
@@ -799,5 +819,13 @@ public class ThreadLayout
         void openFilterForType(FilterType type, String filterText);
 
         boolean threadBackPressed();
+
+        void disableDrawer();
+
+        void enableDrawer();
+
+        void lockSwipe();
+
+        void unlockSwipe();
     }
 }

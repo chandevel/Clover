@@ -270,4 +270,40 @@ public abstract class ThreadController
     public boolean threadBackPressed() {
         return false;
     }
+
+    @Override
+    public void disableDrawer() {
+        if (doubleNavigationController != null) {
+            doubleNavigationController.disableDrawer();
+        } else {
+            navigationController.disableDrawer();
+        }
+    }
+
+    @Override
+    public void enableDrawer() {
+        if (doubleNavigationController != null) {
+            doubleNavigationController.enableDrawer();
+        } else {
+            navigationController.enableDrawer();
+        }
+    }
+
+    @Override
+    public void lockSwipe() {
+        if (doubleNavigationController != null) {
+            doubleNavigationController.lockSwipe();
+        } else {
+            navigationController.lockSwipe();
+        }
+    }
+
+    @Override
+    public void unlockSwipe() {
+        if (doubleNavigationController != null) {
+            doubleNavigationController.unlockSwipe();
+        } else {
+            navigationController.unlockSwipe();
+        }
+    }
 }

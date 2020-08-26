@@ -183,4 +183,16 @@ public abstract class NavigationController
         Controller top = getTop();
         return (top != null && top.dispatchKeyEvent(event));
     }
+
+    public abstract void enableDrawer();
+
+    public abstract void disableDrawer();
+
+    public final void lockSwipe() {
+        blockingInput = true;
+    }
+
+    public final void unlockSwipe() {
+        blockingInput = false;
+    }
 }

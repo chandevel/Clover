@@ -464,15 +464,21 @@ public class ReplyLayout
         Logger.d(this, "Switching to page " + page.name());
         switch (page) {
             case LOADING:
+                callback.disableDrawer();
+                callback.lockSwipe();
                 setWrappingMode(false);
                 setView(progressLayout);
                 onUploadingProgress(0);
                 break;
             case INPUT:
+                callback.enableDrawer();
+                callback.unlockSwipe();
                 setView(replyInputLayout);
                 setWrappingMode(presenter.isExpanded());
                 break;
             case AUTHENTICATION:
+                callback.disableDrawer();
+                callback.lockSwipe();
                 setWrappingMode(true);
                 setView(captchaContainer);
                 captchaContainer.requestFocus(View.FOCUS_DOWN);
@@ -1036,5 +1042,13 @@ public class ReplyLayout
         void showImageReencodingWindow();
 
         void updatePadding();
+
+        void disableDrawer();
+
+        void enableDrawer();
+
+        void lockSwipe();
+
+        void unlockSwipe();
     }
 }

@@ -179,6 +179,18 @@ public class SplitNavigationController
         }
     }
 
+    @Override
+    public void enableDrawer() {}
+
+    @Override
+    public void disableDrawer() {}
+
+    @Override
+    public void lockSwipe() {}
+
+    @Override
+    public void unlockSwipe() {}
+
     public void popAll() {
         if (popup != null) {
             presentingThisController.stopPresenting();

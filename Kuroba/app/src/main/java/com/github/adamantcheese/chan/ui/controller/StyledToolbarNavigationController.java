@@ -119,4 +119,22 @@ public class StyledToolbarNavigationController
         }
         return null;
     }
+
+    @Override
+    public void enableDrawer() {
+        navigation.hasDrawer = true;
+        DrawerController drawerController = getDrawerController();
+        if (drawerController != null) {
+            drawerController.setDrawerEnabled(true);
+        }
+    }
+
+    @Override
+    public void disableDrawer() {
+        navigation.hasDrawer = false;
+        DrawerController drawerController = getDrawerController();
+        if (drawerController != null) {
+            drawerController.setDrawerEnabled(false);
+        }
+    }
 }

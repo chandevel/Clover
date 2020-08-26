@@ -747,6 +747,26 @@ public class ThreadListLayout
         setRecyclerViewPadding();
     }
 
+    @Override
+    public void disableDrawer() {
+        threadListLayoutCallback.disableDrawer();
+    }
+
+    @Override
+    public void enableDrawer() {
+        threadListLayoutCallback.enableDrawer();
+    }
+
+    @Override
+    public void lockSwipe() {
+        threadListLayoutCallback.lockSwipe();
+    }
+
+    @Override
+    public void unlockSwipe() {
+        threadListLayoutCallback.unlockSwipe();
+    }
+
     public int toolbarHeight() {
         Toolbar toolbar = threadListLayoutCallback.getToolbar();
         return toolbar.getToolbarHeight();
@@ -834,5 +854,13 @@ public class ThreadListLayout
         void showImageReencodingWindow();
 
         boolean threadBackPressed();
+
+        void disableDrawer();
+
+        void enableDrawer();
+
+        void lockSwipe();
+
+        void unlockSwipe();
     }
 }

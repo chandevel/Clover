@@ -35,6 +35,12 @@ public class ImageViewerNavigationController
     }
 
     @Override
+    public void enableDrawer() {}
+
+    @Override
+    public void disableDrawer() {}
+
+    @Override
     public void onCreate() {
         super.onCreate();
 

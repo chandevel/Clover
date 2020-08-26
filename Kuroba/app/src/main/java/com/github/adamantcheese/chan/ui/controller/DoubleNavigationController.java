@@ -21,7 +21,6 @@ import android.view.ViewGroup;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 
-@SuppressWarnings("unused")
 public interface DoubleNavigationController {
     void setEmptyView(ViewGroup emptyView);
 
@@ -46,4 +45,12 @@ public interface DoubleNavigationController {
     boolean popController(boolean animated);
 
     boolean popController(ControllerTransition controllerTransition);
+
+    void enableDrawer();
+
+    void disableDrawer();
+
+    void lockSwipe();
+
+    void unlockSwipe();
 }
