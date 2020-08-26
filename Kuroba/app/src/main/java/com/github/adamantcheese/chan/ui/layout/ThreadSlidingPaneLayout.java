@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ThreadSlidingPaneLayout
-        extends AnimationlessSlidingPaneLayout {
+        extends ExtraFunctionSlidingPaneLayout {
     public ViewGroup leftPane;
     public ViewGroup rightPane;
 

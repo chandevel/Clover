@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 /*
  From https://stackoverflow.com/a/17514783
  */
-public class AnimationlessSlidingPaneLayout
+public class ExtraFunctionSlidingPaneLayout
         extends SlidingPaneLayout {
     private Field mSlideOffsetField = null;
     private Field mSlideableViewField = null;
@@ -27,15 +27,15 @@ public class AnimationlessSlidingPaneLayout
 
     private boolean slideable = true;
 
-    public AnimationlessSlidingPaneLayout(Context context) {
+    public ExtraFunctionSlidingPaneLayout(Context context) {
         this(context, null, 0);
     }
 
-    public AnimationlessSlidingPaneLayout(Context context, AttributeSet attrs) {
+    public ExtraFunctionSlidingPaneLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AnimationlessSlidingPaneLayout(Context context, AttributeSet attrs, int defStyle) {
+    public ExtraFunctionSlidingPaneLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         try {
             mSlideOffsetField = SlidingPaneLayout.class.getDeclaredField("mSlideOffset");
