@@ -27,9 +27,7 @@ import com.j256.ormlite.support.DatabaseConnection;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -142,22 +140,7 @@ public class DatabaseLoadableManager {
 
     public Callable<Object> deleteLoadables(List<Loadable> siteLoadables) {
         return () -> {
-            Set<Integer> loadableIdSet = new HashSet<>();
-
-            for (Loadable loadable : siteLoadables) {
-                loadableIdSet.add(loadable.id);
-            }
-
-            DeleteBuilder<Loadable, Integer> builder = helper.getLoadableDao().deleteBuilder();
-            builder.where().in("id", loadableIdSet);
-
-            int deletedCount = builder.delete();
-            if (loadableIdSet.size() != deletedCount) {
-                throw new IllegalStateException(
-                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCount + "), "
-                                + "(loadableIdSet = " + loadableIdSet.size() + ")");
-            }
-
+            helper.getLoadableDao().delete(siteLoadables);
             return null;
         };
     }

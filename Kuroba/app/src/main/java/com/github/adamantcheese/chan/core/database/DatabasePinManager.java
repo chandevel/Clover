@@ -20,6 +20,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.j256.ormlite.stmt.DeleteBuilder;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,19 +52,12 @@ public class DatabasePinManager {
     }
 
     public Callable<Void> deletePin(final Pin pin) {
-        return () -> {
-            helper.getPinDao().delete(pin);
-
-            return null;
-        };
+        return deletePins(Collections.singletonList(pin));
     }
 
     public Callable<Void> deletePins(final List<Pin> pins) {
         return () -> {
-            for (Pin pin : pins) {
-                helper.getPinDao().delete(pin);
-            }
-
+            helper.getPinDao().delete(pins);
             return null;
         };
     }

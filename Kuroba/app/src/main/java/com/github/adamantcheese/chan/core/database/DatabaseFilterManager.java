@@ -17,12 +17,9 @@
 package com.github.adamantcheese.chan.core.database;
 
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.j256.ormlite.stmt.DeleteBuilder;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
@@ -82,23 +79,7 @@ public class DatabaseFilterManager {
 
     public Callable<Void> deleteFilters(List<Filter> filtersToDelete) {
         return () -> {
-            Set<Integer> filterIdSet = new HashSet<>();
-
-            for (Filter filter : filtersToDelete) {
-                filterIdSet.add(filter.id);
-            }
-
-            DeleteBuilder<Filter, Integer> builder = helper.getFilterDao().deleteBuilder();
-            builder.where().in("id", filterIdSet);
-
-            int deletedCount = builder.delete();
-
-            if (deletedCount != filterIdSet.size()) {
-                throw new IllegalStateException(
-                        "Deleted count didn't equal filterIdList.size(). (deletedCount = " + deletedCount + "), "
-                                + "(filterIdSet = " + filterIdSet.size() + ")");
-            }
-
+            helper.getFilterDao().delete(filtersToDelete);
             return null;
         };
     }
