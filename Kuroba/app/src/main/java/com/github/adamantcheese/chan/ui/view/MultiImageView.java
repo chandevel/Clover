@@ -178,20 +178,20 @@ public class MultiImageView
         waitForMeasure(this, view -> {
             switch (newMode) {
                 case LOWRES:
-                    setThumbnail(postImage, center);
+                    setThumbnail(center);
                     transparentBackground = ChanSettings.transparencyOn.get();
                     break;
                 case BIGIMAGE:
-                    setBigImage(loadable, postImage);
+                    setBigImage(loadable);
                     break;
                 case GIFIMAGE:
-                    setGif(loadable, postImage);
+                    setGif(loadable);
                     break;
                 case VIDEO:
-                    setVideo(loadable, postImage);
+                    setVideo(loadable);
                     break;
                 case OTHER:
-                    setOther(loadable, postImage);
+                    setOther(loadable);
                     break;
             }
             return true;
@@ -302,7 +302,7 @@ public class MultiImageView
         }
     }
 
-    private void setThumbnail(PostImage postImage, boolean center) {
+    private void setThumbnail(boolean center) {
         BackgroundUtils.ensureMainThread();
 
         if (thumbnailRequest != null) {
@@ -339,7 +339,7 @@ public class MultiImageView
         }
     }
 
-    private void setBigImage(Loadable loadable, PostImage postImage) {
+    private void setBigImage(Loadable loadable) {
         BackgroundUtils.ensureMainThread();
 
         if (bigImageRequest != null) {
@@ -398,7 +398,7 @@ public class MultiImageView
                 });
     }
 
-    private void setGif(Loadable loadable, PostImage postImage) {
+    private void setGif(Loadable loadable) {
         BackgroundUtils.ensureMainThread();
 
         if (gifRequest != null) {
@@ -495,17 +495,17 @@ public class MultiImageView
         toggleTransparency();
     }
 
-    private void setVideo(Loadable loadable, PostImage postImage) {
+    private void setVideo(Loadable loadable) {
         BackgroundUtils.ensureMainThread();
 
         if (ChanSettings.videoStream.get()) {
-            openVideoInternalStream(loadable, postImage);
+            openVideoInternalStream(loadable);
         } else {
-            openVideoExternal(loadable, postImage);
+            openVideoExternal(loadable);
         }
     }
 
-    private void openVideoInternalStream(Loadable loadable, PostImage postImage) {
+    private void openVideoInternalStream(Loadable loadable) {
         webmStreamingSource.createMediaSource(loadable, postImage, new MediaSourceCallback() {
             @Override
             public void onMediaSourceReady(@Nullable MediaSource source) {
@@ -558,7 +558,7 @@ public class MultiImageView
         });
     }
 
-    private void openVideoExternal(Loadable loadable, PostImage postImage) {
+    private void openVideoExternal(Loadable loadable) {
         BackgroundUtils.ensureMainThread();
 
         if (videoRequest != null) {
@@ -663,7 +663,7 @@ public class MultiImageView
         }
     }
 
-    private void setOther(Loadable loadable, PostImage image) {
+    private void setOther(Loadable loadable) {
         BackgroundUtils.ensureMainThread();
 
         if (otherRequest != null) {
