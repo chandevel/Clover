@@ -456,6 +456,8 @@ public class PostCell
 
         if (threadMode) {
             comment.setTextIsSelectable(true);
+            comment.setFocusable(true);
+            comment.setFocusableInTouchMode(true);
             comment.setText(post.comment, TextView.BufferType.SPANNABLE);
             comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                 private MenuItem quoteMenuItem;

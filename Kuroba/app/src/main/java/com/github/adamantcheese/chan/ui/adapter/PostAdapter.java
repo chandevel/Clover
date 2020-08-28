@@ -231,17 +231,6 @@ public class PostAdapter
     }
 
     @Override
-    public void onViewAttachedToWindow(RecyclerView.ViewHolder holder) {
-        //this is a hack to make sure text is selectable
-        super.onViewAttachedToWindow(holder);
-        if (holder.itemView instanceof PostCell) {
-            PostCell cell = (PostCell) holder.itemView;
-            cell.findViewById(R.id.comment).setEnabled(false);
-            cell.findViewById(R.id.comment).setEnabled(true);
-        }
-    }
-
-    @Override
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
         if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == LIST && ChanSettings.shiftPostFormat.get()) {
