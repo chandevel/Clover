@@ -34,7 +34,9 @@ import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.google.gson.Gson;
 
-import static com.github.adamantcheese.chan.Chan.instance;
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -45,12 +47,17 @@ public class ImageReencodingPresenter {
     private ImageReencodingPresenterCallback callback;
     private Reply draft;
 
+    @Inject
+    Gson gson;
+
     public ImageReencodingPresenter(
             Context context, ImageReencodingPresenterCallback callback, Loadable loadable
     ) {
         this.context = context;
         this.draft = loadable.draft;
         this.callback = callback;
+
+        inject(this);
     }
 
     public void loadImagePreview() {
@@ -90,7 +97,7 @@ public class ImageReencodingPresenter {
     }
 
     public void applyImageOptions(ImageOptions options) {
-        ChanSettings.lastImageOptions.set(instance(Gson.class).toJson(options));
+        ChanSettings.lastImageOptions.set(gson.toJson(options));
 
         callback.disableOrEnableButtons(false);
         try {

@@ -75,10 +75,10 @@ constructor(
             return@fileStream DataOutputStream(outputStream).use jsonStream@{ dos ->
                 val serializableThread = if (oldSerializableThread != null) {
                     // Merge with old posts if there are any
-                    oldSerializableThread.merge(posts)
+                    oldSerializableThread.merge(gson, posts)
                 } else {
                     // Use only the new posts
-                    ThreadMapper.toSerializableThread(posts)
+                    ThreadMapper.toSerializableThread(gson, posts)
                 }
 
                 val bytes = gson.toJson(serializableThread).toByteArray(StandardCharsets.UTF_8)

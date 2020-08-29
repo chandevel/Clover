@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
-import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.base.ModularResult
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification
@@ -36,7 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger
 class ReportManager(
         private val threadSaveManager: ThreadSaveManager,
         private val gson: Gson,
-        private val crashLogsDirPath: File
+        private val crashLogsDirPath: File,
+        private val client: OkHttpClientWithUtils
 ) {
     private val crashLogSenderQueue = PublishProcessor.create<ReportRequestWithFile>()
 
@@ -396,7 +396,7 @@ class ReportManager(
                     .post(requestBody)
                     .build()
 
-            instance(OkHttpClientWithUtils::class.java).proxiedClient.newCall(request).enqueue(object : Callback {
+            client.proxiedClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.onSuccess(ModularResult.error(e))
                 }

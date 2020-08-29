@@ -144,20 +144,20 @@ public class ManagerModule {
     @Provides
     @Singleton
     public SavedThreadLoaderManager provideSavedThreadLoaderManager(
-            SavedThreadLoaderRepository savedThreadLoaderRepository, FileManager fileManager
+            Gson gson, SavedThreadLoaderRepository savedThreadLoaderRepository, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
-        return new SavedThreadLoaderManager(savedThreadLoaderRepository, fileManager);
+        return new SavedThreadLoaderManager(gson, savedThreadLoaderRepository, fileManager);
     }
 
     @Provides
     @Singleton
     public ReportManager provideReportManager(
-            Gson gson, ThreadSaveManager threadSaveManager
+            Gson gson, ThreadSaveManager threadSaveManager, OkHttpClientWithUtils clientWithUtils
     ) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
 
-        return new ReportManager(threadSaveManager, gson, new File(cacheDir, CRASH_LOGS_DIR_NAME));
+        return new ReportManager(threadSaveManager, gson, new File(cacheDir, CRASH_LOGS_DIR_NAME), clientWithUtils);
     }
 }

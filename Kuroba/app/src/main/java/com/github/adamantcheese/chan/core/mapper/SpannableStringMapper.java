@@ -32,11 +32,11 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.gson.Gson;
 
-import static com.github.adamantcheese.chan.Chan.instance;
-
 public class SpannableStringMapper {
     @Nullable
-    public static SerializableSpannableString serializeSpannableString(@Nullable SpannableStringBuilder charSequence) {
+    public static SerializableSpannableString serializeSpannableString(
+            Gson gson, @Nullable SpannableStringBuilder charSequence
+    ) {
         if (charSequence == null || charSequence.length() == 0) {
             return null;
         }
@@ -63,7 +63,7 @@ public class SpannableStringMapper {
                         flags
                 );
 
-                spanInfo.setSpanData(instance(Gson.class).toJson(serializableForegroundColorSpan));
+                spanInfo.setSpanData(gson.toJson(serializableForegroundColorSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -80,7 +80,7 @@ public class SpannableStringMapper {
                         flags
                 );
 
-                spanInfo.setSpanData(instance(Gson.class).toJson(serializableBackgroundColorSpan));
+                spanInfo.setSpanData(gson.toJson(serializableBackgroundColorSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -108,7 +108,7 @@ public class SpannableStringMapper {
                         flags
                 );
 
-                spanInfo.setSpanData(instance(Gson.class).toJson(serializableStyleSpan));
+                spanInfo.setSpanData(gson.toJson(serializableStyleSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -124,7 +124,7 @@ public class SpannableStringMapper {
                         flags
                 );
 
-                spanInfo.setSpanData(instance(Gson.class).toJson(serializableTypefaceSpan));
+                spanInfo.setSpanData(gson.toJson(serializableTypefaceSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
@@ -141,13 +141,13 @@ public class SpannableStringMapper {
                         flags
                 );
 
-                spanInfo.setSpanData(instance(Gson.class).toJson(serializableAbsoluteSizeSpan));
+                spanInfo.setSpanData(gson.toJson(serializableAbsoluteSizeSpan));
                 serializableSpannableString.addSpanInfo(spanInfo);
             }
 
             if (span instanceof PostLinkable) {
                 PostLinkable pl = (PostLinkable) span;
-                serializePostLinkable(serializableSpannableString, pl, spanStart, spanEnd, flags);
+                serializePostLinkable(gson, serializableSpannableString, pl, spanStart, spanEnd, flags);
             }
         }
 
@@ -156,6 +156,7 @@ public class SpannableStringMapper {
     }
 
     private static void serializePostLinkable(
+            Gson gson,
             SerializableSpannableString serializableSpannableString,
             PostLinkable postLinkable,
             int spanStart,
@@ -174,22 +175,22 @@ public class SpannableStringMapper {
 
         switch (postLinkable.type) {
             case QUOTE:
-                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableQuoteValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Quote,
-                        (int) postLinkable.value
-                ));
+                postLinkableValueJson =
+                        gson.toJson(new PostLinkableQuoteValue(SerializablePostLinkableSpan.PostLinkableType.Quote,
+                                (int) postLinkable.value
+                        ));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Quote.getTypeValue());
                 break;
             case LINK:
-                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableLinkValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Link,
-                        (String) postLinkable.value
-                ));
+                postLinkableValueJson =
+                        gson.toJson(new PostLinkableLinkValue(SerializablePostLinkableSpan.PostLinkableType.Link,
+                                (String) postLinkable.value
+                        ));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Link.getTypeValue());
                 break;
             case SPOILER:
                 postLinkableValueJson =
-                        instance(Gson.class).toJson(new PostLinkableSpoilerValue(SerializablePostLinkableSpan.PostLinkableType.Spoiler));
+                        gson.toJson(new PostLinkableSpoilerValue(SerializablePostLinkableSpan.PostLinkableType.Spoiler));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Spoiler.getTypeValue());
                 break;
             case THREAD:
@@ -200,19 +201,19 @@ public class SpannableStringMapper {
                 }
 
                 CommentParser.ThreadLink threadLink = (CommentParser.ThreadLink) postLinkable.value;
-                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkThreadLinkValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Thread,
-                        threadLink.board,
-                        threadLink.threadId,
-                        threadLink.postId
-                ));
+                postLinkableValueJson =
+                        gson.toJson(new PostLinkThreadLinkValue(SerializablePostLinkableSpan.PostLinkableType.Thread,
+                                threadLink.board,
+                                threadLink.threadId,
+                                threadLink.postId
+                        ));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Thread.getTypeValue());
                 break;
             case BOARD:
-                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableBoardLinkValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Board,
-                        (String) postLinkable.value
-                ));
+                postLinkableValueJson =
+                        gson.toJson(new PostLinkableBoardLinkValue(SerializablePostLinkableSpan.PostLinkableType.Board,
+                                (String) postLinkable.value
+                        ));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Board.getTypeValue());
                 break;
             case SEARCH:
@@ -223,11 +224,11 @@ public class SpannableStringMapper {
                 }
 
                 CommentParser.SearchLink searchLink = (CommentParser.SearchLink) postLinkable.value;
-                postLinkableValueJson = instance(Gson.class).toJson(new PostLinkableSearchLinkValue(
-                        SerializablePostLinkableSpan.PostLinkableType.Search,
-                        searchLink.board,
-                        searchLink.search
-                ));
+                postLinkableValueJson =
+                        gson.toJson(new PostLinkableSearchLinkValue(SerializablePostLinkableSpan.PostLinkableType.Search,
+                                searchLink.board,
+                                searchLink.search
+                        ));
                 serializablePostLinkableSpan.setPostLinkableType(SerializablePostLinkableSpan.PostLinkableType.Search.getTypeValue());
                 break;
             default:
@@ -235,14 +236,14 @@ public class SpannableStringMapper {
         }
 
         serializablePostLinkableSpan.setPostLinkableValueJson(postLinkableValueJson);
-        spanInfo.setSpanData(instance(Gson.class).toJson(serializablePostLinkableSpan));
+        spanInfo.setSpanData(gson.toJson(serializablePostLinkableSpan));
 
         serializableSpannableString.addSpanInfo(spanInfo);
     }
 
     @NonNull
     public static SpannableStringBuilder deserializeSpannableString(
-            @Nullable SerializableSpannableString serializableSpannableString
+            Gson gson, @Nullable SerializableSpannableString serializableSpannableString
     ) {
         if (serializableSpannableString == null || serializableSpannableString.getText().isEmpty()) {
             return new SpannableStringBuilder("");
@@ -253,10 +254,8 @@ public class SpannableStringMapper {
         for (SerializableSpannableString.SpanInfo spanInfo : serializableSpannableString.getSpanInfoList()) {
             switch (SerializableSpannableString.SpanType.from(spanInfo.getSpanType())) {
                 case ForegroundColorSpanHashedType:
-                    SerializableForegroundColorSpan serializableForegroundColorSpan = instance(Gson.class).fromJson(
-                            spanInfo.getSpanData(),
-                            SerializableForegroundColorSpan.class
-                    );
+                    SerializableForegroundColorSpan serializableForegroundColorSpan =
+                            gson.fromJson(spanInfo.getSpanData(), SerializableForegroundColorSpan.class);
 
                     spannableString.setSpan(
                             new ForegroundColorSpanHashed(serializableForegroundColorSpan.getForegroundColor()),
@@ -266,10 +265,8 @@ public class SpannableStringMapper {
                     );
                     break;
                 case BackgroundColorSpanHashedType:
-                    SerializableBackgroundColorSpan serializableBackgroundColorSpan = instance(Gson.class).fromJson(
-                            spanInfo.getSpanData(),
-                            SerializableBackgroundColorSpan.class
-                    );
+                    SerializableBackgroundColorSpan serializableBackgroundColorSpan =
+                            gson.fromJson(spanInfo.getSpanData(), SerializableBackgroundColorSpan.class);
 
                     spannableString.setSpan(
                             new BackgroundColorSpanHashed(serializableBackgroundColorSpan.getBackgroundColor()),
@@ -287,7 +284,7 @@ public class SpannableStringMapper {
                     break;
                 case StyleSpanType:
                     SerializableStyleSpan serializableStyleSpan =
-                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableStyleSpan.class);
+                            gson.fromJson(spanInfo.getSpanData(), SerializableStyleSpan.class);
 
                     spannableString.setSpan(new StyleSpan(serializableStyleSpan.getStyle()),
                             spanInfo.getSpanStart(),
@@ -297,7 +294,7 @@ public class SpannableStringMapper {
                     break;
                 case TypefaceSpanType:
                     SerializableTypefaceSpan serializableTypefaceSpan =
-                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableTypefaceSpan.class);
+                            gson.fromJson(spanInfo.getSpanData(), SerializableTypefaceSpan.class);
 
                     spannableString.setSpan(new TypefaceSpan(serializableTypefaceSpan.getFamily()),
                             spanInfo.getSpanStart(),
@@ -307,7 +304,7 @@ public class SpannableStringMapper {
                     break;
                 case AbsoluteSizeSpanHashed:
                     SerializableAbsoluteSizeSpan serializableAbsoluteSizeSpan =
-                            instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializableAbsoluteSizeSpan.class);
+                            gson.fromJson(spanInfo.getSpanData(), SerializableAbsoluteSizeSpan.class);
 
                     spannableString.setSpan(new AbsoluteSizeSpanHashed(serializableAbsoluteSizeSpan.getSize()),
                             spanInfo.getSpanStart(),
@@ -316,7 +313,7 @@ public class SpannableStringMapper {
                     );
                     break;
                 case PostLinkable:
-                    deserializeAndApplyPostLinkableSpan(spannableString, spanInfo);
+                    deserializeAndApplyPostLinkableSpan(gson, spannableString, spanInfo);
                     break;
             }
         }
@@ -325,21 +322,21 @@ public class SpannableStringMapper {
     }
 
     private static void deserializeAndApplyPostLinkableSpan(
-            SpannableStringBuilder spannableString, SerializableSpannableString.SpanInfo spanInfo
+            Gson gson, SpannableStringBuilder spannableString, SerializableSpannableString.SpanInfo spanInfo
     ) {
 
         SerializablePostLinkableSpan serializablePostLinkableSpan =
-                instance(Gson.class).fromJson(spanInfo.getSpanData(), SerializablePostLinkableSpan.class);
+                gson.fromJson(spanInfo.getSpanData(), SerializablePostLinkableSpan.class);
 
         Theme currentTheme = ThemeHelper.getTheme();
         PostLinkable postLinkable;
 
         switch (serializablePostLinkableSpan.getPostLinkableType()) {
             case Quote:
-                PostLinkableQuoteValue postLinkableQuoteValue = instance(Gson.class).fromJson(
-                        serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableQuoteValue.class
-                );
+                PostLinkableQuoteValue postLinkableQuoteValue =
+                        gson.fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                                PostLinkableQuoteValue.class
+                        );
                 postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         postLinkableQuoteValue.getPostId(),
@@ -348,7 +345,7 @@ public class SpannableStringMapper {
                 break;
             case Link:
                 PostLinkableLinkValue postLinkableLinkValue =
-                        instance(Gson.class).fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                        gson.fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
                                 PostLinkableLinkValue.class
                         );
                 postLinkable = new PostLinkable(currentTheme,
@@ -365,10 +362,10 @@ public class SpannableStringMapper {
                 );
                 break;
             case Thread:
-                PostLinkThreadLinkValue postLinkThreadLinkValue = instance(Gson.class).fromJson(
-                        serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkThreadLinkValue.class
-                );
+                PostLinkThreadLinkValue postLinkThreadLinkValue =
+                        gson.fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                                PostLinkThreadLinkValue.class
+                        );
                 postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         new CommentParser.ThreadLink(postLinkThreadLinkValue.getBoard(),
@@ -379,10 +376,10 @@ public class SpannableStringMapper {
                 );
                 break;
             case Board:
-                PostLinkableBoardLinkValue postLinkableBoardLinkValue = instance(Gson.class).fromJson(
-                        serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableBoardLinkValue.class
-                );
+                PostLinkableBoardLinkValue postLinkableBoardLinkValue =
+                        gson.fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                                PostLinkableBoardLinkValue.class
+                        );
                 postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         postLinkableBoardLinkValue.getBoardLink(),
@@ -390,10 +387,10 @@ public class SpannableStringMapper {
                 );
                 break;
             case Search:
-                PostLinkableSearchLinkValue postLinkableSearchLinkValue = instance(Gson.class).fromJson(
-                        serializablePostLinkableSpan.getPostLinkableValueJson(),
-                        PostLinkableSearchLinkValue.class
-                );
+                PostLinkableSearchLinkValue postLinkableSearchLinkValue =
+                        gson.fromJson(serializablePostLinkableSpan.getPostLinkableValueJson(),
+                                PostLinkableSearchLinkValue.class
+                        );
                 postLinkable = new PostLinkable(currentTheme,
                         serializablePostLinkableSpan.getKey(),
                         new CommentParser.SearchLink(postLinkableSearchLinkValue.getBoard(),

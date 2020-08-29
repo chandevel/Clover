@@ -10,10 +10,11 @@ import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.DirectorySegment
 import com.github.k1rakishou.fsaf.file.FileSegment
+import com.google.gson.Gson
 import java.io.IOException
-import javax.inject.Inject
 
-class SavedThreadLoaderManager @Inject constructor(
+class SavedThreadLoaderManager constructor(
+        private val gson: Gson,
         private val savedThreadLoaderRepository: SavedThreadLoaderRepository,
         private val fileManager: FileManager
 ) {
@@ -75,7 +76,7 @@ class SavedThreadLoaderManager @Inject constructor(
                 return null
             }
 
-            return ThreadMapper.fromSerializedThread(loadable, serializableThread)
+            return ThreadMapper.fromSerializedThread(gson, loadable, serializableThread)
         } catch (e: IOException) {
             Logger.e(TAG, "Could not load saved thread", e)
             return null
