@@ -304,6 +304,7 @@ public class CommentParserHelper {
 
     private static String getHourMinSecondString(String ISO8601Duration) {
         Matcher m = iso8601Time.matcher(ISO8601Duration);
+        String ret;
         if (m.matches()) {
             String hours = m.group(2);
             String minutes = m.group(4);
@@ -313,15 +314,17 @@ public class CommentParserHelper {
             if (hours != null) {
                 //we have hours, pad minutes to 2 digits
                 minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
-                return hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
+                ret = hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
             } else {
                 //no hours, no need to pad anything else
-                return (minutes != null ? minutes : "0") + ":" + seconds;
+                ret = (minutes != null ? minutes : "0") + ":" + seconds;
             }
         } else {
             //badly formatted time from youtube's API?
-            return "?:??";
+            ret = "?:??";
         }
+
+        return "[" + ret + "]";
     }
 
     private static void performYoutubeLinkReplacement(
@@ -340,7 +343,7 @@ public class CommentParserHelper {
             }
 
             SpannableStringBuilder replacement = new SpannableStringBuilder(
-                    "  " + titleDurPair.first + (titleDurPair.second != null ? " [" + titleDurPair.second + "]" : ""));
+                    "  " + titleDurPair.first + (titleDurPair.second != null ? " " + titleDurPair.second : ""));
 
             //set the youtube icon span for the linkable
             ImageSpan ytIcon = new ImageSpan(getAppContext(), BitmapRepository.youtubeIcon);
