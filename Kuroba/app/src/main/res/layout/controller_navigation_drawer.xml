@@ -36,6 +36,121 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:clipToPadding="false"
         android:orientation="vertical">
 
+        <LinearLayout
+            android:id="@+id/settings"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_settings_themed_24dp"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/settings_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:singleLine="true"
+                android:text="@string/drawer_settings"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/setting_notification_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="4dp"
+                android:src="@drawable/ic_setting_alert"
+                android:visibility="gone"
+                tools:tint="@color/md_green_500"
+                tools:visibility="visible" />
+
+            <Space
+                android:layout_width="11dp"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/history"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_history_themed_24dp"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/history_text"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:singleLine="true"
+                android:text="@string/drawer_history"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            tools:background="?backcolor">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:singleLine="true"
+                android:text="@string/drawer_pinned"
+                android:textSize="14sp" />
+
+            <ImageView
+                android:id="@+id/refresh"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/ripple_item_background"
+                android:scaleType="center"
+                android:src="@drawable/ic_refresh_themed_24dp" />
+
+            <ImageView
+                android:id="@+id/clear"
+                android:layout_width="48dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/ripple_item_background"
+                android:scaleType="center"
+                android:src="@drawable/ic_clear_themed_24dp" />
+
+        </LinearLayout>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/drawer_recycler_view"
             android:layout_width="match_parent"
@@ -46,7 +161,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/cell_pin"/>
+            tools:listitem="@layout/cell_pin" />
 
     </com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>
 

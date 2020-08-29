@@ -311,10 +311,13 @@ public class ThreadListLayout
         //Filter out any bookmarked threads from the catalog
         if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
             List<Post> toRemove = new ArrayList<>();
-            for (Pin pin : instance(WatchManager.class).getAllPins()) {
-                for (Post post : filteredPosts) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, "", false))) {
-                        toRemove.add(post);
+            WatchManager watchManager = instance(WatchManager.class);
+            synchronized (watchManager.getAllPins()) {
+                for (Pin pin : watchManager.getAllPins()) {
+                    for (Post post : filteredPosts) {
+                        if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, "", false))) {
+                            toRemove.add(post);
+                        }
                     }
                 }
             }

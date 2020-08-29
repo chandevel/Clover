@@ -18,9 +18,13 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Gravity;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -40,6 +44,7 @@ import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -49,14 +54,22 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
+import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
+import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DrawerController
         extends Controller
@@ -64,8 +77,27 @@ public class DrawerController
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
+
+    protected LinearLayout settings;
+    protected LinearLayout history;
+    protected LinearLayout header;
+
     protected RecyclerView recyclerView;
     protected DrawerAdapter drawerAdapter;
+
+    public enum HeaderAction {
+        CLEAR,
+        CLEAR_ALL
+    }
+
+    private final Runnable refreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
+        }
+    };
+
+    private Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Inject
     WatchManager watchManager;
@@ -85,6 +117,25 @@ public class DrawerController
         drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
         drawer = view.findViewById(R.id.drawer);
+
+        settings = view.findViewById(R.id.settings);
+        ((TextView) settings.findViewById(R.id.settings_text)).setTypeface(ThemeHelper.getTheme().mainFont);
+        onEvent((SettingNotification) null);
+        settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
+
+        history = view.findViewById(R.id.history);
+        ((TextView) history.findViewById(R.id.history_text)).setTypeface(ThemeHelper.getTheme().mainFont);
+        history.setOnClickListener(v -> openController(new HistoryController(context)));
+
+        header = view.findViewById(R.id.header);
+        header.findViewById(R.id.refresh).setOnClickListener(v -> {
+            watchManager.onWake();
+            v.setVisibility(GONE);
+            mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
+        });
+        header.findViewById(R.id.clear).setOnClickListener(v -> onHeaderClicked(CLEAR));
+        header.findViewById(R.id.clear).setOnLongClickListener(v -> onHeaderClicked(CLEAR_ALL));
+
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
         //TODO change stuff here
@@ -102,6 +153,7 @@ public class DrawerController
     @Override
     public void onDestroy() {
         recyclerView.setAdapter(null);
+        mainHandler.removeCallbacks(refreshRunnable);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -170,31 +222,26 @@ public class DrawerController
         drawerLayout.post(() -> drawerLayout.closeDrawers());
     }
 
-    @Override
-    public void onHeaderClicked(DrawerAdapter.HeaderAction headerAction) {
-        if (headerAction == DrawerAdapter.HeaderAction.CLEAR || headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL) {
-            final boolean all =
-                    headerAction == DrawerAdapter.HeaderAction.CLEAR_ALL || !ChanSettings.watchEnabled.get();
-            final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
+    public boolean onHeaderClicked(HeaderAction headerAction) {
+        final boolean all = headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get();
+        final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
 
-            if (all && hasDownloadFlag) {
-                // Some pins may have threads that have saved copies on the disk. We want to warn the
-                // user that this action will delete them as well
-                new AlertDialog.Builder(context).setTitle(R.string.warning)
-                        .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
-                        .setNegativeButton(R.string.drawer_controller_do_not_delete,
-                                (dialog, which) -> dialog.dismiss()
-                        )
-                        .setPositiveButton(R.string.drawer_controller_delete_all_pins,
-                                ((dialog, which) -> onHeaderClickedInternal(true, true))
-                        )
-                        .create()
-                        .show();
-                return;
-            }
-
-            onHeaderClickedInternal(all, hasDownloadFlag);
+        if (all && hasDownloadFlag) {
+            // Some pins may have threads that have saved copies on the disk. We want to warn the
+            // user that this action will delete them as well
+            new AlertDialog.Builder(context).setTitle(R.string.warning)
+                    .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
+                    .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton(R.string.drawer_controller_delete_all_pins,
+                            ((dialog, which) -> onHeaderClickedInternal(true, true))
+                    )
+                    .create()
+                    .show();
+            return true;
         }
+
+        onHeaderClickedInternal(all, hasDownloadFlag);
+        return true;
     }
 
     private void onHeaderClickedInternal(boolean all, boolean hasDownloadFlag) {
@@ -211,9 +258,12 @@ public class DrawerController
                 snackbar.show();
             }
         } else {
-            int text = watchManager.getAllPins().isEmpty()
-                    ? R.string.drawer_pins_non_cleared
-                    : R.string.drawer_pins_non_cleared_try_all;
+            int text;
+            synchronized (watchManager.getAllPins()) {
+                text = watchManager.getAllPins().isEmpty()
+                        ? R.string.drawer_pins_non_cleared
+                        : R.string.drawer_pins_non_cleared_try_all;
+            }
             Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
             snackbar.setGestureInsetBottomIgnored(true);
             snackbar.show();
@@ -244,24 +294,19 @@ public class DrawerController
         snackbar.show();
     }
 
-    @Override
-    public void openSettings() {
-        openController(new MainSettingsController(context));
-    }
-
-    @Override
-    public void openHistory() {
-        openController(new HistoryController(context));
-    }
-
     public void setPinHighlighted(Pin pin) {
-        drawerAdapter.setPinHighlighted(recyclerView, pin);
+        drawerAdapter.setHighlightedPin(pin);
+        synchronized (watchManager.getAllPins()) {
+            drawerAdapter.notifyItemChanged(watchManager.getAllPins().indexOf(pin));
+        }
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         if (drawerAdapter == null) return;
-        drawerAdapter.onPinAdded(message.pin);
+        synchronized (watchManager.getAllPins()) {
+            drawerAdapter.notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
+        }
         if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
             //max out at 5
@@ -281,14 +326,16 @@ public class DrawerController
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         if (drawerAdapter == null) return;
-        drawerAdapter.onPinRemoved(message.index);
+        drawerAdapter.notifyItemRemoved(message.index);
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
         if (drawerAdapter == null) return;
-        drawerAdapter.onPinChanged(recyclerView, message.pin);
+        synchronized (watchManager.getAllPins()) {
+            drawerAdapter.notifyItemChanged(watchManager.getAllPins().indexOf(message.pin));
+        }
         updateBadge();
     }
 
@@ -302,13 +349,19 @@ public class DrawerController
     @Subscribe(sticky = true)
     public void onEvent(SettingNotification notification) {
         if (drawerAdapter == null) return;
-        drawerAdapter.onNotificationsChanged();
+        SettingNotification type = EventBus.getDefault().getStickyEvent(SettingNotification.class);
+
+        ImageView notificationIcon = settings.findViewById(R.id.setting_notification_icon);
+        if (type != SettingNotification.Default) {
+            notificationIcon.setVisibility(VISIBLE);
+            notificationIcon.setColorFilter(getRes().getColor(type.getNotificationIconTintColor()));
+        } else {
+            notificationIcon.setVisibility(GONE);
+        }
     }
 
     public void setDrawerEnabled(boolean enabled) {
-        drawerLayout.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                Gravity.LEFT
-        );
+        drawerLayout.setDrawerLockMode(enabled ? LOCK_MODE_UNLOCKED : LOCK_MODE_LOCKED_CLOSED, Gravity.LEFT);
         if (!enabled) {
             drawerLayout.closeDrawer(drawer);
         }
