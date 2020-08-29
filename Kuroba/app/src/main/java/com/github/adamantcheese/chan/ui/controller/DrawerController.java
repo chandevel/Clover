@@ -79,7 +79,6 @@ public class DrawerController
     protected LinearLayout drawer;
 
     protected LinearLayout settings;
-    protected LinearLayout history;
     protected LinearLayout header;
 
     protected RecyclerView recyclerView;
@@ -123,9 +122,7 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
-        history = view.findViewById(R.id.history);
-        ((TextView) history.findViewById(R.id.history_text)).setTypeface(ThemeHelper.getTheme().mainFont);
-        history.setOnClickListener(v -> openController(new HistoryController(context)));
+        view.findViewById(R.id.history).setOnClickListener(v -> openController(new HistoryController(context)));
 
         header = view.findViewById(R.id.header);
         header.findViewById(R.id.refresh).setOnClickListener(v -> {

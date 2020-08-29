@@ -386,7 +386,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="thread_page_limit">Thread hit last page</string>
 
     <string name="drawer_settings">Settings</string>
-    <string name="drawer_history">History</string>
 
     <!-- Main settings -->
     <string name="settings_screen">Settings</string>
