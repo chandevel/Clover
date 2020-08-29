@@ -38,7 +38,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.PageRequestManager;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -546,7 +546,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showNewPostsNotification(true, more);
                 //deal with any "requests" for a page update
                 if (forcePageUpdate) {
-                    instance(PageRequestManager.class).forceUpdateForBoard(loadable.board);
+                    PageRepository.forceUpdateForBoard(loadable.board);
                     forcePageUpdate = false;
                 }
             }

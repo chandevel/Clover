@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -142,7 +143,6 @@ public class WatchManager
     private final DatabaseSavedThreadManager databaseSavedThreadManager;
     private final ChanLoaderManager chanLoaderManager;
     private final WakeManager wakeManager;
-    private final PageRequestManager pageRequestManager;
     private final ThreadSaveManager threadSaveManager;
     private final FileManager fileManager;
 
@@ -1158,7 +1158,7 @@ public class WatchManager
     }
 
     public class PinWatcher
-            implements ChanThreadLoader.ChanLoaderCallback, PageRequestManager.PageCallback {
+            implements ChanThreadLoader.ChanLoaderCallback, PageRepository.PageCallback {
         private final Pin pin;
         private ChanThreadLoader chanLoader;
 
@@ -1176,7 +1176,7 @@ public class WatchManager
 
             Logger.d(this, "created for " + pin.loadable.toString());
             chanLoader = chanLoaderManager.obtain(pin.loadable, this);
-            pageRequestManager.addListener(this);
+            PageRepository.addListener(this);
         }
 
         public SpannableStringBuilder getSummary() {
@@ -1225,13 +1225,13 @@ public class WatchManager
                 chanLoaderManager.release(chanLoader, this);
                 chanLoader = null;
             }
-            pageRequestManager.removeListener(this);
+            PageRepository.removeListener(this);
         }
 
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
-                ChanPage page = pageRequestManager.getPage(chanLoader.getLoadable());
+                ChanPage page = PageRepository.getPage(chanLoader.getLoadable());
                 if (page != null) {
                     latestKnownPage = page.page;
                     doPageNotification(page);
@@ -1366,7 +1366,7 @@ public class WatchManager
         @Override
         public void onPagesReceived() {
             //this call will return the proper value now, but if it returns null just skip everything
-            ChanPage p = pageRequestManager.getPage(chanLoader.getLoadable());
+            ChanPage p = PageRepository.getPage(chanLoader.getLoadable());
             if (p != null) {
                 latestKnownPage = p.page;
             }

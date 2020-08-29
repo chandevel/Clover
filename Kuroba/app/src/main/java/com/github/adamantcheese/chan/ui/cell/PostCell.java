@@ -53,13 +53,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
@@ -543,7 +543,7 @@ public class PostCell
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
-                ChanPage p = instance(PageRequestManager.class).getPage(post);
+                ChanPage p = PageRepository.getPage(post);
                 if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
                     text += ", page " + p.page;
                 }

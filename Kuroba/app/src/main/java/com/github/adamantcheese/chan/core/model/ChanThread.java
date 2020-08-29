@@ -23,8 +23,8 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -159,7 +158,7 @@ public class ChanThread {
             }
 
             if (!getLoadable().isLocal()) {
-                CommonDataStructs.ChanPage p = instance(PageRequestManager.class).getPage(op);
+                CommonDataStructs.ChanPage p = PageRepository.getPage(op);
                 if (p != null) {
                     SpannableString page = new SpannableString(String.valueOf(p.page));
                     if (p.page >= loadable.board.pages) {
