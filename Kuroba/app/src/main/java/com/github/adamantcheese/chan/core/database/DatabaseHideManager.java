@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -24,26 +23,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabaseHideManager {
     private static final long TRIM_TRIGGER = 25000;
     private static final long TRIM_COUNT = 5000;
 
-    @Inject
     DatabaseHelper helper;
 
-    public DatabaseHideManager() {
-        inject(this);
-    }
-
-    public Callable<Void> load() {
-        return () -> {
-            Chan.instance(DatabaseManager.class).trimTable(helper.getPostHideDao(), TRIM_TRIGGER, TRIM_COUNT);
+    public DatabaseHideManager(DatabaseHelper helper) {
+        this.helper = helper;
+        DatabaseUtils.runTaskAsync((Callable<Void>) () -> {
+            DatabaseUtils.trimTable(helper.getPostHideDao(), TRIM_TRIGGER, TRIM_COUNT);
             return null;
-        };
+        });
     }
 
     /**
@@ -51,7 +42,7 @@ public class DatabaseHideManager {
      * to already hidden posts and if there are hides them as well.
      */
     public List<Post> filterHiddenPosts(List<Post> posts, int siteId, String board) {
-        return Chan.instance(DatabaseManager.class).runTask(() -> {
+        return DatabaseUtils.runTask(() -> {
             List<Integer> postNoList = new ArrayList<>(posts.size());
             for (Post post : posts) {
                 postNoList.add(post.no);

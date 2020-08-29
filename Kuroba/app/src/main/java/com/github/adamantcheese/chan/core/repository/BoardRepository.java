@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.repository;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
@@ -30,11 +30,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.inject.Inject;
-
 public class BoardRepository
         implements Observer {
-    private final DatabaseManager databaseManager;
     private final DatabaseBoardManager databaseBoardManager;
 
     private final SiteRepository.Sites allSites;
@@ -42,11 +39,8 @@ public class BoardRepository
     private SitesBoards allBoards = new SitesBoards();
     private SitesBoards savedBoards = new SitesBoards();
 
-    @Inject
-    public BoardRepository(DatabaseManager databaseManager, SiteRepository siteRepository) {
-        this.databaseManager = databaseManager;
-        databaseBoardManager = databaseManager.getDatabaseBoardManager();
-
+    public BoardRepository(DatabaseBoardManager databaseBoardManager, SiteRepository siteRepository) {
+        this.databaseBoardManager = databaseBoardManager;
         allSites = siteRepository.all();
     }
 
@@ -64,7 +58,7 @@ public class BoardRepository
     }
 
     public void updateAvailableBoardsForSite(Site site, Boards availableBoards) {
-        boolean changed = databaseManager.runTask(databaseBoardManager.createAll(site, availableBoards));
+        boolean changed = DatabaseUtils.runTask(databaseBoardManager.createAll(site, availableBoards));
         Logger.d(this, "updateAvailableBoardsForSite changed = " + changed);
         if (changed) {
             updateObservablesAsync();
@@ -117,13 +111,13 @@ public class BoardRepository
     }
 
     public void updateBoardOrders(Boards boards) {
-        databaseManager.runTaskAsync(databaseBoardManager.updateOrders(boards), (e) -> updateObservablesAsync());
+        DatabaseUtils.runTaskAsync(databaseBoardManager.updateOrders(boards), (e) -> updateObservablesAsync());
     }
 
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
         board.order = saved ? board.order : 0;
-        databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
+        DatabaseUtils.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
                 (e) -> updateObservablesAsync()
         );
     }
@@ -132,17 +126,17 @@ public class BoardRepository
         for (Board board : boards) {
             board.saved = saved;
         }
-        databaseManager.runTaskAsync(databaseBoardManager.updateIncludingUserFields(boards),
+        DatabaseUtils.runTaskAsync(databaseBoardManager.updateIncludingUserFields(boards),
                 (e) -> updateObservablesAsync()
         );
     }
 
     private void updateObservablesSync() {
-        updateWith(databaseManager.runTask(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll())));
+        updateWith(DatabaseUtils.runTask(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll())));
     }
 
     private void updateObservablesAsync() {
-        databaseManager.runTaskAsync(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll()),
+        DatabaseUtils.runTaskAsync(databaseBoardManager.getBoardsForAllSitesOrdered(allSites.getAll()),
                 this::updateWith
         );
     }

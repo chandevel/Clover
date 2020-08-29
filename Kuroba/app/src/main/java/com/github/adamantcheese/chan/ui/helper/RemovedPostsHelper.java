@@ -7,7 +7,8 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
@@ -21,15 +22,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class RemovedPostsHelper {
-    @Inject
-    DatabaseManager databaseManager;
-
     private Context context;
     private ThreadPresenter presenter;
     private RemovedPostsCallbacks callbacks;
@@ -40,12 +36,10 @@ public class RemovedPostsHelper {
         this.context = context;
         this.presenter = presenter;
         this.callbacks = callbacks;
-
-        inject(this);
     }
 
     public void showPosts(List<Post> threadPosts, int threadNo) {
-        databaseManager.runTask(() -> {
+        DatabaseUtils.runTask(() -> {
             List<Post> removedPosts = getRemovedPosts(threadPosts, threadNo);
 
             if (removedPosts.isEmpty()) {
@@ -68,7 +62,7 @@ public class RemovedPostsHelper {
 
     private List<Post> getRemovedPosts(List<Post> threadPosts, int threadNo)
             throws SQLException {
-        List<PostHide> hiddenPosts = databaseManager.getDatabaseHideManager().getRemovedPostsWithThreadNo(threadNo);
+        List<PostHide> hiddenPosts = instance(DatabaseHideManager.class).getRemovedPostsWithThreadNo(threadNo);
         List<Post> removedPosts = new ArrayList<>();
 
         @SuppressLint("UseSparseArrays")

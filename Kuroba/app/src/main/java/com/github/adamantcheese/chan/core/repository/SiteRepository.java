@@ -5,7 +5,15 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
+import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabasePinManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
@@ -19,21 +27,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 
-import javax.inject.Inject;
-
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
-    private DatabaseManager databaseManager;
+    private DatabaseSiteManager databaseSiteManager;
     private Sites sitesObservable = new Sites();
 
     public Site forId(int id) {
         return sitesObservable.forId(id);
     }
 
-    @Inject
-    public SiteRepository(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    public SiteRepository(DatabaseSiteManager databaseSiteManager) {
+        this.databaseSiteManager = databaseSiteManager;
     }
 
     public Sites all() {
@@ -41,7 +47,7 @@ public class SiteRepository {
     }
 
     public SiteModel byId(int id) {
-        return databaseManager.runTask(databaseManager.getDatabaseSiteManager().byId(id));
+        return DatabaseUtils.runTask(databaseSiteManager.byId(id));
     }
 
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
@@ -52,11 +58,11 @@ public class SiteRepository {
 
     public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
         siteModel.storeUserSettings(jsonSettings);
-        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().update(siteModel));
+        DatabaseUtils.runTaskAsync(databaseSiteManager.update(siteModel));
     }
 
     public Map<Integer, Integer> getOrdering() {
-        return databaseManager.runTask(databaseManager.getDatabaseSiteManager().getOrdering());
+        return DatabaseUtils.runTask(databaseSiteManager.getOrdering());
     }
 
     public void updateSiteOrderingAsync(List<Site> sites) {
@@ -65,7 +71,7 @@ public class SiteRepository {
             ids.add(site.id());
         }
 
-        databaseManager.runTaskAsync(databaseManager.getDatabaseSiteManager().updateOrdering(ids), r -> {
+        DatabaseUtils.runTaskAsync(databaseSiteManager.updateOrdering(ids), r -> {
             sitesObservable.wasReordered();
             sitesObservable.notifyObservers();
         });
@@ -74,7 +80,7 @@ public class SiteRepository {
     public void initialize() {
         List<Site> sites = new ArrayList<>();
 
-        List<SiteModel> models = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getAll());
+        List<SiteModel> models = DatabaseUtils.runTask(databaseSiteManager.getAll());
 
         for (SiteModel siteModel : models) {
             SiteConfigSettingsHolder holder;
@@ -123,7 +129,7 @@ public class SiteRepository {
         SiteModel siteModel = new SiteModel();
         siteModel.classID = classID;
         siteModel.storeUserSettings(userSettings);
-        databaseManager.runTask(databaseManager.getDatabaseSiteManager().add(siteModel));
+        DatabaseUtils.runTask(databaseSiteManager.add(siteModel));
 
         return siteModel;
     }
@@ -151,20 +157,20 @@ public class SiteRepository {
     }
 
     public void removeSite(Site site) {
-        databaseManager.runTask(() -> {
+        DatabaseUtils.runTask(() -> {
             removeFilters(site);
-            databaseManager.getDatabaseBoardManager().deleteBoards(site).call();
+            instance(DatabaseBoardManager.class).deleteBoards(site).call();
 
-            List<Loadable> siteLoadables = databaseManager.getDatabaseLoadableManager().getLoadables(site).call();
+            List<Loadable> siteLoadables = instance(DatabaseLoadableManager.class).getLoadables(site).call();
             if (!siteLoadables.isEmpty()) {
-                databaseManager.getDatabaseSavedThreadManager().deleteSavedThreads(siteLoadables).call();
-                databaseManager.getDatabasePinManager().deletePinsFromLoadables(siteLoadables).call();
-                databaseManager.getDatabaseLoadableManager().deleteLoadables(siteLoadables).call();
+                instance(DatabaseSavedThreadManager.class).deleteSavedThreads(siteLoadables).call();
+                instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables).call();
+                instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables).call();
             }
 
-            databaseManager.getDatabaseSavedReplyManager().deleteSavedReplies(site).call();
-            databaseManager.getDatabaseHideManager().deleteThreadHides(site).call();
-            databaseManager.getDatabaseSiteManager().deleteSite(site).call();
+            instance(DatabaseSavedReplyManager.class).deleteSavedReplies(site).call();
+            instance(DatabaseHideManager.class).deleteThreadHides(site).call();
+            instance(DatabaseSiteManager.class).deleteSite(site).call();
             return null;
         });
     }
@@ -172,8 +178,9 @@ public class SiteRepository {
     private void removeFilters(Site site)
             throws Exception {
         List<Filter> filtersToDelete = new ArrayList<>();
+        DatabaseFilterManager databaseFilterManager = instance(DatabaseFilterManager.class);
 
-        for (Filter filter : databaseManager.getDatabaseFilterManager().getFilters().call()) {
+        for (Filter filter : databaseFilterManager.getFilters().call()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
                 continue;
             }
@@ -187,7 +194,7 @@ public class SiteRepository {
             }
         }
 
-        databaseManager.getDatabaseFilterManager().deleteFilters(filtersToDelete).call();
+        databaseFilterManager.deleteFilters(filtersToDelete).call();
     }
 
     public class Sites

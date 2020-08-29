@@ -1,0 +1,169 @@
+/*
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package com.github.adamantcheese.chan.core.database;
+
+import androidx.annotation.NonNull;
+
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.misc.TransactionManager;
+
+import java.sql.SQLException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import static com.github.adamantcheese.chan.Chan.instance;
+
+public class DatabaseUtils {
+    /**
+     * Summary of the database tables row count, for the developer screen.
+     *
+     * @return list of all tables and their row count.
+     */
+    public static String getDatabaseSummary() {
+        String o = "";
+
+        DatabaseHelper helper = instance(DatabaseHelper.class);
+        try {
+            o += "Loadable rows: " + helper.getLoadableDao().countOf() + "\n";
+            o += "Pin rows: " + helper.getPinDao().countOf() + "\n";
+            o += "SavedReply rows: " + helper.getSavedReplyDao().countOf() + "\n";
+            o += "Board rows: " + helper.getBoardDao().countOf() + "\n";
+            o += "PostHide rows: " + helper.getPostHideDao().countOf() + "\n";
+            o += "Filter rows: " + helper.getFilterDao().countOf() + "\n";
+            o += "Site rows: " + helper.getSiteModelDao().countOf() + "\n";
+            o += "Local thread rows: " + helper.getSavedThreadDao().countOf() + "\n";
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return o;
+    }
+
+    /**
+     * Trim a table with the specified trigger and trim count.
+     *
+     * @param dao     {@link Dao} to use.
+     * @param trigger Trim if there are more rows than {@code trigger}.
+     * @param trim    Count of rows to trim.
+     */
+    public static <T, ID> void trimTable(Dao<T, ID> dao, long trigger, long trim) {
+        try {
+            long count = dao.countOf();
+            if (count > trigger) {
+                dao.executeRawNoArgs(
+                        "DELETE FROM " + dao.getTableName() + " WHERE id IN (SELECT id FROM " + dao.getTableName()
+                                + " ORDER BY id ASC LIMIT " + trim + ")");
+            }
+        } catch (SQLException e) {
+            Logger.e("DatabaseManager", "Error trimming table " + dao.getTableName(), e);
+        }
+    }
+
+    public static <T> void runTaskAsync(final Callable<T> taskCallable) {
+        runTaskAsync(taskCallable, result -> {});
+    }
+
+    public static <T> void runTaskAsync(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
+        executeTask(true, taskCallable, taskResult);
+    }
+
+    public static <T> T runTask(final Callable<T> taskCallable) {
+        try {
+            return executeTask(false, taskCallable, null).get();
+        } catch (InterruptedException e) {
+            // Since we don't rethrow InterruptedException we need to at least restore the
+            // "interrupted" flag.
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <T> Future<T> executeTask(
+            boolean async, final Callable<T> taskCallable, final TaskResult<T> taskResult
+    ) {
+        if (async) {
+            return instance(ExecutorService.class).submit(new DatabaseCallable<>(taskCallable, taskResult));
+        } else {
+            DatabaseCallable<T> databaseCallable = new DatabaseCallable<>(taskCallable, taskResult);
+            T result = databaseCallable.call();
+
+            return new Future<T>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    return false;
+                }
+
+                @Override
+                public boolean isCancelled() {
+                    return false;
+                }
+
+                @Override
+                public boolean isDone() {
+                    return true;
+                }
+
+                @Override
+                public T get() {
+                    return result;
+                }
+
+                @Override
+                public T get(long timeout, @NonNull TimeUnit unit) {
+                    return result;
+                }
+            };
+        }
+    }
+
+    private static class DatabaseCallable<T>
+            implements Callable<T> {
+        private final Callable<T> task;
+        private final TaskResult<T> result;
+
+        public DatabaseCallable(Callable<T> task, TaskResult<T> result) {
+            this.task = task;
+            this.result = result;
+        }
+
+        @Override
+        public T call() {
+            try {
+                DatabaseHelper databaseHelper = instance(DatabaseHelper.class);
+                final T result = TransactionManager.callInTransaction(databaseHelper.getConnectionSource(), task);
+                if (this.result != null) {
+                    BackgroundUtils.runOnMainThread(() -> this.result.onComplete(result));
+                }
+                return result;
+            } catch (Exception e) {
+                Logger.e(this, "executeTask", e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public interface TaskResult<T> {
+        void onComplete(T result);
+    }
+}

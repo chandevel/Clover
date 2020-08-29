@@ -34,7 +34,10 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
@@ -91,7 +94,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -103,7 +105,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
-@SuppressWarnings("unused")
 public class ThreadPresenter
         implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
@@ -145,7 +146,10 @@ public class ThreadPresenter
     private WatchManager watchManager;
 
     @Inject
-    private DatabaseManager databaseManager;
+    private DatabaseLoadableManager databaseLoadableManager;
+
+    @Inject
+    private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     @Inject
     private ChanLoaderManager chanLoaderManager;
@@ -155,6 +159,15 @@ public class ThreadPresenter
 
     @Inject
     private FileManager fileManager;
+
+    @Inject
+    private CacheHandler cacheHandler;
+
+    @Inject
+    private DatabaseBoardManager databaseBoardManager;
+
+    @Inject
+    private FilterWatchManager filterWatchManager;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -188,7 +201,7 @@ public class ThreadPresenter
             this.loadable = loadable;
 
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+            DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, this);
@@ -209,7 +222,7 @@ public class ThreadPresenter
     }
 
     public void updateDatabaseLoadable() {
-        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
@@ -584,7 +597,7 @@ public class ThreadPresenter
             }
         }
 
-        BackgroundUtils.runOnBackgroundThread(() -> instance(FilterWatchManager.class).onCatalogLoad(result));
+        BackgroundUtils.runOnBackgroundThread(() -> filterWatchManager.onCatalogLoad(result));
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
@@ -778,7 +791,7 @@ public class ThreadPresenter
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         for (Post item : posts) {
             for (PostImage image : item.images) {
-                if (!item.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
+                if (!item.deleted.get() || cacheHandler.exists(image.imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(image);
                     if (image.equalUrl(postImage)) {
@@ -836,8 +849,9 @@ public class ThreadPresenter
 
         menu.add(new FloatingMenuItem<>(POST_OPTION_COPY, R.string.post_copy_menu));
 
-        if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseManager.getDatabaseSavedReplyManager()
-                .isSaved(post.board, post.no) && !loadable.isLocal()) {
+        if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseSavedReplyManager.isSaved(post.board,
+                post.no
+        ) && !loadable.isLocal()) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_DELETE, R.string.post_delete));
         }
 
@@ -866,7 +880,7 @@ public class ThreadPresenter
         }
 
         if (!loadable.isLocal()) {
-            boolean isSaved = databaseManager.getDatabaseSavedReplyManager().isSaved(post.board, post.no);
+            boolean isSaved = databaseSavedReplyManager.isSaved(post.board, post.no);
             extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
                     isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
             ));
@@ -996,7 +1010,7 @@ public class ThreadPresenter
                 if (!isBound()) break;
                 for (Post p : getMatchingIds(post)) {
                     SavedReply saved = SavedReply.fromBoardNoPassword(p.board, p.no, "");
-                    databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().saveReply(saved));
+                    DatabaseUtils.runTask(databaseSavedReplyManager.saveReply(saved));
                     Pin watchedPin = watchManager.getPinByLoadable(loadable);
                     if (watchedPin != null) {
                         synchronized (this) {
@@ -1010,10 +1024,10 @@ public class ThreadPresenter
             case POST_OPTION_UNSAVE:
                 if (!isBound()) break;
                 for (Post p : getMatchingIds(post)) {
-                    SavedReply saved = databaseManager.getDatabaseSavedReplyManager().getSavedReply(p.board, p.no);
+                    SavedReply saved = databaseSavedReplyManager.getSavedReply(p.board, p.no);
                     if (saved != null) {
                         //unsave
-                        databaseManager.runTask(databaseManager.getDatabaseSavedReplyManager().unsaveReply(saved));
+                        DatabaseUtils.runTask(databaseSavedReplyManager.unsaveReply(saved));
                         Pin watchedPin = watchManager.getPinByLoadable(loadable);
                         if (watchedPin != null) {
                             synchronized (this) {
@@ -1123,8 +1137,8 @@ public class ThreadPresenter
                 threadPresenterCallback.showThread(thread);
             }
         } else if (linkable.type == PostLinkable.Type.BOARD) {
-            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                    .getBoard(loadable.site, (String) linkable.value));
+            Board board =
+                    DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, (String) linkable.value));
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
@@ -1132,8 +1146,7 @@ public class ThreadPresenter
             }
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
-            Board board = databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                    .getBoard(loadable.site, search.board));
+            Board board = DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, search.board));
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
@@ -1240,7 +1253,7 @@ public class ThreadPresenter
     }
 
     private void requestDeletePost(Post post) {
-        SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
+        SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
             @SuppressLint("InflateParams")
             final View view = LayoutUtils.inflate(context, R.layout.dialog_post_delete, null);
@@ -1258,7 +1271,7 @@ public class ThreadPresenter
     private void deletePostConfirmed(Post post, boolean onlyImageDelete) {
         threadPresenterCallback.showDeleting();
 
-        SavedReply reply = databaseManager.getDatabaseSavedReplyManager().getSavedReply(post.board, post.no);
+        SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
             post.board.site.actions()
                     .delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
@@ -1327,7 +1340,6 @@ public class ThreadPresenter
 
         text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
-        CacheHandler cacheHandler = instance(CacheHandler.class);
         for (PostImage image : post.images) {
             text.append("\n\nFilename: ").append(image.filename).append(".").append(image.extension);
             if ("webm".equals(image.extension.toLowerCase()) && cacheHandler.exists(image.imageUrl)) {

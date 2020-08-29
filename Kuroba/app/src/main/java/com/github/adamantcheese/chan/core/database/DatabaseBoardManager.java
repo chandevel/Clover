@@ -21,16 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabaseBoardManager {
-    @Inject
     DatabaseHelper helper;
 
-    public DatabaseBoardManager() {
-        inject(this);
+    public DatabaseBoardManager(DatabaseHelper helper) {
+        this.helper = helper;
     }
 
     public Callable<Void> updateIncludingUserFields(final Board board) {

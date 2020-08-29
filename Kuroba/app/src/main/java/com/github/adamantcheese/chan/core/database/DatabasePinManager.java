@@ -31,12 +31,11 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class DatabasePinManager {
-    @Inject
     DatabaseHelper helper;
     private DatabaseLoadableManager databaseLoadableManager;
 
-    public DatabasePinManager(DatabaseLoadableManager databaseLoadableManager) {
-        inject(this);
+    public DatabasePinManager(DatabaseHelper helper, DatabaseLoadableManager databaseLoadableManager) {
+        this.helper = helper;
         this.databaseLoadableManager = databaseLoadableManager;
     }
 

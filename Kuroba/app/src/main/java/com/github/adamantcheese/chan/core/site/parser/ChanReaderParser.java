@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -44,7 +43,6 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 
 /**
  * Process a typical imageboard json response.<br>
@@ -60,10 +58,12 @@ public class ChanReaderParser
     @Inject
     ExecutorService pool;
 
+    @Inject
+    DatabaseSavedReplyManager databaseSavedReplyManager;
+
     private Loadable loadable;
     private List<Post> cached;
     private ChanReader reader;
-    private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private List<Filter> filters;
 
@@ -83,8 +83,6 @@ public class ChanReaderParser
                 filters.add(filter.clone());
             }
         }
-
-        databaseSavedReplyManager = instance(DatabaseManager.class).getDatabaseSavedReplyManager();
     }
 
     @Override

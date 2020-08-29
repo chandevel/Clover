@@ -17,8 +17,15 @@
 package com.github.adamantcheese.chan.core.di;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
+import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
+import com.github.adamantcheese.chan.core.database.DatabasePinManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
@@ -62,9 +69,64 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public DatabaseManager provideDatabaseManager() {
-        Logger.d(AppModule.DI_TAG, "Database manager");
-        return new DatabaseManager();
+    public DatabaseLoadableManager provideDatabaseLoadableManager(
+            DatabaseHelper helper, SiteRepository siteRepository
+    ) {
+        Logger.d(AppModule.DI_TAG, "Database loadable manager");
+        return new DatabaseLoadableManager(helper, siteRepository);
+    }
+
+    @Provides
+    @Singleton
+    public DatabasePinManager provideDatabasePinManager(
+            DatabaseHelper helper, DatabaseLoadableManager databaseLoadableManager
+    ) {
+        Logger.d(AppModule.DI_TAG, "Database pin manager");
+        return new DatabasePinManager(helper, databaseLoadableManager);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseSavedReplyManager provideDatabaseSavedReplyManager(DatabaseHelper helper) {
+        Logger.d(AppModule.DI_TAG, "Database saved reply manager");
+        return new DatabaseSavedReplyManager(helper);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseFilterManager provideDatabaseFilterManager(DatabaseHelper helper) {
+        Logger.d(AppModule.DI_TAG, "Database filter manager");
+        return new DatabaseFilterManager(helper);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseBoardManager provideDatabaseBoardManager(DatabaseHelper helper) {
+        Logger.d(AppModule.DI_TAG, "Database board manager");
+        return new DatabaseBoardManager(helper);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseSiteManager provideDatabaseSiteManager(DatabaseHelper helper) {
+        Logger.d(AppModule.DI_TAG, "Database site manager");
+        return new DatabaseSiteManager(helper);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseHideManager provideDatabaseHideManager(DatabaseHelper helper) {
+        Logger.d(AppModule.DI_TAG, "Database hide manager");
+        return new DatabaseHideManager(helper);
+    }
+
+    @Provides
+    @Singleton
+    public DatabaseSavedThreadManager provideDatabaseSavedThreadManager(
+            DatabaseHelper helper, FileManager fileManager
+    ) {
+        Logger.d(AppModule.DI_TAG, "Database saved thread manager");
+        return new DatabaseSavedThreadManager(helper, fileManager);
     }
 
     @Provides
@@ -153,11 +215,10 @@ public class AppModule {
         // Equation of -9.27447 log(0.0028267 x) = 1 was solved for and rounded down to get a thread count
         // Note that this may not be the best on a phone, but is probably the best for emulator
         // This calculation also probably sucks immensely
-        return new ThreadPoolExecutor(
-                Runtime.getRuntime().availableProcessors(),
+        return new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
                 300,
-                0L,
-                TimeUnit.MILLISECONDS,
+                60L,
+                TimeUnit.SECONDS,
                 new LinkedBlockingQueue<>()
         );
     }

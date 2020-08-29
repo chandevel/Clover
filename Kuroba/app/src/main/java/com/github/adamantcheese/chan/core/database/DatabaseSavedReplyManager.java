@@ -30,11 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
-
 /**
  * Saved replies are posts-password combinations used to track what posts are posted by the app,
  * and used to delete posts.
@@ -43,14 +38,14 @@ public class DatabaseSavedReplyManager {
     private static final long TRIM_TRIGGER = 250;
     private static final long TRIM_COUNT = 50;
 
-    @Inject
     DatabaseHelper helper;
 
     // map of post number to saved replies
     private final Map<Integer, List<SavedReply>> savedRepliesByNo = new HashMap<>();
 
-    public DatabaseSavedReplyManager() {
-        inject(this);
+    public DatabaseSavedReplyManager(DatabaseHelper helper) {
+        this.helper = helper;
+        DatabaseUtils.runTask(this::load);
     }
 
     /**
@@ -69,7 +64,7 @@ public class DatabaseSavedReplyManager {
 
     public Callable<Void> load() {
         return () -> {
-            instance(DatabaseManager.class).trimTable(helper.getSavedReplyDao(), TRIM_TRIGGER, TRIM_COUNT);
+            DatabaseUtils.trimTable(helper.getSavedReplyDao(), TRIM_TRIGGER, TRIM_COUNT);
             final List<SavedReply> all = helper.getSavedReplyDao().queryForAll();
 
             synchronized (savedRepliesByNo) {

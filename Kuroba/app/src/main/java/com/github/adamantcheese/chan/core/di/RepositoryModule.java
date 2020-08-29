@@ -16,8 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
+import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
@@ -35,24 +36,26 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public ImportExportRepository provideImportExportRepository(
-            DatabaseManager databaseManager, DatabaseHelper databaseHelper, Gson gson, FileManager fileManager
+            DatabaseHelper databaseHelper, Gson gson, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Import export repository");
-        return new ImportExportRepository(databaseManager, databaseHelper, gson, fileManager);
+        return new ImportExportRepository(databaseHelper, gson, fileManager);
     }
 
     @Provides
     @Singleton
-    public SiteRepository provideSiteRepository(DatabaseManager databaseManager) {
+    public SiteRepository provideSiteRepository(DatabaseSiteManager databaseSiteManager) {
         Logger.d(AppModule.DI_TAG, "Site repository");
-        return new SiteRepository(databaseManager);
+        return new SiteRepository(databaseSiteManager);
     }
 
     @Provides
     @Singleton
-    public BoardRepository provideBoardRepository(DatabaseManager databaseManager, SiteRepository siteRepository) {
+    public BoardRepository provideBoardRepository(
+            DatabaseBoardManager databaseBoardManager, SiteRepository siteRepository
+    ) {
         Logger.d(AppModule.DI_TAG, "Board repository");
-        return new BoardRepository(databaseManager, siteRepository);
+        return new BoardRepository(databaseBoardManager, siteRepository);
     }
 
     @Provides

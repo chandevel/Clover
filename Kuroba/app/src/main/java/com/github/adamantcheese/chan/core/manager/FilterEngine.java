@@ -23,7 +23,7 @@ import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -41,8 +41,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.COUNTRY_CODE;
@@ -94,32 +92,28 @@ public class FilterEngine {
         }
     }
 
-    private final DatabaseManager databaseManager;
-
     private final DatabaseFilterManager databaseFilterManager;
 
     private final Map<String, Pattern> patternCache = new HashMap<>();
 
-    @Inject
-    public FilterEngine(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-        databaseFilterManager = databaseManager.getDatabaseFilterManager();
+    public FilterEngine(DatabaseFilterManager databaseFilterManager) {
+        this.databaseFilterManager = databaseFilterManager;
     }
 
     public void deleteFilter(Filter filter) {
-        databaseManager.runTask(databaseFilterManager.deleteFilter(filter));
+        DatabaseUtils.runTask(databaseFilterManager.deleteFilter(filter));
     }
 
     public void createOrUpdateFilter(Filter filter) {
         if (filter.id == 0) {
-            databaseManager.runTask(databaseFilterManager.createFilter(filter));
+            DatabaseUtils.runTask(databaseFilterManager.createFilter(filter));
         } else {
-            databaseManager.runTask(databaseFilterManager.updateFilter(filter));
+            DatabaseUtils.runTask(databaseFilterManager.updateFilter(filter));
         }
     }
 
     public List<Filter> getEnabledFilters() {
-        List<Filter> filters = databaseManager.runTask(databaseFilterManager.getFilters());
+        List<Filter> filters = DatabaseUtils.runTask(databaseFilterManager.getFilters());
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {

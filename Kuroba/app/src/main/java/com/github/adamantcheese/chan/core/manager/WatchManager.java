@@ -30,7 +30,7 @@ import androidx.core.content.ContextCompat;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.base.Debouncer;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -63,8 +63,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
-import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
@@ -138,7 +136,6 @@ public class WatchManager
 
     private static final long STATE_UPDATE_DEBOUNCE_TIME_MS = 1000L;
 
-    private final DatabaseManager databaseManager;
     private final DatabasePinManager databasePinManager;
     private final DatabaseSavedThreadManager databaseSavedThreadManager;
     private final ChanLoaderManager chanLoaderManager;
@@ -155,32 +152,29 @@ public class WatchManager
     private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
-    @Inject
     public WatchManager(
-            DatabaseManager databaseManager,
+            DatabasePinManager databasePinManager,
+            DatabaseSavedThreadManager databaseSavedThreadManager,
             ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
-            PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager
     ) {
         //retain local references to needed managers/factories/pins
-        this.databaseManager = databaseManager;
         this.chanLoaderManager = chanLoaderManager;
         this.wakeManager = wakeManager;
-        this.pageRequestManager = pageRequestManager;
         this.threadSaveManager = threadSaveManager;
         this.fileManager = fileManager;
         this.prevIncrementalThreadSavingEnabled = false;
 
         stateUpdateDebouncer = new Debouncer(true);
-        databasePinManager = databaseManager.getDatabasePinManager();
-        databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
+        this.databasePinManager = databasePinManager;
+        this.databaseSavedThreadManager = databaseSavedThreadManager;
 
-        pins = Collections.synchronizedList(databaseManager.runTask(databasePinManager.getPins()));
+        pins = Collections.synchronizedList(DatabaseUtils.runTask(databasePinManager.getPins()));
         Collections.sort(pins);
 
-        savedThreads = databaseManager.runTask(databaseSavedThreadManager.getSavedThreads());
+        savedThreads = DatabaseUtils.runTask(databaseSavedThreadManager.getSavedThreads());
 
         //register this manager to watch for setting changes and post pin changes
         EventBus.getDefault().register(this);
@@ -234,7 +228,7 @@ public class WatchManager
                 p.order++;
             }
             pins.add(pin);
-            databaseManager.runTask(databasePinManager.createPin(pin));
+            DatabaseUtils.runTask(databasePinManager.createPin(pin));
 
             // apply orders.
             Collections.sort(pins);
@@ -281,7 +275,7 @@ public class WatchManager
 
         loadable.setLoadableState(DownloadingAndNotViewable);
         createOrUpdateSavedThread(savedThread);
-        databaseManager.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
+        DatabaseUtils.runTask(databaseSavedThreadManager.startSavingThread(savedThread));
         return true;
     }
 
@@ -297,7 +291,7 @@ public class WatchManager
         savedThread.isStopped = true;
         // Cache stopped savedThread so it's just faster to find it
         createOrUpdateSavedThread(savedThread);
-        databaseManager.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
+        DatabaseUtils.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(loadable.id, true));
 
         loadable.setLoadableState(NotDownloading);
         threadSaveManager.stopDownloading(loadable);
@@ -360,7 +354,7 @@ public class WatchManager
 
         // Not found in cache, add to cache if exists
         SavedThread savedThread =
-                databaseManager.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
+                DatabaseUtils.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(loadableId));
 
         if (savedThread != null) {
             savedThreads.add(savedThread);
@@ -391,7 +385,7 @@ public class WatchManager
 
             threadSaveManager.cancelDownloading(pin.loadable);
 
-            databaseManager.runTask(() -> {
+            DatabaseUtils.runTask(() -> {
                 databasePinManager.deletePin(pin).call();
                 databaseSavedThreadManager.deleteSavedThread(pin.loadable).call();
 
@@ -432,7 +426,7 @@ public class WatchManager
                 threadSaveManager.cancelDownloading(pin.loadable);
             }
 
-            databaseManager.runTask(() -> {
+            DatabaseUtils.runTask(() -> {
                 databasePinManager.deletePins(pinList).call();
 
                 List<Loadable> loadableList = new ArrayList<>(pinList.size());
@@ -459,7 +453,7 @@ public class WatchManager
     }
 
     public void updatePin(Pin pin, boolean updateState) {
-        databaseManager.runTask(() -> {
+        DatabaseUtils.runTask(() -> {
             updatePinsInternal(Collections.singletonList(pin));
             databasePinManager.updatePin(pin).call();
             return null;
@@ -473,7 +467,7 @@ public class WatchManager
     }
 
     public void updatePins(List<Pin> updatedPins, boolean updateState) {
-        databaseManager.runTask(() -> {
+        DatabaseUtils.runTask(() -> {
             updatePinsInternal(updatedPins);
             List<Pin> cloned = new ArrayList<>();
             for (Pin p : pins) {
@@ -720,7 +714,7 @@ public class WatchManager
                 clonedPins.add(pin.clone());
             }
         }
-        databaseManager.runTaskAsync(databasePinManager.updatePins(clonedPins));
+        DatabaseUtils.runTaskAsync(databasePinManager.updatePins(clonedPins));
     }
 
     private boolean isTimerEnabled() {
@@ -974,19 +968,16 @@ public class WatchManager
 
                     createOrUpdateSavedThread(savedThread);
 
-                    databaseManager.runTask(() -> {
+                    DatabaseUtils.runTask(() -> {
                         // Update thread in the DB
                         if (savedThread.isStopped) {
-                            databaseManager.getDatabaseSavedThreadManager()
-                                    .updateThreadStoppedFlagByLoadableId(pin.loadable.id, true)
+                            databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(pin.loadable.id, true)
                                     .call();
                         }
 
                         // Update thread in the DB
                         if (savedThread.isFullyDownloaded) {
-                            databaseManager.getDatabaseSavedThreadManager()
-                                    .updateThreadFullyDownloadedByLoadableId(pin.loadable.id)
-                                    .call();
+                            databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(pin.loadable.id).call();
                         }
 
                         return null;

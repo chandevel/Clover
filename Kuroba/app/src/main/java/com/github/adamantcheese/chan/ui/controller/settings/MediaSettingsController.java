@@ -25,7 +25,7 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
@@ -60,6 +60,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -82,7 +83,6 @@ public class MediaSettingsController
 
     private MediaSettingsControllerPresenter presenter;
     private RuntimePermissionsHelper runtimePermissionsHelper;
-    private SharedLocationSetupDelegate sharedLocationSetupDelegate;
     private SaveLocationSetupDelegate saveLocationSetupDelegate;
     private ThreadsLocationSetupDelegate threadsLocationSetupDelegate;
 
@@ -90,8 +90,6 @@ public class MediaSettingsController
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
-    @Inject
-    DatabaseManager databaseManager;
     @Inject
     ThreadSaveManager threadSaveManager;
     @Inject
@@ -111,10 +109,15 @@ public class MediaSettingsController
         navigation.setTitle(R.string.settings_screen_media);
 
         presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, context);
-        sharedLocationSetupDelegate = new SharedLocationSetupDelegate(context, this, presenter, fileManager);
+        SharedLocationSetupDelegate sharedLocationSetupDelegate =
+                new SharedLocationSetupDelegate(context, this, presenter, fileManager);
         saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
-        threadsLocationSetupDelegate =
-                new ThreadsLocationSetupDelegate(context, this, presenter, databaseManager, threadSaveManager);
+        threadsLocationSetupDelegate = new ThreadsLocationSetupDelegate(context,
+                this,
+                presenter,
+                instance(DatabaseSavedThreadManager.class),
+                threadSaveManager
+        );
         presenter.onCreate(sharedLocationSetupDelegate);
 
         setupLayout();

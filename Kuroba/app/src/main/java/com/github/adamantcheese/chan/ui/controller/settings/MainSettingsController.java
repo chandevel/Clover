@@ -23,7 +23,9 @@ import androidx.appcompat.app.AlertDialog;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -42,7 +44,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -50,9 +52,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class MainSettingsController
         extends SettingsController {
-    @Inject
-    ReportManager reportManager;
-
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
@@ -60,8 +59,18 @@ public class MainSettingsController
     private LinkSettingView reportSettingView;
     private BooleanSettingView collectCrashLogsSettingView;
 
+    @Inject
+    private DatabaseSiteManager databaseSiteManager;
+
+    @Inject
+    private DatabaseFilterManager databaseFilterManager;
+
+    @Inject
+    private ReportManager reportManager;
+
     public MainSettingsController(Context context) {
         super(context);
+        inject(this);
     }
 
     @Override
@@ -79,12 +88,11 @@ public class MainSettingsController
     public void onShow() {
         super.onShow();
 
-        DatabaseManager databaseManager = instance(DatabaseManager.class);
-        long siteCount = databaseManager.runTask(databaseManager.getDatabaseSiteManager().getCount());
-        long filterCount = databaseManager.runTask(databaseManager.getDatabaseFilterManager().getCount());
+        int siteCount = DatabaseUtils.runTask(databaseSiteManager.getCount());
+        int filterCount = DatabaseUtils.runTask(databaseFilterManager.getCount());
 
-        sitesSetting.setDescription(getQuantityString(R.plurals.site, (int) siteCount, (int) siteCount));
-        filtersSetting.setDescription(getQuantityString(R.plurals.filter, (int) filterCount, (int) filterCount));
+        sitesSetting.setDescription(getQuantityString(R.plurals.site, siteCount, siteCount));
+        filtersSetting.setDescription(getQuantityString(R.plurals.filter, filterCount, filterCount));
         watchLink.setDescription(ChanSettings.watchEnabled.get()
                 ? R.string.setting_watch_summary_enabled
                 : R.string.setting_watch_summary_disabled);

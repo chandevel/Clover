@@ -29,8 +29,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.adamantcheese.chan.Chan.instance;
-
 /**
  * ChanLoaderManager is a manager/factory for ChanLoaders. Only ChanLoaders for threads are cached.
  * Only one instance of this class should exist, and is dependency injected; as a result, the methods inside are synchronized.
@@ -63,7 +61,6 @@ public class ChanLoaderManager {
     @NonNull
     public synchronized ChanThreadLoader obtain(@NonNull Loadable loadable, ChanLoaderCallback listener) {
         BackgroundUtils.ensureMainThread();
-        WatchManager watchManager = instance(WatchManager.class);
 
         ChanThreadLoader chanLoader;
         if (loadable.isThreadMode()) {
@@ -77,11 +74,11 @@ public class ChanLoaderManager {
             }
 
             if (chanLoader == null) {
-                chanLoader = new ChanThreadLoader(loadable, watchManager);
+                chanLoader = new ChanThreadLoader(loadable);
                 threadLoaders.put(loadable, chanLoader);
             }
         } else {
-            chanLoader = new ChanThreadLoader(loadable, watchManager);
+            chanLoader = new ChanThreadLoader(loadable);
         }
 
         chanLoader.addListener(listener);

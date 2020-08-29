@@ -25,16 +25,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabaseSiteManager {
-    @Inject
     DatabaseHelper helper;
 
-    public DatabaseSiteManager() {
-        inject(this);
+    public DatabaseSiteManager(DatabaseHelper helper) {
+        this.helper = helper;
     }
 
     public Callable<SiteModel> byId(int id) {
@@ -45,8 +40,8 @@ public class DatabaseSiteManager {
         return () -> helper.getSiteModelDao().queryForAll();
     }
 
-    public Callable<Long> getCount() {
-        return () -> helper.getSiteModelDao().countOf();
+    public Callable<Integer> getCount() {
+        return () -> (int) helper.getSiteModelDao().countOf();
     }
 
     public Callable<SiteModel> add(final SiteModel site) {

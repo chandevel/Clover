@@ -31,15 +31,22 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.Chan.inject;
 
 public abstract class SiteBase
         implements Site {
     protected int id;
 
-    protected BoardManager boardManager;
+    @Inject
+    private BoardManager boardManager;
+
+    @Inject
+    private SiteRepository siteRepository;
+
     protected SettingProvider<Object> settingsProvider;
     private JsonSettings userSettings;
     private boolean initialized = false;
@@ -57,8 +64,7 @@ public abstract class SiteBase
 
     @Override
     public void postInitialize() {
-        boardManager = instance(BoardManager.class);
-        SiteRepository siteRepository = instance(SiteRepository.class);
+        inject(this);
 
         settingsProvider =
                 new JsonSettingsProvider(userSettings, () -> siteRepository.updateUserSettings(this, userSettings));

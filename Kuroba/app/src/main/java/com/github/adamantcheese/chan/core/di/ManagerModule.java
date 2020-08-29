@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
+import com.github.adamantcheese.chan.core.database.DatabasePinManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.PageRequestManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
@@ -56,9 +58,9 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public FilterEngine provideFilterEngine(DatabaseManager databaseManager) {
+    public FilterEngine provideFilterEngine(DatabaseFilterManager databaseFilterManager) {
         Logger.d(AppModule.DI_TAG, "Filter engine");
-        return new FilterEngine(databaseManager);
+        return new FilterEngine(databaseFilterManager);
     }
 
     @Provides
@@ -71,18 +73,18 @@ public class ManagerModule {
     @Provides
     @Singleton
     public WatchManager provideWatchManager(
-            DatabaseManager databaseManager,
+            DatabasePinManager databasePinManager,
+            DatabaseSavedThreadManager databaseSavedThreadManager,
             ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
-            PageRequestManager pageRequestManager,
             ThreadSaveManager threadSaveManager,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databaseManager,
+        return new WatchManager(databasePinManager,
+                databaseSavedThreadManager,
                 chanLoaderManager,
                 wakeManager,
-                pageRequestManager,
                 threadSaveManager,
                 fileManager
         );
@@ -117,13 +119,6 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public PageRequestManager providePageRequestManager() {
-        Logger.d(AppModule.DI_TAG, "Page request manager");
-        return new PageRequestManager();
-    }
-
-    @Provides
-    @Singleton
     public ArchivesManager provideArchivesManager() {
         Logger.d(AppModule.DI_TAG, "Archives manager (4chan only)");
         return new ArchivesManager();
@@ -132,13 +127,19 @@ public class ManagerModule {
     @Provides
     @Singleton
     public ThreadSaveManager provideSaveThreadManager(
-            DatabaseManager databaseManager,
+            DatabasePinManager databasePinManager,
+            DatabaseSavedThreadManager databaseSavedThreadManager,
             OkHttpClient okHttpClient,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(databaseManager, okHttpClient, savedThreadLoaderRepository, fileManager);
+        return new ThreadSaveManager(databasePinManager,
+                databaseSavedThreadManager,
+                okHttpClient,
+                savedThreadLoaderRepository,
+                fileManager
+        );
     }
 
     @Provides

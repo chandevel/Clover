@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
@@ -54,9 +54,9 @@ public class HistoryController
         extends Controller
         implements ToolbarNavigationController.ToolbarSearchCallback {
     @Inject
-    DatabaseManager databaseManager;
-
     private DatabaseLoadableManager databaseLoadableManager;
+
+    @Inject
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     private CrossfadeView crossfade;
@@ -64,15 +64,12 @@ public class HistoryController
 
     public HistoryController(Context context) {
         super(context);
+        inject(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
-
-        databaseLoadableManager = databaseManager.getDatabaseLoadableManager();
-        databaseSavedReplyManager = databaseManager.getDatabaseSavedReplyManager();
 
         // Navigation
         navigation.setTitle(R.string.history_screen);
@@ -113,7 +110,7 @@ public class HistoryController
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(
                         R.string.saved_reply_clear_confirm_button,
-                        (dialog, which) -> databaseManager.runTaskAsync(databaseSavedReplyManager.clearSavedReplies())
+                        (dialog, which) -> DatabaseUtils.runTaskAsync(databaseSavedReplyManager.clearSavedReplies())
                 )
                 .show();
     }
@@ -141,7 +138,7 @@ public class HistoryController
 
     private class HistoryAdapter
             extends RecyclerView.Adapter<HistoryCell>
-            implements DatabaseManager.TaskResult<List<Loadable>> {
+            implements DatabaseUtils.TaskResult<List<Loadable>> {
         private List<Loadable> sourceList = new ArrayList<>();
         private List<Loadable> displayList = new ArrayList<>();
         private String searchQuery;
@@ -191,7 +188,7 @@ public class HistoryController
         private void load() {
             if (!resultPending) {
                 resultPending = true;
-                databaseManager.runTaskAsync(databaseLoadableManager.getHistory(), this);
+                DatabaseUtils.runTaskAsync(databaseLoadableManager.getHistory(), this);
             }
         }
 

@@ -23,7 +23,10 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.base.ModularResult;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabasePinManager;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -81,13 +84,6 @@ public class ChanThreadLoader {
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
     private static final Scheduler backgroundScheduler = Schedulers.from(executor);
 
-    @Inject
-    DatabaseManager databaseManager;
-
-    @Inject
-    SavedThreadLoaderManager savedThreadLoaderManager;
-
-    private final WatchManager watchManager;
     private final List<ChanLoaderCallback> listeners = new CopyOnWriteArrayList<>();
     private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
@@ -104,15 +100,26 @@ public class ChanThreadLoader {
     private int lastPostCount;
     private long lastLoadTime;
 
+    @Inject
+    private WatchManager watchManager;
+
+    @Inject
+    private DatabasePinManager databasePinManager;
+
+    @Inject
+    private DatabaseSavedThreadManager databaseSavedThreadManager;
+
+    @Inject
+    private DatabaseLoadableManager databaseLoadableManager;
+
+    @Inject
+    private SavedThreadLoaderManager savedThreadLoaderManager;
+
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
-     * Also, do not use feather().instance(WatchManager.class) here because it will create a cyclic
-     * dependency instantiation
      */
-    public ChanThreadLoader(@NonNull Loadable loadable, WatchManager watchManager) {
+    public ChanThreadLoader(@NonNull Loadable loadable) {
         this.loadable = loadable;
-        this.watchManager = watchManager;
-
         inject(this);
     }
 
@@ -495,8 +502,7 @@ public class ChanThreadLoader {
 
         Pin pin = watchManager.findPinByLoadableId(savedThread.loadableId);
         if (pin == null) {
-            pin = databaseManager.runTask(databaseManager.getDatabasePinManager()
-                    .getPinByLoadableId(savedThread.loadableId));
+            pin = DatabaseUtils.runTask(databasePinManager.getPinByLoadableId(savedThread.loadableId));
         }
 
         if (pin == null) {
@@ -509,13 +515,9 @@ public class ChanThreadLoader {
         // Trigger the drawer to be updated so the downloading icon is updated as well
         watchManager.updatePin(pin);
 
-        databaseManager.runTask(() -> {
-            databaseManager.getDatabaseSavedThreadManager()
-                    .updateThreadStoppedFlagByLoadableId(savedThread.loadableId, true)
-                    .call();
-            databaseManager.getDatabaseSavedThreadManager()
-                    .updateThreadFullyDownloadedByLoadableId(savedThread.loadableId)
-                    .call();
+        DatabaseUtils.runTask(() -> {
+            databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(savedThread.loadableId, true).call();
+            databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(savedThread.loadableId).call();
 
             return null;
         });
@@ -581,7 +583,7 @@ public class ChanThreadLoader {
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
-        databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
+        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
 
         BackgroundUtils.runOnMainThread(() -> {
             for (ChanLoaderCallback l : listeners) {
@@ -698,7 +700,6 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureBackgroundThread();
         Loadable loadable = getLoadable();
 
-        // FIXME(synchronization): Not thread safe! findPinByLoadableId is not synchronized.
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) {
             Logger.d(this, "Could not find pin for loadable " + loadable.toString());
@@ -723,14 +724,14 @@ public class ChanThreadLoader {
     private SavedThread getSavedThreadByThreadLoadable(Loadable loadable) {
         BackgroundUtils.ensureBackgroundThread();
 
-        return databaseManager.runTask(() -> {
-            Pin pin = databaseManager.getDatabasePinManager().getPinByLoadableId(loadable.id).call();
+        return DatabaseUtils.runTask(() -> {
+            Pin pin = databasePinManager.getPinByLoadableId(loadable.id).call();
             if (pin == null) {
                 Logger.e(ChanThreadLoader.this, "Could not find pin by loadableId = " + loadable.id);
                 return null;
             }
 
-            return databaseManager.getDatabaseSavedThreadManager().getSavedThreadByLoadableId(pin.loadable.id).call();
+            return databaseSavedThreadManager.getSavedThreadByLoadableId(pin.loadable.id).call();
         });
     }
 

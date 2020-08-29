@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.repository
 import android.annotation.SuppressLint
 import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
-import com.github.adamantcheese.chan.core.database.DatabaseManager
+import com.github.adamantcheese.chan.core.database.DatabaseUtils
 import com.github.adamantcheese.chan.core.model.export.*
 import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
@@ -38,18 +38,16 @@ import java.io.IOException
 import java.sql.SQLException
 import java.util.*
 import java.util.regex.Pattern
-import javax.inject.Inject
 
-class ImportExportRepository @Inject
+class ImportExportRepository
 constructor(
-        private val databaseManager: DatabaseManager,
         private val databaseHelper: DatabaseHelper,
         private val gson: Gson,
         private val fileManager: FileManager
 ) {
 
     fun exportTo(settingsFile: ExternalFile, isNewFile: Boolean, callbacks: ImportExportCallbacks) {
-        databaseManager.runTask {
+        DatabaseUtils.runTask {
             try {
                 val appSettings = readSettingsFromDatabase()
                 if (appSettings.isEmpty) {
@@ -94,7 +92,7 @@ constructor(
     }
 
     fun importFrom(settingsFile: ExternalFile, callbacks: ImportExportCallbacks) {
-        databaseManager.runTask {
+        DatabaseUtils.runTask {
             try {
                 if (!fileManager.exists(settingsFile)) {
                     Logger.e(TAG, "There is nothing to import, importFile does not exist "
@@ -164,7 +162,6 @@ constructor(
         }
 
         for (exportedBoard in appSettings.exportedBoards) {
-            assert(exportedBoard.description != null)
             databaseHelper.boardDao.createIfNotExists(Board(
                     exportedBoard.siteId,
                     exportedBoard.isSaved,
@@ -349,7 +346,7 @@ constructor(
                     val classID = matcher.group(1)?.let { Integer.parseInt(it) }
                     if (classID != null) {
                         site.classId = classID
-                    };
+                    }
                 }
             }
         }

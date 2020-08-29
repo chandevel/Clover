@@ -6,7 +6,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -46,8 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Inject;
-
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -73,7 +72,7 @@ public class ThreadSaveManager {
     public static final String ORIGINAL_FILE_NAME = "original";
     public static final String NO_MEDIA_FILE_NAME = ".nomedia";
 
-    private final DatabaseManager databaseManager;
+    private final DatabasePinManager databasePinManager;
     private final DatabaseSavedThreadManager databaseSavedThreadManager;
     private final SavedThreadLoaderRepository savedThreadLoaderRepository;
     private final FileManager fileManager;
@@ -99,17 +98,17 @@ public class ThreadSaveManager {
         return threadsCount;
     }
 
-    @Inject
     public ThreadSaveManager(
-            DatabaseManager databaseManager,
+            DatabasePinManager databasePinManager,
+            DatabaseSavedThreadManager databaseSavedThreadManager,
             OkHttpClient okHttpClient,
             SavedThreadLoaderRepository savedThreadLoaderRepository,
             FileManager fileManager
     ) {
         this.okHttpClient = okHttpClient;
-        this.databaseManager = databaseManager;
         this.savedThreadLoaderRepository = savedThreadLoaderRepository;
-        this.databaseSavedThreadManager = databaseManager.getDatabaseSavedThreadManager();
+        this.databasePinManager = databasePinManager;
+        this.databaseSavedThreadManager = databaseSavedThreadManager;
         this.fileManager = fileManager;
         this.verboseLogsEnabled = ChanSettings.verboseLogs.get();
 
@@ -295,9 +294,9 @@ public class ThreadSaveManager {
 
         Logger.d(this, "Canceling all active thread downloads");
 
-        databaseManager.runTask(() -> {
+        DatabaseUtils.runTask(() -> {
             try {
-                List<Pin> pins = databaseManager.getDatabasePinManager().getPins().call();
+                List<Pin> pins = databasePinManager.getPins().call();
                 if (pins.isEmpty()) {
                     return null;
                 }
@@ -314,7 +313,7 @@ public class ThreadSaveManager {
                     return null;
                 }
 
-                databaseManager.getDatabaseSavedThreadManager().deleteAllSavedThreads().call();
+                databaseSavedThreadManager.deleteAllSavedThreads().call();
 
                 for (Pin pin : downloadPins) {
                     pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
@@ -328,10 +327,10 @@ public class ThreadSaveManager {
                     pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
                 }
 
-                databaseManager.getDatabasePinManager().updatePins(downloadPins).call();
+                databasePinManager.updatePins(downloadPins).call();
 
                 for (Pin pin : downloadPins) {
-                    databaseManager.getDatabaseSavedThreadManager().deleteThreadFromDisk(pin.loadable);
+                    databaseSavedThreadManager.deleteThreadFromDisk(pin.loadable);
                 }
 
                 return null;
@@ -680,7 +679,7 @@ public class ThreadSaveManager {
     private void updateLastSavedPostNo(Loadable loadable, List<Post> newPosts) {
         // Update the latests saved post id in the database
         int lastPostNo = newPosts.get(newPosts.size() - 1).no;
-        databaseManager.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
+        DatabaseUtils.runTask(databaseSavedThreadManager.updateLastSavedPostNo(loadable.id, lastPostNo));
     }
 
     /**
@@ -718,7 +717,7 @@ public class ThreadSaveManager {
 
         try {
             // Filter out already saved posts (by lastSavedPostNo)
-            int lastSavedPostNo = databaseManager.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadable.id));
+            int lastSavedPostNo = DatabaseUtils.runTask(databaseSavedThreadManager.getLastSavedPostNo(loadable.id));
 
             // Use HashSet to avoid duplicates
             Set<Post> filteredPosts = new HashSet<>(inputPosts.size() / 2);

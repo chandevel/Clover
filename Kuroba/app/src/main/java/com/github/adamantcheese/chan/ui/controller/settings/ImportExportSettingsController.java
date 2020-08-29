@@ -26,7 +26,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -46,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -60,8 +62,6 @@ public class ImportExportSettingsController
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
-    @Inject
-    DatabaseManager databaseManager;
 
     private ImportExportSettingsPresenter presenter;
 
@@ -169,9 +169,9 @@ public class ImportExportSettingsController
         String messagePartTwo = "";
 
         if (localThreadsLocationIsSAFBacked) {
-            long downloadingThreadsCount = databaseManager.runTask(() -> databaseManager.getDatabaseSavedThreadManager()
-                    .countDownloadingThreads()
-                    .call());
+            long downloadingThreadsCount =
+                    DatabaseUtils.runTask(() -> instance(DatabaseSavedThreadManager.class).countDownloadingThreads()
+                            .call());
 
             if (downloadingThreadsCount > 0) {
                 messagePartTwo = getString(R.string.import_or_export_warning_super_long_message_part_two);

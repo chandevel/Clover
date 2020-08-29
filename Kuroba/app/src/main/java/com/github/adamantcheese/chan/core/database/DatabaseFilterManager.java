@@ -22,16 +22,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabaseFilterManager {
-    @Inject
     DatabaseHelper helper;
 
-    public DatabaseFilterManager() {
-        inject(this);
+    public DatabaseFilterManager(DatabaseHelper helper) {
+        this.helper = helper;
     }
 
     public Callable<Filter> createFilter(final Filter filter) {
@@ -73,8 +68,8 @@ public class DatabaseFilterManager {
         };
     }
 
-    public Callable<Long> getCount() {
-        return () -> helper.getFilterDao().countOf();
+    public Callable<Integer> getCount() {
+        return () -> (int) helper.getFilterDao().countOf();
     }
 
     public Callable<Void> deleteFilters(List<Filter> filtersToDelete) {

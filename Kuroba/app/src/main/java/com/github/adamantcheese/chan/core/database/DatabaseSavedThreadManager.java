@@ -12,18 +12,14 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabaseSavedThreadManager {
-    @Inject
     DatabaseHelper helper;
-    @Inject
     FileManager fileManager;
 
-    public DatabaseSavedThreadManager() {
-        inject(this);
+    public DatabaseSavedThreadManager(DatabaseHelper helper, FileManager fileManager) {
+        this.helper = helper;
+        this.fileManager = fileManager;
+
     }
 
     public Callable<Long> countDownloadingThreads() {

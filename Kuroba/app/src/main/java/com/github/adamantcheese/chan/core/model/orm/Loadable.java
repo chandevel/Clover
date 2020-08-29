@@ -21,7 +21,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -181,7 +181,7 @@ public class Loadable
         loadable.no = no;
         loadable.title = title;
         if (!addToDatabase) return loadable;
-        return instance(DatabaseManager.class).getDatabaseLoadableManager().get(loadable);
+        return instance(DatabaseLoadableManager.class).get(loadable);
     }
 
     /**

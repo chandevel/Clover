@@ -23,7 +23,8 @@ import android.widget.Toast;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -271,8 +272,7 @@ public class ReplyPresenter
                     replyResponse.postNo,
                     originatingLoadable.draft.password
             );
-            DatabaseManager databaseManager = instance(DatabaseManager.class);
-            databaseManager.runTaskAsync(databaseManager.getDatabaseSavedReplyManager().saveReply(savedReply));
+            DatabaseUtils.runTaskAsync(instance(DatabaseSavedReplyManager.class).saveReply(savedReply));
 
             closeAll();
             highlightQuotes();

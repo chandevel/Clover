@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -30,19 +29,15 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
-
 public class DatabaseLoadableManager {
-    @Inject
-    DatabaseHelper helper;
+    private DatabaseHelper helper;
+    private SiteRepository siteRepository;
 
     private static long HISTORY_LIMIT = 250L;
 
-    public DatabaseLoadableManager() {
-        inject(this);
+    public DatabaseLoadableManager(DatabaseHelper helper, SiteRepository siteRepository) {
+        this.helper = helper;
+        this.siteRepository = siteRepository;
     }
 
     /**
@@ -81,7 +76,7 @@ public class DatabaseLoadableManager {
         if (loadable.isCatalogMode()) {
             return loadable;
         } else {
-            return Chan.instance(DatabaseManager.class).runTask(getLoadable(loadable));
+            return DatabaseUtils.runTask(getLoadable(loadable));
         }
     }
 
@@ -101,7 +96,7 @@ public class DatabaseLoadableManager {
 
         // refresh contents
         helper.getLoadableDao().refresh(loadable);
-        loadable.site = instance(SiteRepository.class).forId(loadable.siteId);
+        loadable.site = siteRepository.forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
         loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
         helper.getLoadableDao().update(loadable);
@@ -126,7 +121,7 @@ public class DatabaseLoadableManager {
                 helper.getLoadableDao().create(loadable);
             }
 
-            result.site = instance(SiteRepository.class).forId(result.siteId);
+            result.site = siteRepository.forId(result.siteId);
             result.board = result.site.board(result.boardCode);
             result.lastLoadDate = GregorianCalendar.getInstance().getTime();
             helper.getLoadableDao().update(result);
@@ -159,7 +154,7 @@ public class DatabaseLoadableManager {
             List<Loadable> history =
                     helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
             for (Loadable l : history) {
-                l.site = instance(SiteRepository.class).forId(l.siteId);
+                l.site = siteRepository.forId(l.siteId);
                 l.board = l.site.board(l.boardCode);
             }
             return history;

@@ -29,7 +29,8 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHelper;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
@@ -48,7 +49,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.NO_HASH_SET;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -57,11 +57,15 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class DeveloperSettingsController
         extends Controller {
     @Inject
-    DatabaseManager databaseManager;
-    @Inject
     FileCacheV2 fileCacheV2;
     @Inject
     CacheHandler cacheHandler;
+    @Inject
+    FilterWatchManager filterWatchManager;
+    @Inject
+    DatabaseHelper databaseHelper;
+    @Inject
+    WakeManager wakeManager;
 
     public DeveloperSettingsController(Context context) {
         super(context);
@@ -108,14 +112,14 @@ public class DeveloperSettingsController
 
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
-        summaryText.setText("Database summary:\n" + databaseManager.getSummary());
+        summaryText.setText("Database summary:\n" + DatabaseUtils.getDatabaseSummary());
         summaryText.setPadding(dp(15), dp(5), 0, 0);
         wrapper.addView(summaryText);
 
         //DATABASE RESET
         Button resetDbButton = new Button(context);
         resetDbButton.setOnClickListener(v -> {
-            databaseManager.reset();
+            databaseHelper.reset();
             ((StartActivity) context).restartApp();
         });
         resetDbButton.setText("Delete database & restart");
@@ -125,7 +129,6 @@ public class DeveloperSettingsController
         Button clearFilterWatchIgnores = new Button(context);
         clearFilterWatchIgnores.setOnClickListener(v -> {
             try {
-                FilterWatchManager filterWatchManager = instance(FilterWatchManager.class);
                 Field ignoredField = filterWatchManager.getClass().getDeclaredField("ignoredPosts");
                 ignoredField.setAccessible(true);
                 ignoredField.set(filterWatchManager, Collections.synchronizedSet(new HashSet<Integer>()));
@@ -173,7 +176,6 @@ public class DeveloperSettingsController
         Button forceWake = new Button(context);
         forceWake.setOnClickListener(v -> {
             try {
-                WakeManager wakeManager = instance(WakeManager.class);
                 Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
                 wakeables.setAccessible(true);
                 //noinspection ConstantConditions,unchecked,unchecked

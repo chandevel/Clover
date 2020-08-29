@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.presenter;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 
@@ -8,20 +9,21 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 public class SiteSetupPresenter {
     private Callback callback;
     private Site site;
-    private DatabaseManager databaseManager;
     private boolean hasLogin;
 
     @Inject
-    public SiteSetupPresenter(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
-    }
+    DatabaseBoardManager databaseBoardManager;
 
-    public void create(Callback callback, Site site) {
+    public SiteSetupPresenter(Callback callback, Site site) {
         this.callback = callback;
         this.site = site;
+
+        inject(this);
 
         hasLogin = site.siteFeature(Site.SiteFeature.LOGIN);
 
@@ -36,15 +38,10 @@ public class SiteSetupPresenter {
     }
 
     public void show() {
-        setBoardCount(callback, site);
+        callback.setBoardCount(DatabaseUtils.runTask(databaseBoardManager.getSiteSavedBoards(site)).size());
         if (hasLogin) {
             callback.setIsLoggedIn(site.actions().isLoggedIn());
         }
-    }
-
-    private void setBoardCount(Callback callback, Site site) {
-        callback.setBoardCount(databaseManager.runTask(databaseManager.getDatabaseBoardManager()
-                .getSiteSavedBoards(site)).size());
     }
 
     public interface Callback {

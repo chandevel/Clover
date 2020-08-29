@@ -3,7 +3,8 @@ package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.core.database.DatabaseManager
+import com.github.adamantcheese.chan.core.database.DatabaseUtils
+import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -16,7 +17,7 @@ class ThreadsLocationSetupDelegate(
         private val context: Context,
         private val callbacks: MediaControllerCallbacks,
         private val presenter: MediaSettingsControllerPresenter,
-        private val databaseManager: DatabaseManager,
+        private val databaseSavedThreadManager: DatabaseSavedThreadManager,
         private val threadSaveManager: ThreadSaveManager
 ) {
 
@@ -34,8 +35,8 @@ class ThreadsLocationSetupDelegate(
         BackgroundUtils.ensureMainThread()
 
         callbacks.runWithWritePermissionsOrShowErrorToast(Runnable {
-            val downloadingThreadsCount = databaseManager.runTask {
-                databaseManager.databaseSavedThreadManager.countDownloadingThreads().call()
+            val downloadingThreadsCount = DatabaseUtils.runTask {
+                databaseSavedThreadManager.countDownloadingThreads().call()
             }
 
             if (downloadingThreadsCount > 0) {

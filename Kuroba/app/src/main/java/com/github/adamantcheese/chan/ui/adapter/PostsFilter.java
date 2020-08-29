@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.ui.adapter;
 
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 
@@ -60,7 +60,7 @@ public class PostsFilter {
     };
 
     @Inject
-    DatabaseManager databaseManager;
+    DatabaseHideManager databaseHideManager;
 
     private Order order;
     private String query;
@@ -135,7 +135,7 @@ public class PostsFilter {
         }
 
         // Process hidden by filter and post/thread hiding
-        return databaseManager.getDatabaseHideManager().filterHiddenPosts(posts, siteId, board);
+        return databaseHideManager.filterHiddenPosts(posts, siteId, board);
     }
 
     public enum Order {

@@ -26,7 +26,7 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;
@@ -66,9 +66,6 @@ public class Chan
         extends Application
         implements DefaultActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;
-
-    @Inject
-    DatabaseManager databaseManager;
 
     @Inject
     SiteRepository siteRepository;
@@ -123,7 +120,6 @@ public class Chan
 
         siteRepository.initialize();
         boardManager.initialize();
-        databaseManager.initializeAndTrim();
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

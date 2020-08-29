@@ -38,8 +38,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -85,7 +84,6 @@ import kotlin.jvm.functions.Function1;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
@@ -119,11 +117,17 @@ public class StartActivity
     private int currentNightModeBits;
 
     @Inject
-    DatabaseManager databaseManager;
+    DatabaseLoadableManager databaseLoadableManager;
     @Inject
     SiteRepository siteRepository;
     @Inject
     FileChooser fileChooser;
+    @Inject
+    SiteResolver siteResolver;
+    @Inject
+    WatchManager watchManager;
+    @Inject
+    Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -163,9 +167,6 @@ public class StartActivity
         if (ChanSettings.fullUserRotationEnable.get()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
         }
-
-        //startup this here, so it runs its whatever in the background
-        instance(FilterWatchManager.class);
     }
 
     private void setupFromStateOrFreshLaunch(Bundle savedInstanceState) {
@@ -195,7 +196,7 @@ public class StartActivity
         final Uri data = getIntent().getData();
         // Start from an url launch.
         if (data != null) {
-            final Loadable loadableResult = instance(SiteResolver.class).resolveLoadableForUrl(data.toString());
+            final Loadable loadableResult = siteResolver.resolveLoadableForUrl(data.toString());
 
             if (loadableResult != null) {
                 loadedFromURL = true;
@@ -259,8 +260,7 @@ public class StartActivity
                 stateLoadable.site = site;
                 stateLoadable.board = board;
                 if (forThread && stateLoadable.id == 0) {
-                    DatabaseLoadableManager loadableManager = databaseManager.getDatabaseLoadableManager();
-                    stateLoadable = loadableManager.get(stateLoadable);
+                    stateLoadable = databaseLoadableManager.get(stateLoadable);
                 }
 
                 return stateLoadable;
@@ -316,7 +316,6 @@ public class StartActivity
         // pop any image viewers
         popAllControllerClass(ImageViewerNavigationController.class);
         if (intent.getExtras() != null) {
-            WatchManager watchManager = instance(WatchManager.class);
             int pinId = intent.getExtras().getInt("pin_id", -2);
             if (pinId != -2 && mainNavigationController.getTop() instanceof BrowseController) {
                 if (pinId == -1) {
@@ -586,7 +585,7 @@ public class StartActivity
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
-            databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().purgeOld());
+            DatabaseUtils.runTaskAsync(databaseLoadableManager.purgeOld());
         }
     }
 
@@ -602,7 +601,6 @@ public class StartActivity
         super.onStart();
         EventBus.getDefault().register(this);
         //restore parsed youtube stuff
-        Gson gson = instance(Gson.class);
         Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.youtubeCache.get(), lruType);
         //reconstruct
         CommentParserHelper.youtubeCache = new LruCache<>(500);
@@ -616,7 +614,6 @@ public class StartActivity
         super.onStop();
         EventBus.getDefault().unregister(this);
         //store parsed youtube stuff, extra prevention of unneeded API calls
-        Gson gson = instance(Gson.class);
         PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
     }
 }

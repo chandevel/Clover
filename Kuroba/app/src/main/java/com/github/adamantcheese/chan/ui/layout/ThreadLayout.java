@@ -39,7 +39,8 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -96,7 +97,7 @@ public class ThreadLayout
     }
 
     @Inject
-    DatabaseManager databaseManager;
+    DatabaseHideManager databaseHideManager;
 
     ThreadPresenter presenter;
 
@@ -542,7 +543,7 @@ public class ThreadLayout
         // is no point in hiding replies to a thread
         final PostHide postHide = PostHide.hidePost(post, true, hide, false);
 
-        databaseManager.runTask(databaseManager.getDatabaseHideManager().addThreadHide(postHide));
+        DatabaseUtils.runTask(databaseHideManager.addThreadHide(postHide));
 
         presenter.refreshUI();
 
@@ -551,7 +552,7 @@ public class ThreadLayout
         Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
-            databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(postHide));
+            DatabaseUtils.runTask(databaseHideManager.removePostHide(postHide));
             presenter.refreshUI();
         }).show();
     }
@@ -568,7 +569,7 @@ public class ThreadLayout
             }
         }
 
-        databaseManager.runTask(databaseManager.getDatabaseHideManager().addPostsHide(hideList));
+        DatabaseUtils.runTask(databaseHideManager.addPostsHide(hideList));
 
         presenter.refreshUI();
 
@@ -582,14 +583,14 @@ public class ThreadLayout
         Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
-            databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(hideList));
+            DatabaseUtils.runTask(databaseHideManager.removePostsHide(hideList));
             presenter.refreshUI();
         }).show();
     }
 
     @Override
     public void unhideOrUnremovePost(Post post) {
-        databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostHide(PostHide.unhidePost(post)));
+        DatabaseUtils.runTask(databaseHideManager.removePostHide(PostHide.unhidePost(post)));
 
         presenter.refreshUI();
     }
@@ -608,7 +609,7 @@ public class ThreadLayout
             postsToRestore.add(PostHide.unhidePost(threadLoadable.site.id(), threadLoadable.boardCode, postNo));
         }
 
-        databaseManager.runTask(databaseManager.getDatabaseHideManager().removePostsHide(postsToRestore));
+        DatabaseUtils.runTask(databaseHideManager.removePostsHide(postsToRestore));
 
         presenter.refreshUI();
 

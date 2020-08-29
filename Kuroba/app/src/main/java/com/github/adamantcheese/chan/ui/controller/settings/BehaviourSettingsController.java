@@ -22,7 +22,8 @@ import android.widget.Toast;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesEditorController;
@@ -116,8 +117,7 @@ public class BehaviourSettingsController
 
             general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, R.string.empty, v -> {
                 // TODO: don't do this here.
-                DatabaseManager databaseManager = instance(DatabaseManager.class);
-                databaseManager.runTask(databaseManager.getDatabaseHideManager().clearAllThreadHides());
+                DatabaseUtils.runTask(instance(DatabaseHideManager.class).clearAllThreadHides());
                 showToast(context, R.string.setting_cleared_thread_hides, Toast.LENGTH_LONG);
                 postToEventBus(new RefreshUIMessage(THREAD_HIDES_CLEARED));
             }));
