@@ -85,7 +85,6 @@ public class BrowseBoardsFloatingMenu
     private Point position = new Point(0, 0);
     private boolean dismissed = false;
 
-    @SuppressWarnings("unused")
     @Inject
     private BoardsMenuPresenter presenter;
     private BoardsMenuPresenter.Items items;

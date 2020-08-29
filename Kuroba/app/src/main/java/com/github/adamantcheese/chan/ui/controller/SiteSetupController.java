@@ -51,14 +51,15 @@ public class SiteSetupController
     private LinkSettingView boardsLink;
     private LinkSettingView loginLink;
 
-    public SiteSetupController(Context context) {
+    public SiteSetupController(Context context, Site site) {
         super(context);
+        inject(this);
+        this.site = site;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         // Navigation
         navigation.setTitle(R.string.settings_screen);
@@ -72,13 +73,9 @@ public class SiteSetupController
         populatePreferences();
 
         // Presenter
-        presenter.create(this, site);
+        presenter = new SiteSetupPresenter(this, site);
 
         buildPreferences();
-    }
-
-    public void setSite(Site site) {
-        this.site = site;
     }
 
     @Override

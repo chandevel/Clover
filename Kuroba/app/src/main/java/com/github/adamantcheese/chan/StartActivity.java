@@ -251,7 +251,7 @@ public class StartActivity
             return null;
         }
 
-        Site site = instance(SiteRepository.class).forId(stateLoadable.siteId);
+        Site site = siteRepository.forId(stateLoadable.siteId);
         if (site != null) {
             Board board = site.board(stateLoadable.boardCode);
             if (board != null) {

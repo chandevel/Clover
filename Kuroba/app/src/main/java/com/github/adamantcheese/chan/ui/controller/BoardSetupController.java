@@ -101,13 +101,12 @@ public class BoardSetupController
 
     public BoardSetupController(Context context) {
         super(context);
+        inject(this);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-
-        inject(this);
 
         // Inflate
         view = inflate(context, R.layout.controller_board_setup);

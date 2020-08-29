@@ -92,11 +92,11 @@ constructor(
                 + createdThreadFile.getFullPath())
     }
 
-    inner class CouldNotGetParcelFileDescriptor(threadFile: ExternalFile)
+    class CouldNotGetParcelFileDescriptor(threadFile: ExternalFile)
         : Exception("getParcelFileDescriptor() returned null, threadFilePath = "
             + threadFile.getFullPath())
 
-    inner class CouldNotCreateThreadFile(threadFile: AbstractFile)
+    class CouldNotCreateThreadFile(threadFile: AbstractFile)
         : Exception("Could not create the thread file (path: " + threadFile.getFullPath() + ")")
 
     companion object {

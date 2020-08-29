@@ -69,7 +69,6 @@ public class FilterWatchManager
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
     private boolean processing = false;
 
-    @Inject
     public FilterWatchManager(
             WakeManager wakeManager,
             BoardRepository boardRepository,

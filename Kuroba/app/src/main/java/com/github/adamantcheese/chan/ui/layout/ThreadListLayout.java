@@ -220,9 +220,9 @@ public class ThreadListLayout
                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
-                                RecyclerView parent,
-                                View child,
-                                Rect rect,
+                                @NonNull RecyclerView parent,
+                                @NonNull View child,
+                                @NonNull Rect rect,
                                 boolean immediate,
                                 boolean focusedChildVisible
                         ) {
@@ -241,9 +241,9 @@ public class ThreadListLayout
                             new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
                                 @Override
                                 public boolean requestChildRectangleOnScreen(
-                                        RecyclerView parent,
-                                        View child,
-                                        Rect rect,
+                                        @NonNull RecyclerView parent,
+                                        @NonNull View child,
+                                        @NonNull Rect rect,
                                         boolean immediate,
                                         boolean focusedChildVisible
                                 ) {
@@ -797,7 +797,7 @@ public class ThreadListLayout
 
     private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+        public void onDrawOver(Canvas c, RecyclerView parent, @NonNull RecyclerView.State state) {
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {

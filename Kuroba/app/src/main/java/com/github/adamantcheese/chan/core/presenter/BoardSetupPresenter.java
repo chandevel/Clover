@@ -32,11 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.instance;
 
 public class BoardSetupPresenter
         implements Observer {
@@ -164,7 +161,7 @@ public class BoardSetupPresenter
         }
 
         final String query = userQuery == null ? null : userQuery.replace("/", "").replace("\\", "");
-        suggestionCall = BackgroundUtils.runWithExecutor(instance(ExecutorService.class), () -> {
+        suggestionCall = BackgroundUtils.runWithDefaultExecutor(() -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
                 Boards siteBoards = boardManager.getSiteBoards(site);

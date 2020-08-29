@@ -163,8 +163,6 @@ public class ThreadPresenter
     private String searchQuery;
     private boolean forcePageUpdate;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
-    private boolean historyAdded;
-    private boolean addToLocalBackHistory;
     private Context context;
     private List<FloatingMenuItem<Integer>> filterMenu;
     private List<FloatingMenuItem<Integer>> copyMenu;
@@ -180,7 +178,7 @@ public class ThreadPresenter
         threadPresenterCallback.showEmpty();
     }
 
-    public synchronized void bindLoadable(Loadable loadable, boolean addToLocalBackHistory) {
+    public synchronized void bindLoadable(Loadable loadable) {
         if (!loadable.equals(this.loadable)) {
             if (isBound()) {
                 stopSavingThreadIfItIsBeingSaved(this.loadable);
@@ -188,7 +186,6 @@ public class ThreadPresenter
             }
 
             this.loadable = loadable;
-            this.addToLocalBackHistory = addToLocalBackHistory;
 
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
             databaseManager.runTaskAsync(databaseManager.getDatabaseLoadableManager().updateLoadable(loadable));
@@ -200,18 +197,12 @@ public class ThreadPresenter
         }
     }
 
-    public synchronized void bindLoadable(Loadable loadable) {
-        bindLoadable(loadable, true);
-    }
-
     public synchronized void unbindLoadable() {
         if (isBound()) {
             chanLoader.clearTimer();
             chanLoaderManager.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
-            historyAdded = false;
-            addToLocalBackHistory = true;
 
             threadPresenterCallback.showLoading();
         }

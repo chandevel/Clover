@@ -481,13 +481,9 @@ public class ViewThreadController
     }
 
     public void loadThread(Loadable loadable) {
-        loadThread(loadable, true);
-    }
-
-    public void loadThread(Loadable loadable, boolean addToLocalBackHistory) {
         ThreadPresenter presenter = threadLayout.getPresenter();
         if (!loadable.equals(presenter.getLoadable())) {
-            loadThreadInternal(loadable, addToLocalBackHistory);
+            loadThreadInternal(loadable);
             return;
         }
 
@@ -495,10 +491,10 @@ public class ViewThreadController
         populateLocalOrLiveVersionMenu();
     }
 
-    private void loadThreadInternal(Loadable loadable, boolean addToLocalBackHistory) {
+    private void loadThreadInternal(Loadable loadable) {
         ThreadPresenter presenter = threadLayout.getPresenter();
 
-        presenter.bindLoadable(loadable, addToLocalBackHistory);
+        presenter.bindLoadable(loadable);
         this.loadable = loadable;
 
         populateLocalOrLiveVersionMenu();
@@ -776,7 +772,8 @@ public class ViewThreadController
         if (threadFollowerpool.isEmpty()) {
             return false;
         }
-        loadThread(threadFollowerpool.removeFirst().first, false);
+        //noinspection ConstantConditions
+        loadThread(threadFollowerpool.removeFirst().first);
         return true;
     }
 

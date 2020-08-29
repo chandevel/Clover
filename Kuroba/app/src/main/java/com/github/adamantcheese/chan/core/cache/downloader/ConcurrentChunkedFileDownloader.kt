@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import javax.inject.Inject
 
-internal class ConcurrentChunkedFileDownloader @Inject constructor(
+internal class ConcurrentChunkedFileDownloader constructor(
         private val fileManager: FileManager,
         private val chunkDownloader: ChunkDownloader,
         private val chunkPersister: ChunkPersister,

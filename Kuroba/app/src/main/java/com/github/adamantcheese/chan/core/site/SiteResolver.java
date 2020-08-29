@@ -27,8 +27,7 @@ import okhttp3.HttpUrl;
 
 public class SiteResolver {
     private final SiteRepository siteRepository;
-
-    @Inject
+    
     public SiteResolver(SiteRepository siteRepository) {
         this.siteRepository = siteRepository;
     }

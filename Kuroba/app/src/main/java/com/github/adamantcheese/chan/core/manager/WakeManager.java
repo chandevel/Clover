@@ -56,10 +56,9 @@ public class WakeManager {
     private Set<Wakeable> wakeableSet = new HashSet<>();
     public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
     private PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-    private long lastBackgroundUpdateTime;
+    private long lastBackgroundUpdateTime = System.currentTimeMillis();
     private boolean alarmRunning;
 
-    @Inject
     public WakeManager() {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
