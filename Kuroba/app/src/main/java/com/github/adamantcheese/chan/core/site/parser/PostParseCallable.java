@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
 
