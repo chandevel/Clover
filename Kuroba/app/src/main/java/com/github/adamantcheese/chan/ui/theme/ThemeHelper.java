@@ -24,7 +24,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 
-import androidx.annotation.AnyThread;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.adamantcheese.chan.R;
@@ -34,7 +33,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLACK;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLUE_GREY;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BROWN;
@@ -69,20 +67,20 @@ public class ThemeHelper {
 
         7) That's it! Everything else is taken care of for you automatically.
      */
-    private List<Theme> themes = new ArrayList<>();
+    public static List<Theme> themes = new ArrayList<>();
 
-    private Theme themeDay;
-    private Theme themeNight;
+    public static Theme themeDay;
+    public static Theme themeNight;
     public static boolean isNightTheme = false;
-    public static Theme defaultDayTheme = new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED);
-    public static Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, DARK_TEAL);
+    public static final Theme defaultDayTheme = new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED);
+    public static final Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, DARK_TEAL);
 
     private static final Typeface TALLEYRAND =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
     private static final Typeface OPTI_CUBA_LIBRE_TWO =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
-    public ThemeHelper() {
+    public static void init() {
         themes.add(new Theme("Light", R.style.Chan_Theme_Light, GREEN, GREEN));
         themes.add(defaultNightTheme);
         themes.add(new Theme("Black", R.style.Chan_Theme_Black, BLACK, INDIGO));
@@ -107,9 +105,9 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    this.themeDay = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
-                    this.themeDay.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
-                    this.themeDay.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    themeDay = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
+                    themeDay.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
+                    themeDay.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
                     ok = true;
                 } catch (Exception ignored) {
                     // theme name matches, but something else is wrong with the setting
@@ -119,7 +117,7 @@ public class ThemeHelper {
         }
 
         if (!ok) {
-            Logger.e(this, "No theme found for setting, using default theme for day");
+            Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeDay.set(defaultDayTheme.toString());
             themeDay = defaultDayTheme;
         }
@@ -129,9 +127,9 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    this.themeNight = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
-                    this.themeNight.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
-                    this.themeNight.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    themeNight = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
+                    themeNight.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
+                    themeNight.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
                     ok = true;
                 } catch (Exception ignored) {
                     // theme name matches, but something else is wrong with the setting
@@ -141,33 +139,24 @@ public class ThemeHelper {
         }
 
         if (!ok) {
-            Logger.e(this, "No theme found for setting, using default theme for day");
+            Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeNight.set(defaultNightTheme.toString());
             themeNight = defaultNightTheme;
         }
     }
 
-    @AnyThread
     public static Theme getTheme() {
-        if (isNightTheme) {
-            return instance(ThemeHelper.class).themeNight;
-        } else {
-            return instance(ThemeHelper.class).themeDay;
-        }
+        return isNightTheme ? themeNight : themeDay;
     }
 
     public static void resetThemes() {
-        for (Theme theme : getThemes()) {
+        for (Theme theme : themes) {
             theme.reset();
         }
     }
 
-    public static List<Theme> getThemes() {
-        return instance(ThemeHelper.class).themes;
-    }
-
     public static boolean areDayAndNightThemesDifferent() {
-        return instance(ThemeHelper.class).themeDay != instance(ThemeHelper.class).themeNight;
+        return themeDay != themeNight;
     }
 
     public static void setupContext(AppCompatActivity context) {

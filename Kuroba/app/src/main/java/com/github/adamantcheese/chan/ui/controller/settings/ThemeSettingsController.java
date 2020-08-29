@@ -193,8 +193,8 @@ public class ThemeSettingsController
 
         pager.setAdapter(new Adapter());
         pager.setPageMargin(dp(6));
-        for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
-            Theme theme = ThemeHelper.getThemes().get(i);
+        for (int i = 0; i < ThemeHelper.themes.size(); i++) {
+            Theme theme = ThemeHelper.themes.get(i);
             if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
@@ -231,7 +231,7 @@ public class ThemeSettingsController
     }
 
     private Theme getViewedTheme() {
-        return ThemeHelper.getThemes().get(pager.getCurrentItem());
+        return ThemeHelper.themes.get(pager.getCurrentItem());
     }
 
     private void saveTheme() {
@@ -268,8 +268,8 @@ public class ThemeSettingsController
         //update views
         Theme currentTheme = ThemeHelper.getTheme();
         pager.setAdapter(new Adapter());
-        for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
-            Theme theme = ThemeHelper.getThemes().get(i);
+        for (int i = 0; i < ThemeHelper.themes.size(); i++) {
+            Theme theme = ThemeHelper.themes.get(i);
             if (theme.name.equals(currentTheme.name)) {
                 // Current theme
                 pager.setCurrentItem(i, false);
@@ -309,8 +309,8 @@ public class ThemeSettingsController
                 )));
                 //force update all the views to have the right accent color
                 pager.setAdapter(new Adapter());
-                for (int i = 0; i < ThemeHelper.getThemes().size(); i++) {
-                    Theme theme = ThemeHelper.getThemes().get(i);
+                for (int i = 0; i < ThemeHelper.themes.size(); i++) {
+                    Theme theme = ThemeHelper.themes.get(i);
                     if (theme.name.equals(currentTheme.name)) {
                         // Current theme
                         pager.setCurrentItem(i, false);
@@ -343,7 +343,7 @@ public class ThemeSettingsController
 
         @Override
         public View getView(final int position, ViewGroup parent) {
-            final Theme theme = ThemeHelper.getThemes().get(position);
+            final Theme theme = ThemeHelper.themes.get(position);
 
             Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
 
@@ -511,7 +511,7 @@ public class ThemeSettingsController
 
         @Override
         public int getCount() {
-            return ThemeHelper.getThemes().size();
+            return ThemeHelper.themes.size();
         }
     }
 

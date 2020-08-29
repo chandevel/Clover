@@ -135,6 +135,7 @@ public class StartActivity
             return;
         }
 
+        ThemeHelper.init();
         ThemeHelper.setupContext(this);
         fileChooser.setCallbacks(this);
         imagePickDelegate = new ImagePickDelegate(this);
