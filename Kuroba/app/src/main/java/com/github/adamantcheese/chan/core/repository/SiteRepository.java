@@ -9,17 +9,18 @@ import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,14 +33,16 @@ import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
     private DatabaseSiteManager databaseSiteManager;
+    private Gson gson;
     private Sites sitesObservable = new Sites();
 
     public Site forId(int id) {
         return sitesObservable.forId(id);
     }
 
-    public SiteRepository(DatabaseSiteManager databaseSiteManager) {
+    public SiteRepository(DatabaseSiteManager databaseSiteManager, Gson gson) {
         this.databaseSiteManager = databaseSiteManager;
+        this.gson = gson;
     }
 
     public Sites all() {
@@ -57,7 +60,7 @@ public class SiteRepository {
     }
 
     public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
-        siteModel.storeUserSettings(jsonSettings);
+        siteModel.storeUserSettings(gson, jsonSettings);
         DatabaseUtils.runTaskAsync(databaseSiteManager.update(siteModel));
     }
 
@@ -128,14 +131,14 @@ public class SiteRepository {
     private SiteModel createFromClass(int classID, JsonSettings userSettings) {
         SiteModel siteModel = new SiteModel();
         siteModel.classID = classID;
-        siteModel.storeUserSettings(userSettings);
+        siteModel.storeUserSettings(gson, userSettings);
         DatabaseUtils.runTask(databaseSiteManager.add(siteModel));
 
         return siteModel;
     }
 
     private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
-        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig());
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig(gson));
     }
 
     @NonNull

@@ -44,9 +44,9 @@ public class RepositoryModule {
 
     @Provides
     @Singleton
-    public SiteRepository provideSiteRepository(DatabaseSiteManager databaseSiteManager) {
+    public SiteRepository provideSiteRepository(DatabaseSiteManager databaseSiteManager, Gson gson) {
         Logger.d(AppModule.DI_TAG, "Site repository");
-        return new SiteRepository(databaseSiteManager);
+        return new SiteRepository(databaseSiteManager, gson);
     }
 
     @Provides

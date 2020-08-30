@@ -22,15 +22,8 @@ import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 @DatabaseTable(tableName = "site")
 public class SiteModel {
-    @Inject
-    Gson gson;
-
     @DatabaseField(generatedId = true, allowGeneratedIdInsert = true)
     public int id;
 
@@ -54,16 +47,14 @@ public class SiteModel {
         this.classID = classID;
     }
 
-    public SiteModel() {
-        inject(this);
-    }
+    public SiteModel() {}
 
-    public void storeUserSettings(JsonSettings userSettings) {
+    public void storeUserSettings(Gson gson, JsonSettings userSettings) {
         this.userSettings = gson.toJson(userSettings);
         Logger.test("userSettings = " + this.userSettings);
     }
 
-    public JsonSettings loadConfig() {
+    public JsonSettings loadConfig(Gson gson) {
         JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
         Logger.d(this, "Config: " + configuration + ", Settings: " + userSettings);
 
