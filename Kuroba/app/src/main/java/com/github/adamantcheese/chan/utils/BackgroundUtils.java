@@ -73,7 +73,7 @@ public class BackgroundUtils {
 
     public static void ensureMainThread() {
         if (!isMainThread()) {
-            if (BuildConfig.DEV_BUILD && ChanSettings.crashOnSafeThrow.get()) {
+            if (BuildConfig.DEV_BUILD && ChanSettings.crashOnWrongThread.get()) {
                 throw new IllegalStateException("Cannot be executed on a background thread!");
             } else {
                 Logger.e(TAG, "expected main thread but got " + Thread.currentThread().getName());
@@ -83,7 +83,7 @@ public class BackgroundUtils {
 
     public static void ensureBackgroundThread() {
         if (isMainThread()) {
-            if (BuildConfig.DEV_BUILD && ChanSettings.crashOnSafeThrow.get()) {
+            if (BuildConfig.DEV_BUILD && ChanSettings.crashOnWrongThread.get()) {
                 throw new IllegalStateException("Cannot be executed on the main thread!");
             } else {
                 Logger.e(TAG, "ensureBackgroundThread() expected background thread but got main");

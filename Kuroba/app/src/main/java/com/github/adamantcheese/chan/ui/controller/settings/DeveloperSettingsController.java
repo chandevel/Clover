@@ -21,9 +21,9 @@ import android.content.Context;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -32,12 +32,8 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
-import com.github.adamantcheese.chan.core.manager.WakeManager.Wakeable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -49,7 +45,6 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.NO_HASH_SET;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -90,7 +85,12 @@ public class DeveloperSettingsController
         wrapper.addView(logsButton);
 
         // Enable/Disable verbose logs
-        addVerboseLogsButton(wrapper);
+        Switch verboseLogsSwitch = new Switch(context);
+        verboseLogsSwitch.setPadding(dp(16), 0, dp(16), 0);
+        verboseLogsSwitch.setText("Verbose downloader logs");
+        verboseLogsSwitch.setChecked(ChanSettings.verboseLogs.get());
+        verboseLogsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.verboseLogs.toggle());
+        wrapper.addView(verboseLogsSwitch);
 
         //CRASH APP
         Button crashButton = new Button(context);
@@ -113,7 +113,7 @@ public class DeveloperSettingsController
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + DatabaseUtils.getDatabaseSummary());
-        summaryText.setPadding(dp(15), dp(5), 0, 0);
+        summaryText.setPadding(dp(16), dp(5), 0, 0);
         wrapper.addView(summaryText);
 
         //DATABASE RESET
@@ -172,24 +172,6 @@ public class DeveloperSettingsController
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
         wrapper.addView(dumpAllThreadStacks);
 
-        //FORCE WAKE
-        Button forceWake = new Button(context);
-        forceWake.setOnClickListener(v -> {
-            try {
-                Field wakeables = wakeManager.getClass().getDeclaredField("wakeableSet");
-                wakeables.setAccessible(true);
-                //noinspection ConstantConditions,unchecked,unchecked
-                for (Wakeable wakeable : (Set<Wakeable>) wakeables.get(wakeManager)) {
-                    wakeable.onWake();
-                }
-                showToast(context, "Woke all wakeables");
-            } catch (Exception e) {
-                showToast(context, "Failed to run wakeables");
-            }
-        });
-        forceWake.setText("Force wakemanager wake");
-        wrapper.addView(forceWake);
-
         // Reset the thread open counter
         Button resetThreadOpenCounter = new Button(context);
         resetThreadOpenCounter.setOnClickListener(v -> {
@@ -199,81 +181,16 @@ public class DeveloperSettingsController
         resetThreadOpenCounter.setText("Reset thread open counter");
         wrapper.addView(resetThreadOpenCounter);
 
-        addCrashOnSafeThrowButton(wrapper);
-
-        // Reset the hash and make the app updated
-        Button resetPrevApkHash = new Button(context);
-        resetPrevApkHash.setOnClickListener(v -> {
-            PersistableChanState.previousVersion.setSync(BuildConfig.VERSION_CODE);
-            PersistableChanState.previousDevHash.setSync(NO_HASH_SET);
-            PersistableChanState.updateCheckTime.setSync(0L);
-            PersistableChanState.hasNewApkUpdate.setSync(false);
-            SettingsNotificationManager.cancelNotification(SettingNotification.ApkUpdate);
-        });
-        resetPrevApkHash.setText("Make app updated");
-        wrapper.addView(resetPrevApkHash);
-
-        // Set hash to current and trigger the update check
-        Button setCurrentApkHashAsPrevApkHash = new Button(context);
-        setCurrentApkHashAsPrevApkHash.setOnClickListener(v -> {
-            PersistableChanState.previousVersion.setSync(0);
-            PersistableChanState.previousDevHash.setSync(BuildConfig.COMMIT_HASH);
-            PersistableChanState.updateCheckTime.setSync(0L);
-            PersistableChanState.hasNewApkUpdate.setSync(true);
-            SettingsNotificationManager.postNotification(SettingNotification.ApkUpdate);
-        });
-        setCurrentApkHashAsPrevApkHash.setText("Make app not updated");
-        wrapper.addView(setCurrentApkHashAsPrevApkHash);
+        Switch threadCrashSwitch = new Switch(context);
+        threadCrashSwitch.setPadding(dp(16), 0, dp(16), 0);
+        threadCrashSwitch.setText("Crash on wrong thread");
+        threadCrashSwitch.setChecked(ChanSettings.crashOnWrongThread.get());
+        threadCrashSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.crashOnWrongThread.toggle());
+        wrapper.addView(threadCrashSwitch);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
-    }
-
-    @SuppressLint("SetTextI18n")
-    private void addCrashOnSafeThrowButton(LinearLayout wrapper) {
-        Button crashOnSafeThrow = new Button(context);
-        crashOnSafeThrow.setOnClickListener(v -> {
-            ChanSettings.crashOnSafeThrow.set(!ChanSettings.crashOnSafeThrow.get());
-
-            if (ChanSettings.crashOnSafeThrow.get()) {
-                crashOnSafeThrow.setText("Crash on safe throw (ENABLED)");
-            } else {
-                crashOnSafeThrow.setText("Crash on safe throw (DISABLED)");
-            }
-        });
-
-        if (ChanSettings.crashOnSafeThrow.get()) {
-            crashOnSafeThrow.setText("Crash on safe throw (ENABLED)");
-        } else {
-            crashOnSafeThrow.setText("Crash on safe throw (DISABLED)");
-        }
-
-        wrapper.addView(crashOnSafeThrow);
-    }
-
-    private void addVerboseLogsButton(LinearLayout wrapper) {
-        Button verboseLogsButton = new Button(context);
-
-        verboseLogsButton.setOnClickListener(v -> {
-            ChanSettings.verboseLogs.set(!ChanSettings.verboseLogs.get());
-
-            if (ChanSettings.verboseLogs.get()) {
-                showToast(context, "Verbose logs enabled");
-                verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
-            } else {
-                showToast(context, "Verbose logs disabled");
-                verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
-            }
-        });
-
-        if (ChanSettings.verboseLogs.get()) {
-            verboseLogsButton.setText(R.string.settings_disable_verbose_logs);
-        } else {
-            verboseLogsButton.setText(R.string.settings_enable_verbose_logs);
-        }
-
-        wrapper.addView(verboseLogsButton);
     }
 }

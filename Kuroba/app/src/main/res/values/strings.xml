@@ -569,8 +569,6 @@ Setting the themes to the same will function as if dark mode is effectively off.
     </string>
     <string name="setting_theme_accent">Tap to change the accent color.</string>
     <string name="settings_open_logs">View logs</string>
-    <string name="settings_enable_verbose_logs">Enable verbose logs</string>
-    <string name="settings_disable_verbose_logs">Disable verbose logs</string>
 
     <!-- Theme settings -->
     <string name="settings_logs_screen">Logs</string>

@@ -298,7 +298,7 @@ public class ChanSettings {
     //endregion
 
     //region DEVELOPER
-    public static final BooleanSetting crashOnSafeThrow;
+    public static final BooleanSetting crashOnWrongThread;
     public static final BooleanSetting verboseLogs;
     //endregion
 
@@ -479,7 +479,7 @@ public class ChanSettings {
             //endregion
 
             //region DEVELOPER
-            crashOnSafeThrow = new BooleanSetting(p, "crash_on_safe_throw", true);
+            crashOnWrongThread = new BooleanSetting(p, "crash_on_wrong_thread", true);
             verboseLogs = new BooleanSetting(p, "verbose_logs", false);
             //endregion
 
