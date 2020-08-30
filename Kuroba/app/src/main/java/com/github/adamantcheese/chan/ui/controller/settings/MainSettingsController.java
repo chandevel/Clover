@@ -24,8 +24,8 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -44,7 +44,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -70,7 +69,6 @@ public class MainSettingsController
 
     public MainSettingsController(Context context) {
         super(context);
-        inject(this);
     }
 
     @Override

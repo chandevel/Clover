@@ -61,6 +61,9 @@ public class SitesSetupController
         extends StyledToolbarNavigationController
         implements SitesSetupPresenter.Callback, View.OnClickListener {
 
+    @Inject
+    SiteRepository siteRepository;
+
     SitesSetupPresenter presenter;
 
     private CrossfadeView crossfadeView;
@@ -313,14 +316,10 @@ public class SitesSetupController
     private class SitePreviewAdapter
             extends BaseAdapter {
 
-        @Inject
-        SiteRepository siteRepository;
-
         private List<Class<? extends Site>> siteClasses = new ArrayList<>();
         private AlertDialog dialog;
 
         public SitePreviewAdapter() {
-            inject(this);
             List<String> addedSites = new ArrayList<>();
             for (Site s : siteRepository.all().getAll()) {
                 addedSites.add(s.getClass().getSimpleName());

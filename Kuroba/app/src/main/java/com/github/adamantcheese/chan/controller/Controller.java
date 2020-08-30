@@ -39,6 +39,7 @@ import kotlin.jvm.functions.Function1;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 public abstract class Controller {
@@ -74,6 +75,7 @@ public abstract class Controller {
 
     public Controller(Context context) {
         this.context = context;
+        inject(this);
     }
 
     @CallSuper

@@ -54,7 +54,6 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -116,7 +115,6 @@ public class FiltersController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         view = inflate(context, R.layout.controller_filters);
 

@@ -59,7 +59,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -102,7 +101,6 @@ public class MediaSettingsController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         EventBus.getDefault().register(this);

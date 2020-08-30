@@ -42,7 +42,6 @@ import java.util.List;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.LinearLayout.VERTICAL;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
@@ -71,7 +70,6 @@ public class ArchiveController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         // Inflate
         view = inflate(context, R.layout.controller_archive);

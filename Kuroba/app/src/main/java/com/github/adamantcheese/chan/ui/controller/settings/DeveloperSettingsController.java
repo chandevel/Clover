@@ -44,7 +44,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -70,8 +69,6 @@ public class DeveloperSettingsController
     @Override
     public void onCreate() {
         super.onCreate();
-
-        inject(this);
 
         navigation.setTitle(R.string.settings_developer);
 

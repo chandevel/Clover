@@ -68,7 +68,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
@@ -126,7 +125,6 @@ public class ViewThreadController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         downloadAnimation =
                 (AnimatedVectorDrawableCompat) AnimationUtils.createAnimatedDownloadIcon(context, Color.WHITE).mutate();

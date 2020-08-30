@@ -59,7 +59,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
@@ -107,7 +106,6 @@ public class DrawerController
 
     public DrawerController(Context context) {
         super(context);
-        inject(this);
         EventBus.getDefault().register(this);
     }
 

@@ -54,7 +54,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
@@ -82,7 +81,6 @@ public class BrowseController
     @Override
     public void onCreate() {
         super.onCreate();
-        inject(this);
 
         // Initialization
         order = Order.find(ChanSettings.boardOrder.get());

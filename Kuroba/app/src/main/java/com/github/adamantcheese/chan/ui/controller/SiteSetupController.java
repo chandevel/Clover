@@ -36,7 +36,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -53,7 +52,6 @@ public class SiteSetupController
 
     public SiteSetupController(Context context, Site site) {
         super(context);
-        inject(this);
         this.site = site;
     }
 

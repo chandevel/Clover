@@ -76,7 +76,6 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -121,7 +120,6 @@ public class ImageViewerController
 
     public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {
         super(context);
-        inject(this);
 
         this.toolbar = toolbar;
         this.loadable = loadable;

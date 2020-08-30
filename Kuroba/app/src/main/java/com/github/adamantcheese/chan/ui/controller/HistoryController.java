@@ -29,8 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
@@ -45,7 +45,6 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import static android.widget.LinearLayout.VERTICAL;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -64,7 +63,6 @@ public class HistoryController
 
     public HistoryController(Context context) {
         super(context);
-        inject(this);
     }
 
     @Override

@@ -26,8 +26,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -46,7 +46,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -72,8 +71,6 @@ public class ImportExportSettingsController
 
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);
-
-        inject(this);
 
         this.callbacks = callbacks;
         this.loadingViewController = new LoadingViewController(context, true);
