@@ -5,6 +5,7 @@ import androidx.annotation.GuardedBy
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
@@ -84,7 +85,9 @@ internal class PartialContentSupportChecker(
             return Single.just(cached)
         }
 
-        Logger.d(TAG, "Sending HEAD request to url (${maskImageUrl(url)})")
+        if (ChanSettings.verboseLogs.get()) {
+            Logger.d(TAG, "Sending HEAD request to url (${maskImageUrl(url)})")
+        }
 
         val headRequest = Request.Builder()
                 .head()
@@ -160,22 +163,28 @@ internal class PartialContentSupportChecker(
                 // without using Partial Content
                 .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
                 .doOnSuccess {
-                    val diff = System.currentTimeMillis() - startTime
-                    Logger.d(TAG, "HEAD request to url (${maskImageUrl(url)}) has succeeded, time = ${diff}ms")
+                    if (ChanSettings.verboseLogs.get()) {
+                        val diff = System.currentTimeMillis() - startTime
+                        Logger.d(TAG, "HEAD request to url (${maskImageUrl(url)}) has succeeded, time = ${diff}ms")
+                    }
                 }
                 .doOnError { error ->
-                    val diff = System.currentTimeMillis() - startTime
-                    Logger.e(TAG, "HEAD request to url (${maskImageUrl(url)}) has failed " +
-                            "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
+                    if (ChanSettings.verboseLogs.get()) {
+                        val diff = System.currentTimeMillis() - startTime
+                        Logger.e(TAG, "HEAD request to url (${maskImageUrl(url)}) has failed " +
+                                "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
+                    }
                 }
                 .onErrorResumeNext { error ->
                     if (error !is TimeoutException) {
                         return@onErrorResumeNext Single.error(error)
                     }
 
-                    val diff = System.currentTimeMillis() - startTime
-                    log(TAG, "HEAD request took for url (${maskImageUrl(url)}) too much time, " +
-                            "canceled by timeout() operator, took = ${diff}ms")
+                    if (ChanSettings.verboseLogs.get()) {
+                        val diff = System.currentTimeMillis() - startTime
+                        log(TAG, "HEAD request took for url (${maskImageUrl(url)}) too much time, " +
+                                "canceled by timeout() operator, took = ${diff}ms")
+                    }
 
                     // Do not cache this result because after this request the file should be cached by the
                     // cloudflare, so the next time we open it, it should load way faster
@@ -256,8 +265,10 @@ internal class PartialContentSupportChecker(
         val cfCacheStatusHeader = response.header(CF_CACHE_STATUS_HEADER)
         val diff = System.currentTimeMillis() - startTime
 
-        log(TAG, "url = ${maskImageUrl(url)}, fileSize = $length, " +
-                "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
+        if (ChanSettings.verboseLogs.get()) {
+            log(TAG, "url = ${maskImageUrl(url)}, fileSize = $length, " +
+                    "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
+        }
 
         synchronized(checkedChanHosts) { checkedChanHosts.put(url.host, true) }
 

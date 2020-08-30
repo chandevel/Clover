@@ -30,9 +30,9 @@ import androidx.core.content.ContextCompat;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.base.Debouncer;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -879,7 +879,7 @@ public class WatchManager
         }
 
         if (!hasActivePins()) {
-            Logger.d(this, "No active pins found, removing all wakeables");
+            Logger.d(this, "No active pins found, unregistering for wake");
 
             switch (currentInterval) {
                 case FOREGROUND:

@@ -95,8 +95,10 @@ internal class ChunkPersister(
                         }
                     }
 
-                    log(TAG, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
-                            "chunk ${chunk.start}..${chunk.end}")
+                    if (ChanSettings.verboseLogs.get()) {
+                        log(TAG, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
+                                "chunk ${chunk.start}..${chunk.end}")
+                    }
                 } catch (error: Throwable) {
                     deleteChunkFile(chunkCacheFile)
                     throw error

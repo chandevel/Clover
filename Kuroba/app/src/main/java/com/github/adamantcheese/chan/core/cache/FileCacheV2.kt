@@ -467,10 +467,12 @@ class FileCacheV2(
 
             when (result) {
                 is FileDownloadResult.Start -> {
-                    log(TAG, "Download (${request}) has started. " +
-                            "Chunks count = ${result.chunksCount}. " +
-                            "Network class = $networkClass. " +
-                            "Downloads = $activeDownloadsCount")
+                    if (ChanSettings.verboseLogs.get()) {
+                        log(TAG, "Download (${request}) has started. " +
+                                "Chunks count = ${result.chunksCount}. " +
+                                "Network class = $networkClass. " +
+                                "Downloads = $activeDownloadsCount")
+                    }
 
                     // Start is not a terminal event so we don't want to remove request from the
                     // activeDownloads
