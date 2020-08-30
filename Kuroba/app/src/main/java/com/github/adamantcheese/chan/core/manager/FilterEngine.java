@@ -126,7 +126,7 @@ public class FilterEngine {
 
     public List<Filter> getAllFilters() {
         try {
-            return databaseFilterManager.getFilters().call();
+            return DatabaseUtils.runTask(databaseFilterManager.getFilters());
         } catch (Exception e) {
             Logger.wtf(this, "Couldn't get all filters for some reason.");
             return new ArrayList<>();

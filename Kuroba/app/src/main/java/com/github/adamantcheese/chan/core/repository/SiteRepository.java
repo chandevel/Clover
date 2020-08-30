@@ -162,18 +162,19 @@ public class SiteRepository {
     public void removeSite(Site site) {
         DatabaseUtils.runTask(() -> {
             removeFilters(site);
-            instance(DatabaseBoardManager.class).deleteBoards(site).call();
+            DatabaseUtils.runTask(instance(DatabaseBoardManager.class).deleteBoards(site));
 
-            List<Loadable> siteLoadables = instance(DatabaseLoadableManager.class).getLoadables(site).call();
+            List<Loadable> siteLoadables =
+                    DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).getLoadables(site));
             if (!siteLoadables.isEmpty()) {
-                instance(DatabaseSavedThreadManager.class).deleteSavedThreads(siteLoadables).call();
-                instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables).call();
-                instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables).call();
+                DatabaseUtils.runTask(instance(DatabaseSavedThreadManager.class).deleteSavedThreads(siteLoadables));
+                DatabaseUtils.runTask(instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables));
+                DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables));
             }
 
-            instance(DatabaseSavedReplyManager.class).deleteSavedReplies(site).call();
-            instance(DatabaseHideManager.class).deleteThreadHides(site).call();
-            instance(DatabaseSiteManager.class).deleteSite(site).call();
+            DatabaseUtils.runTask(instance(DatabaseSavedReplyManager.class).deleteSavedReplies(site));
+            DatabaseUtils.runTask(instance(DatabaseHideManager.class).deleteThreadHides(site));
+            DatabaseUtils.runTask(instance(DatabaseSiteManager.class).deleteSite(site));
             return null;
         });
     }
@@ -183,7 +184,7 @@ public class SiteRepository {
         List<Filter> filtersToDelete = new ArrayList<>();
         DatabaseFilterManager databaseFilterManager = instance(DatabaseFilterManager.class);
 
-        for (Filter filter : databaseFilterManager.getFilters().call()) {
+        for (Filter filter : DatabaseUtils.runTask(databaseFilterManager.getFilters())) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
                 continue;
             }
@@ -197,7 +198,7 @@ public class SiteRepository {
             }
         }
 
-        databaseFilterManager.deleteFilters(filtersToDelete).call();
+        DatabaseUtils.runTask(databaseFilterManager.deleteFilters(filtersToDelete));
     }
 
     public class Sites

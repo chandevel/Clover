@@ -167,8 +167,7 @@ public class ImportExportSettingsController
 
         if (localThreadsLocationIsSAFBacked) {
             long downloadingThreadsCount =
-                    DatabaseUtils.runTask(() -> instance(DatabaseSavedThreadManager.class).countDownloadingThreads()
-                            .call());
+                    DatabaseUtils.runTask(instance(DatabaseSavedThreadManager.class).countDownloadingThreads());
 
             if (downloadingThreadsCount > 0) {
                 messagePartTwo = getString(R.string.import_or_export_warning_super_long_message_part_two);

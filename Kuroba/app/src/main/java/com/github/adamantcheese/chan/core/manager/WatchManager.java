@@ -385,12 +385,8 @@ public class WatchManager
 
             threadSaveManager.cancelDownloading(pin.loadable);
 
-            DatabaseUtils.runTask(() -> {
-                databasePinManager.deletePin(pin).call();
-                databaseSavedThreadManager.deleteSavedThread(pin.loadable).call();
-
-                return null;
-            });
+            DatabaseUtils.runTask(databasePinManager.deletePin(pin));
+            DatabaseUtils.runTask(databaseSavedThreadManager.deleteSavedThread(pin.loadable));
 
             // Update the new orders
             Collections.sort(pins);
@@ -426,17 +422,12 @@ public class WatchManager
                 threadSaveManager.cancelDownloading(pin.loadable);
             }
 
-            DatabaseUtils.runTask(() -> {
-                databasePinManager.deletePins(pinList).call();
-
-                List<Loadable> loadableList = new ArrayList<>(pinList.size());
-                for (Pin pin : pinList) {
-                    loadableList.add(pin.loadable);
-                }
-
-                databaseSavedThreadManager.deleteSavedThreads(loadableList).call();
-                return null;
-            });
+            DatabaseUtils.runTask(databasePinManager.deletePins(pinList));
+            List<Loadable> loadableList = new ArrayList<>(pinList.size());
+            for (Pin pin : pinList) {
+                loadableList.add(pin.loadable);
+            }
+            DatabaseUtils.runTask(databaseSavedThreadManager.deleteSavedThreads(loadableList));
 
             // Update the new orders
             Collections.sort(pins);
@@ -453,11 +444,8 @@ public class WatchManager
     }
 
     public void updatePin(Pin pin, boolean updateState) {
-        DatabaseUtils.runTask(() -> {
-            updatePinsInternal(Collections.singletonList(pin));
-            databasePinManager.updatePin(pin).call();
-            return null;
-        });
+        updatePinsInternal(Collections.singletonList(pin));
+        DatabaseUtils.runTask(databasePinManager.updatePin(pin));
 
         if (updateState) {
             updateState();
@@ -467,15 +455,8 @@ public class WatchManager
     }
 
     public void updatePins(List<Pin> updatedPins, boolean updateState) {
-        DatabaseUtils.runTask(() -> {
-            updatePinsInternal(updatedPins);
-            List<Pin> cloned = new ArrayList<>();
-            for (Pin p : pins) {
-                cloned.add(p.clone());
-            }
-            databasePinManager.updatePins(cloned).call();
-            return null;
-        });
+        updatePinsInternal(updatedPins);
+        updatePinsInDatabase();
 
         if (updateState) {
             updateState();
@@ -968,20 +949,14 @@ public class WatchManager
 
                     createOrUpdateSavedThread(savedThread);
 
-                    DatabaseUtils.runTask(() -> {
-                        // Update thread in the DB
-                        if (savedThread.isStopped) {
-                            databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(pin.loadable.id, true)
-                                    .call();
-                        }
-
-                        // Update thread in the DB
-                        if (savedThread.isFullyDownloaded) {
-                            databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(pin.loadable.id).call();
-                        }
-
-                        return null;
-                    });
+                    if (savedThread.isStopped) {
+                        DatabaseUtils.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(pin.loadable.id,
+                                true
+                        ));
+                    }
+                    if (savedThread.isFullyDownloaded) {
+                        DatabaseUtils.runTask(databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(pin.loadable.id));
+                    }
 
                     updatePin(pin, false);
                 }

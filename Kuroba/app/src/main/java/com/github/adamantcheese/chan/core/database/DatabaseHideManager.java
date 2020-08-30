@@ -31,10 +31,7 @@ public class DatabaseHideManager {
 
     public DatabaseHideManager(DatabaseHelper helper) {
         this.helper = helper;
-        DatabaseUtils.runTaskAsync((Callable<Void>) () -> {
-            DatabaseUtils.trimTable(helper.getPostHideDao(), TRIM_TRIGGER, TRIM_COUNT);
-            return null;
-        });
+        DatabaseUtils.runTaskAsync(DatabaseUtils.trimTable(helper.getPostHideDao(), TRIM_TRIGGER, TRIM_COUNT));
     }
 
     /**

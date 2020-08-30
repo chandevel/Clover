@@ -27,12 +27,14 @@ import java.sql.SQLException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class DatabaseUtils {
+    // The database only allows for one connection at a time, so we use this to schedule all database operations.
+    private static final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+
     /**
      * Summary of the database tables row count, for the developer screen.
      *
@@ -65,17 +67,20 @@ public class DatabaseUtils {
      * @param trigger Trim if there are more rows than {@code trigger}.
      * @param trim    Count of rows to trim.
      */
-    public static <T, ID> void trimTable(Dao<T, ID> dao, long trigger, long trim) {
-        try {
-            long count = dao.countOf();
-            if (count > trigger) {
-                dao.executeRawNoArgs(
-                        "DELETE FROM " + dao.getTableName() + " WHERE id IN (SELECT id FROM " + dao.getTableName()
-                                + " ORDER BY id ASC LIMIT " + trim + ")");
+    public static <T, ID> Callable<Void> trimTable(Dao<T, ID> dao, long trigger, long trim) {
+        return () -> {
+            try {
+                long count = dao.countOf();
+                if (count > trigger) {
+                    dao.executeRawNoArgs(
+                            "DELETE FROM " + dao.getTableName() + " WHERE id IN (SELECT id FROM " + dao.getTableName()
+                                    + " ORDER BY id ASC LIMIT " + trim + ")");
+                }
+            } catch (SQLException e) {
+                Logger.e("DatabaseManager", "Error trimming table " + dao.getTableName(), e);
             }
-        } catch (SQLException e) {
-            Logger.e("DatabaseManager", "Error trimming table " + dao.getTableName(), e);
-        }
+            return null;
+        };
     }
 
     public static <T> void runTaskAsync(final Callable<T> taskCallable) {
@@ -83,12 +88,12 @@ public class DatabaseUtils {
     }
 
     public static <T> void runTaskAsync(final Callable<T> taskCallable, final TaskResult<T> taskResult) {
-        executeTask(true, taskCallable, taskResult);
+        databaseExecutor.submit(new DatabaseCallable<>(taskCallable, taskResult));
     }
 
     public static <T> T runTask(final Callable<T> taskCallable) {
         try {
-            return executeTask(false, taskCallable, null).get();
+            return databaseExecutor.submit(new DatabaseCallable<>(taskCallable, result -> {})).get();
         } catch (InterruptedException e) {
             // Since we don't rethrow InterruptedException we need to at least restore the
             // "interrupted" flag.
@@ -99,50 +104,12 @@ public class DatabaseUtils {
         }
     }
 
-    private static <T> Future<T> executeTask(
-            boolean async, final Callable<T> taskCallable, final TaskResult<T> taskResult
-    ) {
-        if (async) {
-            return instance(ExecutorService.class).submit(new DatabaseCallable<>(taskCallable, taskResult));
-        } else {
-            DatabaseCallable<T> databaseCallable = new DatabaseCallable<>(taskCallable, taskResult);
-            T result = databaseCallable.call();
-
-            return new Future<T>() {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    return false;
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return false;
-                }
-
-                @Override
-                public boolean isDone() {
-                    return true;
-                }
-
-                @Override
-                public T get() {
-                    return result;
-                }
-
-                @Override
-                public T get(long timeout, @NonNull TimeUnit unit) {
-                    return result;
-                }
-            };
-        }
-    }
-
     private static class DatabaseCallable<T>
             implements Callable<T> {
         private final Callable<T> task;
         private final TaskResult<T> result;
 
-        public DatabaseCallable(Callable<T> task, TaskResult<T> result) {
+        public DatabaseCallable(Callable<T> task, @NonNull TaskResult<T> result) {
             this.task = task;
             this.result = result;
         }
@@ -151,11 +118,11 @@ public class DatabaseUtils {
         public T call() {
             try {
                 DatabaseHelper databaseHelper = instance(DatabaseHelper.class);
-                final T result = TransactionManager.callInTransaction(databaseHelper.getConnectionSource(), task);
-                if (this.result != null) {
-                    BackgroundUtils.runOnMainThread(() -> this.result.onComplete(result));
+                synchronized (databaseHelper.getConnectionSource()) {
+                    final T res = TransactionManager.callInTransaction(databaseHelper.getConnectionSource(), task);
+                    BackgroundUtils.runOnMainThread(() -> result.onComplete(res));
+                    return res;
                 }
-                return result;
             } catch (Exception e) {
                 Logger.e(this, "executeTask", e);
                 throw new RuntimeException(e);

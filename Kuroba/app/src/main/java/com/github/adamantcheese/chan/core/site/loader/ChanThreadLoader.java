@@ -24,9 +24,9 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.base.ModularResult;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
@@ -515,12 +515,10 @@ public class ChanThreadLoader {
         // Trigger the drawer to be updated so the downloading icon is updated as well
         watchManager.updatePin(pin);
 
-        DatabaseUtils.runTask(() -> {
-            databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(savedThread.loadableId, true).call();
-            databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(savedThread.loadableId).call();
-
-            return null;
-        });
+        DatabaseUtils.runTask(databaseSavedThreadManager.updateThreadStoppedFlagByLoadableId(savedThread.loadableId,
+                true
+        ));
+        DatabaseUtils.runTask(databaseSavedThreadManager.updateThreadFullyDownloadedByLoadableId(savedThread.loadableId));
 
         Logger.d(this,
                 "Successfully updated thread " + maskPostNo(chanThread.getLoadable().no) + " as fully downloaded"
@@ -725,13 +723,13 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureBackgroundThread();
 
         return DatabaseUtils.runTask(() -> {
-            Pin pin = databasePinManager.getPinByLoadableId(loadable.id).call();
+            Pin pin = DatabaseUtils.runTask(databasePinManager.getPinByLoadableId(loadable.id));
             if (pin == null) {
                 Logger.e(ChanThreadLoader.this, "Could not find pin by loadableId = " + loadable.id);
                 return null;
             }
 
-            return databaseSavedThreadManager.getSavedThreadByLoadableId(pin.loadable.id).call();
+            return DatabaseUtils.runTask(databaseSavedThreadManager.getSavedThreadByLoadableId(pin.loadable.id));
         });
     }
 

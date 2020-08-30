@@ -45,26 +45,8 @@ public class DatabaseSavedReplyManager {
 
     public DatabaseSavedReplyManager(DatabaseHelper helper) {
         this.helper = helper;
-        DatabaseUtils.runTask(this::load);
-    }
-
-    /**
-     * Check if the given board-no combination is in the database.<br>
-     * This is unlike other methods in that it immediately returns the result instead of
-     * a Callable. This method is thread-safe and optimized.
-     *
-     * @param board  board of the post
-     * @param postNo post number
-     * @return {@code true} if the post is in the saved reply database, {@code false} otherwise.
-     */
-    @AnyThread
-    public boolean isSaved(Board board, int postNo) {
-        return getSavedReply(board, postNo) != null;
-    }
-
-    public Callable<Void> load() {
-        return () -> {
-            DatabaseUtils.trimTable(helper.getSavedReplyDao(), TRIM_TRIGGER, TRIM_COUNT);
+        DatabaseUtils.runTask(DatabaseUtils.trimTable(helper.getSavedReplyDao(), TRIM_TRIGGER, TRIM_COUNT));
+        DatabaseUtils.runTask(() -> {
             final List<SavedReply> all = helper.getSavedReplyDao().queryForAll();
 
             synchronized (savedRepliesByNo) {
@@ -80,7 +62,21 @@ public class DatabaseSavedReplyManager {
                 }
             }
             return null;
-        };
+        });
+    }
+
+    /**
+     * Check if the given board-no combination is in the database.<br>
+     * This is unlike other methods in that it immediately returns the result instead of
+     * a Callable. This method is thread-safe and optimized.
+     *
+     * @param board  board of the post
+     * @param postNo post number
+     * @return {@code true} if the post is in the saved reply database, {@code false} otherwise.
+     */
+    @AnyThread
+    public boolean isSaved(Board board, int postNo) {
+        return getSavedReply(board, postNo) != null;
     }
 
     public Callable<Void> clearSavedReplies() {
