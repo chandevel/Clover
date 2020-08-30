@@ -29,10 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class PostsFilter {
     private static final Comparator<Post> IMAGE_COMPARATOR = (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
 
@@ -59,16 +55,14 @@ public class PostsFilter {
         return Long.compare(score1, score2);
     };
 
-    @Inject
-    DatabaseHideManager databaseHideManager;
-
     private Order order;
     private String query;
+    private DatabaseHideManager databaseHideManager;
 
-    public PostsFilter(Order order, String query) {
+    public PostsFilter(Order order, String query, DatabaseHideManager databaseHideManager) {
         this.order = order;
         this.query = query;
-        inject(this);
+        this.databaseHideManager = databaseHideManager;
     }
 
     /**

@@ -35,13 +35,13 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
+import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -56,6 +56,7 @@ import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -165,6 +166,9 @@ public class ThreadPresenter
 
     @Inject
     private DatabaseBoardManager databaseBoardManager;
+
+    @Inject
+    private DatabaseHideManager databaseHideManager;
 
     @Inject
     private FilterWatchManager filterWatchManager;
@@ -1137,8 +1141,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showThread(thread);
             }
         } else if (linkable.type == PostLinkable.Type.BOARD) {
-            Board board =
-                    DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, (String) linkable.value));
+            Board board = DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, (String) linkable.value));
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
@@ -1393,7 +1396,7 @@ public class ThreadPresenter
     private void showPosts(boolean refreshAfterHideOrRemovePosts) {
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
-                    new PostsFilter(order, searchQuery),
+                    new PostsFilter(order, searchQuery, databaseHideManager),
                     refreshAfterHideOrRemovePosts
             );
         }
