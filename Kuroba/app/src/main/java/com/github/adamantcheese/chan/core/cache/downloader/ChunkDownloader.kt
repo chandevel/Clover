@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.BackpressureStrategy
@@ -11,8 +12,7 @@ import java.io.IOException
 
 internal class ChunkDownloader(
         private val okHttpClient: OkHttpClient,
-        private val activeDownloads: ActiveDownloads,
-        private val verboseLogs: Boolean
+        private val activeDownloads: ActiveDownloads
 ) {
 
     fun downloadChunk(
@@ -28,7 +28,7 @@ internal class ChunkDownloader(
                     "should be only one but actual = $totalChunksCount")
         }
 
-        if (verboseLogs) {
+        if (ChanSettings.verboseLogs.get()) {
             log(TAG, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
         }
 
@@ -114,7 +114,7 @@ internal class ChunkDownloader(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    if (verboseLogs) {
+                    if (ChanSettings.verboseLogs.get()) {
                         val diff = System.currentTimeMillis() - startTime
                         log(TAG, "Got chunk response in (${maskImageUrl(url)}) " +
                                 "${chunk.start}..${chunk.end} in ${diff}ms")

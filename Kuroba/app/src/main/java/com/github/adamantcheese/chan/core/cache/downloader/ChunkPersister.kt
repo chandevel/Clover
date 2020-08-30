@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.adamantcheese.chan.utils.exhaustive
@@ -20,8 +21,7 @@ import java.util.concurrent.atomic.AtomicLong
 internal class ChunkPersister(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
-        private val activeDownloads: ActiveDownloads,
-        private val verboseLogs: Boolean
+        private val activeDownloads: ActiveDownloads
 ) {
     fun storeChunkInFile(
             url: HttpUrl,
@@ -37,7 +37,7 @@ internal class ChunkPersister(
             val chunk = chunkResponse.chunk
 
             try {
-                if (verboseLogs) {
+                if (ChanSettings.verboseLogs.get()) {
                     log(TAG,
                             "storeChunkInFile($chunkIndex) (${maskImageUrl(url)}) " +
                                     "called for chunk ${chunk.start}..${chunk.end}"
@@ -255,7 +255,7 @@ internal class ChunkPersister(
                 }
             }
 
-            if (verboseLogs) {
+            if (ChanSettings.verboseLogs.get()) {
                 log(TAG,
                         "pipeChunk($chunkIndex) (${maskImageUrl(url)}) SUCCESS for chunk " +
                                 "${chunk.start}..${chunk.end}"

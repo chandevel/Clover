@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.JavaUtils.inputStreamMD5hash
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
@@ -15,8 +16,7 @@ internal class ChunkMerger(
         private val fileManager: FileManager,
         private val cacheHandler: CacheHandler,
         private val siteResolver: SiteResolver,
-        private val activeDownloads: ActiveDownloads,
-        private val verboseLogs: Boolean
+        private val activeDownloads: ActiveDownloads
 ) {
 
     fun mergeChunksIntoCacheFile(
@@ -26,7 +26,7 @@ internal class ChunkMerger(
             requestStartTime: Long
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
-            if (verboseLogs) {
+            if (ChanSettings.verboseLogs.get()) {
                 log(TAG, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
                         "chunks count = ${chunkSuccessEvents.size}")
             }
