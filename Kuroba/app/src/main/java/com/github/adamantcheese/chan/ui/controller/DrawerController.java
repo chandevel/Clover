@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
+import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -101,6 +102,9 @@ public class DrawerController
     @Inject
     WatchManager watchManager;
 
+    @Inject
+    WakeManager wakeManager;
+
     public DrawerController(Context context) {
         super(context);
         inject(this);
@@ -126,7 +130,7 @@ public class DrawerController
 
         header = view.findViewById(R.id.header);
         header.findViewById(R.id.refresh).setOnClickListener(v -> {
-            watchManager.onWake();
+            wakeManager.onBroadcastReceived(false);
             v.setVisibility(GONE);
             mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
         });

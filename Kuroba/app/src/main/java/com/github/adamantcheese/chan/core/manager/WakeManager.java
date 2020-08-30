@@ -36,8 +36,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -70,8 +68,8 @@ public class WakeManager {
         }
     }
 
-    public void onBroadcastReceived() {
-        if (System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
+    public void onBroadcastReceived(boolean doCheck) {
+        if (doCheck && System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
             Logger.d(this, "Background update broadcast ignored because it was requested too soon");
         } else {
             lastBackgroundUpdateTime = System.currentTimeMillis();
@@ -99,7 +97,7 @@ public class WakeManager {
     // Called when the app changes foreground state
     @Subscribe
     public void onEvent(Chan.ForegroundChangedMessage message) {
-        if (message.inForeground) onBroadcastReceived();
+        if (message.inForeground) onBroadcastReceived(true);
     }
 
     public void registerWakeable(Wakeable wakeable) {
