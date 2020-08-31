@@ -205,7 +205,7 @@ public class FloatingMenu {
 
         popupWindow.setOnDismissListener(() -> {
             if (anchor.getViewTreeObserver().isAlive()) {
-                anchor.getViewTreeObserver().removeGlobalOnLayoutListener(globalLayoutListener);
+                anchor.getViewTreeObserver().removeOnGlobalLayoutListener(globalLayoutListener);
             }
             globalLayoutListener = null;
             popupWindow = null;

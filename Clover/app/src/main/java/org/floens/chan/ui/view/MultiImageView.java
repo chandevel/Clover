@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
@@ -44,12 +45,11 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
@@ -461,11 +461,11 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             onModeLoaded(Mode.MOVIE, videoView);
         } else if (ChanSettings.videoUseExoplayer.get()) {
             exoVideoView = new PlayerView(getContext());
-            exoPlayer = ExoPlayerFactory.newSimpleInstance(getContext());
+            exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
                     Util.getUserAgent(getContext(), userAgent.getUserAgent()));
-            MediaSource videoSource = new ExtractorMediaSource.Factory(dataSourceFactory)
+            MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(android.net.Uri.fromFile(file));
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
@@ -579,7 +579,8 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
         if (isImage) {
             imageView.setTileBackgroundColor(backgroundColor);
         } else {
-            gifView.getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
+            gifView.getDrawable().setColorFilter(
+                    new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
         }
         backgroundToggle = !backgroundToggle;
     }

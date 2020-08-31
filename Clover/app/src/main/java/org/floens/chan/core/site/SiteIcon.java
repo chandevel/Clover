@@ -18,6 +18,7 @@
 package org.floens.chan.core.site;
 
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -42,6 +43,7 @@ public class SiteIcon {
 
     private String assetPath;
     private HttpUrl url;
+    private Context context;
 
     public static SiteIcon fromAssets(String path) {
         SiteIcon siteIcon = new SiteIcon();
@@ -78,7 +80,7 @@ public class SiteIcon {
                 @Override
                 public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
                     if (response.getBitmap() != null) {
-                        Drawable drawable = new BitmapDrawable(response.getBitmap());
+                        Drawable drawable = new BitmapDrawable(context.getResources(), response.getBitmap());
                         result.onSiteIcon(SiteIcon.this, drawable);
                     }
                 }
@@ -89,6 +91,10 @@ public class SiteIcon {
                 }
             }, FAVICON_SIZE, FAVICON_SIZE);
         }
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     public interface SiteIconResult {

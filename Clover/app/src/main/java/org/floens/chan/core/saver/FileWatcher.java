@@ -112,11 +112,11 @@ public class FileWatcher {
     }
 
     private class AFileObserver extends FileObserver {
-        public AFileObserver(String path) {
+        public AFileObserver(File path) {
             super(path);
         }
 
-        public AFileObserver(String path, int mask) {
+        public AFileObserver(File path, int mask) {
             super(path, mask);
         }
 
