@@ -49,7 +49,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Inject;
 
@@ -70,8 +69,6 @@ public class ImagePickDelegate {
     FileManager fileManager;
     @Inject
     FileCacheV2 fileCacheV2;
-    @Inject
-    ExecutorService executor;
 
     private Activity activity;
     private ImagePickCallback callback;
@@ -216,7 +213,7 @@ public class ImagePickDelegate {
                     fileName = TextUtils.isEmpty(fileName) ? DEFAULT_FILE_NAME : fileName;
                 }
 
-                executor.execute(this::run);
+                BackgroundUtils.backgroundService.execute(this::doFilePicked);
                 ok = true;
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -241,7 +238,7 @@ public class ImagePickDelegate {
         return null;
     }
 
-    private void run() {
+    private void doFilePicked() {
         RawFile cacheFile = fileManager.fromRawFile(getPickFile());
 
         try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {

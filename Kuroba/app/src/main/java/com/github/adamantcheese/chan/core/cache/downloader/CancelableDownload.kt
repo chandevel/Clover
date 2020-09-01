@@ -1,13 +1,12 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
-import com.github.adamantcheese.chan.Chan.instance
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import okhttp3.HttpUrl
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
@@ -97,7 +96,7 @@ class CancelableDownload(
         // bit of time for it to get really canceled.
 
         try {
-            instance(ExecutorService::class.java).submit {
+            BackgroundUtils.backgroundService.submit {
                 synchronized(this) {
                     // Cancel downloads
                     disposeFuncList.forEach { func ->

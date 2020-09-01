@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.utils.ConversionUtils.intToCharArray
 import com.github.adamantcheese.chan.utils.JavaUtils.stringMD5hash
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils
-import com.github.adamantcheese.chan.utils.StringUtils.UTCFormat;
+import com.github.adamantcheese.chan.utils.StringUtils.UTCFormat
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
@@ -38,7 +38,6 @@ import java.io.FileReader
 import java.io.IOException
 import java.io.PrintWriter
 import java.util.*
-import java.util.concurrent.ExecutorService
 import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
@@ -66,8 +65,7 @@ import java.util.concurrent.atomic.AtomicLong
 class CacheHandler(
         private val fileManager: FileManager,
         private val cacheDirFile: RawFile,
-        private val chunksCacheDirFile: RawFile,
-        private val executor: ExecutorService
+        private val chunksCacheDirFile: RawFile
 ) {
     /**
      * An estimation of the current size of the directory. Used to check if trim must be run
@@ -92,7 +90,7 @@ class CacheHandler(
 
     private fun clearChunksCacheDir() {
         if (trimChunksRunning.compareAndSet(false, true)) {
-            executor.execute {
+            BackgroundUtils.backgroundService.execute {
                 try {
                     fileManager.deleteContent(chunksCacheDirFile)
                 } finally {
@@ -292,7 +290,7 @@ class CacheHandler(
                 && now - trimTime > MIN_TRIM_INTERVAL
                 && trimRunning.compareAndSet(false, true)
         ) {
-            executor.execute {
+            BackgroundUtils.backgroundService.execute {
                 try {
                     trim()
                 } catch (e: Exception) {
@@ -657,7 +655,7 @@ class CacheHandler(
             return
         }
 
-        executor.submit { recalculateSize() }
+        BackgroundUtils.backgroundService.submit { recalculateSize() }
     }
 
     private fun recalculateSize() {

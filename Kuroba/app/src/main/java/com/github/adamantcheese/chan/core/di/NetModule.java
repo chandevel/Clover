@@ -35,7 +35,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.inject.Singleton;
 
@@ -59,16 +58,14 @@ public class NetModule {
 
     @Provides
     @Singleton
-    public CacheHandler provideCacheHandler(
-            FileManager fileManager, ExecutorService executor
-    ) {
+    public CacheHandler provideCacheHandler(FileManager fileManager) {
         Logger.d(AppModule.DI_TAG, "Cache handler");
 
         File cacheDir = getCacheDir();
         RawFile cacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CACHE_DIR));
         RawFile chunksCacheDirFile = fileManager.fromRawFile(new File(cacheDir, FILE_CHUNKS_CACHE_DIR));
 
-        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile, executor);
+        return new CacheHandler(fileManager, cacheDirFile, chunksCacheDirFile);
     }
 
     @Provides

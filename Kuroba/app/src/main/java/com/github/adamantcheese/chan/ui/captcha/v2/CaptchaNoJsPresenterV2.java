@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
@@ -63,8 +62,6 @@ public class CaptchaNoJsPresenterV2 {
 
     @Inject
     NetModule.OkHttpClientWithUtils okHttpClient;
-    @Inject
-    ExecutorService executor;
 
     private final CaptchaNoJsHtmlParser parser;
 
@@ -114,7 +111,7 @@ public class CaptchaNoJsPresenterV2 {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
-            executor.submit(() -> {
+            BackgroundUtils.backgroundService.submit(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
@@ -174,7 +171,7 @@ public class CaptchaNoJsPresenterV2 {
 
             lastTimeCaptchaRequest = System.currentTimeMillis();
 
-            executor.submit(() -> {
+            BackgroundUtils.backgroundService.submit(() -> {
                 try {
                     try {
                         prevCaptchaInfo = getCaptchaInfo();

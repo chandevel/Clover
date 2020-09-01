@@ -44,10 +44,6 @@ import com.google.gson.Gson;
 import org.codejargon.feather.Provides;
 
 import java.io.File;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
@@ -205,21 +201,5 @@ public class AppModule {
         Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
 
         return new Android10GesturesExclusionZonesHolder(gson, getMinScreenSize(), getMaxScreenSize());
-    }
-
-    @Provides
-    @Singleton
-    public ExecutorService provideBackgroundPool() {
-        Logger.d(DI_TAG, "ExecutorService (Background Thread Pool)");
-        // Based on fitting the points {16,28}, {64, 19}, {128,6}, {256, 4}, from some performance checks
-        // Equation of -9.27447 log(0.0028267 x) = 1 was solved for and rounded down to get a thread count
-        // Note that this may not be the best on a phone, but is probably the best for emulator
-        // This calculation also probably sucks immensely
-        return new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
-                300,
-                60L,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<>()
-        );
     }
 }

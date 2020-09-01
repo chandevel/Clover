@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import javax.inject.Inject;
@@ -54,9 +54,6 @@ public class ChanReaderParser
 
     @Inject
     FilterEngine filterEngine;
-
-    @Inject
-    ExecutorService pool;
 
     @Inject
     DatabaseSavedReplyManager databaseSavedReplyManager;
@@ -140,7 +137,7 @@ public class ChanReaderParser
             ));
         }
 
-        List<Future<Post>> futures = pool.invokeAll(tasks);
+        List<Future<Post>> futures = BackgroundUtils.backgroundService.invokeAll(tasks);
         for (Future<Post> f : futures) {
             Post p = f.get();
             if (p != null) {

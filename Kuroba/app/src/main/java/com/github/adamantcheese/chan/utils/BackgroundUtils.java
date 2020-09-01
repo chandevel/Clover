@@ -27,15 +27,29 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 @SuppressWarnings("unused")
 public class BackgroundUtils {
     private static final String TAG = "BackgroundUtils";
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    // Based on fitting the points {16,28}, {64, 19}, {128,6}, {256, 4}, from some performance checks
+    // Equation of -9.27447 log(0.0028267 x) = 1 was solved for and rounded down to get a thread count
+    // Note that this may not be the best on a phone, but is probably the best for emulator
+    // This calculation also probably sucks immensely
+    public static final ExecutorService backgroundService =
+            new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+                    300,
+                    60L,
+                    TimeUnit.SECONDS,
+                    new LinkedBlockingQueue<>()
+            );
 
     public static boolean isInForeground() {
         return ((Chan) getAppContext()).getApplicationInForeground();
@@ -54,14 +68,14 @@ public class BackgroundUtils {
     }
 
     public static void runOnBackgroundThread(Runnable runnable) {
-        if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
+        if (BuildConfig.DEBUG && backgroundService.isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");
         }
-        runWithExecutor(instance(ExecutorService.class), Executors.callable(runnable), new EmptyResult());
+        runWithExecutor(backgroundService, Executors.callable(runnable), new EmptyResult());
     }
 
     public static void runOnBackgroundThread(Runnable runnable, long delay) {
-        if (BuildConfig.DEBUG && instance(ExecutorService.class).isTerminated()) {
+        if (BuildConfig.DEBUG && backgroundService.isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");
         }
         runOnMainThread(() -> runOnBackgroundThread(runnable), delay);
@@ -94,7 +108,7 @@ public class BackgroundUtils {
     public static <T> Cancelable runWithDefaultExecutor(
             final Callable<T> background, final BackgroundResult<T> result
     ) {
-        return runWithExecutor(instance(ExecutorService.class), background, result);
+        return runWithExecutor(backgroundService, background, result);
     }
 
     public static <T> Cancelable runWithExecutor(
