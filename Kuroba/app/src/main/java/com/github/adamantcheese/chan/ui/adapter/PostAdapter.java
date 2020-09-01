@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -42,6 +43,7 @@ import java.util.List;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
@@ -249,11 +251,13 @@ public class PostAdapter
 
             RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
             replyParams.alignWithParent = true;
+            replyParams.addRule(ALIGN_PARENT_BOTTOM);
             replyParams.addRule(BELOW, R.id.comment);
             replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
             TextView replies = postCell.findViewById(R.id.replies);
             replies.setLayoutParams(replyParams);
             replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+            replies.setGravity(Gravity.BOTTOM);
 
             View divider = postCell.findViewById(R.id.divider);
             divider.setVisibility(View.VISIBLE);
