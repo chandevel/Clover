@@ -309,9 +309,11 @@ public class PostCell
     }
 
     public ThumbnailView getThumbnailView(PostImage postImage) {
-        for (int i = 0; i < post.images.size(); i++) {
-            if (post.images.get(i).equalUrl(postImage)) {
-                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(i);
+        if (thumbnailViews.isEmpty()) return null;
+
+        for (PostImage image : post.images) {
+            if (image.equalUrl(postImage)) {
+                return ChanSettings.textOnly.get() ? null : thumbnailViews.get(post.images.indexOf(image));
             }
         }
 
