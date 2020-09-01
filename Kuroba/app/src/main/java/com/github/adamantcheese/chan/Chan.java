@@ -26,7 +26,6 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;

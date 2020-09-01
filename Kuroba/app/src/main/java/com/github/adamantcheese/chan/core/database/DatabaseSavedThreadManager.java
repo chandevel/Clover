@@ -19,7 +19,6 @@ public class DatabaseSavedThreadManager {
     public DatabaseSavedThreadManager(DatabaseHelper helper, FileManager fileManager) {
         this.helper = helper;
         this.fileManager = fileManager;
-
     }
 
     public Callable<Long> countDownloadingThreads() {

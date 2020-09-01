@@ -23,8 +23,8 @@ import android.widget.Toast;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;

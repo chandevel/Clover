@@ -26,10 +26,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class DatabasePinManager {
     DatabaseHelper helper;
     private DatabaseLoadableManager databaseLoadableManager;

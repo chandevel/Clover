@@ -21,13 +21,11 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 
-import javax.inject.Inject;
-
 import okhttp3.HttpUrl;
 
 public class SiteResolver {
     private final SiteRepository siteRepository;
-    
+
     public SiteResolver(SiteRepository siteRepository) {
         this.siteRepository = siteRepository;
     }
