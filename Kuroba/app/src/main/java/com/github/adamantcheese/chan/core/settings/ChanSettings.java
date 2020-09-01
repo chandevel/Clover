@@ -21,6 +21,7 @@ import android.net.Uri;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.base_dir.LocalThreadsBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
@@ -46,6 +47,8 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
@@ -534,6 +537,11 @@ public class ChanSettings {
         return getScreenOrientation() == ORIENTATION_PORTRAIT
                 ? ChanSettings.albumGridSpanCountPortrait.get()
                 : ChanSettings.albumGridSpanCountLandscape.get();
+    }
+
+    public static boolean shouldUseFullSizeImage(PostImage postImage) {
+        return ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF)
+                && !postImage.isInlined;
     }
 
     /**

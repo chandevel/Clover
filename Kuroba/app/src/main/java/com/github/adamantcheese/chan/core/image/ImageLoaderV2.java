@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -79,7 +80,12 @@ public class ImageLoaderV2 {
 
     private static Call doFallback(PostImage postImage, NetUtils.BitmapResult imageListener, int width, int height) {
         Logger.d(TAG, "Falling back to imageLoaderV1 load the image " + getImageUrlForLogs(postImage));
-        return NetUtils.makeBitmapRequest(postImage.getThumbnailUrl(), imageListener, width, height);
+        return NetUtils.makeBitmapRequest(
+                ChanSettings.shouldUseFullSizeImage(postImage) ? postImage.imageUrl : postImage.getThumbnailUrl(),
+                imageListener,
+                width,
+                height
+        );
     }
 
     public static Call getFromDisk(

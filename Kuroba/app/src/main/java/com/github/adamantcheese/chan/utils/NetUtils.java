@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
@@ -40,18 +39,14 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityManager;
 import static java.lang.Runtime.getRuntime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
-    // max 1/4 the maximum Dalvik runtime size; if low RAM or prefetch enabled, 1/8
-    // prefetching does not use this LRU cache, so it is fine for it to use far less memory
+    // max 1/4 the maximum Dalvik runtime size
     // by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
-    private static final BitmapLruCache imageCache =
-            new BitmapLruCache((int) (getRuntime().maxMemory() / ((getActivityManager().isLowRamDevice()
-                    || ChanSettings.autoLoadThreadImages.get()) ? 8 : 4)));
+    private static final BitmapLruCache imageCache = new BitmapLruCache((int) (getRuntime().maxMemory() / 4));
 
     private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
 
@@ -180,6 +175,14 @@ public class NetUtils {
         void onBitmapFailure(Bitmap errormap, Exception e);
 
         void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache);
+    }
+
+    public static Bitmap getCachedBitmap(HttpUrl url) {
+        return imageCache.get(url);
+    }
+
+    public static void storeExternalBitmap(HttpUrl url, Bitmap bitmap) {
+        imageCache.put(url, bitmap);
     }
 
     public static <T> Call makeJsonRequest(
