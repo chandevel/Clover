@@ -119,10 +119,6 @@ public class DatabaseHelper
     public Dao<Board, Integer> getBoardDao() {
         if (boardsDao == null) {
             boardsDao = getDaoForClass(Board.class);
-            try {
-                //noinspection ConstantConditions
-                boardsDao.setObjectCache(true);
-            } catch (SQLException ignored) {}
         }
         return boardsDao;
     }

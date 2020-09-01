@@ -30,16 +30,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
+import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
@@ -95,6 +94,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -165,7 +165,7 @@ public class ThreadPresenter
     private CacheHandler cacheHandler;
 
     @Inject
-    private DatabaseBoardManager databaseBoardManager;
+    private BoardManager boardManager;
 
     @Inject
     private DatabaseHideManager databaseHideManager;
@@ -209,7 +209,7 @@ public class ThreadPresenter
 
             startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, this);
-            loadable.site.actions().archives(Chan.instance(ArchivesManager.class));
+            loadable.site.actions().archives(instance(ArchivesManager.class));
             threadPresenterCallback.showLoading();
         }
     }
@@ -1141,7 +1141,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showThread(thread);
             }
         } else if (linkable.type == PostLinkable.Type.BOARD) {
-            Board board = DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, (String) linkable.value));
+            Board board = boardManager.getBoard(loadable.site, (String) linkable.value);
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {
@@ -1149,7 +1149,7 @@ public class ThreadPresenter
             }
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
             CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
-            Board board = DatabaseUtils.runTask(databaseBoardManager.getBoard(loadable.site, search.board));
+            Board board = boardManager.getBoard(loadable.site, search.board);
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
             } else {

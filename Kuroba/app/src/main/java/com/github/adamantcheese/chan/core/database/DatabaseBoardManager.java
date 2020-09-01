@@ -110,24 +110,6 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Board> getBoard(final Site site, final String code) {
-        return () -> {
-            Board board = helper.getBoardDao()
-                    .queryBuilder()
-                    .where()
-                    .eq("site", site.id())
-                    .and()
-                    .eq("value", code)
-                    .queryForFirst();
-
-            if (board != null) {
-                board.site = site;
-            }
-
-            return board;
-        };
-    }
-
     @SuppressLint("UseSparseArrays")
     public Callable<List<Pair<Site, Boards>>> getBoardsForAllSitesOrdered(List<Site> sites) {
         return () -> {
