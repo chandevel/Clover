@@ -101,7 +101,7 @@ internal class PartialContentSupportChecker(
             val call = okHttpClient.newCall(headRequest)
 
             val disposeFunc = {
-                if (!call.isCanceled()) {
+                if (ChanSettings.verboseLogs.get() && !call.isCanceled()) {
                     log(TAG, "Disposing of HEAD request for url (${maskImageUrl(url)})")
                     call.cancel()
                 }

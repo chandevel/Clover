@@ -59,7 +59,7 @@ internal class ChunkDownloader(
             val disposeFunc = {
                 BackgroundUtils.ensureBackgroundThread()
 
-                if (!call.isCanceled()) {
+                if (ChanSettings.verboseLogs.get() && !call.isCanceled()) {
                     log(
                             TAG,
                             "Disposing OkHttp Call for CHUNKED request $request via " +
