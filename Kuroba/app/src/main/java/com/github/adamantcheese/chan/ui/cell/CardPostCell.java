@@ -17,8 +17,6 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
-import android.text.InputFilter;
-import android.text.InputFilter.LengthFilter;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -57,7 +55,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class CardPostCell
         extends CardView
         implements PostCellInterface, View.OnClickListener {
-    private static final int COMMENT_MAX_LENGTH = 200;
+    private static final int COMMENT_MAX_LINES = 10;
 
     private boolean bound;
     private Post post;
@@ -251,9 +249,11 @@ public class CardPostCell
         }
 
         if (ChanSettings.getBoardColumnCount() != 1) {
-            comment.setFilters(new LengthFilter[]{new LengthFilter(COMMENT_MAX_LENGTH)});
+            comment.setMaxLines(COMMENT_MAX_LINES);
+            comment.setEllipsize(TextUtils.TruncateAt.END);
         } else {
-            comment.setFilters(new InputFilter[]{});
+            comment.setMaxLines(Integer.MAX_VALUE);
+            comment.setEllipsize(null);
         }
         comment.setText(post.comment);
 

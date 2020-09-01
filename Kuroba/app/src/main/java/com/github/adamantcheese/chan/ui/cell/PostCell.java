@@ -437,6 +437,9 @@ public class PostCell
         if (!threadMode) {
             comment.setMaxLines(COMMENT_MAX_LINES_BOARD);
             comment.setEllipsize(TextUtils.TruncateAt.END);
+        } else {
+            comment.setMaxLines(Integer.MAX_VALUE);
+            comment.setEllipsize(null);
         }
 
         if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
@@ -560,17 +563,21 @@ public class PostCell
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        if (ChanSettings.shiftPostFormat.get() && comment.getVisibility() == VISIBLE && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
+        if (ChanSettings.shiftPostFormat.get() && comment.getVisibility() == VISIBLE && post.images.size() == 1
+                && !ChanSettings.textOnly.get()) {
             int widthMax = recyclerView.getMeasuredWidth();
             int heightMax = recyclerView.getMeasuredHeight();
-            int thumbnailSize = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
+            int thumbnailSize =
+                    getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
 
             //get the width of the cell for calculations, height we don't need but measure it anyways
             this.measure(MeasureSpec.makeMeasureSpec(inPopup ? getDisplaySize().x : widthMax, AT_MOST),
                     MeasureSpec.makeMeasureSpec(heightMax, AT_MOST)
             );
 
-            int totalThumbnailWidth = thumbnailSize + paddingPx + (post.filterHighlightedColor != 0 ? filterMatchColor.getLayoutParams().width : 0);
+            int totalThumbnailWidth = thumbnailSize + paddingPx + (post.filterHighlightedColor != 0
+                    ? filterMatchColor.getLayoutParams().width
+                    : 0);
             //we want the heights here, but the widths must be the exact size between the thumbnail and view edge so that we calculate offsets right
             title.measure(MeasureSpec.makeMeasureSpec(this.getMeasuredWidth() - totalThumbnailWidth, EXACTLY),
                     MeasureSpec.makeMeasureSpec(0, UNSPECIFIED)
@@ -591,7 +598,6 @@ public class PostCell
                 if (title.getMeasuredHeight() + (icons.getVisibility() == VISIBLE ? icons.getMeasuredHeight() : 0)
                         < thumbnailHeight) {
                     commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_view);
-
                 } else {
                     commentParams.addRule(RelativeLayout.BELOW,
                             (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
@@ -640,7 +646,8 @@ public class PostCell
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
                 final int idToSet = first ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
-                final int size = (int) (getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100f);
+                int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
+                final int size = thumbnailSize * ChanSettings.thumbnailSize.get() / 100;
 
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;

@@ -102,7 +102,11 @@ public class IntegerSettingView
                 if (value >= minimumValue && value <= maximumValue) {
                     setting.set(value);
                 } else {
-                    showToast(v.getContext(), "Value not in range <" + minimumValue + ", " + maximumValue + ">");
+                    showToast(
+                            v.getContext(),
+                            "Value not in range <" + minimumValue + ", " + maximumValue + ">, using default of "
+                                    + setting.getDefault()
+                    );
                     setting.set(setting.getDefault());
                 }
             } catch (Exception e) {

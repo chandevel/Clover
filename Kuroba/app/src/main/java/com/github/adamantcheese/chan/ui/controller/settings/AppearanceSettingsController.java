@@ -18,10 +18,13 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
@@ -132,7 +135,13 @@ public class AppearanceSettingsController
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
-            setupThumbnailSizeSetting(post);
+            requiresUiRefresh.add(post.add(new IntegerSettingView(this,
+                    ChanSettings.thumbnailSize,
+                    R.string.setting_thumbnail_scale,
+                    R.string.empty,
+                    new Pair<>(50, 200)
+            )));
+
             setupFontSizeSetting(post);
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
@@ -327,20 +336,6 @@ public class AppearanceSettingsController
                 ChanSettings.fontSize,
                 R.string.setting_font_size,
                 fontSizes
-        )));
-    }
-
-    private void setupThumbnailSizeSetting(SettingsGroup post) {
-        List<Item<Integer>> thumbnailSizes = new ArrayList<>();
-        for (int size = 100; size <= 200; size+=20) {
-            String name = size + "%";
-            thumbnailSizes.add(new Item<>(name, size));
-        }
-
-        requiresUiRefresh.add(post.add(new ListSettingView<>(this,
-                ChanSettings.thumbnailSize,
-                R.string.setting_thumbnail_size,
-                thumbnailSizes
         )));
     }
 }
