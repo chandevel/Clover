@@ -28,7 +28,6 @@ import android.text.style.StyleSpan;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
@@ -73,9 +72,9 @@ public class CaptchaNoJsHtmlParser {
     private NetModule.OkHttpClientWithUtils okHttpClient;
     private Context context;
 
-    public CaptchaNoJsHtmlParser(Context context) {
+    public CaptchaNoJsHtmlParser(Context context, NetModule.OkHttpClientWithUtils okHttpClient) {
         this.context = context;
-        this.okHttpClient = Chan.instance(NetModule.OkHttpClientWithUtils.class);
+        this.okHttpClient = okHttpClient;
     }
 
     @NonNull

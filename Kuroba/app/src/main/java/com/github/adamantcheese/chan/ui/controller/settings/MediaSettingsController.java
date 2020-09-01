@@ -59,7 +59,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -92,6 +91,8 @@ public class MediaSettingsController
     @Inject
     ThreadSaveManager threadSaveManager;
     @Inject
+    DatabaseSavedThreadManager savedThreadManager;
+    @Inject
     WatchManager watchManager;
 
     public MediaSettingsController(Context context) {
@@ -110,12 +111,8 @@ public class MediaSettingsController
         SharedLocationSetupDelegate sharedLocationSetupDelegate =
                 new SharedLocationSetupDelegate(context, this, presenter, fileManager);
         saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
-        threadsLocationSetupDelegate = new ThreadsLocationSetupDelegate(context,
-                this,
-                presenter,
-                instance(DatabaseSavedThreadManager.class),
-                threadSaveManager
-        );
+        threadsLocationSetupDelegate =
+                new ThreadsLocationSetupDelegate(context, this, presenter, savedThreadManager, threadSaveManager);
         presenter.onCreate(sharedLocationSetupDelegate);
 
         setupLayout();

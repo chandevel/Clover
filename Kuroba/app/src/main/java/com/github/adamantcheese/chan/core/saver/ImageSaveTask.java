@@ -46,7 +46,6 @@ import io.reactivex.functions.Action;
 import io.reactivex.subjects.SingleSubject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -60,6 +59,8 @@ public class ImageSaveTask
     FileCacheV2 fileCacheV2;
     @Inject
     FileManager fileManager;
+    @Inject
+    CacheHandler cacheHandler;
 
     private PostImage postImage;
     private Loadable loadable;
@@ -196,7 +197,7 @@ public class ImageSaveTask
     private boolean copyToDestination(RawFile source) {
         try {
             if (share) {
-                destination = instance(CacheHandler.class).duplicateCacheFile(source,
+                destination = cacheHandler.duplicateCacheFile(source,
                         StringUtils.fileNameRemoveBadCharacters(postImage.filename),
                         postImage.extension
                 );

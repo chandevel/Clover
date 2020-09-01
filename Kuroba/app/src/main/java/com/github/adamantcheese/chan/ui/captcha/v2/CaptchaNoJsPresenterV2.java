@@ -77,9 +77,9 @@ public class CaptchaNoJsPresenterV2 {
     private long lastTimeCaptchaRequest = 0L;
 
     public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
-        this.callbacks = callbacks;
-        this.parser = new CaptchaNoJsHtmlParser(context);
         inject(this);
+        this.callbacks = callbacks;
+        this.parser = new CaptchaNoJsHtmlParser(context, okHttpClient);
     }
 
     public void init(String siteKey, String baseUrl) {

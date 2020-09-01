@@ -46,7 +46,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -61,6 +60,8 @@ public class ImportExportSettingsController
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
+    @Inject
+    DatabaseSavedThreadManager savedThreadManager;
 
     private ImportExportSettingsPresenter presenter;
 
@@ -166,8 +167,7 @@ public class ImportExportSettingsController
         String messagePartTwo = "";
 
         if (localThreadsLocationIsSAFBacked) {
-            long downloadingThreadsCount =
-                    DatabaseUtils.runTask(instance(DatabaseSavedThreadManager.class).countDownloadingThreads());
+            long downloadingThreadsCount = DatabaseUtils.runTask(savedThreadManager.countDownloadingThreads());
 
             if (downloadingThreadsCount > 0) {
                 messagePartTwo = getString(R.string.import_or_export_warning_super_long_message_part_two);
