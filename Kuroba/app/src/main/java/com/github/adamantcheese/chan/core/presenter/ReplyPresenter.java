@@ -48,7 +48,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,6 +57,7 @@ import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ReplyPresenter
         implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
@@ -92,7 +92,8 @@ public class ReplyPresenter
         this.draft = loadable.draft;
 
         callback.loadDraftIntoViews(loadable.draft);
-        callback.updateCommentCount(0, loadable.board.maxCommentChars, false);
+        int length = draft.comment.getBytes(UTF_8).length;
+        callback.updateCommentCount(length, loadable.board.maxCommentChars, length > loadable.board.maxCommentChars);
         callback.setCommentHint(loadable.isThreadMode());
         callback.showCommentCounter(loadable.board.maxCommentChars > 0);
         callback.enableImageAttach(canPostImages());
@@ -351,7 +352,7 @@ public class ReplyPresenter
     }
 
     public void onCommentTextChanged(CharSequence text) {
-        int length = text.toString().getBytes(StandardCharsets.UTF_8).length;
+        int length = text.toString().getBytes(UTF_8).length;
         callback.updateCommentCount(length, loadable.board.maxCommentChars, length > loadable.board.maxCommentChars);
     }
 
@@ -360,7 +361,6 @@ public class ReplyPresenter
     }
 
     public void onSelectionChanged() {
-        callback.loadViewsIntoDraft(draft);
         highlightQuotes();
     }
 
