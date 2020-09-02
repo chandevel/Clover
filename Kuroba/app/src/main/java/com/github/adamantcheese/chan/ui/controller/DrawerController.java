@@ -295,9 +295,6 @@ public class DrawerController
 
     public void setPinHighlighted(Pin pin) {
         drawerAdapter.setHighlightedPin(pin);
-        synchronized (watchManager.getAllPins()) {
-            drawerAdapter.notifyItemChanged(watchManager.getAllPins().indexOf(pin));
-        }
     }
 
     @Subscribe

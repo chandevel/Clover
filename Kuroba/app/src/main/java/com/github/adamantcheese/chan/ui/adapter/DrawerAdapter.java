@@ -203,7 +203,12 @@ public class DrawerAdapter
     }
 
     public void setHighlightedPin(Pin highlighted) {
+        Pin prevHighlight = this.highlighted;
         this.highlighted = highlighted;
+        synchronized (watchManager.getAllPins()) {
+            notifyItemChanged(watchManager.getAllPins().indexOf(prevHighlight));
+            notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
+        }
     }
 
     private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
