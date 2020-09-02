@@ -90,7 +90,6 @@ public class ThreadListLayout
     private ReplyLayout reply;
     private TextView searchStatus;
     private RecyclerView recyclerView;
-    private RecyclerView.LayoutManager layoutManager;
     private FastScroller fastScroller;
     private PostAdapter postAdapter;
     private ChanThread showingThread;
@@ -205,15 +204,13 @@ public class ThreadListLayout
         if (postViewMode == CARD) {
             postAdapter.setCompact(compactMode);
 
-            ((GridLayoutManager) layoutManager).setSpanCount(spanCount);
+            ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
         }
     }
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         if (this.postViewMode != postViewMode) {
             this.postViewMode = postViewMode;
-
-            layoutManager = null;
 
             switch (postViewMode) {
                 case LIST:
@@ -231,7 +228,6 @@ public class ThreadListLayout
                     };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(linearLayoutManager);
-                    layoutManager = linearLayoutManager;
 
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
 
@@ -252,7 +248,6 @@ public class ThreadListLayout
                             };
                     setRecyclerViewPadding();
                     recyclerView.setLayoutManager(gridLayoutManager);
-                    layoutManager = gridLayoutManager;
 
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
 
@@ -271,8 +266,9 @@ public class ThreadListLayout
         showingThread = thread;
         if (initial) {
             reply.getPresenter().bindLoadable(thread.getLoadable());
+            RecyclerView.LayoutManager prevManager = recyclerView.getLayoutManager();
             recyclerView.setLayoutManager(null);
-            recyclerView.setLayoutManager(layoutManager);
+            recyclerView.setLayoutManager(prevManager);
             recyclerView.getRecycledViewPool().clear();
 
             int index = thread.getLoadable().listViewIndex;
@@ -280,10 +276,10 @@ public class ThreadListLayout
 
             switch (postViewMode) {
                 case LIST:
-                    ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
+                    ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
                     break;
                 case CARD:
-                    ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(index, top);
+                    ((GridLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
                     break;
             }
 
@@ -472,7 +468,7 @@ public class ThreadListLayout
         if (replyOpen) return true;
 
         if (getTopAdapterPosition() == 0) {
-            View top = layoutManager.findViewByPosition(0);
+            View top = recyclerView.getLayoutManager().findViewByPosition(0);
             if (top == null) return true;
 
             if (searchOpen) {
@@ -511,8 +507,8 @@ public class ThreadListLayout
     }
 
     public void smoothScrollNewPosts(int displayPosition) {
-        if (layoutManager instanceof LinearLayoutManager) {
-            ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(
+        if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(
                     displayPosition + 1,
                     //position + 1 for last seen view, dp(4) for it's height
                     recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4)
@@ -778,9 +774,9 @@ public class ThreadListLayout
     private int getTopAdapterPosition() {
         switch (postViewMode) {
             case LIST:
-                return ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+                return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             case CARD:
-                return ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
+                return ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
         }
         return -1;
     }
@@ -788,16 +784,16 @@ public class ThreadListLayout
     private int getCompleteBottomAdapterPosition() {
         switch (postViewMode) {
             case LIST:
-                return ((LinearLayoutManager) layoutManager).findLastCompletelyVisibleItemPosition();
+                return ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
             case CARD:
-                return ((GridLayoutManager) layoutManager).findLastCompletelyVisibleItemPosition();
+                return ((GridLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
         }
         return -1;
     }
 
     private final RecyclerView.ItemDecoration PARTY = new RecyclerView.ItemDecoration() {
         @Override
-        public void onDrawOver(Canvas c, RecyclerView parent, @NonNull RecyclerView.State state) {
+        public void onDrawOver(@NonNull Canvas c, RecyclerView parent, @NonNull RecyclerView.State state) {
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {
