@@ -43,7 +43,6 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public class SiteSetupController
         extends SettingsController
         implements SiteSetupPresenter.Callback {
-    @Inject
     SiteSetupPresenter presenter;
 
     private Site site;
