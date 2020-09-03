@@ -92,10 +92,6 @@ public class ChanThread {
         return loadable.id;
     }
 
-    public synchronized void updateLoadableState(Loadable.LoadableDownloadingState state) {
-        loadable.setLoadableState(state);
-    }
-
     /**
      * Not safe! Only use for read-only operations!
      */
@@ -157,21 +153,19 @@ public class ChanThread {
                 builder.append(" / ").append(ips);
             }
 
-            if (!getLoadable().isLocal()) {
-                CommonDataStructs.ChanPage p = PageRepository.getPage(op);
-                if (p != null) {
-                    SpannableString page = new SpannableString(String.valueOf(p.page));
-                    if (p.page >= loadable.board.pages) {
-                        page.setSpan(new StyleSpan(style), 0, page.length(), 0);
-                        if (extraStyling) {
-                            page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                                    android.R.attr.textColor
-                            )), 0, page.length(), 0);
-                            page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
-                        }
+            CommonDataStructs.ChanPage p = PageRepository.getPage(op);
+            if (p != null) {
+                SpannableString page = new SpannableString(String.valueOf(p.page));
+                if (p.page >= loadable.board.pages) {
+                    page.setSpan(new StyleSpan(style), 0, page.length(), 0);
+                    if (extraStyling) {
+                        page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
+                                android.R.attr.textColor
+                        )), 0, page.length(), 0);
+                        page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
                     }
-                    builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
                 }
+                builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
             }
         }
         return builder;

@@ -23,7 +23,6 @@ import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
@@ -57,10 +56,10 @@ public class AlbumViewCell
         text = findViewById(R.id.text);
     }
 
-    public void setPostImage(Loadable loadable, PostImage postImage) {
+    public void setPostImage(PostImage postImage) {
         this.postImage = postImage;
 
-        thumbnailView.setPostImage(loadable, postImage);
+        thumbnailView.setPostImage(postImage);
 
         if (postImage != null) {
             text.setText(String.format(

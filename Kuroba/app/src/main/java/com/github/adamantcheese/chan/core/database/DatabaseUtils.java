@@ -52,7 +52,6 @@ public class DatabaseUtils {
             o += "PostHide rows: " + helper.getPostHideDao().countOf() + "\n";
             o += "Filter rows: " + helper.getFilterDao().countOf() + "\n";
             o += "Site rows: " + helper.getSiteModelDao().countOf() + "\n";
-            o += "Local thread rows: " + helper.getSavedThreadDao().countOf() + "\n";
         } catch (SQLException e) {
             e.printStackTrace();
         }

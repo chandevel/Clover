@@ -21,61 +21,6 @@ class SharedLocationSetupDelegate(
 ) : SharedLocationSetupDelegateCallbacks {
     private var loadingViewController: LoadingViewController? = null
 
-    override fun updateLocalThreadsLocation(newLocation: String) {
-        BackgroundUtils.ensureMainThread()
-        callbacks.setDescription(newLocation)
-    }
-
-    override fun askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            oldBaseDirectory: AbstractFile?,
-            newBaseDirectory: AbstractFile
-    ) {
-        BackgroundUtils.ensureMainThread()
-
-        if (oldBaseDirectory == null) {
-            showToast(context, R.string.done, Toast.LENGTH_LONG)
-            return
-        }
-
-        val isOldBaseDirExternal = oldBaseDirectory is ExternalFile
-        val isNewBaseDirExternal = newBaseDirectory is ExternalFile
-
-        if (isOldBaseDirExternal xor isNewBaseDirExternal) {
-            // oldBaseDirectory and newBaseDirectory do not use the same provider (one of them uses a
-            // RawFile and the other one uses ExternalFile). It's kinda hard to determine whether
-            // they are the same directory or whether one is a parent of the other. So we are just
-            // not gonna do in such case.
-            showToast(context, R.string.done, Toast.LENGTH_LONG)
-            return
-        }
-
-        if (fileManager.areTheSame(oldBaseDirectory, newBaseDirectory)) {
-            showToast(context, R.string.done, Toast.LENGTH_LONG)
-            return
-        }
-
-        if (fileManager.isChildOfDirectory(oldBaseDirectory, newBaseDirectory)) {
-            showToast(context, R.string.done, Toast.LENGTH_LONG)
-            return
-        }
-
-        val moveThreadsDescription = getString(R.string.media_settings_move_threads_to_new_dir_description,
-                oldBaseDirectory.getFullPath(),
-                newBaseDirectory.getFullPath()
-        )
-
-        val alertDialog = AlertDialog.Builder(context)
-                .setTitle(R.string.media_settings_move_threads_to_new_dir)
-                .setMessage(moveThreadsDescription)
-                .setPositiveButton(R.string.move) { _, _ ->
-                    presenter.moveOldFilesToTheNewDirectory(oldBaseDirectory, newBaseDirectory)
-                }
-                .setNegativeButton(R.string.do_not) { dialog, _ -> dialog.dismiss() }
-                .create()
-
-        alertDialog.show()
-    }
-
     override fun askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
             oldBaseDirectory: AbstractFile?,
             newBaseDirectory: AbstractFile

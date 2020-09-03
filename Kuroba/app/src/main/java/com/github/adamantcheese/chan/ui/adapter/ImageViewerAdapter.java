@@ -85,7 +85,7 @@ public class ImageViewerAdapter
             if (view == null || view.getWindowToken() == null) {
                 Logger.w(this, "finishUpdate setMode view still not found");
             } else {
-                view.setMode(loadable, change.mode, change.center);
+                view.setMode(change.mode, change.center);
             }
         }
         pendingModeChanges.clear();
@@ -96,7 +96,7 @@ public class ImageViewerAdapter
         if (view == null || view.getWindowToken() == null) {
             pendingModeChanges.add(new ModeChange(mode, postImage, center));
         } else {
-            view.setMode(loadable, mode, center);
+            view.setMode(mode, center);
         }
     }
 

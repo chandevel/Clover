@@ -24,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -41,7 +40,6 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -51,9 +49,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -70,7 +66,6 @@ import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -156,9 +151,6 @@ public class ThreadPresenter
     private ChanLoaderManager chanLoaderManager;
 
     @Inject
-    private ThreadSaveManager threadSaveManager;
-
-    @Inject
     private FileManager fileManager;
 
     @Inject
@@ -207,7 +199,6 @@ public class ThreadPresenter
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
             DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
 
-            startSavingThreadIfItIsNotBeingSaved(this.loadable);
             chanLoader = chanLoaderManager.obtain(loadable, this);
             loadable.site.actions().archives(instance(ArchivesManager.class));
             threadPresenterCallback.showLoading();
@@ -238,55 +229,8 @@ public class ThreadPresenter
         }
 
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null // No pin for this loadable we are probably not downloading this thread
-                || !PinType.hasDownloadFlag(pin.pinType)) // Pin has no downloading flag
-        {
-            return;
-        }
+        if (pin == null) return; // No pin for this loadable
 
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (savedThread == null // We are not downloading this thread
-                || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded
-                // We are viewing already saved copy of the thread
-                || savedThread.isFullyDownloaded || savedThread.isStopped) {
-            return;
-        }
-
-        watchManager.stopSavingThread(loadable);
-        postToEventBus(new WatchManager.PinMessages.PinChangedMessage(pin));
-    }
-
-    private void startSavingThreadIfItIsNotBeingSaved(Loadable loadable) {
-        if ((ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()) || loadable == null
-                || loadable.mode != Loadable.Mode.THREAD) {
-            // Do not start thread saving if background watcher is enabled
-            // Or if we're in the catalog
-            return;
-        }
-
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            // No pin for this loadable we are probably not downloading this thread
-            // Pin has no downloading flag
-            return;
-        }
-
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded
-                || savedThread == null || savedThread.isFullyDownloaded || !savedThread.isStopped) {
-            // We are viewing already saved copy of the thread
-            // We are not downloading this thread
-            // Thread is already fully downloaded
-            // Thread saving is already in progress
-            return;
-        }
-
-        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            // Base directory for local threads does not exist or was deleted
-            return;
-        }
-
-        watchManager.startSavingThread(loadable);
         postToEventBus(new WatchManager.PinMessages.PinChangedMessage(pin));
     }
 
@@ -339,120 +283,20 @@ public class ThreadPresenter
             return true;
         }
 
-        if (PinType.hasWatchNewPostsFlag(pin.pinType)) {
-            pin.pinType = PinType.removeWatchNewPostsFlag(pin.pinType);
-
-            if (PinType.hasNoFlags(pin.pinType)) {
-                watchManager.deletePin(pin);
-            } else {
-                watchManager.updatePin(pin);
-            }
-        } else {
-            pin.pinType = PinType.addWatchNewPostsFlag(pin.pinType);
-            watchManager.updatePin(pin);
-        }
-
-        return true;
-    }
-
-    public synchronized boolean save() {
-        if (!isBound()) return false;
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            boolean startedSaving = saveInternal();
-            if (!startedSaving) {
-                watchManager.stopSavingThread(loadable);
-            }
-
-            return startedSaving;
-        }
-
-        if (!PinType.hasWatchNewPostsFlag(pin.pinType)) {
-            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
+        if (pin.watching) {
             watchManager.deletePin(pin);
         } else {
-            watchManager.stopSavingThread(pin.loadable);
-
-            // Remove the flag after stopping thread saving, otherwise we just won't find the thread
-            // because the pin won't have the download flag which we check somewhere deep inside the
-            // stopSavingThread() method
-            pin.pinType = PinType.removeDownloadNewPostsFlag(pin.pinType);
-            watchManager.updatePin(pin);
-        }
-
-        loadable.setLoadableState(Loadable.LoadableDownloadingState.NotDownloading);
-        return true;
-    }
-
-    private boolean saveInternal() {
-        if (chanLoader.getThread() == null) {
-            Logger.e(this, "chanLoader.getThread() == null");
-            return false;
-        }
-
-        Post op = chanLoader.getThread().getOp();
-        List<Post> postsToSave = chanLoader.getThread().getPosts();
-        loadable.thumbnailUrl = op.image() == null ? null : op.image().getThumbnailUrl();
-
-        Pin oldPin = watchManager.findPinByLoadableId(loadable.id);
-        if (oldPin != null) {
-            // Save button is clicked and bookmark button is already pressed
-            // Update old pin and start saving the thread
-            if (PinType.hasDownloadFlag(oldPin.pinType)) {
-                // We forgot to delete pin when cancelling thread download?
-                throw new IllegalStateException("oldPin already contains DownloadFlag");
-            }
-
-            oldPin.pinType = PinType.addDownloadNewPostsFlag(oldPin.pinType);
-            watchManager.updatePin(oldPin);
-
-            if (!startSavingThreadInternal(loadable, postsToSave, oldPin)) {
-                return false;
-            }
-
-            postToEventBus(new WatchManager.PinMessages.PinChangedMessage(oldPin));
-        } else {
-            // Save button is clicked and bookmark button is not yet pressed
-            // Create new pin and start saving the thread
-
-            // We don't want to send PinAddedMessage broadcast right away. We will send it after
-            // the thread has been saved
-            if (!watchManager.createPin(loadable, PinType.DOWNLOAD_NEW_POSTS, false)) {
-                throw new IllegalStateException("Could not create pin for loadable " + loadable);
-            }
-
-            Pin newPin = watchManager.getPinByLoadable(loadable);
-            if (newPin == null) {
-                throw new IllegalStateException("Could not find freshly created pin by loadable " + loadable);
-            }
-
-            if (!startSavingThreadInternal(loadable, postsToSave, newPin)) {
-                return false;
-            }
-
-            postToEventBus(new WatchManager.PinMessages.PinAddedMessage(newPin));
-        }
-
-        if (!ChanSettings.watchEnabled.get() || !ChanSettings.watchBackground.get()) {
-            showToast(context, R.string.thread_layout_background_watcher_is_disabled_message, Toast.LENGTH_LONG);
+            watchManager.createPin(pin);
         }
 
         return true;
-    }
-
-    private boolean startSavingThreadInternal(Loadable loadable, List<Post> postsToSave, Pin newPin) {
-        if (!PinType.hasDownloadFlag(newPin.pinType)) {
-            throw new IllegalStateException("newPin does not have DownloadFlag: " + newPin.pinType);
-        }
-
-        return watchManager.startSavingThread(loadable, postsToSave);
     }
 
     public boolean isPinned() {
         if (!isBound()) return false;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin == null) return false;
-        return PinType.hasWatchNewPostsFlag(pin.pinType);
+        return pin.watching;
     }
 
     public void onSearchVisibilityChanged(boolean visible) {
@@ -532,9 +376,6 @@ public class ThreadPresenter
             return;
         }
 
-        loadable.setLoadableState(result.getLoadable().getLoadableDownloadingState());
-        Logger.d(this, "onChanLoaderData() downloadingState = " + loadable.getLoadableDownloadingState().name());
-
         //allow for search refreshes inside the catalog
         if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
             onSearchEntered(searchQuery);
@@ -584,57 +425,9 @@ public class ThreadPresenter
             loadable.markedNo = -1;
         }
 
-        storeNewPostsIfThreadIsBeingDownloaded(result.getPosts());
-
         updateDatabaseLoadable();
 
-        if (!ChanSettings.watchEnabled.get() && !ChanSettings.watchBackground.get()
-                && loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-            Pin pin = watchManager.findPinByLoadableId(loadable.id);
-            if (pin != null) {
-                pin.isError = true;
-                pin.watching = false;
-
-                watchManager.updatePin(pin, true);
-            } else {
-                Logger.d(this, "Could not find pin with loadableId = " + loadable.id + ", it was already deleted?");
-            }
-        }
-
         BackgroundUtils.runOnBackgroundThread(() -> filterWatchManager.onCatalogLoad(result));
-    }
-
-    private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
-        if (posts.isEmpty() || loadable.isCatalogMode()
-                || loadable.getLoadableDownloadingState() == Loadable.LoadableDownloadingState.AlreadyDownloaded) {
-            return;
-        }
-
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null || !PinType.hasDownloadFlag(pin.pinType)) {
-            // No pin for this loadable we are probably not downloading this thread
-            // or no downloading flag
-            return;
-        }
-
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-        if (savedThread == null || savedThread.isStopped || savedThread.isFullyDownloaded) {
-            // Either the thread is not being downloaded or it is stopped or already fully downloaded
-            return;
-        }
-
-        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.d(this, "storeNewPostsIfThreadIsBeingDownloaded() LocalThreadsBaseDirectory does not exist");
-
-            watchManager.stopSavingAllThread();
-            return;
-        }
-
-        if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
-            // Probably base directory was removed by the user, can't do anything other than
-            // just stop this download
-            watchManager.stopSavingThread(loadable);
-        }
     }
 
     @Override
@@ -816,6 +609,8 @@ public class ThreadPresenter
     ) {
         if (!isBound()) return null;
 
+        boolean isSaved = databaseSavedReplyManager.isSaved(post.board, post.no);
+
         copyMenu = populateCopyMenuOptions(post);
         filterMenu = populateFilterMenuOptions(post);
 
@@ -825,16 +620,16 @@ public class ThreadPresenter
                 false
         )) == null) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
-        } else if (!loadable.isLocal()) {
-            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
-            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
 
-        if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT) && !loadable.isLocal()) {
+        menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
+        menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+
+        if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT)) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_REPORT, R.string.post_report));
         }
 
-        if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP)) && !loadable.isLocal()) {
+        if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP))) {
             if (!post.filterStub) {
                 menu.add(new FloatingMenuItem<>(POST_OPTION_HIDE, R.string.post_hide));
             }
@@ -853,9 +648,7 @@ public class ThreadPresenter
 
         menu.add(new FloatingMenuItem<>(POST_OPTION_COPY, R.string.post_copy_menu));
 
-        if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && databaseSavedReplyManager.isSaved(post.board,
-                post.no
-        ) && !loadable.isLocal()) {
+        if (loadable.site.siteFeature(Site.SiteFeature.POST_DELETE) && isSaved) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_DELETE, R.string.post_delete));
         }
 
@@ -883,12 +676,9 @@ public class ThreadPresenter
             extraMenu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
-        if (!loadable.isLocal()) {
-            boolean isSaved = databaseSavedReplyManager.isSaved(post.board, post.no);
-            extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
-                    isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
-            ));
-        }
+        extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
+                isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
+        ));
 
         return POST_OPTION_EXTRA;
     }
@@ -1442,25 +1232,11 @@ public class ThreadPresenter
         }
     }
 
-    public void updateLoadableDownloadState(Loadable.LoadableDownloadingState loadableDownloadingState) {
-        if (isBound()) {
-            loadable.setLoadableState(loadableDownloadingState);
-        }
-    }
-
     public void markAllPostsAsSeen() {
         if (!isBound()) return;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
         if (pin != null) {
-            SavedThread savedThread = null;
-
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                savedThread = watchManager.findSavedThreadByLoadableId(loadable.id);
-            }
-
-            if (savedThread == null) {
-                watchManager.onBottomPostViewed(pin);
-            }
+            watchManager.onBottomPostViewed(pin);
         }
     }
 

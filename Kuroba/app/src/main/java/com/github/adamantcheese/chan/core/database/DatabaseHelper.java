@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
@@ -76,7 +75,6 @@ public class DatabaseHelper
     private Dao<PostHide, Integer> postHideDao;
     private Dao<Filter, Integer> filterDao;
     private Dao<SiteModel, Integer> siteDao;
-    private Dao<SavedThread, Integer> savedThreadDao;
 
     public DatabaseHelper() {
         super(getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
@@ -144,13 +142,6 @@ public class DatabaseHelper
         return siteDao;
     }
 
-    public Dao<SavedThread, Integer> getSavedThreadDao() {
-        if (savedThreadDao == null) {
-            savedThreadDao = getDaoForClass(SavedThread.class);
-        }
-        return savedThreadDao;
-    }
-
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
@@ -170,7 +161,6 @@ public class DatabaseHelper
         TableUtils.createTable(connectionSource, PostHide.class);
         TableUtils.createTable(connectionSource, Filter.class);
         TableUtils.createTable(connectionSource, SiteModel.class);
-        TableUtils.createTable(connectionSource, SavedThread.class);
     }
 
     public void dropTables(ConnectionSource connectionSource)
@@ -182,7 +172,6 @@ public class DatabaseHelper
         TableUtils.dropTable(connectionSource, PostHide.class, true);
         TableUtils.dropTable(connectionSource, Filter.class, true);
         TableUtils.dropTable(connectionSource, SiteModel.class, true);
-        TableUtils.dropTable(connectionSource, SavedThread.class, true);
     }
 
     /**
@@ -623,11 +612,6 @@ public class DatabaseHelper
             for (Loadable loadable : siteLoadables) {
                 loadableIdSet.add(loadable.id);
             }
-            //saved threads
-            DeleteBuilder<SavedThread, Integer> savedThreadDelete = getSavedThreadDao().deleteBuilder();
-            savedThreadDelete.where().in("loadable_id", loadableIdSet);
-            savedThreadDelete.delete();
-
             //pins
             DeleteBuilder<Pin, Integer> pinDelete = getPinDao().deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);
@@ -698,11 +682,6 @@ public class DatabaseHelper
                     loadableIdSet.add(loadable.id);
                 }
             }
-            //saved threads
-            DeleteBuilder<SavedThread, Integer> savedThreadDelete = getSavedThreadDao().deleteBuilder();
-            savedThreadDelete.where().in("loadable_id", loadableIdSet);
-            savedThreadDelete.delete();
-
             //pins
             DeleteBuilder<Pin, Integer> pinDelete = getPinDao().deleteBuilder();
             pinDelete.where().in("loadable_id", loadableIdSet);

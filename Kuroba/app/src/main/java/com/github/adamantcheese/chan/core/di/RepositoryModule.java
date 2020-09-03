@@ -21,7 +21,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -56,12 +55,5 @@ public class RepositoryModule {
     ) {
         Logger.d(AppModule.DI_TAG, "Board repository");
         return new BoardRepository(databaseBoardManager, siteRepository);
-    }
-
-    @Provides
-    @Singleton
-    public SavedThreadLoaderRepository provideSavedThreadLoaderRepository(Gson gson, FileManager fileManager) {
-        Logger.d(AppModule.DI_TAG, "Saved thread loader repository");
-        return new SavedThreadLoaderRepository(gson, fileManager);
     }
 }

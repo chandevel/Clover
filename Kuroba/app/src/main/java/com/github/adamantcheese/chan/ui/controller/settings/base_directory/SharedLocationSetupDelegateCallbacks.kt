@@ -3,12 +3,6 @@ package com.github.adamantcheese.chan.ui.controller.settings.base_directory
 import com.github.k1rakishou.fsaf.file.AbstractFile
 
 interface SharedLocationSetupDelegateCallbacks {
-    fun updateLocalThreadsLocation(newLocation: String)
-    fun askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-            oldBaseDirectory: AbstractFile?,
-            newBaseDirectory: AbstractFile
-    )
-
     fun askUserIfTheyWantToMoveOldSavedFilesToTheNewDirectory(
             oldBaseDirectory: AbstractFile?,
             newBaseDirectory: AbstractFile

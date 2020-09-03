@@ -619,7 +619,7 @@ public class PostCell
 
     public void clearThumbnails() {
         for (PostImageThumbnailView thumbnailView : thumbnailViews) {
-            thumbnailView.setPostImage(loadable, null);
+            thumbnailView.setPostImage(null);
             relativeLayoutContainer.removeView(thumbnailView);
         }
         thumbnailViews.clear();
@@ -656,7 +656,7 @@ public class PostCell
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(loadable, image);
+                v.setPostImage(image);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
                 if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {

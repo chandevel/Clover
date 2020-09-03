@@ -32,32 +32,23 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.k1rakishou.fsaf.FileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -86,10 +77,6 @@ public class WatchNotification
 
     @Inject
     WatchManager watchManager;
-    @Inject
-    ThreadSaveManager threadSaveManager;
-    @Inject
-    FileManager fileManager;
 
     public static void setupChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -180,8 +167,6 @@ public class WatchNotification
         List<Pin> newQuotePins = new ArrayList<>();
         // A list of pins that download threads
         List<Pin> threadDownloaderPins = new ArrayList<>();
-        // Used for ThreadSaveManager
-        HashMap<SavedThread, Pair<Loadable, List<Post>>> unviewedPostsByThread = new HashMap<>();
 
         int flags = 0;
 
@@ -191,28 +176,7 @@ public class WatchNotification
                 continue;
             }
 
-            if (PinType.hasNoFlags(pin.pinType)) {
-                Logger.d(this, "Pin " + pin.toString() + " has no flags");
-                continue;
-            }
-
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-                if (savedThread != null && savedThread.isRunning()) {
-                    // Just pass all the posts to the threadSaveManager. It will figure out new posts by itself
-                    List<Post> allPosts = watcher.getPosts();
-                    if (!allPosts.isEmpty()) {
-                        // Add all posts to the map
-                        unviewedPostsByThread.put(savedThread, new Pair<>(pin.loadable, allPosts));
-                    }
-                }
-
-                if (savedThread != null) {
-                    threadDownloaderPins.add(pin);
-                }
-            }
-
-            if (PinType.hasWatchNewPostsFlag(pin.pinType) && pin.watching) {
+            if (pin.watching) {
                 pinCount++;
 
                 if (notifyQuotesOnly) {
@@ -254,10 +218,6 @@ public class WatchNotification
             flags &= ~(NOTIFICATION_PEEK);
         }
 
-        if (unviewedPostsByThread.size() > 0) {
-            updateSavedThreads(unviewedPostsByThread);
-        }
-
         if (pinCount == 0 && threadDownloaderPins.isEmpty()) {
             Logger.d(this, "Both pins or threadDownloaderPins are empty");
             return null;
@@ -272,24 +232,6 @@ public class WatchNotification
                 notifyQuotesOnly,
                 flags
         );
-    }
-
-    private void updateSavedThreads(HashMap<SavedThread, Pair<Loadable, List<Post>>> allPostsByThread) {
-        if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory.class)) {
-            Logger.d(this, "updateSavedThreads() LocalThreadsBaseDirectory does not exist");
-
-            watchManager.stopSavingAllThread();
-            return;
-        }
-
-        for (Map.Entry<SavedThread, Pair<Loadable, List<Post>>> entry : allPostsByThread.entrySet()) {
-            Loadable loadable = entry.getValue().first;
-            List<Post> posts = entry.getValue().second;
-
-            if (!threadSaveManager.enqueueThreadToSave(loadable, posts)) {
-                watchManager.stopSavingThread(loadable);
-            }
-        }
     }
 
     private Notification setupNotificationTextFields(

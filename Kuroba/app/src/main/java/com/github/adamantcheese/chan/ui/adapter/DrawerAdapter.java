@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,14 +31,12 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
@@ -126,7 +123,9 @@ public class DrawerAdapter
         }
         holder.title.setText(title);
 
-        loadBookmarkImage(holder, pin);
+        if (holder.image.getBitmap() == null) {
+            holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
+        }
         holder.image.setGreyscale(!pin.watching);
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
@@ -152,14 +151,8 @@ public class DrawerAdapter
             String text = getShortString(newPostCount) + (newQuoteCount > 0 ? "/" + getShortString(newQuoteCount) : "");
             holder.watchCountText.setText(text);
 
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-
             if (pin.getNewQuoteCount() > 0) {
                 holder.watchCountText.setTextColor(getColor(R.color.md_red_500));
-            } else if (savedThread != null && savedThread.isFullyDownloaded) {
-                holder.watchCountText.setTextColor(getColor(R.color.md_green_500));
-            } else if (savedThread != null && savedThread.isRunning()) {
-                holder.watchCountText.setTextColor(getColor(R.color.md_orange_700));
             } else if (!pin.watching) {
                 holder.watchCountText.setTextColor(getColor(R.color.md_grey_600));
             } else {
@@ -209,23 +202,6 @@ public class DrawerAdapter
             notifyItemChanged(watchManager.getAllPins().indexOf(prevHighlight));
             notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
         }
-    }
-
-    private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        if (holder.image.getBitmap() != null) return;
-        holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
-
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-        if (savedThread == null || !savedThread.isFullyDownloaded) {
-            return;
-        }
-
-        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.loadable.thumbnailUrl);
-        if (TextUtils.isEmpty(filename)) {
-            return;
-        }
-
-        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(48), dp(48));
     }
 
     public class PinViewHolder

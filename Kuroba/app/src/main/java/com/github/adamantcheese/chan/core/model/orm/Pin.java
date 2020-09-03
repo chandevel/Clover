@@ -58,12 +58,6 @@ public class Pin
     //local field for keeping track of if the thread is a sticky; don't put this in the database
     public boolean isSticky = false;
 
-    /**
-     * Pins can now be used to either watch new posts or save new posts or do both
-     */
-    @DatabaseField(columnName = "pin_type")
-    public int pinType;
-
     public Pin() {
     }
 
@@ -76,8 +70,7 @@ public class Pin
             int quoteNewCount,
             boolean isError,
             int order,
-            boolean archived,
-            int pinType
+            boolean archived
     ) {
         this.loadable = loadable;
         this.watching = watching;
@@ -88,7 +81,6 @@ public class Pin
         this.isError = isError;
         this.order = order;
         this.archived = archived;
-        this.pinType = pinType;
     }
 
     public int getNewPostCount() {
@@ -121,7 +113,6 @@ public class Pin
         copy.isError = isError;
         copy.order = order;
         copy.archived = archived;
-        copy.pinType = pinType;
         return copy;
     }
 
@@ -157,8 +148,7 @@ public class Pin
     @NonNull
     @Override
     public String toString() {
-        return "[id = " + id + ", pinType = " + pinType + ", isError = " + isError + ", isArchived = " + archived
-                + ", watching = " + watching + ", (active) = " + (!isError && !archived) + ", no = " + loadable.no
-                + "]";
+        return "[id = " + id + ", isError = " + isError + ", isArchived = " + archived + ", watching = " + watching
+                + ", (active) = " + (!isError && !archived) + ", no = " + loadable.no + "]";
     }
 }

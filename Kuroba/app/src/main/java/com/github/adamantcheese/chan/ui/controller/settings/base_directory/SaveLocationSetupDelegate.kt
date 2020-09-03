@@ -7,7 +7,6 @@ import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPrese
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController
-import com.github.adamantcheese.chan.ui.controller.SaveLocationController.SaveLocationControllerCallback
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import java.io.File
 
@@ -18,13 +17,11 @@ class SaveLocationSetupDelegate(
 ) {
 
     fun getSaveLocation(): String {
-        BackgroundUtils.ensureMainThread()
-
-        if (ChanSettings.saveLocation.isSafDirActive()) {
-            return ChanSettings.saveLocation.safBaseDir.get()
+        return if (ChanSettings.saveLocation.isSafDirActive()) {
+            ChanSettings.saveLocation.safBaseDir.get()
+        } else {
+            ChanSettings.saveLocation.fileApiBaseDir.get()
         }
-
-        return ChanSettings.saveLocation.fileApiBaseDir.get()
     }
 
     fun showUseSAFOrOldAPIForSaveLocationDialog() {
@@ -62,10 +59,7 @@ class SaveLocationSetupDelegate(
     private fun onSaveLocationUseOldApiClicked() {
         BackgroundUtils.ensureMainThread()
 
-        val saveLocationController = SaveLocationController(context,
-                SaveLocationController.SaveLocationControllerMode.ImageSaveLocation,
-                SaveLocationControllerCallback { dirPath -> presenter.onSaveLocationChosen(dirPath) }
-        )
+        val saveLocationController = SaveLocationController(context) { dirPath -> presenter.onSaveLocationChosen(dirPath) }
 
         callbacks.pushController(saveLocationController)
     }
@@ -74,7 +68,6 @@ class SaveLocationSetupDelegate(
     interface MediaControllerCallbacks {
         fun runWithWritePermissionsOrShowErrorToast(func: Runnable)
         fun pushController(saveLocationController: SaveLocationController)
-        fun setDescription(newLocation: String)
         fun updateSaveLocationViewText(newLocation: String)
         fun presentController(loadingViewController: LoadingViewController)
         fun onFilesBaseDirectoryReset()

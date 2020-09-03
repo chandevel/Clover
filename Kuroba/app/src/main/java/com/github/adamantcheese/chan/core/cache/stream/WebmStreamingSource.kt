@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.cache.stream
 
-import android.annotation.SuppressLint
 import android.net.Uri
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
@@ -16,9 +15,7 @@ import com.github.k1rakishou.fsaf.file.RawFile
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.FileDataSource
-import io.reactivex.android.schedulers.AndroidSchedulers
 import java.io.IOException
-import java.lang.ref.WeakReference
 
 class WebmStreamingSource(
         private val fileManager: FileManager,
@@ -26,7 +23,7 @@ class WebmStreamingSource(
         private val cacheHandler: CacheHandler
 ) {
 
-    fun createMediaSource(loadable: Loadable, postImage: PostImage, callback: MediaSourceCallback) {
+    fun createMediaSource(postImage: PostImage, callback: MediaSourceCallback) {
         val uri = Uri.parse(postImage.imageUrl.toString())
         val alreadyExists = cacheHandler.exists(postImage.imageUrl)
         val rawFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl)
@@ -41,13 +38,6 @@ class WebmStreamingSource(
             Logger.d(TAG, "Loaded from file cache")
 
             loadFromCacheFile(rawFile, callback)
-            return
-        }
-
-        if (loadable.isLocal || loadable.isDownloading) {
-            Logger.d(TAG, "Loaded from local thread")
-
-            loadLocalThreadWebm(loadable, postImage, callback)
             return
         }
 
@@ -92,31 +82,6 @@ class WebmStreamingSource(
         // Trigger the onStop() callback so that we can load everything we have managed to download
         // via FileCache into the WebmStreamingDataSource
         cancelableDownload.stop()
-    }
-
-    @SuppressLint("CheckResult")
-    private fun loadLocalThreadWebm(
-            loadable: Loadable,
-            postImage: PostImage,
-            callback: MediaSourceCallback
-    ) {
-        // Not the best solution but should be fine
-        val weakCallback = WeakReference(callback)
-
-        fileCacheV2.loadLocalThreadFile(loadable, postImage)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ destination ->
-                    BackgroundUtils.ensureMainThread()
-                    val fileUri = Uri.parse(destination.getFullPath())
-
-                    weakCallback.get()?.onMediaSourceReady(
-                            ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
-                                    .createMediaSource(fileUri)
-                    )
-                }, { error ->
-                    BackgroundUtils.ensureMainThread()
-                    weakCallback.get()?.onError(error)
-                })
     }
 
     private fun startLoadingFromNetwork(

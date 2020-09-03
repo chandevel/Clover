@@ -2,12 +2,9 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.core.cache.downloader.*
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager
 import com.github.adamantcheese.chan.core.model.PostImage
-import com.github.adamantcheese.chan.core.model.orm.Loadable
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getNetworkClass
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
@@ -16,13 +13,8 @@ import com.github.adamantcheese.chan.utils.PostUtils
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.k1rakishou.fsaf.FileManager
-import com.github.k1rakishou.fsaf.file.AbstractFile
-import com.github.k1rakishou.fsaf.file.FileSegment
 import com.github.k1rakishou.fsaf.file.RawFile
-import com.github.k1rakishou.fsaf.file.Segment
 import io.reactivex.Flowable
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.processors.PublishProcessor
 import io.reactivex.schedulers.Schedulers
 import okhttp3.HttpUrl
@@ -32,7 +24,6 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
-import kotlin.collections.ArrayList
 
 class FileCacheV2(
         private val fileManager: FileManager,
@@ -144,13 +135,11 @@ class FileCacheV2(
      * Enqueue a download request for the given PostImage based on the setting of the chunk count.
      */
     fun enqueueChunkedDownloadFileRequest(
-            loadable: Loadable,
             postImage: PostImage,
             extraInfo: DownloadRequestExtraInfo,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
-                loadable,
                 postImage,
                 extraInfo,
                 chunksCount,
@@ -162,12 +151,10 @@ class FileCacheV2(
      * Enqueue a download request for the given PostImage with only one chunk and default extra information (no file size, no hash).
      */
     fun enqueueNormalDownloadFileRequest(
-            loadable: Loadable,
             postImage: PostImage,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
-                loadable,
                 postImage,
                 DownloadRequestExtraInfo(),
                 1,
@@ -177,37 +164,11 @@ class FileCacheV2(
 
     @SuppressLint("CheckResult")
     private fun enqueueDownloadFileRequest(
-            loadable: Loadable,
             postImage: PostImage,
             extraInfo: DownloadRequestExtraInfo,
             chunksCount: Int,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        if (loadable.isLocal || loadable.isDownloading) {
-            log(TAG, "Handling local thread file, url = ${maskImageUrl(postImage.imageUrl)}")
-
-            if (callback == null) {
-                logError(TAG, "Callback is null for a local thread")
-                return null
-            }
-
-            loadLocalThreadFile(loadable, postImage)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({ file ->
-                        BackgroundUtils.ensureMainThread()
-
-                        callback.onSuccess(file, true)
-                        callback.onEnd()
-                    }, { error ->
-                        BackgroundUtils.ensureMainThread()
-
-                        callback.onFail(Exception(error))
-                        callback.onEnd()
-                    })
-
-            return null
-        }
-
         return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, extraInfo, callback)
     }
 
@@ -341,55 +302,6 @@ class FileCacheV2(
         }
     }
 
-    fun loadLocalThreadFile(
-            loadable: Loadable,
-            postImage: PostImage
-    ): Single<RawFile> {
-        return Single.fromCallable {
-            BackgroundUtils.ensureBackgroundThread()
-
-            val filename = ThreadSaveManager.formatOriginalImageName(
-                    postImage.serverFilename,
-                    postImage.extension
-            )
-
-            if (!fileManager.baseDirectoryExists(LocalThreadsBaseDirectory::class.java)) {
-                logError(TAG, "handleLocalThreadFile() Base local threads directory does not exist")
-                throw IOException("Base local threads directory does not exist")
-            }
-
-            val baseDirFile = fileManager.newBaseDirectoryFile(
-                    LocalThreadsBaseDirectory::class.java
-            )
-
-            if (baseDirFile == null) {
-                logError(TAG, "handleLocalThreadFile() fileManager.newLocalThreadFile() returned null")
-                throw IOException("Couldn't create a file inside local threads base directory")
-            }
-
-            val imagesSubDirSegments = ThreadSaveManager.getImagesSubDir(loadable)
-            val segments: MutableList<Segment> = ArrayList(imagesSubDirSegments).apply {
-                add(FileSegment(filename))
-            }
-
-            val localImgFile = baseDirFile.clone(segments)
-            val isLocalFileOk = fileManager.exists(localImgFile)
-                    && fileManager.isFile(localImgFile)
-                    && fileManager.canRead(localImgFile)
-
-            if (!isLocalFileOk) {
-                val path = localImgFile.getFullPath()
-
-                logError(TAG, "Cannot load saved image from the disk, path: $path")
-                throw IOException("Couldn't load saved image from the disk, path: $path")
-            }
-
-            return@fromCallable localImgFile
-        }.flatMap { localImgFile ->
-            return@flatMap handleLocalThreadFileImmediatelyAvailable(localImgFile, postImage)
-        }.subscribeOn(workerScheduler)
-    }
-
     private fun handleFileImmediatelyAvailable(file: RawFile, url: HttpUrl) {
         val request = activeDownloads.get(url)
                 ?: return
@@ -398,49 +310,6 @@ class FileCacheV2(
             runOnMainThread {
                 onSuccess(file, true)
                 onEnd()
-            }
-        }
-    }
-
-    private fun handleLocalThreadFileImmediatelyAvailable(
-            file: AbstractFile,
-            postImage: PostImage
-    ): Single<RawFile> {
-        return Single.fromCallable {
-            if (file is RawFile) {
-                // Regular Java File
-                @Suppress("USELESS_CAST")
-                return@fromCallable file as RawFile
-            } else {
-                // SAF file
-                try {
-                    val resultFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl)
-                            ?: throw IOException("Couldn't get or create cache file")
-
-                    if (!fileManager.copyFileContents(file, resultFile)) {
-                        if (!cacheHandler.deleteCacheFile(resultFile)) {
-                            Logger.e(TAG, "Couldn't delete cache file ${resultFile.getFullPath()}")
-                        }
-
-                        val error = IOException(
-                                "Could not copy external SAF file into internal cache file, " +
-                                        "externalFile = " + file.getFullPath() +
-                                        ", resultFile = " + resultFile.getFullPath()
-                        )
-
-                        throw error
-                    }
-
-                    if (!cacheHandler.markFileDownloaded(resultFile)) {
-                        throw FileCacheException.CouldNotMarkFileAsDownloaded(resultFile)
-                    }
-
-                    @Suppress("USELESS_CAST")
-                    return@fromCallable resultFile as RawFile
-                } catch (e: IOException) {
-                    logError(TAG, "Error while trying to create a new random cache file", e)
-                    throw e
-                }
             }
         }
     }

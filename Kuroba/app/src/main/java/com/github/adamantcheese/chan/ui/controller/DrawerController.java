@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.net.ConnectivityManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -26,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,10 +36,7 @@ import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.Se
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PinType;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
@@ -59,14 +54,11 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -183,38 +175,6 @@ public class DrawerController
     public void onPinClicked(Pin pin) {
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
-            Loadable.LoadableDownloadingState state = Loadable.LoadableDownloadingState.NotDownloading;
-
-            if (PinType.hasDownloadFlag(pin.pinType)) {
-                // Try to load saved copy of a thread if pinned thread has an error flag but only if
-                // we are downloading this thread. Otherwise it will break archived threads that are not
-                // being downloaded
-                SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-                if (savedThread != null) {
-                    // Do not check for isArchived here since we don't want to show archived threads
-                    // as local threads
-                    if (pin.isError) {
-                        state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
-                    } else {
-                        if (savedThread.isFullyDownloaded) {
-                            state = Loadable.LoadableDownloadingState.AlreadyDownloaded;
-                        } else {
-                            boolean hasNoNetwork = !isConnected(ConnectivityManager.TYPE_MOBILE) && !isConnected(
-                                    ConnectivityManager.TYPE_WIFI);
-
-                            if (hasNoNetwork) {
-                                // No internet connection, but we have a local copy of this thread,
-                                // so show it instead of an empty screen.
-                                state = DownloadingAndViewable;
-                            } else {
-                                state = DownloadingAndNotViewable;
-                            }
-                        }
-                    }
-                }
-            }
-
-            pin.loadable.setLoadableState(state);
             threadController.openPin(pin);
         }
         // Post it to avoid animation jumping because the first frame is heavy.
@@ -222,40 +182,18 @@ public class DrawerController
     }
 
     public boolean onHeaderClicked(HeaderAction headerAction) {
-        final boolean all = headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get();
-        final boolean hasDownloadFlag = watchManager.hasAtLeastOnePinWithDownloadFlag();
-
-        if (all && hasDownloadFlag) {
-            // Some pins may have threads that have saved copies on the disk. We want to warn the
-            // user that this action will delete them as well
-            new AlertDialog.Builder(context).setTitle(R.string.warning)
-                    .setMessage(R.string.drawer_controller_at_least_one_pin_has_download_flag)
-                    .setNegativeButton(R.string.drawer_controller_do_not_delete, (dialog, which) -> dialog.dismiss())
-                    .setPositiveButton(R.string.drawer_controller_delete_all_pins,
-                            ((dialog, which) -> onHeaderClickedInternal(true, true))
-                    )
-                    .create()
-                    .show();
-            return true;
-        }
-
-        onHeaderClickedInternal(all, hasDownloadFlag);
+        onHeaderClickedInternal(headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get());
         return true;
     }
 
-    private void onHeaderClickedInternal(boolean all, boolean hasDownloadFlag) {
+    private void onHeaderClickedInternal(boolean all) {
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
-            if (!hasDownloadFlag) {
-                // We can't undo this operation when there is at least one pin that downloads a thread
-                // because we will be deleting files from the disk. We don't want to warn the user
-                // every time he deletes one pin.
-                String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
-                Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
-                snackbar.setGestureInsetBottomIgnored(true);
-                snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
-                snackbar.show();
-            }
+            String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
+            Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
+            snackbar.setGestureInsetBottomIgnored(true);
+            snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
+            snackbar.show();
         } else {
             int text;
             synchronized (watchManager.getAllPins()) {
@@ -276,19 +214,12 @@ public class DrawerController
 
         Snackbar snackbar;
 
-        if (!PinType.hasDownloadFlag(pin.pinType)) {
-            snackbar = Snackbar.make(drawerLayout,
-                    getString(R.string.drawer_pin_removed, pin.loadable.title),
-                    Snackbar.LENGTH_LONG
-            );
+        snackbar = Snackbar.make(drawerLayout,
+                getString(R.string.drawer_pin_removed, pin.loadable.title),
+                Snackbar.LENGTH_LONG
+        );
 
-            snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
-        } else {
-            snackbar = Snackbar.make(drawerLayout,
-                    getString(R.string.drawer_pin_with_saved_thread_removed, pin.loadable.title),
-                    Snackbar.LENGTH_LONG
-            );
-        }
+        snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.show();
     }
@@ -367,10 +298,6 @@ public class DrawerController
         int total = 0;
         boolean color = false;
         for (Pin p : watchManager.getWatchingPins()) {
-            if (!PinType.hasWatchNewPostsFlag(p.pinType)) {
-                continue;
-            }
-
             if (p.watching || p.archived) {
                 total += p.getNewPostCount();
                 color = color | p.getNewQuoteCount() > 0;

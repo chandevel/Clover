@@ -117,8 +117,7 @@ public class ImageSaveTask
                     onEnd();
                 });
             } else {
-                CancelableDownload cancelableDownload =
-                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, this);
+                CancelableDownload cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(postImage, this);
 
                 onDisposeFunc = () -> {
                     if (cancelableDownload != null) {

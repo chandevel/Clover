@@ -227,10 +227,10 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            thumbView.setPostImage(loadable, post.image());
+            thumbView.setPostImage(post.image());
         } else {
             thumbView.setVisibility(GONE);
-            thumbView.setPostImage(loadable, null);
+            thumbView.setPostImage(null);
         }
 
         if (post.filterHighlightedColor != 0) {

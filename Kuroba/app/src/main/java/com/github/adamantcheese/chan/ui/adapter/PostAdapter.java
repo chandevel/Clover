@@ -265,7 +265,7 @@ public class PostAdapter
             postCell.clearThumbnails();
         } else if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == CARD) {
             CardPostCell postCell = (CardPostCell) holder.itemView;
-            ((PostImageThumbnailView) postCell.getThumbnailView(null)).setPostImage(loadable, null);
+            ((PostImageThumbnailView) postCell.getThumbnailView(null)).setPostImage(null);
         }
     }
 

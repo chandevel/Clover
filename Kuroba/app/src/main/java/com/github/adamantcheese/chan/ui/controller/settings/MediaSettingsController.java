@@ -25,8 +25,6 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -36,7 +34,6 @@ import com.github.adamantcheese.chan.ui.controller.LoadingViewController;
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController;
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SaveLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegate;
-import com.github.adamantcheese.chan.ui.controller.settings.base_directory.ThreadsLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -46,7 +43,6 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 
@@ -64,8 +60,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class MediaSettingsController
         extends SettingsController
-        implements SaveLocationSetupDelegate.MediaControllerCallbacks,
-                   ThreadsLocationSetupDelegate.MediaControllerCallbacks {
+        implements SaveLocationSetupDelegate.MediaControllerCallbacks {
     // Special setting views
     private BooleanSettingView imageBoardFolderSetting;
     private BooleanSettingView imageThreadFolderSetting;
@@ -74,24 +69,17 @@ public class MediaSettingsController
     private BooleanSettingView videoDefaultMutedSetting;
     private BooleanSettingView headsetDefaultMutedSetting;
     private LinkSettingView saveLocation;
-    private LinkSettingView localThreadsLocation;
     private ListSettingView<MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<MediaAutoLoadMode> videoAutoLoadView;
-    private BooleanSettingView incrementalThreadDownloadingSetting;
 
     private MediaSettingsControllerPresenter presenter;
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private SaveLocationSetupDelegate saveLocationSetupDelegate;
-    private ThreadsLocationSetupDelegate threadsLocationSetupDelegate;
 
     @Inject
     FileManager fileManager;
     @Inject
     FileChooser fileChooser;
-    @Inject
-    ThreadSaveManager threadSaveManager;
-    @Inject
-    DatabaseSavedThreadManager savedThreadManager;
     @Inject
     WatchManager watchManager;
 
@@ -111,8 +99,6 @@ public class MediaSettingsController
         SharedLocationSetupDelegate sharedLocationSetupDelegate =
                 new SharedLocationSetupDelegate(context, this, presenter, fileManager);
         saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
-        threadsLocationSetupDelegate =
-                new ThreadsLocationSetupDelegate(context, this, presenter, savedThreadManager, threadSaveManager);
         presenter.onCreate(sharedLocationSetupDelegate);
 
         setupLayout();
@@ -146,9 +132,6 @@ public class MediaSettingsController
             updateAlbumThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
             updateHeadsetDefaultMutedSetting();
-        } else if (item == incrementalThreadDownloadingSetting
-                && !ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            watchManager.stopSavingAllThread();
         }
     }
 
@@ -158,16 +141,9 @@ public class MediaSettingsController
             // Image save location (SAF) was chosen
             ChanSettings.saveLocation.resetFileDir();
             saveLocation.setDescription(ChanSettings.saveLocation.getSafBaseDir().get());
-        } else if (setting.setting == ChanSettings.localThreadLocation.getSafBaseDir()) {
-            // Local threads location (SAF) was chosen
-            ChanSettings.localThreadLocation.resetFileDir();
-            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.getSafBaseDir().get());
         } else if (setting.setting == ChanSettings.saveLocation.getFileApiBaseDir()) {
             // Image save location (Java File API) was chosen
             saveLocation.setDescription(ChanSettings.saveLocation.getFileApiBaseDir().get());
-        } else if (setting.setting == ChanSettings.localThreadLocation.getFileApiBaseDir()) {
-            // Local threads location (Java File API) was chosen
-            localThreadsLocation.setDescription(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
         }
     }
 
@@ -178,7 +154,6 @@ public class MediaSettingsController
 
             //Save locations
             setupSaveLocationSetting(media);
-            setupLocalThreadLocationSetting(media);
 
             //Save modifications
             imageBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
@@ -210,13 +185,6 @@ public class MediaSettingsController
                     R.string.setting_save_server_filename,
                     R.string.setting_save_server_filename_description
             ));
-
-            incrementalThreadDownloadingSetting = new BooleanSettingView(this,
-                    ChanSettings.incrementalThreadDownloadingEnabled,
-                    R.string.incremental_thread_downloading_title,
-                    R.string.incremental_thread_downloading_description
-            );
-            requiresRestart.add(media.add(incrementalThreadDownloadingSetting));
 
             groups.add(media);
         }
@@ -300,23 +268,6 @@ public class MediaSettingsController
         });
     }
 
-    //region Setup Local Threads location
-    private void setupLocalThreadLocationSetting(SettingsGroup media) {
-        if (!ChanSettings.incrementalThreadDownloadingEnabled.get()) {
-            Logger.d(this, "setupLocalThreadLocationSetting() incrementalThreadDownloadingEnabled is disabled");
-            return;
-        }
-
-        LinkSettingView localThreadsLocationSetting = new LinkSettingView(this,
-                R.string.media_settings_local_threads_location_title,
-                R.string.empty,
-                v -> threadsLocationSetupDelegate.showUseSAFOrOldAPIForLocalThreadsLocationDialog()
-        );
-
-        localThreadsLocation = (LinkSettingView) media.add(localThreadsLocationSetting);
-        localThreadsLocation.setDescription(threadsLocationSetupDelegate.getLocalThreadsLocation());
-    }
-
     private void setupSaveLocationSetting(SettingsGroup media) {
         LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
                 R.string.save_location_screen,
@@ -353,12 +304,6 @@ public class MediaSettingsController
     }
 
     @Override
-    public void setDescription(@NonNull String newLocation) {
-        BackgroundUtils.ensureMainThread();
-        localThreadsLocation.setDescription(newLocation);
-    }
-
-    @Override
     public void updateSaveLocationViewText(@NonNull String newLocation) {
         BackgroundUtils.ensureMainThread();
         saveLocation.setDescription(newLocation);
@@ -372,12 +317,6 @@ public class MediaSettingsController
 
     @Override
     public void onFilesBaseDirectoryReset() {
-        BackgroundUtils.ensureMainThread();
-        showToast(context, R.string.media_settings_base_dir_reset);
-    }
-
-    @Override
-    public void onLocalThreadsBaseDirectoryReset() {
         BackgroundUtils.ensureMainThread();
         showToast(context, R.string.media_settings_base_dir_reset);
     }
