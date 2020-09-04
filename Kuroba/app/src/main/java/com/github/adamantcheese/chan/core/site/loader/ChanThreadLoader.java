@@ -565,7 +565,11 @@ public class ChanThreadLoader {
         processResponse(fakeOp);
 
         loadable.title = PostHelper.getTitle(localThread.getOp(), loadable);
-        loadable.thumbnailUrl = localThread.getOp().image().getThumbnailUrl();
+        try {
+            loadable.thumbnailUrl = localThread.getOp().image().getThumbnailUrl();
+        } catch (Exception e) {
+            loadable.thumbnailUrl = null;
+        }
 
         for (Post post : localThread.getPosts()) {
             post.setTitle(loadable.title);
