@@ -1,7 +1,6 @@
 /*
- * Shishi - 4chan browser
- * Copyright (C) 2014 - 2019  Floens
- * Copyright (C) 2020 Gee
+ * Clover - 4chan browser https://github.com/Floens/Clover/
+ * Copyright (C) 2014  Floens
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
