@@ -476,13 +476,13 @@ public class Post
             this.posterId = posterId;
 
             // Stolen from the 4chan extension
-            int hash = this.posterId.hashCode() >>> 8;
+            int hash = 0;
+            for(int i = 0; i < posterId.length(); i++) {
+                hash = (hash << 5) - hash + posterId.charAt(i);
+            }
+            hash = hash >>> 8;
 
-            int r = (hash & Color.RED) << 16;
-            int g = (hash & Color.GREEN) << 8;
-            int b = hash & Color.BLUE;
-
-            this.idColor = Color.BLACK + r + g + b;
+            this.idColor = Color.BLACK | hash;
 
             return this;
         }
