@@ -50,6 +50,10 @@ public class NetUtils {
 
     private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
 
+    public synchronized static void cleanup() {
+        resultListeners.clear();
+    }
+
     public static void makeHttpCall(
             HttpCall httpCall, HttpCallback<? extends HttpCall> callback
     ) {

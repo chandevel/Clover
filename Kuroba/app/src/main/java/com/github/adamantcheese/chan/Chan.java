@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import org.codejargon.feather.Feather;
 import org.greenrobot.eventbus.EventBus;
@@ -266,6 +267,7 @@ public class Chan
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
         new Handler(Looper.getMainLooper()).removeCallbacksAndMessages(null);
+        NetUtils.cleanup();
     }
 
     public static class ForegroundChangedMessage {
