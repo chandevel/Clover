@@ -272,6 +272,12 @@ internal class ChunkPersister(
                     )
             )
             serializedEmitter.onComplete()
+        } catch (error: Throwable) {
+            if (DownloaderUtils.isCancellationError(error)) {
+                activeDownloads.throwCancellationException(url)
+            } else {
+                throw error
+            }
         } finally {
             buffer.closeQuietly()
         }
