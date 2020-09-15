@@ -273,7 +273,7 @@ public class ChanThreadLoader {
                 clearTimer();
                 onResponse(result);
             }
-        }, new ChanReaderParser(loadable, cached));
+        }, new ChanReaderParser(loadable, cached, null));
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {

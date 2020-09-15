@@ -18,6 +18,9 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.util.JsonReader;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -64,13 +67,18 @@ public class ChanReaderParser
 
     private List<Filter> filters;
 
-    public ChanReaderParser(Loadable loadable, List<Post> cachedPosts) {
+    /**
+     * @param loadable    The loadable associated with this parser
+     * @param cachedPosts A list of cached posts; may be an empty list for no cached post processing
+     * @param reader      A reader to process posts for a request; if null, the reader associated with the loadable's site will be used
+     */
+    public ChanReaderParser(Loadable loadable, @NonNull List<Post> cachedPosts, @Nullable ChanReader reader) {
         inject(this);
 
         // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
         this.loadable = loadable.clone();
         cached = new ArrayList<>(cachedPosts);
-        reader = this.loadable.site.chanReader();
+        this.reader = reader == null ? this.loadable.site.chanReader() : reader;
 
         filters = new ArrayList<>();
         List<Filter> enabledFilters = filterEngine.getEnabledFilters();

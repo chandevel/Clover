@@ -70,6 +70,8 @@ public class ArchivesManager
         while (reader.hasNext()) {
             ArchivesManager.Archives a = new ArchivesManager.Archives();
 
+            boolean skip = false;
+
             reader.beginObject();
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
@@ -88,13 +90,20 @@ public class ArchivesManager
                         reader.endArray();
                         a.boards = b;
                         break;
+                    case "software": // fuuka doesn't have an API and I can't be assed to manually parse it
+                        if ("fuuka".equals(reader.nextString())) {
+                            skip = true;
+                        }
+                        break;
                     default:
                         reader.skipValue();
                         break;
                 }
             }
             reader.endObject();
-            archives.add(a);
+            if (!skip) {
+                archives.add(a);
+            }
         }
         reader.endArray();
 
