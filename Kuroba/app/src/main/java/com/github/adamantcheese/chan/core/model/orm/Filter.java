@@ -65,15 +65,6 @@ public class Filter
         return (type & filterType.flag) != 0;
     }
 
-    public String[] boardCodesNoId() {
-        String[] boards = this.boards.split(",");
-        for (int i = 0; i < boards.length; i++) {
-            String s = boards[i];
-            boards[i] = s.substring(s.indexOf(":") + 1);
-        }
-        return boards;
-    }
-
     public Filter() {
     }
 

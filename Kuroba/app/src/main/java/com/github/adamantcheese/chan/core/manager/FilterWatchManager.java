@@ -35,12 +35,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -131,60 +129,24 @@ public class FilterWatchManager
             chanLoaderManager.release(loader, filterLoaders.get(loader));
         }
         filterLoaders.clear();
-        //get our filters that are tagged as "pin"
-        List<Filter> filters = filterEngine.getEnabledWatchFilters();
         //get a set of boards to background load
-        Set<String> boardCodes = new HashSet<>();
-        for (Filter f : filters) {
-            //if the allBoards flag is set for any one filter, add all saved boards to the set
-            if (f.allBoards) {
-                for (BoardRepository.SiteBoards s : boardRepository.getSaved()) {
-                    for (Board b : s.boards) {
-                        boardCodes.add(b.code);
-                    }
-                }
-                //shortcut out if any filter has the allBoards flag
-                break;
-            }
-            boardCodes.addAll(Arrays.asList(f.boardCodesNoId()));
-        }
-        numBoardsChecked = boardCodes.size();
-        //create background loaders for each thing in the board set
+        Set<Board> boards = new HashSet<>();
         for (BoardRepository.SiteBoards siteBoard : boardRepository.getSaved()) {
             for (Board b : siteBoard.boards) {
-                for (String code : boardCodes) {
-                    if (b.code.equals(code)) {
-                        CatalogLoader backgroundLoader = new CatalogLoader();
-                        ChanThreadLoader catalogLoader =
-                                chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
-                        filterLoaders.put(catalogLoader, backgroundLoader);
+                for (Filter f : filterEngine.getEnabledWatchFilters()) {
+                    if (filterEngine.matchesBoard(f, b)) {
+                        boards.add(b);
                     }
                 }
             }
         }
-    }
+        numBoardsChecked = boards.size();
 
-    public void onCatalogLoad(ChanThread catalog) {
-        BackgroundUtils.ensureBackgroundThread();
-
-        if (catalog.getLoadable().isThreadMode()) return; //not a catalog
-        if (processing) return; //filter watch manager is currently processing, ignore
-        Logger.d(this, "onCatalogLoad() for /" + catalog.getLoadable().boardCode + "/");
-
-        Set<Integer> toAdd = new HashSet<>();
-        for (Post p : catalog.getPosts()) {
-            if (p.filterWatch && !ignoredPosts.contains(p.no)) {
-                final Loadable pinLoadable =
-                        Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, catalog.getLoadable()));
-                pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
-                BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
-                toAdd.add(p.no);
-            }
+        for (Board b : boards) {
+            CatalogLoader backgroundLoader = new CatalogLoader();
+            ChanThreadLoader catalogLoader = chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
+            filterLoaders.put(catalogLoader, backgroundLoader);
         }
-        //clear the ignored posts set if it gets too large; don't have the same sync stuff as background and it's a hassle to keep track of recently loaded catalogs
-        if (ignoredPosts.size() + toAdd.size() > 650) ignoredPosts.clear(); //like 11 4chan catalogs? should be plenty
-        ignoredPosts.addAll(toAdd);
-        PersistableChanState.filterWatchIgnored.setSync(gson.toJson(ignoredPosts));
     }
 
     private class CatalogLoader
@@ -192,18 +154,16 @@ public class FilterWatchManager
         @Override
         public void onChanLoaderData(ChanThread result) {
             Logger.d(this, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
-            Set<Integer> toAdd = new HashSet<>();
             for (Post p : result.getPosts()) {
                 if (p.filterWatch && !ignoredPosts.contains(p.no)) {
                     final Loadable pinLoadable =
                             Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
                     pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
                     BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
-                    toAdd.add(p.no);
+                    ignoredPosts.add(p.no);
                 }
             }
             //add all posts to ignore
-            ignoredPosts.addAll(toAdd);
             lastCheckedPosts.addAll(result.getPosts());
             synchronized (this) {
                 numBoardsChecked--;

@@ -600,8 +600,6 @@ public class ThreadPresenter
                 Logger.d(this, "Could not find pin with loadableId = " + loadable.id + ", it was already deleted?");
             }
         }
-
-        BackgroundUtils.runOnBackgroundThread(() -> filterWatchManager.onCatalogLoad(result));
     }
 
     private void storeNewPostsIfThreadIsBeingDownloaded(List<Post> posts) {
