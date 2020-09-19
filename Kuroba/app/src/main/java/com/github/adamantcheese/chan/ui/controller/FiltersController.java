@@ -287,7 +287,7 @@ public class FiltersController
             if (filter.allBoards) {
                 subText.append(getString(R.string.filter_summary_all_boards));
             } else if (filterEngine.getFilterBoardCount(filter) == 1) {
-                subText.append(String.format("/%s/", filter.boardCodesNoId()[0]));
+                subText.append(String.format("/%s/", filter.boards.split(":")[1]));
             } else {
                 int size = filterEngine.getFilterBoardCount(filter);
                 subText.append(String.format(Locale.ENGLISH, "%d boards", size));
