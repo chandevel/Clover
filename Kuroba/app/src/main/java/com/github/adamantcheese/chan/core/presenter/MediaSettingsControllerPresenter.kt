@@ -16,7 +16,7 @@ import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileChooser
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.TraverseMode
-import com.github.k1rakishou.fsaf.callback.DirectoryChooserCallback
+import com.github.k1rakishou.fsaf.callback.directory.DirectoryChooserCallback
 import com.github.k1rakishou.fsaf.file.AbstractFile
 
 class MediaSettingsControllerPresenter(

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
 import android.text.TextUtils
+import com.github.adamantcheese.chan.core.di.AppModule.getCacheDir
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils
@@ -105,27 +106,33 @@ class CacheHandler(
     }
 
     /**
-     * Either returns already downloaded file or creates an empty new one on the disk (also creates
-     * cache file meta with default parameters)
+     * Either returns already downloaded file or creates an empty new one on the disk
+     * Also creates a cache meta file with default parameters
      * */
     fun getOrCreateCacheFile(url: HttpUrl): RawFile? {
         createDirectories()
-        var cacheFile = getCacheFileInternal(url)
 
-        return try {
+        var cacheFile = getCacheFileInternal(url)
+        try {
             if (!fileManager.exists(cacheFile)) {
                 val createdFile = fileManager.create(cacheFile) as RawFile?
-                        ?: throw IOException(
-                                "Couldn't create cache file, path = ${cacheFile.getFullPath()}")
+                        ?: throw IOException("Couldn't create cache file!")
 
                 cacheFile = createdFile
             }
+        } catch (error: IOException) {
+            Logger.e(TAG, "Error trying to get or create cache file: ${cacheFile.getFullPath()}:", error)
+            Logger.e(TAG, "Cache directory exists: " + fileManager.exists(fileManager.fromRawFile(getCacheDir())))
+            Logger.e(TAG, "Cache file directory exists: " + fileManager.exists(cacheDirFile))
+            deleteCacheFile(cacheFile)
+            return null
+        }
 
-            val cacheFileMeta = getCacheFileMetaInternal(url)
+        val cacheFileMeta = getCacheFileMetaInternal(url)
+        try {
             if (!fileManager.exists(cacheFileMeta)) {
                 val createdFile = fileManager.create(cacheFileMeta) as RawFile?
-                        ?: throw IOException(
-                                "Couldn't create cache file meta, path = ${cacheFileMeta.getFullPath()}")
+                        ?: throw IOException("Couldn't create cache file meta!")
 
                 val result = updateCacheFileMeta(
                         createdFile,
@@ -135,16 +142,18 @@ class CacheHandler(
                 )
 
                 if (!result) {
-                    throw IOException("Cache file meta update failed")
+                    throw IOException("Cache file meta update failed!")
                 }
             }
-
-            cacheFile
         } catch (error: IOException) {
-            Logger.e(TAG, "Error while trying to get or create cache file", error)
+            Logger.e(TAG, "Error trying to get or create cache meta: ${cacheFileMeta.getFullPath()}:", error)
+            Logger.e(TAG, "Cache directory exists: " + fileManager.exists(fileManager.fromRawFile(getCacheDir())))
+            Logger.e(TAG, "Cache meta directory exists: " + fileManager.exists(chunksCacheDirFile))
             deleteCacheFile(cacheFile)
-            null
+            return null
         }
+
+        return cacheFile
     }
 
     fun getChunkCacheFileOrNull(chunkStart: Long, chunkEnd: Long, url: HttpUrl): RawFile? {

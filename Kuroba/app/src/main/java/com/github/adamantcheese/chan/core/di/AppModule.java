@@ -186,7 +186,7 @@ public class AppModule {
         return new FileChooser(getAppContext());
     }
 
-    static File getCacheDir() {
+    public static File getCacheDir() {
         // See also res/xml/filepaths.xml for the fileprovider.
         if (getAppContext().getExternalCacheDir() != null) {
             return getAppContext().getExternalCacheDir();
