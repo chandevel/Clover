@@ -20,7 +20,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.os.SystemClock;
 import android.widget.Toast;
 
 import androidx.annotation.GuardedBy;
@@ -201,7 +200,7 @@ public class ImageSaver {
         }
 
         PostImage postImage = task.getPostImage();
-        task.setDestination(deduplicateFile(postImage, task, saveLocation));
+        task.setDestination(deduplicateFile(postImage, task, saveLocation, false));
 
         // At this point we already have disk permissions
         startTask(task);
@@ -373,7 +372,7 @@ public class ImageSaver {
                     continue;
                 }
 
-                task.setDestination(deduplicateFile(postImage, task, saveLocation));
+                task.setDestination(deduplicateFile(postImage, task, saveLocation, true));
                 startTask(task);
             }
 
@@ -464,20 +463,23 @@ public class ImageSaver {
     }
 
     @NonNull
-    private AbstractFile deduplicateFile(PostImage postImage, ImageSaveTask task, @NonNull AbstractFile saveLocation) {
+    private AbstractFile deduplicateFile(
+            PostImage postImage, ImageSaveTask task, @NonNull AbstractFile saveLocation, boolean albumSave
+    ) {
         String name = ChanSettings.saveServerFilename.get() ? postImage.serverFilename : postImage.filename;
 
-        //dedupe shared files to have their own file name; ok to overwrite, prevents lots of downloads for multiple shares
+        // get the file representing the image we're going to be saving
         String fileName = filterName(name + "." + postImage.extension);
         AbstractFile saveFile = saveLocation.clone(new FileSegment(fileName));
 
-        //shared files don't need deduplicating
-        while (fileManager.exists(saveFile) && !task.isShareTask()) {
-            String currentTimeHash = Long.toString(SystemClock.elapsedRealtimeNanos(), Character.MAX_RADIX);
-            String resultFileName = name + "_" + currentTimeHash + "." + postImage.extension;
+        //shared files don't need deduplicating, nor do album saves as we don't want to save duplicates for album saves
+        int i = 1;
+        while (!task.isShareTask() && !albumSave && fileManager.exists(saveFile)) {
+            String resultFileName = name + "_(" + i + ")." + postImage.extension;
 
             fileName = filterName(resultFileName);
             saveFile = saveLocation.clone(new FileSegment(fileName));
+            i++;
         }
 
         return saveFile;
