@@ -25,7 +25,7 @@ public class PersistableChanState {
     public static StringSetting previousDevHash;
 
     public static StringSetting filterWatchIgnored;
-    public static StringSetting youtubeCache;
+    public static StringSetting videoTitleDurCache;
 
     private static final String EMPTY_VALUE = "EMPTY_VALUE";
 
@@ -40,7 +40,7 @@ public class PersistableChanState {
             previousDevHash = new StringSetting(p, "previous_dev_hash", EMPTY_VALUE);
 
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
-            youtubeCache = new StringSetting(p, "yt_cache", EMPTY_VALUE);
+            videoTitleDurCache = new StringSetting(p, "yt_cache", EMPTY_VALUE);
 
             // for any of the following persistables, ensure that these exist and are set to the following defaults
             // a call to get() does not forcibly generate these shared preferences and set their defaults
@@ -52,8 +52,8 @@ public class PersistableChanState {
                 previousDevHash.setSync(BuildConfig.COMMIT_HASH);
             }
 
-            if (EMPTY_VALUE.equals(youtubeCache.get())) {
-                youtubeCache.setSync(EMPTY_JSON);
+            if (EMPTY_VALUE.equals(videoTitleDurCache.get())) {
+                videoTitleDurCache.setSync(EMPTY_JSON);
             }
         } catch (Exception e) {
             Logger.e("PersistableChanState", "Error while initializing the state", e);

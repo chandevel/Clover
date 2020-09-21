@@ -9,6 +9,7 @@ import com.github.adamantcheese.chan.R;
 public class BitmapRepository {
 
     public static Bitmap youtubeIcon;
+    public static Bitmap streamableIcon;
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
     public static Bitmap trashIcon;
@@ -18,6 +19,7 @@ public class BitmapRepository {
 
     public static void initialize(Context context) {
         youtubeIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.youtube_icon);
+        streamableIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.streamable_icon);
         stickyIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticky_icon);
         closedIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.closed_icon);
         trashIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.trash_icon);

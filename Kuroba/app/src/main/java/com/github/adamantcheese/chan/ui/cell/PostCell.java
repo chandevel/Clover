@@ -613,7 +613,7 @@ public class PostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceYoutubeLinks(theme, post, comment);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, comment);
         }
     }
 

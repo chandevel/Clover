@@ -601,11 +601,11 @@ public class StartActivity
         super.onStart();
         EventBus.getDefault().register(this);
         //restore parsed youtube stuff
-        Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.youtubeCache.get(), lruType);
+        Map<String, Pair<String, String>> titles = gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
         //reconstruct
-        CommentParserHelper.youtubeCache = new LruCache<>(500);
+        CommentParserHelper.videoTitleDurCache = new LruCache<>(500);
         for (String s : titles.keySet()) {
-            CommentParserHelper.youtubeCache.put(s, titles.get(s));
+            CommentParserHelper.videoTitleDurCache.put(s, titles.get(s));
         }
     }
 
@@ -614,6 +614,6 @@ public class StartActivity
         super.onStop();
         EventBus.getDefault().unregister(this);
         //store parsed youtube stuff, extra prevention of unneeded API calls
-        PersistableChanState.youtubeCache.set(gson.toJson(CommentParserHelper.youtubeCache.snapshot(), lruType));
+        PersistableChanState.videoTitleDurCache.set(gson.toJson(CommentParserHelper.videoTitleDurCache.snapshot(), lruType));
     }
 }
