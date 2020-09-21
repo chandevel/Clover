@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -196,7 +197,7 @@ public class FilterEngine {
         if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
         for (PostImage image : post.images) {
             if (typeMatches(filter, IMAGE) && matches(filter, image.fileHash, false)) {
-                //for filtering image hashes, we don't want to apply the post-level filter (thus return false)
+                //for filtering image hashes, we don't want to apply the post-level filter unless the user set it as such
                 //this takes care of it at an image level, either flagging it to be hidden, which applies a
                 //custom spoiler image, or removes the image from the post entirely since this is a Post.Builder instance
                 if (filter.action == FilterAction.HIDE.id) {
@@ -204,7 +205,7 @@ public class FilterEngine {
                 } else if (filter.action == FilterAction.REMOVE.id) {
                     post.images.remove(image);
                 }
-                return false;
+                return ChanSettings.applyImageFilterToPost.get();
             }
         }
 

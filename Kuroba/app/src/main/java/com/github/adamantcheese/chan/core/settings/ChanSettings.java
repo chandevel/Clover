@@ -67,7 +67,6 @@ public class ChanSettings {
     public static final String EMPTY_JSON = "{}";
     public static final String NOTIFY_ALL_POSTS = "all";
     public static final String NOTIFY_ONLY_QUOTES = "quotes";
-    public static final String NO_HASH_SET = "NO_HASH_SET";
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
@@ -239,6 +238,7 @@ public class ChanSettings {
     public static final BooleanSetting openLinkBrowser;
     public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting alwaysOpenDrawer;
+    public static final BooleanSetting applyImageFilterToPost;
     public static final StringSetting jsCaptchaCookies;
 
     // Reply
@@ -398,6 +398,7 @@ public class ChanSettings {
             openLinkBrowser = new BooleanSetting(p, "preference_open_link_browser", false);
             imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
+            applyImageFilterToPost = new BooleanSetting(p, "apply_image_filtering_to_post", false);
             jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", EMPTY_JSON);
 
             // Reply

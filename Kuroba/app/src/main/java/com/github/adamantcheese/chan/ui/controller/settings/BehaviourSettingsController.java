@@ -108,6 +108,12 @@ public class BehaviourSettingsController
                     R.string.empty
             ));
 
+            general.add(new BooleanSettingView(this,
+                    ChanSettings.applyImageFilterToPost,
+                    R.string.apply_image_filter_to_post,
+                    R.string.apply_image_filter_to_post_description
+            ));
+
             general.add(new LinkSettingView(this,
                     R.string.settings_captcha_setup,
                     R.string.settings_captcha_setup_description,
