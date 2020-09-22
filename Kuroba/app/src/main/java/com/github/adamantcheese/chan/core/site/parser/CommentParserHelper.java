@@ -150,7 +150,7 @@ public class CommentParserHelper {
                         String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";
 
                         HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
-                        if (imageUrl == null) {
+                        if (imageUrl == null || ((String) linkable.value).contains("saucenao")) { // ignore saucenao links, not actual images
                             continue;
                         }
 
