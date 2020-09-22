@@ -96,10 +96,7 @@ public class NetModule {
     @Singleton
     public OkHttpClientWithUtils provideProxiedOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "Proxied OkHTTP client");
-        return new OkHttpClientWithUtils(new OkHttpClient.Builder().connectTimeout(30, SECONDS)
-                .readTimeout(30, SECONDS)
-                .writeTimeout(30, SECONDS)
-                .protocols(getOkHttpProtocols())
+        return new OkHttpClientWithUtils(new OkHttpClient.Builder().protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector()));
     }
 
