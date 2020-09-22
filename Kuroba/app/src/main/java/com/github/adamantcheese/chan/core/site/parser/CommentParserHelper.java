@@ -118,6 +118,8 @@ public class CommentParserHelper {
         final Iterable<LinkSpan> links = LINK_EXTRACTOR.extractLinks(text);
         for (final LinkSpan link : links) {
             final String linkText = text.substring(link.getBeginIndex(), link.getEndIndex());
+            final String scheme = linkText.substring(0, linkText.indexOf(':'));
+            if (!"http".equals(scheme) && !"https".equals(scheme)) continue; // only autolink URLs, not any random URI
             // if this URL is a video link and we're parsing those, skip it, it'll be taken care of later
             // cheap match instead of full matcher for speed
             if (ChanSettings.parseYoutubeTitles.get() && (linkText.contains("youtu\\.be")
