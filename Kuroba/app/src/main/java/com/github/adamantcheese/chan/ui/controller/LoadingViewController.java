@@ -31,8 +31,7 @@ public class LoadingViewController
 
     @Override
     public boolean onBack() {
-        presentedByController.onBack();
-        return true;
+        return true; // consume back presses
     }
 
     /**
