@@ -113,7 +113,11 @@ public class DrawerController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, R.layout.controller_navigation_drawer);
+        view = inflate(context,
+                ChanSettings.reverseDrawer.get()
+                        ? R.layout.controller_navigation_drawer_reverse
+                        : R.layout.controller_navigation_drawer
+        );
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
@@ -137,8 +141,6 @@ public class DrawerController
 
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
-        //TODO change stuff here
-        //((LinearLayoutManager) recyclerView.getLayoutManager()).setReverseLayout(put some settitng here);
 
         drawerAdapter = new DrawerAdapter(this);
         recyclerView.setAdapter(drawerAdapter);

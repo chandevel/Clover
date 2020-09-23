@@ -110,6 +110,12 @@ public class AppearanceSettingsController
                     "Makes the JS captcha float to the bottom of the screen"
             ));
 
+            requiresRestart.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.reverseDrawer,
+                    "Reverse drawer stack order",
+                    "Flips the direction of the drawer to be from bottom to top"
+            )));
+
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.useImmersiveModeForGallery,
                     R.string.setting_images_immersive_mode_title,
