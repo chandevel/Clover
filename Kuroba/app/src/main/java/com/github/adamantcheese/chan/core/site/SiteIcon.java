@@ -67,6 +67,8 @@ public class SiteIcon {
                 @Override
                 public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                     drawable = new BitmapDrawable(getRes(), bitmap);
+                    drawable.setFilterBitmap(false);
+                    drawable.setDither(false);
                     BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(drawable));
                 }
             }, FAVICON_SIZE, FAVICON_SIZE);
