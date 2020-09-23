@@ -103,9 +103,9 @@ public class ThreadListLayout
 
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             // onScrollStateChanged can be called after cleanup()
-            if (showingThread != null && newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (showingThread != null) {
                 int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
                 showingThread.getLoadable().listViewIndex = indexTop[0];
