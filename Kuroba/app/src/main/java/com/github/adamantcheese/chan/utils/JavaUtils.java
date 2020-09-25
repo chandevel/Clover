@@ -21,6 +21,13 @@ public class JavaUtils {
         return true;
     }
 
+    public static boolean objectMatchesAny(Object toCheck, Object... objects) {
+        for (Object o : objects) {
+            if (toCheck == o) return true;
+        }
+        return false;
+    }
+
     public static String inputStreamMD5hash(InputStream inputStream) {
         return ByteString.of(ByteStreamsKt.readBytes(inputStream)).md5().hex();
     }

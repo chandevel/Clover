@@ -23,6 +23,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ImageSpan;
+import android.util.JsonReader;
 import android.util.LruCache;
 import android.widget.TextView;
 
@@ -40,6 +41,7 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.JavaUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -73,35 +75,11 @@ public class CommentParserHelper {
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
-            "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
-    private static final Pattern STREAMABLE_LINK_PATTERN =
-            Pattern.compile("\\b\\w+://[\\w.]*?streamable\\.com/(.{6})\\b");
-    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
     public static LruCache<String, Pair<String, String>> videoTitleDurCache = new LruCache<>(500);
-
-    private static final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(?:math|eqn)].*?\\[/(?:math|eqn)]");
-    private static final Pattern QUICK_LATEX_RESPONSE =
-            Pattern.compile(".*?\r\n(\\S+)\\s.*?\\s\\d+\\s\\d+(?:\r\n([\\s\\S]+))?");
+    // maps a math string to a rendered image URL
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
-
-    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
-            Pattern.CASE_INSENSITIVE
-    );
-    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
-
-    private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
-    private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
-    private static final Pattern quadsPattern = Pattern.compile("(\\d)\\1{3}$");
-    private static final Pattern quintsPattern = Pattern.compile("(\\d)\\1{4}$");
-    private static final Pattern hexesPattern = Pattern.compile("(\\d)\\1{5}$");
-    private static final Pattern septsPattern = Pattern.compile("(\\d)\\1{6}$");
-    private static final Pattern octsPattern = Pattern.compile("(\\d)\\1{7}$");
-    private static final Pattern nonsPattern = Pattern.compile("(\\d)\\1{8}$");
-    private static final Pattern decsPattern = Pattern.compile("(\\d)\\1{9}$");
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -138,6 +116,13 @@ public class CommentParserHelper {
             post.addLinkable(pl);
         }
     }
+
+    //region Image Inlining
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
+            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            Pattern.CASE_INSENSITIVE
+    );
+    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
 
     public static void addPostImages(Post.Builder post) {
         if (ChanSettings.parsePostImageLinks.get()) {
@@ -184,6 +169,17 @@ public class CommentParserHelper {
             }
         }
     }
+    //endregion
+
+    private static final Pattern dubsPattern = Pattern.compile("(\\d)\\1$");
+    private static final Pattern tripsPattern = Pattern.compile("(\\d)\\1{2}$");
+    private static final Pattern quadsPattern = Pattern.compile("(\\d)\\1{3}$");
+    private static final Pattern quintsPattern = Pattern.compile("(\\d)\\1{4}$");
+    private static final Pattern hexesPattern = Pattern.compile("(\\d)\\1{5}$");
+    private static final Pattern septsPattern = Pattern.compile("(\\d)\\1{6}$");
+    private static final Pattern octsPattern = Pattern.compile("(\\d)\\1{7}$");
+    private static final Pattern nonsPattern = Pattern.compile("(\\d)\\1{8}$");
+    private static final Pattern decsPattern = Pattern.compile("(\\d)\\1{9}$");
 
     public static String getRepeatDigits(int no) {
         String number = String.valueOf(no);
@@ -200,11 +196,47 @@ public class CommentParserHelper {
         return null;
     }
 
+    /**
+     * To add a video link parser:<br>
+     * 1) Add in your icon to BitmapRepository<br>
+     * 2) Add it to the list in the iconMatchesAny call<br>
+     * 3) Add a new method to process your site and add it to the calls.addAll list<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;
+     * - The helper method addVideoCalls should be used, it takes in all the appropriate stuff you'll need to implement functionality<br>
+     * 4) Done! Everything else is taken care of for you.<br>
+     * <br>
+     *
+     * @param theme        The theme to style the links with
+     * @param post         The post where the links will be found and replaced
+     * @param toInvalidate The textview containing the post, so callbacks can refresh it when done
+     */
+
+    public static List<Call> replaceVideoLinks(Theme theme, Post post, @Nullable TextView toInvalidate) {
+        // if we've already got an image span with a youtube/streamable link in it, this post has already been processed/is processing, ignore this
+        ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
+        for (ImageSpan image : imageSpans) {
+            if (image.getDrawable() instanceof BitmapDrawable) {
+                if (JavaUtils.objectMatchesAny(((BitmapDrawable) image.getDrawable()).getBitmap(),
+                        BitmapRepository.youtubeIcon,
+                        BitmapRepository.streamableIcon
+                )) {
+                    return null;
+                }
+            }
+        }
+
+        List<Call> calls = new ArrayList<>();
+        calls.addAll(addYoutubeCalls(theme, post, toInvalidate));
+        calls.addAll(addStreamableCalls(theme, post, toInvalidate));
+        return calls;
+    }
+
+    //region Youtube Parsing
     //for testing, using 4chanx's api key
     //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
     //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
 
-    /* SAMPLE JSON FOR DURATION (skip the contentDetails stuff for without)
+    /* SAMPLE JSON FOR YOUTUBE WITH DURATION (skip the contentDetails stuff for without)
         {
           "items": [
             {
@@ -220,7 +252,79 @@ public class CommentParserHelper {
         }
      */
 
-    /* SAMPLE JSON FOR STREAMABLE
+    private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
+            "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
+
+    private static List<Call> addYoutubeCalls(Theme theme, Post post, @Nullable TextView toInvalidate) {
+        return addVideoCalls(theme,
+                post,
+                toInvalidate,
+                YOUTUBE_LINK_PATTERN,
+                matcher -> HttpUrl.get(
+                        "https://www.googleapis.com/youtube/v3/videos?part=snippet" + (ChanSettings.parseYoutubeDuration
+                                .get() ? "%2CcontentDetails" : "") + "&id=" + matcher.group(1)
+                                + "&fields=items%28id%2Csnippet%28title%29" + (ChanSettings.parseYoutubeDuration.get()
+                                ? "%2CcontentDetails%28duration%29"
+                                : "") + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get()),
+                BitmapRepository.youtubeIcon,
+                (reader, defaultUrl) -> {
+                    reader.beginObject(); // JSON start
+                    reader.nextName();
+                    reader.beginArray();
+                    reader.beginObject();
+                    reader.nextName(); // video ID
+                    reader.nextString();
+                    reader.nextName(); // snippet
+                    reader.beginObject();
+                    reader.nextName(); // title
+                    String title = reader.nextString();
+                    Pair<String, String> ret = new Pair<>(title, null);
+                    reader.endObject();
+                    if (ChanSettings.parseYoutubeDuration.get()) {
+                        reader.nextName(); // content details
+                        reader.beginObject();
+                        reader.nextName(); // duration
+                        ret = new Pair<>(title, getHourMinSecondString(reader.nextString()));
+                        reader.endObject();
+                    }
+                    reader.endObject();
+                    reader.endArray();
+                    reader.endObject();
+                    return ret;
+                }
+        );
+    }
+
+    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
+
+    private static String getHourMinSecondString(String ISO8601Duration) {
+        Matcher m = iso8601Time.matcher(ISO8601Duration);
+        String ret;
+        if (m.matches()) {
+            String hours = m.group(2);
+            String minutes = m.group(4);
+            String seconds = m.group(6);
+            //pad seconds to 2 digits
+            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : "00";
+            if (hours != null) {
+                //we have hours, pad minutes to 2 digits
+                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
+                ret = hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
+            } else {
+                //no hours, no need to pad anything else
+                ret = (minutes != null ? minutes : "00") + ":" + seconds;
+            }
+        } else {
+            //badly formatted time from youtube's API?
+            ret = "??:??";
+        }
+
+        return "[" + ret + "]";
+    }
+    //endregion
+
+    //region Streamable Parsing
+    /* SAMPLE JSON FOR STREAMABLE; note that this API is not well documented
     {
        "status": 2,
        "percent": 100,
@@ -251,198 +355,18 @@ public class CommentParserHelper {
        "title": "",
        "source": "https://www.youtube.com/watch?v=Unnvj58sP3I" MAY BE NULL
     }
-
      */
-
-    public static List<Call> replaceVideoLinks(Theme theme, Post post, @Nullable TextView toInvalidate) {
-        // if we've already got an image span with a youtube/streamable link in it, this post has already been processed/is processing, ignore this
-        ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
-        for (ImageSpan image : imageSpans) {
-            if (image.getDrawable() instanceof BitmapDrawable) {
-                if (((BitmapDrawable) image.getDrawable()).getBitmap() == BitmapRepository.youtubeIcon
-                        || ((BitmapDrawable) image.getDrawable()).getBitmap() == BitmapRepository.streamableIcon) {
-                    return null;
-                }
-            }
-        }
-
-        List<Call> calls = new ArrayList<>();
-        calls.addAll(addYoutubeCalls(theme, post, toInvalidate));
-        calls.addAll(addStreamableCalls(theme, post, toInvalidate));
-        return calls;
-    }
-
-    private static List<Call> addYoutubeCalls(Theme theme, Post post, @Nullable TextView toInvalidate) {
-        List<Call> calls = new ArrayList<>();
-        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = YOUTUBE_LINK_PATTERN.matcher(post.comment);
-        while (linkMatcher.find()) {
-            String URL = linkMatcher.group(0);
-            if (URL == null) continue;
-
-            //@formatter:off
-            HttpUrl requestUrl = HttpUrl.get("https://www.googleapis.com/youtube/v3/videos?part=snippet"
-                    + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails" : "")
-                    + "&id=" + linkMatcher.group(1)
-                    + "&fields=items%28id%2Csnippet%28title%29"
-                    + (ChanSettings.parseYoutubeDuration.get() ? "%2CcontentDetails%28duration%29" : "")
-                    + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get());
-            //@formatter:on
-
-            boolean needsRequest = false;
-            Pair<String, String> result = videoTitleDurCache.get(URL);
-            if (result != null) {
-                if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
-                    // remove the entry; it needs additional info now
-                    videoTitleDurCache.remove(URL);
-                    needsRequest = true;
-                }
-            } else {
-                needsRequest = true;
-            }
-
-            if (!needsRequest) {
-                // we've previously cached this youtube title/duration and we don't need additional information
-                performVideoLinkReplacement(theme, post, result, URL, toInvalidate, BitmapRepository.youtubeIcon);
-            } else {
-                // we haven't cached this youtube title/duration, or we need additional information
-                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
-                    @Override
-                    public void onJsonFailure(Exception e) {
-                        if (!"Canceled".equals(e.getMessage())) {
-                            //failed to get, replace with just the URL and append the icon
-                            performVideoLinkReplacement(theme,
-                                    post,
-                                    new Pair<>(URL, null),
-                                    URL,
-                                    toInvalidate,
-                                    BitmapRepository.youtubeIcon
-                            );
-                        }
-                    }
-
-                    @Override
-                    public void onJsonSuccess(Pair<String, String> result) {
-                        //got a result, replace with the result and also cache the result
-                        videoTitleDurCache.put(URL, result);
-                        performVideoLinkReplacement(theme,
-                                post,
-                                result,
-                                URL,
-                                toInvalidate,
-                                BitmapRepository.youtubeIcon
-                        );
-                    }
-                }, reader -> {
-                    reader.beginObject(); // JSON start
-                    reader.nextName();
-                    reader.beginArray();
-                    reader.beginObject();
-                    reader.nextName(); // video ID
-                    reader.nextString();
-                    reader.nextName(); // snippet
-                    reader.beginObject();
-                    reader.nextName(); // title
-                    String title = reader.nextString();
-                    Pair<String, String> ret = new Pair<>(title, null);
-                    reader.endObject();
-                    if (ChanSettings.parseYoutubeDuration.get()) {
-                        reader.nextName(); // content details
-                        reader.beginObject();
-                        reader.nextName(); // duration
-                        ret = new Pair<>(title, getHourMinSecondString(reader.nextString()));
-                        reader.endObject();
-                    }
-                    reader.endObject();
-                    reader.endArray();
-                    reader.endObject();
-                    return ret;
-                }, 2500));
-            }
-        }
-        return calls;
-    }
-
-    private static String getHourMinSecondString(String ISO8601Duration) {
-        Matcher m = iso8601Time.matcher(ISO8601Duration);
-        String ret;
-        if (m.matches()) {
-            String hours = m.group(2);
-            String minutes = m.group(4);
-            String seconds = m.group(6);
-            //pad seconds to 2 digits
-            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : "00";
-            if (hours != null) {
-                //we have hours, pad minutes to 2 digits
-                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
-                ret = hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
-            } else {
-                //no hours, no need to pad anything else
-                ret = (minutes != null ? minutes : "00") + ":" + seconds;
-            }
-        } else {
-            //badly formatted time from youtube's API?
-            ret = "??:??";
-        }
-
-        return "[" + ret + "]";
-    }
+    private static final Pattern STREAMABLE_LINK_PATTERN =
+            Pattern.compile("\\b\\w+://[\\w.]*?streamable\\.com/(.{6})\\b");
 
     private static List<Call> addStreamableCalls(Theme theme, Post post, @Nullable TextView toInvalidate) {
-        List<Call> calls = new ArrayList<>();
-        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
-        Matcher linkMatcher = STREAMABLE_LINK_PATTERN.matcher(post.comment);
-        while (linkMatcher.find()) {
-            String URL = linkMatcher.group(0);
-            if (URL == null) continue;
-
-            HttpUrl requestUrl = HttpUrl.get("https://api.streamable.com/videos/" + linkMatcher.group(1));
-
-            boolean needsRequest = false;
-            Pair<String, String> result = videoTitleDurCache.get(URL);
-            if (result != null) {
-                if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
-                    // remove the entry; it needs additional info now
-                    videoTitleDurCache.remove(URL);
-                    needsRequest = true;
-                }
-            } else {
-                needsRequest = true;
-            }
-
-            if (!needsRequest) {
-                // we've previously cached this youtube title/duration and we don't need additional information
-                performVideoLinkReplacement(theme, post, result, URL, toInvalidate, BitmapRepository.streamableIcon);
-            } else {
-                // we haven't cached this youtube title/duration, or we need additional information
-                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
-                    @Override
-                    public void onJsonFailure(Exception e) {
-                        if (!"Canceled".equals(e.getMessage())) {
-                            //failed to get, replace with just the URL and append the icon
-                            performVideoLinkReplacement(theme,
-                                    post,
-                                    new Pair<>(URL, null),
-                                    URL,
-                                    toInvalidate,
-                                    BitmapRepository.streamableIcon
-                            );
-                        }
-                    }
-
-                    @Override
-                    public void onJsonSuccess(Pair<String, String> result) {
-                        //got a result, replace with the result and also cache the result
-                        videoTitleDurCache.put(URL, result);
-                        performVideoLinkReplacement(theme,
-                                post,
-                                result,
-                                URL,
-                                toInvalidate,
-                                BitmapRepository.streamableIcon
-                        );
-                    }
-                }, reader -> {
+        return addVideoCalls(theme,
+                post,
+                toInvalidate,
+                STREAMABLE_LINK_PATTERN,
+                matcher -> HttpUrl.get("https://api.streamable.com/videos/" + matcher.group(1)),
+                BitmapRepository.streamableIcon,
+                (reader, defaultUrl) -> {
                     try {
                         String title = "";
                         double duration = Double.NaN;
@@ -481,16 +405,80 @@ public class CommentParserHelper {
                             }
                         }
                         reader.endObject();
-                        return new Pair<>(TextUtils.isEmpty(title) ? URL : title,
+                        return new Pair<>(TextUtils.isEmpty(title) ? defaultUrl : title,
                                 "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]"
                         );
                     } catch (Exception e) {
-                        return new Pair<>(URL, null);
+                        return new Pair<>(defaultUrl, null);
                     }
-                }, 2500));
+                }
+        );
+    }
+    //endregion
+
+    //region Helper and Internal Functions
+    private static List<Call> addVideoCalls(
+            Theme theme,
+            Post post,
+            @Nullable TextView toInvalidate,
+            Pattern pattern,
+            RequestURLGenerator generator,
+            Bitmap icon,
+            ApiParser apiParser
+    ) {
+        List<Call> calls = new ArrayList<>();
+        //find and replace all youtube URLs with their titles, but keep track in the map above for spans later
+        Matcher linkMatcher = pattern.matcher(post.comment);
+        while (linkMatcher.find()) {
+            String URL = linkMatcher.group(0);
+            if (URL == null) continue;
+            HttpUrl requestUrl = generator.generateUrl(linkMatcher);
+
+            boolean needsRequest = false;
+            Pair<String, String> result = videoTitleDurCache.get(URL);
+            if (result != null) {
+                if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
+                    // remove the entry; it needs additional info now
+                    videoTitleDurCache.remove(URL);
+                    needsRequest = true;
+                }
+            } else {
+                needsRequest = true;
+            }
+
+            if (!needsRequest) {
+                // we've previously cached this youtube title/duration and we don't need additional information
+                performVideoLinkReplacement(theme, post, result, URL, toInvalidate, icon);
+            } else {
+                // we haven't cached this youtube title/duration, or we need additional information
+                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
+                    @Override
+                    public void onJsonFailure(Exception e) {
+                        if (!"Canceled".equals(e.getMessage())) {
+                            //failed to get, replace with just the URL and append the icon
+                            performVideoLinkReplacement(theme, post, new Pair<>(URL, null), URL, toInvalidate, icon);
+                        }
+                    }
+
+                    @Override
+                    public void onJsonSuccess(Pair<String, String> result) {
+                        //got a result, replace with the result and also cache the result
+                        videoTitleDurCache.put(URL, result);
+                        performVideoLinkReplacement(theme, post, result, URL, toInvalidate, icon);
+                    }
+                }, reader -> apiParser.parse(reader, URL), 2500));
             }
         }
         return calls;
+    }
+
+    private interface RequestURLGenerator {
+        HttpUrl generateUrl(Matcher matcher);
+    }
+
+    private interface ApiParser {
+        Pair<String, String> parse(JsonReader reader, String defaultUrl)
+                throws Exception;
     }
 
     private static void performVideoLinkReplacement(
@@ -542,6 +530,12 @@ public class CommentParserHelper {
             }
         }
     }
+    //endregion
+
+    //region Math/Eqn Parsing
+    private static final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(?:math|eqn)].*?\\[/(?:math|eqn)]");
+    private static final Pattern QUICK_LATEX_RESPONSE =
+            Pattern.compile(".*?\r\n(\\S+)\\s.*?\\s\\d+\\s\\d+(?:\r\n([\\s\\S]+))?");
 
     public static void addMathSpans(Post post, @Nullable TextView toInvalidate) {
         Matcher linkMatcher = MATH_EQN_PATTERN.matcher(post.comment);
@@ -662,4 +656,5 @@ public class CommentParserHelper {
             }
         });
     }
+    //endregion
 }
