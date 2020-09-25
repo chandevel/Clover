@@ -150,7 +150,8 @@ public class CommentParserHelper {
                         String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";
 
                         HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
-                        if (imageUrl == null || ((String) linkable.value).contains("saucenao")) { // ignore saucenao links, not actual images
+                        if (imageUrl == null
+                                || ((String) linkable.value).contains("saucenao")) { // ignore saucenao links, not actual images
                             continue;
                         }
 
@@ -211,9 +212,9 @@ public class CommentParserHelper {
               "snippet": {
                 "title": "ATC Spindle Part 3: Designing the Spindle Mount"
               },
-                "contentDetails": {
-                  "duration": "PT22M27S"
-                }
+              "contentDetails": {
+                "duration": "PT22M27S"
+              }
             }
           ]
         }
@@ -443,44 +444,42 @@ public class CommentParserHelper {
                     }
                 }, reader -> {
                     try {
+                        String title = "";
+                        double duration = Double.NaN;
+
                         reader.beginObject(); // JSON start
-                        reader.nextName();
-                        reader.nextInt();
-                        reader.nextName();
-                        reader.nextInt();
-                        reader.nextName();
-                        reader.nextString();
-                        reader.nextName();
-                        reader.nextString();
-                        reader.nextName();
-                        reader.skipValue();
-                        reader.nextName(); // files
-                        reader.beginObject();
-                        double duration = 0.0f;
                         while (reader.hasNext()) {
-                            String format = reader.nextName();
-                            if ("mp4".equals(format)) {
-                                reader.beginObject();
-                                while (reader.hasNext()) {
-                                    String name = reader.nextName();
-                                    if ("duration".equals(name)) {
-                                        duration = reader.nextDouble();
-                                    } else {
-                                        reader.skipValue();
+                            String name = reader.nextName();
+                            switch (name) {
+                                case "files":
+                                    reader.beginObject();
+                                    while (reader.hasNext()) {
+                                        String format = reader.nextName();
+                                        if ("mp4".equals(format)) {
+                                            reader.beginObject();
+                                            while (reader.hasNext()) {
+                                                String innerName = reader.nextName();
+                                                if ("duration".equals(innerName)) {
+                                                    duration = reader.nextDouble();
+                                                } else {
+                                                    reader.skipValue();
+                                                }
+                                            }
+                                            reader.endObject();
+                                        } else {
+                                            reader.skipValue();
+                                        }
                                     }
-                                }
-                                reader.endObject();
-                            } else {
-                                reader.skipValue();
+                                    reader.endObject();
+                                    break;
+                                case "title":
+                                    title = reader.nextString();
+                                    break;
+                                default:
+                                    reader.skipValue();
+                                    break;
                             }
                         }
-                        reader.endObject();
-                        reader.nextName();
-                        reader.nextString();
-                        reader.nextName(); // title
-                        String title = reader.nextString();
-                        reader.nextName();
-                        reader.skipValue();
                         reader.endObject();
                         return new Pair<>(TextUtils.isEmpty(title) ? URL : title,
                                 "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]"
