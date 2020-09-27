@@ -1,73 +1,43 @@
 package com.github.adamantcheese.chan.core.site;
 
+import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
-import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.core.site.parser.ChanReaderParser;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-public class FoolFuukaArchive {
-    public String domain;
-    public String name;
-    public List<String> boardCodes;
-    public boolean searchEnabled;
+public class FoolFuukaArchive
+        extends Archive {
+
+    private FoolFuukaReader reader;
+    private FoolFuukaCommentParser parser;
 
     public FoolFuukaArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
-        this.domain = domain;
-        this.name = name;
-        this.boardCodes = boardCodes;
-        this.searchEnabled = searchEnabled;
+        super(domain, name, boardCodes, searchEnabled);
+        reader = new FoolFuukaReader();
+        parser = new FoolFuukaCommentParser();
     }
 
-    private HttpUrl urlForThread(Board board, int opNo) {
-        return HttpUrl.get("https://" + domain + "/_/api/chan/thread/?board=" + board.code + "&num=" + opNo);
-    }
-
-    public void requestArchive(Board board, int opNo) {
-        NetUtils.makeJsonRequest(urlForThread(board, opNo),
-                new NetUtils.JsonResult<ChanLoaderResponse>() {
-                    @Override
-                    public void onJsonFailure(Exception e) {
-
-                    }
-
-                    @Override
-                    public void onJsonSuccess(ChanLoaderResponse result) {
-
-                    }
-                },
-                reader -> new ChanReaderParser(Loadable.forThread(board, opNo, "", false),
-                        new ArrayList<>(),
-                        new FoolFuukaReader()
-                ).parse(reader)
-        );
-    }
-
-    private static class FoolFuukaReader
+    private class FoolFuukaReader
             implements ChanReader {
 
         @Override
         public PostParser getParser() {
-            CommentParser commentParser = new CommentParser();
-            commentParser.addDefaultRules();
-            return new DefaultPostParser(commentParser);
+            return new DefaultPostParser(parser);
         }
 
         @Override
@@ -76,20 +46,19 @@ public class FoolFuukaArchive {
         )
                 throws Exception {
             reader.beginObject(); // start JSON
-
-            reader.nextString(); // the op number, duplicated in the post object itself
+            reader.nextName(); // the op number, duplicated in the post object itself
             reader.beginObject();
             // OP object
             readPostObject(reader, queue);
-            reader.endObject();
 
+            reader.nextName(); // posts object
             reader.beginObject();
             // Posts object
             while (reader.hasNext()) {
                 readPostObject(reader, queue);
             }
             reader.endObject();
-
+            reader.endObject();
             reader.endObject();
         }
 
@@ -115,6 +84,7 @@ public class FoolFuukaArchive {
                         break;
                     case "thread_num":
                         builder.opId(reader.nextInt());
+                        break;
                     case "op":
                         builder.op(reader.nextInt() == 1);
                         queue.setOp(builder);
@@ -123,7 +93,9 @@ public class FoolFuukaArchive {
                         builder.setUnixTimestampSeconds(reader.nextLong());
                         break;
                     case "capcode":
-                        builder.moderatorCapcode(reader.nextString());
+                        String capcode = reader.nextString();
+                        if ("N".equals(capcode)) break;
+                        builder.moderatorCapcode(capcode);
                         break;
                     case "name":
                         builder.name(reader.nextString());
@@ -144,10 +116,28 @@ public class FoolFuukaArchive {
                             reader.skipValue();
                         }
                         break;
-                    case "comment_processed":
-                        String comment = reader.nextString();
-                        comment = comment.replace("\\n", "");
-                        builder.comment(comment);
+                    case "comment":
+                        String comment = "";
+                        if (reader.peek() == JsonToken.NULL) {
+                            reader.nextNull();
+                        } else {
+                            comment = reader.nextString();
+                            comment = comment.replaceAll(">>(\\d+)",
+                                    "<a href=\"#$1\" class=\"quotelink\">&gt;&gt;$1</a>"
+                            );
+                            comment = comment.replaceAll("\n>(.*)", "<br><span class=\"quote\">&gt;$1</span>");
+                            comment = comment.replaceAll("\n", "<br>");
+                            builder.comment(comment);
+                        }
+
+                        if (builder.op && TextUtils.isEmpty(builder.subject)) {
+                            if (!TextUtils.isEmpty(comment)) {
+                                queue.getLoadable().title =
+                                        comment.subSequence(0, Math.min(comment.length(), 200)) + "";
+                            } else {
+                                queue.getLoadable().title = "/" + builder.board.code + "/" + builder.opId;
+                            }
+                        }
                         break;
                     case "sticky":
                         builder.sticky(reader.nextInt() == 1);
@@ -156,6 +146,10 @@ public class FoolFuukaArchive {
                         builder.closed(reader.nextInt() == 1);
                         break;
                     case "media":
+                        if (reader.peek() == JsonToken.NULL) {
+                            reader.skipValue();
+                            continue;
+                        }
                         PostImage.Builder imageBuilder = new PostImage.Builder();
                         reader.beginObject();
                         while (reader.hasNext()) {
@@ -177,6 +171,7 @@ public class FoolFuukaArchive {
                                     String filename = reader.nextString();
                                     imageBuilder.filename(StringUtils.removeExtensionFromFileName(filename));
                                     imageBuilder.extension(StringUtils.extractFileNameExtension(filename));
+                                    break;
                                 case "media_hash":
                                     imageBuilder.fileHash(reader.nextString(), true);
                                     break;
@@ -185,6 +180,7 @@ public class FoolFuukaArchive {
                                     break;
                                 case "media_orig":
                                     imageBuilder.serverFilename(StringUtils.removeExtensionFromFileName(reader.nextString()));
+                                    break;
                                 case "thumb_link":
                                     imageBuilder.thumbnailUrl(HttpUrl.get(reader.nextString()));
                                     break;
@@ -204,5 +200,49 @@ public class FoolFuukaArchive {
 
             queue.addForParse(builder);
         }
+    }
+
+    private static class FoolFuukaCommentParser
+            extends CommentParser {
+        public FoolFuukaCommentParser() {
+            addDefaultRules();
+            setQuotePattern(Pattern.compile(".*#(\\d+)"));
+            setFullQuotePattern(Pattern.compile("/(\\w+)/thread/(\\d+)#(\\d+)"));
+            /*
+            rule(StyleRule.tagRule("strike").strikeThrough());
+            rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
+            rule(StyleRule.tagRule("blockquote")
+                    .cssClass("unkfunc")
+                   .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
+                    .linkify());
+            */
+        }
+    }
+
+    @Override
+    public ArchiveSiteUrlHandler resolvable() {
+        return new ArchiveSiteUrlHandler() {
+
+            @Override
+            public String desktopUrl(Loadable loadable, int postNo) {
+                return "https://" + domain + "/" + loadable.boardCode + "/thread/" + loadable.no + "#" + postNo;
+            }
+        };
+    }
+
+    @Override
+    public ArchiveEndpoints endpoints() {
+        return new ArchiveEndpoints() {
+            @Override
+            public HttpUrl thread(Loadable loadable) {
+                return HttpUrl.get("https://" + domain + "/_/api/chan/thread/?board=" + loadable.boardCode + "&num="
+                        + loadable.no);
+            }
+        };
+    }
+
+    @Override
+    public ChanReader chanReader() {
+        return reader;
     }
 }

@@ -22,7 +22,6 @@ import android.util.JsonReader;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.InputStreamReader;
@@ -48,13 +47,13 @@ public class ArchivesManager {
         }
     }
 
-    public List<ArchivesLayout.PairForAdapter> domainsForBoard(Board b) {
-        List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
+    public List<FoolFuukaArchive> archivesForBoard(Board b) {
+        List<FoolFuukaArchive> result = new ArrayList<>();
         if (archivesList == null || !(b.site instanceof Chan4)) return result; //4chan only
         for (FoolFuukaArchive a : archivesList) {
             for (String code : a.boardCodes) {
                 if (code.equals(b.code)) {
-                    result.add(new ArchivesLayout.PairForAdapter(a.name, a.domain));
+                    result.add(a);
                     break;
                 }
             }

@@ -65,6 +65,7 @@ public class BrowseController
                    ThreadSlideController.SlideChangeListener {
     private static final int VIEW_MODE_ID = 1;
     private static final int ARCHIVE_ID = 2;
+    private static final int REPLY_ITEM_ID = 3;
 
     @Inject
     BrowsePresenter presenter;
@@ -146,7 +147,7 @@ public class BrowseController
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
         if (ChanSettings.moveSortToToolbar.get()) {
-            menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::orderClicked);
+            menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::handleSorting);
         }
         menuBuilder.withItem(R.drawable.ic_search_white_24dp, this::searchClicked);
         menuBuilder.withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked);
@@ -154,25 +155,25 @@ public class BrowseController
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
-            overflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
+            overflowBuilder.withSubItem(REPLY_ITEM_ID, R.string.action_reply, () -> threadLayout.openReply(true));
         }
 
         overflowBuilder.withSubItem(VIEW_MODE_ID,
                 ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
-                this::viewModeClicked
+                this::handleViewMode
         );
 
         if (!ChanSettings.moveSortToToolbar.get()) {
-            overflowBuilder.withSubItem(R.string.action_sort, this::orderClicked);
+            overflowBuilder.withSubItem(R.string.action_sort, () -> handleSorting(null));
         }
 
-        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::archiveClicked)
-                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
-                .withSubItem(R.string.action_share, this::shareClicked)
-                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
-                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked)
+        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::openArchive)
+                .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
+                .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
+                .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.getPresenter().scrollTo(0, false))
+                .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.getPresenter().scrollTo(-1, false))
                 .build()
                 .build();
 
@@ -238,42 +239,6 @@ public class BrowseController
         }
     }
 
-    private void replyClicked(ToolbarMenuSubItem item) {
-        threadLayout.openReply(true);
-    }
-
-    private void viewModeClicked(ToolbarMenuSubItem item) {
-        handleViewMode(item);
-    }
-
-    private void archiveClicked(ToolbarMenuSubItem item) {
-        openArchive();
-    }
-
-    private void orderClicked(ToolbarMenuItem item) {
-        handleSorting(item);
-    }
-
-    private void orderClicked(ToolbarMenuSubItem item) {
-        handleSorting(null);
-    }
-
-    private void openBrowserClicked(ToolbarMenuSubItem item) {
-        handleShareAndOpenInBrowser(false);
-    }
-
-    private void shareClicked(ToolbarMenuSubItem item) {
-        handleShareAndOpenInBrowser(true);
-    }
-
-    private void upClicked(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().scrollTo(0, false);
-    }
-
-    private void downClicked(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().scrollTo(-1, false);
-    }
-
     @Override
     public void onSiteClicked(Site site) {
         presenter.onBoardsFloatingMenuSiteClicked(site);
@@ -322,7 +287,7 @@ public class BrowseController
         }
     }
 
-    private void handleViewMode(ToolbarMenuSubItem item) {
+    private void handleViewMode() {
         ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.PostViewMode.CARD;
@@ -335,7 +300,7 @@ public class BrowseController
         int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST
                 ? R.string.action_switch_catalog
                 : R.string.action_switch_board;
-        item.text = getString(viewModeText);
+        navigation.findSubItem(VIEW_MODE_ID).text = getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
     }
@@ -411,6 +376,10 @@ public class BrowseController
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ToolbarMenuSubItem archive = navigation.findSubItem(ARCHIVE_ID);
         archive.enabled = loadable.board.site.boardFeature(Site.BoardFeature.ARCHIVE, loadable.board);
+        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ITEM_ID);
+        if (reply != null) {
+            reply.enabled = loadable.board.site.siteFeature(Site.SiteFeature.POSTING);
+        }
     }
 
     @Override
@@ -442,9 +411,6 @@ public class BrowseController
         //set the board just in case?
         setBoard(catalogLoadable.board);
     }
-
-    @Override
-    public void showArchives() { }
 
     // Creates or updates the target ViewThreadController
     // This controller can be in various places depending on the layout, so we dynamically search for it

@@ -6,12 +6,12 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
+import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 
 import javax.inject.Inject;
 
@@ -20,7 +20,10 @@ import static com.github.adamantcheese.chan.Chan.inject;
 public class ArchivesLayout
         extends LinearLayout {
     private Callback callback;
-    private ArrayAdapter<PairForAdapter> adapter;
+    private ArrayAdapter<FoolFuukaArchive> adapter;
+    private String boardCode;
+    private int opNo;
+    private AlertDialog alertDialog;
 
     @Inject
     ArchivesManager archivesManager;
@@ -43,12 +46,15 @@ public class ArchivesLayout
         super.onFinishInflate();
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
-        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> callback.openArchive(
-                (PairForAdapter) parent.getItemAtPosition(position)));
+        ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> {
+            callback.openArchive((FoolFuukaArchive) parent.getItemAtPosition(position), boardCode, opNo);
+            if (alertDialog != null) alertDialog.dismiss();
+        });
     }
 
     public boolean setBoard(Board b) {
-        adapter.addAll(archivesManager.domainsForBoard(b));
+        boardCode = b.code;
+        adapter.addAll(archivesManager.archivesForBoard(b));
         return !adapter.isEmpty();
     }
 
@@ -56,19 +62,15 @@ public class ArchivesLayout
         callback = c;
     }
 
-    public static class PairForAdapter
-            extends Pair<String, String> {
-        public PairForAdapter(@Nullable String first, @Nullable String second) {
-            super(first, second);
-        }
+    public void setOpNo(int opNo) {
+        this.opNo = opNo;
+    }
 
-        @Override
-        public String toString() {
-            return String.valueOf(first);
-        }
+    public void attachToDialog(AlertDialog alertDialog) {
+        this.alertDialog = alertDialog;
     }
 
     public interface Callback {
-        void openArchive(Pair<String, String> domainNamePair);
+        void openArchive(FoolFuukaArchive archive, String boardCode, int opNo);
     }
 }

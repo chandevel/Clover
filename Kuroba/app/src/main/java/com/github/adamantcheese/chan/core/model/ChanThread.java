@@ -25,6 +25,7 @@ import android.text.style.UnderlineSpan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
+import com.github.adamantcheese.chan.core.site.Archive;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -154,7 +155,7 @@ public class ChanThread {
             }
 
             CommonDataStructs.ChanPage p = PageRepository.getPage(op);
-            if (p != null) {
+            if (p != null && !(loadable.site instanceof Archive)) {
                 SpannableString page = new SpannableString(String.valueOf(p.page));
                 if (p.page >= loadable.board.pages) {
                     page.setSpan(new StyleSpan(style), 0, page.length(), 0);

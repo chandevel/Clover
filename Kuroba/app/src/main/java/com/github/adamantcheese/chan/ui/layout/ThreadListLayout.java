@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.Archive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -103,9 +104,8 @@ public class ThreadListLayout
 
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
-        public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-            // onScrollStateChanged can be called after cleanup()
-            if (showingThread != null && newState == RecyclerView.SCROLL_STATE_IDLE) {
+        public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+            if (showingThread != null) {
                 int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
                 showingThread.getLoadable().listViewIndex = indexTop[0];
@@ -120,7 +120,9 @@ public class ThreadListLayout
                     BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
 
-                callback.updateDatabaseLoadable();
+                if (!(showingThread.getLoadable().site instanceof Archive)) {
+                    callback.updateDatabaseLoadable();
+                }
             }
         }
     };

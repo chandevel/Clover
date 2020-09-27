@@ -218,7 +218,7 @@ public abstract class ThreadController
     }
 
     @Override
-    public void onShowPosts() {
+    public void onShowPosts(Loadable loadable) {
     }
 
     @Override

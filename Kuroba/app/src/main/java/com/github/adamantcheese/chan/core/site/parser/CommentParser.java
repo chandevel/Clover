@@ -30,10 +30,8 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -203,20 +201,6 @@ public class CommentParser {
         spannableStringBuilder.append(res);
     }
 
-    private void addMockReply(
-            Theme theme, Post.Builder post, SpannableStringBuilder spannableStringBuilder, int mockReplyPostNo
-    ) {
-        post.addReplyTo(mockReplyPostNo);
-
-        CharSequence replyText = ">>" + mockReplyPostNo + " (MOCK)";
-        SpannableString res = new SpannableString(replyText);
-        PostLinkable pl = new PostLinkable(theme, replyText, mockReplyPostNo, PostLinkable.Type.QUOTE);
-        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-        post.addLinkable(pl);
-
-        spannableStringBuilder.append(res).append('\n');
-    }
-
     private CharSequence handleFortune(
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element span
     ) {
@@ -281,16 +265,9 @@ public class CommentParser {
         try {
             if (!(builder.board.site instanceof Chan4)) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
-            List<ArchivesLayout.PairForAdapter> boards = instance(ArchivesManager.class).domainsForBoard(builder.board);
-            if (!boards.isEmpty() && builder.op) {
-                //only allow same board deadlinks to be parsed in the OP, as they are likely previous thread links
-                //if a deadlink appears in a regular post that is likely to be a dead post link, we are unable to link to an archive
-                //as there are no URLs that directly will allow you to link to a post and be redirected to the right thread
-                Site site = builder.board.site;
-                String link =
-                        site.resolvable().desktopUrl(Loadable.forThread(builder.board, postNo, "", false), builder.id);
-                link = link.replace("https://boards.4chan.org/", "https://" + boards.get(0).second + "/");
-                PostLinkable newLinkable = new PostLinkable(theme, link, link, PostLinkable.Type.LINK);
+            List<FoolFuukaArchive> boards = instance(ArchivesManager.class).archivesForBoard(builder.board);
+            if (!boards.isEmpty() && builder.op) { // TODO loadable.markedNo for scrolling
+                PostLinkable newLinkable = new PostLinkable(theme, "ARCHIVE OP NO", postNo, PostLinkable.Type.ARCHIVE);
                 text = span(text, newLinkable);
                 builder.addLinkable(newLinkable);
             }

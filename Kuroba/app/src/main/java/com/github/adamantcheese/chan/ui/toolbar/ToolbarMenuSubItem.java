@@ -60,11 +60,11 @@ public class ToolbarMenuSubItem {
 
     public void performClick() {
         if (clicked != null) {
-            clicked.clicked(this);
+            clicked.clicked();
         }
     }
 
     public interface ClickCallback {
-        void clicked(ToolbarMenuSubItem subItem);
+        void clicked();
     }
 }

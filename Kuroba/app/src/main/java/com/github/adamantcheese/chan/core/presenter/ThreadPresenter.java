@@ -27,7 +27,6 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -52,6 +51,8 @@ import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.Archive;
+import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -90,7 +91,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
@@ -944,6 +944,8 @@ public class ThreadPresenter
             } else {
                 threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(board), search.search);
             }
+        } else if (linkable.type == PostLinkable.Type.ARCHIVE) {
+            showArchives((Integer) linkable.value);
         }
     }
 
@@ -989,6 +991,7 @@ public class ThreadPresenter
             && BackgroundUtils.isInForeground()
             && isBound()
             && loadable.isThreadMode()
+            && !(loadable.site instanceof Archive)
             && chanLoader.getThread() != null
             && !chanLoader.getThread().isClosed()
             && !chanLoader.getThread().isArchived();
@@ -1008,20 +1011,26 @@ public class ThreadPresenter
         if (!chanLoader.getThread().isArchived()) {
             chanLoader.requestMoreData();
         } else {
-            @SuppressLint("InflateParams")
-            final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
-            boolean hasContents = dialogView.setBoard(loadable.board);
-            dialogView.setCallback(this);
+            showArchives(loadable.no);
+        }
+    }
 
-            if (hasContents) {
-                AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
-                        .setTitle(R.string.thread_show_archives)
-                        .create();
-                dialog.setCanceledOnTouchOutside(true);
-                dialog.show();
-            } else {
-                showToast(context, "No archives for this board or site.");
-            }
+    public void showArchives(int opNo) {
+        @SuppressLint("InflateParams")
+        final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
+        boolean hasContents = dialogView.setBoard(loadable.board);
+        dialogView.setOpNo(opNo);
+        dialogView.setCallback(this);
+
+        if (hasContents) {
+            AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
+                    .setTitle(R.string.thread_show_archives)
+                    .create();
+            dialog.setCanceledOnTouchOutside(true);
+            dialogView.attachToDialog(dialog);
+            dialog.show();
+        } else {
+            showToast(context, "No archives for this board or site.");
         }
     }
 
@@ -1223,11 +1232,9 @@ public class ThreadPresenter
     }
 
     @Override
-    public void openArchive(Pair<String, String> domainNamePair) {
+    public void openArchive(FoolFuukaArchive archive, String boardCode, int opNo) {
         if (isBound()) {
-            String link = loadable.desktopUrl();
-            link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-            openLinkInBrowser(context, link);
+            showThread(archive.getArchiveLoadable(boardCode, opNo));
         }
     }
 

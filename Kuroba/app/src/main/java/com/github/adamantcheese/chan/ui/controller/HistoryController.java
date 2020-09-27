@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -103,7 +102,7 @@ public class HistoryController
         ((ToolbarNavigationController) navigationController).showSearch();
     }
 
-    private void clearSavedReplyClicked(ToolbarMenuSubItem item) {
+    private void clearSavedReplyClicked() {
         new AlertDialog.Builder(context).setTitle(R.string.saved_reply_clear_confirm)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(

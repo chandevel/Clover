@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.Archive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -183,7 +184,7 @@ public class ThreadLayout
             if (!archiveButton) {
                 presenter.requestData();
             } else {
-                callback.showArchives();
+                presenter.showArchives(presenter.getLoadable().no);
             }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
@@ -261,14 +262,14 @@ public class ThreadLayout
             ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts
     ) {
 
-        if (replyButton.getVisibility() != VISIBLE) {
+        if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof Archive)) {
             replyButton.show();
         }
 
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, refreshAfterHideOrRemovePosts);
 
         switchVisible(Visible.THREAD);
-        callback.onShowPosts();
+        callback.onShowPosts(thread.getLoadable());
     }
 
     @Override
@@ -798,13 +799,11 @@ public class ThreadLayout
 
         void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
-        void showArchives();
-
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 
         void showAlbum(List<PostImage> images, int index);
 
-        void onShowPosts();
+        void onShowPosts(Loadable loadable);
 
         void presentController(Controller controller);
 

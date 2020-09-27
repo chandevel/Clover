@@ -253,8 +253,6 @@ public class ChanThreadLoader {
     }
 
     private Call getData() {
-        BackgroundUtils.ensureBackgroundThread();
-
         Logger.d(this, "Requested /" + loadable.boardCode + "/, " + maskPostNo(loadable.no));
 
         List<Post> cached;
@@ -271,7 +269,7 @@ public class ChanThreadLoader {
             @Override
             public void onJsonSuccess(ChanLoaderResponse result) {
                 clearTimer();
-                onResponse(result);
+                BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
             }
         }, new ChanReaderParser(loadable, cached, null));
     }

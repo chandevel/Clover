@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -37,6 +36,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
@@ -64,12 +65,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ViewThreadController
         extends ThreadController
         implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback, ToolbarMenuItem.OverflowMenuCallback {
     private static final int PIN_ID = 1;
+    private static final int REPLY_ID = 2;
 
     @Inject
     WatchManager watchManager;
@@ -118,20 +119,26 @@ public class ViewThreadController
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
         if (!ChanSettings.enableReplyFab.get()) {
-            menuOverflowBuilder.withSubItem(R.string.action_reply, this::replyClicked);
+            menuOverflowBuilder.withSubItem(REPLY_ID, R.string.action_reply, () -> threadLayout.openReply(true));
         }
 
-        menuOverflowBuilder.withSubItem(R.string.action_search, this::searchClicked)
-                .withSubItem(R.string.action_reload, this::reloadClicked);
+        menuOverflowBuilder.withSubItem(R.string.action_search,
+                () -> ((ToolbarNavigationController) navigationController).showSearch()
+        )
+                .withSubItem(R.string.action_reload, () -> threadLayout.getPresenter().requestData());
         if (loadable.site instanceof Chan4) { //archives are 4chan only
-            menuOverflowBuilder.withSubItem(R.string.thread_show_archives, this::showArchivesInternal);
+            menuOverflowBuilder.withSubItem(R.string.thread_show_archives,
+                    () -> threadLayout.getPresenter().showArchives(loadable.no)
+            );
         }
-        menuOverflowBuilder.withSubItem(R.string.view_removed_posts, this::showRemovedPostsDialog)
+        menuOverflowBuilder.withSubItem(R.string.view_removed_posts,
+                () -> threadLayout.getPresenter().showRemovedPostsDialog()
+        )
                 .withSubItem(R.string.view_my_posts, this::showYourPosts)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, this::shareClicked)
-                .withSubItem(R.string.action_scroll_to_top, this::upClicked)
-                .withSubItem(R.string.action_scroll_to_bottom, this::downClicked);
+                .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.scrollTo(0, false))
+                .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.scrollTo(-1, false));
 
         menuOverflowBuilder.build().build();
     }
@@ -150,35 +157,7 @@ public class ViewThreadController
         }
     }
 
-    private void searchClicked(ToolbarMenuSubItem item) {
-        ((ToolbarNavigationController) navigationController).showSearch();
-    }
-
-    private void replyClicked(ToolbarMenuSubItem item) {
-        threadLayout.openReply(true);
-    }
-
-    private void reloadClicked(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().requestData();
-    }
-
-    public void showArchives() {
-        showArchivesInternal(null);
-    }
-
-    private void showArchivesInternal(ToolbarMenuSubItem item) {
-        @SuppressLint("InflateParams")
-        final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
-        dialogView.setBoard(threadLayout.getPresenter().getLoadable().board);
-        dialogView.setCallback(this);
-
-        AlertDialog dialog =
-                new AlertDialog.Builder(context).setView(dialogView).setTitle(R.string.thread_show_archives).create();
-        dialog.setCanceledOnTouchOutside(true);
-        dialog.show();
-    }
-
-    public void showYourPosts(ToolbarMenuSubItem item) {
+    public void showYourPosts() {
         if (!threadLayout.getPresenter().isBound() || threadLayout.getPresenter().getChanThread() == null) return;
         List<Post> yourPosts = new ArrayList<>();
         for (Post post : threadLayout.getPresenter().getChanThread().getPosts()) {
@@ -192,11 +171,7 @@ public class ViewThreadController
         }
     }
 
-    public void showRemovedPostsDialog(ToolbarMenuSubItem item) {
-        threadLayout.getPresenter().showRemovedPostsDialog();
-    }
-
-    private void openBrowserClicked(ToolbarMenuSubItem item) {
+    private void openBrowserClicked() {
         if (threadLayout.getPresenter().getChanThread() == null) {
             showToast(context, R.string.cannot_open_in_browser_already_deleted);
             return;
@@ -206,7 +181,7 @@ public class ViewThreadController
         openLinkInBrowser(context, loadable.desktopUrl());
     }
 
-    private void shareClicked(ToolbarMenuSubItem item) {
+    private void shareClicked() {
         if (threadLayout.getPresenter().getChanThread() == null) {
             showToast(context, R.string.cannot_shared_thread_already_deleted);
             return;
@@ -214,14 +189,6 @@ public class ViewThreadController
 
         Loadable loadable = threadLayout.getPresenter().getLoadable();
         shareLink(loadable.desktopUrl());
-    }
-
-    private void upClicked(ToolbarMenuSubItem item) {
-        threadLayout.scrollTo(0, false);
-    }
-
-    private void downClicked(ToolbarMenuSubItem item) {
-        threadLayout.scrollTo(-1, false);
     }
 
     @Override
@@ -375,14 +342,19 @@ public class ViewThreadController
     }
 
     @Override
-    public void onShowPosts() {
-        super.onShowPosts();
-        navigation.title = this.loadable.title;
+    public void onShowPosts(Loadable loadable) {
+        super.onShowPosts(loadable);
+        navigation.title = loadable.title;
 
         setPinIconState(false);
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);
+
+        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ID);
+        if (reply != null) {
+            reply.enabled = loadable.site.siteFeature(Site.SiteFeature.POSTING);
+        }
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
@@ -445,11 +417,9 @@ public class ViewThreadController
     }
 
     @Override
-    public void openArchive(Pair<String, String> domainNamePair) {
-        Loadable loadable = threadLayout.getPresenter().getLoadable();
-        String link = loadable.desktopUrl();
-        link = link.replace("https://boards.4chan.org/", "https://" + domainNamePair.second + "/");
-        openLinkInBrowser(context, link);
+    public void openArchive(FoolFuukaArchive archive, String boardCode, int opNo) {
+        threadFollowerpool.addFirst(new Pair<>(loadable, archive.getArchiveLoadable(boardCode, opNo).hashCode()));
+        threadLayout.getPresenter().openArchive(archive, boardCode, opNo);
     }
 
     @Override
