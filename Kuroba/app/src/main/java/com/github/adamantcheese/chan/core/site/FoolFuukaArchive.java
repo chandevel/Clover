@@ -32,7 +32,7 @@ public class FoolFuukaArchive {
     public FoolFuukaArchive(ArchivesManager.Archives archives) {
         domain = archives.domain;
         name = archives.name;
-        boardCodes = archives.boards;
+        boardCodes = archives.boardCodes;
     }
 
     private HttpUrl urlForThread(Board board, int opNo) {

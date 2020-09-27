@@ -38,6 +38,7 @@ public class ArchivesManager {
         //setup the archives list from the internal file, populated when you build the application
         AssetManager assetManager = getAppContext().getAssets();
         try {
+            // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
             InputStream json = assetManager.open("archives.json");
             JsonReader reader = new JsonReader(new InputStreamReader(json));
             archivesList = parseArchives(reader);
@@ -50,7 +51,7 @@ public class ArchivesManager {
         List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
         if (archivesList == null || !(b.site instanceof Chan4)) return result; //4chan only
         for (Archives a : archivesList) {
-            for (String code : a.boards) {
+            for (String code : a.boardCodes) {
                 if (code.equals(b.code)) {
                     result.add(new ArchivesLayout.PairForAdapter(a.name, a.domain));
                     break;
@@ -84,10 +85,11 @@ public class ArchivesManager {
                             b.add(reader.nextString());
                         }
                         reader.endArray();
-                        a.boards = b;
+                        a.boardCodes = b;
                         break;
                     case "search":
                         a.search = reader.nextBoolean();
+                        break;
                     default:
                         reader.skipValue();
                         break;
@@ -108,7 +110,7 @@ public class ArchivesManager {
     public static class Archives {
         public String name = "";
         public String domain = "";
-        public List<String> boards;
+        public List<String> boardCodes;
         public boolean search = false;
     }
 }
