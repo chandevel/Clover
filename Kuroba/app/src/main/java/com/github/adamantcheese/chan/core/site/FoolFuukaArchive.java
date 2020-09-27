@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.site;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -25,14 +24,16 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 public class FoolFuukaArchive {
-    private String domain;
-    private String name;
-    private List<String> boardCodes;
+    public String domain;
+    public String name;
+    public List<String> boardCodes;
+    public boolean searchEnabled;
 
-    public FoolFuukaArchive(ArchivesManager.Archives archives) {
-        domain = archives.domain;
-        name = archives.name;
-        boardCodes = archives.boardCodes;
+    public FoolFuukaArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
+        this.domain = domain;
+        this.name = name;
+        this.boardCodes = boardCodes;
+        this.searchEnabled = searchEnabled;
     }
 
     private HttpUrl urlForThread(Board board, int opNo) {
@@ -59,7 +60,7 @@ public class FoolFuukaArchive {
         );
     }
 
-    private class FoolFuukaReader
+    private static class FoolFuukaReader
             implements ChanReader {
 
         @Override

@@ -20,28 +20,29 @@ import android.content.res.AssetManager;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ArchivesManager {
-    private List<Archives> archivesList;
+    private List<FoolFuukaArchive> archivesList;
 
     public ArchivesManager() {
         //setup the archives list from the internal file, populated when you build the application
         AssetManager assetManager = getAppContext().getAssets();
         try {
             // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
-            InputStream json = assetManager.open("archives.json");
-            JsonReader reader = new JsonReader(new InputStreamReader(json));
-            archivesList = parseArchives(reader);
+            try (JsonReader reader = new JsonReader(new InputStreamReader(assetManager.open("archives.json")))) {
+                archivesList = parseArchives(reader);
+            }
         } catch (Exception e) {
             Logger.d(this, "Unable to load/parse internal archives list");
         }
@@ -50,7 +51,7 @@ public class ArchivesManager {
     public List<ArchivesLayout.PairForAdapter> domainsForBoard(Board b) {
         List<ArchivesLayout.PairForAdapter> result = new ArrayList<>();
         if (archivesList == null || !(b.site instanceof Chan4)) return result; //4chan only
-        for (Archives a : archivesList) {
+        for (FoolFuukaArchive a : archivesList) {
             for (String code : a.boardCodes) {
                 if (code.equals(b.code)) {
                     result.add(new ArchivesLayout.PairForAdapter(a.name, a.domain));
@@ -61,34 +62,35 @@ public class ArchivesManager {
         return result;
     }
 
-    public static List<Archives> parseArchives(JsonReader reader)
+    private List<FoolFuukaArchive> parseArchives(JsonReader reader)
             throws Exception {
-        List<ArchivesManager.Archives> archives = new ArrayList<>();
+        List<FoolFuukaArchive> archives = new ArrayList<>();
 
         reader.beginArray();
         while (reader.hasNext()) {
-            ArchivesManager.Archives a = new ArchivesManager.Archives();
-
             reader.beginObject();
+            String name = "";
+            String domain = "";
+            List<String> boardCodes = Collections.emptyList();
+            boolean search = false;
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
                     case "name":
-                        a.name = reader.nextString();
+                        name = reader.nextString();
                         break;
                     case "domain":
-                        a.domain = reader.nextString();
+                        domain = reader.nextString();
                         break;
                     case "boards":
-                        List<String> b = new ArrayList<>();
+                        boardCodes = new ArrayList<>();
                         reader.beginArray();
                         while (reader.hasNext()) {
-                            b.add(reader.nextString());
+                            boardCodes.add(reader.nextString());
                         }
                         reader.endArray();
-                        a.boardCodes = b;
                         break;
                     case "search":
-                        a.search = reader.nextBoolean();
+                        search = reader.nextBoolean();
                         break;
                     default:
                         reader.skipValue();
@@ -96,21 +98,9 @@ public class ArchivesManager {
                 }
             }
             reader.endObject();
-            archives.add(a);
+            archives.add(new FoolFuukaArchive(domain, name, boardCodes, search));
         }
         reader.endArray();
-
         return archives;
-    }
-
-    public boolean hasArchives() {
-        return !archivesList.isEmpty();
-    }
-
-    public static class Archives {
-        public String name = "";
-        public String domain = "";
-        public List<String> boardCodes;
-        public boolean search = false;
     }
 }
