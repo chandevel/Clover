@@ -30,30 +30,30 @@ class SaveLocationSetupDelegate(
     fun showUseSAFOrOldAPIForSaveLocationDialog() {
         BackgroundUtils.ensureMainThread()
 
-        callbacks.runWithWritePermissionsOrShowErrorToast(Runnable {
+        callbacks.runWithWritePermissionsOrShowErrorToast {
             AlertDialog.Builder(context)
-                    .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
-                    .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
-                    .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
-                        presenter.onSaveLocationUseSAFClicked()
-                    }
-                    .setNeutralButton(R.string.reset) { _, _ ->
-                        presenter.resetSaveLocationBaseDir()
+                .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
+                .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
+                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
+                    presenter.onSaveLocationUseSAFClicked()
+                }
+                .setNeutralButton(R.string.reset) { _, _ ->
+                    presenter.resetSaveLocationBaseDir()
 
-                        val defaultBaseDirFile = File(ChanSettings.saveLocation.fileApiBaseDir.get())
-                        if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
-                            callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
-                            return@setNeutralButton
-                        }
+                    val defaultBaseDirFile = File(ChanSettings.saveLocation.fileApiBaseDir.get())
+                    if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
+                        callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
+                        return@setNeutralButton
+                    }
 
-                        callbacks.onFilesBaseDirectoryReset()
-                    }
-                    .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
-                        onSaveLocationUseOldApiClicked()
-                    }
-                    .create()
-                    .show()
-        })
+                    callbacks.onFilesBaseDirectoryReset()
+                }
+                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
+                    onSaveLocationUseOldApiClicked()
+                }
+                .create()
+                .show()
+        }
     }
 
     /**
@@ -63,9 +63,8 @@ class SaveLocationSetupDelegate(
         BackgroundUtils.ensureMainThread()
 
         val saveLocationController = SaveLocationController(context,
-                SaveLocationController.SaveLocationControllerMode.ImageSaveLocation,
-                SaveLocationControllerCallback { dirPath -> presenter.onSaveLocationChosen(dirPath) }
-        )
+                SaveLocationController.SaveLocationControllerMode.ImageSaveLocation
+        ) { dirPath -> presenter.onSaveLocationChosen(dirPath) }
 
         callbacks.pushController(saveLocationController)
     }
