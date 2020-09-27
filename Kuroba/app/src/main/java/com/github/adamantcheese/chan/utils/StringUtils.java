@@ -149,6 +149,15 @@ public class StringUtils {
         return false;
     }
 
+    public static boolean containsAny(String s, String[] contains) {
+        for (String contain : contains) {
+            if (s.contains(contain)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String parseEmojiToAscii(String input) {
         return EmojiParser.parseFromUnicode(
                 input,

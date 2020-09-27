@@ -613,7 +613,7 @@ public class PostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, comment);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh, comment);
         }
     }
 
@@ -685,6 +685,13 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
+    }
+
+    private Void refresh() {
+        if (recyclerView.getAdapter() != null) {
+            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
+        }
+        return null;
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {

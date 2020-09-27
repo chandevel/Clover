@@ -24,8 +24,10 @@ import androidx.annotation.MainThread;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -147,7 +149,7 @@ public class Post
 
         time = builder.unixTimestampSeconds;
         if (builder.images == null) {
-            images = Collections.emptyList();
+            images = Collections.unmodifiableList(Collections.emptyList());
         } else {
             images = Collections.unmodifiableList(builder.images);
         }
@@ -268,6 +270,23 @@ public class Post
     @MainThread
     public PostImage image() {
         return images.isEmpty() ? null : images.get(0);
+    }
+
+    /**
+     * Adds an image to the images set; generally don't do this unless you have some special reason for it!
+     * Add images while the post is still a Builder instance if you can instead!
+     */
+    public void addImage(PostImage image) {
+        try {
+            Field imageList = Post.class.getDeclaredField("images");
+            imageList.setAccessible(true);
+            List<PostImage> newImages = new ArrayList<>(images);
+            newImages.add(image);
+            imageList.set(this, Collections.unmodifiableList(newImages));
+            imageList.setAccessible(false);
+        } catch (Exception e) {
+            Logger.d(this, "Failed to add image with reflection", e);
+        }
     }
 
     @MainThread
@@ -477,7 +496,7 @@ public class Post
 
             // Stolen from the 4chan extension
             int hash = 0;
-            for(int i = 0; i < posterId.length(); i++) {
+            for (int i = 0; i < posterId.length(); i++) {
                 hash = (hash << 5) - hash + posterId.charAt(i);
             }
             hash = hash >>> 8;

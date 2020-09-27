@@ -133,6 +133,9 @@ public class PostImage {
         public Builder() {
         }
 
+        /**
+         * @param serverFilename The filename stored on the server; for 4chan it is a UNIX timestamp
+         */
         public Builder serverFilename(String serverFilename) {
             this.serverFilename = serverFilename;
             return this;
@@ -158,11 +161,17 @@ public class PostImage {
             return this;
         }
 
+        /**
+         * @param filename The filename of the file that was actually uploaded, not the one assigned by the server
+         */
         public Builder filename(String filename) {
             this.filename = filename;
             return this;
         }
 
+        /**
+         * @param extension The extension for the image, must not have a period prepended to it
+         */
         public Builder extension(String extension) {
             this.extension = extension;
             return this;

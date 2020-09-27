@@ -71,6 +71,7 @@ public class CardPostCell
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;
+    private RecyclerView recyclerView;
 
     public CardPostCell(Context context) {
         super(context);
@@ -200,6 +201,7 @@ public class CardPostCell
         this.post = post;
         this.callback = callback;
         this.theme = theme;
+        this.recyclerView = attachedTo;
 
         bindPost(theme, post);
 
@@ -269,8 +271,15 @@ public class CardPostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, comment);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh, comment);
         }
+    }
+
+    private Void refresh() {
+        if (recyclerView.getAdapter() != null) {
+            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
+        }
+        return null;
     }
 
     private void setCompact(boolean compact) {
