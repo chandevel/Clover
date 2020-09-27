@@ -49,7 +49,8 @@ public class PostLinkable
         SPOILER,
         THREAD,
         BOARD,
-        SEARCH
+        SEARCH,
+        ARCHIVE
     }
 
     private final float blendRatio;

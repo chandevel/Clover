@@ -619,8 +619,10 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         }
 
-        menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
-        menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+        if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
+            menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
+        }
 
         if (loadable.site.siteFeature(Site.SiteFeature.POST_REPORT)) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_REPORT, R.string.post_report));

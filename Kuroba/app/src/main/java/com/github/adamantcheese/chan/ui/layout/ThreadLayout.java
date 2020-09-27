@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
@@ -727,7 +728,9 @@ public class ThreadLayout
                     break;
                 case THREAD:
                     loadView.setView(threadListLayout);
-                    showReplyButton(true);
+                    if (presenter.isBound() && presenter.getLoadable().site.siteFeature(Site.SiteFeature.POSTING)) {
+                        showReplyButton(true);
+                    }
                     break;
                 case ERROR:
                     loadView.setView(errorLayout);
