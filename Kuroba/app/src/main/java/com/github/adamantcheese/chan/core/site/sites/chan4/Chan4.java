@@ -22,8 +22,6 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Archive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -326,26 +324,6 @@ public class Chan4
                     listener.onPagesReceived(board, result);
                 }
             }, new Chan4PagesParser());
-        }
-
-        @Override
-        public void archives(ArchiveRequestListener archivesListener) {
-            //currently only used for 4chan, so if there are archives, don't send another request
-            if (Chan.instance(ArchivesManager.class).hasArchives()) return;
-            NetUtils.makeJsonRequest(HttpUrl.get("https://nstepien.github.io/archives.json/archives.json"),
-                    new JsonResult<List<ArchivesManager.Archives>>() {
-                        @Override
-                        public void onJsonFailure(Exception e) {
-                            Logger.e(Chan4.this, "Failed to get archives for 4Chan, using builtins");
-                        }
-
-                        @Override
-                        public void onJsonSuccess(List<ArchivesManager.Archives> result) {
-                            archivesListener.onArchivesReceived(result);
-                        }
-                    },
-                    ArchivesManager::parseArchives
-            );
         }
 
         @Override

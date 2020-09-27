@@ -20,7 +20,6 @@ import android.content.res.AssetManager;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -32,8 +31,7 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-public class ArchivesManager
-        implements SiteActions.ArchiveRequestListener {
+public class ArchivesManager {
     private List<Archives> archivesList;
 
     public ArchivesManager() {
@@ -70,8 +68,6 @@ public class ArchivesManager
         while (reader.hasNext()) {
             ArchivesManager.Archives a = new ArchivesManager.Archives();
 
-            boolean skip = false;
-
             reader.beginObject();
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
@@ -90,30 +86,19 @@ public class ArchivesManager
                         reader.endArray();
                         a.boards = b;
                         break;
-                    case "software": // fuuka doesn't have an API and I can't be assed to manually parse it
-                        if ("fuuka".equals(reader.nextString())) {
-                            skip = true;
-                        }
-                        break;
+                    case "search":
+                        a.search = reader.nextBoolean();
                     default:
                         reader.skipValue();
                         break;
                 }
             }
             reader.endObject();
-            if (!skip) {
-                archives.add(a);
-            }
+            archives.add(a);
         }
         reader.endArray();
 
         return archives;
-    }
-
-    @Override
-    public void onArchivesReceived(List<Archives> archives) {
-        Logger.d(this, "Got archives");
-        archivesList = archives;
     }
 
     public boolean hasArchives() {
@@ -124,5 +109,6 @@ public class ArchivesManager
         public String name = "";
         public String domain = "";
         public List<String> boards;
+        public boolean search = false;
     }
 }
