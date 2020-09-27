@@ -13,8 +13,8 @@ import com.github.adamantcheese.chan.utils.Logger
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.RawFile
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.FileDataSource
 import io.reactivex.android.schedulers.AndroidSchedulers
 import java.io.IOException
@@ -60,8 +60,10 @@ class WebmStreamingSource(
 
                         // The webm file is already completely downloaded, just use it from the disk
                         callback.onMediaSourceReady(
-                                ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
-                                        .createMediaSource(uri)
+                                ProgressiveMediaSource.Factory { fileCacheSource }
+                                        .createMediaSource(MediaItem.Builder()
+                                                .setUri(uri)
+                                                .build())
                         )
                     }
 
@@ -110,8 +112,10 @@ class WebmStreamingSource(
                     val fileUri = Uri.parse(destination.getFullPath())
 
                     weakCallback.get()?.onMediaSourceReady(
-                            ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
-                                    .createMediaSource(fileUri)
+                            ProgressiveMediaSource.Factory { FileDataSource() }
+                                    .createMediaSource(MediaItem.Builder()
+                                            .setUri(fileUri)
+                                            .build())
                     )
                 }, { error ->
                     BackgroundUtils.ensureMainThread()
@@ -147,8 +151,10 @@ class WebmStreamingSource(
         }
 
         callback.onMediaSourceReady(
-                ProgressiveMediaSource.Factory(DataSource.Factory { fileCacheSource })
-                        .createMediaSource(uri)
+                ProgressiveMediaSource.Factory { fileCacheSource }
+                        .createMediaSource(MediaItem.Builder()
+                                .setUri(uri)
+                                .build())
         )
     }
 
@@ -157,8 +163,10 @@ class WebmStreamingSource(
         val fileUri = Uri.parse(rawFile.getFullPath())
 
         callback.onMediaSourceReady(
-                ProgressiveMediaSource.Factory(DataSource.Factory { FileDataSource() })
-                        .createMediaSource(fileUri)
+                ProgressiveMediaSource.Factory { FileDataSource() }
+                        .createMediaSource(MediaItem.Builder()
+                                .setUri(fileUri)
+                                .build())
         )
     }
 
