@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -749,7 +750,8 @@ public class MultiImageView
         if (isImage) {
             ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
-            ((GifImageView) activeView).getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
+            ((GifImageView) activeView).getDrawable().setColorFilter(
+                    new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
         }
     }
 
