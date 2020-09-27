@@ -26,6 +26,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -45,6 +46,7 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageContainer;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -466,12 +468,15 @@ public class MultiImageView extends FrameLayout implements View.OnClickListener,
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(),
                     Util.getUserAgent(getContext(), userAgent.getUserAgent()));
             MediaSource videoSource = new ProgressiveMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(android.net.Uri.fromFile(file));
+                    .createMediaSource(new MediaItem.Builder()
+                            .setUri(Uri.fromFile(file))
+                            .build());
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ?
                     Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
-            exoPlayer.prepare(videoSource);
+            exoPlayer.setMediaSource(videoSource);
+            exoPlayer.prepare();
             exoPlayer.addAudioListener(this);
 
             addView(exoVideoView);
