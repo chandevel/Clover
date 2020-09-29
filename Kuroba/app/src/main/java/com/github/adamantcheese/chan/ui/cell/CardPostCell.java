@@ -271,12 +271,12 @@ public class CardPostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh, comment);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh);
         }
     }
 
     private Void refresh() {
-        if (recyclerView.getAdapter() != null) {
+        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
         }
         return null;

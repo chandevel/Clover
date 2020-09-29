@@ -211,12 +211,11 @@ public class CommentParserHelper {
      *
      * @param theme              The theme to style the links with
      * @param post               The post where the links will be found and replaced
-     * @param invalidateFunction The entire view containing the textview, in case some other processing needs to refresh the entire thing
-     * @param toSet              The textview containing the post, so callbacks can refresh it when done
+     * @param invalidateFunction The entire view to be refreshed after embedding
      */
 
     public static List<Call> replaceVideoLinks(
-            Theme theme, Post post, @Nullable Function0<Void> invalidateFunction, @NonNull TextView toSet
+            Theme theme, @NonNull Post post, @NonNull Function0<Void> invalidateFunction
     ) {
         // if we've already got an image span with a youtube/streamable link in it, this post has already been processed/is processing, ignore this
         ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
@@ -232,9 +231,8 @@ public class CommentParserHelper {
         }
 
         List<Call> calls = new ArrayList<>();
-        // youtube links can't have additional inlining done to them, so don't pass the invalidate function downwards
-        calls.addAll(addYoutubeCalls(theme, post, toSet));
-        calls.addAll(addStreamableCalls(theme, post, invalidateFunction, toSet));
+        calls.addAll(addYoutubeCalls(theme, post, invalidateFunction));
+        calls.addAll(addStreamableCalls(theme, post, invalidateFunction));
         return calls;
     }
 
@@ -263,12 +261,11 @@ public class CommentParserHelper {
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
 
     private static List<Call> addYoutubeCalls(
-            Theme theme, Post post, @NonNull TextView toSet
+            Theme theme, Post post, @NonNull Function0<Void> invalidateFunction
     ) {
         return addVideoCalls(theme,
                 post,
-                null,
-                toSet,
+                invalidateFunction,
                 YOUTUBE_LINK_PATTERN,
                 matcher -> HttpUrl.get(
                         "https://www.googleapis.com/youtube/v3/videos?part=snippet" + (ChanSettings.parseYoutubeDuration
@@ -370,12 +367,11 @@ public class CommentParserHelper {
             Pattern.compile("\\b\\w+://[\\w.]*?streamable\\.com/(.{6})\\b");
 
     private static List<Call> addStreamableCalls(
-            Theme theme, Post post, @Nullable Function0<Void> toInvalidate, @NonNull TextView toSet
+            Theme theme, Post post, @NonNull Function0<Void> toInvalidate
     ) {
         return addVideoCalls(theme,
                 post,
                 toInvalidate,
-                toSet,
                 STREAMABLE_LINK_PATTERN,
                 matcher -> HttpUrl.get("https://api.streamable.com/videos/" + matcher.group(1)),
                 BitmapRepository.streamableIcon,
@@ -469,8 +465,7 @@ public class CommentParserHelper {
     private static List<Call> addVideoCalls(
             Theme theme,
             Post post,
-            @Nullable Function0<Void> invalidateFunction,
-            @NonNull TextView toSet,
+            @NonNull Function0<Void> invalidateFunction,
             Pattern pattern,
             RequestURLGenerator generator,
             Bitmap icon,
@@ -498,7 +493,7 @@ public class CommentParserHelper {
 
             if (!needsRequest) {
                 // we've previously cached this youtube title/duration and we don't need additional information
-                performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, toSet, icon);
+                performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, icon);
             } else {
                 // we haven't cached this youtube title/duration, or we need additional information
                 calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
@@ -511,7 +506,6 @@ public class CommentParserHelper {
                                     new Pair<>(URL, null),
                                     URL,
                                     invalidateFunction,
-                                    toSet,
                                     icon
                             );
                         }
@@ -521,7 +515,7 @@ public class CommentParserHelper {
                     public void onJsonSuccess(Pair<String, String> result) {
                         //got a result, replace with the result and also cache the result
                         videoTitleDurCache.put(URL, result);
-                        performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, toSet, icon);
+                        performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, icon);
                     }
                 }, reader -> apiParser.parse(reader, URL), 2500));
             }
@@ -543,8 +537,7 @@ public class CommentParserHelper {
             Post post,
             @NonNull Pair<String, String> titleDurPair,
             @NonNull String URL,
-            @Nullable Function0<Void> invalidateFunction,
-            @NonNull TextView toSet,
+            @NonNull Function0<Void> invalidateFunction,
             Bitmap icon
     ) {
         synchronized (post.comment) {
@@ -582,12 +575,7 @@ public class CommentParserHelper {
 
             post.linkables.add(pl);
 
-            toSet.setText(post.comment);
-            toSet.postInvalidate();
-
-            if (invalidateFunction != null) {
-                invalidateFunction.invoke();
-            }
+            invalidateFunction.invoke();
         }
     }
     //endregion
