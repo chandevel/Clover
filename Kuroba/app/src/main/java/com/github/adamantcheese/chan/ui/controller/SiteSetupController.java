@@ -34,8 +34,6 @@ import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;

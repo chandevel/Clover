@@ -801,7 +801,7 @@ public class ReplyLayout
 
     @Override
     public void onSelectionChanged() {
-            presenter.onSelectionChanged();
+        presenter.onSelectionChanged();
     }
 
     private void setupCommentContextMenu() {
