@@ -82,7 +82,7 @@ public class CommentParserHelper {
     // maps a math string to a rendered image URL
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
-    private static final String[] ignoreURLs = {"youtu\\.be", "youtube", "streamable"};
+    private static final String[] ignoreURLs = {"youtu.be", "youtube", "streamable"};
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
