@@ -276,9 +276,10 @@ public class CardPostCell
     }
 
     private Void refresh() {
-        comment.postInvalidate();
         if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
+        } else {
+            post(this::refresh);
         }
         return null;
     }
