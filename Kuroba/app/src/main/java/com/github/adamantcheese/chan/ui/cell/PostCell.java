@@ -62,6 +62,7 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -613,7 +614,22 @@ public class PostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, new InvalidateFunction() {
+                @Override
+                public void invalidate(boolean fullInvalidate) {
+                    if (!fullInvalidate) {
+                        comment.setText(post.comment);
+                        comment.postInvalidate();
+                    } else {
+                        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
+                            recyclerView.getAdapter()
+                                    .notifyItemChanged(recyclerView.getChildAdapterPosition(PostCell.this));
+                        } else {
+                            post(() -> invalidate(true));
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -685,15 +701,6 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
-    }
-
-    private Void refresh() {
-        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
-        } else {
-            post(this::refresh);
-        }
-        return null;
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {

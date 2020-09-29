@@ -20,10 +20,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ImageSpan;
-import android.util.JsonReader;
 import android.util.LruCache;
 import android.widget.TextView;
 
@@ -57,7 +55,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import kotlin.jvm.functions.Function0;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -215,7 +212,7 @@ public class CommentParserHelper {
      */
 
     public static List<Call> replaceVideoLinks(
-            Theme theme, @NonNull Post post, @NonNull Function0<Void> invalidateFunction
+            Theme theme, @NonNull Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
         // if we've already got an image span with a youtube/streamable link in it, this post has already been processed/is processing, ignore this
         ImageSpan[] imageSpans = post.comment.getSpans(0, post.comment.length() - 1, ImageSpan.class);
@@ -261,7 +258,7 @@ public class CommentParserHelper {
             "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
 
     private static List<Call> addYoutubeCalls(
-            Theme theme, Post post, @NonNull Function0<Void> invalidateFunction
+            Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
         return addVideoCalls(theme,
                 post,
@@ -274,7 +271,7 @@ public class CommentParserHelper {
                                 ? "%2CcontentDetails%28duration%29"
                                 : "") + "%29&key=" + ChanSettings.parseYoutubeAPIKey.get()),
                 BitmapRepository.youtubeIcon,
-                (reader, defaultUrl) -> {
+                (reader) -> {
                     reader.beginObject(); // JSON start
                     reader.nextName();
                     reader.beginArray();
@@ -297,7 +294,7 @@ public class CommentParserHelper {
                     reader.endObject();
                     reader.endArray();
                     reader.endObject();
-                    return ret;
+                    return new ParseReturnStruct(false, ret);
                 }
         );
     }
@@ -367,7 +364,7 @@ public class CommentParserHelper {
             Pattern.compile("\\b\\w+://[\\w.]*?streamable\\.com/(.{6})\\b");
 
     private static List<Call> addStreamableCalls(
-            Theme theme, Post post, @NonNull Function0<Void> toInvalidate
+            Theme theme, Post post, @NonNull InvalidateFunction toInvalidate
     ) {
         return addVideoCalls(theme,
                 post,
@@ -375,87 +372,84 @@ public class CommentParserHelper {
                 STREAMABLE_LINK_PATTERN,
                 matcher -> HttpUrl.get("https://api.streamable.com/videos/" + matcher.group(1)),
                 BitmapRepository.streamableIcon,
-                (reader, defaultUrl) -> {
+                (reader) -> {
                     String serverFilename = "";
-                    @NonNull
-                    HttpUrl mp4Url = HttpUrl.get(defaultUrl);
+                    HttpUrl mp4Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
                     HttpUrl thumbnailUrl = null;
                     long size = -1L;
 
-                    try {
-                        String title = "";
-                        double duration = Double.NaN;
+                    String title = "titleMissing" + Math.random();
+                    double duration = Double.NaN;
 
-                        reader.beginObject(); // JSON start
-                        while (reader.hasNext()) {
-                            String name = reader.nextName();
-                            switch (name) {
-                                case "url":
-                                    serverFilename = reader.nextString();
-                                    serverFilename = serverFilename.substring(serverFilename.indexOf('/') + 1);
-                                    break;
-                                case "files":
-                                    reader.beginObject();
-                                    while (reader.hasNext()) {
-                                        String format = reader.nextName();
-                                        if ("mp4".equals(format)) {
-                                            reader.beginObject();
-                                            while (reader.hasNext()) {
-                                                String innerName = reader.nextName();
-                                                switch (innerName) {
-                                                    case "duration":
-                                                        duration = reader.nextDouble();
-                                                        break;
-                                                    case "url":
-                                                        mp4Url = HttpUrl.get(reader.nextString());
-                                                        break;
-                                                    case "size":
-                                                        size = reader.nextLong();
-                                                        break;
-                                                    default:
-                                                        reader.skipValue();
-                                                        break;
-                                                }
+                    reader.beginObject(); // JSON start
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        switch (name) {
+                            case "url":
+                                serverFilename = reader.nextString();
+                                serverFilename = serverFilename.substring(serverFilename.indexOf('/') + 1);
+                                break;
+                            case "files":
+                                reader.beginObject();
+                                while (reader.hasNext()) {
+                                    String format = reader.nextName();
+                                    if ("mp4".equals(format)) {
+                                        reader.beginObject();
+                                        while (reader.hasNext()) {
+                                            String innerName = reader.nextName();
+                                            switch (innerName) {
+                                                case "duration":
+                                                    duration = reader.nextDouble();
+                                                    break;
+                                                case "url":
+                                                    mp4Url = HttpUrl.get(reader.nextString());
+                                                    break;
+                                                case "size":
+                                                    size = reader.nextLong();
+                                                    break;
+                                                default:
+                                                    reader.skipValue();
+                                                    break;
                                             }
-                                            reader.endObject();
-                                        } else {
-                                            reader.skipValue();
                                         }
+                                        reader.endObject();
+                                    } else {
+                                        reader.skipValue();
                                     }
-                                    reader.endObject();
-                                    break;
-                                case "title":
-                                    title = reader.nextString();
-                                    break;
-                                case "thumbnail_url":
-                                    thumbnailUrl = HttpUrl.get("https:" + reader.nextString());
-                                    break;
-                                default:
-                                    reader.skipValue();
-                                    break;
-                            }
+                                }
+                                reader.endObject();
+                                break;
+                            case "title":
+                                title = reader.nextString();
+                                break;
+                            case "thumbnail_url":
+                                thumbnailUrl = HttpUrl.get("https:" + reader.nextString());
+                                break;
+                            default:
+                                reader.skipValue();
+                                break;
                         }
-                        reader.endObject();
-
-                        if (ChanSettings.parsePostImageLinks.get()) {
-                            PostImage inlinedImage = new PostImage.Builder().serverFilename(serverFilename)
-                                    .thumbnailUrl(thumbnailUrl)
-                                    .imageUrl(mp4Url)
-                                    .filename(TextUtils.isEmpty(title) ? defaultUrl : title)
-                                    .extension("mp4")
-                                    .isInlined(true)
-                                    .size(size)
-                                    .build();
-
-                            post.addImage(inlinedImage);
-                        }
-
-                        return new Pair<>(TextUtils.isEmpty(title) ? defaultUrl : title,
-                                "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]"
-                        );
-                    } catch (Exception e) {
-                        return new Pair<>(defaultUrl, null);
                     }
+                    reader.endObject();
+
+                    boolean needsRefresh = false;
+                    if (ChanSettings.parsePostImageLinks.get()) {
+                        PostImage inlinedImage = new PostImage.Builder().serverFilename(serverFilename)
+                                .thumbnailUrl(thumbnailUrl)
+                                .imageUrl(mp4Url)
+                                .filename(title)
+                                .extension("mp4")
+                                .isInlined(true)
+                                .size(size)
+                                .build();
+
+                        post.addImage(inlinedImage);
+                        needsRefresh = true;
+                    }
+
+                    return new ParseReturnStruct(needsRefresh,
+                            new Pair<>(title, "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]")
+                    );
                 }
         );
     }
@@ -465,11 +459,11 @@ public class CommentParserHelper {
     private static List<Call> addVideoCalls(
             Theme theme,
             Post post,
-            @NonNull Function0<Void> invalidateFunction,
+            @NonNull InvalidateFunction invalidateFunction,
             Pattern pattern,
             RequestURLGenerator generator,
             Bitmap icon,
-            ApiParser apiParser
+            NetUtils.JsonParser<ParseReturnStruct> apiParser
     ) {
         List<Call> calls = new ArrayList<>();
         //find and replace all video URLs with their titles, but keep track in the map above for spans later
@@ -492,18 +486,24 @@ public class CommentParserHelper {
             }
 
             if (!needsRequest) {
-                // we've previously cached this youtube title/duration and we don't need additional information
-                performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, icon);
+                // we've previously cached this title/duration and we don't need additional information
+                performVideoLinkReplacement(theme,
+                        post,
+                        new ParseReturnStruct(false, result),
+                        URL,
+                        invalidateFunction,
+                        icon
+                );
             } else {
                 // we haven't cached this youtube title/duration, or we need additional information
-                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<Pair<String, String>>() {
+                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<ParseReturnStruct>() {
                     @Override
                     public void onJsonFailure(Exception e) {
                         if (!"Canceled".equals(e.getMessage())) {
                             //failed to get, replace with just the URL and append the icon
                             performVideoLinkReplacement(theme,
                                     post,
-                                    new Pair<>(URL, null),
+                                    new ParseReturnStruct(false, new Pair<>(URL, null)),
                                     URL,
                                     invalidateFunction,
                                     icon
@@ -512,12 +512,12 @@ public class CommentParserHelper {
                     }
 
                     @Override
-                    public void onJsonSuccess(Pair<String, String> result) {
+                    public void onJsonSuccess(ParseReturnStruct result) {
                         //got a result, replace with the result and also cache the result
-                        videoTitleDurCache.put(URL, result);
+                        videoTitleDurCache.put(URL, result.titleDurPair);
                         performVideoLinkReplacement(theme, post, result, URL, invalidateFunction, icon);
                     }
-                }, reader -> apiParser.parse(reader, URL), 2500));
+                }, apiParser, 2500));
             }
         }
         return calls;
@@ -527,17 +527,22 @@ public class CommentParserHelper {
         HttpUrl generateUrl(Matcher matcher);
     }
 
-    private interface ApiParser {
-        Pair<String, String> parse(JsonReader reader, String defaultUrl)
-                throws Exception;
+    private static class ParseReturnStruct {
+        boolean fullRefresh;
+        Pair<String, String> titleDurPair;
+
+        public ParseReturnStruct(boolean fullRefresh, Pair<String, String> titleDurPair) {
+            this.fullRefresh = fullRefresh;
+            this.titleDurPair = titleDurPair;
+        }
     }
 
     private static void performVideoLinkReplacement(
             Theme theme,
             Post post,
-            @NonNull Pair<String, String> titleDurPair,
+            @NonNull ParseReturnStruct parseResult,
             @NonNull String URL,
-            @NonNull Function0<Void> invalidateFunction,
+            @NonNull InvalidateFunction invalidateFunction,
             Bitmap icon
     ) {
         synchronized (post.comment) {
@@ -549,7 +554,8 @@ public class CommentParserHelper {
             }
 
             SpannableStringBuilder replacement = new SpannableStringBuilder(
-                    "  " + titleDurPair.first + (titleDurPair.second != null ? " " + titleDurPair.second : ""));
+                    "  " + parseResult.titleDurPair.first + (parseResult.titleDurPair.second != null ? " "
+                            + parseResult.titleDurPair.second : ""));
 
             //set the icon span for the linkable
             ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
@@ -575,8 +581,16 @@ public class CommentParserHelper {
 
             post.linkables.add(pl);
 
-            invalidateFunction.invoke();
+            invalidateFunction.invalidate(parseResult.fullRefresh);
         }
+    }
+
+    /**
+     * The invalidate callback for video call replacements; if fullInvalidate is set, the callback should invalidate the
+     * entire view rather than just updating the textview for the post comment that was modified (ie calling setText and invalidate)
+     */
+    public interface InvalidateFunction {
+        void invalidate(boolean fullInvalidate);
     }
     //endregion
 

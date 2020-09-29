@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
+import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -271,17 +272,23 @@ public class CardPostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, this::refresh);
+            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, new InvalidateFunction() {
+                @Override
+                public void invalidate(boolean fullInvalidate) {
+                    if (!fullInvalidate) {
+                        comment.setText(post.comment);
+                        comment.postInvalidate();
+                    } else {
+                        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
+                            recyclerView.getAdapter()
+                                    .notifyItemChanged(recyclerView.getChildAdapterPosition(CardPostCell.this));
+                        } else {
+                            post(() -> invalidate(true));
+                        }
+                    }
+                }
+            });
         }
-    }
-
-    private Void refresh() {
-        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
-        } else {
-            post(this::refresh);
-        }
-        return null;
     }
 
     private void setCompact(boolean compact) {
