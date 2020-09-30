@@ -16,6 +16,7 @@ public class BitmapRepository {
 
     public static Bitmap youtubeIcon;
     public static Bitmap streamableIcon;
+    public static Bitmap clypIcon;
 
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
@@ -29,6 +30,7 @@ public class BitmapRepository {
 
         youtubeIcon = decode(R.drawable.youtube_icon);
         streamableIcon = decode(R.drawable.streamable_icon);
+        clypIcon = decode(R.drawable.clyp_icon);
 
         stickyIcon = decode(R.drawable.sticky_icon);
         closedIcon = decode(R.drawable.closed_icon);

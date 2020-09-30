@@ -58,6 +58,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -81,7 +82,7 @@ public class CommentParserHelper {
     // maps a math string to a rendered image URL
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
-    private static final String[] ignoreURLs = {"youtu.be", "youtube", "streamable", "vocaroo", "voca.ro"};
+    private static final String[] ignoreURLs = {"youtu.be", "youtube", "streamable", "vocaroo", "voca.ro", "clyp.it"};
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -222,17 +223,26 @@ public class CommentParserHelper {
             if (image.getDrawable() instanceof BitmapDrawable) {
                 if (JavaUtils.objectMatchesAny(((BitmapDrawable) image.getDrawable()).getBitmap(),
                         BitmapRepository.youtubeIcon,
-                        BitmapRepository.streamableIcon
+                        BitmapRepository.streamableIcon,
+                        BitmapRepository.clypIcon
                 )) {
                     return null;
                 }
             }
         }
 
+        List<Pair<Call, Callback>> toCall = new ArrayList<>();
+        toCall.addAll(addYoutubeCalls(theme, post, invalidateFunction));
+        toCall.addAll(addStreamableCalls(theme, post, invalidateFunction));
+        toCall.addAll(addVocarooCalls(post, invalidateFunction));
+        toCall.addAll(addClypCalls(theme, post, invalidateFunction));
+
         List<Call> calls = new ArrayList<>();
-        calls.addAll(addYoutubeCalls(theme, post, invalidateFunction));
-        calls.addAll(addStreamableCalls(theme, post, invalidateFunction));
-        calls.addAll(addVocarooCalls(post, invalidateFunction));
+        for (Pair<Call, Callback> c : toCall) { // enqueue all at the same time
+            if (c.first == null || c.second == null) throw new IllegalArgumentException("???");
+            c.first.enqueue(c.second);
+            calls.add(c.first);
+        }
         return calls;
     }
 
@@ -260,12 +270,13 @@ public class CommentParserHelper {
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)\\b");
 
-    private static List<Call> addYoutubeCalls(
+    private static List<Pair<Call, Callback>> addYoutubeCalls(
             Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
         return addVideoCalls(theme,
                 post,
                 invalidateFunction,
+                false,
                 YOUTUBE_LINK_PATTERN,
                 matcher -> HttpUrl.get(
                         "https://www.googleapis.com/youtube/v3/videos?part=snippet" + (ChanSettings.parseYoutubeDuration
@@ -368,12 +379,13 @@ public class CommentParserHelper {
     private static final Pattern STREAMABLE_LINK_PATTERN =
             Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})\\b");
 
-    private static List<Call> addStreamableCalls(
+    private static List<Pair<Call, Callback>> addStreamableCalls(
             Theme theme, Post post, @NonNull InvalidateFunction toInvalidate
     ) {
         return addVideoCalls(theme,
                 post,
                 toInvalidate,
+                ChanSettings.parsePostImageLinks.get(),
                 STREAMABLE_LINK_PATTERN,
                 matcher -> HttpUrl.get("https://api.streamable.com/videos/" + matcher.group(1)),
                 BitmapRepository.streamableIcon,
@@ -464,7 +476,9 @@ public class CommentParserHelper {
     private static final Pattern VOCAROO_LINK_PATTERN =
             Pattern.compile("https?://(?:vocaroo\\.com|voca\\.ro)/(\\w{12})\\b");
 
-    private static List<Call> addVocarooCalls(Post post, @NonNull InvalidateFunction invalidateFunction) {
+    private static List<Pair<Call, Callback>> addVocarooCalls(
+            Post post, @NonNull InvalidateFunction invalidateFunction
+    ) {
         if (ChanSettings.parsePostImageLinks.get()) {
             boolean added = false;
             Matcher linkMatcher = VOCAROO_LINK_PATTERN.matcher(post.comment);
@@ -504,17 +518,101 @@ public class CommentParserHelper {
     }
     //endregion
 
+    //region Clyp.it Parsing
+    /* EXAMPLE JSON
+    {
+      "Status": "DownloadDisabled",
+      "CommentsEnabled": true,
+      "Category": "None",
+      "AudioFileId": "j42441xr",
+      "Title": "ob6 + piano + bigsky",
+      "Description": "first encounter with the big sky",
+      "Duration": 67.709,
+      "Url": "https://clyp.it/j42441xr",
+      "Mp3Url": "https://audio.clyp.it/j42441xr.mp3?Exp...",
+      "SecureMp3Url": "https://audio.clyp.it/j42441xr.mp3?Exp...",
+      "OggUrl": "https://audio.clyp.it/j42441xr.ogg?Exp...",
+      "SecureOggUrl": "https://audio.clyp.it/j42441xr.ogg?Exp...",
+      "DateCreated": "2020-09-20T05:16:29.473Z"
+    }
+     */
+    private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})");
+
+    private static List<Pair<Call, Callback>> addClypCalls(
+            Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
+    ) {
+        return addVideoCalls(theme,
+                post,
+                invalidateFunction,
+                ChanSettings.parsePostImageLinks.get(),
+                CLYP_LINK_PATTERN,
+                (matcher -> HttpUrl.get("https://api.clyp.it/" + matcher.group(1))),
+                BitmapRepository.clypIcon,
+                (reader -> {
+                    String title = "titleMissing" + Math.random();
+                    double duration = Double.NaN;
+
+                    HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
+                    String fileId = "";
+
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        String name = reader.nextName();
+                        switch (name) {
+                            case "Title":
+                                title = reader.nextString();
+                                break;
+                            case "Duration":
+                                duration = reader.nextDouble();
+                                break;
+                            case "AudioFileId":
+                                fileId = reader.nextString();
+                                break;
+                            case "Mp3Url":
+                                mp3Url = HttpUrl.get(reader.nextString());
+                                break;
+                            default:
+                                reader.skipValue();
+                                break;
+                        }
+                    }
+                    reader.endObject();
+
+                    boolean needsRefresh = false;
+                    if (ChanSettings.parsePostImageLinks.get()) {
+                        PostImage inlinedImage = new PostImage.Builder().serverFilename(fileId)
+                                .thumbnailUrl(HttpUrl.get(
+                                        "https://static.clyp.it/site/images/favicons/apple-touch-icon-precomposed.png"))
+                                .imageUrl(mp3Url)
+                                .filename(title)
+                                .extension("mp3")
+                                .isInlined(true)
+                                .build();
+
+                        post.addImage(inlinedImage);
+                        needsRefresh = true;
+                    }
+
+                    return new ParseReturnStruct(needsRefresh,
+                            new Pair<>(title, "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]")
+                    );
+                })
+        );
+    }
+    //endregion
+
     //region Helper and Internal Functions
-    private static List<Call> addVideoCalls(
+    private static List<Pair<Call, Callback>> addVideoCalls(
             Theme theme,
             Post post,
             @NonNull InvalidateFunction invalidateFunction,
+            boolean alwaysRequest,
             Pattern pattern,
             RequestURLGenerator generator,
             Bitmap icon,
             NetUtils.JsonParser<ParseReturnStruct> apiParser
     ) {
-        List<Call> calls = new ArrayList<>();
+        List<Pair<Call, Callback>> calls = new ArrayList<>();
         //find and replace all video URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = pattern.matcher(post.comment);
         while (linkMatcher.find()) {
@@ -522,7 +620,7 @@ public class CommentParserHelper {
             if (URL == null) continue;
             HttpUrl requestUrl = generator.generateUrl(linkMatcher);
 
-            boolean needsRequest = false;
+            boolean needsRequest = alwaysRequest;
             Pair<String, String> result = videoTitleDurCache.get(URL);
             if (result != null) {
                 if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
@@ -545,7 +643,7 @@ public class CommentParserHelper {
                 );
             } else {
                 // we haven't cached this youtube title/duration, or we need additional information
-                calls.add(NetUtils.makeJsonRequest(requestUrl, new NetUtils.JsonResult<ParseReturnStruct>() {
+                calls.add(NetUtils.makeJsonCall(requestUrl, new NetUtils.JsonResult<ParseReturnStruct>() {
                     @Override
                     public void onJsonFailure(Exception e) {
                         if (!"Canceled".equals(e.getMessage())) {

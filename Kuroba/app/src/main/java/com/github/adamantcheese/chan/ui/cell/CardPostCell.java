@@ -273,9 +273,19 @@ public class CardPostCell
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
             extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, new InvalidateFunction() {
+                private boolean fullInvalidate;
+                private int count = 0;
+
                 @Override
                 public void invalidate(boolean fullInvalidate) {
-                    if (!fullInvalidate) {
+                    synchronized (this) {
+                        this.fullInvalidate |= fullInvalidate; // if any call needs a full invalidate
+                        count++; // total calls completed
+                    }
+                    // if extraCalls is null, just let the refresh go through
+                    if (extraCalls != null && extraCalls.size() != count) return; // still completing calls
+
+                    if (!this.fullInvalidate) {
                         comment.setText(post.comment);
                         comment.postInvalidate();
                     } else {

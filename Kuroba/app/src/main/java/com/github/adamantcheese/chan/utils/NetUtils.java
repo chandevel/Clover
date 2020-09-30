@@ -7,6 +7,7 @@ import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
@@ -189,16 +190,41 @@ public class NetUtils {
         imageCache.put(url, bitmap);
     }
 
+    public static <T> Pair<Call, Callback> makeJsonCall(
+            @NonNull final HttpUrl url,
+            @NonNull final JsonResult<T> result,
+            @NonNull final JsonParser<T> parser,
+            int timeoutMs
+    ) {
+        return makeJsonRequest(url, result, parser, timeoutMs, false);
+    }
+
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
             @NonNull final JsonResult<T> result,
             @NonNull final JsonParser<T> parser,
             int timeoutMs
     ) {
+        return makeJsonRequest(url, result, parser, timeoutMs, true).first;
+    }
+
+    public static <T> Call makeJsonRequest(
+            @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
+    ) {
+        return makeJsonRequest(url, result, parser, 0);
+    }
+
+    private static <T> Pair<Call, Callback> makeJsonRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final JsonResult<T> result,
+            @NonNull final JsonParser<T> parser,
+            int timeoutMs,
+            boolean enqueue
+    ) {
         OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
         Call call = clientBuilder.build().newCall(new Request.Builder().url(url).build());
-        call.enqueue(new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 Logger.e(TAG, "Error with request: ", e);
@@ -236,14 +262,11 @@ public class NetUtils {
                 }
                 response.close();
             }
-        });
-        return call;
-    }
-
-    public static <T> Call makeJsonRequest(
-            @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
-    ) {
-        return makeJsonRequest(url, result, parser, 0);
+        };
+        if (enqueue) {
+            call.enqueue(callback);
+        }
+        return new Pair<>(call, callback);
     }
 
     public interface JsonResult<T> {
