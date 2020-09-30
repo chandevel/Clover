@@ -255,7 +255,7 @@ public class CommentParserHelper {
      */
 
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
-            "\\b\\w+://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*)\\b");
+            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*?)\\b");
 
     private static List<Call> addYoutubeCalls(
             Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
@@ -361,7 +361,7 @@ public class CommentParserHelper {
     }
      */
     private static final Pattern STREAMABLE_LINK_PATTERN =
-            Pattern.compile("\\b\\w+://[\\w.]*?streamable\\.com/(.{6})\\b");
+            Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})\\b");
 
     private static List<Call> addStreamableCalls(
             Theme theme, Post post, @NonNull InvalidateFunction toInvalidate
