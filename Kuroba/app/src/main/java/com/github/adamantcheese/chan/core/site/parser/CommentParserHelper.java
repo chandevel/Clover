@@ -258,7 +258,7 @@ public class CommentParserHelper {
      */
 
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
-            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})(.*?)\\b");
+            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)\\b");
 
     private static List<Call> addYoutubeCalls(
             Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
@@ -321,6 +321,8 @@ public class CommentParserHelper {
                 //no hours, no need to pad anything else
                 ret = (minutes != null ? minutes : "00") + ":" + seconds;
             }
+        } else if ("P0D".equals(ISO8601Duration)) {
+            ret = "LIVE";
         } else {
             //badly formatted time from youtube's API?
             ret = "??:??";
