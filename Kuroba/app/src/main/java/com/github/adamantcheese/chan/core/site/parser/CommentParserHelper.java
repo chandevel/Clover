@@ -17,11 +17,13 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.format.DateUtils;
 import android.text.style.ImageSpan;
+import android.text.style.StyleSpan;
 import android.util.LruCache;
 import android.widget.TextView;
 
@@ -79,7 +81,7 @@ public class CommentParserHelper {
     // maps a math string to a rendered image URL
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
-    private static final String[] ignoreURLs = {"youtu.be", "youtube", "streamable"};
+    private static final String[] ignoreURLs = {"youtu.be", "youtube", "streamable", "vocaroo", "voca.ro"};
 
     /**
      * Detect links in the given spannable, and create PostLinkables with Type.LINK for the
@@ -230,6 +232,7 @@ public class CommentParserHelper {
         List<Call> calls = new ArrayList<>();
         calls.addAll(addYoutubeCalls(theme, post, invalidateFunction));
         calls.addAll(addStreamableCalls(theme, post, invalidateFunction));
+        calls.addAll(addVocarooCalls(post, invalidateFunction));
         return calls;
     }
 
@@ -452,6 +455,50 @@ public class CommentParserHelper {
                     );
                 }
         );
+    }
+    //endregion
+
+    //region Vocaroo Parsing
+    private static final Pattern VOCAROO_LINK_PATTERN =
+            Pattern.compile("https?://(?:vocaroo\\.com|voca\\.ro)/(\\w{12})\\b");
+
+    private static List<Call> addVocarooCalls(Post post, @NonNull InvalidateFunction invalidateFunction) {
+        if (ChanSettings.parsePostImageLinks.get()) {
+            boolean added = false;
+            Matcher linkMatcher = VOCAROO_LINK_PATTERN.matcher(post.comment);
+            while (linkMatcher.find()) {
+                String URL = linkMatcher.group(0);
+                if (URL == null) continue;
+
+                PostImage inlinedImage = new PostImage.Builder().serverFilename(linkMatcher.group(1))
+                        .thumbnailUrl(HttpUrl.parse(
+                                "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
+                        .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + linkMatcher.group(1)))
+                        .filename("Vocaroo " + linkMatcher.group(1))
+                        .extension("mp3")
+                        .isInlined(true)
+                        .build();
+
+                post.addImage(inlinedImage);
+
+                synchronized (post.comment) {
+                    int startIndex = post.comment.toString().indexOf(URL);
+                    int endIndex = startIndex + URL.length();
+                    SpannableStringBuilder builder = new SpannableStringBuilder();
+                    builder.append("♫ Vocaroo attached! ♫");
+                    builder.setSpan(new StyleSpan(Typeface.BOLD_ITALIC), 0, builder.length(), 0);
+                    post.comment.replace(startIndex, endIndex, builder);
+                }
+
+                added = true;
+            }
+
+            if (added) {
+                invalidateFunction.invalidate(true);
+            }
+        }
+
+        return Collections.emptyList();
     }
     //endregion
 
