@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
@@ -281,6 +282,7 @@ public class ThreadListLayout
             }
 
             party();
+            santa();
         }
 
         setFastScroll(true);
@@ -525,6 +527,7 @@ public class ThreadListLayout
         showingThread = null;
         lastPostCount = 0;
         noParty();
+        noSanta();
     }
 
     public List<Post> getDisplayingPosts() {
@@ -811,17 +814,58 @@ public class ThreadListLayout
         }
     };
 
+    private final RecyclerView.ItemDecoration SANTA = new RecyclerView.ItemDecoration() {
+        @Override
+        public void onDrawOver(
+                @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
+        ) {
+            if (ChanSettings.thumbnailSize.get() < 85) return; // below this it doesn't really work too well
+            for (int i = 0, j = parent.getChildCount(); i < j; i++) {
+                View child = parent.getChildAt(i);
+                if (child instanceof PostCellInterface) {
+                    PostCellInterface postView = (PostCellInterface) child;
+                    Post post = postView.getPost();
+                    if (post.isOP && !post.images.isEmpty()) {
+                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+                        int top = child.getTop() + params.topMargin;
+                        int left = child.getLeft() + params.leftMargin;
+                        c.drawBitmap(BitmapRepository.santaHat,
+                                left - parent.getPaddingLeft() + dp(10)
+                                        // extra to position on the right hand edge correctly
+                                        + (ChanSettings.thumbnailSize.get() / 100f - 1f) * getDimen(getContext(),
+                                        R.dimen.cell_post_thumbnail_size
+                                ),
+                                top - dp(65) - parent.getPaddingTop() + toolbarHeight(),
+                                null
+                        );
+                    }
+                }
+            }
+        }
+    };
+
     private void party() {
         if (showingThread.getLoadable().site instanceof Chan4) {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);
             }
         }
     }
 
+    private void santa() {
+        Calendar calendar = Calendar.getInstance();
+        if (calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DAY_OF_MONTH) == 25) {
+            recyclerView.addItemDecoration(SANTA);
+        }
+    }
+
     private void noParty() {
         recyclerView.removeItemDecoration(PARTY);
+    }
+
+    private void noSanta() {
+        recyclerView.removeItemDecoration(SANTA);
     }
 
     public void onImageOptionsApplied() {

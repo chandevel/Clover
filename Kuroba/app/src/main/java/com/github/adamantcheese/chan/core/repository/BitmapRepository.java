@@ -22,8 +22,10 @@ public class BitmapRepository {
     public static Bitmap closedIcon;
     public static Bitmap trashIcon;
     public static Bitmap archivedIcon;
-    public static Bitmap partyHat;
     public static Bitmap error;
+
+    public static Bitmap partyHat;
+    public static Bitmap santaHat;
 
     public static void initialize(Context c) {
         context = c;
@@ -36,8 +38,10 @@ public class BitmapRepository {
         closedIcon = decode(R.drawable.closed_icon);
         trashIcon = decode(R.drawable.trash_icon);
         archivedIcon = decode(R.drawable.archived_icon);
-        partyHat = decode(R.drawable.partyhat);
         error = decode(R.drawable.error_icon);
+
+        partyHat = decode(R.drawable.partyhat);
+        santaHat = decode(R.drawable.santahat);
 
         context = null; // to prevent leaks
     }
