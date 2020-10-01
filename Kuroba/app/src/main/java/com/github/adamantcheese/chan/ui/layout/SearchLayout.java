@@ -92,7 +92,10 @@ public class SearchLayout
             if (!focused) {
                 view.postDelayed(() -> hideKeyboard(view), 100);
             } else {
-                view.postDelayed(() -> requestKeyboardFocus(view), 100);
+                view.postDelayed(() -> {
+                    searchView.setSelection(searchView.getText().length());
+                    requestKeyboardFocus(view);
+                }, 100);
             }
         });
         LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(getContext(), 36), 1);
