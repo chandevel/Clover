@@ -162,7 +162,7 @@ public class PostCell
         filterMatchColor = findViewById(R.id.filter_match_color);
 
         if (!isInEditMode()) {
-            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+            int textSizeSp = ChanSettings.fontSize.get();
             paddingPx = dp(textSizeSp - 6);
             detailsSizePx = sp(textSizeSp - 4);
             title.setTextSize(textSizeSp);

@@ -237,8 +237,7 @@ public class PostAdapter
         super.onViewRecycled(holder);
         if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == LIST && ChanSettings.shiftPostFormat.get()) {
             PostCell postCell = (PostCell) holder.itemView;
-            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-            int paddingPx = dp(textSizeSp - 6);
+            int paddingPx = dp(ChanSettings.fontSize.get() - 6);
             // reset this view to be in a "default" state so it can be recycled
             RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
             commentParams.alignWithParent = true;

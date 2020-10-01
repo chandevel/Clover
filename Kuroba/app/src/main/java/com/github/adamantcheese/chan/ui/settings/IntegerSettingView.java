@@ -16,12 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
@@ -34,7 +33,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 /**
  * Created by Zetsubou on 02.07.2015
@@ -44,8 +42,8 @@ public class IntegerSettingView
         implements View.OnClickListener {
     private final Setting<Integer> setting;
     private final String dialogTitle;
-    private int minimumValue;
-    private int maximumValue;
+    private final int minimumValue;
+    private final int maximumValue;
 
     public IntegerSettingView(
             SettingsController controller,
@@ -85,37 +83,58 @@ public class IntegerSettingView
     @Override
     public void onClick(View v) {
         LinearLayout container = new LinearLayout(v.getContext());
-        container.setPadding(dp(24), dp(8), dp(24), 0);
+        container.setPadding(dp(24), dp(24), dp(24), 0);
 
-        final EditText editText = new EditText(v.getContext());
-        editText.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
-        editText.setText(setting.get().toString());
-        editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-        editText.setSingleLine(true);
-        editText.setSelection(editText.getText().length());
+        final TextView min = new TextView(v.getContext());
+        min.setText(String.valueOf(minimumValue));
+        min.setGravity(Gravity.CENTER_VERTICAL);
+        container.addView(min, WRAP_CONTENT, MATCH_PARENT);
 
-        container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
+        final SeekBar rangeSlider = new SeekBar(v.getContext());
+        rangeSlider.setProgress(convertRangeToProgress(setting.get()));
+        rangeSlider.setLayoutParams(new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f));
+        container.addView(rangeSlider);
 
-        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
-            try {
-                int value = Integer.parseInt(editText.getText().toString());
-                if (value >= minimumValue && value <= maximumValue) {
-                    setting.set(value);
-                } else {
-                    showToast(
-                            v.getContext(),
-                            "Value not in range <" + minimumValue + ", " + maximumValue + ">, using default of "
-                                    + setting.getDefault()
-                    );
-                    setting.set(setting.getDefault());
-                }
-            } catch (Exception e) {
-                setting.set(setting.getDefault());
+        final TextView max = new TextView(v.getContext());
+        max.setText(String.valueOf(setting.get()));
+        max.setGravity(Gravity.CENTER_VERTICAL);
+        container.addView(max, WRAP_CONTENT, MATCH_PARENT);
+
+        rangeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                max.setText(String.valueOf(convertProgressToRange(progress)));
             }
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+            setting.set(convertProgressToRange(rangeSlider.getProgress()));
             settingsController.onPreferenceChange(IntegerSettingView.this);
-        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
-        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-        dialog.show();
+        }).setNeutralButton(R.string.default_, (d, which) -> {
+            setting.set(setting.getDefault());
+            settingsController.onPreferenceChange(IntegerSettingView.this);
+        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).show();
+    }
+
+    /**
+     * @param progress Progress in range 0 to 100
+     * @return Converted to range minimumValue to maximumValue
+     */
+    private int convertProgressToRange(int progress) {
+        return Math.round(minimumValue + (progress / 100f * (maximumValue - minimumValue)));
+    }
+
+    /**
+     * @param value Value in range minimumValue to maximumValue
+     * @return Converted to range 0 to 100
+     */
+    private int convertRangeToProgress(int value) {
+        return Math.round((((float) value) - minimumValue) / (maximumValue - minimumValue) * 100);
     }
 }

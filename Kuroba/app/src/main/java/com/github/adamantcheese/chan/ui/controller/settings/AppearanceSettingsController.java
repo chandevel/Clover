@@ -148,7 +148,12 @@ public class AppearanceSettingsController
                     new Pair<>(50, 200)
             )));
 
-            setupFontSizeSetting(post);
+            requiresUiRefresh.add(post.add(new IntegerSettingView(this,
+                    ChanSettings.fontSize,
+                    R.string.setting_font_size,
+                    R.string.empty,
+                    new Pair<>(10, 19)
+            )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.fontAlternate,
@@ -327,21 +332,6 @@ public class AppearanceSettingsController
                         ? R.string.setting_album_grid_span_count_portrait
                         : R.string.setting_album_grid_span_count_landscape,
                 gridColumnsAlbum
-        )));
-    }
-
-    private void setupFontSizeSetting(SettingsGroup post) {
-        List<Item<String>> fontSizes = new ArrayList<>();
-        for (int size = 10; size <= 19; size++) {
-            String name = size + (String.valueOf(size).equals(ChanSettings.fontSize.getDefault()) ? " "
-                    + getString(R.string.setting_font_size_default) : "");
-            fontSizes.add(new Item<>(name, String.valueOf(size)));
-        }
-
-        requiresUiRefresh.add(post.add(new ListSettingView<>(this,
-                ChanSettings.fontSize,
-                R.string.setting_font_size,
-                fontSizes
         )));
     }
 }

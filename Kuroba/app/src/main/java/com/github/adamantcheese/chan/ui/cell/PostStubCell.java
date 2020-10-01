@@ -76,7 +76,7 @@ public class PostStubCell
         divider = findViewById(R.id.divider);
 
         if (!isInEditMode()) {
-            int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
+            int textSizeSp = ChanSettings.fontSize.get();
             title.setTextSize(textSizeSp);
 
             int paddingPx = dp(textSizeSp - 6);

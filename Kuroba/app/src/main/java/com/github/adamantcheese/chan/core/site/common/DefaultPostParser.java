@@ -108,7 +108,7 @@ public class DefaultPostParser
         SpannableString idSpan = null;
         SpannableString capcodeSpan = null;
 
-        int detailsSizePx = sp(Integer.parseInt(ChanSettings.fontSize.get()) - 4);
+        int detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
 
         if (!TextUtils.isEmpty(builder.subject)) {
             subjectSpan = new SpannableString(builder.subject);

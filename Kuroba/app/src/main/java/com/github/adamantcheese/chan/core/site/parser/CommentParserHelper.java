@@ -706,9 +706,9 @@ public class CommentParserHelper {
 
             //set the icon span for the linkable
             ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
-            int height = Integer.parseInt(ChanSettings.fontSize.get());
-            int width = (int) (sp(height) / (icon.getHeight() / (float) icon.getWidth()));
-            siteIcon.getDrawable().setBounds(0, 0, width, sp(height));
+            int height = sp(ChanSettings.fontSize.get());
+            int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
+            siteIcon.getDrawable().setBounds(0, 0, width, height);
             replacement.setSpan(siteIcon,
                     0,
                     1,
@@ -802,7 +802,7 @@ public class CommentParserHelper {
         postBody.append("formula=")
                 .append(formula)
                 .append("&fsize=")
-                .append((int) (sp(Integer.parseInt(ChanSettings.fontSize.get())) * 1.2))
+                .append((int) (sp(ChanSettings.fontSize.get()) * 1.2))
                 .append("px")
                 .append("&fcolor=")
                 .append(String.format("%06X",

@@ -201,7 +201,7 @@ public class ChanSettings {
 
     //Post
     public static final IntegerSetting thumbnailSize;
-    public static final StringSetting fontSize;
+    public static final IntegerSetting fontSize;
     public static final BooleanSetting fontAlternate;
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting accessibleInfo;
@@ -361,7 +361,7 @@ public class ChanSettings {
 
             // Post
             thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
-            fontSize = new StringSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? "16" : "14");
+            fontSize = new IntegerSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? 16 : 14);
             fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
             accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
@@ -636,7 +636,7 @@ public class ChanSettings {
         if (!file.exists()) {
             // Hack to create the shared_prefs file when it does not exist so that we don't cancel
             // settings importing because shared_prefs file does not exist
-            String fontSize = ChanSettings.fontSize.get();
+            int fontSize = ChanSettings.fontSize.get();
             ChanSettings.fontSize.setSyncNoCheck(fontSize);
         }
 

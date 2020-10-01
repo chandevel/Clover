@@ -98,6 +98,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="select_all">Select all</string>
     <string name="select_none">Select none</string>
     <string name="loading">Loading…</string>
+    <string name="default_">Default</string>
 
     <string name="mark_as_my_post">Mark as my post</string>
     <string name="unmark_as_my_post">Unmark as my post</string>
@@ -450,7 +451,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_enable_reply_count">Enable the reply counter</string>
     <string name="settings_group_post">Post</string>
     <string name="setting_font_size">Font size</string>
-    <string name="setting_font_size_default">(default)</string>
     <string name="setting_thumbnail_scale">Thumbnail scale</string>
     <string name="setting_move_sort_to_toolbar">Sort option in toolbar</string>
     <string name="setting_move_sort_to_toolbar_description">Move board sort option from submenu to toolbar</string>

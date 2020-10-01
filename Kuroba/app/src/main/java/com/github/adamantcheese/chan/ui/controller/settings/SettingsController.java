@@ -188,8 +188,7 @@ public class SettingsController
                 if (i < group.settingViews.size() - 1) {
                     settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
 
-                    int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get());
-                    int paddingPx = dp(textSizeSp - 6);
+                    int paddingPx = dp(ChanSettings.fontSize.get() - 6);
                     LinearLayout.LayoutParams dividerParams =
                             (LinearLayout.LayoutParams) settingView.divider.getLayoutParams();
                     dividerParams.leftMargin = paddingPx;

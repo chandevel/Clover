@@ -302,8 +302,7 @@ public class CardPostCell
     }
 
     private void setCompact(boolean compact) {
-        int textReduction = compact ? -2 : 0;
-        int textSizeSp = Integer.parseInt(ChanSettings.fontSize.get()) + textReduction;
+        int textSizeSp = ChanSettings.fontSize.get() + (compact ? -2 : 0);
         title.setTextSize(textSizeSp);
         comment.setTextSize(textSizeSp);
         replies.setTextSize(textSizeSp);
