@@ -297,7 +297,7 @@ class ReportManager(
             appendLine("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
             appendLine("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
                     "active downloads = ${threadSaveManager.countActiveDownloads()}")
-            appendLine("Youtube titles parsing enabled: ${ChanSettings.parseYoutubeTitles.get()}")
+            appendLine("Media title parsing enabled: ${ChanSettings.parseMediaTitles.get()}")
             appendLine("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
             appendLine("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
             appendLine("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")

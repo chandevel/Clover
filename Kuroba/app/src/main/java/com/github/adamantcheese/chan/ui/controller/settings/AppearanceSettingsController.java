@@ -228,9 +228,9 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.parseYoutubeTitles,
-                    R.string.setting_youtube_title,
-                    R.string.setting_youtube_title_description
+                    ChanSettings.parseMediaTitles,
+                    R.string.setting_media_title,
+                    R.string.setting_media_title_description
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,

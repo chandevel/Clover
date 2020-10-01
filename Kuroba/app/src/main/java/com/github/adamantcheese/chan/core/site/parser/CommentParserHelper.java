@@ -21,6 +21,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
@@ -103,7 +104,7 @@ public class CommentParserHelper {
             if (!"http".equals(scheme) && !"https".equals(scheme)) continue; // only autolink URLs, not any random URI
             // if this URL is a video link and we're parsing those, skip it, it'll be taken care of later
             // cheap match instead of full matcher for speed
-            if (ChanSettings.parseYoutubeTitles.get() && StringUtils.containsAny(linkText, ignoreURLs)) {
+            if (ChanSettings.parseMediaTitles.get() && StringUtils.containsAny(linkText, ignoreURLs)) {
                 post.needsExtraParse = true;
                 continue;
             }
@@ -199,13 +200,13 @@ public class CommentParserHelper {
     }
 
     /**
-     * To add a video link parser:<br>
+     * To add a media link parser:<br>
      * 1) Add in your icon to BitmapRepository<br>
      * 2) Add it to the list in the iconMatchesAny call<br>
      * 3) Add a simple URL check to the ignoreURLs string array above detectLinks (so that autolinking isn't done up there, as it's taken care of down here instead)<br>
      * 4) Add a new method to process your site and add it to the calls.addAll list<br>
      * &nbsp;&nbsp;&nbsp;&nbsp;
-     * - The helper method addVideoCalls should be used, it takes in all the appropriate stuff you'll need to implement functionality<br>
+     * - The helper method addMediaCalls should be used for most stuff, it takes in all the appropriate stuff you'll need to implement functionality<br>
      * 5) Done! Everything else is taken care of for you.<br>
      * <br>
      *
@@ -214,7 +215,7 @@ public class CommentParserHelper {
      * @param invalidateFunction The entire view to be refreshed after embedding
      */
 
-    public static List<Call> replaceVideoLinks(
+    public static List<Call> replaceMediaLinks(
             Theme theme, @NonNull Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
         // if we've already got an image span with a youtube/streamable link in it, this post has already been processed/is processing, ignore this
@@ -273,7 +274,7 @@ public class CommentParserHelper {
     private static List<Pair<Call, Callback>> addYoutubeCalls(
             Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
-        return addVideoCalls(theme,
+        return addMediaCalls(theme,
                 post,
                 invalidateFunction,
                 false,
@@ -382,7 +383,7 @@ public class CommentParserHelper {
     private static List<Pair<Call, Callback>> addStreamableCalls(
             Theme theme, Post post, @NonNull InvalidateFunction toInvalidate
     ) {
-        return addVideoCalls(theme,
+        return addMediaCalls(theme,
                 post,
                 toInvalidate,
                 ChanSettings.parsePostImageLinks.get(),
@@ -541,7 +542,7 @@ public class CommentParserHelper {
     private static List<Pair<Call, Callback>> addClypCalls(
             Theme theme, Post post, @NonNull InvalidateFunction invalidateFunction
     ) {
-        return addVideoCalls(theme,
+        return addMediaCalls(theme,
                 post,
                 invalidateFunction,
                 ChanSettings.parsePostImageLinks.get(),
@@ -602,7 +603,7 @@ public class CommentParserHelper {
     //endregion
 
     //region Helper and Internal Functions
-    private static List<Pair<Call, Callback>> addVideoCalls(
+    private static List<Pair<Call, Callback>> addMediaCalls(
             Theme theme,
             Post post,
             @NonNull InvalidateFunction invalidateFunction,
@@ -623,7 +624,7 @@ public class CommentParserHelper {
             boolean needsRequest = alwaysRequest;
             Pair<String, String> result = videoTitleDurCache.get(URL);
             if (result != null) {
-                if (result.second == null && ChanSettings.parseYoutubeDuration.get()) {
+                if (result.second == null) {
                     // remove the entry; it needs additional info now
                     videoTitleDurCache.remove(URL);
                     needsRequest = true;
@@ -642,7 +643,7 @@ public class CommentParserHelper {
                         icon
                 );
             } else {
-                // we haven't cached this youtube title/duration, or we need additional information
+                // we haven't cached this media title/duration, or we need additional information
                 calls.add(NetUtils.makeJsonCall(requestUrl, new NetUtils.JsonResult<ParseReturnStruct>() {
                     @Override
                     public void onJsonFailure(Exception e) {
@@ -676,6 +677,8 @@ public class CommentParserHelper {
 
     private static class ParseReturnStruct {
         boolean fullRefresh;
+        // if the second item in this pair is null, another request will be sent
+        // keep it as the empty string generally if there will never be a duration
         Pair<String, String> titleDurPair;
 
         public ParseReturnStruct(boolean fullRefresh, Pair<String, String> titleDurPair) {
@@ -701,7 +704,7 @@ public class CommentParserHelper {
             }
 
             SpannableStringBuilder replacement = new SpannableStringBuilder(
-                    "  " + parseResult.titleDurPair.first + (parseResult.titleDurPair.second != null ? " "
+                    "  " + parseResult.titleDurPair.first + (!TextUtils.isEmpty(parseResult.titleDurPair.second) ? " "
                             + parseResult.titleDurPair.second : ""));
 
             //set the icon span for the linkable

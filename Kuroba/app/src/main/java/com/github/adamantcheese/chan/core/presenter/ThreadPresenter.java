@@ -912,7 +912,7 @@ public class ThreadPresenter
                     if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
                     String key = post.linkables.get(i).key.toString();
                     String value = post.linkables.get(i).value.toString();
-                    //need to trim off starting spaces for youtube and streamable links
+                    //need to trim off starting spaces for certain media links
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
                     if (value.contains("youtu.be") || value.contains("youtube")) {
                         if (added.contains(trimmedUrl)) continue;
@@ -921,6 +921,10 @@ public class ThreadPresenter
                     } else if (value.contains("streamable")) {
                         if (added.contains(trimmedUrl)) continue;
                         keys.add(PostHelper.prependIcon(context, trimmedUrl, BitmapRepository.streamableIcon, sp(16)));
+                        added.add(trimmedUrl);
+                    } else if (value.contains("clyp.it")) {
+                        if (added.contains(trimmedUrl)) continue;
+                        keys.add(PostHelper.prependIcon(context, trimmedUrl, BitmapRepository.clypIcon, sp(16)));
                         added.add(trimmedUrl);
                     } else {
                         keys.add(key);

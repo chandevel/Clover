@@ -614,7 +614,7 @@ public class PostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceVideoLinks(theme, post, new InvalidateFunction() {
+            extraCalls = CommentParserHelper.replaceMediaLinks(theme, post, new InvalidateFunction() {
                 private boolean fullInvalidate;
                 private int count = 0;
 

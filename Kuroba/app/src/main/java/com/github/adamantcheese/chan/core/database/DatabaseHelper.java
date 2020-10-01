@@ -337,7 +337,7 @@ public class DatabaseHelper
         if (oldVersion < 40) {
             try {
                 //disable Youtube link parsing if it was enabled in a previous version to prevent issues
-                ChanSettings.parseYoutubeTitles.set(false);
+                ChanSettings.parseMediaTitles.set(false);
 
                 //remove arisuchan boards that don't exist anymore
                 Where<Board, Integer> where = getBoardDao().queryBuilder().where();
@@ -395,7 +395,7 @@ public class DatabaseHelper
         if (oldVersion < 41) {
             //enable the following as default for 4.10.2
             ChanSettings.parsePostImageLinks.set(true);
-            ChanSettings.parseYoutubeTitles.set(true);
+            ChanSettings.parseMediaTitles.set(true);
         }
 
         if (oldVersion < 42) {
