@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.InflateException;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -48,6 +49,10 @@ public class CrossfadeView
         super.onFinishInflate();
         viewOne = getChildAt(0);
         viewTwo = getChildAt(1);
+
+        if (viewOne.getVisibility() == VISIBLE && viewTwo.getVisibility() == VISIBLE) {
+            throw new InflateException("Only one view may be visible at a time, check your XML!");
+        }
     }
 
     public void toggle(boolean viewOneSelected, boolean animated) {
