@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.ui.controller
 import android.content.Context
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
-import com.github.adamantcheese.chan.ui.layout.ReportProblemLayout
+import com.github.adamantcheese.chan.ui.view.ReportProblemLayout
 
 class ReportProblemController(context: Context)
     : Controller(context), ReportProblemLayout.ReportProblemControllerCallbacks {

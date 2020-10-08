@@ -246,8 +246,7 @@ public class WebmStreamingDataSource
 
     private void detectLength()
             throws HttpDataSource.HttpDataSourceException {
-        this.fileLength = dataSource.open(new DataSpec.Builder()
-                .setUri(uri)
+        this.fileLength = dataSource.open(new DataSpec.Builder().setUri(uri)
                 .setPosition(0)
                 .setLength(C.LENGTH_UNSET)
                 .setKey(null)
@@ -329,8 +328,7 @@ public class WebmStreamingDataSource
             // our DataSpec was supposed to read, it's okay to assume we will read the entirety
             // of our missing ranges, and we won't need to seek inside them.
 
-            DataSpec dataSpec = new DataSpec.Builder()
-                    .setUri(uri)
+            DataSpec dataSpec = new DataSpec.Builder().setUri(uri)
                     .setPosition(range.getLower())
                     .setLength(range.getUpper() - range.getLower() + 1)
                     .setKey(null)

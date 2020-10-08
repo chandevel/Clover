@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -22,12 +23,16 @@ public interface ImageRegionDecoder {
      * Asset: <code>file:///android_asset/picture.png</code>
      * <br>
      * Resource: <code>android.resource://com.example.app/drawable/picture</code>
+     *
      * @param context Application context. A reference may be held, but must be cleared on recycle.
-     * @param uri URI of the image.
+     * @param uri     URI of the image.
      * @return Dimensions of the image.
+     *
      * @throws Exception if initialisation fails.
      */
-    @NonNull Point init(Context context, @NonNull Uri uri) throws Exception;
+    @NonNull
+    Point init(Context context, @NonNull Uri uri)
+            throws Exception;
 
     /**
      * <p>
@@ -41,14 +46,17 @@ public interface ImageRegionDecoder {
      * See {@link SkiaImageRegionDecoder} and {@link SkiaPooledImageRegionDecoder} for examples of
      * internal locking and synchronization.
      * </p>
-     * @param sRect Source image rectangle to decode.
+     *
+     * @param sRect      Source image rectangle to decode.
      * @param sampleSize Sample size.
      * @return The decoded region. It is safe to return null if decoding fails.
      */
-    @NonNull Bitmap decodeRegion(@NonNull Rect sRect, int sampleSize);
+    @NonNull
+    Bitmap decodeRegion(@NonNull Rect sRect, int sampleSize);
 
     /**
      * Status check. Should return false before initialisation and after recycle.
+     *
      * @return true if the decoder is ready to be used.
      */
     boolean isReady();
@@ -57,5 +65,4 @@ public interface ImageRegionDecoder {
      * This method will be called when the decoder is no longer required. It should clean up any resources still in use.
      */
     void recycle();
-
 }

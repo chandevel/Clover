@@ -3,6 +3,7 @@ package com.davemorrissey.labs.subscaleview.decoder;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+
 import androidx.annotation.NonNull;
 
 /**
@@ -21,10 +22,12 @@ public interface ImageDecoder {
      * Resource: <code>android.resource://com.example.app/drawable/picture</code>
      *
      * @param context Application context
-     * @param uri URI of the image
+     * @param uri     URI of the image
      * @return the decoded bitmap
+     *
      * @throws Exception if decoding fails.
      */
-    @NonNull Bitmap decode(Context context, @NonNull Uri uri) throws Exception;
-
+    @NonNull
+    Bitmap decode(Context context, @NonNull Uri uri)
+            throws Exception;
 }

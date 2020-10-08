@@ -1,6 +1,7 @@
 package com.davemorrissey.labs.subscaleview;
 
 import android.graphics.PointF;
+
 import androidx.annotation.NonNull;
 
 import java.io.Serializable;
@@ -9,7 +10,8 @@ import java.io.Serializable;
  * Wraps the scale, center and orientation of a displayed image for easy restoration on screen rotate.
  */
 @SuppressWarnings("WeakerAccess")
-public class ImageViewState implements Serializable {
+public class ImageViewState
+        implements Serializable {
 
     private final float scale;
 
@@ -30,12 +32,12 @@ public class ImageViewState implements Serializable {
         return scale;
     }
 
-    @NonNull public PointF getCenter() {
+    @NonNull
+    public PointF getCenter() {
         return new PointF(centerX, centerY);
     }
 
     public int getOrientation() {
         return orientation;
     }
-
 }

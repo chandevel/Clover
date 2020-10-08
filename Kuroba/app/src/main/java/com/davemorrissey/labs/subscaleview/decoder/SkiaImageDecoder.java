@@ -7,10 +7,11 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.text.TextUtils;
+
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.text.TextUtils;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
@@ -23,7 +24,8 @@ import java.util.List;
  * works well in most circumstances and has reasonable performance, however it has some problems
  * with grayscale, indexed and CMYK images.
  */
-public class SkiaImageDecoder implements ImageDecoder {
+public class SkiaImageDecoder
+        implements ImageDecoder {
 
     private static final String FILE_PREFIX = "file://";
     private static final String ASSET_PREFIX = FILE_PREFIX + "/android_asset/";
@@ -51,7 +53,8 @@ public class SkiaImageDecoder implements ImageDecoder {
 
     @Override
     @NonNull
-    public Bitmap decode(Context context, @NonNull Uri uri) throws Exception {
+    public Bitmap decode(Context context, @NonNull Uri uri)
+            throws Exception {
         String uriString = uri.toString();
         BitmapFactory.Options options = new BitmapFactory.Options();
         Bitmap bitmap;
@@ -98,7 +101,8 @@ public class SkiaImageDecoder implements ImageDecoder {
             }
         }
         if (bitmap == null) {
-            throw new RuntimeException("Skia image region decoder returned null bitmap - image format may not be supported");
+            throw new RuntimeException(
+                    "Skia image region decoder returned null bitmap - image format may not be supported");
         }
         return bitmap;
     }

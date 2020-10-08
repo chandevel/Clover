@@ -7,7 +7,6 @@ import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPrese
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController
 import com.github.adamantcheese.chan.ui.controller.SaveLocationController
-import com.github.adamantcheese.chan.ui.controller.SaveLocationController.SaveLocationControllerCallback
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import java.io.File
 
@@ -32,27 +31,27 @@ class SaveLocationSetupDelegate(
 
         callbacks.runWithWritePermissionsOrShowErrorToast {
             AlertDialog.Builder(context)
-                .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
-                .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
-                .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
-                    presenter.onSaveLocationUseSAFClicked()
-                }
-                .setNeutralButton(R.string.reset) { _, _ ->
-                    presenter.resetSaveLocationBaseDir()
-
-                    val defaultBaseDirFile = File(ChanSettings.saveLocation.fileApiBaseDir.get())
-                    if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
-                        callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
-                        return@setNeutralButton
+                    .setTitle(R.string.media_settings_use_saf_for_save_location_dialog_title)
+                    .setMessage(R.string.media_settings_use_saf_for_save_location_dialog_message)
+                    .setPositiveButton(R.string.media_settings_use_saf_dialog_positive_button_text) { _, _ ->
+                        presenter.onSaveLocationUseSAFClicked()
                     }
+                    .setNeutralButton(R.string.reset) { _, _ ->
+                        presenter.resetSaveLocationBaseDir()
 
-                    callbacks.onFilesBaseDirectoryReset()
-                }
-                .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
-                    onSaveLocationUseOldApiClicked()
-                }
-                .create()
-                .show()
+                        val defaultBaseDirFile = File(ChanSettings.saveLocation.fileApiBaseDir.get())
+                        if (!defaultBaseDirFile.exists() && !defaultBaseDirFile.mkdirs()) {
+                            callbacks.onCouldNotCreateDefaultBaseDir(defaultBaseDirFile.absolutePath)
+                            return@setNeutralButton
+                        }
+
+                        callbacks.onFilesBaseDirectoryReset()
+                    }
+                    .setNegativeButton(R.string.media_settings_use_saf_dialog_negative_button_text) { _, _ ->
+                        onSaveLocationUseOldApiClicked()
+                    }
+                    .create()
+                    .show()
         }
     }
 

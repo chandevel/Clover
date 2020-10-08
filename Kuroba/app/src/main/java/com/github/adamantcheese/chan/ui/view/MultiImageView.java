@@ -640,10 +640,8 @@ public class MultiImageView
             String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
             ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
-            MediaSource videoSource = progressiveFactory.createMediaSource(
-                    new MediaItem.Builder()
-                            .setUri(Uri.fromFile(file))
-                            .build());
+            MediaSource videoSource =
+                    progressiveFactory.createMediaSource(new MediaItem.Builder().setUri(Uri.fromFile(file)).build());
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
@@ -756,8 +754,8 @@ public class MultiImageView
         if (isImage) {
             ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
-            ((GifImageView) activeView).getDrawable().setColorFilter(
-                    new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
+            ((GifImageView) activeView).getDrawable()
+                    .setColorFilter(new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
         }
     }
 
