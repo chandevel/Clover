@@ -442,7 +442,7 @@ public class SkiaPooledImageRegionDecoder
         }
     }
 
-    private void debug(String message) {
+    private static void debug(String message) {
         if (debug) {
             Log.d(TAG, message);
         }

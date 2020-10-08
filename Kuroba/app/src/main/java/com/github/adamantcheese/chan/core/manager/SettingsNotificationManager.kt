@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import androidx.annotation.ColorInt
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification
 import org.greenrobot.eventbus.EventBus
 
 object SettingsNotificationManager {

@@ -365,15 +365,14 @@ public class SubsamplingScaleImageView
                 }
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_panEnabled)) {
-                setPanEnabled(typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_panEnabled, true));
+                this.panEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_panEnabled, true);
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_zoomEnabled)) {
-                setZoomEnabled(typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_zoomEnabled, true));
+                this.zoomEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_zoomEnabled, true);
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_quickScaleEnabled)) {
-                setQuickScaleEnabled(typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_quickScaleEnabled,
-                        true
-                ));
+                this.quickScaleEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_quickScaleEnabled,
+						true);
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_tileBackgroundColor)) {
                 setTileBackgroundColor(typedAttr.getColor(R.styleable.SubsamplingScaleImageView_tileBackgroundColor,
@@ -1003,7 +1002,7 @@ public class SubsamplingScaleImageView
                     float scaleX = getWidth() / (float) getSWidth();
                     float scaleY = getHeight() / (float) getSHeight();
                     setScaleAndCenter(getAppliedOrientation() % 180 == 0 ? scaleY : scaleX, getCenter());
-                    setOrientation((getAppliedOrientation() + 90) % 360);
+                    this.orientation = (getAppliedOrientation() + 90) % 360;
                 }
                 if (touchCount == 1) {
                     isZooming = false;
@@ -1331,7 +1330,7 @@ public class SubsamplingScaleImageView
     /**
      * Helper method for setting the values of a tile matrix array.
      */
-    private void setMatrixArray(
+    private static void setMatrixArray(
             float[] array, float f0, float f1, float f2, float f3, float f4, float f5, float f6, float f7
     ) {
         array[0] = f0;
@@ -2233,7 +2232,7 @@ public class SubsamplingScaleImageView
     /**
      * Pythagoras distance between two points.
      */
-    private float distance(float x0, float x1, float y0, float y1) {
+    private static float distance(float x0, float x1, float y0, float y1) {
         float x = x0 - x1;
         float y = y0 - y1;
         return (float) Math.sqrt(x * x + y * y);
@@ -2535,7 +2534,7 @@ public class SubsamplingScaleImageView
      * @param duration Anm duration
      * @return Current value
      */
-    private float easeOutQuad(long time, float from, float change, long duration) {
+    private static float easeOutQuad(long time, float from, float change, long duration) {
         float progress = (float) time / (float) duration;
         return -change * progress * (progress - 2) + from;
     }
@@ -2549,7 +2548,7 @@ public class SubsamplingScaleImageView
      * @param duration Anm duration
      * @return Current value
      */
-    private float easeInOutQuad(long time, float from, float change, long duration) {
+    private static float easeInOutQuad(long time, float from, float change, long duration) {
         float timeF = time / (duration / 2f);
         if (timeF < 1) {
             return (change / 2f * timeF * timeF) + from;
@@ -2733,7 +2732,7 @@ public class SubsamplingScaleImageView
     public final void setMinimumDpi(int dpi) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         float averageDpi = (metrics.xdpi + metrics.ydpi) / 2;
-        setMaxScale(averageDpi / dpi);
+        this.maxScale = averageDpi / dpi;
     }
 
     /**
@@ -2745,7 +2744,7 @@ public class SubsamplingScaleImageView
     public final void setMaximumDpi(int dpi) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         float averageDpi = (metrics.xdpi + metrics.ydpi) / 2;
-        setMinScale(averageDpi / dpi);
+        this.minScale = averageDpi / dpi;
     }
 
     /**
@@ -3031,7 +3030,7 @@ public class SubsamplingScaleImageView
     public final void setDoubleTapZoomDpi(int dpi) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
         float averageDpi = (metrics.xdpi + metrics.ydpi) / 2;
-        setDoubleTapZoomScale(averageDpi / dpi);
+        this.doubleTapZoomScale = averageDpi / dpi;
     }
 
     /**
@@ -3436,7 +3435,7 @@ public class SubsamplingScaleImageView
         void onPreviewLoadError(Exception e);
 
         /**
-         * Indicates an error initiliasing the decoder when using a tiling, or when loading the full
+         * Indicates an error initialising the decoder when using a tiling, or when loading the full
          * size bitmap when tiling is disabled. This method cannot be relied upon; certain encoding
          * types of supported image formats can result in corrupt or blank images being loaded and
          * displayed with no detectable error.

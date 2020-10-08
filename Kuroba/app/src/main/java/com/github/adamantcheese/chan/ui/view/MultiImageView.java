@@ -22,6 +22,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -54,6 +55,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioListener;
@@ -530,7 +532,8 @@ public class MultiImageView
                                 ? Player.REPEAT_MODE_ALL
                                 : Player.REPEAT_MODE_OFF);
 
-                        exoPlayer.prepare(source);
+                        exoPlayer.setMediaSource(source);
+                        exoPlayer.prepare();
                         exoPlayer.setVolume(0f);
                         exoPlayer.addAudioListener(MultiImageView.this);
                         exoVideoView.setOnClickListener(null);
@@ -637,11 +640,15 @@ public class MultiImageView
             String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
             ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
-            MediaSource videoSource = progressiveFactory.createMediaSource(Uri.fromFile(file));
+            MediaSource videoSource = progressiveFactory.createMediaSource(
+                    new MediaItem.Builder()
+                            .setUri(Uri.fromFile(file))
+                            .build());
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
-            exoPlayer.prepare(videoSource);
+            exoPlayer.setMediaSource(videoSource);
+            exoPlayer.prepare();
             exoPlayer.addAudioListener(this);
             exoVideoView.setOnClickListener(null);
             exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
@@ -749,7 +756,8 @@ public class MultiImageView
         if (isImage) {
             ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
         } else {
-            ((GifImageView) activeView).getDrawable().setColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER);
+            ((GifImageView) activeView).getDrawable().setColorFilter(
+                    new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
         }
     }
 
