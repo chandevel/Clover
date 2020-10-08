@@ -332,7 +332,7 @@ public class Chan4
         public void archives(ArchiveRequestListener archivesListener) {
             //currently only used for 4chan, so if there are archives, don't send another request
             if (Chan.instance(ArchivesManager.class).hasArchives()) return;
-            NetUtils.makeJsonRequest(HttpUrl.get("https://nstepien.github.io/archives.json/archives.json"),
+            NetUtils.makeJsonRequest(HttpUrl.get("https://4chenz.github.io/archives.json/archives.json"),
                     new JsonResult<List<ArchivesManager.Archives>>() {
                         @Override
                         public void onJsonFailure(Exception e) {

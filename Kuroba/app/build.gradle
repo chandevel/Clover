@@ -262,7 +262,7 @@ dependencies {
 task downloadArchives {
     try {
         download {
-            src 'https://nstepien.github.io/archives.json/archives.json'
+            src 'https://4chenz.github.io/archives.json/archives.json'
             dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
         }
     } catch (Exception ignored) {
