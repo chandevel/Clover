@@ -365,14 +365,14 @@ public class SubsamplingScaleImageView
                 }
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_panEnabled)) {
-                this.panEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_panEnabled, true);
+                setPanEnabled(typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_panEnabled, true));
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_zoomEnabled)) {
                 this.zoomEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_zoomEnabled, true);
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_quickScaleEnabled)) {
-                this.quickScaleEnabled = typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_quickScaleEnabled,
-						true);
+                this.quickScaleEnabled =
+                        typedAttr.getBoolean(R.styleable.SubsamplingScaleImageView_quickScaleEnabled, true);
             }
             if (typedAttr.hasValue(R.styleable.SubsamplingScaleImageView_tileBackgroundColor)) {
                 setTileBackgroundColor(typedAttr.getColor(R.styleable.SubsamplingScaleImageView_tileBackgroundColor,
@@ -1002,7 +1002,7 @@ public class SubsamplingScaleImageView
                     float scaleX = getWidth() / (float) getSWidth();
                     float scaleY = getHeight() / (float) getSHeight();
                     setScaleAndCenter(getAppliedOrientation() % 180 == 0 ? scaleY : scaleX, getCenter());
-                    this.orientation = (getAppliedOrientation() + 90) % 360;
+                    setOrientation((getAppliedOrientation() + 90) % 360);
                 }
                 if (touchCount == 1) {
                     isZooming = false;
