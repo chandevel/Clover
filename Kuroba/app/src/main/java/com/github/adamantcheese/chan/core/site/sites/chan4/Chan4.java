@@ -22,7 +22,7 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.model.Archive;
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -328,18 +328,18 @@ public class Chan4
 
         @Override
         public void archive(Board board, ArchiveListener archiveListener) {
-            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<Archive>() {
+            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<InternalSiteArchive>() {
                 @Override
                 public void onHTMLFailure(Exception e) {
                     archiveListener.onArchiveError();
                 }
 
                 @Override
-                public void onHTMLSuccess(Archive result) {
+                public void onHTMLSuccess(InternalSiteArchive result) {
                     archiveListener.onArchive(result);
                 }
             }, document -> {
-                List<Archive.ArchiveItem> items = new ArrayList<>();
+                List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
                 Element table = document.getElementById("arc-list");
                 Element tableBody = table.getElementsByTag("tbody").first();
@@ -348,10 +348,10 @@ public class Chan4
                     Elements dataElements = tr.getElementsByTag("td");
                     String description = dataElements.get(1).text();
                     int id = Integer.parseInt(dataElements.get(0).text());
-                    items.add(Archive.ArchiveItem.fromDescriptionId(description, id));
+                    items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
                 }
 
-                return Archive.fromItems(items);
+                return InternalSiteArchive.fromItems(items);
             });
         }
 

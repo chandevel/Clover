@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import com.github.adamantcheese.chan.core.model.Archive;
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
@@ -75,7 +75,7 @@ public interface SiteActions {
     void archive(Board board, ArchiveListener archiveListener);
 
     interface ArchiveListener {
-        void onArchive(Archive archive);
+        void onArchive(InternalSiteArchive internalSiteArchive);
 
         void onArchiveError();
     }

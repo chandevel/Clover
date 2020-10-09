@@ -18,14 +18,14 @@ package com.github.adamantcheese.chan.core.model;
 
 import java.util.List;
 
-public class Archive {
+public class InternalSiteArchive {
     public final List<ArchiveItem> items;
 
-    public static Archive fromItems(List<ArchiveItem> items) {
-        return new Archive(items);
+    public static InternalSiteArchive fromItems(List<ArchiveItem> items) {
+        return new InternalSiteArchive(items);
     }
 
-    private Archive(List<ArchiveItem> items) {
+    private InternalSiteArchive(List<ArchiveItem> items) {
         this.items = items;
     }
 
