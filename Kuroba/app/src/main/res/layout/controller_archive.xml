@@ -45,7 +45,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:padding="8dp"
-        android:visibility="gone">
+        android:visibility="visible"
+        tools:visibility="gone">
 
         <ProgressBar
             android:id="@+id/progress"

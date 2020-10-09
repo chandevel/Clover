@@ -30,8 +30,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:padding="8dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
+        android:visibility="gone"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/cell_history" />
+        tools:listitem="@layout/cell_history"
+        tools:visibility="visible" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -58,7 +58,6 @@ public class HistoryController
     @Inject
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
-    private CrossfadeView crossfade;
     private HistoryAdapter adapter;
 
     public HistoryController(Context context) {
@@ -80,7 +79,6 @@ public class HistoryController
                 .build();
 
         view = inflate(context, R.layout.controller_history);
-        crossfade = view.findViewById(R.id.crossfade);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         recyclerView.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
@@ -195,7 +193,7 @@ public class HistoryController
             resultPending = false;
             sourceList.clear();
             sourceList.addAll(result);
-            crossfade.toggle(!sourceList.isEmpty(), true);
+            ((CrossfadeView) view.findViewById(R.id.crossfade)).toggle(!sourceList.isEmpty(), true);
             filter();
         }
 

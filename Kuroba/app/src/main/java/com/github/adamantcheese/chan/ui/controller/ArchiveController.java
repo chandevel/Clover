@@ -49,7 +49,6 @@ public class ArchiveController
         extends Controller
         implements ArchivePresenter.Callback, ToolbarNavigationController.ToolbarSearchCallback,
                    SwipeRefreshLayout.OnRefreshListener {
-    private CrossfadeView crossfadeView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private View progress;
     private View errorView;
@@ -79,7 +78,6 @@ public class ArchiveController
         navigation.buildMenu().withItem(R.drawable.ic_search_white_24dp, this::searchClicked).build();
 
         // View binding
-        crossfadeView = view.findViewById(R.id.crossfade);
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
         RecyclerView archiveRecyclerview = view.findViewById(R.id.recycler_view);
         progress = view.findViewById(R.id.progress);
@@ -92,7 +90,6 @@ public class ArchiveController
         archiveRecyclerview.setAdapter(adapter);
         archiveRecyclerview.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
         FastScrollerHelper.create(archiveRecyclerview);
-        crossfadeView.toggle(false, false);
         swipeRefreshLayout.setOnRefreshListener(this);
 
         //Request data
@@ -130,7 +127,7 @@ public class ArchiveController
 
     @Override
     public void showList() {
-        crossfadeView.toggle(true, true);
+        ((CrossfadeView) view.findViewById(R.id.crossfade)).toggle(true, true);
     }
 
     @Override

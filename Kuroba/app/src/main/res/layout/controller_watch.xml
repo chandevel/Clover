@@ -20,12 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="match_parent"
     android:background="?backcolor">
 
-    <include layout="@layout/settings_layout" />
+    <include
+        layout="@layout/settings_layout"
+        android:visibility="visible" />
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="8dp">
+        android:padding="8dp"
+        android:visibility="gone">
 
         <TextView
             style="?android:attr/textAppearanceMedium"
