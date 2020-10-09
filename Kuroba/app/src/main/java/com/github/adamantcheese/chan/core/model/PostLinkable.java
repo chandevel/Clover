@@ -50,7 +50,7 @@ public class PostLinkable
         THREAD, //key: the thread link text, value: ThreadLink, matching the board, opNo, and postNo
         BOARD, //key: the board link text, value: String, the board code
         SEARCH, //key: the search link text, value: SearchLink, matchinng the board and search query text
-        ARCHIVE //key: the deadlink text or TODO, value: ThreadLink, matching the board, opNo, and postNo
+        ARCHIVE //key: the deadlink text or the `href` for the html tag, value: ThreadLink OR ResolveLink, matching the board, opNo, and postNo or board and postNo, respectively
     }
 
     private final float blendRatio;

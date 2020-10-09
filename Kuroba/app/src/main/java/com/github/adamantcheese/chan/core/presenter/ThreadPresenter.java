@@ -51,14 +51,15 @@ import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Archive;
-import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.SearchLink;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -628,11 +629,13 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem<>(POST_OPTION_REPORT, R.string.post_report));
         }
 
-        if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP))) {
-            if (!post.filterStub) {
-                menu.add(new FloatingMenuItem<>(POST_OPTION_HIDE, R.string.post_hide));
+        if (!(loadable.site instanceof ExternalSiteArchive)) {
+            if ((loadable.isCatalogMode() || (loadable.isThreadMode() && !post.isOP))) {
+                if (!post.filterStub) {
+                    menu.add(new FloatingMenuItem<>(POST_OPTION_HIDE, R.string.post_hide));
+                }
+                menu.add(new FloatingMenuItem<>(POST_OPTION_REMOVE, R.string.post_remove));
             }
-            menu.add(new FloatingMenuItem<>(POST_OPTION_REMOVE, R.string.post_remove));
         }
 
         if (loadable.isThreadMode()) {
@@ -675,9 +678,11 @@ public class ThreadPresenter
             extraMenu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
-        extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
-                isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
-        ));
+        if (!(loadable.site instanceof ExternalSiteArchive)) {
+            extraMenu.add(new FloatingMenuItem<>(isSaved ? POST_OPTION_UNSAVE : POST_OPTION_SAVE,
+                    isSaved ? R.string.unmark_as_my_post : R.string.mark_as_my_post
+            ));
+        }
 
         return POST_OPTION_EXTRA;
     }
@@ -920,11 +925,12 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.LINK) {
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
-            CommentParser.ThreadLink link = (CommentParser.ThreadLink) linkable.value;
+            ThreadLink link = (ThreadLink) linkable.value;
 
             Board board = loadable.site.board(link.board);
             if (board != null) {
-                Loadable thread = Loadable.forThread(board, link.threadId, "");
+                Loadable thread =
+                        Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
                 thread.markedNo = link.postId;
 
                 threadPresenterCallback.showThread(thread);
@@ -937,7 +943,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showBoard(Loadable.forCatalog(board));
             }
         } else if (linkable.type == PostLinkable.Type.SEARCH) {
-            CommentParser.SearchLink search = (CommentParser.SearchLink) linkable.value;
+            SearchLink search = (SearchLink) linkable.value;
             Board board = boardManager.getBoard(loadable.site, search.board);
             if (board == null) {
                 showToast(context, R.string.site_uses_dynamic_boards);
@@ -945,7 +951,25 @@ public class ThreadPresenter
                 threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(board), search.search);
             }
         } else if (linkable.type == PostLinkable.Type.ARCHIVE) {
-            showArchives((Integer) linkable.value);
+            if (linkable.value instanceof ThreadLink) {
+                ThreadLink opPostPair = (ThreadLink) linkable.value;
+                showArchives(opPostPair.board, opPostPair.threadId, opPostPair.postId);
+            } else if (linkable.value instanceof ResolveLink) {
+                ResolveLink toResolve = (ResolveLink) linkable.value;
+                if (toResolve.board.site instanceof ExternalSiteArchive) {
+                    showToast(context, "Calling archive API, just a moment!");
+                    toResolve.resolve((threadLink) -> {
+                        if (threadLink != null) {
+                            showArchives(threadLink.board, threadLink.threadId, threadLink.postId);
+                        } else {
+                            showToast(context, "Failed to resolve thread external post link!");
+                        }
+                    }, new ResolveLink.ResolveParser(toResolve));
+                } else {
+                    // for any dead links that aren't in an archive, assume that they're a link to a previous thread OP
+                    showArchives(toResolve.board.code, toResolve.postId, toResolve.postId);
+                }
+            }
         }
     }
 
@@ -991,7 +1015,7 @@ public class ThreadPresenter
             && BackgroundUtils.isInForeground()
             && isBound()
             && loadable.isThreadMode()
-            && !(loadable.site instanceof Archive)
+            && !(loadable.site instanceof ExternalSiteArchive)
             && chanLoader.getThread() != null
             && !chanLoader.getThread().isClosed()
             && !chanLoader.getThread().isArchived();
@@ -1011,18 +1035,22 @@ public class ThreadPresenter
         if (!chanLoader.getThread().isArchived()) {
             chanLoader.requestMoreData();
         } else {
-            showArchives(loadable.no);
+            showArchives(loadable.board.code, loadable.no, -1);
         }
     }
 
-    public void showArchives(int opNo) {
+    public void showArchives(String boardCode, int opNo, int postNo) {
         @SuppressLint("InflateParams")
         final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
         boolean hasContents = dialogView.setBoard(loadable.board);
         dialogView.setOpNo(opNo);
+        dialogView.setPostNo(postNo);
         dialogView.setCallback(this);
 
-        if (hasContents) {
+        if (loadable.site instanceof ExternalSiteArchive) {
+            // skip the archive picker, re-use the same archive we're already in
+            openArchive((ExternalSiteArchive) loadable.site, boardCode, opNo, postNo);
+        } else if (hasContents) {
             AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.thread_show_archives)
                     .create();
@@ -1232,9 +1260,9 @@ public class ThreadPresenter
     }
 
     @Override
-    public void openArchive(FoolFuukaArchive archive, String boardCode, int opNo) {
+    public void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo) {
         if (isBound()) {
-            showThread(archive.getArchiveLoadable(boardCode, opNo));
+            showThread(externalSiteArchive.getArchiveLoadable(boardCode, opNo, postNo));
         }
     }
 

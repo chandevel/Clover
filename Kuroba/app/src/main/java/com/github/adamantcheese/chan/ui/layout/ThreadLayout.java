@@ -51,7 +51,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Archive;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -184,7 +184,7 @@ public class ThreadLayout
             if (!archiveButton) {
                 presenter.requestData();
             } else {
-                presenter.showArchives(presenter.getLoadable().no);
+                presenter.showArchives(presenter.getLoadable().board.code, presenter.getLoadable().no, -1);
             }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
@@ -262,7 +262,7 @@ public class ThreadLayout
             ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts
     ) {
 
-        if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof Archive)) {
+        if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof ExternalSiteArchive)) {
             replyButton.show();
         }
 
@@ -288,6 +288,7 @@ public class ThreadLayout
         } else {
             switchVisible(Visible.ERROR);
             errorText.setText(errorMessage);
+            archiveButton = false;
             if (error.getErrorMessage() == R.string.thread_load_failed_not_found) {
                 errorRetryButton.setText(R.string.thread_show_archives);
                 archiveButton = true;

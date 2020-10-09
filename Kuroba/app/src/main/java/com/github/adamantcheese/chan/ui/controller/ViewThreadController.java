@@ -36,7 +36,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.helper.HintPopup;
@@ -71,6 +71,8 @@ public class ViewThreadController
         implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback, ToolbarMenuItem.OverflowMenuCallback {
     private static final int PIN_ID = 1;
     private static final int REPLY_ID = 2;
+    private static final int ARCHIVE_ID = 3;
+    private static final int REMOVED_ID = 4;
 
     @Inject
     WatchManager watchManager;
@@ -127,11 +129,13 @@ public class ViewThreadController
         )
                 .withSubItem(R.string.action_reload, () -> threadLayout.getPresenter().requestData());
         if (loadable.site instanceof Chan4) { //archives are 4chan only
-            menuOverflowBuilder.withSubItem(R.string.thread_show_archives,
-                    () -> threadLayout.getPresenter().showArchives(loadable.no)
+            menuOverflowBuilder.withSubItem(ARCHIVE_ID,
+                    R.string.thread_show_archives,
+                    () -> threadLayout.getPresenter().showArchives(loadable.board.code, loadable.no, -1)
             );
         }
-        menuOverflowBuilder.withSubItem(R.string.view_removed_posts,
+        menuOverflowBuilder.withSubItem(REMOVED_ID,
+                R.string.view_removed_posts,
                 () -> threadLayout.getPresenter().showRemovedPostsDialog()
         )
                 .withSubItem(R.string.view_my_posts, this::showYourPosts)
@@ -237,14 +241,25 @@ public class ViewThreadController
 
     @Override
     public void showThread(final Loadable threadLoadable) {
-        new AlertDialog.Builder(context).setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
-                    loadThread(threadLoadable);
-                })
-                .setTitle(R.string.open_thread_confirmation)
-                .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no)
-                .show();
+        if (threadLoadable.site instanceof ExternalSiteArchive && !loadable.site.equals(threadLoadable.site)) {
+            showThreadInternal(threadLoadable);
+        } else {
+            new AlertDialog.Builder(context).setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> showThreadInternal(threadLoadable))
+                    .setTitle(!(threadLoadable.site instanceof ExternalSiteArchive)
+                            ? R.string.open_thread_confirmation
+                            : R.string.open_archived_thread_confirmation)
+                    .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no + (
+                            threadLoadable.markedNo != -1 && threadLoadable.markedNo != threadLoadable.no
+                                    ? " #" + threadLoadable.markedNo
+                                    : ""))
+                    .show();
+        }
+    }
+
+    private void showThreadInternal(final Loadable threadLoadable) {
+        threadFollowerpool.addFirst(new Pair<>(loadable, threadLoadable.hashCode()));
+        loadThread(threadLoadable);
     }
 
     @Override
@@ -297,6 +312,25 @@ public class ViewThreadController
         navigation.title = loadable.title;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
+        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ID);
+        if (reply != null) {
+            reply.enabled = loadable.site.siteFeature(Site.SiteFeature.POSTING);
+        }
+
+        ToolbarMenuSubItem archives = navigation.findSubItem(ARCHIVE_ID);
+        if (archives != null) {
+            archives.enabled = loadable.site instanceof Chan4;
+        }
+
+        ToolbarMenuSubItem removed = navigation.findSubItem(REMOVED_ID);
+        if (removed != null) {
+            removed.enabled = !(loadable.site instanceof ExternalSiteArchive);
+        }
+
+        ToolbarMenuItem item = navigation.findItem(PIN_ID);
+        item.setVisible(!(loadable.site instanceof ExternalSiteArchive));
+        ((ToolbarNavigationController) navigationController).toolbar.invalidate();
+
         setPinIconState(false);
 
         updateDrawerHighlighting(loadable);
@@ -344,17 +378,9 @@ public class ViewThreadController
     @Override
     public void onShowPosts(Loadable loadable) {
         super.onShowPosts(loadable);
-        navigation.title = loadable.title;
-
         setPinIconState(false);
-
+        navigation.title = loadable.title;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
-        ((ToolbarNavigationController) navigationController).toolbar.updateViewForItem(navigation);
-
-        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ID);
-        if (reply != null) {
-            reply.enabled = loadable.site.siteFeature(Site.SiteFeature.POSTING);
-        }
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
@@ -417,9 +443,11 @@ public class ViewThreadController
     }
 
     @Override
-    public void openArchive(FoolFuukaArchive archive, String boardCode, int opNo) {
-        threadFollowerpool.addFirst(new Pair<>(loadable, archive.getArchiveLoadable(boardCode, opNo).hashCode()));
-        threadLayout.getPresenter().openArchive(archive, boardCode, opNo);
+    public void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo) {
+        threadFollowerpool.addFirst(new Pair<>(loadable,
+                externalSiteArchive.getArchiveLoadable(boardCode, opNo, postNo).hashCode()
+        ));
+        threadLayout.getPresenter().openArchive(externalSiteArchive, boardCode, opNo, postNo);
     }
 
     @Override

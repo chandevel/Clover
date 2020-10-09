@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.site;
 
+import android.util.JsonReader;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -10,6 +12,8 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,22 +21,24 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-public abstract class Archive
+public abstract class ExternalSiteArchive
         implements Site {
     public String domain;
     public String name;
     public List<String> boardCodes;
     public boolean searchEnabled;
 
-    public Archive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
+    public ExternalSiteArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
         this.domain = domain;
         this.name = name;
         this.boardCodes = boardCodes;
         this.searchEnabled = searchEnabled;
     }
 
-    public Loadable getArchiveLoadable(String boardCode, int opNo) {
-        return Loadable.forThread(board(boardCode), opNo, "", false); // TODO loadable.markedNo for scrolling
+    public Loadable getArchiveLoadable(String boardCode, int opNo, int postNo) {
+        Loadable l = Loadable.forThread(board(boardCode), opNo, "", false);
+        if (opNo != postNo) l.markedNo = postNo;
+        return l;
     }
 
     @Override
@@ -212,6 +218,8 @@ public abstract class Archive
         public HttpUrl login() {
             return null;
         }
+
+        public abstract HttpUrl resolvePost(String boardCode, int postNo);
     }
 
     public abstract class ArchiveSiteUrlHandler
@@ -238,5 +246,7 @@ public abstract class Archive
         public Loadable resolveLoadable(Site site, HttpUrl url) {
             return Loadable.emptyLoadable();
         }
+
+        public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);
     }
 }

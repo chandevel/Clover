@@ -11,7 +11,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 
 import javax.inject.Inject;
 
@@ -20,9 +20,10 @@ import static com.github.adamantcheese.chan.Chan.inject;
 public class ArchivesLayout
         extends LinearLayout {
     private Callback callback;
-    private ArrayAdapter<FoolFuukaArchive> adapter;
+    private ArrayAdapter<ExternalSiteArchive> adapter;
     private String boardCode;
     private int opNo;
+    private int postNo = -1;
     private AlertDialog alertDialog;
 
     @Inject
@@ -47,7 +48,7 @@ public class ArchivesLayout
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
         ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> {
-            callback.openArchive((FoolFuukaArchive) parent.getItemAtPosition(position), boardCode, opNo);
+            callback.openArchive((ExternalSiteArchive) parent.getItemAtPosition(position), boardCode, opNo, postNo);
             if (alertDialog != null) alertDialog.dismiss();
         });
     }
@@ -66,11 +67,15 @@ public class ArchivesLayout
         this.opNo = opNo;
     }
 
+    public void setPostNo(int postNo) {
+        this.postNo = postNo;
+    }
+
     public void attachToDialog(AlertDialog alertDialog) {
         this.alertDialog = alertDialog;
     }
 
     public interface Callback {
-        void openArchive(FoolFuukaArchive archive, String boardCode, int opNo);
+        void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo);
     }
 }
