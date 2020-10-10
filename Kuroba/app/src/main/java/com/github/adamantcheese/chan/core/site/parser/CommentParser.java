@@ -300,7 +300,7 @@ public class CommentParser {
         try {
             if (!(builder.board.site instanceof Chan4)) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
-            List<FoolFuukaArchive> boards = instance(ArchivesManager.class).archivesForBoard(builder.board);
+            List<ExternalSiteArchive> boards = instance(ArchivesManager.class).archivesForBoard(builder.board);
             if (!boards.isEmpty()) {
                 PostLinkable newLinkable = new PostLinkable(theme,
                         text,

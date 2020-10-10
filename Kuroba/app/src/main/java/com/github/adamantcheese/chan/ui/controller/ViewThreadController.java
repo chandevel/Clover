@@ -130,7 +130,7 @@ public class ViewThreadController
                 .withSubItem(R.string.action_reload, () -> threadLayout.getPresenter().requestData());
         if (loadable.site instanceof Chan4) { //archives are 4chan only
             menuOverflowBuilder.withSubItem(ARCHIVE_ID,
-                    R.string.thread_show_archives,
+                    R.string.thread_view_external_archive,
                     () -> threadLayout.getPresenter().showArchives(loadable.board.code, loadable.no, -1)
             );
         }

@@ -169,7 +169,7 @@ public class BrowseController
             overflowBuilder.withSubItem(R.string.action_sort, () -> handleSorting(null));
         }
 
-        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_archive, this::openArchive)
+        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_local_archive, this::openArchive)
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.getPresenter().scrollTo(0, false))

@@ -1052,7 +1052,7 @@ public class ThreadPresenter
             openArchive((ExternalSiteArchive) loadable.site, boardCode, opNo, postNo);
         } else if (hasContents) {
             AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
-                    .setTitle(R.string.thread_show_archives)
+                    .setTitle(R.string.thread_view_external_archive)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
             dialogView.attachToDialog(dialog);

@@ -256,3 +256,15 @@ dependencies {
 
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.4'
 }
+
+// Download the current archives.json
+task downloadArchives {
+    try {
+        download {
+            src('https://4chenz.github.io/archives.json/archives.json')
+            dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
+        }
+    } catch (Exception ignored) {
+    }
+}
+preBuild.dependsOn(downloadArchives)

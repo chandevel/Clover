@@ -64,7 +64,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 50;
+    private static final int DATABASE_VERSION = 52;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -502,7 +502,9 @@ public class DatabaseHelper
 
         if (oldVersion < 48) {
             try {
+                // add thumbnails to loadables
                 getLoadableDao().executeRawNoArgs("ALTER TABLE loadable ADD COLUMN thumbnailUrl STRING default NULL");
+                // delete thumbnails from pins
                 getPinDao().executeRawNoArgs("BEGIN TRANSACTION;\n"
                         + "CREATE TEMPORARY TABLE pin_backup(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,thumbnailUrl,order,archived,pin_type);\n"
                         + "INSERT INTO pin_backup SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,thumbnailUrl,order,archived,pin_type FROM board;\n"
@@ -530,6 +532,29 @@ public class DatabaseHelper
                 deleteBuilder.delete();
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 50");
+            }
+        }
+
+        if (oldVersion < 51) {
+            try {
+                // delete pin_type from pins
+                getPinDao().executeRawNoArgs("BEGIN TRANSACTION;\n"
+                        + "CREATE TEMPORARY TABLE pin_backup(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type);\n"
+                        + "INSERT INTO pin_backup SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type FROM board;\n"
+                        + "DROP TABLE pin;\n"
+                        + "CREATE TABLE pin(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived);\n"
+                        + "INSERT INTO pin SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived FROM pin_backup;\n"
+                        + "DROP TABLE pin_backup;\n" + "COMMIT;");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 48");
+            }
+        }
+
+        if (oldVersion < 52) {
+            try {
+                database.execSQL("DROP TABLE saved_thread");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 52");
             }
         }
     }
