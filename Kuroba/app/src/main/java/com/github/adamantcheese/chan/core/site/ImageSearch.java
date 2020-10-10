@@ -22,7 +22,9 @@ import java.util.List;
 public abstract class ImageSearch {
     public static final List<ImageSearch> engines = new ArrayList<>();
 
-    public abstract int getId();
+    public int getId() {
+        return engines.indexOf(this);
+    }
 
     public abstract String getName();
 
@@ -30,10 +32,6 @@ public abstract class ImageSearch {
 
     static {
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 0;
-            }
-
             public String getName() {
                 return "Google";
             }
@@ -44,10 +42,6 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 1;
-            }
-
             public String getName() {
                 return "iqdb";
             }
@@ -58,10 +52,6 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 2;
-            }
-
             public String getName() {
                 return "SauceNao";
             }
@@ -72,10 +62,6 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 3;
-            }
-
             public String getName() {
                 return "TinEye";
             }
@@ -86,10 +72,6 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 4;
-            }
-
             public String getName() {
                 return "WAIT";
             }
@@ -100,16 +82,26 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            public int getId() {
-                return 5;
-            }
-
             public String getName() {
                 return "Yandex";
             }
 
             public String getUrl(String imageUrl) {
                 return "https://yandex.com/images/search?rpt=imageview&url=" + imageUrl;
+            }
+        });
+
+        engines.add(new ImageSearch() {
+            @Override
+            public String getName() {
+                return "Bing";
+            }
+
+            @Override
+            public String getUrl(String imageUrl) {
+                return "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl:"
+                        + imageUrl + "&idpbck=1&selectedindex=0&id=" + imageUrl + "&ccid=EgN4f83z&mediaurl=" + imageUrl
+                        + "&exph=1080&expw=1920&vt=2&sim=11";
             }
         });
     }
