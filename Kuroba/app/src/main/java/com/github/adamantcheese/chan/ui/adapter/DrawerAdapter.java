@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -162,7 +163,7 @@ public class DrawerAdapter
             holder.watchCountText.setVisibility(GONE);
         }
 
-        if (pin == highlighted) {
+        if (pin.drawerHighlight) {
             holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
                     R.attr.highlight_color
             )));
@@ -195,13 +196,15 @@ public class DrawerAdapter
         }
     }
 
-    public void setHighlightedPin(Pin highlighted) {
-        Pin prevHighlight = this.highlighted;
-        this.highlighted = highlighted;
+    public void setHighlightedPin(@Nullable Pin highlighted) {
         synchronized (watchManager.getAllPins()) {
-            notifyItemChanged(watchManager.getAllPins().indexOf(prevHighlight));
-            notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
+            for (Pin p : watchManager.getAllPins()) {
+                p.drawerHighlight = (p == highlighted);
+            }
         }
+        notifyItemChanged(watchManager.getAllPins().indexOf(this.highlighted));
+        notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
+        this.highlighted = highlighted;
     }
 
     public class PinViewHolder

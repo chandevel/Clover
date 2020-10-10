@@ -58,6 +58,9 @@ public class Pin
     //local field for keeping track of if the thread is a sticky; don't put this in the database
     public boolean isSticky = false;
 
+    //local field for pin highlighting consistency; don't put this in the database
+    public boolean drawerHighlight = false;
+
     public Pin() {
     }
 
