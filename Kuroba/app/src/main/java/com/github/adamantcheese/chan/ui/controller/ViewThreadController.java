@@ -214,11 +214,6 @@ public class ViewThreadController
         updateLeftPaneHighlighting(null);
     }
 
-    @Override
-    public void openPin(Pin pin) {
-        loadThread(pin.loadable);
-    }
-
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         setPinIconState(true);

@@ -20,11 +20,13 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,9 +38,11 @@ import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.Se
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.adapter.DrawerAdapter;
+import com.github.adamantcheese.chan.ui.adapter.DrawerHistoryAdapter;
+import com.github.adamantcheese.chan.ui.adapter.DrawerPinAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.google.android.material.snackbar.Snackbar;
@@ -54,6 +58,10 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
+import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
+import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+import static androidx.recyclerview.widget.ItemTouchHelper.UP;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -65,7 +73,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DrawerController
         extends Controller
-        implements DrawerAdapter.Callback {
+        implements DrawerPinAdapter.Callback, DrawerHistoryAdapter.Callback {
     protected FrameLayout container;
     protected DrawerLayout drawerLayout;
     protected LinearLayout drawer;
@@ -74,7 +82,8 @@ public class DrawerController
     protected LinearLayout header;
 
     protected RecyclerView recyclerView;
-    protected DrawerAdapter drawerAdapter;
+
+    private boolean pinMode = true;
 
     public enum HeaderAction {
         CLEAR,
@@ -84,9 +93,45 @@ public class DrawerController
     private final Runnable refreshRunnable = new Runnable() {
         @Override
         public void run() {
-            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
+            header.findViewById(R.id.refresh).setVisibility(VISIBLE); // TODO
         }
     };
+
+    private final ItemTouchHelper.Callback pinItemTouchHelperCallback = new ItemTouchHelper.Callback() {
+        @Override
+        public int getMovementFlags(
+                @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder
+        ) {
+            return makeMovementFlags(UP | DOWN, RIGHT | LEFT);
+        }
+
+        @Override
+        public boolean onMove(
+                @NonNull RecyclerView recyclerView,
+                @NonNull RecyclerView.ViewHolder viewHolder,
+                @NonNull RecyclerView.ViewHolder target
+        ) {
+            if (!pinMode) return false;
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
+
+            synchronized (watchManager.getAllPins()) {
+                Pin item = watchManager.getAllPins().remove(from);
+                watchManager.getAllPins().add(to, item);
+            }
+            watchManager.reorder();
+            getPinAdapter().notifyItemMoved(from, to);
+            return true;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            synchronized (watchManager.getAllPins()) {
+                onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
+            }
+        }
+    };
+    private ItemTouchHelper pinTouchHelper = new ItemTouchHelper(pinItemTouchHelperCallback);
 
     private Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -116,7 +161,7 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
-        view.findViewById(R.id.history).setOnClickListener(v -> openController(new HistoryController(context)));
+        view.findViewById(R.id.history).setOnClickListener(this::toggleHistoryMode);
 
         header = view.findViewById(R.id.header);
         header.findViewById(R.id.refresh).setOnClickListener(v -> {
@@ -132,17 +177,15 @@ public class DrawerController
         //TODO change stuff here
         //((LinearLayoutManager) recyclerView.getLayoutManager()).setReverseLayout(put some settitng here);
 
-        drawerAdapter = new DrawerAdapter(this);
-        recyclerView.setAdapter(drawerAdapter);
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(drawerAdapter.getItemTouchHelperCallback());
-        itemTouchHelper.attachToRecyclerView(recyclerView);
+        recyclerView.setAdapter(new DrawerPinAdapter(this));
+        pinTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
     }
 
     @Override
     public void onDestroy() {
+        pinTouchHelper.attachToRecyclerView(null);
         recyclerView.setAdapter(null);
         mainHandler.removeCallbacks(refreshRunnable);
         EventBus.getDefault().unregister(this);
@@ -175,7 +218,27 @@ public class DrawerController
     public void onPinClicked(Pin pin) {
         ThreadController threadController = getTopThreadController();
         if (threadController != null) {
-            threadController.openPin(pin);
+            if (threadController instanceof BrowseController) {
+                threadController.showThread(pin.loadable);
+            } else if (threadController instanceof ViewThreadController) {
+                ((ViewThreadController) threadController).loadThread(pin.loadable);
+            }
+        }
+        // Post it to avoid animation jumping because the first frame is heavy.
+        drawerLayout.post(() -> drawerLayout.closeDrawers());
+    }
+
+    @Override
+    public void onHistoryClicked(Loadable history) {
+        ThreadController threadController = getTopThreadController();
+        if (history != null && threadController != null) {
+            if (threadController instanceof BrowseController) {
+                threadController.showThread(history);
+            } else if (threadController instanceof ViewThreadController) {
+                ((ViewThreadController) threadController).loadThread(history);
+            }
+        } else {
+            showToast(context, "Error opening history!");
         }
         // Post it to avoid animation jumping because the first frame is heavy.
         drawerLayout.post(() -> drawerLayout.closeDrawers());
@@ -207,6 +270,33 @@ public class DrawerController
         }
     }
 
+    private void toggleHistoryMode(View historyView) {
+        if (pinMode) {
+            // swap to history mode
+            pinMode = false;
+            recyclerView.setAdapter(null);
+            ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
+            ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_history);
+            header.findViewById(R.id.refresh).setVisibility(GONE);
+            mainHandler.removeCallbacks(refreshRunnable);
+            header.findViewById(R.id.clear).setVisibility(GONE);
+
+            pinTouchHelper.attachToRecyclerView(null);
+            recyclerView.setAdapter(new DrawerHistoryAdapter(this));
+        } else {
+            // swap to pin mode
+            pinMode = true;
+            recyclerView.setAdapter(null);
+            ((ImageView) historyView).setImageResource(R.drawable.ic_history_themed_24dp);
+            ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
+            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
+            header.findViewById(R.id.clear).setVisibility(VISIBLE);
+
+            pinTouchHelper.attachToRecyclerView(recyclerView);
+            recyclerView.setAdapter(new DrawerPinAdapter(this));
+        }
+    }
+
     @Override
     public void onPinRemoved(Pin pin) {
         final Pin undoPin = pin.clone();
@@ -225,14 +315,15 @@ public class DrawerController
     }
 
     public void setPinHighlighted(Pin pin) {
-        drawerAdapter.setHighlightedPin(pin);
+        if (recyclerView.getAdapter() == null || !pinMode) return;
+        getPinAdapter().setHighlightedPin(pin);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
-        if (drawerAdapter == null) return;
+        if (recyclerView.getAdapter() == null || !pinMode) return;
         synchronized (watchManager.getAllPins()) {
-            drawerAdapter.notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
+            getPinAdapter().notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
         }
         if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
@@ -252,30 +343,34 @@ public class DrawerController
 
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
-        if (drawerAdapter == null) return;
-        drawerAdapter.notifyItemRemoved(message.index);
+        if (recyclerView.getAdapter() == null || !pinMode) return;
+        getPinAdapter().notifyItemRemoved(message.index);
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinChangedMessage message) {
-        if (drawerAdapter == null) return;
+        if (recyclerView.getAdapter() == null || !pinMode) return;
         synchronized (watchManager.getAllPins()) {
-            drawerAdapter.notifyItemChanged(watchManager.getAllPins().indexOf(message.pin));
+            getPinAdapter().notifyItemChanged(watchManager.getAllPins().indexOf(message.pin));
         }
         updateBadge();
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
-        if (drawerAdapter == null) return;
-        drawerAdapter.notifyDataSetChanged();
+        if (recyclerView.getAdapter() == null || !pinMode) return;
+        getPinAdapter().notifyDataSetChanged();
         updateBadge();
+    }
+
+    private DrawerPinAdapter getPinAdapter() {
+        return (DrawerPinAdapter) recyclerView.getAdapter();
     }
 
     @Subscribe(sticky = true)
     public void onEvent(SettingNotification notification) {
-        if (drawerAdapter == null) return;
+        if (settings == null) return;
         SettingNotification type = EventBus.getDefault().getStickyEvent(SettingNotification.class);
 
         ImageView notificationIcon = settings.findViewById(R.id.setting_notification_icon);

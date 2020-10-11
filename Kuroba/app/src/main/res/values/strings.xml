@@ -283,11 +283,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="filter_country_code">Country code</string>
     <string name="filter_image_hash">Image hash</string>
 
-    <string name="history_empty_info">No history</string>
-
-    <string name="saved_reply_clear">Clear posting history</string>
-    <string name="saved_reply_clear_confirm">Clear posting history?</string>
-    <string name="saved_reply_clear_confirm_button">Clear</string>
+    <string name="drawer_history">Historical threads</string>
 
     <string name="archive_title">%s archive</string>
     <string name="archive_error">Error loading archive</string>
@@ -368,7 +364,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="watch_pause_pins">Stop watching</string>
     <string name="watch_idle">No new posts</string>
 
-    <string name="history_screen">History</string>
     <string name="filters_screen">Filters</string>
 
     <string name="album_download_screen">Select images (%1$d / %2$d)</string>

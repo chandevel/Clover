@@ -56,8 +56,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
-public class DrawerAdapter
-        extends RecyclerView.Adapter<DrawerAdapter.PinViewHolder> {
+public class DrawerPinAdapter
+        extends RecyclerView.Adapter<DrawerPinAdapter.PinViewHolder> {
 
     @Inject
     WatchManager watchManager;
@@ -65,42 +65,10 @@ public class DrawerAdapter
     private final Callback callback;
     private Pin highlighted;
 
-    public DrawerAdapter(@NonNull Callback callback) {
+    public DrawerPinAdapter(@NonNull Callback callback) {
         inject(this);
         this.callback = callback;
         setHasStableIds(true);
-    }
-
-    public ItemTouchHelper.Callback getItemTouchHelperCallback() {
-        return new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
-                return makeMovementFlags(UP | DOWN, RIGHT | LEFT);
-            }
-
-            @Override
-            public boolean onMove(
-                    @NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder, @NonNull ViewHolder target
-            ) {
-                int from = viewHolder.getAdapterPosition();
-                int to = target.getAdapterPosition();
-
-                synchronized (watchManager.getAllPins()) {
-                    Pin item = watchManager.getAllPins().remove(from);
-                    watchManager.getAllPins().add(to, item);
-                }
-                watchManager.reorder();
-                notifyItemMoved(from, to);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull ViewHolder viewHolder, int direction) {
-                synchronized (watchManager.getAllPins()) {
-                    callback.onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
-                }
-            }
-        };
     }
 
     @NonNull

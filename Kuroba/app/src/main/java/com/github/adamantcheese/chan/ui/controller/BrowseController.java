@@ -394,11 +394,6 @@ public class BrowseController
     }
 
     @Override
-    public void openPin(Pin pin) {
-        showThread(pin.loadable);
-    }
-
-    @Override
     public void showBoard(Loadable catalogLoadable) {
         //we don't actually need to do anything here because you can't tap board links in the browse controller
         //set the board just in case?

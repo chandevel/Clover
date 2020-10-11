@@ -103,8 +103,6 @@ public abstract class ThreadController
         threadLayout.getPresenter().showNoContent();
     }
 
-    public abstract void openPin(Pin pin);
-
     /*
      * Used to save instance state
      */

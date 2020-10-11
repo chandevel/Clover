@@ -110,6 +110,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:background="?backcolor">
 
             <TextView
+                android:id="@+id/header_text"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
