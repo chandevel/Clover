@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -9,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -28,12 +29,16 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static androidx.recyclerview.widget.RecyclerView.NO_ID;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell> {
-    private List<Loadable> historyList = new ArrayList<>();
+    private List<History> historyList = new ArrayList<>();
+
+    private History highlighted;
     private Callback callback;
 
     public DrawerHistoryAdapter(Callback callback) {
@@ -54,12 +59,25 @@ public class DrawerHistoryAdapter
 
     @Override
     public void onBindViewHolder(HistoryCell holder, int position) {
-        Loadable history = historyList.get(position);
+        History history = historyList.get(position);
         if (history != null) {
-            holder.thumbnail.setUrl(history.thumbnailUrl, dp(48), dp(48));
+            holder.thumbnail.setUrl(history.loadable.thumbnailUrl, dp(48), dp(48));
 
-            holder.text.setText(history.title);
-            holder.subtext.setText(String.format("/%s/ – %s", history.board.code, history.board.name));
+            holder.text.setText(history.loadable.title);
+            holder.subtext.setText(String.format("/%s/ – %s",
+                    history.loadable.board.code,
+                    history.loadable.board.name
+            ));
+
+            if (history.highlighted) {
+                holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
+                        R.attr.highlight_color
+                )));
+            } else {
+                holder.itemView.setBackground(getAttrDrawable(holder.itemView.getContext(),
+                        R.drawable.ripple_item_background
+                ));
+            }
         } else {
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call
             holder.itemView.getLayoutParams().height = MATCH_PARENT;
@@ -86,6 +104,7 @@ public class DrawerHistoryAdapter
         updatePaddings(holder.text, -1, -1, dp(holder.text.getContext(), 8), -1);
         holder.subtext.setVisibility(View.VISIBLE);
         holder.subtext.setText("");
+        holder.itemView.setBackground(getAttrDrawable(holder.itemView.getContext(), R.drawable.ripple_item_background));
     }
 
     @Override
@@ -95,7 +114,9 @@ public class DrawerHistoryAdapter
 
     @Override
     public long getItemId(int position) {
-        return historyList.get(position) == null ? NO_ID : historyList.get(position).id;
+        return historyList.get(position) == null
+                ? NO_ID
+                : (historyList.get(position).loadable == null ? NO_ID : historyList.get(position).loadable.id);
     }
 
     protected class HistoryCell
@@ -112,10 +133,22 @@ public class DrawerHistoryAdapter
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
 
-            itemView.setOnClickListener(v -> callback.onHistoryClicked(getHistory()));
+            itemView.setOnClickListener(v -> {
+                History history = getHistory();
+
+                for (History h : historyList) {
+                    h.highlighted = (h == history);
+                }
+
+                notifyItemChanged(historyList.indexOf(highlighted));
+                notifyItemChanged(historyList.indexOf(history));
+                highlighted = history;
+
+                callback.onHistoryClicked(history);
+            });
         }
 
-        private Loadable getHistory() {
+        private History getHistory() {
             int position = getAdapterPosition();
             if (position >= 0 && position < getItemCount()) {
                 return historyList.get(position);
@@ -125,6 +158,6 @@ public class DrawerHistoryAdapter
     }
 
     public interface Callback {
-        void onHistoryClicked(Loadable history);
+        void onHistoryClicked(History history);
     }
 }

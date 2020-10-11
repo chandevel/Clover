@@ -34,11 +34,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerHistoryAdapter;
@@ -229,13 +229,13 @@ public class DrawerController
     }
 
     @Override
-    public void onHistoryClicked(Loadable history) {
+    public void onHistoryClicked(History history) {
         ThreadController threadController = getTopThreadController();
-        if (history != null && threadController != null) {
+        if (history != null && history.loadable != null && threadController != null) {
             if (threadController instanceof BrowseController) {
-                threadController.showThread(history);
+                threadController.showThread(history.loadable);
             } else if (threadController instanceof ViewThreadController) {
-                ((ViewThreadController) threadController).loadThread(history);
+                ((ViewThreadController) threadController).loadThread(history.loadable);
             }
         } else {
             showToast(context, "Error opening history!");
