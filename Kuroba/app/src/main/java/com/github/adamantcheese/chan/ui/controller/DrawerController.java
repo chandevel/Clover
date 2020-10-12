@@ -165,9 +165,14 @@ public class DrawerController
 
         header = view.findViewById(R.id.header);
         header.findViewById(R.id.refresh).setOnClickListener(v -> {
-            wakeManager.onBroadcastReceived(false);
-            v.setVisibility(GONE);
-            mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
+            if (pinMode) {
+                wakeManager.onBroadcastReceived(false);
+                v.setVisibility(GONE);
+                mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
+            } else {
+                if (recyclerView.getAdapter() == null) return;
+                ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
+            }
         });
         header.findViewById(R.id.clear).setOnClickListener(v -> onHeaderClicked(CLEAR));
         header.findViewById(R.id.clear).setOnLongClickListener(v -> onHeaderClicked(CLEAR_ALL));
@@ -277,7 +282,6 @@ public class DrawerController
             recyclerView.setAdapter(null);
             ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
             ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_history);
-            header.findViewById(R.id.refresh).setVisibility(GONE);
             mainHandler.removeCallbacks(refreshRunnable);
             header.findViewById(R.id.clear).setVisibility(GONE);
 
@@ -289,7 +293,6 @@ public class DrawerController
             recyclerView.setAdapter(null);
             ((ImageView) historyView).setImageResource(R.drawable.ic_history_themed_24dp);
             ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
-            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
             header.findViewById(R.id.clear).setVisibility(VISIBLE);
 
             pinTouchHelper.attachToRecyclerView(recyclerView);

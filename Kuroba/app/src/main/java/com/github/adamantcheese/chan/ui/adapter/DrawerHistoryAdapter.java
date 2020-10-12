@@ -1,6 +1,8 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.graphics.drawable.ColorDrawable;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -18,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.graphics.Typeface.BOLD;
-import static android.graphics.Typeface.NORMAL;
 import static android.view.Gravity.CENTER;
 import static android.view.Gravity.CENTER_HORIZONTAL;
 import static android.view.Gravity.CENTER_VERTICAL;
@@ -31,6 +32,7 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
@@ -43,8 +45,16 @@ public class DrawerHistoryAdapter
 
     public DrawerHistoryAdapter(Callback callback) {
         this.callback = callback;
-        historyList.add(null);
         setHasStableIds(true);
+        load();
+    }
+
+    public void load() {
+        historyList.clear();
+        historyList.add(null);
+        highlighted = null;
+        notifyDataSetChanged();
+
         DatabaseUtils.runTaskAsync(instance(DatabaseLoadableManager.class).getHistory(), (result) -> {
             historyList.clear();
             historyList.addAll(result);
@@ -82,8 +92,9 @@ public class DrawerHistoryAdapter
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call
             holder.itemView.getLayoutParams().height = MATCH_PARENT;
             holder.thumbnail.setVisibility(View.GONE);
-            holder.text.setText(R.string.loading);
-            holder.text.setTypeface(holder.text.getTypeface(), BOLD);
+            SpannableString s = new SpannableString(getString(R.string.loading));
+            s.setSpan(new StyleSpan(BOLD), 0, s.length(), 0);
+            holder.text.setText(s);
             holder.text.setGravity(CENTER_VERTICAL | CENTER_HORIZONTAL);
             holder.text.getLayoutParams().height = MATCH_PARENT;
             updatePaddings(holder.text, -1, -1, dp(holder.text.getContext(), 0), -1);
@@ -98,7 +109,6 @@ public class DrawerHistoryAdapter
         holder.thumbnail.setVisibility(View.VISIBLE);
         holder.thumbnail.setUrl(null);
         holder.text.setText("");
-        holder.text.setTypeface(holder.text.getTypeface(), NORMAL);
         holder.text.setGravity(TOP | START | CENTER);
         holder.text.getLayoutParams().height = WRAP_CONTENT;
         updatePaddings(holder.text, -1, -1, dp(holder.text.getContext(), 8), -1);
