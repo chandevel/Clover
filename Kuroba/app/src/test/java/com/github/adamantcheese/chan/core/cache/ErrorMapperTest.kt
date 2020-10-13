@@ -15,9 +15,9 @@ class ErrorMapperTest {
         val activeDownloads = ActiveDownloads()
 
         val result = ErrorMapper.mapError(
-                url,
-                FileCacheException.FileNotFoundOnTheServerException(),
-                activeDownloads
+            url,
+            FileCacheException.FileNotFoundOnTheServerException(),
+            activeDownloads
         )
 
         assertTrue(result is FileDownloadResult.KnownException)
