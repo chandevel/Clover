@@ -51,11 +51,11 @@ class PartialContentSupportCheckerTest {
     fun `test small body size should return supportsPartialContentDownload == false with actual body size`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse()
-                            .setResponseCode(200)
-                            .addHeader("Accept-Ranges", "bytes")
-                            .addHeader("Content-Length", "1024")
-                            .addHeader("CF-Cache-Status", "HIT")
+                MockResponse()
+                    .setResponseCode(200)
+                    .addHeader("Accept-Ranges", "bytes")
+                    .addHeader("Content-Length", "1024")
+                    .addHeader("CF-Cache-Status", "HIT")
             )
 
             server.start()
@@ -66,17 +66,17 @@ class PartialContentSupportCheckerTest {
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
-                    .test()
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        assertEquals(1024L, value.length)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
-                    .await()
+                .test()
+                .awaitCount(1)
+                .assertValue { value ->
+                    assertFalse(value.supportsPartialContentDownload)
+                    assertEquals(1024L, value.length)
+                    true
+                }
+                .assertComplete()
+                .assertNoErrors()
+                .assertNoTimeout()
+                .await()
         }
     }
 
@@ -88,12 +88,12 @@ class PartialContentSupportCheckerTest {
     fun `test HEAD request timeout should return supportsPartialContentDownload == false`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse()
-                            .setResponseCode(200)
-                            .addHeader("Accept-Ranges", "bytes")
-                            .addHeader("Content-Length", "9999")
-                            .addHeader("CF-Cache-Status", "HIT")
-                            .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
+                MockResponse()
+                    .setResponseCode(200)
+                    .addHeader("Accept-Ranges", "bytes")
+                    .addHeader("Content-Length", "9999")
+                    .addHeader("CF-Cache-Status", "HIT")
+                    .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
             )
 
             server.start()
@@ -105,16 +105,16 @@ class PartialContentSupportCheckerTest {
 
 
             partialContentSupportChecker.check(url)
-                    .test()
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertFalse(value.supportsPartialContentDownload)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
-                    .await()
+                .test()
+                .awaitCount(1)
+                .assertValue { value ->
+                    assertFalse(value.supportsPartialContentDownload)
+                    true
+                }
+                .assertComplete()
+                .assertNoErrors()
+                .assertNoTimeout()
+                .await()
         }
     }
 
@@ -123,12 +123,12 @@ class PartialContentSupportCheckerTest {
     fun `test request cancellation`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse()
-                            .setResponseCode(200)
-                            .addHeader("Accept-Ranges", "bytes")
-                            .addHeader("Content-Length", "9999")
-                            .addHeader("CF-Cache-Status", "HIT")
-                            .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
+                MockResponse()
+                    .setResponseCode(200)
+                    .addHeader("Accept-Ranges", "bytes")
+                    .addHeader("Content-Length", "9999")
+                    .addHeader("CF-Cache-Status", "HIT")
+                    .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
             )
 
             server.start()
@@ -139,20 +139,25 @@ class PartialContentSupportCheckerTest {
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
-                    .test()
+                .test()
 
             Thread.sleep(150)
             request.cancelableDownload.cancel()
 
             val (events, errors, completes) = testObserver
-                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                    .events
+                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                .events
 
             assertTrue(completes.isEmpty())
             assertTrue(events.isEmpty())
             assertEquals(1, errors.size)
             assertTrue(errors.first() is SocketException)
-            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
+            assertTrue(
+                (errors.first() as SocketException).message.equals(
+                    "Socket closed",
+                    ignoreCase = true
+                )
+            )
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Canceled)
@@ -164,12 +169,12 @@ class PartialContentSupportCheckerTest {
     fun `test request stop`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse()
-                            .setResponseCode(200)
-                            .addHeader("Accept-Ranges", "bytes")
-                            .addHeader("Content-Length", "9999")
-                            .addHeader("CF-Cache-Status", "HIT")
-                            .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
+                MockResponse()
+                    .setResponseCode(200)
+                    .addHeader("Accept-Ranges", "bytes")
+                    .addHeader("Content-Length", "9999")
+                    .addHeader("CF-Cache-Status", "HIT")
+                    .setHeadersDelay(300L, TimeUnit.MILLISECONDS)
             )
 
             server.start()
@@ -180,20 +185,25 @@ class PartialContentSupportCheckerTest {
             activeDownloads.put(url, request)
 
             val testObserver = partialContentSupportChecker.check(url)
-                    .test()
+                .test()
 
             Thread.sleep(150)
             request.cancelableDownload.stop()
 
             val (events, errors, completes) = testObserver
-                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                    .events
+                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                .events
 
             assertTrue(completes.isEmpty())
             assertTrue(events.isEmpty())
             assertEquals(1, errors.size)
             assertTrue(errors.first() is SocketException)
-            assertTrue((errors.first() as SocketException).message.equals("Socket closed", ignoreCase = true))
+            assertTrue(
+                (errors.first() as SocketException).message.equals(
+                    "Socket closed",
+                    ignoreCase = true
+                )
+            )
 
             val state = activeDownloads.get(url)!!.cancelableDownload.getState()
             assertTrue(state is DownloadState.Stopped)
@@ -204,7 +214,7 @@ class PartialContentSupportCheckerTest {
     fun `test when server returns 404`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse().setResponseCode(404)
+                MockResponse().setResponseCode(404)
             )
 
             server.start()
@@ -215,16 +225,16 @@ class PartialContentSupportCheckerTest {
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
-                    .test()
-                    .awaitCount(1)
-                    .assertError { error ->
-                        assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
-                        true
-                    }
-                    .assertNotComplete()
-                    .assertNoTimeout()
-                    .assertNoValues()
-                    .await()
+                .test()
+                .awaitCount(1)
+                .assertError { error ->
+                    assertTrue(error is FileCacheException.FileNotFoundOnTheServerException)
+                    true
+                }
+                .assertNotComplete()
+                .assertNoTimeout()
+                .assertNoValues()
+                .await()
         }
     }
 
@@ -232,11 +242,11 @@ class PartialContentSupportCheckerTest {
     fun `test everything ok`() {
         withServer { server ->
             server.enqueue(
-                    MockResponse()
-                            .setResponseCode(200)
-                            .addHeader("Accept-Ranges", "bytes")
-                            .addHeader("Content-Length", "9999")
-                            .addHeader("CF-Cache-Status", "HIT")
+                MockResponse()
+                    .setResponseCode(200)
+                    .addHeader("Accept-Ranges", "bytes")
+                    .addHeader("Content-Length", "9999")
+                    .addHeader("CF-Cache-Status", "HIT")
             )
 
             server.start()
@@ -247,18 +257,18 @@ class PartialContentSupportCheckerTest {
             activeDownloads.put(url, request)
 
             partialContentSupportChecker.check(url)
-                    .test()
-                    .awaitCount(1)
-                    .assertValue { value ->
-                        assertTrue(value.supportsPartialContentDownload)
-                        assertFalse(value.notFoundOnServer)
-                        assertEquals(9999L, value.length)
-                        true
-                    }
-                    .assertComplete()
-                    .assertNoErrors()
-                    .assertNoTimeout()
-                    .await()
+                .test()
+                .awaitCount(1)
+                .assertValue { value ->
+                    assertTrue(value.supportsPartialContentDownload)
+                    assertFalse(value.notFoundOnServer)
+                    assertEquals(9999L, value.length)
+                    true
+                }
+                .assertComplete()
+                .assertNoErrors()
+                .assertNoTimeout()
+                .await()
         }
     }
 

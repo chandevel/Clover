@@ -54,9 +54,9 @@ class ChunkDownloaderTest {
         withServer { server ->
             val imageName = "test_img1.jpg"
             val chunks = listOf(
-                    Chunk(0, 100),
-                    Chunk(1024, 1555),
-                    Chunk(32766, 33000)
+                Chunk(0, 100),
+                Chunk(1024, 1555),
+                Chunk(32766, 33000)
             )
 
             server.dispatcher = PartialContentOkHttpDispatcher()
@@ -68,16 +68,16 @@ class ChunkDownloaderTest {
             activeDownloads.put(url, request)
 
             val wholeFile = javaClass.classLoader!!.getResourceAsStream(imageName)
-                    .use { it.readBytes() }
+                .use { it.readBytes() }
 
             chunks.forEach { chunk ->
                 val testObserver = chunkDownloader.downloadChunk(url, chunk, chunks.size)
-                        .subscribeOn(Schedulers.single())
-                        .test()
+                    .subscribeOn(Schedulers.single())
+                    .test()
 
                 val (events, errors, completes) = testObserver
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 assertTrue(errors.isEmpty())
                 assertEquals(1, completes.size)
@@ -115,12 +115,12 @@ class ChunkDownloaderTest {
             request.cancelableDownload.cancel()
 
             val testObserver = chunkDownloader.downloadChunk(url, chunk, chunksCount)
-                    .subscribeOn(Schedulers.single())
-                    .test()
+                .subscribeOn(Schedulers.single())
+                .test()
 
             val (events, errors, completes) = testObserver
-                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                    .events
+                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                .events
 
             assertTrue(events.isEmpty())
             assertTrue(completes.isEmpty())

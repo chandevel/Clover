@@ -63,18 +63,18 @@ class ConcurrentChunkedFileDownloaderTest {
     fun `test cancel one chunk download request`() {
         withServer { server ->
             val buffer = Buffer()
-                    .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
+                .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
 
             val response = MockResponse()
-                    .setResponseCode(200)
-                    .setBody(buffer)
+                .setResponseCode(200)
+                .setBody(buffer)
 
             singleChunkTestProlog(server, response) { _, output, request, testObserver ->
                 request.cancelableDownload.cancel()
 
                 val (events, errors, completes) = testObserver
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 assertEquals(1, events.size)
                 assertEquals(1, errors.size)
@@ -84,8 +84,12 @@ class ConcurrentChunkedFileDownloaderTest {
                 assertTrue(errors.first() is FileCacheException.CancellationException)
 
                 val cacheFiles = fileManager.listFiles(cacheDirFile)
-                assertTrue(fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION))
-                assertTrue(fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION))
+                assertTrue(
+                    fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION)
+                )
+                assertTrue(
+                    fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION)
+                )
                 assertFalse(cacheHandler.isAlreadyDownloaded(output))
 
                 assertEquals(2, cacheFiles.size)
@@ -101,8 +105,8 @@ class ConcurrentChunkedFileDownloaderTest {
 
             singleChunkTestProlog(server, response) { _, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 assertEquals(1, events.size)
                 assertEquals(1, errors.size)
@@ -112,8 +116,12 @@ class ConcurrentChunkedFileDownloaderTest {
                 assertTrue(errors.first() is FileCacheException.FileNotFoundOnTheServerException)
 
                 val cacheFiles = fileManager.listFiles(cacheDirFile)
-                assertTrue(fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION))
-                assertTrue(fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION))
+                assertTrue(
+                    fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION)
+                )
+                assertTrue(
+                    fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION)
+                )
                 assertFalse(cacheHandler.isAlreadyDownloaded(output))
 
                 assertEquals(2, cacheFiles.size)
@@ -126,10 +134,10 @@ class ConcurrentChunkedFileDownloaderTest {
     fun `test enqueue four multi chunk requests and cancel two of the should only download the two not canceled images`() {
         data class ExtraInfo(val imageName: String, val url: HttpUrl, val output: RawFile)
         data class ResultData(
-                val events: List<Any>,
-                val errors: List<Any>,
-                val completes: List<Any>,
-                val extraInfo: ExtraInfo
+            val events: List<Any>,
+            val errors: List<Any>,
+            val completes: List<Any>,
+            val extraInfo: ExtraInfo
         )
 
         withServer { server ->
@@ -138,10 +146,10 @@ class ConcurrentChunkedFileDownloaderTest {
             val chunksCount = 2
 
             val imageNameList = listOf(
-                    "test_img1.jpg",
-                    "test_img2.jpg",
-                    "test_img3.jpg",
-                    "test_img4.jpg"
+                "test_img1.jpg",
+                "test_img2.jpg",
+                "test_img3.jpg",
+                "test_img4.jpg"
             )
 
             val imageSizeList = imageNameList.map { imageName ->
@@ -156,17 +164,18 @@ class ConcurrentChunkedFileDownloaderTest {
             val testObservers = imageNameList.map { imageName ->
                 val url = server.url("/${imageName}")
                 val output = checkNotNull(cacheHandler.getOrCreateCacheFile(url))
-                val request = createFileDownloadRequest(url, chunksCount = chunksCount, file = output)
+                val request =
+                    createFileDownloadRequest(url, chunksCount = chunksCount, file = output)
                 activeDownloads.put(url, request)
 
                 return@map concurrentChunkedFileDownloader.download(
-                        PartialContentCheckResult(
-                                supportsPartialContentDownload = true,
-                                notFoundOnServer = false,
-                                length = sizeMap[imageName]!!.toLong()
-                        ),
-                        url,
-                        true
+                    PartialContentCheckResult(
+                        supportsPartialContentDownload = true,
+                        notFoundOnServer = false,
+                        length = sizeMap[imageName]!!.toLong()
+                    ),
+                    url,
+                    true
                 ) to ExtraInfo(imageName, url, output)
             }.map { (flowable, extraInfo) ->
                 flowable.test() to extraInfo
@@ -181,14 +190,14 @@ class ConcurrentChunkedFileDownloaderTest {
             // Wait for all the events
             val resultDataList = testObservers.map { (observer, extraInfo) ->
                 val (events, errors, completes) = observer
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 return@map ResultData(
-                        events = events,
-                        errors = errors,
-                        completes = completes,
-                        extraInfo = extraInfo
+                    events = events,
+                    errors = errors,
+                    completes = completes,
+                    extraInfo = extraInfo
                 )
             }
 
@@ -231,21 +240,26 @@ class ConcurrentChunkedFileDownloaderTest {
                     val progressEvents = events.filterIsInstance<FileDownloadResult.Progress>()
                     val successEvents = events.filterIsInstance<FileDownloadResult.Success>()
                     assertEquals(
-                            events.size,
-                            startEvents.size + progressEvents.size + successEvents.size
+                        events.size,
+                        startEvents.size + progressEvents.size + successEvents.size
                     )
                 }
 
                 // Find only file related to the current request since there will be 8 of them instead
                 // of two
                 val cacheFiles = fileManager.listFiles(cacheDirFile).filter { file ->
-                    return@filter fileManager.getName(file).contains(JavaUtils.stringMD5hash(extraInfo.url.toString()))
+                    return@filter fileManager.getName(file)
+                        .contains(JavaUtils.stringMD5hash(extraInfo.url.toString()))
                 }
 
                 // Check that they are find
                 assertEquals(2, cacheFiles.size)
-                assertTrue(fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION))
-                assertTrue(fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION))
+                assertTrue(
+                    fileManager.getName(cacheFiles[0]).endsWith(CacheHandler.CACHE_EXTENSION)
+                )
+                assertTrue(
+                    fileManager.getName(cacheFiles[1]).endsWith(CacheHandler.CACHE_META_EXTENSION)
+                )
                 assertTrue(fileManager.listFiles(chunksCacheDirFile).isEmpty())
 
 
@@ -276,16 +290,16 @@ class ConcurrentChunkedFileDownloaderTest {
     fun `test download the whole image in one chunk when everything is ok`() {
         withServer { server ->
             val buffer = Buffer()
-                    .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
+                .readFrom(javaClass.classLoader!!.getResourceAsStream("test_img1.jpg"))
 
             val response = MockResponse()
-                    .setResponseCode(200)
-                    .setBody(buffer)
+                .setResponseCode(200)
+                .setBody(buffer)
 
             singleChunkTestProlog(server, response) { url, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 assertTrue(errors.isEmpty())
                 assertEquals(1, completes.size)
@@ -293,12 +307,17 @@ class ConcurrentChunkedFileDownloaderTest {
 
                 assertTrue(events.first() is FileDownloadResult.Start)
                 assertTrue(events.last() is FileDownloadResult.Success)
-                assertTrue(events.drop(1).dropLast(1).all { event -> event is FileDownloadResult.Progress })
+                assertTrue(
+                    events.drop(1).dropLast(1)
+                        .all { event -> event is FileDownloadResult.Progress })
 
                 val startEvents = events.filterIsInstance<FileDownloadResult.Start>()
                 val progressEvents = events.filterIsInstance<FileDownloadResult.Progress>()
                 val successEvents = events.filterIsInstance<FileDownloadResult.Success>()
-                assertEquals(events.size, startEvents.size + progressEvents.size + successEvents.size)
+                assertEquals(
+                    events.size,
+                    startEvents.size + progressEvents.size + successEvents.size
+                )
 
                 checkCacheFilesAreOk(output, url)
             }
@@ -314,10 +333,15 @@ class ConcurrentChunkedFileDownloaderTest {
                 stream.available()
             }
 
-            multiChunkTestPrologue(server, fileSize.toLong(), 4, imageName) { url, output, _, testObserver ->
+            multiChunkTestPrologue(
+                server,
+                fileSize.toLong(),
+                4,
+                imageName
+            ) { url, output, _, testObserver ->
                 val (events, errors, completes) = testObserver
-                        .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                        .events
+                    .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+                    .events
 
                 assertTrue(errors.isEmpty())
                 assertEquals(1, completes.size)
@@ -325,12 +349,17 @@ class ConcurrentChunkedFileDownloaderTest {
 
                 assertTrue(events.first() is FileDownloadResult.Start)
                 assertTrue(events.last() is FileDownloadResult.Success)
-                assertTrue(events.drop(1).dropLast(1).all { event -> event is FileDownloadResult.Progress })
+                assertTrue(
+                    events.drop(1).dropLast(1)
+                        .all { event -> event is FileDownloadResult.Progress })
 
                 val startEvents = events.filterIsInstance<FileDownloadResult.Start>()
                 val progressEvents = events.filterIsInstance<FileDownloadResult.Progress>()
                 val successEvents = events.filterIsInstance<FileDownloadResult.Success>()
-                assertEquals(events.size, startEvents.size + progressEvents.size + successEvents.size)
+                assertEquals(
+                    events.size,
+                    startEvents.size + progressEvents.size + successEvents.size
+                )
                 assertEquals(4, progressEvents.distinctBy { event -> event.chunkIndex }.size)
 
                 checkCacheFilesAreOk(output, url)
@@ -353,11 +382,11 @@ class ConcurrentChunkedFileDownloaderTest {
     }
 
     private fun multiChunkTestPrologue(
-            server: MockWebServer,
-            fileSize: Long,
-            chunksCount: Int,
-            imageName: String,
-            func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
+        server: MockWebServer,
+        fileSize: Long,
+        chunksCount: Int,
+        imageName: String,
+        func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
     ) {
         server.dispatcher = PartialContentOkHttpDispatcher()
         server.start()
@@ -368,23 +397,23 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                PartialContentCheckResult(
-                        supportsPartialContentDownload = true,
-                        notFoundOnServer = false,
-                        length = fileSize
-                ),
-                url,
-                true
+            PartialContentCheckResult(
+                supportsPartialContentDownload = true,
+                notFoundOnServer = false,
+                length = fileSize
+            ),
+            url,
+            true
         )
-                .test()
+            .test()
 
         func(url, output, request, testObserver)
     }
 
     private fun singleChunkTestProlog(
-            server: MockWebServer,
-            response: MockResponse,
-            func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
+        server: MockWebServer,
+        response: MockResponse,
+        func: (HttpUrl, RawFile, FileDownloadRequest, TestSubscriber<FileDownloadResult>) -> Unit
     ) {
         server.enqueue(response)
         server.start()
@@ -395,15 +424,15 @@ class ConcurrentChunkedFileDownloaderTest {
         activeDownloads.put(url, request)
 
         val testObserver = concurrentChunkedFileDownloader.download(
-                PartialContentCheckResult(
-                        supportsPartialContentDownload = false,
-                        notFoundOnServer = false,
-                        length = -1
-                ),
-                url,
-                true
+            PartialContentCheckResult(
+                supportsPartialContentDownload = false,
+                notFoundOnServer = false,
+                length = -1
+            ),
+            url,
+            true
         )
-                .test()
+            .test()
 
         func(url, output, request, testObserver)
     }

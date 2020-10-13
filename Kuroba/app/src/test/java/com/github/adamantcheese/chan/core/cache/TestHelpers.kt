@@ -24,19 +24,19 @@ internal fun withServer(func: (MockWebServer) -> Unit) {
 }
 
 internal fun createFileDownloadRequest(
-        url: HttpUrl,
-        chunksCount: Int = 1,
-        file: RawFile
+    url: HttpUrl,
+    chunksCount: Int = 1,
+    file: RawFile
 ): FileDownloadRequest {
     return spy(
-            FileDownloadRequest(
-                    url,
-                    file,
-                    AtomicInteger(chunksCount),
-                    AtomicLong(0),
-                    AtomicLong(0),
-                    CancelableDownload(url),
-                    DownloadRequestExtraInfo()
-            )
+        FileDownloadRequest(
+            url,
+            file,
+            AtomicInteger(chunksCount),
+            AtomicLong(0),
+            AtomicLong(0),
+            CancelableDownload(url),
+            DownloadRequestExtraInfo()
+        )
     )
 }

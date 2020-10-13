@@ -53,10 +53,10 @@ class ChunkPersisterTest {
         chunksCacheDirFile = testModule.provideChunksCacheDirFile()
 
         chunkPersister = ChunkPersister(
-                fileManager,
-                cacheHandler,
-                activeDownloads,
-                false
+            fileManager,
+            cacheHandler,
+            activeDownloads,
+            false
         )
     }
 
@@ -87,25 +87,25 @@ class ChunkPersisterTest {
                 throw IOException("BAM!!!")
             }
         }
-                .whenever(activeDownloads)
-                .updateDownloaded(anyString().toHttpUrl(), anyInt(), anyLong())
+            .whenever(activeDownloads)
+            .updateDownloaded(anyString().toHttpUrl(), anyInt(), anyLong())
 
         val testObserver = Flowable.fromIterable(chunkResponses)
-                .observeOn(Schedulers.newThread())
-                .flatMap { chunkResponse ->
-                    chunkPersister.storeChunkInFile(
-                            url,
-                            chunkResponse,
-                            AtomicLong(),
-                            chunkIndex.getAndIncrement(),
-                            chunksCount
-                    )
-                }
-                .test()
+            .observeOn(Schedulers.newThread())
+            .flatMap { chunkResponse ->
+                chunkPersister.storeChunkInFile(
+                    url,
+                    chunkResponse,
+                    AtomicLong(),
+                    chunkIndex.getAndIncrement(),
+                    chunksCount
+                )
+            }
+            .test()
 
         val (events, errors, completes) = testObserver
-                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                .events
+            .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+            .events
 
         assertTrue(completes.isEmpty())
         assertEquals(1, errors.size)
@@ -139,30 +139,30 @@ class ChunkPersisterTest {
         activeDownloads.put(url, request)
 
         val testObserver = Flowable.fromIterable(chunkResponses)
-                .flatMap { chunkResponse ->
-                    chunkPersister.storeChunkInFile(
-                            url,
-                            chunkResponse,
-                            AtomicLong(),
-                            chunkIndex.getAndIncrement(),
-                            chunksCount
-                    ).subscribeOn(Schedulers.newThread())
-                }.test()
+            .flatMap { chunkResponse ->
+                chunkPersister.storeChunkInFile(
+                    url,
+                    chunkResponse,
+                    AtomicLong(),
+                    chunkIndex.getAndIncrement(),
+                    chunksCount
+                ).subscribeOn(Schedulers.newThread())
+            }.test()
 
         val (events, errors, completes) = testObserver
-                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                .events
+            .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+            .events
 
         assertTrue(errors.isEmpty())
         assertEquals(1, completes.size)
 
         val successEventsGrouped = events
-                .filterIsInstance<ChunkDownloadEvent.ChunkSuccess>()
-                .groupBy { event -> event.chunkIndex }
+            .filterIsInstance<ChunkDownloadEvent.ChunkSuccess>()
+            .groupBy { event -> event.chunkIndex }
 
         val progressEventsGrouped = events
-                .filterIsInstance<ChunkDownloadEvent.Progress>()
-                .groupBy { event -> event.chunkIndex }
+            .filterIsInstance<ChunkDownloadEvent.Progress>()
+            .groupBy { event -> event.chunkIndex }
 
         assertEquals(2, successEventsGrouped.values.count())
         successEventsGrouped.forEach { (_, chunkSuccessEvents) ->
@@ -208,18 +208,18 @@ class ChunkPersisterTest {
         activeDownloads.put(url, request)
 
         val testObserver = chunkPersister.storeChunkInFile(
-                        url,
-                        chunkResponse,
-                        AtomicLong(),
-                        0,
-                        chunksCount
-                )
-                .subscribeOn(Schedulers.newThread())
-                .test()
+            url,
+            chunkResponse,
+            AtomicLong(),
+            0,
+            chunksCount
+        )
+            .subscribeOn(Schedulers.newThread())
+            .test()
 
         val (events, errors, completes) = testObserver
-                .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
-                .events
+            .awaitDone(MAX_AWAIT_TIME_SECONDS, TimeUnit.SECONDS)
+            .events
 
         assertFalse(errors.isEmpty())
         assertTrue(events.isEmpty())
@@ -246,7 +246,11 @@ class ChunkPersisterTest {
         return ChunkResponse(Chunk.wholeFile(), badResponse)
     }
 
-    private fun createChunkResponses(url: HttpUrl, chunks: List<Chunk>, fileBytes: ByteArray): List<ChunkResponse> {
+    private fun createChunkResponses(
+        url: HttpUrl,
+        chunks: List<Chunk>,
+        fileBytes: ByteArray
+    ): List<ChunkResponse> {
         return chunks.map { chunk ->
             val chunkBytes = fileBytes.sliceArray(chunk.start.toInt() until chunk.realEnd.toInt())
             val response = createResponse(url, chunkBytes)
@@ -267,8 +271,8 @@ class ChunkPersisterTest {
             code(206)
             message("")
             body(
-                    fileBytes
-                            .toResponseBody("image/jpg".toMediaType())
+                fileBytes
+                    .toResponseBody("image/jpg".toMediaType())
             )
 
             build()
