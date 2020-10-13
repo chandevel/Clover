@@ -37,10 +37,10 @@ class TestModule {
     private fun provideChunkReader(): ChunkPersister {
         if (chunkPersister == null) {
             chunkPersister = ChunkPersister(
-                    provideFileManager(),
-                    provideCacheHandler(),
-                    provideActiveDownloads(),
-                    false
+                provideFileManager(),
+                provideCacheHandler(),
+                provideActiveDownloads(),
+                false
             )
         }
 
@@ -58,11 +58,11 @@ class TestModule {
     private fun provideChunkPersister(): ChunkMerger {
         if (chunkMerger == null) {
             chunkMerger = ChunkMerger(
-                    provideFileManager(),
-                    provideCacheHandler(),
-                    provideSiteResolver(),
-                    provideActiveDownloads(),
-                    false
+                provideFileManager(),
+                provideCacheHandler(),
+                provideSiteResolver(),
+                provideActiveDownloads(),
+                false
             )
         }
 
@@ -72,10 +72,10 @@ class TestModule {
     internal fun providePartialContentSupportChecker(): PartialContentSupportChecker {
         if (partialContentSupportChecker == null) {
             partialContentSupportChecker = PartialContentSupportChecker(
-                    provideOkHttpClient(),
-                    provideActiveDownloads(),
-                    provideSiteResolver(),
-                    250L
+                provideOkHttpClient(),
+                provideActiveDownloads(),
+                provideSiteResolver(),
+                250L
             )
         }
 
@@ -85,14 +85,14 @@ class TestModule {
     internal fun provideConcurrentChunkDownloader(): ConcurrentChunkedFileDownloader {
         if (concurrentChunkedFileDownloader == null) {
             concurrentChunkedFileDownloader = ConcurrentChunkedFileDownloader(
-                    provideFileManager(),
-                    provideChunkDownloader(),
-                    provideChunkReader(),
-                    provideChunkPersister(),
-                    Schedulers.single(),
-                    false,
-                    provideActiveDownloads(),
-                    provideCacheHandler()
+                provideFileManager(),
+                provideChunkDownloader(),
+                provideChunkReader(),
+                provideChunkPersister(),
+                Schedulers.single(),
+                false,
+                provideActiveDownloads(),
+                provideCacheHandler()
             )
         }
 
@@ -110,9 +110,9 @@ class TestModule {
     internal fun provideChunkDownloader(): ChunkDownloader {
         if (chunkDownloader == null) {
             chunkDownloader = ChunkDownloader(
-                    provideOkHttpClient(),
-                    provideActiveDownloads(),
-                    false
+                provideOkHttpClient(),
+                provideActiveDownloads(),
+                false
             )
         }
 
@@ -122,9 +122,9 @@ class TestModule {
     fun provideFileManager(): FileManager {
         if (fileManager == null) {
             fileManager = FileManager(
-                    provideContext(),
-                    BadPathSymbolResolutionStrategy.ThrowAnException,
-                    DirectoryManager(provideContext())
+                provideContext(),
+                BadPathSymbolResolutionStrategy.ThrowAnException,
+                DirectoryManager(provideContext())
             )
         }
 
@@ -134,10 +134,10 @@ class TestModule {
     fun provideCacheHandler(): CacheHandler {
         if (cacheHandler == null) {
             cacheHandler = CacheHandler(
-                    provideFileManager(),
-                    provideCacheDirFile(),
-                    provideChunksCacheDirFile(),
-                    Executors.newSingleThreadExecutor()
+                provideFileManager(),
+                provideCacheDirFile(),
+                provideChunksCacheDirFile(),
+                Executors.newSingleThreadExecutor()
             )
         }
 
@@ -160,7 +160,8 @@ class TestModule {
         if (chunksCacheDirFile == null) {
             val fileMan = provideFileManager()
 
-            chunksCacheDirFile = fileMan.fromRawFile(File(provideContext().cacheDir, "chunks_cache_dir"))
+            chunksCacheDirFile =
+                fileMan.fromRawFile(File(provideContext().cacheDir, "chunks_cache_dir"))
             assertNotNull(fileMan.create(chunksCacheDirFile!!))
             assertTrue(fileMan.deleteContent(chunksCacheDirFile!!))
         }
@@ -171,10 +172,10 @@ class TestModule {
     fun provideOkHttpClient(): OkHttpClient {
         if (okHttpClient == null) {
             okHttpClient = OkHttpClient.Builder()
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS)
-                    .writeTimeout(5, TimeUnit.SECONDS)
-                    .build()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .build()
         }
 
         return okHttpClient!!
