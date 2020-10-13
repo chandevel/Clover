@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -37,7 +39,7 @@ class PostParseCallable
     private Post.Builder postBuilder;
     private ChanReader reader;
     private final Set<Integer> internalIds;
-    private Theme theme;
+    private final Theme theme;
     private final boolean forCatalog;
 
     public PostParseCallable(
@@ -47,7 +49,7 @@ class PostParseCallable
             Post.Builder builder,
             ChanReader reader,
             Set<Integer> internalIds,
-            Theme theme,
+            @NonNull Theme theme,
             boolean forCatalog
     ) {
         this.filterEngine = filterEngine;

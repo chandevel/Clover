@@ -22,6 +22,7 @@ import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -60,7 +61,7 @@ public class DefaultPostParser
     }
 
     @Override
-    public Post parse(Theme theme, Post.Builder builder, Callback callback) {
+    public Post parse(@NonNull Theme theme, Post.Builder builder, Callback callback) {
         if (!TextUtils.isEmpty(builder.name)) {
             builder.name = Parser.unescapeEntities(builder.name, false);
         }
@@ -164,7 +165,7 @@ public class DefaultPostParser
         builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
     }
 
-    private SpannableStringBuilder parseComment(Theme theme, Post.Builder post, Callback callback) {
+    private SpannableStringBuilder parseComment(@NonNull Theme theme, Post.Builder post, Callback callback) {
         SpannableStringBuilder total = new SpannableStringBuilder("");
 
         try {
@@ -183,7 +184,7 @@ public class DefaultPostParser
         return total;
     }
 
-    private SpannableStringBuilder parseNode(Theme theme, Post.Builder post, Callback callback, Node node) {
+    private SpannableStringBuilder parseNode(@NonNull Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
             String text = ((TextNode) node).text();
             if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]

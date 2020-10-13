@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.adamantcheese.chan.R;
@@ -69,11 +70,12 @@ public class ThemeHelper {
      */
     public static List<Theme> themes = new ArrayList<>();
 
-    public static Theme themeDay;
-    public static Theme themeNight;
-    public static boolean isNightTheme = false;
     public static final Theme defaultDayTheme = new Theme("Yotsuba B", R.style.Chan_Theme_YotsubaB, RED, RED);
     public static final Theme defaultNightTheme = new Theme("Dark", R.style.Chan_Theme_Dark, DARK, DARK_TEAL);
+
+    public static Theme themeDay = defaultDayTheme;
+    public static Theme themeNight = defaultNightTheme;
+    public static boolean isNightTheme = false;
 
     private static final Typeface TALLEYRAND =
             Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
@@ -119,7 +121,6 @@ public class ThemeHelper {
         if (!ok) {
             Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeDay.set(defaultDayTheme.toString());
-            themeDay = defaultDayTheme;
         }
 
         split = ChanSettings.themeNight.get().split(",");
@@ -141,10 +142,10 @@ public class ThemeHelper {
         if (!ok) {
             Logger.e("ThemeHelper", "No theme found for setting, using default theme for day");
             ChanSettings.themeNight.set(defaultNightTheme.toString());
-            themeNight = defaultNightTheme;
         }
     }
 
+    @NonNull
     public static Theme getTheme() {
         return isNightTheme ? themeNight : themeDay;
     }

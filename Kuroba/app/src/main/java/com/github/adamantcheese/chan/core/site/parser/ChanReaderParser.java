@@ -122,7 +122,7 @@ public class ChanReaderParser
         internalIds = Collections.unmodifiableSet(internalIds);
 
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
-        Theme currentTheme = ThemeHelper.getTheme();
+        final Theme currentTheme = ThemeHelper.getTheme();
 
         for (Post.Builder post : toParse) {
             tasks.add(new PostParseCallable(

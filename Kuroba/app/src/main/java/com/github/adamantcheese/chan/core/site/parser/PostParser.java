@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 public interface PostParser {
-    Post parse(Theme theme, Post.Builder builder, Callback callback);
+    Post parse(@NonNull Theme theme, Post.Builder builder, Callback callback);
 
     interface Callback {
         boolean isSaved(int postNo);

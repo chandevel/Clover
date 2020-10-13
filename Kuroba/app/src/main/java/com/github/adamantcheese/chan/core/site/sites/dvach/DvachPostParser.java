@@ -3,6 +3,8 @@ package com.github.adamantcheese.chan.core.site.sites.dvach;
 import android.graphics.Color;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -27,7 +29,7 @@ public class DvachPostParser
     }
 
     @Override
-    public Post parse(Theme theme, Post.Builder builder, Callback callback) {
+    public Post parse(@NonNull Theme theme, Post.Builder builder, Callback callback) {
         builder.name = Parser.unescapeEntities(builder.name, false);
         parseNameForColor(builder);
         return super.parse(theme, builder, callback);

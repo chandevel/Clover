@@ -62,7 +62,7 @@ public class PostLinkable
     private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
 
-    public PostLinkable(Theme theme, CharSequence key, Object value, Type type) {
+    public PostLinkable(@NonNull Theme theme, CharSequence key, Object value, Type type) {
         blendRatio = getAttrFloat(theme.resValue, R.attr.highlight_linkable_blend);
         quoteColor = getAttrColor(theme.resValue, R.attr.post_quote_color);
         spoilerColor = getAttrColor(theme.resValue, R.attr.post_spoiler_color);

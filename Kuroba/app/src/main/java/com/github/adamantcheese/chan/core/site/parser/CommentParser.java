@@ -25,6 +25,7 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
@@ -133,7 +134,7 @@ public class CommentParser {
     }
 
     public CharSequence handleTag(
-            PostParser.Callback callback, Theme theme, Post.Builder post, String tag, CharSequence text, Element element
+            PostParser.Callback callback, @NonNull Theme theme, Post.Builder post, String tag, CharSequence text, Element element
     ) {
 
         List<StyleRule> rules = this.rules.get(tag);
@@ -153,7 +154,7 @@ public class CommentParser {
     }
 
     private CharSequence handleAnchor(
-            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
+            @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
     ) {
         CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
@@ -166,7 +167,7 @@ public class CommentParser {
     }
 
     private void addReply(
-            Theme theme,
+            @NonNull Theme theme,
             PostParser.Callback callback,
             Post.Builder post,
             Link handlerLink,
@@ -201,20 +202,6 @@ public class CommentParser {
         post.addLinkable(pl);
 
         spannableStringBuilder.append(res);
-    }
-
-    private void addMockReply(
-            Theme theme, Post.Builder post, SpannableStringBuilder spannableStringBuilder, int mockReplyPostNo
-    ) {
-        post.addReplyTo(mockReplyPostNo);
-
-        CharSequence replyText = ">>" + mockReplyPostNo + " (MOCK)";
-        SpannableString res = new SpannableString(replyText);
-        PostLinkable pl = new PostLinkable(theme, replyText, mockReplyPostNo, PostLinkable.Type.QUOTE);
-        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-        post.addLinkable(pl);
-
-        spannableStringBuilder.append(res).append('\n');
     }
 
     private CharSequence handleFortune(

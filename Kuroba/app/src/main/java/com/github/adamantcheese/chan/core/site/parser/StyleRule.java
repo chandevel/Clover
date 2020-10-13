@@ -27,6 +27,8 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
@@ -197,7 +199,7 @@ public class StyleRule {
     }
 
     public CharSequence apply(
-            Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+            @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
     ) {
         if (nullify) {
             return null;
@@ -306,7 +308,7 @@ public class StyleRule {
 
     public interface Action {
         CharSequence execute(
-                Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+                @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
         );
     }
 }
