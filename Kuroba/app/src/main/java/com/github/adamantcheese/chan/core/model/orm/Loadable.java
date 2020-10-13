@@ -213,6 +213,10 @@ public class Loadable
         }
     }
 
+    public boolean databaseEquals(Loadable other) {
+        return this.id == other.id;
+    }
+
     @Override
     public int hashCode() {
         int result = mode + 1;
@@ -259,10 +263,17 @@ public class Loadable
     }
 
     /**
-     * Extracts and converts to a string only the info that we are interested in from this loadable
+     * @return a string with only the info that we are interested in from this loadable
      */
     public String toShortString() {
         return String.format(Locale.ENGLISH, "[%s, %s, %s]", site.name(), boardCode, maskPostNo(no));
+    }
+
+    /**
+     * @return a string that really condenses the loadable contents for user-facing display
+     */
+    public String toShortestString() {
+        return TextUtils.isEmpty(title) ? String.format(Locale.ENGLISH, "/%s/%d", boardCode, no) : title;
     }
 
     public String desktopUrl() {

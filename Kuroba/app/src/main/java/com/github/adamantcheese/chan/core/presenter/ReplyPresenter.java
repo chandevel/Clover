@@ -179,6 +179,7 @@ public class ReplyPresenter
     }
 
     public void onAttachClicked(boolean longPressed) {
+        if (draft == null) return;
         if (!pickingFile) {
             if (previewOpen) {
                 callback.openPreview(false, null);
@@ -218,6 +219,7 @@ public class ReplyPresenter
     }
 
     private boolean onPrepareToSubmit(boolean isAuthenticateOnly) {
+        if (draft == null) return false;
         callback.loadViewsIntoDraft(draft);
 
         if (!isAuthenticateOnly && (draft.comment.trim().isEmpty() && draft.file == null)) {
@@ -322,6 +324,11 @@ public class ReplyPresenter
     public void onAuthenticationComplete(
             AuthenticationLayoutInterface authenticationLayout, String challenge, String response, boolean autoReply
     ) {
+        if (draft == null) {
+            switchPage(Page.INPUT);
+            return;
+        }
+
         draft.captchaChallenge = challenge;
         draft.captchaResponse = response;
 
@@ -364,7 +371,8 @@ public class ReplyPresenter
         highlightQuotes();
     }
 
-    public boolean filenameNewClicked(boolean showToast) {
+    public void filenameNewClicked(boolean showToast) {
+        if (draft == null) return;
         String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
         currentExt = (currentExt == null) ? "" : "." + currentExt;
         draft.fileName = System.currentTimeMillis() + currentExt;
@@ -372,7 +380,6 @@ public class ReplyPresenter
         if (showToast) {
             showToast(context, "Filename changed.");
         }
-        return true;
     }
 
     public void quote(Post post, boolean withText) {
@@ -384,6 +391,7 @@ public class ReplyPresenter
     }
 
     private void handleQuote(Post post, String textQuote) {
+        if (draft == null) return;
         callback.loadViewsIntoDraft(draft);
 
         StringBuilder insert = new StringBuilder();
@@ -420,6 +428,7 @@ public class ReplyPresenter
     @Override
     public void onFilePicked(String name, File file) {
         pickingFile = false;
+        if (draft == null) return;
         draft.file = file;
         draft.fileName = name;
         try {
@@ -428,7 +437,8 @@ public class ReplyPresenter
             if (orientation != ExifInterface.ORIENTATION_UNDEFINED) {
                 callback.openMessage(getString(R.string.file_has_orientation_exif_data));
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         if (BitmapUtils.getImageFormat(file) == Bitmap.CompressFormat.WEBP) {
             callback.openMessage(getString(R.string.file_type_may_not_be_supported));
         }
@@ -511,6 +521,7 @@ public class ReplyPresenter
     }
 
     private void highlightQuotes() {
+        if (draft == null) return;
         Matcher matcher = QUOTE_PATTERN.matcher(draft.comment);
 
         // Find all occurrences of >>\d+ with start and end between selectionStart
@@ -558,11 +569,12 @@ public class ReplyPresenter
     }
 
     public void onImageOptionsApplied() {
+        if (draft == null) return;
         showPreview(draft.fileName, draft.file);
     }
 
     public boolean isAttachedFileSupportedForReencoding() {
-        if (draft.file == null) {
+        if (draft == null || draft.file == null) {
             return false;
         }
 

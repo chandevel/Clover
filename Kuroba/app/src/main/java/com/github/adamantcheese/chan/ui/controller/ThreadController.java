@@ -52,8 +52,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public abstract class ThreadController
         extends Controller
         implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
-                   SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
-                   NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
+        SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
+        NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -272,38 +272,10 @@ public abstract class ThreadController
     }
 
     @Override
-    public void disableDrawer() {
+    public boolean isViewingCatalog() {
         if (doubleNavigationController != null) {
-            doubleNavigationController.disableDrawer();
-        } else {
-            navigationController.disableDrawer();
+            return doubleNavigationController.isViewingCatalog();
         }
-    }
-
-    @Override
-    public void enableDrawer() {
-        if (doubleNavigationController != null) {
-            doubleNavigationController.enableDrawer();
-        } else {
-            navigationController.enableDrawer();
-        }
-    }
-
-    @Override
-    public void lockSwipe() {
-        if (doubleNavigationController != null) {
-            doubleNavigationController.lockSwipe();
-        } else {
-            navigationController.lockSwipe();
-        }
-    }
-
-    @Override
-    public void unlockSwipe() {
-        if (doubleNavigationController != null) {
-            doubleNavigationController.unlockSwipe();
-        } else {
-            navigationController.unlockSwipe();
-        }
+        return false;
     }
 }

@@ -759,7 +759,7 @@ public class ThreadPresenter
      */
     @Override
     public void onPostClicked(Post post) {
-        if (!isBound() || threadPresenterCallback.isLoadingReply()) return;
+        if (!isBound()) return;
         if (loadable.isCatalogMode()) {
             highlightPost(post);
             threadPresenterCallback.showThread(Loadable.forThread(post.board,
@@ -1128,7 +1128,7 @@ public class ThreadPresenter
 
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-        if (!isBound() || threadPresenterCallback.isLoadingReply()) return;
+        if (!isBound()) return;
         if (linkable.type == PostLinkable.Type.QUOTE) {
             Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
             if (linked != null) {
@@ -1603,7 +1603,5 @@ public class ThreadPresenter
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
-
-        boolean isLoadingReply();
     }
 }

@@ -46,11 +46,5 @@ public interface DoubleNavigationController {
 
     boolean popController(ControllerTransition controllerTransition);
 
-    void enableDrawer();
-
-    void disableDrawer();
-
-    void lockSwipe();
-
-    void unlockSwipe();
+    boolean isViewingCatalog();
 }

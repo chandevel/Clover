@@ -747,23 +747,8 @@ public class ThreadListLayout
     }
 
     @Override
-    public void disableDrawer() {
-        threadListLayoutCallback.disableDrawer();
-    }
-
-    @Override
-    public void enableDrawer() {
-        threadListLayoutCallback.enableDrawer();
-    }
-
-    @Override
-    public void lockSwipe() {
-        threadListLayoutCallback.lockSwipe();
-    }
-
-    @Override
-    public void unlockSwipe() {
-        threadListLayoutCallback.unlockSwipe();
+    public boolean isViewingCatalog() {
+        return threadListLayoutCallback.isViewingCatalog();
     }
 
     public int toolbarHeight() {
@@ -895,12 +880,6 @@ public class ThreadListLayout
 
         boolean threadBackPressed();
 
-        void disableDrawer();
-
-        void enableDrawer();
-
-        void lockSwipe();
-
-        void unlockSwipe();
+        boolean isViewingCatalog();
     }
 }

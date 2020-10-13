@@ -197,11 +197,6 @@ public class ThreadLayout
         return threadListLayout.onBack();
     }
 
-    @Override
-    public boolean isLoadingReply() {
-        return threadListLayout.getReplyPresenter().getPage() == Page.LOADING;
-    }
-
     public boolean sendKeyEvent(KeyEvent event) {
         return threadListLayout.sendKeyEvent(event);
     }
@@ -236,23 +231,8 @@ public class ThreadLayout
     }
 
     @Override
-    public void disableDrawer() {
-        callback.disableDrawer();
-    }
-
-    @Override
-    public void enableDrawer() {
-        callback.enableDrawer();
-    }
-
-    @Override
-    public void lockSwipe() {
-        callback.lockSwipe();
-    }
-
-    @Override
-    public void unlockSwipe() {
-        callback.unlockSwipe();
+    public boolean isViewingCatalog() {
+        return callback.isViewingCatalog();
     }
 
     @Override
@@ -821,12 +801,6 @@ public class ThreadLayout
 
         boolean threadBackPressed();
 
-        void disableDrawer();
-
-        void enableDrawer();
-
-        void lockSwipe();
-
-        void unlockSwipe();
+        boolean isViewingCatalog();
     }
 }

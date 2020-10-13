@@ -102,8 +102,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ReplyLayout
         extends LoadView
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
-                   CaptchaHolder.CaptchaValidationListener {
+        ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
+        CaptchaHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
     @Inject
@@ -260,7 +260,10 @@ public class ReplyLayout
         setupOptionsContextMenu();
 
         previewHolder.setOnClickListener(this);
-        previewHolder.setOnLongClickListener(v -> presenter.filenameNewClicked(true));
+        previewHolder.setOnLongClickListener(v -> {
+            presenter.filenameNewClicked(true);
+            return true;
+        });
 
         if (!isInEditMode()) {
             more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
@@ -465,21 +468,15 @@ public class ReplyLayout
         Logger.d(this, "Switching to page " + page.name());
         switch (page) {
             case LOADING:
-                callback.disableDrawer();
-                callback.lockSwipe();
                 setWrappingMode(false);
                 setView(progressLayout);
                 onUploadingProgress(0);
                 break;
             case INPUT:
-                callback.enableDrawer();
-                callback.unlockSwipe();
                 setView(replyInputLayout);
                 setWrappingMode(presenter.isExpanded());
                 break;
             case AUTHENTICATION:
-                callback.disableDrawer();
-                callback.lockSwipe();
                 setWrappingMode(true);
                 setView(captchaContainer);
                 captchaContainer.requestFocus(View.FOCUS_DOWN);
@@ -591,47 +588,70 @@ public class ReplyLayout
 
     @Override
     public void onPosted(boolean newThread, Loadable newLoadable) {
-        AnimatorSet fade = new AnimatorSet();
-
-        ObjectAnimator fadeOutProg = ObjectAnimator.ofFloat(progressBar, View.ALPHA, 0f).setDuration(150);
-        ObjectAnimator fadeOutText = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 0f).setDuration(150);
-
-        AnimatorSet fadeOutPair = new AnimatorSet();
-        fadeOutPair.playTogether(fadeOutProg, fadeOutText);
-        fadeOutPair.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                SpannableString done;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
-                        && ChanSettings.addDubs.get()) {
-                    done = new SpannableString("\uD83D\uDE29\uD83D\uDC4C");
-                } else {
-                    done = new SpannableString("✓");
-                }
-                done.setSpan(new AbsoluteSizeSpan(36, true), 0, done.length(), 0);
-                currentProgress.setText(done);
+        if (showToastInsteadOfAnimation(newThread, newLoadable)) {
+            if (newThread) {
+                showToast(getContext(), "Posted new thread \"" + newLoadable.toShortestString() + "\"!");
+            } else {
+                showToast(getContext(), "Posted reply to \"" + newLoadable.toShortestString() + "\"!");
             }
-        });
+            postComplete(newThread, newLoadable);
+        } else {
+            // basically, fade out the progress, fade in a confirmation text, and then switch to the thread
+            AnimatorSet fade = new AnimatorSet();
 
-        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 1f).setDuration(150);
-        fade.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                postDelayed(() -> {
-                    presenter.switchPage(ReplyPresenter.Page.INPUT);
-                    callback.openReply(false);
-                    progressBar.setAlpha(1f);
-                    currentProgress.setText("");
-                    if (newThread) {
-                        callback.showThread(newLoadable);
+            ObjectAnimator fadeOutProg = ObjectAnimator.ofFloat(progressBar, View.ALPHA, 0f).setDuration(150);
+            ObjectAnimator fadeOutText = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 0f).setDuration(150);
+
+            AnimatorSet fadeOutPair = new AnimatorSet();
+            fadeOutPair.playTogether(fadeOutProg, fadeOutText);
+            fadeOutPair.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    SpannableString done;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
+                            && ChanSettings.addDubs.get()) {
+                        done = new SpannableString("\uD83D\uDE29\uD83D\uDC4C");
+                    } else {
+                        done = new SpannableString("✓");
                     }
-                    callback.requestNewPostLoad();
-                }, 2000);
-            }
-        });
+                    done.setSpan(new AbsoluteSizeSpan(36, true), 0, done.length(), 0);
+                    currentProgress.setText(done);
+                }
+            });
 
-        fade.playSequentially(fadeOutPair, fadeIn);
-        fade.start();
+            ObjectAnimator fadeIn = ObjectAnimator.ofFloat(currentProgress, View.ALPHA, 1f).setDuration(150);
+
+            fade.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    postDelayed(() -> postComplete(newThread, newLoadable), 850);
+                }
+            });
+
+            fade.playSequentially(fadeOutPair, fadeIn);
+            fade.start();
+        }
+    }
+
+    private boolean showToastInsteadOfAnimation(boolean newThread, Loadable newLoadable) {
+        // if new thread
+        //      if not viewing catalog, show toast
+        // if not new thread
+        //      if loadable doesn't match the one passed in, show toast
+        return (newThread && !callback.isViewingCatalog())
+                || (!newThread && !callback.getThread().getLoadable().databaseEquals(newLoadable));
+    }
+
+    private void postComplete(boolean newThread, Loadable newLoadable) {
+        presenter.switchPage(ReplyPresenter.Page.INPUT);
+        callback.openReply(false);
+        progressBar.setAlpha(1f);
+        currentProgress.setText("");
+        // only swap to the new thread if on the catalog still
+        if (newThread && callback.isViewingCatalog()) {
+            callback.showThread(newLoadable);
+        }
+        callback.requestNewPostLoad();
     }
 
     @Override
@@ -1038,12 +1058,6 @@ public class ReplyLayout
 
         void updatePadding();
 
-        void disableDrawer();
-
-        void enableDrawer();
-
-        void lockSwipe();
-
-        void unlockSwipe();
+        boolean isViewingCatalog();
     }
 }

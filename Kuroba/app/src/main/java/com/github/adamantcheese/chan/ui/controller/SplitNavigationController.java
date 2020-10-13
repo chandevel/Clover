@@ -180,16 +180,9 @@ public class SplitNavigationController
     }
 
     @Override
-    public void enableDrawer() {}
-
-    @Override
-    public void disableDrawer() {}
-
-    @Override
-    public void lockSwipe() {}
-
-    @Override
-    public void unlockSwipe() {}
+    public boolean isViewingCatalog() {
+        return true; // catalog always visible
+    }
 
     public void popAll() {
         if (popup != null) {
