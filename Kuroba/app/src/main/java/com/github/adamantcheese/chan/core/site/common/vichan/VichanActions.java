@@ -16,17 +16,23 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import org.jsoup.Jsoup;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,7 +104,10 @@ public class VichanActions
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
             HttpUrl url = response.request().url();
-            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(url.encodedPath());
+            StringBuilder urlPath = new StringBuilder();
+            //noinspection KotlinInternalInJava
+            HttpUrl.Companion.toPathString$okhttp(url.pathSegments(), urlPath);
+            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(urlPath);
             try {
                 if (m.find()) {
                     replyResponse.threadNo = Integer.parseInt(m.group(1));
@@ -145,5 +154,27 @@ public class VichanActions
     @Override
     public SiteAuthentication postAuthenticate() {
         return SiteAuthentication.fromNone();
+    }
+
+    @Override
+    public void pages(Board board, PagesListener pagesListener) {
+        // Vichan keeps the pages and the catalog as one JSON unit, so parse those here
+        NetUtils.makeJsonRequest(site.endpoints().catalog(board),
+                new NetUtils.JsonResult<ChanPages>() {
+                    @Override
+                    public void onJsonFailure(Exception e) {
+                        Logger.e(site, "Failed to get pages for board " + board.code, e);
+                        pagesListener.onPagesReceived(board, new ChanPages());
+                    }
+
+                    @Override
+                    public void onJsonSuccess(ChanPages result) {
+                        pagesListener.onPagesReceived(board, result);
+                    }
+                },
+                reader -> ((VichanApi) site.chanReader()).readCatalogWithPages(reader,
+                        new ChanReaderProcessingQueue(new ArrayList<>(), Loadable.forCatalog(board))
+                )
+        );
     }
 }

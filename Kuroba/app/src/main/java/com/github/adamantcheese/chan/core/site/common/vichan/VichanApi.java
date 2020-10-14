@@ -2,10 +2,17 @@ package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import android.util.JsonReader;
 
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 
@@ -51,33 +58,59 @@ public class VichanApi
     @Override
     public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
+        PageRepository.addPages(queue.getLoadable().board, readCatalogWithPages(reader, queue));
+    }
+
+    public ChanPages readCatalogWithPages(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
+        ChanPages pages = new ChanPages();
         reader.beginArray(); // Array of pages
 
         while (reader.hasNext()) {
             reader.beginObject(); // Page object
 
+            int page = -1;
+            List<ThreadNoTimeModPair> threads = new ArrayList<>();
             while (reader.hasNext()) {
-                if (reader.nextName().equals("threads")) {
-                    reader.beginArray(); // Threads array
+                switch (reader.nextName()) {
+                    case "threads":
+                        reader.beginArray(); // Threads array
 
-                    while (reader.hasNext()) {
-                        readPostObject(reader, queue);
-                    }
+                        while (reader.hasNext()) {
+                            Pair<Integer, Long> result = readPostObjectWithReturn(reader, queue);
+                            threads.add(new ThreadNoTimeModPair(result.first, result.second));
+                        }
 
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
+                        reader.endArray();
+                        break;
+                    case "page":
+                        page = reader.nextInt() + 1;
+                        break;
+                    default:
+                        reader.skipValue();
+                        break;
                 }
+            }
+
+            if (page != -1) {
+                pages.add(new ChanPage(page, threads));
             }
 
             reader.endObject();
         }
 
         reader.endArray();
+        return pages;
     }
 
     @Override
     public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+            throws Exception {
+        readPostObjectWithReturn(reader, queue); // ignore return for non-page requests (ie threads)
+    }
+
+    @NonNull
+    private Pair<Integer, Long> readPostObjectWithReturn(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.getLoadable().board);
@@ -247,7 +280,7 @@ public class VichanApi
         if (cached != null) {
             // Id is known, use the cached post object.
             queue.addForReuse(cached);
-            return;
+            return new Pair<>(builder.id, builder.lastModified); // this return is only used for pages!
         }
 
         if (countryCode != null && countryName != null) {
@@ -261,6 +294,7 @@ public class VichanApi
         }
 
         queue.addForParse(builder);
+        return new Pair<>(builder.id, builder.lastModified); // this return is only used for pages!
     }
 
     private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)

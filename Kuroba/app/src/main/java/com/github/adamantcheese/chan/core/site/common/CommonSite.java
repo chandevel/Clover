@@ -294,8 +294,12 @@ public abstract class CommonSite
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
-            Matcher board = boardPattern().matcher(url.encodedPath());
-            Matcher thread = threadPattern().matcher(url.encodedPath());
+            StringBuilder urlPath = new StringBuilder();
+            //noinspection KotlinInternalInJava
+            HttpUrl.Companion.toPathString$okhttp(url.pathSegments(), urlPath);
+
+            Matcher board = boardPattern().matcher(urlPath);
+            Matcher thread = threadPattern().matcher(urlPath);
 
             try {
                 if (thread.find()) {
@@ -303,9 +307,9 @@ public abstract class CommonSite
                     if (b == null) {
                         return null;
                     }
-                    Loadable l = Loadable.forThread(b, Integer.parseInt(thread.group(3)), "");
+                    Loadable l = Loadable.forThread(b, Integer.parseInt(thread.group(2)), "");
 
-                    if (isEmpty(url.fragment())) {
+                    if (!isEmpty(url.fragment())) {
                         l.markedNo = Integer.parseInt(url.fragment());
                     }
 

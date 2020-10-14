@@ -163,7 +163,10 @@ public class Wired7
                 replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
             } else {
                 HttpUrl url = response.request().url();
-                Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+)(.html)?").matcher(url.encodedPath());
+                StringBuilder urlPath = new StringBuilder();
+                //noinspection KotlinInternalInJava
+                HttpUrl.Companion.toPathString$okhttp(url.pathSegments(), urlPath);
+                Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+)(.html)?").matcher(urlPath);
                 try {
                     if (m.find()) {
                         replyResponse.threadNo = Integer.parseInt(m.group(1));

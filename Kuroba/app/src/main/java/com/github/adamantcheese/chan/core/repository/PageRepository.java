@@ -36,10 +36,10 @@ import java.util.concurrent.ConcurrentMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PageRepository {
-    private static Set<String> requestedBoards = Collections.synchronizedSet(new HashSet<>());
-    private static Set<String> savedBoards = Collections.synchronizedSet(new HashSet<>());
-    private static ConcurrentMap<String, ChanPages> boardPagesMap = new ConcurrentHashMap<>();
-    private static ConcurrentMap<String, Long> boardTimeMap = new ConcurrentHashMap<>();
+    private static Set<Board> requestedBoards = Collections.synchronizedSet(new HashSet<>());
+    private static Set<Board> savedBoards = Collections.synchronizedSet(new HashSet<>());
+    private static ConcurrentMap<Board, ChanPages> boardPagesMap = new ConcurrentHashMap<>();
+    private static ConcurrentMap<Board, Long> boardTimeMap = new ConcurrentHashMap<>();
 
     private static List<PageCallback> callbackList = new ArrayList<>();
 
@@ -69,11 +69,11 @@ public class PageRepository {
     }
 
     private static ChanPages getPages(Board b) {
-        if (savedBoards.contains(b.code)) {
+        if (savedBoards.contains(b)) {
             //if we have it stored already, return the pages for it
             //also issue a new request if 3 minutes have passed
             shouldUpdate(b);
-            return boardPagesMap.get(b.code);
+            return boardPagesMap.get(b);
         } else {
             //otherwise, get the site for the board and request the pages for it
             requestBoard(b);
@@ -83,7 +83,7 @@ public class PageRepository {
 
     private static void shouldUpdate(Board b) {
         if (b == null) return; //if for any reason the board is null, don't do anything
-        Long lastUpdate = boardTimeMap.get(b.code); //had some null issues for some reason? arisuchan in particular?
+        Long lastUpdate = boardTimeMap.get(b); //had some null issues for some reason? arisuchan in particular?
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + MINUTES.toMillis(3) <= System.currentTimeMillis()) {
             requestBoard(b);
@@ -91,19 +91,25 @@ public class PageRepository {
     }
 
     private static synchronized void requestBoard(Board b) {
-        if (!requestedBoards.contains(b.code)) {
-            requestedBoards.add(b.code);
-            b.site.actions().pages(b, (b1, pages) -> {
-                savedBoards.add(b1.code);
-                requestedBoards.remove(b1.code);
-                boardTimeMap.put(b1.code, System.currentTimeMillis());
-                boardPagesMap.put(b1.code, pages);
-
-                for (PageCallback callback : callbackList) {
-                    callback.onPagesReceived();
-                }
-            });
+        if (!requestedBoards.contains(b)) {
+            requestedBoards.add(b);
+            b.site.actions().pages(b, PageRepository::onPagesReceived);
         }
+    }
+
+    private static synchronized void onPagesReceived(Board board, ChanPages pages) {
+        savedBoards.add(board);
+        requestedBoards.remove(board);
+        boardTimeMap.put(board, System.currentTimeMillis());
+        boardPagesMap.put(board, pages);
+
+        for (PageCallback callback : callbackList) {
+            callback.onPagesReceived();
+        }
+    }
+
+    public static void addPages(Board board, ChanPages pages) {
+        onPagesReceived(board, pages);
     }
 
     public static void addListener(PageCallback callback) {

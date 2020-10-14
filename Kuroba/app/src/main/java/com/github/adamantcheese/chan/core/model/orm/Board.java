@@ -308,4 +308,9 @@ public class Board
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return id; // boards come from the database, so their id's should match making this an effective hashcode
+    }
 }

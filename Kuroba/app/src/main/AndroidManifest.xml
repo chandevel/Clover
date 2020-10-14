@@ -81,12 +81,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 <data android:scheme="http" />
                 <data android:scheme="https" />
+
                 <data android:host="4chan.org" />
                 <data android:host="www.4chan.org" />
                 <data android:host="boards.4chan.org" />
                 <data android:host="4channel.org" />
                 <data android:host="www.4channel.org" />
                 <data android:host="boards.4channel.org" />
+
+                <data android:host="www.lainchan.org" />
+                <data android:host="lainchan.org" />
+
+                <data android:host="www.sushigirl.us" />
+                <data android:host="sushigirl.us" />
+
+                <data android:host="2ch.hk" />
+
+                <data android:host="www.wired-7.org" />
+                <data android:host="wired-7.org" />
+
+                <data android:host="www.8kun.top" />
+                <data android:host="8kun.top" />
+
+                <data android:host="www.420chan.org" />
+                <data android:host="420chan.org" />
             </intent-filter>
 
         </activity>
