@@ -30,7 +30,7 @@ import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
-import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
+import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy;

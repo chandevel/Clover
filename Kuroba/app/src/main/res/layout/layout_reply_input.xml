@@ -137,7 +137,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             </RelativeLayout>
 
             <LinearLayout
-                android:id="@+id/comment_buttons"
                 style="@style/Widget.AppCompat.ButtonBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -291,7 +290,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/buttons"
             android:layout_width="52dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"

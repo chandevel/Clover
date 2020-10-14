@@ -9,7 +9,6 @@ import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
 import com.github.adamantcheese.chan.ui.controller.LogsController
-import com.github.adamantcheese.chan.ui.view.ReportProblemView
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.Logger
@@ -17,7 +16,7 @@ import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.android.schedulers.AndroidSchedulers
 import javax.inject.Inject
 
-class ReportProblemLayout(context: Context) : FrameLayout(context), ReportProblemView {
+class ReportProblemLayout(context: Context) : FrameLayout(context) {
 
     @Inject
     lateinit var reportManager: ReportManager

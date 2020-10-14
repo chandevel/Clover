@@ -169,7 +169,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="8dp" />
 
                 <LinearLayout
-                    android:id="@+id/reencode_options_extras"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">

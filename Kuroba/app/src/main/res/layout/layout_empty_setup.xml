@@ -21,7 +21,6 @@
         android:text="@string/thread_empty_setup_title" />
 
     <TextView
-        android:id="@+id/body"
         style="@style/TextAppearance.AppCompat.Subhead"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -33,7 +33,7 @@ public class ArrowMenuDrawable
         extends Drawable {
     private final Paint mPaint = new Paint();
 
-    // The angle in degress that the arrow head is inclined at.
+    // The angle in degrees that the arrow head is inclined at.
     private static final float ARROW_HEAD_ANGLE = (float) Math.toRadians(45);
     // The thickness of the bars
     private final float mBarThickness = dp(2f);

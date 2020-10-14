@@ -2,14 +2,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/report_controller_root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor"
     android:orientation="vertical">
 
     <ScrollView
-        android:id="@+id/report_controller_scrollable_part_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
@@ -20,7 +18,6 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/report_controller_problem_title_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -47,7 +44,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/report_controller_description_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
@@ -74,7 +70,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/report_controller_attach_logs_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"

@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:padding="5dp">
 
     <FrameLayout
-        android:id="@+id/arrow"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_gravity="right"

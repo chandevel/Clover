@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.ui.settings.base_directory
+package com.github.adamantcheese.chan.ui.settings
 
 import android.net.Uri
 import com.github.adamantcheese.chan.core.settings.ChanSettings

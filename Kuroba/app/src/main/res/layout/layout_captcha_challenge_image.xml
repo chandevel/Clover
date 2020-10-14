@@ -25,7 +25,6 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:id="@+id/captcha_challenge_blue_checkmark"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_blue_checkmark_24dp"

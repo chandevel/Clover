@@ -273,8 +273,8 @@ public class AppearanceSettingsController
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,
                     ChanSettings.parsePostImageLinks,
-                    R.string.setting_image_link_loading_title,
-                    R.string.setting_image_link_loading_description
+                    R.string.setting_enable_image_link_loading,
+                    R.string.setting_enable_image_link_loading_description
             )));
 
             images.add(new BooleanSettingView(this,

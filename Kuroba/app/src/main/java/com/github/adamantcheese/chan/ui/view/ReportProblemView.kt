@@ -6,7 +6,6 @@ import android.widget.CheckBox
 import android.widget.FrameLayout
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
-import com.github.adamantcheese.chan.core.base.ModularResult
 import com.github.adamantcheese.chan.core.manager.ReportManager
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
@@ -103,7 +102,10 @@ class ReportProblemLayout(context: Context) : FrameLayout(context) {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate { callbacks?.hideProgressDialog() }
                 .subscribe({ result ->
-                    handleResult(result)
+                    if (result is ReportManager.Ok) {
+                        showToast(context, R.string.report_controller_report_sent)
+                        callbacks?.onFinished()
+                    }
                 }, { error ->
                     Logger.e(TAG, "Send report error", error)
 
@@ -116,24 +118,6 @@ class ReportProblemLayout(context: Context) : FrameLayout(context) {
                     showToast(context, formattedMessage)
                 })
                 .also { disposable -> compositeDisposable.add(disposable) }
-    }
-
-    private fun handleResult(result: ModularResult<Boolean>) {
-        when (result) {
-            is ModularResult.Value -> {
-                showToast(context, R.string.report_controller_report_sent)
-                callbacks?.onFinished()
-            }
-            is ModularResult.Error -> {
-                val errorMessage = result.error.message ?: "No error message"
-                val formattedMessage = getString(
-                        R.string.report_controller_error_while_trying_to_send_report,
-                        errorMessage
-                )
-
-                showToast(context, formattedMessage)
-            }
-        }
     }
 
     interface ReportProblemControllerCallbacks {
