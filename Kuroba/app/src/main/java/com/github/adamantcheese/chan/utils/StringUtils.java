@@ -12,13 +12,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
 public class StringUtils {
-    private static final Pattern IMAGE_THUMBNAIL_EXTRACTOR_PATTERN = Pattern.compile("/(\\d{12,32}+)s.(.*)");
     private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
     @SuppressWarnings("RegExpRedundantEscape")
     private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[\\]/'\\\\\\s";
@@ -41,28 +38,6 @@ public class StringUtils {
         }
 
         return new String(hexChars);
-    }
-
-    @Nullable
-    public static String convertThumbnailUrlToFilenameOnDisk(@Nullable HttpUrl url) {
-        if (url == null) return null;
-        Matcher matcher = IMAGE_THUMBNAIL_EXTRACTOR_PATTERN.matcher(url.toString());
-        if (matcher.find()) {
-            String filename = matcher.group(1);
-            String extension = matcher.group(2);
-
-            if (filename == null || extension == null) {
-                return null;
-            }
-
-            if (filename.isEmpty() || extension.isEmpty()) {
-                return null;
-            }
-
-            return String.format("%s_thumbnail.%s", filename, extension);
-        }
-
-        return null;
     }
 
     @Nullable

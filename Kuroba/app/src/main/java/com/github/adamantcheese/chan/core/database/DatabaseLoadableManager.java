@@ -24,6 +24,7 @@ import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.DatabaseConnection;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -149,15 +150,26 @@ public class DatabaseLoadableManager {
         };
     }
 
-    public Callable<List<Loadable>> getHistory() {
+    public Callable<List<History>> getHistory() {
         return () -> {
-            List<Loadable> history =
+            List<Loadable> historyLoadables =
                     helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
-            for (Loadable l : history) {
+            List<History> history = new ArrayList<>();
+            for (Loadable l : historyLoadables) {
                 l.site = siteRepository.forId(l.siteId);
                 l.board = l.site.board(l.boardCode);
+                history.add(new History(l));
             }
             return history;
         };
+    }
+
+    public class History {
+        public Loadable loadable;
+        public boolean highlighted;
+
+        public History(Loadable l) {
+            loadable = l;
+        }
     }
 }

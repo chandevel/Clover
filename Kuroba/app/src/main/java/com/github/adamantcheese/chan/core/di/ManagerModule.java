@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.di;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
@@ -26,12 +25,9 @@ import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.manager.SavedThreadLoaderManager;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.core.repository.SavedThreadLoaderRepository;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.google.gson.Gson;
@@ -41,8 +37,6 @@ import org.codejargon.feather.Provides;
 import java.io.File;
 
 import javax.inject.Singleton;
-
-import okhttp3.OkHttpClient;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 
@@ -74,20 +68,12 @@ public class ManagerModule {
     @Singleton
     public WatchManager provideWatchManager(
             DatabasePinManager databasePinManager,
-            DatabaseSavedThreadManager databaseSavedThreadManager,
             ChanLoaderManager chanLoaderManager,
             WakeManager wakeManager,
-            ThreadSaveManager threadSaveManager,
             FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databasePinManager,
-                databaseSavedThreadManager,
-                chanLoaderManager,
-                wakeManager,
-                threadSaveManager,
-                fileManager
-        );
+        return new WatchManager(databasePinManager, chanLoaderManager, wakeManager);
     }
 
     @Provides
@@ -126,39 +112,10 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ThreadSaveManager provideSaveThreadManager(
-            DatabasePinManager databasePinManager,
-            DatabaseSavedThreadManager databaseSavedThreadManager,
-            OkHttpClient okHttpClient,
-            SavedThreadLoaderRepository savedThreadLoaderRepository,
-            FileManager fileManager
-    ) {
-        Logger.d(AppModule.DI_TAG, "Thread save manager");
-        return new ThreadSaveManager(databasePinManager,
-                databaseSavedThreadManager,
-                okHttpClient,
-                savedThreadLoaderRepository,
-                fileManager
-        );
-    }
-
-    @Provides
-    @Singleton
-    public SavedThreadLoaderManager provideSavedThreadLoaderManager(
-            Gson gson, SavedThreadLoaderRepository savedThreadLoaderRepository, FileManager fileManager
-    ) {
-        Logger.d(AppModule.DI_TAG, "Saved thread loader manager");
-        return new SavedThreadLoaderManager(gson, savedThreadLoaderRepository, fileManager);
-    }
-
-    @Provides
-    @Singleton
-    public ReportManager provideReportManager(
-            Gson gson, ThreadSaveManager threadSaveManager, OkHttpClientWithUtils clientWithUtils
-    ) {
+    public ReportManager provideReportManager(Gson gson, OkHttpClientWithUtils clientWithUtils) {
         Logger.d(AppModule.DI_TAG, "Report manager");
         File cacheDir = getCacheDir();
 
-        return new ReportManager(threadSaveManager, gson, new File(cacheDir, CRASH_LOGS_DIR_NAME), clientWithUtils);
+        return new ReportManager(gson, new File(cacheDir, CRASH_LOGS_DIR_NAME), clientWithUtils);
     }
 }

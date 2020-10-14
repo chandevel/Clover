@@ -25,8 +25,8 @@ import android.text.style.UnderlineSpan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -87,14 +87,6 @@ public class ChanThread {
 
     public synchronized void setNewPosts(List<Post> newPosts) {
         this.posts = Collections.unmodifiableList(new ArrayList<>(newPosts));
-    }
-
-    public synchronized int getLoadableId() {
-        return loadable.id;
-    }
-
-    public synchronized void updateLoadableState(Loadable.LoadableDownloadingState state) {
-        loadable.setLoadableState(state);
     }
 
     /**
@@ -158,21 +150,19 @@ public class ChanThread {
                 builder.append(" / ").append(ips);
             }
 
-            if (!getLoadable().isLocal()) {
-                ChanPage p = PageRepository.getPage(op);
-                if (p != null) {
-                    SpannableString page = new SpannableString(String.valueOf(p.page));
-                    if (p.page >= loadable.board.pages) {
-                        page.setSpan(new StyleSpan(style), 0, page.length(), 0);
-                        if (extraStyling) {
-                            page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                                    android.R.attr.textColor
-                            )), 0, page.length(), 0);
-                            page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
-                        }
+            CommonDataStructs.ChanPage p = PageRepository.getPage(op);
+            if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
+                SpannableString page = new SpannableString(String.valueOf(p.page));
+                if (p.page >= loadable.board.pages) {
+                    page.setSpan(new StyleSpan(style), 0, page.length(), 0);
+                    if (extraStyling) {
+                        page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
+                                android.R.attr.textColor
+                        )), 0, page.length(), 0);
+                        page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
                     }
-                    builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
                 }
+                builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
             }
         }
         return builder;

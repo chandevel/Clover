@@ -73,12 +73,9 @@ public class AlbumViewController
         this.loadable = loadable;
         this.postImages = postImages;
 
-        if (!loadable.isLocal()) {
-            // Navigation
-            Drawable downloadDrawable = context.getDrawable(R.drawable.ic_file_download_white_24dp);
-            downloadDrawable.setTint(Color.WHITE);
-            navigation.buildMenu().withItem(Integer.MAX_VALUE, downloadDrawable, this::downloadAlbumClicked).build();
-        }
+        Drawable downloadDrawable = context.getDrawable(R.drawable.ic_file_download_white_24dp);
+        downloadDrawable.setTint(Color.WHITE);
+        navigation.buildMenu().withItem(Integer.MAX_VALUE, downloadDrawable, this::downloadAlbumClicked).build();
 
         navigation.title = title;
         navigation.subtitle = getQuantityString(R.plurals.image, postImages.size(), postImages.size());
@@ -173,12 +170,12 @@ public class AlbumViewController
 
         @Override
         public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
-            holder.cell.setPostImage(loadable, postImages.get(position));
+            holder.cell.setPostImage(postImages.get(position));
         }
 
         @Override
         public void onViewRecycled(@NonNull AlbumItemCellHolder holder) {
-            holder.cell.setPostImage(loadable, null);
+            holder.cell.setPostImage(null);
         }
 
         @Override

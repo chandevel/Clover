@@ -71,7 +71,7 @@ public class ToolbarMenuView
         for (ToolbarMenuItem item : menu.items) {
             ImageView imageView = new ImageView(getContext());
 
-            imageView.setOnClickListener(v -> handleClick(item));
+            imageView.setOnClickListener(item::performClick);
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 
@@ -87,9 +87,5 @@ public class ToolbarMenuView
 
             item.attach(imageView);
         }
-    }
-
-    private void handleClick(ToolbarMenuItem item) {
-        item.performClick();
     }
 }

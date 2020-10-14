@@ -40,7 +40,6 @@ import androidx.core.graphics.ColorUtils;
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.image.ImageLoaderV2;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -144,18 +143,13 @@ public class ImageViewerController
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        if (!loadable.isLocal()) {
-            overflowBuilder.withSubItem(R.string.action_share, this::shareClicked);
-        }
-        overflowBuilder.withSubItem(R.string.action_search_image, this::searchClicked);
-        if (!loadable.isLocal()) {
-            overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
-        }
-        overflowBuilder.withSubItem(R.string.action_transparency_toggle, this::toggleTransparency);
-
-        if (!loadable.isLocal()) {
-            overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
-        }
+        overflowBuilder.withSubItem(R.string.action_share, () -> saveShare(true, presenter.getCurrentPostImage()));
+        overflowBuilder.withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation));
+        overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+        overflowBuilder.withSubItem(R.string.action_transparency_toggle,
+                () -> ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage())
+        );
+        overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
 
         overflowBuilder.build().build();
 
@@ -219,7 +213,7 @@ public class ImageViewerController
         ((ImageViewerAdapter) pager.getAdapter()).onImageSaved(presenter.getCurrentPostImage());
     }
 
-    private void openBrowserClicked(ToolbarMenuSubItem item) {
+    private void openBrowserClicked() {
         PostImage postImage = presenter.getCurrentPostImage();
         if (postImage.imageUrl == null) {
             Logger.e(this, "openBrowserClicked() postImage.imageUrl is null");
@@ -233,27 +227,14 @@ public class ImageViewerController
         }
     }
 
-    private void shareClicked(ToolbarMenuSubItem item) {
-        PostImage postImage = presenter.getCurrentPostImage();
-        saveShare(true, postImage);
-    }
-
-    private void searchClicked(ToolbarMenuSubItem item) {
-        presenter.showImageSearchOptions(navigation);
-    }
-
-    private void downloadAlbumClicked(ToolbarMenuSubItem item) {
+    private void downloadAlbumClicked() {
         List<PostImage> all = presenter.getAllPostImages();
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(presenter.getLoadable(), all);
         navigationController.pushController(albumDownloadController);
     }
 
-    private void toggleTransparency(ToolbarMenuSubItem item) {
-        ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
-    }
-
-    private void forceReload(ToolbarMenuSubItem item) {
+    private void forceReload() {
         ToolbarMenuItem menuItem = navigation.findItem(SAVE_ID);
         if (menuItem != null && presenter.forceReload()) {
             menuItem.setEnabled(false);
@@ -402,10 +383,9 @@ public class ImageViewerController
 
     @Override
     public void updatePreviewImage(PostImage postImage) {
-        ImageLoaderV2.getImage(loadable,
-                postImage,
-                previewImage.getWidth(),
-                previewImage.getHeight(),
+        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage)
+                        ? postImage.imageUrl
+                        : postImage.getThumbnailUrl(),
                 new NetUtils.BitmapResult() {
                     @Override
                     public void onBitmapFailure(Bitmap errormap, Exception e) {
@@ -416,7 +396,9 @@ public class ImageViewerController
                     public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
                         previewImage.setBitmap(bitmap);
                     }
-                }
+                },
+                previewImage.getWidth(),
+                previewImage.getHeight()
         );
     }
 
@@ -509,10 +491,9 @@ public class ImageViewerController
             }
         });
 
-        ImageLoaderV2.getImage(loadable,
-                postImage,
-                previewImage.getWidth(),
-                previewImage.getHeight(),
+        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage)
+                        ? postImage.imageUrl
+                        : postImage.getThumbnailUrl(),
                 new NetUtils.BitmapResult() {
                     @Override
                     public void onBitmapFailure(Bitmap errormap, Exception e) {
@@ -530,7 +511,9 @@ public class ImageViewerController
                         previewImage.setBitmap(bitmap);
                         startAnimation.start();
                     }
-                }
+                },
+                previewImage.getWidth(),
+                previewImage.getHeight()
         );
     }
 

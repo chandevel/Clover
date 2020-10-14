@@ -286,12 +286,12 @@ public class ImageViewerPresenter
     private void onLowResInCenter() {
         PostImage postImage = images.get(selectedPosition);
 
-        if (imageAutoLoad(loadable, postImage) && (!postImage.spoiler() || ChanSettings.revealimageSpoilers.get())) {
+        if (imageAutoLoad(postImage) && (!postImage.spoiler() || ChanSettings.revealimageSpoilers.get())) {
             if (postImage.type == STATIC) {
                 callback.setImageMode(postImage, BIGIMAGE, true);
             } else if (postImage.type == GIF) {
                 callback.setImageMode(postImage, GIFIMAGE, true);
-            } else if (postImage.type == MOVIE && videoAutoLoad(loadable, postImage)) {
+            } else if (postImage.type == MOVIE && videoAutoLoad(postImage)) {
                 callback.setImageMode(postImage, VIDEO, true);
             } else if (postImage.type == PostImage.Type.OTHER) {
                 callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
@@ -367,9 +367,9 @@ public class ImageViewerPresenter
         boolean loadChunked = true;
 
         if (postImage.type == STATIC || postImage.type == GIF) {
-            load = imageAutoLoad(loadable, postImage);
+            load = imageAutoLoad(postImage);
         } else if (postImage.type == MOVIE) {
-            load = videoAutoLoad(loadable, postImage);
+            load = videoAutoLoad(postImage);
         }
 
         /*
@@ -401,14 +401,10 @@ public class ImageViewerPresenter
             if (loadChunked) {
                 DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(loadable,
-                        postImage,
-                        extraInfo,
-                        fileCacheListener
-                );
-            } else {
                 preloadDownload[0] =
-                        fileCacheV2.enqueueNormalDownloadFileRequest(loadable, postImage, fileCacheListener);
+                        fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, fileCacheListener);
+            } else {
+                preloadDownload[0] = fileCacheV2.enqueueNormalDownloadFileRequest(postImage, fileCacheListener);
             }
 
             if (preloadDownload[0] != null) {
@@ -460,7 +456,7 @@ public class ImageViewerPresenter
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
             PostImage postImage = images.get(selectedPosition);
-            if (imageAutoLoad(loadable, postImage) && !postImage.spoiler()) {
+            if (imageAutoLoad(postImage) && !postImage.spoiler()) {
                 if (postImage.type == MOVIE && callback.getImageMode(postImage) != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
                 } else {
@@ -585,24 +581,14 @@ public class ImageViewerPresenter
         }
     }
 
-    private boolean imageAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isLocal()) {
-            // All images are stored locally when isSavedCopy is true
-            return true;
-        }
-
+    private boolean imageAutoLoad(PostImage postImage) {
         // Auto load the image when it is cached
         return cacheHandler.exists(postImage.imageUrl)
                 || shouldLoadForNetworkType(ChanSettings.imageAutoLoadNetwork.get());
     }
 
-    private boolean videoAutoLoad(Loadable loadable, PostImage postImage) {
-        if (loadable.isLocal()) {
-            // All videos are stored locally when isSavedCopy is true
-            return true;
-        }
-
-        return imageAutoLoad(loadable, postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
+    private boolean videoAutoLoad(PostImage postImage) {
+        return imageAutoLoad(postImage) && shouldLoadForNetworkType(ChanSettings.videoAutoLoadNetwork.get());
     }
 
     private void setTitle(PostImage postImage, int position) {

@@ -16,8 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
-import com.github.adamantcheese.chan.core.model.Archive;
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
@@ -28,14 +27,10 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
-import java.util.List;
-
 public interface SiteActions {
     void boards(BoardsListener boardsListener);
 
     void pages(Board board, PagesListener pagesListener);
-
-    void archives(ArchiveRequestListener archivesListener);
 
     interface BoardsListener {
         void onBoardsReceived(Boards boards);
@@ -43,10 +38,6 @@ public interface SiteActions {
 
     interface PagesListener {
         void onPagesReceived(Board b, ChanPages pages);
-    }
-
-    interface ArchiveRequestListener {
-        void onArchivesReceived(List<ArchivesManager.Archives> archives);
     }
 
     void post(Loadable loadableWithDraft, PostListener postListener);
@@ -84,7 +75,7 @@ public interface SiteActions {
     void archive(Board board, ArchiveListener archiveListener);
 
     interface ArchiveListener {
-        void onArchive(Archive archive);
+        void onArchive(InternalSiteArchive internalSiteArchive);
 
         void onArchiveError();
     }

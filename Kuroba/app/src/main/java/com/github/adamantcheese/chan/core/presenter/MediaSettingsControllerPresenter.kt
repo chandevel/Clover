@@ -6,7 +6,6 @@ import android.widget.Toast
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegateCallbacks
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
@@ -32,83 +31,6 @@ class MediaSettingsControllerPresenter(
 
     fun onDestroy() {
         callbacks = null
-    }
-
-    /**
-     * Select a directory where local threads will be stored via the SAF
-     */
-    fun onLocalThreadsLocationUseSAFClicked() {
-        fileChooser.openChooseDirectoryDialog(object : DirectoryChooserCallback() {
-            override fun onResult(uri: Uri) {
-                val oldLocalThreadsDirectory =
-                        fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
-
-                if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(uri)) {
-                    showToast(context, R.string.media_settings_base_directory_is_already_registered)
-                    return
-                }
-
-                Logger.d(TAG, "onLocalThreadsLocationUseSAFClicked dir = $uri")
-                ChanSettings.localThreadLocation.setSafBaseDir(uri)
-                ChanSettings.localThreadLocation.resetFileDir()
-
-                withCallbacks {
-                    updateLocalThreadsLocation(uri.toString())
-                }
-
-                val newLocalThreadsDirectory =
-                        fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
-
-                if (newLocalThreadsDirectory == null) {
-                    showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
-                    return
-                }
-
-                withCallbacks {
-                    askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-                            oldLocalThreadsDirectory,
-                            newLocalThreadsDirectory
-                    )
-                }
-            }
-
-            override fun onCancel(reason: String) {
-                showToast(context, reason, Toast.LENGTH_LONG)
-            }
-        })
-    }
-
-    fun onLocalThreadsLocationChosen(dirPath: String) {
-        if (fileManager.isBaseDirAlreadyRegistered<LocalThreadsBaseDirectory>(dirPath)) {
-            showToast(context, R.string.media_settings_base_directory_is_already_registered)
-            return
-        }
-
-        val oldLocalThreadsDirectory =
-                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
-
-        Logger.d(TAG, "onLocalThreadsLocationChosen dir = $dirPath")
-        ChanSettings.localThreadLocation.setFileBaseDir(dirPath)
-
-        if (oldLocalThreadsDirectory == null) {
-            showToast(context, R.string.done)
-            return
-        }
-
-        val newLocalThreadsDirectory =
-                fileManager.newBaseDirectoryFile<LocalThreadsBaseDirectory>()
-
-        if (newLocalThreadsDirectory == null) {
-            showToast(context, R.string.media_settings_new_threads_base_dir_not_registered)
-            return
-        }
-
-        withCallbacks {
-            askUserIfTheyWantToMoveOldThreadsToTheNewDirectory(
-                    oldLocalThreadsDirectory,
-                    newLocalThreadsDirectory
-            )
-        }
     }
 
     /**
@@ -267,12 +189,6 @@ class MediaSettingsControllerPresenter(
         ChanSettings.saveLocation.resetActiveDir()
         ChanSettings.saveLocation.resetFileDir()
         ChanSettings.saveLocation.resetSafDir()
-    }
-
-    fun resetLocalThreadsBaseDir() {
-        ChanSettings.localThreadLocation.resetActiveDir()
-        ChanSettings.localThreadLocation.resetFileDir()
-        ChanSettings.localThreadLocation.resetSafDir()
     }
 
     companion object {

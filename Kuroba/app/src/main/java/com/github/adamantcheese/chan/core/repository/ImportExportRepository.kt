@@ -200,8 +200,6 @@ constructor(
                     exportedSite.classId
             ))
 
-            val exportedSavedThreads = appSettings.exportedSavedThreads
-
             for (exportedPin in exportedSite.exportedPins) {
                 val exportedLoadable = exportedPin.exportedLoadable ?: continue
 
@@ -218,26 +216,6 @@ constructor(
                 )
 
                 val insertedLoadable = databaseHelper.loadableDao.createIfNotExists(loadable)
-                val exportedSavedThread = findSavedThreadByOldLoadableId(
-                        exportedSavedThreads,
-                        exportedLoadable.loadableId.toInt())
-
-                // ExportedSavedThreads may have their loadable ids noncontiguous. Like 1,3,4,5,21,152.
-                // SQLite does not like it and will be returning to us contiguous ids ignoring our ids.
-                // This will create a situation where savedThread.loadableId may not have a loadable.
-                // So we need to fix this by finding a saved thread by old loadable id and updating
-                // it's loadable id with the newly inserted id.
-                if (exportedSavedThread != null) {
-                    exportedSavedThread.loadableId = insertedLoadable.id
-
-                    databaseHelper.savedThreadDao.createIfNotExists(SavedThread(
-                            exportedSavedThread.isFullyDownloaded,
-                            exportedSavedThread.isStopped,
-                            exportedSavedThread.lastSavedPostNo,
-                            exportedSavedThread.loadableId
-                    ))
-                }
-
                 val pin = Pin(
                         insertedLoadable,
                         exportedPin.isWatching,
@@ -247,8 +225,7 @@ constructor(
                         exportedPin.quoteNewCount,
                         exportedPin.isError,
                         exportedPin.order,
-                        exportedPin.isArchived,
-                        exportedPin.pinType
+                        exportedPin.isArchived
                 )
                 databaseHelper.pinDao.createIfNotExists(pin)
             }
@@ -278,18 +255,6 @@ constructor(
         }
 
         ChanSettings.deserializeFromString(appSettingsParam.settings)
-    }
-
-    private fun findSavedThreadByOldLoadableId(
-            exportedSavedThreads: List<ExportedSavedThread>,
-            oldLoadableId: Int): ExportedSavedThread? {
-        for (exportedSavedThread in exportedSavedThreads) {
-            if (exportedSavedThread.loadableId == oldLoadableId) {
-                return exportedSavedThread
-            }
-        }
-
-        return null
     }
 
     private fun onUpgrade(version: Int, appSettings: ExportedAppSettings): ExportedAppSettings {
@@ -391,19 +356,6 @@ constructor(
                     loadable.thumbnailUrl?.toString()
             )
 
-            // When exporting a localThreadLocation that points to a directory located at places like
-            // sd-card we want to export pins without "download thread" flag because when
-            // importing settings back after app uninstall or when importing the on another
-            // phone all of the SAF base directories will become unavailable due to how SAF works.
-            // So the user will have to choose the base directories again and then resume threads
-            // downloading manually. We also need to set the "isStopped" flag to true for
-            // ExportedSavedThread.
-            val pinType = if (ChanSettings.localThreadLocation.isSafDirActive()) {
-                PinType.removeDownloadNewPostsFlag(pin.pinType)
-            } else {
-                pin.pinType
-            }
-
             val exportedPin = ExportedPin(
                     pin.archived,
                     pin.id,
@@ -415,8 +367,7 @@ constructor(
                     pin.watchLastCount,
                     pin.watchNewCount,
                     pin.watching,
-                    exportedLoadable,
-                    pinType
+                    exportedLoadable
             )
 
             toExportMap[siteModel]!!.add(exportedPin)
@@ -501,25 +452,6 @@ constructor(
             ))
         }
 
-        val exportedSavedThreads = ArrayList<ExportedSavedThread>()
-
-        for (savedThread in databaseHelper.savedThreadDao.queryForAll()) {
-            // Set the isStopped flag to true for ExportedSavedThread when localThreadLocation
-            // points to a directory that uses SAF
-            val isDownloadingStopped = if (ChanSettings.localThreadLocation.isSafDirActive()) {
-                true
-            } else {
-                savedThread.isStopped
-            }
-
-            exportedSavedThreads.add(ExportedSavedThread(
-                    savedThread.loadableId,
-                    savedThread.lastSavedPostNo,
-                    savedThread.isFullyDownloaded,
-                    isDownloadingStopped
-            ))
-        }
-
         val settings = ChanSettings.serializeToString()
 
         return ExportedAppSettings(
@@ -527,7 +459,6 @@ constructor(
                 exportedBoards,
                 exportedFilters,
                 exportedPostHides,
-                exportedSavedThreads,
                 settings
         )
     }
@@ -595,19 +526,6 @@ constructor(
             if (loadable.siteId == site.siteId) {
                 loadables.add(loadable)
             }
-        }
-
-        if (loadables.isNotEmpty()) {
-            val savedThreadToDelete = ArrayList<ExportedSavedThread>()
-            for (loadable in loadables) {
-                //saved threads
-                for (savedThread in appSettings.exportedSavedThreads) {
-                    if (loadable.loadableId == savedThread.getLoadableId().toLong()) {
-                        savedThreadToDelete.add(savedThread)
-                    }
-                }
-            }
-            appSettings.exportedSavedThreads.removeAll(savedThreadToDelete)
         }
 
         //post hides

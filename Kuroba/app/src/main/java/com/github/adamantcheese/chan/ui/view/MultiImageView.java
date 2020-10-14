@@ -174,7 +174,7 @@ public class MultiImageView
         return postImage;
     }
 
-    public void setMode(Loadable loadable, final Mode newMode, boolean center) {
+    public void setMode(final Mode newMode, boolean center) {
         this.mode = newMode;
         hasContent = false;
         waitForMeasure(this, view -> {
@@ -184,16 +184,16 @@ public class MultiImageView
                     transparentBackground = ChanSettings.transparencyOn.get();
                     break;
                 case BIGIMAGE:
-                    setBigImage(loadable);
+                    setBigImage();
                     break;
                 case GIFIMAGE:
-                    setGif(loadable);
+                    setGif();
                     break;
                 case VIDEO:
-                    setVideo(loadable);
+                    setVideo();
                     break;
                 case OTHER:
-                    setOther(loadable);
+                    setOther();
                     break;
             }
             return true;
@@ -341,7 +341,7 @@ public class MultiImageView
         }
     }
 
-    private void setBigImage(Loadable loadable) {
+    private void setBigImage() {
         BackgroundUtils.ensureMainThread();
 
         if (bigImageRequest != null) {
@@ -350,57 +350,56 @@ public class MultiImageView
 
         DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-        bigImageRequest =
-                fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
+        bigImageRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, new FileCacheListener() {
 
-                    @Override
-                    public void onStart(int chunksCount) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onStart(int chunksCount) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onStartDownload(MultiImageView.this, chunksCount);
-                    }
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
 
-                    @Override
-                    public void onProgress(int chunkIndex, long downloaded, long total) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
-                    }
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
+            }
 
-                    @Override
-                    public void onSuccess(RawFile file, boolean immediate) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onSuccess(RawFile file, boolean immediate) {
+                BackgroundUtils.ensureMainThread();
 
-                        setBitImageFileInternal(new File(file.getFullPath()), true);
+                setBitImageFileInternal(new File(file.getFullPath()), true);
 
-                        callback.onDownloaded(postImage);
-                    }
+                callback.onDownloaded(postImage);
+            }
 
-                    @Override
-                    public void onNotFound() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
 
-                        onNotFoundError();
-                    }
+                onNotFoundError();
+            }
 
-                    @Override
-                    public void onFail(Exception exception) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onFail(Exception exception) {
+                BackgroundUtils.ensureMainThread();
 
-                        onError(exception);
-                    }
+                onError(exception);
+            }
 
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onEnd() {
+                BackgroundUtils.ensureMainThread();
 
-                        bigImageRequest = null;
-                        callback.hideProgress(MultiImageView.this);
-                    }
-                });
+                bigImageRequest = null;
+                callback.hideProgress(MultiImageView.this);
+            }
+        });
     }
 
-    private void setGif(Loadable loadable) {
+    private void setGif() {
         BackgroundUtils.ensureMainThread();
 
         if (gifRequest != null) {
@@ -409,56 +408,55 @@ public class MultiImageView
 
         DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-        gifRequest =
-                fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
+        gifRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, new FileCacheListener() {
 
-                    @Override
-                    public void onStart(int chunksCount) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onStart(int chunksCount) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onStartDownload(MultiImageView.this, chunksCount);
-                    }
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
 
-                    @Override
-                    public void onProgress(int chunkIndex, long downloaded, long total) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
-                    }
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
+            }
 
-                    @Override
-                    public void onSuccess(RawFile file, boolean immediate) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onSuccess(RawFile file, boolean immediate) {
+                BackgroundUtils.ensureMainThread();
 
-                        if (!hasContent || mode == Mode.GIFIMAGE) {
-                            setGifFile(new File(file.getFullPath()));
-                        }
+                if (!hasContent || mode == Mode.GIFIMAGE) {
+                    setGifFile(new File(file.getFullPath()));
+                }
 
-                        callback.onDownloaded(postImage);
-                    }
+                callback.onDownloaded(postImage);
+            }
 
-                    @Override
-                    public void onNotFound() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
 
-                        onNotFoundError();
-                    }
+                onNotFoundError();
+            }
 
-                    @Override
-                    public void onFail(Exception exception) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onFail(Exception exception) {
+                BackgroundUtils.ensureMainThread();
 
-                        onError(exception);
-                    }
+                onError(exception);
+            }
 
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onEnd() {
+                BackgroundUtils.ensureMainThread();
 
-                        gifRequest = null;
-                        callback.hideProgress(MultiImageView.this);
-                    }
-                });
+                gifRequest = null;
+                callback.hideProgress(MultiImageView.this);
+            }
+        });
     }
 
     private void setGifFile(File file) {
@@ -497,18 +495,18 @@ public class MultiImageView
         toggleTransparency();
     }
 
-    private void setVideo(Loadable loadable) {
+    private void setVideo() {
         BackgroundUtils.ensureMainThread();
 
         if (ChanSettings.videoStream.get()) {
-            openVideoInternalStream(loadable);
+            openVideoInternalStream();
         } else {
-            openVideoExternal(loadable);
+            openVideoExternal();
         }
     }
 
-    private void openVideoInternalStream(Loadable loadable) {
-        webmStreamingSource.createMediaSource(loadable, postImage, new MediaSourceCallback() {
+    private void openVideoInternalStream() {
+        webmStreamingSource.createMediaSource(postImage, new MediaSourceCallback() {
             @Override
             public void onMediaSourceReady(@Nullable MediaSource source) {
                 BackgroundUtils.ensureMainThread();
@@ -561,7 +559,7 @@ public class MultiImageView
         });
     }
 
-    private void openVideoExternal(Loadable loadable) {
+    private void openVideoExternal() {
         BackgroundUtils.ensureMainThread();
 
         if (videoRequest != null) {
@@ -570,56 +568,55 @@ public class MultiImageView
 
         DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-        videoRequest =
-                fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
+        videoRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, new FileCacheListener() {
 
-                    @Override
-                    public void onStart(int chunksCount) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onStart(int chunksCount) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onStartDownload(MultiImageView.this, chunksCount);
-                    }
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
 
-                    @Override
-                    public void onProgress(int chunkIndex, long downloaded, long total) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
-                    }
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
+            }
 
-                    @Override
-                    public void onSuccess(RawFile file, boolean immediate) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onSuccess(RawFile file, boolean immediate) {
+                BackgroundUtils.ensureMainThread();
 
-                        if (!hasContent || mode == Mode.VIDEO) {
-                            setVideoFile(new File(file.getFullPath()));
-                        }
+                if (!hasContent || mode == Mode.VIDEO) {
+                    setVideoFile(new File(file.getFullPath()));
+                }
 
-                        callback.onDownloaded(postImage);
-                    }
+                callback.onDownloaded(postImage);
+            }
 
-                    @Override
-                    public void onNotFound() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
 
-                        onNotFoundError();
-                    }
+                onNotFoundError();
+            }
 
-                    @Override
-                    public void onFail(Exception exception) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onFail(Exception exception) {
+                BackgroundUtils.ensureMainThread();
 
-                        onError(exception);
-                    }
+                onError(exception);
+            }
 
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onEnd() {
+                BackgroundUtils.ensureMainThread();
 
-                        videoRequest = null;
-                        callback.hideProgress(MultiImageView.this);
-                    }
-                });
+                videoRequest = null;
+                callback.hideProgress(MultiImageView.this);
+            }
+        });
     }
 
     private void setVideoFile(final File file) {
@@ -668,7 +665,7 @@ public class MultiImageView
         }
     }
 
-    private void setOther(Loadable loadable) {
+    private void setOther() {
         BackgroundUtils.ensureMainThread();
 
         if (otherRequest != null) {
@@ -677,64 +674,63 @@ public class MultiImageView
 
         DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-        otherRequest =
-                fileCacheV2.enqueueChunkedDownloadFileRequest(loadable, postImage, extraInfo, new FileCacheListener() {
+        otherRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, new FileCacheListener() {
 
-                    @Override
-                    public void onStart(int chunksCount) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onStart(int chunksCount) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onStartDownload(MultiImageView.this, chunksCount);
-                    }
+                callback.onStartDownload(MultiImageView.this, chunksCount);
+            }
 
-                    @Override
-                    public void onProgress(int chunkIndex, long downloaded, long total) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onProgress(int chunkIndex, long downloaded, long total) {
+                BackgroundUtils.ensureMainThread();
 
-                        callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
-                    }
+                callback.onProgress(MultiImageView.this, chunkIndex, downloaded, total);
+            }
 
-                    @Override
-                    public void onSuccess(RawFile file, boolean immediate) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onSuccess(RawFile file, boolean immediate) {
+                BackgroundUtils.ensureMainThread();
 
-                        if (!hasContent || mode == Mode.OTHER) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            Uri uriForFile = FileProvider.getUriForFile(getAppContext(),
-                                    getAppFileProvider(),
-                                    new File(file.getFullPath())
-                            );
+                if (!hasContent || mode == Mode.OTHER) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    Uri uriForFile = FileProvider.getUriForFile(getAppContext(),
+                            getAppFileProvider(),
+                            new File(file.getFullPath())
+                    );
 
-                            intent.setDataAndType(uriForFile, getAppContext().getContentResolver().getType(uriForFile));
-                            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                            openIntent(intent);
-                            onModeLoaded(Mode.OTHER, null);
-                        }
-                        callback.onDownloaded(postImage);
-                    }
+                    intent.setDataAndType(uriForFile, getAppContext().getContentResolver().getType(uriForFile));
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    openIntent(intent);
+                    onModeLoaded(Mode.OTHER, null);
+                }
+                callback.onDownloaded(postImage);
+            }
 
-                    @Override
-                    public void onNotFound() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onNotFound() {
+                BackgroundUtils.ensureMainThread();
 
-                        onNotFoundError();
-                    }
+                onNotFoundError();
+            }
 
-                    @Override
-                    public void onFail(Exception exception) {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onFail(Exception exception) {
+                BackgroundUtils.ensureMainThread();
 
-                        onError(exception);
-                    }
+                onError(exception);
+            }
 
-                    @Override
-                    public void onEnd() {
-                        BackgroundUtils.ensureMainThread();
+            @Override
+            public void onEnd() {
+                BackgroundUtils.ensureMainThread();
 
-                        otherRequest = null;
-                        callback.hideProgress(MultiImageView.this);
-                    }
-                });
+                otherRequest = null;
+                callback.hideProgress(MultiImageView.this);
+            }
+        });
     }
 
     public void toggleTransparency() {

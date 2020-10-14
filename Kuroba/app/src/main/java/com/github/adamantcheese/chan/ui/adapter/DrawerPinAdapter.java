@@ -19,36 +19,29 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.SavedThread;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
-import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
-import static androidx.recyclerview.widget.ItemTouchHelper.UP;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -58,8 +51,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
-public class DrawerAdapter
-        extends RecyclerView.Adapter<DrawerAdapter.PinViewHolder> {
+public class DrawerPinAdapter
+        extends RecyclerView.Adapter<DrawerPinAdapter.PinViewHolder> {
 
     @Inject
     WatchManager watchManager;
@@ -67,42 +60,10 @@ public class DrawerAdapter
     private final Callback callback;
     private Pin highlighted;
 
-    public DrawerAdapter(@NonNull Callback callback) {
+    public DrawerPinAdapter(@NonNull Callback callback) {
         inject(this);
         this.callback = callback;
         setHasStableIds(true);
-    }
-
-    public ItemTouchHelper.Callback getItemTouchHelperCallback() {
-        return new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
-                return makeMovementFlags(UP | DOWN, RIGHT | LEFT);
-            }
-
-            @Override
-            public boolean onMove(
-                    @NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder, @NonNull ViewHolder target
-            ) {
-                int from = viewHolder.getAdapterPosition();
-                int to = target.getAdapterPosition();
-
-                synchronized (watchManager.getAllPins()) {
-                    Pin item = watchManager.getAllPins().remove(from);
-                    watchManager.getAllPins().add(to, item);
-                }
-                watchManager.reorder();
-                notifyItemMoved(from, to);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull ViewHolder viewHolder, int direction) {
-                synchronized (watchManager.getAllPins()) {
-                    callback.onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
-                }
-            }
-        };
     }
 
     @NonNull
@@ -126,7 +87,9 @@ public class DrawerAdapter
         }
         holder.title.setText(title);
 
-        loadBookmarkImage(holder, pin);
+        if (holder.image.getBitmap() == null) {
+            holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
+        }
         holder.image.setGreyscale(!pin.watching);
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
@@ -152,14 +115,8 @@ public class DrawerAdapter
             String text = getShortString(newPostCount) + (newQuoteCount > 0 ? "/" + getShortString(newQuoteCount) : "");
             holder.watchCountText.setText(text);
 
-            SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-
             if (pin.getNewQuoteCount() > 0) {
                 holder.watchCountText.setTextColor(getColor(R.color.md_red_500));
-            } else if (savedThread != null && savedThread.isFullyDownloaded) {
-                holder.watchCountText.setTextColor(getColor(R.color.md_green_500));
-            } else if (savedThread != null && savedThread.isRunning()) {
-                holder.watchCountText.setTextColor(getColor(R.color.md_orange_700));
             } else if (!pin.watching) {
                 holder.watchCountText.setTextColor(getColor(R.color.md_grey_600));
             } else {
@@ -169,13 +126,13 @@ public class DrawerAdapter
             holder.watchCountText.setVisibility(GONE);
         }
 
-        if (pin == highlighted) {
+        if (pin.drawerHighlight) {
             holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
                     R.attr.highlight_color
             )));
         } else {
             holder.itemView.setBackground(getAttrDrawable(holder.itemView.getContext(),
-                    android.R.attr.selectableItemBackground
+                    R.drawable.ripple_item_background
             ));
         }
     }
@@ -202,30 +159,15 @@ public class DrawerAdapter
         }
     }
 
-    public void setHighlightedPin(Pin highlighted) {
-        Pin prevHighlight = this.highlighted;
-        this.highlighted = highlighted;
+    public void setHighlightedPin(@Nullable Pin highlighted) {
         synchronized (watchManager.getAllPins()) {
-            notifyItemChanged(watchManager.getAllPins().indexOf(prevHighlight));
-            notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
+            for (Pin p : watchManager.getAllPins()) {
+                p.drawerHighlight = (p == highlighted);
+            }
         }
-    }
-
-    private void loadBookmarkImage(PinViewHolder holder, Pin pin) {
-        if (holder.image.getBitmap() != null) return;
-        holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
-
-        SavedThread savedThread = watchManager.findSavedThreadByLoadableId(pin.loadable.id);
-        if (savedThread == null || !savedThread.isFullyDownloaded) {
-            return;
-        }
-
-        String filename = StringUtils.convertThumbnailUrlToFilenameOnDisk(pin.loadable.thumbnailUrl);
-        if (TextUtils.isEmpty(filename)) {
-            return;
-        }
-
-        holder.image.setUrlFromDisk(pin.loadable, filename, false, dp(48), dp(48));
+        notifyItemChanged(watchManager.getAllPins().indexOf(this.highlighted));
+        notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
+        this.highlighted = highlighted;
     }
 
     public class PinViewHolder

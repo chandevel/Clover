@@ -103,8 +103,6 @@ public abstract class ThreadController
         threadLayout.getPresenter().showNoContent();
     }
 
-    public abstract void openPin(Pin pin);
-
     /*
      * Used to save instance state
      */
@@ -218,7 +216,7 @@ public abstract class ThreadController
     }
 
     @Override
-    public void onShowPosts() {
+    public void onShowPosts(Loadable loadable) {
     }
 
     @Override

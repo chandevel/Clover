@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -105,7 +106,6 @@ public class ThreadListLayout
     private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-            // onScrollStateChanged can be called after cleanup()
             if (showingThread != null) {
                 int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
@@ -121,7 +121,9 @@ public class ThreadListLayout
                     BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
 
-                callback.updateDatabaseLoadable();
+                if (!(showingThread.getLoadable().site instanceof ExternalSiteArchive)) {
+                    callback.updateDatabaseLoadable();
+                }
             }
         }
     };
@@ -804,7 +806,8 @@ public class ThreadListLayout
         public void onDrawOver(
                 @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
         ) {
-            if (ChanSettings.thumbnailSize.get() < 85) return; // below this it doesn't really work too well
+            if (ChanSettings.thumbnailSize.get() < 85)
+                return; // below this it doesn't really work too well
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {

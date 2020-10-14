@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.base
+package com.github.adamantcheese.chan.utils
 
 import android.os.Handler
 import android.os.Looper

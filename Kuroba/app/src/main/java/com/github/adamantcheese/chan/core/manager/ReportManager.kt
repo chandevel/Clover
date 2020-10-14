@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
-import com.github.adamantcheese.chan.core.base.ModularResult
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -33,7 +32,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class ReportManager(
-        private val threadSaveManager: ThreadSaveManager,
         private val gson: Gson,
         private val crashLogsDirPath: File,
         private val client: OkHttpClientWithUtils
@@ -100,7 +98,7 @@ class ReportManager(
                 })
     }
 
-    private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<ModularResult<Boolean>> {
+    private fun processSingleRequest(request: ReportRequest, crashLogFile: File): Single<Any> {
         BackgroundUtils.ensureBackgroundThread()
 
         // Delete old crash logs
@@ -109,26 +107,25 @@ class ReportManager(
                 Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
             }
 
-            return Single.just(ModularResult.value(true))
+            return Single.just(Ok())
         }
 
         return sendInternal(request)
-                .onErrorReturn { error -> ModularResult.error(error) }
                 .doOnSuccess { result ->
-                    when (result) {
-                        is ModularResult.Value -> {
-                            Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
+                    if (result is Ok) {
+                        Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
 
-                            if (!crashLogFile.delete()) {
-                                Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
-                            }
+                        if (!crashLogFile.delete()) {
+                            Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
                         }
-                        is ModularResult.Error -> {
-                            if (result.error is HttpCodeError) {
-                                Logger.e(TAG, "Bad response code: ${result.error.code}")
-                            } else {
-                                Logger.e(TAG, "Error while trying to send crash log", result.error)
-                            }
+                    }
+                }.doOnError { error ->
+                    when (error) {
+                        is HttpCodeError -> {
+                            Logger.e(TAG, "Bad response: ", error)
+                        }
+                        is Throwable -> {
+                            Logger.e(TAG, "Error while trying to send crash log", error)
                         }
                     }
                 }
@@ -139,8 +136,7 @@ class ReportManager(
             return
         }
 
-        val time = System.currentTimeMillis()
-        val newCrashLog = File(crashLogsDirPath, "${CRASH_LOG_FILE_NAME_PREFIX}_${time}.txt")
+        val newCrashLog = File(crashLogsDirPath, "${CRASH_LOG_FILE_NAME_PREFIX}_${System.currentTimeMillis()}.txt")
 
         if (newCrashLog.exists()) {
             return
@@ -274,7 +270,7 @@ class ReportManager(
                 .subscribeOn(senderScheduler)
     }
 
-    fun sendReport(title: String, description: String, logs: String?): Single<ModularResult<Boolean>> {
+    fun sendReport(title: String, description: String, logs: String?): Single<Any> {
         require(title.isNotEmpty()) { "title is empty" }
         require(description.isNotEmpty() || logs != null) { "description is empty" }
         require(title.length <= MAX_TITLE_LENGTH) { "title is too long ${title.length}" }
@@ -295,30 +291,15 @@ class ReportManager(
     private fun getSettingsStateString(): String {
         return buildString {
             appendLine("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
-            appendLine("Thread downloading enabled: ${ChanSettings.incrementalThreadDownloadingEnabled.get()}, " +
-                    "active downloads = ${threadSaveManager.countActiveDownloads()}")
             appendLine("Media title parsing enabled: ${ChanSettings.parseMediaTitles.get()}")
             appendLine("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
             appendLine("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
             appendLine("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
             appendLine("Saved files base dir info: ${getFilesLocationInfo()}")
-            appendLine("Local threads base dir info: ${getLocalThreadsLocationInfo()}")
             appendLine("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
             appendLine("OkHttp IPv6 support enabled: ${ChanSettings.okHttpAllowIpv6.get()}")
             appendLine("OkHttp HTTP/2 support enabled: ${ChanSettings.okHttpAllowHttp2.get()}")
         }
-    }
-
-    private fun getLocalThreadsLocationInfo(): String {
-        val localThreadsActiveDirType = when {
-            ChanSettings.localThreadLocation.isFileDirActive() -> "Java API"
-            ChanSettings.localThreadLocation.isSafDirActive() -> "SAF"
-            else -> "Neither of them is active, wtf?!"
-        }
-
-        return "Java API location: ${ChanSettings.localThreadLocation.fileApiBaseDir.get()}, " +
-                "SAF location: ${ChanSettings.localThreadLocation.safBaseDir.get()}, " +
-                "active: $localThreadsActiveDirType"
     }
 
     private fun getFilesLocationInfo(): String {
@@ -378,8 +359,8 @@ class ReportManager(
         return true
     }
 
-    private fun sendInternal(reportRequest: ReportRequest): Single<ModularResult<Boolean>> {
-        return Single.create<ModularResult<Boolean>> { emitter ->
+    private fun sendInternal(reportRequest: ReportRequest): Single<Any> {
+        return Single.create<Any> { emitter ->
             BackgroundUtils.ensureBackgroundThread()
 
             val json = try {
@@ -398,7 +379,7 @@ class ReportManager(
 
             client.proxiedClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    emitter.onSuccess(ModularResult.error(e))
+                    emitter.tryOnError(e)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
@@ -406,17 +387,19 @@ class ReportManager(
                         val message = "Response is not successful, status = ${response.code}"
                         Logger.e(TAG, message)
 
-                        emitter.onSuccess(ModularResult.error(HttpCodeError(response.code)))
+                        emitter.tryOnError(HttpCodeError(response.code))
                         return
                     }
 
-                    emitter.onSuccess(ModularResult.value(true))
+                    emitter.onSuccess(Ok())
                 }
             })
         }.subscribeOn(senderScheduler)
     }
 
-    private class HttpCodeError(val code: Int) : Exception("Response is not successful, code = $code")
+    class HttpCodeError(code: Int) : Exception("Response is not successful, code = $code")
+
+    class Ok
 
     data class ReportRequestWithFile(
             val reportRequest: ReportRequest,

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.toolbar;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -99,10 +100,6 @@ public class ToolbarMenuItem {
 
     public void addSubItem(ToolbarMenuSubItem subItem) {
         subItems.add(subItem);
-    }
-
-    public void removeSubItem(ToolbarMenuSubItem subItem) {
-        subItems.remove(subItem);
     }
 
     public void setVisible(boolean visible) {
@@ -203,7 +200,7 @@ public class ToolbarMenuItem {
         return id;
     }
 
-    public void performClick() {
+    void performClick(View view) {
         if (clickCallback != null) {
             clickCallback.onClick(this);
         }

@@ -46,7 +46,6 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -548,11 +547,6 @@ public abstract class CommonSite
         @Override
         public void pages(Board board, PagesListener pagesListener) {
             pagesListener.onPagesReceived(board, new ChanPages());
-        }
-
-        @Override
-        public void archives(ArchiveRequestListener archivesListener) {
-            archivesListener.onArchivesReceived(new ArrayList<>());
         }
 
         @Override

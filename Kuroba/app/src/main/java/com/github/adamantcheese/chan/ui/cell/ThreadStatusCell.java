@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ThreadStatusCell
@@ -107,24 +106,13 @@ public class ThreadStatusCell
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            if (chanThread.getLoadable().isLocal()) {
-                builder.append(getString(R.string.local_thread_text));
-            } else {
-                if (chanThread.isArchived()) {
-                    builder.append(getString(R.string.thread_archived));
-                } else if (chanThread.isClosed()) {
-                    builder.append(getString(R.string.thread_closed));
-                }
+            if (chanThread.isArchived()) {
+                builder.append(getString(R.string.thread_archived));
+            } else if (chanThread.isClosed()) {
+                builder.append(getString(R.string.thread_closed));
             }
 
-            if (!chanThread.isArchived() && !chanThread.isClosed()
-                    && chanThread.getLoadable().getLoadableDownloadingState() != AlreadyDownloaded) {
-                if (chanThread.getLoadable().isLocal()
-                        && chanThread.getLoadable().getLoadableDownloadingState() != AlreadyDownloaded) {
-                    // To split Local Thread and (Loading Time | Loading) rows
-                    builder.append('\n');
-                }
-
+            if (!chanThread.isArchived() && !chanThread.isClosed()) {
                 long time = callback.getTimeUntilLoadMore() / 1000L;
                 if (!callback.isWatching()) {
                     builder.append(getString(R.string.thread_refresh_bar_inactive));

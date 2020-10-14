@@ -73,6 +73,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:textSize="16sp"
         tools:ignore="HardcodedText"
         tools:text="128"
-        tools:textColor="@color/md_light_blue_400"/>
+        tools:textColor="@color/md_light_blue_400" />
 
 </LinearLayout>

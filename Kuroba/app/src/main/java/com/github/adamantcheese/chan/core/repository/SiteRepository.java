@@ -11,7 +11,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
@@ -167,7 +166,6 @@ public class SiteRepository {
             List<Loadable> siteLoadables =
                     DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).getLoadables(site));
             if (!siteLoadables.isEmpty()) {
-                DatabaseUtils.runTask(instance(DatabaseSavedThreadManager.class).deleteSavedThreads(siteLoadables));
                 DatabaseUtils.runTask(instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables));
                 DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables));
             }
@@ -179,8 +177,7 @@ public class SiteRepository {
         });
     }
 
-    private void removeFilters(Site site)
-            throws Exception {
+    private void removeFilters(Site site) {
         List<Filter> filtersToDelete = new ArrayList<>();
         DatabaseFilterManager databaseFilterManager = instance(DatabaseFilterManager.class);
 

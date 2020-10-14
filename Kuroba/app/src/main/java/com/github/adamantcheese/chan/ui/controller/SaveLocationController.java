@@ -50,16 +50,14 @@ public class SaveLocationController
     private FloatingActionButton addButton;
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private FileWatcher fileWatcher;
-    private SaveLocationControllerMode mode;
     private SaveLocationControllerCallback callback;
 
     public SaveLocationController(
-            Context context, SaveLocationControllerMode mode, SaveLocationControllerCallback callback
+            Context context, SaveLocationControllerCallback callback
     ) {
         super(context);
 
         this.callback = callback;
-        this.mode = mode;
     }
 
     @Override
@@ -170,22 +168,12 @@ public class SaveLocationController
     }
 
     private File getInitialLocation() {
-        if (mode == SaveLocationControllerMode.ImageSaveLocation) {
-            if (ChanSettings.saveLocation.isFileDirActive()) {
-                if (ChanSettings.saveLocation.getFileApiBaseDir().get().isEmpty()) {
-                    return getExternalStorageDir();
-                }
-
-                return new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
+        if (ChanSettings.saveLocation.isFileDirActive()) {
+            if (ChanSettings.saveLocation.getFileApiBaseDir().get().isEmpty()) {
+                return getExternalStorageDir();
             }
-        } else {
-            if (ChanSettings.localThreadLocation.isFileDirActive()) {
-                if (ChanSettings.localThreadLocation.getFileApiBaseDir().get().isEmpty()) {
-                    return getExternalStorageDir();
-                }
 
-                return new File(ChanSettings.localThreadLocation.getFileApiBaseDir().get());
-            }
+            return new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
         }
 
         return getExternalStorageDir();
@@ -203,10 +191,5 @@ public class SaveLocationController
 
     public interface SaveLocationControllerCallback {
         void onDirectorySelected(String dirPath);
-    }
-
-    public enum SaveLocationControllerMode {
-        ImageSaveLocation,
-        LocalThreadsSaveLocation
     }
 }

@@ -38,9 +38,6 @@ import java.util.Objects;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.INVALID;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
@@ -108,20 +105,6 @@ public class Loadable
 
     // a reply draft that is specific to this loadable and is not stored in the database
     public final Reply draft = new Reply();
-
-    /**
-     * Tells us whether this loadable (when in THREAD mode) contains information about
-     * a live thread or the local saved copy of a thread (which may be already deleted from the server)
-     */
-    private transient LoadableDownloadingState loadableDownloadingState = LoadableDownloadingState.NotDownloading;
-
-    public synchronized void setLoadableState(LoadableDownloadingState state) {
-        this.loadableDownloadingState = state;
-    }
-
-    public synchronized LoadableDownloadingState getLoadableDownloadingState() {
-        return loadableDownloadingState;
-    }
 
     /**
      * Constructs an empty loadable. The mode is INVALID.
@@ -231,8 +214,7 @@ public class Loadable
     public String toString() {
         return "Loadable{mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
                 + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(
-                lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo)
-                + ", loadableDownloadingState=" + loadableDownloadingState.name() + '}';
+                lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + '}';
     }
 
     public boolean isThreadMode() {
@@ -241,28 +223,6 @@ public class Loadable
 
     public boolean isCatalogMode() {
         return mode == CATALOG;
-    }
-
-    /**
-     * Thread is either fully downloaded or it is still being downloaded BUT we are currently
-     * viewing the local copy of the thread
-     */
-    public boolean isLocal() {
-        return loadableDownloadingState == DownloadingAndViewable || loadableDownloadingState == AlreadyDownloaded;
-    }
-
-    /**
-     * Thread is being downloaded but we are not currently viewing the local copy
-     */
-    public boolean isDownloading() {
-        return loadableDownloadingState == DownloadingAndNotViewable;
-    }
-
-    /**
-     * @return a string with only the info that we are interested in from this loadable
-     */
-    public String toShortString() {
-        return String.format(Locale.ENGLISH, "[%s, %s, %s]", site.name(), boardCode, maskPostNo(no));
     }
 
     /**
@@ -326,29 +286,5 @@ public class Loadable
         public static final int INVALID = -1;
         public static final int THREAD = 0;
         public static final int CATALOG = 1;
-    }
-
-    /**
-     * Only for Loadable.Mode == THREAD
-     */
-    public enum LoadableDownloadingState {
-        /**
-         * We are not downloading a thread associated with this loadable
-         */
-        NotDownloading,
-        /**
-         * We are downloading this thread, but we are not viewing it at the current time.
-         * (We are viewing the live thread)
-         */
-        DownloadingAndNotViewable,
-        /**
-         * We are downloading this thread and we are currently viewing it (We are viewing the local
-         * thread)
-         */
-        DownloadingAndViewable,
-        /**
-         * Thread has been fully downloaded so it's always a local thread
-         */
-        AlreadyDownloaded,
     }
 }

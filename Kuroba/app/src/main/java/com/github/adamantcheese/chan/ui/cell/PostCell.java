@@ -60,6 +60,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper.InvalidateFunction;
@@ -470,7 +471,9 @@ public class PostCell
 
                 @Override
                 public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                    if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+                        quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
+                    }
                     webSearchItem = menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
                     return true;
                 }
@@ -515,10 +518,12 @@ public class PostCell
             // And this sets clickable to appropriate values again.
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
 
-            title.setOnLongClickListener(v -> {
-                callback.onPostNoClicked(post);
-                return true;
-            });
+            if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+                title.setOnLongClickListener(v -> {
+                    callback.onPostNoClicked(post);
+                    return true;
+                });
+            }
         } else {
             comment.setText(post.comment);
             comment.setOnTouchListener(null);
@@ -645,7 +650,7 @@ public class PostCell
 
     public void clearThumbnails() {
         for (PostImageThumbnailView thumbnailView : thumbnailViews) {
-            thumbnailView.setPostImage(loadable, null);
+            thumbnailView.setPostImage(null);
             relativeLayoutContainer.removeView(thumbnailView);
         }
         thumbnailViews.clear();
@@ -682,7 +687,7 @@ public class PostCell
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
-                v.setPostImage(loadable, image);
+                v.setPostImage(image);
                 v.setClickable(true);
                 //don't set a callback if the post is deleted, but if the file already exists in cache let it through
                 if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {

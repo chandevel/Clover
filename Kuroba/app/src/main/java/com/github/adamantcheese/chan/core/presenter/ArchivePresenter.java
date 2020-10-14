@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import com.github.adamantcheese.chan.core.model.Archive;
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -36,8 +36,8 @@ public class ArchivePresenter
     private boolean inRequest = false;
 
     private String filter;
-    private List<Archive.ArchiveItem> items = new ArrayList<>();
-    private List<Archive.ArchiveItem> filteredItems = new ArrayList<>();
+    private List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
+    private List<InternalSiteArchive.ArchiveItem> filteredItems = new ArrayList<>();
 
     public ArchivePresenter(Callback callback, Board board) {
         this.callback = callback;
@@ -66,16 +66,16 @@ public class ArchivePresenter
         }
     }
 
-    public void onItemClicked(Archive.ArchiveItem item) {
+    public void onItemClicked(InternalSiteArchive.ArchiveItem item) {
         callback.openThread(Loadable.forThread(board, item.id, ""));
     }
 
     @Override
-    public void onArchive(Archive archive) {
+    public void onArchive(InternalSiteArchive internalSiteArchive) {
         inRequest = false;
         callback.hideRefreshing();
         callback.showList();
-        items = archive.items;
+        items = internalSiteArchive.items;
         updateWithFilter();
     }
 
@@ -96,7 +96,7 @@ public class ArchivePresenter
         if (isEmpty(filter)) {
             filteredItems.addAll(items);
         } else {
-            for (Archive.ArchiveItem item : items) {
+            for (InternalSiteArchive.ArchiveItem item : items) {
                 if (filterApplies(item, filter)) {
                     filteredItems.add(item);
                 }
@@ -106,12 +106,12 @@ public class ArchivePresenter
         callback.setArchiveItems(filteredItems);
     }
 
-    private boolean filterApplies(Archive.ArchiveItem item, String filter) {
+    private boolean filterApplies(InternalSiteArchive.ArchiveItem item, String filter) {
         return item.description.toLowerCase(Locale.ENGLISH).contains(filter.toLowerCase());
     }
 
     public interface Callback {
-        void setArchiveItems(List<Archive.ArchiveItem> items);
+        void setArchiveItems(List<InternalSiteArchive.ArchiveItem> items);
 
         void hideRefreshing();
 

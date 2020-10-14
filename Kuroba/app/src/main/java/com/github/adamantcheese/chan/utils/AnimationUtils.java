@@ -1,18 +1,12 @@
 package com.github.adamantcheese.chan.utils;
 
 import android.animation.ValueAnimator;
-import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
-
-import androidx.annotation.ColorInt;
-import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
-
-import com.github.adamantcheese.chan.R;
 
 public class AnimationUtils {
 
@@ -67,13 +61,5 @@ public class AnimationUtils {
         scaleAnimation.setInterpolator(new AccelerateDecelerateInterpolator());
 
         view.startAnimation(scaleAnimation);
-    }
-
-    public static AnimatedVectorDrawableCompat createAnimatedDownloadIcon(Context context, @ColorInt int tintColor) {
-        AnimatedVectorDrawableCompat drawable =
-                AnimatedVectorDrawableCompat.create(context, R.drawable.ic_download_anim);
-        drawable.setTint(tintColor);
-
-        return drawable;
     }
 }

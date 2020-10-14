@@ -79,16 +79,6 @@ public class DatabaseSavedReplyManager {
         return getSavedReply(board, postNo) != null;
     }
 
-    public Callable<Void> clearSavedReplies() {
-        return () -> {
-            TableUtils.clearTable(helper.getConnectionSource(), SavedReply.class);
-            synchronized (savedRepliesByNo) {
-                savedRepliesByNo.clear();
-            }
-            return null;
-        };
-    }
-
     public Callable<SavedReply> saveReply(SavedReply savedReply) {
         return () -> {
             helper.getSavedReplyDao().create(savedReply);

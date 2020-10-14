@@ -31,14 +31,11 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
-import com.github.adamantcheese.chan.core.manager.ThreadSaveManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -80,7 +77,7 @@ public class PostImageThumbnailView
         }
     }
 
-    public void setPostImage(Loadable loadable, PostImage postImage) {
+    public void setPostImage(PostImage postImage) {
         if (this.postImage != postImage) {
             this.postImage = postImage;
             setUrl(null);
@@ -96,60 +93,44 @@ public class PostImageThumbnailView
             int width = decodeSize == -1 ? getWidth() : (int) decodeSize;
             int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
 
-            if (!loadable.isLocal()) {
-                if (ChanSettings.shouldUseFullSizeImage(postImage)) {
-                    HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
-                    Bitmap cached = NetUtils.getCachedBitmap(url);
-                    if (cached != null && cached.getWidth() == width && cached.getHeight() == height) {
-                        onBitmapSuccess(cached, true);
-                    } else {
-                        fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(url,
-                                new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
-                                new FileCacheListener() {
-                                    @Override
-                                    public void onSuccess(RawFile file, boolean immediate) {
-                                        BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(
-                                                file.getFullPath()), width * 2, height * 2), result -> {
-                                            if (result != null) {
-                                                NetUtils.storeExternalBitmap(url, result);
-                                                onBitmapSuccess(result, immediate);
-                                            } else {
-                                                onBitmapFailure(null,
-                                                        new NullPointerException("Failed to decode bitmap.")
-                                                );
-                                            }
-                                        });
-                                    }
-
-                                    @Override
-                                    public void onFail(Exception exception) {
-                                        onBitmapFailure(null, exception);
-                                    }
-
-                                    @Override
-                                    public void onNotFound() {
-                                        onBitmapFailure(null, new NetUtils.HttpCodeException(404));
-                                    }
-                                }
-                        );
-                    }
+            if (ChanSettings.shouldUseFullSizeImage(postImage)) {
+                HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
+                Bitmap cached = NetUtils.getCachedBitmap(url);
+                if (cached != null && cached.getWidth() == width && cached.getHeight() == height) {
+                    onBitmapSuccess(cached, true);
                 } else {
-                    setUrl(postImage.getThumbnailUrl(), width, height);
+                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(url,
+                            new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
+                            new FileCacheListener() {
+                                @Override
+                                public void onSuccess(RawFile file, boolean immediate) {
+                                    BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(file.getFullPath()),
+                                            width * 2,
+                                            height * 2
+                                    ), result -> {
+                                        if (result != null) {
+                                            NetUtils.storeExternalBitmap(url, result);
+                                            onBitmapSuccess(result, immediate);
+                                        } else {
+                                            onBitmapFailure(null, new NullPointerException("Failed to decode bitmap."));
+                                        }
+                                    });
+                                }
+
+                                @Override
+                                public void onFail(Exception exception) {
+                                    onBitmapFailure(null, exception);
+                                }
+
+                                @Override
+                                public void onNotFound() {
+                                    onBitmapFailure(null, new NetUtils.HttpCodeException(404));
+                                }
+                            }
+                    );
                 }
             } else {
-                String fileName;
-
-                if (postImage.spoiler()) {
-                    String extension = StringUtils.extractFileNameExtension(postImage.spoilerThumbnailUrl.toString());
-
-                    fileName = ThreadSaveManager.formatSpoilerImageName(extension);
-                } else {
-                    String extension = StringUtils.extractFileNameExtension(postImage.thumbnailUrl.toString());
-
-                    fileName = ThreadSaveManager.formatThumbnailImageName(postImage.serverFilename, extension);
-                }
-
-                setUrlFromDisk(loadable, fileName, postImage.spoiler(), width, height);
+                setUrl(postImage.getThumbnailUrl(), width, height);
             }
         }
     }

@@ -249,18 +249,11 @@ public class NetUtils {
                                 "Json parse returned null object")));
                     }
                 } catch (Exception e) {
-                    Logger.e(TAG, "Error parsing JSON: ", e);
-                    if (response.body() != null) {
-                        try {
-                            //noinspection ConstantConditions
-                            Logger.e(TAG, "Bad JSON: " + response.body().string(), e);
-                        } catch (Exception ex) {
-                            Logger.e(TAG, "Bad JSON, no JSON available: ", ex);
-                        }
-                    }
+                    // response is closed at this point because of the try-with-resources block, and response bodies are only one-time read
+                    // we can't print out the offending JSON without being horribly memory inefficient
+                    Logger.e(TAG, "Error parsing JSON!", e);
                     BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(e.getMessage())));
                 }
-                response.close();
             }
         };
         if (enqueue) {

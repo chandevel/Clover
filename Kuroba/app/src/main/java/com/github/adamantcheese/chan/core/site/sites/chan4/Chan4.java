@@ -22,9 +22,7 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
-import com.github.adamantcheese.chan.core.model.Archive;
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -329,39 +327,19 @@ public class Chan4
         }
 
         @Override
-        public void archives(ArchiveRequestListener archivesListener) {
-            //currently only used for 4chan, so if there are archives, don't send another request
-            if (Chan.instance(ArchivesManager.class).hasArchives()) return;
-            NetUtils.makeJsonRequest(HttpUrl.get("https://4chenz.github.io/archives.json/archives.json"),
-                    new JsonResult<List<ArchivesManager.Archives>>() {
-                        @Override
-                        public void onJsonFailure(Exception e) {
-                            Logger.e(Chan4.this, "Failed to get archives for 4Chan, using builtins");
-                        }
-
-                        @Override
-                        public void onJsonSuccess(List<ArchivesManager.Archives> result) {
-                            archivesListener.onArchivesReceived(result);
-                        }
-                    },
-                    ArchivesManager::parseArchives
-            );
-        }
-
-        @Override
         public void archive(Board board, ArchiveListener archiveListener) {
-            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<Archive>() {
+            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<InternalSiteArchive>() {
                 @Override
                 public void onHTMLFailure(Exception e) {
                     archiveListener.onArchiveError();
                 }
 
                 @Override
-                public void onHTMLSuccess(Archive result) {
+                public void onHTMLSuccess(InternalSiteArchive result) {
                     archiveListener.onArchive(result);
                 }
             }, document -> {
-                List<Archive.ArchiveItem> items = new ArrayList<>();
+                List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
                 Element table = document.getElementById("arc-list");
                 Element tableBody = table.getElementsByTag("tbody").first();
@@ -370,10 +348,10 @@ public class Chan4
                     Elements dataElements = tr.getElementsByTag("td");
                     String description = dataElements.get(1).text();
                     int id = Integer.parseInt(dataElements.get(0).text());
-                    items.add(Archive.ArchiveItem.fromDescriptionId(description, id));
+                    items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
                 }
 
-                return Archive.fromItems(items);
+                return InternalSiteArchive.fromItems(items);
             });
         }
 

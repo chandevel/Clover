@@ -24,14 +24,12 @@ import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedThreadManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
-import com.github.adamantcheese.chan.ui.settings.base_directory.LocalThreadsBaseDirectory;
 import com.github.adamantcheese.chan.ui.settings.base_directory.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -118,15 +116,6 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public DatabaseSavedThreadManager provideDatabaseSavedThreadManager(
-            DatabaseHelper helper, FileManager fileManager
-    ) {
-        Logger.d(AppModule.DI_TAG, "Database saved thread manager");
-        return new DatabaseSavedThreadManager(helper, fileManager);
-    }
-
-    @Provides
-    @Singleton
     public SiteResolver provideSiteResolver(SiteRepository siteRepository) {
         Logger.d(AppModule.DI_TAG, "Site resolver");
         return new SiteResolver(siteRepository);
@@ -165,17 +154,11 @@ public class AppModule {
     public FileManager provideFileManager() {
         DirectoryManager directoryManager = new DirectoryManager(getAppContext());
 
-        // Add new base directories here
-        LocalThreadsBaseDirectory localThreadsBaseDirectory = new LocalThreadsBaseDirectory();
-        SavedFilesBaseDirectory savedFilesBaseDirectory = new SavedFilesBaseDirectory();
-
         BadPathSymbolResolutionStrategy resolutionStrategy =
                 BuildConfig.DEV_BUILD ? ThrowAnException : ReplaceBadSymbols;
 
         FileManager fileManager = new FileManager(getAppContext(), resolutionStrategy, directoryManager);
-
-        fileManager.registerBaseDir(LocalThreadsBaseDirectory.class, localThreadsBaseDirectory);
-        fileManager.registerBaseDir(SavedFilesBaseDirectory.class, savedFilesBaseDirectory);
+        fileManager.registerBaseDir(SavedFilesBaseDirectory.class, new SavedFilesBaseDirectory());
 
         return fileManager;
     }
