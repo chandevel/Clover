@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class SerializablePostImage {
     @SerializedName("original_name")
     private String originalName;
@@ -102,7 +104,7 @@ public class SerializablePostImage {
 
     @Override
     public int hashCode() {
-        return 31 * originalName.hashCode() + 31 * filename.hashCode();
+        return Objects.hash(originalName, filename);
     }
 
     @Override

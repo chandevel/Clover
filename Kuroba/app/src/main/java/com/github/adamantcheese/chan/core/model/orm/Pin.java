@@ -22,6 +22,8 @@ import androidx.annotation.Nullable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Objects;
+
 @DatabaseTable(tableName = "pin")
 public class Pin
         implements Comparable<Pin>, Cloneable {
@@ -132,7 +134,7 @@ public class Pin
 
     @Override
     public int hashCode() {
-        return 31 * loadable.id + 31 * id;
+        return Objects.hash(loadable.id, id);
     }
 
     @Override

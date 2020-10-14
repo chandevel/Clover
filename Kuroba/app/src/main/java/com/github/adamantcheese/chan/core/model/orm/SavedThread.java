@@ -65,7 +65,7 @@ public class SavedThread {
 
     @Override
     public int hashCode() {
-        return id * 31;
+        return id;
     }
 
     @Override

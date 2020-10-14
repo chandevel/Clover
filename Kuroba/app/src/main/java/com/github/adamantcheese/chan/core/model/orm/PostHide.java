@@ -20,6 +20,8 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Objects;
+
 @DatabaseTable(tableName = "posthide")
 public class PostHide {
     @SuppressWarnings("unused")
@@ -115,9 +117,6 @@ public class PostHide {
 
     @Override
     public int hashCode() {
-        int result = board.hashCode();
-        result = 31 * result + no;
-        result = 31 * result + site;
-        return result;
+        return Objects.hash(board, no, site);
     }
 }

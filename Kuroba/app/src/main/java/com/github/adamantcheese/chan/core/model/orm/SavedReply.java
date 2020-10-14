@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.core.model.orm;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Objects;
+
 @DatabaseTable(tableName = "savedreply")
 public class SavedReply {
     public SavedReply() {
@@ -61,8 +63,6 @@ public class SavedReply {
 
     @Override
     public int hashCode() {
-        int result = board.hashCode();
-        result = 31 * result + no;
-        return result;
+        return Objects.hash(board, no);
     }
 }

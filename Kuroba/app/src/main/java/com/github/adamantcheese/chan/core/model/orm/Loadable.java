@@ -33,6 +33,7 @@ import com.j256.ormlite.table.DatabaseTable;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
+import java.util.Objects;
 
 import okhttp3.HttpUrl;
 
@@ -40,6 +41,9 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.AlreadyDownloaded;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndNotViewable;
 import static com.github.adamantcheese.chan.core.model.orm.Loadable.LoadableDownloadingState.DownloadingAndViewable;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.INVALID;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
@@ -66,7 +70,7 @@ public class Loadable
      * Mode for the loadable. Either thread or catalog.
      */
     @DatabaseField
-    public int mode = Mode.INVALID;
+    public int mode = INVALID;
 
     @DatabaseField(columnName = "board", canBeNull = false, index = true)
     public String boardCode = "";
@@ -160,7 +164,7 @@ public class Loadable
         loadable.site = board.site;
         loadable.board = board;
         loadable.boardCode = board.code;
-        loadable.mode = Mode.CATALOG;
+        loadable.mode = CATALOG;
         return loadable;
     }
 
@@ -175,7 +179,7 @@ public class Loadable
         Loadable loadable = new Loadable();
         loadable.siteId = board.siteId;
         loadable.site = board.site;
-        loadable.mode = Mode.THREAD;
+        loadable.mode = THREAD;
         loadable.board = board;
         loadable.boardCode = board.code;
         loadable.no = no;
@@ -199,11 +203,11 @@ public class Loadable
 
         if (mode == other.mode) {
             switch (mode) {
-                case Mode.INVALID:
+                case INVALID:
                     return true;
-                case Mode.CATALOG:
+                case CATALOG:
                     return boardCode.equals(other.boardCode);
-                case Mode.THREAD:
+                case THREAD:
                     return boardCode.equals(other.boardCode) && no == other.no;
                 default:
                     throw new IllegalArgumentException();
@@ -219,15 +223,7 @@ public class Loadable
 
     @Override
     public int hashCode() {
-        int result = mode + 1;
-
-        if (mode == Mode.THREAD || mode == Mode.CATALOG) {
-            result = 31 * result + boardCode.hashCode();
-        }
-        if (mode == Mode.THREAD) {
-            result = 31 * result + no;
-        }
-        return result;
+        return Objects.hash(mode, mode != INVALID ? boardCode : 0, mode == THREAD ? no : 0);
     }
 
     @Override
@@ -240,11 +236,11 @@ public class Loadable
     }
 
     public boolean isThreadMode() {
-        return mode == Mode.THREAD;
+        return mode == THREAD;
     }
 
     public boolean isCatalogMode() {
-        return mode == Mode.CATALOG;
+        return mode == CATALOG;
     }
 
     /**

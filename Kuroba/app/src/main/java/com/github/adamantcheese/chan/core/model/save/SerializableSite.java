@@ -14,7 +14,7 @@ public class SerializableSite {
 
     @Override
     public int hashCode() {
-        return 31 * siteId;
+        return siteId;
     }
 
     @Override

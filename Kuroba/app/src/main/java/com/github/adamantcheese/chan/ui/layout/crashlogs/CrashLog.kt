@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.layout.crashlogs
 
 import java.io.File
+import java.util.*
 
 data class CrashLog(val file: File, val fileName: String, var markedToSend: Boolean) {
 
@@ -17,8 +18,6 @@ data class CrashLog(val file: File, val fileName: String, var markedToSend: Bool
     }
 
     override fun hashCode(): Int {
-        var result = fileName.hashCode()
-        result = 31 * result + markedToSend.hashCode()
-        return result
+        return Objects.hash(fileName, markedToSend)
     }
 }

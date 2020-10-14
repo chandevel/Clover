@@ -29,6 +29,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
+import java.util.Objects;
+
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
@@ -113,16 +115,7 @@ public class PostLinkable
 
     @Override
     public int hashCode() {
-        int result = 0;
-        for (char c : key.toString().toCharArray()) {
-            result += c;
-        }
-        result = 31 * result;
-        for (char c : value.toString().toCharArray()) {
-            result += c;
-        }
-        result = 31 * result + type.ordinal();
-        return result;
+        return Objects.hash(key.toString(), value.toString(), type.ordinal());
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.github.adamantcheese.chan.core.model.save.spans.SerializableSpannable
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class SerializablePost {
@@ -268,7 +269,7 @@ public class SerializablePost {
 
     @Override
     public int hashCode() {
-        return 31 * no + 31 * board.code.hashCode() + 31 * board.siteId;
+        return Objects.hash(no, board.code, board.siteId);
     }
 
     @Override

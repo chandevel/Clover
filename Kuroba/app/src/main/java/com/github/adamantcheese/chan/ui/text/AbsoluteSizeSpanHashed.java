@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.ui.text;
 
 import android.text.style.AbsoluteSizeSpan;
 
+import java.util.Objects;
+
 /**
  * A version of AbsoluteSizeSpan that has proper equals and hashCode implementations. Used to fix the hashcode result from SpannableStringBuilder.
  */
@@ -40,8 +42,6 @@ public class AbsoluteSizeSpanHashed
 
     @Override
     public int hashCode() {
-        int result = getSize();
-        result = 31 * result + (getDip() ? 1 : 0);
-        return result;
+        return Objects.hash(getSize(), getDip());
     }
 }

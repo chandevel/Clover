@@ -4,6 +4,8 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class SerializableBoard {
     @SerializedName("id")
     public int id;
@@ -34,7 +36,7 @@ public class SerializableBoard {
 
     @Override
     public int hashCode() {
-        return 31 * siteId + 31 * name.hashCode() + 31 * code.hashCode();
+        return Objects.hash(siteId, name, code);
     }
 
     @Override
