@@ -23,10 +23,4 @@ public class IntegerSetting
     public IntegerSetting(SettingProvider<Object> settingProvider, String key, Integer def) {
         super(settingProvider, key, def);
     }
-
-    public void setSyncNoCheck(Integer value) {
-        settingProvider.putValueSync(key, value);
-        cached = value;
-        onValueChanged();
-    }
 }

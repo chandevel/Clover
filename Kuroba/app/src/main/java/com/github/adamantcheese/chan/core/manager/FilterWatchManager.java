@@ -194,7 +194,7 @@ public class FilterWatchManager
                 processing = false;
                 Logger.d(this,
                         "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
-                                Locale.ENGLISH
+                                Locale.getDefault()
                         ).format(new Date())
                 );
                 wakeManager.manageLock(false, FilterWatchManager.this);

@@ -61,6 +61,12 @@ public abstract class Setting<T> {
         }
     }
 
+    public void setSyncNoCheck(T value) {
+        settingProvider.putValueSync(key, value);
+        cached = value;
+        onValueChanged();
+    }
+
     public void remove() {
         settingProvider.removeSync(key);
         hasCached = false;

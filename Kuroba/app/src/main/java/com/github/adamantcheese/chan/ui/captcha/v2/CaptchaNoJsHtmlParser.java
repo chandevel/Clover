@@ -67,7 +67,6 @@ public class CaptchaNoJsHtmlParser {
     private static final Pattern verificationTokenPattern = Pattern.compile(
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
-    private static final int SUCCESS_STATUS_CODE = 200;
 
     private NetModule.OkHttpClientWithUtils okHttpClient;
     private Context context;
@@ -303,7 +302,7 @@ public class CaptchaNoJsHtmlParser {
         Request request = new Request.Builder().url(fullUrl).build();
 
         try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
-            if (response.code() != SUCCESS_STATUS_CODE) {
+            if (!response.isSuccessful()) {
                 throw new CaptchaNoJsV2ParsingError(
                         "Could not download challenge image, status code = " + response.code());
             }

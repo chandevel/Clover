@@ -51,7 +51,7 @@ public class CrossfadeView
         viewTwo = getChildAt(1);
 
         if (viewOne.getVisibility() == VISIBLE && viewTwo.getVisibility() == VISIBLE) {
-            throw new InflateException("Only one view may be visible at a time, check your XML!");
+            throw new InflateException("A max of one view may be visible at a time, check your XML!");
         }
     }
 

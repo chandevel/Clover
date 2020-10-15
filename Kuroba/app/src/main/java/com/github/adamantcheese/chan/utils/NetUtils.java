@@ -125,7 +125,7 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
+                if (!response.isSuccessful()) {
                     performBitmapFailure(url, new HttpCodeException(response.code()));
                     response.close();
                     return;
@@ -233,7 +233,7 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
+                if (!response.isSuccessful()) {
                     BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new HttpCodeException(response.code())));
                     response.close();
                     return;
@@ -286,7 +286,7 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
+                if (!response.isSuccessful()) {
                     BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(new HttpCodeException(response.code())));
                     response.close();
                     return;
@@ -329,7 +329,7 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (response.code() != 200) {
+                if (!response.isSuccessful()) {
                     BackgroundUtils.runOnMainThread(() -> result.onHeaderFailure(new HttpCodeException(response.code())));
                     response.close();
                     return;

@@ -286,6 +286,7 @@ public class DrawerController
             ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_history);
             mainHandler.removeCallbacks(refreshRunnable);
             header.findViewById(R.id.clear).setVisibility(GONE);
+            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
 
             pinTouchHelper.attachToRecyclerView(null);
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));
@@ -357,7 +358,9 @@ public class DrawerController
     public void onEvent(PinMessages.PinChangedMessage message) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
         synchronized (watchManager.getAllPins()) {
-            getPinAdapter().notifyItemChanged(watchManager.getAllPins().indexOf(message.pin));
+            // notify with an unused Object to indicate a "partial" update, which prevents onViewRecycled being called
+            // this prevents flicker every time a thread updates
+            getPinAdapter().notifyItemChanged(watchManager.getAllPins().indexOf(message.pin), new Object());
         }
         updateBadge();
     }

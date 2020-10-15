@@ -383,23 +383,19 @@ public class ImageViewerController
 
     @Override
     public void updatePreviewImage(PostImage postImage) {
-        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage)
-                        ? postImage.imageUrl
-                        : postImage.getThumbnailUrl(),
-                new NetUtils.BitmapResult() {
-                    @Override
-                    public void onBitmapFailure(Bitmap errormap, Exception e) {
-                        // the preview image will just remain as the last successful response; good enough
-                    }
+        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
+                ? postImage.getThumbnailUrl()
+                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtils.BitmapResult() {
+            @Override
+            public void onBitmapFailure(Bitmap errormap, Exception e) {
+                // the preview image will just remain as the last successful response; good enough
+            }
 
-                    @Override
-                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
-                        previewImage.setBitmap(bitmap);
-                    }
-                },
-                previewImage.getWidth(),
-                previewImage.getHeight()
-        );
+            @Override
+            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                previewImage.setBitmap(bitmap);
+            }
+        }, previewImage.getWidth(), previewImage.getHeight());
     }
 
     public void saveImage() {
@@ -491,30 +487,26 @@ public class ImageViewerController
             }
         });
 
-        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage)
-                        ? postImage.imageUrl
-                        : postImage.getThumbnailUrl(),
-                new NetUtils.BitmapResult() {
-                    @Override
-                    public void onBitmapFailure(Bitmap errormap, Exception e) {
-                        Logger.e(
-                                ImageViewerController.this,
-                                "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
-                                e
-                        );
-                        previewImage.setBitmap(errormap);
-                        startAnimation.start();
-                    }
+        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
+                ? postImage.getThumbnailUrl()
+                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtils.BitmapResult() {
+            @Override
+            public void onBitmapFailure(Bitmap errormap, Exception e) {
+                Logger.e(
+                        ImageViewerController.this,
+                        "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
+                        e
+                );
+                previewImage.setBitmap(errormap);
+                startAnimation.start();
+            }
 
-                    @Override
-                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
-                        previewImage.setBitmap(bitmap);
-                        startAnimation.start();
-                    }
-                },
-                previewImage.getWidth(),
-                previewImage.getHeight()
-        );
+            @Override
+            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                previewImage.setBitmap(bitmap);
+                startAnimation.start();
+            }
+        }, previewImage.getWidth(), previewImage.getHeight());
     }
 
     public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {

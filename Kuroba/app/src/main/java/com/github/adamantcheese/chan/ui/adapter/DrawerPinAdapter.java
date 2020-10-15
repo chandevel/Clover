@@ -90,7 +90,9 @@ public class DrawerPinAdapter
         if (holder.image.getBitmap() == null) {
             holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
         }
-        holder.image.setGreyscale(!pin.watching);
+        if (!pin.watching) {
+            holder.image.setGreyscale(true);
+        }
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
@@ -139,6 +141,7 @@ public class DrawerPinAdapter
 
     @Override
     public void onViewRecycled(@NonNull PinViewHolder holder) {
+        holder.image.setGreyscale(false);
         holder.image.setUrl(null);
         holder.watchCountText.setText("");
         holder.title.setText("");

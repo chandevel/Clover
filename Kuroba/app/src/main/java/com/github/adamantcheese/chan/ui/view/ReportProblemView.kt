@@ -16,7 +16,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-class ReportProblemLayout(context: Context) : FrameLayout(context) {
+class ReportProblemView(context: Context) : FrameLayout(context) {
 
     @Inject
     lateinit var reportManager: ReportManager

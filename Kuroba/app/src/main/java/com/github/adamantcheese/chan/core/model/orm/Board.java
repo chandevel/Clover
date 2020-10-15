@@ -24,6 +24,8 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.Objects;
+
 /**
  * A board is something that can be browsed, it is unique by it's site and code.
  */
@@ -311,6 +313,6 @@ public class Board
 
     @Override
     public int hashCode() {
-        return id; // boards come from the database, so their id's should match making this an effective hashcode
+        return Objects.hash(siteId, code, bumpLimit, imageLimit, cooldownImages);
     }
 }

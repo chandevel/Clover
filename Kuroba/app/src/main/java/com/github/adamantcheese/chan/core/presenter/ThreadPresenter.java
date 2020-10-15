@@ -614,7 +614,7 @@ public class ThreadPresenter
                 post.no,
                 PostHelper.getTitle(post, loadable),
                 false
-        )) == null) {
+        )) == null && !(loadable.site instanceof ExternalSiteArchive)) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         }
 

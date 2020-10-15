@@ -53,7 +53,6 @@ public class CaptchaNoJsPresenterV2 {
     private static final String mediaType = "application/x-www-form-urlencoded";
     private static final String recaptchaChallengeString = "reCAPTCHA challenge";
     private static final String verificationTokenString = "fbc-verification-token";
-    private static final int SUCCESS_STATUS_CODE = 200;
     private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
 
     // this cookie is taken from dashchan
@@ -255,7 +254,7 @@ public class CaptchaNoJsPresenterV2 {
     @Nullable
     private CaptchaInfo handleGetRecaptchaResponse(Response response) {
         try {
-            if (response.code() != SUCCESS_STATUS_CODE) {
+            if (!response.isSuccessful()) {
                 if (callbacks != null) {
                     callbacks.onCaptchaInfoParseError(new IOException(
                             "Bad status code for captcha request = " + response.code()));

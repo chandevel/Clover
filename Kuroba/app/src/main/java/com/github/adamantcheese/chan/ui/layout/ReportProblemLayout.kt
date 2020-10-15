@@ -8,6 +8,7 @@ import android.widget.FrameLayout
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
+import com.github.adamantcheese.chan.core.manager.ReportManager.Ok
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
@@ -82,7 +83,7 @@ class ReportProblemLayout(context: Context) : FrameLayout(context) {
         reportManager.sendReport(title, description, logsParam)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ result ->
-                    if (result is ReportManager.Ok) {
+                    if (result is Ok) {
                         showToast(context, R.string.report_controller_report_sent)
                     }
                 }, { error ->

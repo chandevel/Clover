@@ -272,7 +272,7 @@ public class CardPostCell
 
         CommentParserHelper.addMathSpans(post, comment);
         if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceMediaLinks(theme, post, new InvalidateFunction() {
+            extraCalls = CommentParserHelper.replaceMediaLinks(theme, post, new InvalidateFunction() { // TODO move this into an embedding class
                 private boolean fullInvalidate;
                 private int count = 0;
 

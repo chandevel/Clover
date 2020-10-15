@@ -28,6 +28,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -50,6 +51,8 @@ public class BackgroundUtils {
                     TimeUnit.SECONDS,
                     new LinkedBlockingQueue<>()
             );
+
+    public static final ScheduledExecutorService backgroundScheduledService = Executors.newScheduledThreadPool(1);
 
     public static boolean isInForeground() {
         return ((Chan) getAppContext()).getApplicationInForeground();

@@ -81,7 +81,7 @@ class ReportManager(
                 .debounce(1, TimeUnit.SECONDS)
                 .doOnNext {
                     // If no more crash logs left, remove the notification
-                    if (!hasCrashLogs()) {
+                    if (countCrashLogs() <= 0) {
                         SettingsNotificationManager.cancelNotification(SettingNotification.CrashLog)
                     }
                 }
@@ -113,7 +113,7 @@ class ReportManager(
         return sendInternal(request)
                 .doOnSuccess { result ->
                     if (result is Ok) {
-                        Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent")
+                        Logger.d(TAG, "Crash log ${crashLogFile.absolutePath} sent!")
 
                         if (!crashLogFile.delete()) {
                             Logger.e(TAG, "Couldn't delete crash log file: ${crashLogFile.absolutePath}")
@@ -176,15 +176,6 @@ class ReportManager(
         }
 
         Logger.d(TAG, "Stored new crash log, path = ${newCrashLog.absolutePath}")
-    }
-
-    fun hasCrashLogs(): Boolean {
-        if (!createCrashLogsDirIfNotExists()) {
-            return false
-        }
-
-        val crashLogs = crashLogsDirPath.listFiles()
-        return crashLogs != null && crashLogs.isNotEmpty()
     }
 
     fun countCrashLogs(): Int {

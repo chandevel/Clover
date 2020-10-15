@@ -59,7 +59,7 @@ internal class ChunkDownloader(
                         if ("MISS" == response.header(CF_CACHE_STATUS_HEADER)) {
                             log(TAG, "CF cache miss, retrying immediately")
                             response.closeQuietly()
-                            return@invoke chain.proceed(chain.request())
+                            return@invoke chain.proceed(chain.request()) // TODO #1071 this might not be the right solution
                         }
                         return@invoke response
                     }).build()

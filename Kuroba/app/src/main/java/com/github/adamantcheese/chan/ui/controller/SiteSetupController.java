@@ -50,6 +50,7 @@ public class SiteSetupController
     public SiteSetupController(Context context, Site site) {
         super(context);
         this.site = site;
+        presenter = new SiteSetupPresenter(this, site);
     }
 
     @Override
@@ -66,10 +67,6 @@ public class SiteSetupController
 
         // Preferences
         populatePreferences();
-
-        // Presenter
-        presenter = new SiteSetupPresenter(this, site);
-
         buildPreferences();
     }
 

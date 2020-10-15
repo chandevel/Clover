@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtils;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -32,9 +33,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-public class ArchivesManager {
+public class ArchivesManager
+        implements NetUtils.JsonResult<List<ExternalSiteArchive>>, NetUtils.JsonParser<List<ExternalSiteArchive>> {
     private List<ExternalSiteArchive> archivesList;
 
     private Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
@@ -49,11 +53,14 @@ public class ArchivesManager {
         try {
             // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
             try (JsonReader reader = new JsonReader(new InputStreamReader(assetManager.open("archives.json")))) {
-                archivesList = parseArchives(reader);
+                archivesList = parse(reader);
             }
         } catch (Exception e) {
             Logger.d(this, "Unable to load/parse internal archives list");
         }
+
+        // fresh copy request, in case of updates
+        NetUtils.makeJsonRequest(HttpUrl.get("https://4chenz.github.io/archives.json/archives.json"), this, this);
     }
 
     public List<ExternalSiteArchive> archivesForBoard(Board b) {
@@ -70,7 +77,8 @@ public class ArchivesManager {
         return result;
     }
 
-    private List<ExternalSiteArchive> parseArchives(JsonReader reader)
+    @Override
+    public List<ExternalSiteArchive> parse(JsonReader reader)
             throws Exception {
         List<ExternalSiteArchive> archives = new ArrayList<>();
 
@@ -123,5 +131,13 @@ public class ArchivesManager {
         }
         reader.endArray();
         return archives;
+    }
+
+    @Override
+    public void onJsonFailure(Exception e) {}
+
+    @Override
+    public void onJsonSuccess(List<ExternalSiteArchive> result) {
+        archivesList = result;
     }
 }

@@ -24,10 +24,4 @@ public class StringSetting
     public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
         super(settingProvider, key, def);
     }
-
-    public void setSyncNoCheck(String value) {
-        settingProvider.putValueSync(key, value);
-        cached = value;
-        onValueChanged();
-    }
 }

@@ -30,7 +30,6 @@ import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
@@ -115,9 +114,6 @@ public class Chan
         feather = Feather.with(new AppModule(), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
 
-        //Needs to happen before any sites are processed, in case they request archives
-        feather.instance(ArchivesManager.class);
-
         siteRepository.initialize();
         boardManager.initialize();
 
@@ -196,7 +192,7 @@ public class Chan
 
         SettingsNotificationManager.postNotification(SettingNotification.Default);
         if (ChanSettings.collectCrashLogs.get()) {
-            if (reportManager.hasCrashLogs()) {
+            if (reportManager.countCrashLogs() > 0) {
                 SettingsNotificationManager.postNotification(SettingNotification.CrashLog);
             }
         }

@@ -220,9 +220,9 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.browser:browser:1.2.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.2'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
-    implementation 'androidx.exifinterface:exifinterface:1.3.0'
+    implementation 'androidx.exifinterface:exifinterface:1.3.1'
     implementation 'androidx.preference:preference:1.1.1'
     implementation 'androidx.slidingpanelayout:slidingpanelayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
@@ -262,10 +262,10 @@ dependencies {
 task downloadArchives {
     try {
         download {
-            src('https://4chenz.github.io/archives.json/archives.json')
+            src 'https://4chenz.github.io/archives.json/archives.json'
             dest projectDir.path + File.separator + "src" + File.separator + "main" + File.separator + "assets"
         }
     } catch (Exception ignored) {
     }
 }
-preBuild.dependsOn(downloadArchives)
+preBuild.dependsOn downloadArchives

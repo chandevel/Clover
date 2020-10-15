@@ -771,7 +771,7 @@ public class CommentParserHelper {
                 call.enqueue(new NetUtils.IgnoreFailureCallback() {
                     @Override
                     public void onResponse(@NotNull Call call, @NotNull Response response) {
-                        if (response.code() != 200) {
+                        if (!response.isSuccessful()) {
                             response.close();
                             return;
                         }

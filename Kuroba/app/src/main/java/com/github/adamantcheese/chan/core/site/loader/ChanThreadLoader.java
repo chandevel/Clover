@@ -41,8 +41,6 @@ import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -63,7 +61,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
  * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
  */
 public class ChanThreadLoader {
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
     private final List<ChanLoaderCallback> listeners = new CopyOnWriteArrayList<>();
@@ -225,10 +222,11 @@ public class ChanThreadLoader {
         int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
         Logger.d(this, "Scheduled reload in " + watchTimeout + "s");
 
-        pendingFuture = executor.schedule(() -> BackgroundUtils.runOnMainThread(() -> {
-            pendingFuture = null;
-            requestMoreData();
-        }), watchTimeout, TimeUnit.SECONDS);
+        pendingFuture =
+                BackgroundUtils.backgroundScheduledService.schedule(() -> BackgroundUtils.runOnMainThread(() -> {
+                    pendingFuture = null;
+                    requestMoreData();
+                }), watchTimeout, TimeUnit.SECONDS);
     }
 
     public void clearTimer() {

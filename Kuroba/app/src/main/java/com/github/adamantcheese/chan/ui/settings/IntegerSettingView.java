@@ -85,11 +85,6 @@ public class IntegerSettingView
         LinearLayout container = new LinearLayout(v.getContext());
         container.setPadding(dp(24), dp(24), dp(24), 0);
 
-        final TextView min = new TextView(v.getContext());
-        min.setText(String.valueOf(minimumValue));
-        min.setGravity(Gravity.CENTER_VERTICAL);
-        container.addView(min, WRAP_CONTENT, MATCH_PARENT);
-
         final SeekBar rangeSlider = new SeekBar(v.getContext());
         rangeSlider.setProgress(convertRangeToProgress(setting.get()));
         rangeSlider.setLayoutParams(new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f));
@@ -113,13 +108,16 @@ public class IntegerSettingView
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
             setting.set(convertProgressToRange(rangeSlider.getProgress()));
             settingsController.onPreferenceChange(IntegerSettingView.this);
         }).setNeutralButton(R.string.default_, (d, which) -> {
             setting.set(setting.getDefault());
             settingsController.onPreferenceChange(IntegerSettingView.this);
-        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).show();
+        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
+
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
     }
 
     /**

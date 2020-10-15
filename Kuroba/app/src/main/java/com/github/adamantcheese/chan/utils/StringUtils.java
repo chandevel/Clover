@@ -13,10 +13,12 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import kotlin.io.ByteStreamsKt;
 import okhttp3.HttpUrl;
+import okio.ByteString;
+import okio.internal.ByteStringKt;
 
 public class StringUtils {
-    private static final char[] HEX_ARRAY = "0123456789abcdef".toCharArray();
     @SuppressWarnings("RegExpRedundantEscape")
     private static final String RESERVED_CHARACTERS = "|?*<\":>+\\[\\]/'\\\\\\s";
     private static final String RESERVED_CHARACTERS_DIR = "[" + RESERVED_CHARACTERS + "." + "]";
@@ -26,18 +28,6 @@ public class StringUtils {
 
     static {
         UTCFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
-    public static String bytesToHex(byte[] bytes) {
-        char[] hexChars = new char[bytes.length * 2];
-
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-
-        return new String(hexChars);
     }
 
     @Nullable
@@ -73,16 +63,12 @@ public class StringUtils {
 
     @Nullable
     public static String decodeBase64(String base64Encoded) {
-        byte[] bytes;
-
         try {
-            bytes = Base64.decode(base64Encoded, Base64.DEFAULT);
+            return new ByteString(Base64.decode(base64Encoded, Base64.DEFAULT)).hex();
         } catch (Throwable error) {
             Logger.e("decodeBase64", "Error decoding base64 string! Msg: " + error.getMessage());
             return null;
         }
-
-        return bytesToHex(bytes);
     }
 
     public static String maskPostNo(int postNo) {
