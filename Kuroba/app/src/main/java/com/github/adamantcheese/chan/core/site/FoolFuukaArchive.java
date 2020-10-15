@@ -154,6 +154,8 @@ public class FoolFuukaArchive
                             switch (mediaKey) {
                                 case "spoiler":
                                     imageBuilder.spoiler(reader.nextInt() == 1);
+                                    imageBuilder.spoilerThumbnailUrl(HttpUrl.get(
+                                            BuildConfig.RESOURCES_ENDPOINT + "default_spoiler.png"));
                                     break;
                                 case "media_w":
                                     imageBuilder.imageWidth(reader.nextInt());

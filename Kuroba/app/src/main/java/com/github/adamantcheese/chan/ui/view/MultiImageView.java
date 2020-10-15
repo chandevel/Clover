@@ -311,7 +311,7 @@ public class MultiImageView
             return;
         }
 
-        final HttpUrl thumbnailURL = postImage.spoiler() ? postImage.spoilerThumbnailUrl : postImage.thumbnailUrl;
+        final HttpUrl thumbnailURL = postImage.getThumbnailUrl();
         thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
             @Override
             public void onBitmapFailure(Bitmap errormap, Exception e) {
