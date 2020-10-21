@@ -78,6 +78,8 @@ public abstract class ThumbnailView
 
     private ValueAnimator fadeIn;
 
+    private HttpUrl source = null;
+
     public ThumbnailView(Context context) {
         this(context, null);
     }
@@ -98,6 +100,10 @@ public abstract class ThumbnailView
         }
     }
 
+    public HttpUrl getSource() {
+        return source;
+    }
+
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
         error = false;
         setImageBitmap(null);
@@ -110,6 +116,8 @@ public abstract class ThumbnailView
             bitmapCall.cancel();
             bitmapCall = null;
         }
+
+        source = url;
 
         if (url == null) {
             return;
