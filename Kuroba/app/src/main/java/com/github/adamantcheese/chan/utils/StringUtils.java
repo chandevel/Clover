@@ -13,10 +13,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import kotlin.io.ByteStreamsKt;
 import okhttp3.HttpUrl;
 import okio.ByteString;
-import okio.internal.ByteStringKt;
 
 public class StringUtils {
     @SuppressWarnings("RegExpRedundantEscape")

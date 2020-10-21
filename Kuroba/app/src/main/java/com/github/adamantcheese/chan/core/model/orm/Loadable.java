@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.j256.ormlite.field.DataType;
@@ -138,7 +139,10 @@ public class Loadable
     }
 
     public static Loadable emptyLoadable() {
-        return new Loadable();
+        Loadable ret = new Loadable();
+        ret.site = new DummySite();
+        ret.board = Board.getDummyBoard();
+        return ret;
     }
 
     public static Loadable forCatalog(Board board) {

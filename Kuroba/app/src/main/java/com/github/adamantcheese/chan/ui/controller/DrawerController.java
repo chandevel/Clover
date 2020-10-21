@@ -93,7 +93,7 @@ public class DrawerController
     private final Runnable refreshRunnable = new Runnable() {
         @Override
         public void run() {
-            header.findViewById(R.id.refresh).setVisibility(VISIBLE); // TODO
+            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
         }
     };
 

@@ -108,7 +108,6 @@ public class ImageViewerController
     private ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
-    private Loadable loadable;
     private TransitionImageView previewImage;
     private OptionalSwipeViewPager pager;
     private LoadingBar loadingBar;
@@ -117,11 +116,10 @@ public class ImageViewerController
     private Handler mainHandler = new Handler(Looper.getMainLooper());
     private Runnable uiHideCall = this::hideSystemUI;
 
-    public ImageViewerController(Loadable loadable, Context context, Toolbar toolbar) {
+    public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
 
         this.toolbar = toolbar;
-        this.loadable = loadable;
 
         presenter = new ImageViewerPresenter(context, this);
     }
@@ -143,7 +141,7 @@ public class ImageViewerController
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        overflowBuilder.withSubItem(R.string.action_share, () -> saveShare(true, presenter.getCurrentPostImage()));
+        overflowBuilder.withSubItem(R.string.action_share, () -> saveShare(true));
         overflowBuilder.withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation));
         overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
         overflowBuilder.withSubItem(R.string.action_transparency_toggle,
@@ -208,18 +206,13 @@ public class ImageViewerController
 
     private void saveClicked(ToolbarMenuItem item) {
         item.setEnabled(false);
-        saveShare(false, presenter.getCurrentPostImage());
+        saveShare(false);
 
         ((ImageViewerAdapter) pager.getAdapter()).onImageSaved(presenter.getCurrentPostImage());
     }
 
     private void openBrowserClicked() {
         PostImage postImage = presenter.getCurrentPostImage();
-        if (postImage.imageUrl == null) {
-            Logger.e(this, "openBrowserClicked() postImage.imageUrl is null");
-            return;
-        }
-
         if (ChanSettings.openLinkBrowser.get()) {
             openLink(postImage.imageUrl.toString());
         } else {
@@ -250,16 +243,12 @@ public class ImageViewerController
         getWindow(context).clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
-    private void saveShare(boolean share, PostImage postImage) {
+    private void saveShare(boolean share) {
+        PostImage postImage = presenter.getCurrentPostImage();
         if (share && ChanSettings.shareUrl.get()) {
-            if (postImage.imageUrl == null) {
-                Logger.e(this, "saveShare() postImage.imageUrl == null");
-                return;
-            }
-
             shareLink(postImage.imageUrl.toString());
         } else {
-            ImageSaveTask task = new ImageSaveTask(loadable, postImage, share);
+            ImageSaveTask task = new ImageSaveTask(postImage, share);
             if (ChanSettings.saveImageBoardFolder.get()) {
                 String subFolderName;
 
@@ -404,7 +393,7 @@ public class ImageViewerController
             saveMenuItem.setEnabled(false);
         }
 
-        saveShare(false, presenter.getCurrentPostImage());
+        saveShare(false);
     }
 
     public void showProgress(boolean show) {
@@ -452,7 +441,7 @@ public class ImageViewerController
         return ChanSettings.useImmersiveModeForGallery.get() && isInImmersiveMode;
     }
 
-    public void startPreviewInTransition(Loadable loadable, PostImage postImage) {
+    public void startPreviewInTransition(PostImage postImage) {
         ThumbnailView startImageView = getTransitionImageView(postImage);
 
         statusBarColorPrevious = getWindow(context).getStatusBarColor();
@@ -509,7 +498,7 @@ public class ImageViewerController
         }, previewImage.getWidth(), previewImage.getHeight());
     }
 
-    public void startPreviewOutTransition(Loadable loadable, final PostImage postImage) {
+    public void startPreviewOutTransition(final PostImage postImage) {
         if (startAnimation != null || endAnimation != null) {
             return;
         }

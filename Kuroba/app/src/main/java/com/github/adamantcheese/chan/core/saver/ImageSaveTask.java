@@ -63,17 +63,15 @@ public class ImageSaveTask
     CacheHandler cacheHandler;
 
     private PostImage postImage;
-    private Loadable loadable;
     private AbstractFile destination;
     private boolean share;
     private String subFolder;
     private boolean success = false;
     private SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
 
-    public ImageSaveTask(Loadable loadable, PostImage postImage, boolean share) {
+    public ImageSaveTask(PostImage postImage, boolean share) {
         inject(this);
 
-        this.loadable = loadable;
         this.postImage = postImage;
         this.share = share;
         this.imageSaveTaskAsyncResult = SingleSubject.create();
