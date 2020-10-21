@@ -131,7 +131,7 @@ public class ImageViewerPresenter
     public void onViewMeasured() {
         // Pager is measured, but still invisible
         PostImage postImage = images.get(selectedPosition);
-        callback.startPreviewInTransition(loadable, postImage);
+        callback.startPreviewInTransition(postImage);
         callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler());
     }
 
@@ -160,7 +160,7 @@ public class ImageViewerPresenter
         callback.showDownloadMenuItem(false);
         callback.setPagerVisiblity(false);
         callback.setPreviewVisibility(true);
-        callback.startPreviewOutTransition(loadable, postImage);
+        callback.startPreviewOutTransition(postImage);
         callback.showProgress(false);
 
         for (CancelableDownload preloadingImage : preloadingImages) {
@@ -672,9 +672,9 @@ public class ImageViewerPresenter
     }
 
     public interface Callback {
-        void startPreviewInTransition(Loadable loadable, PostImage postImage);
+        void startPreviewInTransition(PostImage postImage);
 
-        void startPreviewOutTransition(Loadable loadable, PostImage postImage);
+        void startPreviewOutTransition(PostImage postImage);
 
         void setPreviewVisibility(boolean visible);
 

@@ -329,6 +329,7 @@ public class DrawerController
     public void onEvent(PinMessages.PinAddedMessage message) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
         synchronized (watchManager.getAllPins()) {
+            recyclerView.scrollToPosition(0);
             getPinAdapter().notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
         }
         if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
