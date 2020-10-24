@@ -308,7 +308,11 @@ public class StyleRule {
 
     public interface Action {
         CharSequence execute(
-                @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element element
+                @NonNull Theme theme,
+                PostParser.Callback callback,
+                Post.Builder post,
+                CharSequence text,
+                Element element
         );
     }
 }

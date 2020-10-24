@@ -3,7 +3,6 @@ package com.davemorrissey.labs.subscaleview.decoder;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -24,6 +23,8 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static android.content.res.AssetManager.ACCESS_RANDOM;
 
 /**
  * Default implementation of {@link com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder}
@@ -97,10 +98,7 @@ public class SkiaImageRegionDecoder
             decoder = BitmapRegionDecoder.newInstance(context.getResources().openRawResource(id), false);
         } else if (uriString.startsWith(ASSET_PREFIX)) {
             String assetName = uriString.substring(ASSET_PREFIX.length());
-            decoder = BitmapRegionDecoder.newInstance(
-                    context.getAssets().open(assetName, AssetManager.ACCESS_RANDOM),
-                    false
-            );
+            decoder = BitmapRegionDecoder.newInstance(context.getAssets().open(assetName, ACCESS_RANDOM), false);
         } else if (uriString.startsWith(FILE_PREFIX)) {
             decoder = BitmapRegionDecoder.newInstance(uriString.substring(FILE_PREFIX.length()), false);
         } else {

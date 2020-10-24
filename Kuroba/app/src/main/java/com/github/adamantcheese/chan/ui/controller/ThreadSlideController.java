@@ -43,7 +43,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public class ThreadSlideController
         extends Controller
         implements DoubleNavigationController, SlidingPaneLayout.PanelSlideListener,
-        ToolbarNavigationController.ToolbarSearchCallback {
+                   ToolbarNavigationController.ToolbarSearchCallback {
     public Controller leftController;
     public Controller rightController;
 

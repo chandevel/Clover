@@ -22,7 +22,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.table.TableUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;

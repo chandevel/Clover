@@ -806,8 +806,7 @@ public class ThreadListLayout
         public void onDrawOver(
                 @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
         ) {
-            if (ChanSettings.thumbnailSize.get() < 85)
-                return; // below this it doesn't really work too well
+            if (ChanSettings.thumbnailSize.get() < 85) return; // below this it doesn't really work too well
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);
                 if (child instanceof PostCellInterface) {

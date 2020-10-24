@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
@@ -52,8 +51,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public abstract class ThreadController
         extends Controller
         implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
-        SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
-        NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
+                   SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
+                   NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
     protected ThreadLayout threadLayout;
     private SwipeRefreshLayout swipeRefreshLayout;
 

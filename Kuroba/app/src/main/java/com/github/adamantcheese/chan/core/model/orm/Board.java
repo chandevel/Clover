@@ -22,7 +22,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 

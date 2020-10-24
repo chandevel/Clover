@@ -26,7 +26,6 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -143,10 +142,8 @@ public class ImportExportSettingsController
         String savedFilesString =
                 savedFilesLocationIsSAFBacked ? getString(R.string.import_or_export_warning_saved_files_base_dir) : "";
 
-        String messagePartOne = getString(
-                R.string.import_or_export_warning_super_long_message_part_one,
-                savedFilesString
-        );
+        String messagePartOne =
+                getString(R.string.import_or_export_warning_super_long_message_part_one, savedFilesString);
 
         new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
                 .setMessage(messagePartOne)

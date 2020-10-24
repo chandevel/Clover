@@ -102,8 +102,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ReplyLayout
         extends LoadView
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-        ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
-        CaptchaHolder.CaptchaValidationListener {
+                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
+                   CaptchaHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
     @Inject
@@ -638,8 +638,9 @@ public class ReplyLayout
         //      if not viewing catalog, show toast
         // if not new thread
         //      if loadable doesn't match the one passed in, show toast
-        return (newThread && !callback.isViewingCatalog())
-                || (!newThread && !callback.getThread().getLoadable().databaseEquals(newLoadable));
+        return (newThread && !callback.isViewingCatalog()) || (!newThread && !callback.getThread()
+                .getLoadable()
+                .databaseEquals(newLoadable));
     }
 
     private void postComplete(boolean newThread, Loadable newLoadable) {
