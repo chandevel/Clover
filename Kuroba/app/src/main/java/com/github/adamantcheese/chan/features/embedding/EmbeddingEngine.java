@@ -55,6 +55,7 @@ public class EmbeddingEngine {
         embedders.add(new SoundcloudEmbedder());
         embedders.add(new BandcampEmbedder());
         embedders.add(new ShadertoyEmbedder());
+        embedders.add(new VimeoEmbedder());
 
         embedders.add(new QuickLatexEmbedder());
     }

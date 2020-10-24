@@ -30,7 +30,6 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
 
 public class ShadertoyEmbedder
@@ -155,8 +154,6 @@ public class ShadertoyEmbedder
                         .filename(title)
                         .extension("iframe")
                         .isInlined(true)
-                        .imageWidth(MATCH_PARENT) // this iframe should fill the available view space
-                        .imageHeight(MATCH_PARENT) // this iframe should fill the available view space
                         .build()
         );
     }

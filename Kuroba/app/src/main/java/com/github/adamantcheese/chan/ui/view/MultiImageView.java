@@ -28,7 +28,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
@@ -835,8 +834,9 @@ public class MultiImageView
                 return true;
             }
         });
-        webView.loadUrl(postImage.imageUrl.toString());
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl(postImage.imageUrl.toString());
+        webView.setBackgroundColor(Color.TRANSPARENT);
         if (!hasContent || mode == Mode.WEBVIEW) {
             callback.hideProgress(this);
             onModeLoaded(Mode.WEBVIEW, webView);
@@ -925,12 +925,7 @@ public class MultiImageView
             }
 
             if (!alreadyAttached) {
-                addView(view,
-                        0,
-                        mode != Mode.WEBVIEW
-                                ? new LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                                : new LayoutParams(postImage.imageWidth, postImage.imageHeight, Gravity.CENTER_VERTICAL)
-                );
+                addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
                 if (view instanceof PlayerView) {
                     addView(exoClickHandler);
                 }

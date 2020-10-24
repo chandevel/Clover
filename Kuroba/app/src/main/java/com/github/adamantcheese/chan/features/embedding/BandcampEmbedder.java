@@ -26,7 +26,6 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addHTMLEmbedCalls;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getMinScreenSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class BandcampEmbedder
@@ -90,8 +89,6 @@ public class BandcampEmbedder
                         .filename(htmlDocument.title())
                         .extension("iframe")
                         .isInlined(true)
-                        .imageWidth(getMinScreenSize())
-                        .imageHeight(getMinScreenSize())
                         .build()
         );
     }

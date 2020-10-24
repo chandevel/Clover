@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.format.DateUtils;
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
@@ -10,7 +11,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
@@ -30,56 +30,47 @@ import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.a
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
-public class SoundcloudEmbedder
+public class VimeoEmbedder
         implements Embedder {
-    private static final Pattern SOUNDCLOUD_PATTERN = Pattern.compile("https?://(?:www\\.)?soundcloud\\.com/.*\\b");
+    private final Pattern VIMEO_PATTERN = Pattern.compile("https?://(?:www\\.)?vimeo\\.com/\\d+/?\\b");
 
     @Override
     public List<String> getShortRepresentations() {
-        return Collections.singletonList("soundcloud");
+        return Collections.singletonList("vimeo");
     }
 
     @Override
     public Bitmap getIconBitmap() {
-        return BitmapRepository.soundcloudIcon;
+        return BitmapRepository.vimeoIcon;
     }
 
     @Override
     public Pattern getEmbedReplacePattern() {
-        return SOUNDCLOUD_PATTERN;
+        return VIMEO_PATTERN;
     }
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        return HttpUrl.get("https://soundcloud.com/oembed?format=json&url=" + matcher.group(0));
+        return HttpUrl.get("https://vimeo.com/api/oembed.json?color="
+                + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
+                R.attr.colorAccent
+        )) + "&url=" + matcher.group(0));
     }
 
-    /* EXAMPLE JSON
-        {
-          "version": 1,
-          "type": "rich",
-          "provider_name": "SoundCloud",
-          "provider_url": "https://soundcloud.com",
-          "height": 400,
-          "width": "100%",
-          "title": "Pop Smoke - For The Night (feat. DaBaby & Lil Baby) by POP SMOKE",
-          "description": null,
-          "thumbnail_url": "https://i1.sndcdn.com/artworks-IMxRfEWmddxz-0-t500x500.jpg",
-          "html": "<iframe width=\"100%\" height=\"400\" scrolling=\"no\" frameborder=\"no\" src=\"https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F850507126&show_artwork=true\"></iframe>",
-          "author_name": "POP SMOKE",
-          "author_url": "https://soundcloud.com/biggavelipro"
-        }
-     */
-
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme, Post post
+    ) {
         return addJSONEmbedCalls(this, theme, post);
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbeddingEngine.EmbedResult parseResult(
+            JsonReader jsonReader, Document htmlDocument
+    )
             throws IOException {
-        String title = "Soundcloud Link";
+        String title = "Vimeo Link";
+        String duration = "";
         HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
         HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
 
@@ -103,6 +94,9 @@ public class SoundcloudEmbedder
                         )));
                     }
                     break;
+                case "duration":
+                    duration = "[" + DateUtils.formatElapsedTime(jsonReader.nextInt()) + "]";
+                    break;
                 default:
                     jsonReader.skipValue();
                     break;
@@ -110,8 +104,8 @@ public class SoundcloudEmbedder
         }
         jsonReader.endObject();
 
-        return new EmbedResult(title,
-                "",
+        return new EmbeddingEngine.EmbedResult(title,
+                duration,
                 new PostImage.Builder().serverFilename(title)
                         .thumbnailUrl(thumbnailUrl)
                         .imageUrl(sourceUrl)

@@ -15,6 +15,7 @@ public class BitmapRepository {
     public static Bitmap soundcloudIcon;
     public static Bitmap shadertoyIcon;
     public static Bitmap vocarooIcon;
+    public static Bitmap vimeoIcon;
 
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
@@ -33,6 +34,7 @@ public class BitmapRepository {
         soundcloudIcon = decode(c, R.drawable.soundcloud_icon);
         shadertoyIcon = decode(c, R.drawable.shadertoy_icon);
         vocarooIcon = decode(c, R.drawable.vocaroo_icon);
+        vimeoIcon = decode(c, R.drawable.vimeo_icon);
 
         stickyIcon = decode(c, R.drawable.sticky_icon);
         closedIcon = decode(c, R.drawable.closed_icon);
