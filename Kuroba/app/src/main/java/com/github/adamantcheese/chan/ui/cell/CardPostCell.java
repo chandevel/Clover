@@ -35,8 +35,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper.InvalidateFunction;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -47,24 +46,20 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
-
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class CardPostCell
         extends CardView
-        implements PostCellInterface, View.OnClickListener {
+        implements PostCellInterface, View.OnClickListener, InvalidateFunction {
     private static final int COMMENT_MAX_LINES = 10;
 
     private boolean bound;
     private Post post;
-    private Loadable loadable;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
     private Theme theme;
-    private List<Call> extraCalls;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -155,14 +150,6 @@ public class CardPostCell
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        if (extraCalls != null) {
-            for (Call c : extraCalls) {
-                c.cancel();
-            }
-            extraCalls = null;
-        }
-
         bound = false;
     }
 
@@ -198,7 +185,6 @@ public class CardPostCell
             this.post = null;
         }
 
-        this.loadable = loadable;
         this.post = post;
         this.callback = callback;
         this.theme = theme;
@@ -270,34 +256,21 @@ public class CardPostCell
 
         replies.setText(status);
 
-        CommentParserHelper.addMathSpans(post, comment);
-        if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceMediaLinks(theme, post, new InvalidateFunction() { // TODO move this into an embedding class
-                private boolean fullInvalidate;
-                private int count = 0;
+        boolean showLoad = callback.getEmbeddingEngine().embed(theme, post, this);
+        if (!showLoad) {
+            findViewById(R.id.embed_spinner).setVisibility(GONE);
+        }
+    }
 
-                @Override
-                public void invalidate(boolean fullInvalidate) {
-                    synchronized (this) {
-                        this.fullInvalidate |= fullInvalidate; // if any call needs a full invalidate
-                        count++; // total calls completed
-                    }
-                    // if extraCalls is null, just let the refresh go through
-                    if (extraCalls != null && extraCalls.size() != count) return; // still completing calls
-
-                    if (!this.fullInvalidate) {
-                        comment.setText(post.comment);
-                        comment.postInvalidate();
-                    } else {
-                        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-                            recyclerView.getAdapter()
-                                    .notifyItemChanged(recyclerView.getChildAdapterPosition(CardPostCell.this));
-                        } else {
-                            post(() -> invalidate(true));
-                        }
-                    }
-                }
-            });
+    @Override
+    public void invalidateView(boolean simple) {
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
+        if (simple) return;
+        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
+            invalidate();
+            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
+        } else {
+            post(() -> invalidateView(false));
         }
     }
 

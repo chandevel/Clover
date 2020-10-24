@@ -40,7 +40,7 @@ public class ThumbnailImageView
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if (type == PostImage.Type.MOVIE) {
+        if (type == PostImage.Type.MOVIE || type == PostImage.Type.IFRAME) {
             int iconScale = 2;
             double scalar = (Math.pow(2.0, iconScale) - 1) / Math.pow(2.0, iconScale);
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);

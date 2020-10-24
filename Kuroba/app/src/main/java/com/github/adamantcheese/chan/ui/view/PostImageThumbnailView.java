@@ -139,7 +139,8 @@ public class PostImageThumbnailView
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if (postImage != null && postImage.type == PostImage.Type.MOVIE && !error) {
+        if (postImage != null && (postImage.type == PostImage.Type.MOVIE || postImage.type == PostImage.Type.IFRAME)
+                && !error) {
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * 0.5);
             int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * 0.5);
 

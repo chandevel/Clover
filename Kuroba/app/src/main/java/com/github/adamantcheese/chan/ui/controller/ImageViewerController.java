@@ -359,6 +359,8 @@ public class ImageViewerController
         if (spoiler) {
             navigation.title =
                     getString(R.string.image_spoiler_filename) + " (" + postImage.extension.toUpperCase() + ")";
+        } else if (postImage.type == PostImage.Type.IFRAME) {
+            navigation.title = postImage.filename;
         } else {
             navigation.title = postImage.filename + "." + postImage.extension;
         }

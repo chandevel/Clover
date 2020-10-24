@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
@@ -37,6 +38,7 @@ public class PostImage {
         STATIC, // static images, uses CustomScaleImageView
         GIF, // GIF images, uses GifImageView
         MOVIE, // movies/audio, uses PlayerView from Exoplayer
+        IFRAME, // some oembed stuff
         OTHER
     }
 
@@ -89,14 +91,13 @@ public class PostImage {
             case "swf":
                 type = OTHER;
                 break;
+            case "iframe":
+                type = IFRAME;
+                break;
             default:
                 type = STATIC;
                 break;
         }
-    }
-
-    public boolean equalUrl(PostImage other) {
-        return imageUrl.equals(other.imageUrl);
     }
 
     public HttpUrl getThumbnailUrl() {
@@ -113,6 +114,14 @@ public class PostImage {
 
     public boolean spoiler() {
         return spoiler || hidden;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostImage image = (PostImage) o;
+        return imageUrl.equals(image.imageUrl);
     }
 
     public static final class Builder {

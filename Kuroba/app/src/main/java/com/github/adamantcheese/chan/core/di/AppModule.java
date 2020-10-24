@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
@@ -186,5 +187,13 @@ public class AppModule {
         Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
 
         return new Android10GesturesExclusionZonesHolder(gson, getMinScreenSize(), getMaxScreenSize());
+    }
+
+    @Provides
+    @Singleton
+    public EmbeddingEngine provideEmbeddingEngine() {
+        Logger.d(DI_TAG, "EmbeddingEngine");
+
+        return new EmbeddingEngine();
     }
 }

@@ -63,7 +63,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper.InvalidateFunction;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -101,7 +101,7 @@ import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class PostCell
         extends LinearLayout
-        implements PostCellInterface {
+        implements PostCellInterface, InvalidateFunction {
     private static final int COMMENT_MAX_LINES_BOARD = 25;
 
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
@@ -131,7 +131,6 @@ public class PostCell
     private boolean showDivider;
 
     private RecyclerView recyclerView;
-    private List<Call> extraCalls;
 
     private GestureDetector doubleTapComment;
 
@@ -243,13 +242,6 @@ public class PostCell
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        if (extraCalls != null) {
-            for (Call c : extraCalls) {
-                c.cancel();
-            }
-            extraCalls = null;
-        }
-
         if (post != null && bound) {
             unbindPost(post);
         }
@@ -313,7 +305,7 @@ public class PostCell
         if (thumbnailViews.isEmpty()) return null;
 
         for (PostImage image : post.images) {
-            if (image.equalUrl(postImage)) {
+            if (image.equals(postImage)) {
                 return ChanSettings.textOnly.get() ? null : thumbnailViews.get(post.images.indexOf(image));
             }
         }
@@ -617,34 +609,21 @@ public class PostCell
             }
         }
 
-        CommentParserHelper.addMathSpans(post, comment);
-        if (post.needsExtraParse && extraCalls == null) {
-            extraCalls = CommentParserHelper.replaceMediaLinks(theme, post, new InvalidateFunction() { // TODO move this into an embedding class
-                private boolean fullInvalidate;
-                private int count = 0;
+        boolean showLoad = callback.getEmbeddingEngine().embed(theme, post, this);
+        if (!showLoad) {
+            findViewById(R.id.embed_spinner).setVisibility(GONE);
+        }
+    }
 
-                @Override
-                public void invalidate(boolean fullInvalidate) {
-                    synchronized (this) {
-                        this.fullInvalidate |= fullInvalidate; // if any call needs a full invalidate
-                        count++; // total calls completed
-                    }
-                    // if extraCalls is null, just let the refresh go through
-                    if (extraCalls != null && extraCalls.size() != count) return; // still completing calls
-
-                    if (!this.fullInvalidate) {
-                        comment.setText(post.comment);
-                        comment.postInvalidate();
-                    } else {
-                        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-                            recyclerView.getAdapter()
-                                    .notifyItemChanged(recyclerView.getChildAdapterPosition(PostCell.this));
-                        } else {
-                            post(() -> invalidate(true));
-                        }
-                    }
-                }
-            });
+    @Override
+    public void invalidateView(boolean simple) {
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
+        if (simple) return;
+        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
+            invalidate();
+            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
+        } else {
+            post(() -> this.invalidateView(false));
         }
     }
 
@@ -716,6 +695,7 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
+        findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {

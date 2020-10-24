@@ -45,7 +45,7 @@ public class BackgroundUtils {
     // Note that this may not be the best on a phone, but is probably the best for emulator
     // This calculation also probably sucks immensely
     public static final ExecutorService backgroundService =
-            new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+            new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() - 1,
                     300,
                     60L,
                     TimeUnit.SECONDS,

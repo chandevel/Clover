@@ -119,7 +119,7 @@ public class ArchivesManager
                 }
             }
             reader.endObject();
-            Class archiveClass = jsonMapping.get(software);
+            Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
                 archives.add((ExternalSiteArchive) archiveClass.getConstructor(String.class,
                         String.class,

@@ -39,7 +39,7 @@ public class WakeUpdateReceiver
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.d(this, "Alarm trigger at " + StringUtils.getCurrentDateAndTimeUTC());
+        Logger.d(this, "Alarm trigger at " + StringUtils.getCurrentTimeDefaultLocale());
         wakeManager.onBroadcastReceived(true);
     }
 }

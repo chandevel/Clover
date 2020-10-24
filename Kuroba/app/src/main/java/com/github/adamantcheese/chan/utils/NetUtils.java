@@ -34,10 +34,14 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Timeout;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static java.lang.Runtime.getRuntime;
@@ -92,6 +96,17 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
+        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true);
+        return ret == null ? null : ret.first;
+    }
+
+    public static Pair<Call, Callback> makeBitmapRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final BitmapResult result,
+            final int width,
+            final int height,
+            boolean enqueue
+    ) {
         synchronized (NetUtils.class) {
             List<BitmapResult> results = resultListeners.get(url);
             if (results != null) {
@@ -110,7 +125,7 @@ public class NetUtils {
         }
         Call call =
                 instance(OkHttpClientWithUtils.class).getBitmapClient().newCall(new Request.Builder().url(url).build());
-        call.enqueue(new Callback() {
+        Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 if (!"Canceled".equals(e.getMessage())) {
@@ -152,8 +167,11 @@ public class NetUtils {
                     }
                 });
             }
-        });
-        return call;
+        };
+        if (enqueue) {
+            call.enqueue(callback);
+        }
+        return new Pair<>(call, callback);
     }
 
     private static synchronized void performBitmapSuccess(
@@ -190,13 +208,24 @@ public class NetUtils {
         imageCache.put(url, bitmap);
     }
 
+    public static <T> Pair<Call, Callback> makePostJsonCall(
+            @NonNull final HttpUrl url,
+            @NonNull final JsonResult<T> result,
+            @NonNull final JsonParser<T> parser,
+            int timeoutMs,
+            @NonNull final String postData,
+            @NonNull final String contentType
+    ) {
+        return makeJsonRequest(url, result, parser, timeoutMs, false, new Pair<>(postData, contentType));
+    }
+
     public static <T> Pair<Call, Callback> makeJsonCall(
             @NonNull final HttpUrl url,
             @NonNull final JsonResult<T> result,
             @NonNull final JsonParser<T> parser,
             int timeoutMs
     ) {
-        return makeJsonRequest(url, result, parser, timeoutMs, false);
+        return makeJsonRequest(url, result, parser, timeoutMs, false, null);
     }
 
     public static <T> Call makeJsonRequest(
@@ -205,7 +234,7 @@ public class NetUtils {
             @NonNull final JsonParser<T> parser,
             int timeoutMs
     ) {
-        return makeJsonRequest(url, result, parser, timeoutMs, true).first;
+        return makeJsonRequest(url, result, parser, timeoutMs, true, null).first;
     }
 
     public static <T> Call makeJsonRequest(
@@ -219,11 +248,18 @@ public class NetUtils {
             @NonNull final JsonResult<T> result,
             @NonNull final JsonParser<T> parser,
             int timeoutMs,
-            boolean enqueue
+            boolean enqueue,
+            final Pair<String, String> postData
     ) {
         OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
-        Call call = clientBuilder.build().newCall(new Request.Builder().url(url).build());
+        Request.Builder builder = new Request.Builder().url(url);
+        if (postData != null) {
+            builder.header("Origin", url.host())
+                    .header("Referer", url.host())
+                    .post(RequestBody.create(postData.first, MediaType.get(postData.second)));
+        }
+        Call call = clientBuilder.build().newCall(builder.build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -273,12 +309,33 @@ public class NetUtils {
                 throws Exception;
     }
 
+    public static <T> Pair<Call, Callback> makeHTMLCall(
+            @NonNull final HttpUrl url,
+            @NonNull final HTMLResult<T> result,
+            @NonNull final HTMLReader<T> reader,
+            int timeoutMs
+    ) {
+        return makeHTMLRequest(url, result, reader, timeoutMs, false);
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     public static <T> Call makeHTMLRequest(
             @NonNull final HttpUrl url, @NonNull final HTMLResult<T> result, @NonNull final HTMLReader<T> reader
     ) {
-        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).build());
-        call.enqueue(new Callback() {
+        return makeHTMLRequest(url, result, reader, 0, true).first;
+    }
+
+    public static <T> Pair<Call, Callback> makeHTMLRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final HTMLResult<T> result,
+            @NonNull final HTMLReader<T> reader,
+            int timeoutMs,
+            boolean enqueue
+    ) {
+        OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
+        clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
+        Call call = clientBuilder.build().newCall(new Request.Builder().url(url).build());
+        Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(e));
@@ -303,8 +360,11 @@ public class NetUtils {
                 }
                 response.close();
             }
-        });
-        return call;
+        };
+        if (enqueue) {
+            call.enqueue(callback);
+        }
+        return new Pair<>(call, callback);
     }
 
     public interface HTMLResult<T> {
@@ -314,7 +374,8 @@ public class NetUtils {
     }
 
     public interface HTMLReader<T> {
-        T read(Document document);
+        T read(Document document)
+                throws Exception;
     }
 
     public static Call makeHeadersRequest(
@@ -365,6 +426,71 @@ public class NetUtils {
 
         public boolean isServerErrorNotFound() {
             return code == 404;
+        }
+    }
+
+    public static class NullCall
+            implements Call {
+
+        private final Request request;
+
+        public NullCall(HttpUrl url) {
+            request = new Request.Builder().url(url).build();
+        }
+
+        @Override
+        public void cancel() {}
+
+        @NotNull
+        @Override
+        public Call clone() {
+            return new NullCall(request.url());
+        }
+
+        @Override
+        public void enqueue(@NotNull Callback callback) {
+            BackgroundUtils.runOnBackgroundThread(() -> { // to emulate an actual call coming from a background thread
+                try {
+                    callback.onResponse(
+                            this,
+                            new Response.Builder().code(200)
+                                    .request(request)
+                                    .protocol(Protocol.HTTP_1_1)
+                                    .message("OK")
+                                    .build()
+                    );
+                } catch (IOException e) {
+                    callback.onFailure(this, e);
+                }
+            });
+        }
+
+        @NotNull
+        @Override
+        public Response execute() {
+            return new Response.Builder().code(200).message("OK").build();
+        }
+
+        @Override
+        public boolean isCanceled() {
+            return false;
+        }
+
+        @Override
+        public boolean isExecuted() {
+            return true;
+        }
+
+        @NotNull
+        @Override
+        public Request request() {
+            return request;
+        }
+
+        @NotNull
+        @Override
+        public Timeout timeout() {
+            return Timeout.NONE;
         }
     }
 

@@ -28,20 +28,19 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.text.DateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 
@@ -61,7 +60,7 @@ public class FilterWatchManager
     private final Map<ChanThreadLoader, CatalogLoader> filterLoaders = new HashMap<>();
     private final Set<Integer> ignoredPosts = Collections.synchronizedSet(new HashSet<>());
     //keep track of how many boards we've checked and their posts so we can cut out things from the ignored posts
-    private int numBoardsChecked = 0;
+    private AtomicInteger numBoardsChecked = new AtomicInteger();
     private Set<Post> lastCheckedPosts = Collections.synchronizedSet(new HashSet<>());
     private boolean processing = false;
 
@@ -110,10 +109,8 @@ public class FilterWatchManager
             populateFilterLoaders();
             if (!filterLoaders.keySet().isEmpty()) {
                 Logger.d(this,
-                        "Processing " + numBoardsChecked + " filter loaders, started at " + DateFormat.getTimeInstance(
-                                DateFormat.DEFAULT,
-                                Locale.getDefault()
-                        ).format(new Date())
+                        "Processing " + numBoardsChecked + " filter loaders, started at "
+                                + StringUtils.getCurrentTimeDefaultLocale()
                 );
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
                     loader.requestData();
@@ -140,7 +137,7 @@ public class FilterWatchManager
                 }
             }
         }
-        numBoardsChecked = boards.size();
+        numBoardsChecked.set(boards.size());
 
         for (Board b : boards) {
             CatalogLoader backgroundLoader = new CatalogLoader();
@@ -165,25 +162,18 @@ public class FilterWatchManager
             }
             //add all posts to ignore
             lastCheckedPosts.addAll(result.getPosts());
-            synchronized (this) {
-                numBoardsChecked--;
-                Logger.d(this, "Filter loader processed, left " + numBoardsChecked);
-                checkComplete();
-            }
+            Logger.d(this, "Filter loader processed, left " + numBoardsChecked);
+            checkComplete();
         }
 
         @Override
         public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
-            synchronized (this) {
-                numBoardsChecked--;
-                Logger.d(this, "Filter loader failed, left " + numBoardsChecked);
-                checkComplete();
-            }
+            Logger.d(this, "Filter loader failed, left " + numBoardsChecked);
+            checkComplete();
         }
 
         private void checkComplete() {
-            if (numBoardsChecked <= 0) {
-                numBoardsChecked = 0;
+            if (numBoardsChecked.decrementAndGet() == 0) {
                 Set<Integer> lastCheckedPostNumbers = new HashSet<>();
                 for (Post post : lastCheckedPosts) {
                     lastCheckedPostNumbers.add(post.no);
@@ -193,9 +183,7 @@ public class FilterWatchManager
                 lastCheckedPosts.clear();
                 processing = false;
                 Logger.d(this,
-                        "Finished processing filter loaders, ended at " + DateFormat.getTimeInstance(DateFormat.DEFAULT,
-                                Locale.getDefault()
-                        ).format(new Date())
+                        "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
                 );
                 wakeManager.manageLock(false, FilterWatchManager.this);
             }

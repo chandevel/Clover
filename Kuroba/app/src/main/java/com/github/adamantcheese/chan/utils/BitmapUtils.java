@@ -1,10 +1,12 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
@@ -239,5 +241,9 @@ public class BitmapUtils {
             Logger.e(TAG, "", e);
             return null;
         }
+    }
+
+    public static Bitmap decode(Context c, @DrawableRes int resId) {
+        return BitmapFactory.decodeResource(c.getResources(), resId);
     }
 }

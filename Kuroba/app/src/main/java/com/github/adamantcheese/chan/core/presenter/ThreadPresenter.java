@@ -48,7 +48,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
@@ -60,6 +59,8 @@ import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.SearchLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
+import com.github.adamantcheese.chan.features.embedding.Embedder;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -74,6 +75,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
@@ -163,6 +165,9 @@ public class ThreadPresenter
 
     @Inject
     private FilterWatchManager filterWatchManager;
+
+    @Inject
+    private EmbeddingEngine embeddingEngine;
 
     private ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
@@ -344,7 +349,11 @@ public class ThreadPresenter
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
             Post item = posts.get(i);
-            images.addAll(item.images);
+            for (PostImage image : item.images) {
+                if (image.type != PostImage.Type.IFRAME) {
+                    images.add(image);
+                }
+            }
             if (i == displayPosition) {
                 index = images.size();
             }
@@ -356,6 +365,11 @@ public class ThreadPresenter
     @Override
     public Loadable getLoadable() {
         return loadable;
+    }
+
+    @Override
+    public EmbeddingEngine getEmbeddingEngine() {
+        return embeddingEngine;
     }
 
     /*
@@ -484,8 +498,8 @@ public class ThreadPresenter
             out:
             for (int i = 0; i < posts.size(); i++) {
                 Post post = posts.get(i);
-                for (int j = 0; j < post.images.size(); j++) {
-                    if (post.images.get(j) == postImage) {
+                for (PostImage image : post.images) {
+                    if (image == postImage) {
                         position = i;
                         break out;
                     }
@@ -587,7 +601,7 @@ public class ThreadPresenter
                 if (!item.deleted.get() || cacheHandler.exists(image.imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(image);
-                    if (image.equalUrl(postImage)) {
+                    if (image.equals(postImage)) {
                         index = images.size() - 1;
                     }
                 }
@@ -706,21 +720,19 @@ public class ThreadPresenter
                     if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
                     String key = post.linkables.get(i).key.toString();
                     String value = post.linkables.get(i).value.toString();
-                    //need to trim off starting spaces for certain media links
+                    //need to trim off starting spaces for certain media links if embedded
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
-                    if (value.contains("youtu.be") || value.contains("youtube")) {
-                        if (added.contains(trimmedUrl)) continue;
-                        keys.add(PostHelper.prependIcon(context, trimmedUrl, BitmapRepository.youtubeIcon, sp(16)));
-                        added.add(trimmedUrl);
-                    } else if (value.contains("streamable")) {
-                        if (added.contains(trimmedUrl)) continue;
-                        keys.add(PostHelper.prependIcon(context, trimmedUrl, BitmapRepository.streamableIcon, sp(16)));
-                        added.add(trimmedUrl);
-                    } else if (value.contains("clyp.it")) {
-                        if (added.contains(trimmedUrl)) continue;
-                        keys.add(PostHelper.prependIcon(context, trimmedUrl, BitmapRepository.clypIcon, sp(16)));
-                        added.add(trimmedUrl);
-                    } else {
+                    boolean speciallyProcessed = false;
+                    for (Embedder e : embeddingEngine.embedders) {
+                        if (StringUtils.containsAny(value, e.getShortRepresentations())) {
+                            if (added.contains(trimmedUrl)) continue;
+                            keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
+                            added.add(trimmedUrl);
+                            speciallyProcessed = true;
+                            break;
+                        }
+                    }
+                    if (!speciallyProcessed) {
                         keys.add(key);
                     }
                 }

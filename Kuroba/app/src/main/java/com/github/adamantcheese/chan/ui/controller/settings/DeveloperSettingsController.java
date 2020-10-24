@@ -34,6 +34,8 @@ import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -136,6 +138,15 @@ public class DeveloperSettingsController
         });
         clearFilterWatchIgnores.setText("Clear ignored filter watches");
         wrapper.addView(clearFilterWatchIgnores);
+
+        Button clearVideoTitleCache = new Button(context);
+        clearVideoTitleCache.setOnClickListener(v -> {
+            EmbeddingEngine.videoTitleDurCache.evictAll();
+            PersistableChanState.videoTitleDurCache.setSync(PersistableChanState.videoTitleDurCache.getDefault());
+            showToast(context, "Cleared video title cache");
+        });
+        clearVideoTitleCache.setText("Clear video title cache");
+        wrapper.addView(clearVideoTitleCache);
 
         //THREAD STACK DUMPER
         Button dumpAllThreadStacks = new Button(context);

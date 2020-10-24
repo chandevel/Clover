@@ -103,16 +103,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
-            android:layout_toRightOf="@+id/thumbnail_view"
             android:layout_alignParentBottom="true"
-            android:gravity="bottom"
+            android:layout_toRightOf="@+id/thumbnail_view"
             android:background="@drawable/ripple_item_background"
+            android:gravity="bottom"
             android:singleLine="true"
             android:textColor="?android:textColorSecondary"
             tools:paddingBottom="8dp"
             tools:paddingLeft="8dp"
             tools:paddingRight="16dp"
             tools:text="2 replies" />
+
+        <ProgressBar
+            android:id="@+id/embed_spinner"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:indeterminate="true"
+            android:indeterminateTint="?colorAccent"
+            android:indeterminateTintMode="src_atop"
+            android:padding="4dp" />
 
         <View
             android:id="@+id/divider"
@@ -139,8 +150,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingRight="2dp"
             android:paddingBottom="2dp"
             android:src="@drawable/ic_overflow"
-            tools:ignore="ContentDescription"
-            app:tint="?android:textColorSecondary" />
+            app:tint="?android:textColorSecondary"
+            tools:ignore="ContentDescription" />
 
     </RelativeLayout>
 

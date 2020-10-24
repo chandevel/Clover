@@ -83,7 +83,7 @@ public class PostRepliesController
                 Post post = postView.getPost();
 
                 for (PostImage p : post.images) {
-                    if (p.equalUrl(postImage)) {
+                    if (p.equals(postImage)) {
                         thumbnail = postView.getThumbnailView(postImage);
                     }
                 }

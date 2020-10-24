@@ -49,7 +49,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
@@ -594,19 +595,18 @@ public class StartActivity
         startActivityForResult(intent, requestCode);
     }
 
-    private static final Type lruType = new TypeToken<Map<String, Pair<String, String>>>() {}.getType();
+    private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
         //restore parsed media title stuff
-        Map<String, Pair<String, String>> titles =
-                gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
+        Map<String, EmbedResult> titles = gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
         //reconstruct
-        CommentParserHelper.videoTitleDurCache = new LruCache<>(500);
+        EmbeddingEngine.videoTitleDurCache = new LruCache<>(500);
         for (String s : titles.keySet()) {
-            CommentParserHelper.videoTitleDurCache.put(s, titles.get(s));
+            EmbeddingEngine.videoTitleDurCache.put(s, titles.get(s));
         }
     }
 
@@ -615,7 +615,7 @@ public class StartActivity
         super.onStop();
         EventBus.getDefault().unregister(this);
         //store parsed media title stuff, extra prevention of unneeded API calls
-        PersistableChanState.videoTitleDurCache.set(gson.toJson(CommentParserHelper.videoTitleDurCache.snapshot(),
+        PersistableChanState.videoTitleDurCache.set(gson.toJson(EmbeddingEngine.videoTitleDurCache.snapshot(),
                 lruType
         ));
     }

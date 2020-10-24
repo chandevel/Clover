@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
@@ -73,6 +74,7 @@ import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -96,9 +98,16 @@ public class ThemeSettingsController
     }
 
     private PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
+        final EmbeddingEngine embeddingEngine = instance(EmbeddingEngine.class);
+
         @Override
         public Loadable getLoadable() {
             return dummyLoadable;
+        }
+
+        @Override
+        public EmbeddingEngine getEmbeddingEngine() {
+            return embeddingEngine;
         }
 
         @Override

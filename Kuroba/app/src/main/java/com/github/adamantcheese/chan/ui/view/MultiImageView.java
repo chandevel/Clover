@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -23,11 +24,17 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.View;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
@@ -103,6 +110,7 @@ public class MultiImageView
         BIGIMAGE,
         GIFIMAGE,
         VIDEO,
+        WEBVIEW,
         OTHER
     }
 
@@ -192,6 +200,9 @@ public class MultiImageView
                 case VIDEO:
                     setVideo();
                     break;
+                case WEBVIEW:
+                    setWebview();
+                    break;
                 case OTHER:
                     setOther();
                     break;
@@ -222,6 +233,9 @@ public class MultiImageView
                 break;
             case VIDEO:
                 ret = findView(PlayerView.class);
+                break;
+            case WEBVIEW:
+                ret = findView(WebView.class);
                 break;
         }
         return ret == null ? new View(getContext()) : ret;
@@ -540,7 +554,16 @@ public class MultiImageView
                         exoVideoView.setControllerHideOnTouch(false);
                         exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
                         exoVideoView.setUseArtwork(true);
-                        exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+                        exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+                        NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
+                            @Override
+                            public void onBitmapFailure(Bitmap errormap, Exception e) {} // use the default drawable
+
+                            @Override
+                            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                                exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
+                            }
+                        });
                         exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
                         exoPlayer.setPlayWhenReady(true);
                         onModeLoaded(Mode.VIDEO, exoVideoView);
@@ -651,7 +674,16 @@ public class MultiImageView
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
-            exoVideoView.setDefaultArtwork(getAppContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+            NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
+                @Override
+                public void onBitmapFailure(Bitmap errormap, Exception e) {} // use the default drawable
+
+                @Override
+                public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                    exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
+                }
+            });
             exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
             exoPlayer.setPlayWhenReady(true);
             onModeLoaded(Mode.VIDEO, exoVideoView);
@@ -786,6 +818,31 @@ public class MultiImageView
         image.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
+    private void setWebview() {
+        BackgroundUtils.ensureMainThread();
+
+        final WebView webView = new WebView(getContext());
+        webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Logger.i(MultiImageView.this,
+                        consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
+                );
+                if (consoleMessage.message().contains("WARNING")) {
+                    showToast(getContext(), consoleMessage.message(), Toast.LENGTH_LONG);
+                }
+                return true;
+            }
+        });
+        webView.loadUrl(postImage.imageUrl.toString());
+        webView.getSettings().setJavaScriptEnabled(true);
+        if (!hasContent || mode == Mode.WEBVIEW) {
+            callback.hideProgress(this);
+            onModeLoaded(Mode.WEBVIEW, webView);
+        }
+    }
+
     private void onError(Exception exception) {
         String message = String.format(Locale.ENGLISH,
                 "%s: %s",
@@ -858,6 +915,8 @@ public class MultiImageView
                     if (child instanceof PlayerView) {
                         releaseStreamCallbacks();
                         ((PlayerView) child).getPlayer().release();
+                    } else if (child instanceof WebView) {
+                        ((WebView) child).destroy();
                     }
                     removeViewAt(i);
                 } else {
@@ -866,7 +925,12 @@ public class MultiImageView
             }
 
             if (!alreadyAttached) {
-                addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+                addView(view,
+                        0,
+                        mode != Mode.WEBVIEW
+                                ? new LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                                : new LayoutParams(postImage.imageWidth, postImage.imageHeight, Gravity.CENTER_VERTICAL)
+                );
                 if (view instanceof PlayerView) {
                     addView(exoClickHandler);
                 }

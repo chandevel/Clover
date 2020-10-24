@@ -1,22 +1,20 @@
 package com.github.adamantcheese.chan.core.repository;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
-import androidx.annotation.DrawableRes;
 
 import com.github.adamantcheese.chan.R;
 
+import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
+
 public class BitmapRepository {
-
-    @SuppressLint("StaticFieldLeak")
-    private static Context context;
-
     public static Bitmap youtubeIcon;
     public static Bitmap streamableIcon;
     public static Bitmap clypIcon;
+    public static Bitmap bandcampIcon;
+    public static Bitmap soundcloudIcon;
+    public static Bitmap shadertoyIcon;
+    public static Bitmap vocarooIcon;
 
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
@@ -28,25 +26,21 @@ public class BitmapRepository {
     public static Bitmap santaHat;
 
     public static void initialize(Context c) {
-        context = c;
+        youtubeIcon = decode(c, R.drawable.youtube_icon);
+        streamableIcon = decode(c, R.drawable.streamable_icon);
+        clypIcon = decode(c, R.drawable.clyp_icon);
+        bandcampIcon = decode(c, R.drawable.bandcamp_icon);
+        soundcloudIcon = decode(c, R.drawable.soundcloud_icon);
+        shadertoyIcon = decode(c, R.drawable.shadertoy_icon);
+        vocarooIcon = decode(c, R.drawable.vocaroo_icon);
 
-        youtubeIcon = decode(R.drawable.youtube_icon);
-        streamableIcon = decode(R.drawable.streamable_icon);
-        clypIcon = decode(R.drawable.clyp_icon);
+        stickyIcon = decode(c, R.drawable.sticky_icon);
+        closedIcon = decode(c, R.drawable.closed_icon);
+        trashIcon = decode(c, R.drawable.trash_icon);
+        archivedIcon = decode(c, R.drawable.archived_icon);
+        error = decode(c, R.drawable.error_icon);
 
-        stickyIcon = decode(R.drawable.sticky_icon);
-        closedIcon = decode(R.drawable.closed_icon);
-        trashIcon = decode(R.drawable.trash_icon);
-        archivedIcon = decode(R.drawable.archived_icon);
-        error = decode(R.drawable.error_icon);
-
-        partyHat = decode(R.drawable.partyhat);
-        santaHat = decode(R.drawable.santahat);
-
-        context = null; // to prevent leaks
-    }
-
-    private static Bitmap decode(@DrawableRes int resId) {
-        return BitmapFactory.decodeResource(context.getResources(), resId);
+        partyHat = decode(c, R.drawable.partyhat);
+        santaHat = decode(c, R.drawable.santahat);
     }
 }

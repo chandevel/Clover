@@ -123,7 +123,7 @@ public class Post
     private long lastModified;
     private String title = "";
 
-    public final boolean needsExtraParse;
+    public boolean needsEmbedding;
 
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
@@ -180,7 +180,7 @@ public class Post
         linkables = new ArrayList<>(builder.linkables);
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
 
-        needsExtraParse = builder.needsExtraParse;
+        needsEmbedding = builder.needsEmbedding;
     }
 
     @AnyThread
@@ -282,6 +282,13 @@ public class Post
             Field imageList = Post.class.getDeclaredField("images");
             imageList.setAccessible(true);
             List<PostImage> newImages = new ArrayList<>(images);
+            for (PostImage postImage : newImages) {
+                if (image.equals(postImage)) {
+                    // this image was already added before (as though it were a set)
+                    imageList.setAccessible(false);
+                    return;
+                }
+            }
             newImages.add(image);
             imageList.set(this, Collections.unmodifiableList(newImages));
             imageList.setAccessible(false);
@@ -380,7 +387,7 @@ public class Post
         private Set<PostLinkable> linkables = new HashSet<>();
         private Set<Integer> repliesToIds = new HashSet<>();
 
-        public boolean needsExtraParse;
+        public boolean needsEmbedding;
 
         public Builder() {
         }
@@ -594,6 +601,8 @@ public class Post
             if (board == null || id < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
                 throw new IllegalArgumentException("Post data not complete");
             }
+
+            needsEmbedding = needsEmbedding | board.mathTags;
 
             return new Post(this);
         }

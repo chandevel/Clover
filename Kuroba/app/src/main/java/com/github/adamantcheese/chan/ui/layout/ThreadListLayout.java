@@ -546,7 +546,7 @@ public class ThreadListLayout
                 Post post = postView.getPost();
 
                 for (PostImage image : post.images) {
-                    if (image.equalUrl(postImage)) {
+                    if (image.equals(postImage)) {
                         return postView.getThumbnailView(postImage);
                     }
                 }

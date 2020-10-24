@@ -87,17 +87,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:layout_weight="0"
             tools:text="@string/lorem_ipsum" />
 
-        <TextView
-            android:id="@+id/replies"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:paddingTop="4dp"
-            android:paddingRight="8dp"
-            android:paddingBottom="8dp"
-            android:singleLine="true"
-            android:textColor="?android:textColorSecondary"
-            tools:text="2 replies, 1 image" />
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/replies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingTop="4dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="8dp"
+                android:singleLine="true"
+                android:textColor="?android:textColorSecondary"
+                tools:text="2 replies, 1 image" />
+
+            <ProgressBar
+                android:id="@+id/embed_spinner"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentRight="true"
+                android:indeterminate="true"
+                android:indeterminateTint="?colorAccent"
+                android:indeterminateTintMode="src_atop"
+                android:padding="4dp" />
+        </RelativeLayout>
 
     </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>
 

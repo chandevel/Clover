@@ -55,6 +55,7 @@ import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
@@ -62,6 +63,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -153,7 +155,7 @@ public class ImageViewerPresenter
         exiting = true;
 
         PostImage postImage = images.get(selectedPosition);
-        if (postImage.type == MOVIE) {
+        if (postImage.type == MOVIE || postImage.type == IFRAME) {
             callback.setImageMode(postImage, LOWRES, true);
         }
 
@@ -293,6 +295,8 @@ public class ImageViewerPresenter
                 callback.setImageMode(postImage, GIFIMAGE, true);
             } else if (postImage.type == MOVIE && videoAutoLoad(postImage)) {
                 callback.setImageMode(postImage, VIDEO, true);
+            } else if (postImage.type == PostImage.Type.IFRAME) {
+                callback.setImageMode(postImage, WEBVIEW, true);
             } else if (postImage.type == PostImage.Type.OTHER) {
                 callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
             }
@@ -474,6 +478,8 @@ public class ImageViewerPresenter
                     callback.setImageMode(postImage, GIFIMAGE, true);
                 } else if (postImage.type == MOVIE && currentMode != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
+                } else if (postImage.type == IFRAME && currentMode != WEBVIEW) {
+                    callback.setImageMode(postImage, WEBVIEW, true);
                 } else if ((postImage.type == PostImage.Type.OTHER) && currentMode != MultiImageView.Mode.OTHER) {
                     callback.setImageMode(postImage, MultiImageView.Mode.OTHER, true);
                 } else {
@@ -534,7 +540,7 @@ public class ImageViewerPresenter
     public void onDownloaded(PostImage postImage) {
         BackgroundUtils.ensureMainThread();
 
-        if (getCurrentPostImage().equalUrl(postImage)) {
+        if (getCurrentPostImage().equals(postImage)) {
             callback.showDownloadMenuItem(true);
         }
     }
