@@ -117,16 +117,12 @@ public class DummySite
             }
 
             @Override
-            public HttpUrl imageUrl(
-                    Post.Builder post, Map<String, String> arg
-            ) {
+            public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 return HttpUrl.get("https://www.example.com");
             }
 
             @Override
-            public HttpUrl thumbnailUrl(
-                    Post.Builder post, boolean spoiler, Map<String, String> arg
-            ) {
+            public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
                 return HttpUrl.get("https://www.example.com");
             }
 
@@ -176,9 +172,7 @@ public class DummySite
     public CommonSite.CommonCallModifier callModifier() {
         return new CommonSite.CommonCallModifier() {
             @Override
-            public void modifyHttpCall(
-                    HttpCall httpCall, Request.Builder requestBuilder
-            ) {
+            public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
                 super.modifyHttpCall(httpCall, requestBuilder);
             }
 
@@ -205,28 +199,13 @@ public class DummySite
             }
 
             @Override
-            public void loadThread(
-                    JsonReader reader, ChanReaderProcessingQueue queue
-            )
-                    throws Exception {
-
-            }
+            public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue) {}
 
             @Override
-            public void loadCatalog(
-                    JsonReader reader, ChanReaderProcessingQueue queue
-            )
-                    throws Exception {
-
-            }
+            public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) {}
 
             @Override
-            public void readPostObject(
-                    JsonReader reader, ChanReaderProcessingQueue queue
-            )
-                    throws Exception {
-
-            }
+            public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue) {}
         };
     }
 
@@ -234,21 +213,13 @@ public class DummySite
     public SiteActions actions() {
         return new SiteActions() {
             @Override
-            public void boards(BoardsListener boardsListener) {
-
-            }
+            public void boards(BoardsListener boardsListener) {}
 
             @Override
-            public void pages(Board board, PagesListener pagesListener) {
-
-            }
+            public void pages(Board board, PagesListener pagesListener) {}
 
             @Override
-            public void post(
-                    Loadable loadableWithDraft, PostListener postListener
-            ) {
-
-            }
+            public void post(Loadable loadableWithDraft, PostListener postListener) {}
 
             @Override
             public boolean postRequiresAuthentication() {
@@ -261,28 +232,16 @@ public class DummySite
             }
 
             @Override
-            public void delete(
-                    DeleteRequest deleteRequest, DeleteListener deleteListener
-            ) {
-
-            }
+            public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {}
 
             @Override
-            public void archive(Board board, ArchiveListener archiveListener) {
-
-            }
+            public void archive(Board board, ArchiveListener archiveListener) {}
 
             @Override
-            public void login(
-                    LoginRequest loginRequest, LoginListener loginListener
-            ) {
-
-            }
+            public void login(LoginRequest loginRequest, LoginListener loginListener) {}
 
             @Override
-            public void logout() {
-
-            }
+            public void logout() {}
 
             @Override
             public boolean isLoggedIn() {
@@ -290,9 +249,7 @@ public class DummySite
             }
 
             @Override
-            public LoginRequest getLoginDetails() {
-                return new LoginRequest("", "");
-            }
+            public LoginRequest getLoginDetails() { return new LoginRequest("", ""); }
         };
     }
 

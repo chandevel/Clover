@@ -30,20 +30,22 @@ public class FoolFuukaArchive
         extends ExternalSiteArchive {
 
     private FoolFuukaReader reader;
-    private FoolFuukaCommentParser parser;
 
     public FoolFuukaArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
         super(domain, name, boardCodes, searchEnabled);
-        reader = new FoolFuukaReader();
-        parser = new FoolFuukaCommentParser(domain);
     }
 
     private class FoolFuukaReader
             implements ChanReader {
 
+        private PostParser parser;
+
         @Override
         public PostParser getParser() {
-            return new DefaultPostParser(parser);
+            if (parser == null) {
+                parser = new DefaultPostParser(new FoolFuukaCommentParser(domain));
+            }
+            return parser;
         }
 
         @Override
@@ -299,6 +301,9 @@ public class FoolFuukaArchive
 
     @Override
     public ChanReader chanReader() {
+        if (reader == null) {
+            reader = new FoolFuukaReader();
+        }
         return reader;
     }
 }
