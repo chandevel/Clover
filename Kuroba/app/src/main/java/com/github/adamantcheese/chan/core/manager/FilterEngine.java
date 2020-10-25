@@ -38,7 +38,7 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -275,7 +275,7 @@ public class FilterEngine {
             if (matcher.find()) {
                 MatchResult result = matcher.toMatchResult();
                 if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
-                    ((Spannable) text).setSpan(new BackgroundColorSpanHashed(
+                    ((Spannable) text).setSpan(new FilterHighlightSpan(
                                     0x7FFFFFFF & getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
                                             R.attr.colorAccent
                                     )),
