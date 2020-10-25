@@ -24,9 +24,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 /**
  * This is basically just a rename of BackgroundColorSpanHashed, so that removing spans is easy.
  */
-public class FilterHighlightSpan
+public class SearchHighlightSpan
         extends BackgroundColorSpanHashed {
-    public FilterHighlightSpan() {
+    public SearchHighlightSpan() {
         super(0x7FFFFFFF & getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId, R.attr.colorAccent));
     }
 }

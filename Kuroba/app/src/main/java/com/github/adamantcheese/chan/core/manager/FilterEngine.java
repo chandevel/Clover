@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -61,7 +60,6 @@ import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
@@ -275,10 +273,7 @@ public class FilterEngine {
             if (matcher.find()) {
                 MatchResult result = matcher.toMatchResult();
                 if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
-                    ((Spannable) text).setSpan(new FilterHighlightSpan(
-                                    0x7FFFFFFF & getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
-                                            R.attr.colorAccent
-                                    )),
+                    ((Spannable) text).setSpan(new FilterHighlightSpan(),
                             result.start(),
                             result.end(),
                             Spanned.SPAN_INCLUSIVE_EXCLUSIVE

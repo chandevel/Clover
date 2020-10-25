@@ -310,14 +310,14 @@ public class ThreadPresenter
         }
 
         if (chanLoader != null && chanLoader.getThread() != null && !visible) {
-            showPosts();
+            showPosts(true);
         }
     }
 
     public void onSearchEntered(String entered) {
         searchQuery = entered;
         if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts();
+            showPosts(true);
             if (TextUtils.isEmpty(entered)) {
                 threadPresenterCallback.setSearchStatus(null, true, false);
             } else {
@@ -1237,11 +1237,11 @@ public class ThreadPresenter
         showPosts(false);
     }
 
-    private void showPosts(boolean refreshAfterHideOrRemovePosts) {
+    private void showPosts(boolean hardRefresh) {
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
                     new PostsFilter(order, searchQuery, databaseHideManager),
-                    refreshAfterHideOrRemovePosts
+                    hardRefresh
             );
         }
     }
@@ -1340,7 +1340,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter, boolean refreshAfterHideOrRemovePosts);
+        void showPosts(ChanThread thread, PostsFilter filter, boolean hardRefresh);
 
         void postClicked(Post post);
 

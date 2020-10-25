@@ -21,13 +21,13 @@ import android.text.TextUtils;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 public class PostsFilter {
     private static final Comparator<Post> IMAGE_COMPARATOR = (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
@@ -102,22 +102,20 @@ public class PostsFilter {
 
         // Process search
         if (!TextUtils.isEmpty(query)) {
-            String lowerQuery = query.toLowerCase(Locale.ENGLISH);
-
             boolean add;
             Iterator<Post> i = posts.iterator();
             while (i.hasNext()) {
                 Post item = i.next();
                 add = false;
-                if (item.comment.toString().toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
+                if (StringUtils.containsIgnoreCase(item.comment, query)) {
                     add = true;
-                } else if (item.subject.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
+                } else if (StringUtils.containsIgnoreCase(item.subject, query)) {
                     add = true;
-                } else if (item.name.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
+                } else if (StringUtils.containsIgnoreCase(item.name, query)) {
                     add = true;
                 } else if (!item.images.isEmpty()) {
                     for (PostImage image : item.images) {
-                        if (image.filename != null && image.filename.toLowerCase(Locale.ENGLISH).contains(lowerQuery)) {
+                        if (StringUtils.containsIgnoreCase(image.filename, query)) {
                             add = true;
                         }
                     }
@@ -130,6 +128,10 @@ public class PostsFilter {
 
         // Process hidden by filter and post/thread hiding
         return databaseHideManager.filterHiddenPosts(posts, siteId, board);
+    }
+
+    public String getQuery() {
+        return query;
     }
 
     public enum Order {

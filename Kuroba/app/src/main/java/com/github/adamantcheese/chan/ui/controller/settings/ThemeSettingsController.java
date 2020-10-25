@@ -458,7 +458,7 @@ public class ThemeSettingsController
                     return 123456789;
                 }
             };
-            adapter.setThread(dummyLoadable, posts, false);
+            adapter.setThread(dummyLoadable, posts, null, true);
             adapter.highlightPost(posts.get(posts.size() - 1)); // highlight last post
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));

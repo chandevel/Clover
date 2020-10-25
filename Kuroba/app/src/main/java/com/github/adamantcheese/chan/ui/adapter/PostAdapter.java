@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.ui.cell.CardPostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -68,6 +69,7 @@ public class PostAdapter
 
     private Loadable loadable = null;
     private String error = null;
+    private String searchQuery = null;
     private Post highlightedPost;
     private String highlightedPostId;
     private int highlightedPostNo = -1;
@@ -142,8 +144,8 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                ((PostCellInterface) postViewHolder.itemView).setPost(
-                        loadable,
+                post.highlightSearch(searchQuery);
+                ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
                         post,
                         postCellCallback,
                         isInPopup(),
@@ -228,7 +230,17 @@ public class PostAdapter
             synchronized (post.repliesFrom) {
                 repliesFromSize = post.repliesFrom.size();
             }
-            return ((long) repliesFromSize << 32L) + (long) post.no + (compact ? 1L : 0L);
+            // in order to invalidate a view while doing a search, we can add in the sum of the search highlight spans
+            // the spans change every time a new search query is entered, so this will update the ID as well
+            // this makes ID's "stable" during normal use (like for scrolling, hiding/removing posts), but not in a search
+            long spanTotal = 0;
+            for (SearchHighlightSpan span : post.comment.getSpans(0,
+                    post.comment.length(),
+                    SearchHighlightSpan.class
+            )) {
+                spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
+            }
+            return ((long) repliesFromSize << 32L) + (long) post.no + (compact ? 2L : 1L) + spanTotal;
         }
     }
 
@@ -268,10 +280,9 @@ public class PostAdapter
         }
     }
 
-    public void setThread(
-            Loadable threadLoadable, List<Post> posts, boolean refreshAfterHideOrRemovePosts
-    ) {
+    public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery, boolean hardRefresh) {
         BackgroundUtils.ensureMainThread();
+        this.searchQuery = searchQuery;
         boolean changed = (this.loadable != null && !this.loadable.equals(threadLoadable)); //changed threads, update
 
         this.loadable = threadLoadable;
@@ -304,12 +315,9 @@ public class PostAdapter
             }
         }
 
-        //update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
-        //or if something changed per reasons above
-        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed
-                // When true that means that the user has just hid or removed post/thread
-                // so we need to refresh the UI
-                || refreshAfterHideOrRemovePosts) {
+        // update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
+        // or if something changed per reasons above
+        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed || hardRefresh) {
             notifyDataSetChanged();
         }
     }

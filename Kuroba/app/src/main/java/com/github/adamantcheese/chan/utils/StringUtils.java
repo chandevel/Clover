@@ -188,4 +188,9 @@ public class StringUtils {
     public static String getRGBColorIntString(@ColorInt int color) {
         return String.format("%06X", 0xFFFFFF & color);
     }
+
+    public static boolean containsIgnoreCase(@Nullable CharSequence source, @Nullable CharSequence needle) {
+        if (source == null || needle == null) return false;
+        return source.toString().toLowerCase(Locale.ENGLISH).contains(needle.toString().toLowerCase(Locale.ENGLISH));
+    }
 }
