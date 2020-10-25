@@ -260,9 +260,7 @@ public class SiteRepository {
         @NonNull
         JsonSettings settings;
 
-        public SiteConfigSettingsHolder(
-                @NonNull Site site, @NonNull JsonSettings settings
-        ) {
+        public SiteConfigSettingsHolder(@NonNull Site site, @NonNull JsonSettings settings) {
             this.site = site;
             this.settings = settings;
         }

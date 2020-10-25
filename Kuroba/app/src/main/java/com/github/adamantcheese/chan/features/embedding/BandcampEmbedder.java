@@ -56,9 +56,7 @@ public class BandcampEmbedder
     }
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(
-            Theme theme, Post post
-    ) {
+    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
         return addHTMLEmbedCalls(this, theme, post);
     }
 

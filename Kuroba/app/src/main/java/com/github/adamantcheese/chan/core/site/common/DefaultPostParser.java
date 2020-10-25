@@ -72,9 +72,7 @@ public class DefaultPostParser
     }
 
     @Override
-    public Post parse(
-            @NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback
-    ) {
+    public Post parse(@NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback) {
         if (!TextUtils.isEmpty(builder.name)) {
             builder.name = Parser.unescapeEntities(builder.name, false);
         }

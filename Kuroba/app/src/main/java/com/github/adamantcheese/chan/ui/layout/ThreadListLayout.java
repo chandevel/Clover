@@ -801,9 +801,7 @@ public class ThreadListLayout
 
     private final RecyclerView.ItemDecoration SANTA = new RecyclerView.ItemDecoration() {
         @Override
-        public void onDrawOver(
-                @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
-        ) {
+        public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
             if (ChanSettings.thumbnailSize.get() < 85) return; // below this it doesn't really work too well
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);

@@ -135,9 +135,7 @@ public class EmbeddingEngine {
      * @param invalidateFunction The entire view to be refreshed after embedding
      */
 
-    public boolean embed(
-            Theme theme, @NonNull Post post, @NonNull InvalidateFunction invalidateFunction
-    ) {
+    public boolean embed(Theme theme, @NonNull Post post, @NonNull InvalidateFunction invalidateFunction) {
         if (!post.needsEmbedding) return false; // these calls are processing/finished
         post.needsEmbedding = false;
         // don't stall the main thread while waiting for processing, callbacks will invalidate the view
@@ -366,9 +364,7 @@ public class EmbeddingEngine {
 
         private EmbedResult() {} // for gson, don't use otherwise
 
-        public EmbedResult(
-                @NonNull String title, @Nullable String duration, @Nullable PostImage extraImage
-        ) {
+        public EmbedResult(@NonNull String title, @Nullable String duration, @Nullable PostImage extraImage) {
             this.title = title;
             this.duration = duration;
             this.extraImage = extraImage;

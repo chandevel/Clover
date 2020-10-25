@@ -58,9 +58,7 @@ public class VimeoEmbedder
     }
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(
-            Theme theme, Post post
-    ) {
+    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
         return addJSONEmbedCalls(this, theme, post);
     }
 

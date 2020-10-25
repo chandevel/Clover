@@ -165,8 +165,6 @@ public class WatchNotification
         //Lists of pins that had new posts or quotes in them, depending on settings
         List<Pin> newPostPins = new ArrayList<>();
         List<Pin> newQuotePins = new ArrayList<>();
-        // A list of pins that download threads
-        List<Pin> threadDownloaderPins = new ArrayList<>();
 
         int flags = 0;
 
@@ -218,15 +216,9 @@ public class WatchNotification
             flags &= ~(NOTIFICATION_PEEK);
         }
 
-        if (pinCount == 0 && threadDownloaderPins.isEmpty()) {
-            Logger.d(this, "Both pins or threadDownloaderPins are empty");
-            return null;
-        }
-
         return setupNotificationTextFields(pinCount,
                 newPostPins,
                 newQuotePins,
-                threadDownloaderPins,
                 unviewedPosts,
                 listQuoting,
                 notifyQuotesOnly,
@@ -238,7 +230,6 @@ public class WatchNotification
             int pinCount,
             List<Pin> newPostPins,
             List<Pin> newQuotePins,
-            List<Pin> threadDownloaderPins,
             Set<Post> unviewedPosts,
             Set<Post> listQuoting,
             boolean notifyQuotesOnly,
@@ -247,17 +238,26 @@ public class WatchNotification
         String message;
         Set<Post> postsForExpandedLines;
         if (notifyQuotesOnly) {
-            message = formatNotificationTitleNewQuotes(listQuoting.size(), threadDownloaderPins.size());
+            message = getQuantityString(R.plurals.watch_new_quotes,
+                    listQuoting.size(),
+                    listQuoting.size(),
+                    listQuoting.size()
+            );
             postsForExpandedLines = listQuoting;
         } else {
             postsForExpandedLines = unviewedPosts;
             if (listQuoting.size() > 0) {
-                message = formatNotificationTitleNewQuoting(unviewedPosts.size(),
-                        listQuoting.size(),
-                        threadDownloaderPins.size()
+                message = getQuantityString(R.plurals.watch_new_quoting,
+                        unviewedPosts.size(),
+                        unviewedPosts.size(),
+                        listQuoting.size()
                 );
             } else {
-                message = formatNotificationTitleNewPosts(unviewedPosts.size(), threadDownloaderPins.size());
+                message = getQuantityString(R.plurals.thread_new_posts,
+                        unviewedPosts.size(),
+                        unviewedPosts.size(),
+                        unviewedPosts.size()
+                );
             }
         }
 
@@ -312,59 +312,6 @@ public class WatchNotification
                 newQuotePins.isEmpty() ? (newPostPins.isEmpty() ? null : newPostPins.get(0)) : newQuotePins.get(0),
                 pinCount > 0
         );
-    }
-
-    private String formatNotificationTitleNewPosts(int unviewedPostsCount, int threadDownloaderPinsCount) {
-        String watchNewQuotesTitle = getQuantityString(R.plurals.thread_new_posts,
-                unviewedPostsCount,
-                unviewedPostsCount,
-                unviewedPostsCount
-        );
-        String downloadTitle =
-                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
-
-        if (unviewedPostsCount != 0 && threadDownloaderPinsCount == 0) {
-            return watchNewQuotesTitle;
-        } else if (unviewedPostsCount == 0 && threadDownloaderPinsCount != 0) {
-            return downloadTitle;
-        }
-
-        return String.format("%s, %s", watchNewQuotesTitle, downloadTitle);
-    }
-
-    private String formatNotificationTitleNewQuotes(int listQuotingCount, int threadDownloaderPinsCount) {
-        String watchNewQuotesTitle =
-                getQuantityString(R.plurals.watch_new_quotes, listQuotingCount, listQuotingCount, listQuotingCount);
-        String downloadTitle =
-                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
-
-        if (listQuotingCount != 0 && threadDownloaderPinsCount == 0) {
-            return watchNewQuotesTitle;
-        } else if (listQuotingCount == 0 && threadDownloaderPinsCount != 0) {
-            return downloadTitle;
-        }
-
-        return String.format("%s, %s", watchNewQuotesTitle, downloadTitle);
-    }
-
-    private String formatNotificationTitleNewQuoting(
-            int unviewedPostsCount, int listQuotingCount, int threadDownloaderPinsCount
-    ) {
-        String watchNewTitle = getQuantityString(R.plurals.watch_new_quoting,
-                unviewedPostsCount,
-                unviewedPostsCount,
-                listQuotingCount
-        );
-        String downloadTitle =
-                getQuantityString(R.plurals.download_title, threadDownloaderPinsCount, threadDownloaderPinsCount);
-
-        if (unviewedPostsCount != 0 && threadDownloaderPinsCount == 0) {
-            return watchNewTitle;
-        } else if (unviewedPostsCount == 0 && threadDownloaderPinsCount != 0) {
-            return downloadTitle;
-        }
-
-        return String.format("%s, %s", watchNewTitle, downloadTitle);
     }
 
     /**

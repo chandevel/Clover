@@ -76,9 +76,7 @@ public class SitesSetupController
     private ItemTouchHelper.SimpleCallback touchHelperCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
                 @Override
-                public boolean onMove(
-                        RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target
-                ) {
+                public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
                     int from = viewHolder.getAdapterPosition();
                     int to = target.getAdapterPosition();
 

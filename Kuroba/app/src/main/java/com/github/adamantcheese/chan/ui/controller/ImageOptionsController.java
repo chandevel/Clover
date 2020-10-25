@@ -112,9 +112,7 @@ public class ImageOptionsController
         public void onStopTrackingTouch(SeekBar seekBar) { }
     };
 
-    public ImageOptionsController(
-            Context context, Loadable loadable, ImageOptionsControllerCallback callback
-    ) {
+    public ImageOptionsController(Context context, Loadable loadable, ImageOptionsControllerCallback callback) {
         super(context);
         this.callback = callback;
         try { //load up the last image options every time this controller is created

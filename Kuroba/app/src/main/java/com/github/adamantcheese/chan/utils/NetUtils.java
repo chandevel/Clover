@@ -59,9 +59,7 @@ public class NetUtils {
         resultListeners.clear();
     }
 
-    public static void makeHttpCall(
-            HttpCall httpCall, HttpCallback<? extends HttpCall> callback
-    ) {
+    public static void makeHttpCall(HttpCall httpCall, HttpCallback<? extends HttpCall> callback) {
         makeHttpCall(httpCall, callback, null);
     }
 
@@ -378,9 +376,7 @@ public class NetUtils {
                 throws Exception;
     }
 
-    public static Call makeHeadersRequest(
-            @NonNull final HttpUrl url, @NonNull final HeaderResult result
-    ) {
+    public static Call makeHeadersRequest(@NonNull final HttpUrl url, @NonNull final HeaderResult result) {
         Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).head().build());
         call.enqueue(new Callback() {
             @Override

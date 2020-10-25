@@ -50,9 +50,7 @@ public class ImageReencodingPresenter {
     @Inject
     Gson gson;
 
-    public ImageReencodingPresenter(
-            Context context, ImageReencodingPresenterCallback callback, Loadable loadable
-    ) {
+    public ImageReencodingPresenter(Context context, ImageReencodingPresenterCallback callback, Loadable loadable) {
         this.context = context;
         this.draft = loadable.draft;
         this.callback = callback;

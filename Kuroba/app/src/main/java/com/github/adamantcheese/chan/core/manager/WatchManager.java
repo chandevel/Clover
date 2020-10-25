@@ -559,7 +559,7 @@ public class WatchManager
                 }
 
                 if (pin.isError) {
-                    // When a thread gets deleted (and are not downloading) just mark all posts as read
+                    // When a thread gets deleted just mark all posts as read
                     // since there is no way for us to read them anyway
                     pin.watchLastCount = pin.watchNewCount;
                     pinsToUpdateInDatabase.add(pin);

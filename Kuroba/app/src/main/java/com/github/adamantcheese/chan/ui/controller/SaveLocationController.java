@@ -52,9 +52,7 @@ public class SaveLocationController
     private FileWatcher fileWatcher;
     private SaveLocationControllerCallback callback;
 
-    public SaveLocationController(
-            Context context, SaveLocationControllerCallback callback
-    ) {
+    public SaveLocationController(Context context, SaveLocationControllerCallback callback) {
         super(context);
 
         this.callback = callback;

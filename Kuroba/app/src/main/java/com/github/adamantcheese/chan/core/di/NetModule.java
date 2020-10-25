@@ -47,7 +47,6 @@ import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static okhttp3.Protocol.HTTP_1_1;
 import static okhttp3.Protocol.HTTP_2;
 
@@ -89,32 +88,12 @@ public class NetModule {
         return new WebmStreamingSource(fileManager, fileCacheV2, cacheHandler);
     }
 
-    /**
-     * This okHttpClient is for posting, as well as images/file/apk updates/ downloading, prefetching, etc.
-     */
     @Provides
     @Singleton
     public OkHttpClientWithUtils provideProxiedOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "Proxied OkHTTP client");
         return new OkHttpClientWithUtils(new OkHttpClient.Builder().protocols(getOkHttpProtocols())
                 .dns(getOkHttpDnsSelector()));
-    }
-
-    /**
-     * This okHttpClient is for local threads downloading.
-     */
-    @Provides
-    @Singleton
-    public OkHttpClient provideOkHttpClientForThreadSaveManager() {
-        Logger.d(AppModule.DI_TAG, "ThreadSaver OkHttp client");
-
-        return new OkHttpClient().newBuilder()
-                .connectTimeout(30, SECONDS)
-                .writeTimeout(30, SECONDS)
-                .readTimeout(30, SECONDS)
-                .protocols(getOkHttpProtocols())
-                .dns(getOkHttpDnsSelector())
-                .build();
     }
 
     private Dns getOkHttpDnsSelector() {

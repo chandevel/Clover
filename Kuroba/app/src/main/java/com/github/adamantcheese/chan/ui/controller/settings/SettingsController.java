@@ -201,9 +201,7 @@ public class SettingsController
         }
     }
 
-    protected void updateSettingNotificationIcon(
-            SettingNotification settingNotification, SettingView preferenceView
-    ) {
+    protected void updateSettingNotificationIcon(SettingNotification settingNotification, SettingView preferenceView) {
         ImageView notificationIcon = preferenceView.getView().findViewById(R.id.setting_notification_icon);
         if (notificationIcon == null) return; // no notification icon for this view
 

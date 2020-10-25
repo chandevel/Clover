@@ -31,9 +31,7 @@ public class DvachPostParser
     }
 
     @Override
-    public Post parse(
-            @NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback
-    ) {
+    public Post parse(@NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback) {
         builder.name = Parser.unescapeEntities(builder.name, false);
         parseNameForColor(builder);
         return super.parse(theme, builder, filters, callback);

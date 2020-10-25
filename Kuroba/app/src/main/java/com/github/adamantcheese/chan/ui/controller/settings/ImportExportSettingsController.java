@@ -136,9 +136,7 @@ public class ImportExportSettingsController
         showCreateNewOrOverwriteDialog();
     }
 
-    private void showDirectoriesWillBeResetToDefaultDialog(
-            boolean savedFilesLocationIsSAFBacked
-    ) {
+    private void showDirectoriesWillBeResetToDefaultDialog(boolean savedFilesLocationIsSAFBacked) {
         String savedFilesString =
                 savedFilesLocationIsSAFBacked ? getString(R.string.import_or_export_warning_saved_files_base_dir) : "";
 

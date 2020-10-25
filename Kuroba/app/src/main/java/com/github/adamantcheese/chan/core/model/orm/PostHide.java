@@ -71,9 +71,7 @@ public class PostHide {
         this.no = no;
     }
 
-    public static PostHide hidePost(
-            Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost
-    ) {
+    public static PostHide hidePost(Post post, Boolean wholeThread, Boolean hide, Boolean hideRepliesToThisPost) {
         PostHide postHide = new PostHide();
         postHide.board = post.board.code;
         postHide.no = post.no;
