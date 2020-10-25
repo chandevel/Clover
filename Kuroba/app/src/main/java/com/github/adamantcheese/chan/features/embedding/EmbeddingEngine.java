@@ -306,10 +306,10 @@ public class EmbeddingEngine {
     public static void performStandardEmbedding(
             Theme theme, Post post, @NonNull EmbedResult parseResult, @NonNull String URL, Bitmap icon
     ) {
-        while (true) {
-            int index = post.comment.toString().indexOf(URL);
-            if (index < 0) break;
-            synchronized (post.comment) {
+        synchronized (post.comment) {
+            while (true) {
+                int index = TextUtils.indexOf(post.comment, URL);
+                if (index < 0) break;
                 SpannableStringBuilder replacement = new SpannableStringBuilder(
                         "  " + parseResult.title + (!TextUtils.isEmpty(parseResult.duration) ? " "
                                 + parseResult.duration : ""));
