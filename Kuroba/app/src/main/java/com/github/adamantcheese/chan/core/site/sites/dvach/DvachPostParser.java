@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -16,6 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,10 +31,12 @@ public class DvachPostParser
     }
 
     @Override
-    public Post parse(@NonNull Theme theme, Post.Builder builder, Callback callback) {
+    public Post parse(
+            @NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback
+    ) {
         builder.name = Parser.unescapeEntities(builder.name, false);
         parseNameForColor(builder);
-        return super.parse(theme, builder, callback);
+        return super.parse(theme, builder, filters, callback);
     }
 
     private void parseNameForColor(Post.Builder builder) {

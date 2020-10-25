@@ -40,11 +40,13 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
@@ -401,10 +403,16 @@ public class ThemeSettingsController
                             .build()));
             //endregion
 
+            Filter testFilter = new Filter();
+            testFilter.pattern = "spacer";
+            testFilter.action = FilterEngine.FilterAction.COLOR.id;
+            testFilter.color = Color.RED & 0x50FFFFFF;
+            List<Filter> filters = Collections.singletonList(testFilter);
+
             List<Post> posts = new ArrayList<>();
-            posts.add(postParser.parse(theme, builder1, parserCallback));
-            posts.add(postParser.parse(theme, builder2, parserCallback));
-            posts.add(postParser.parse(theme, builder3, parserCallback));
+            posts.add(postParser.parse(theme, builder1, filters, parserCallback));
+            posts.add(postParser.parse(theme, builder2, filters, parserCallback));
+            posts.add(postParser.parse(theme, builder3, filters, parserCallback));
             posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
 
             LinearLayout linearLayout = new LinearLayout(themeContext);

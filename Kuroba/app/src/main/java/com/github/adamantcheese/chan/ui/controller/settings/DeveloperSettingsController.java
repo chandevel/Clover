@@ -83,6 +83,14 @@ public class DeveloperSettingsController
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
 
+        // Debug filters (highlights matches in comments)
+        Switch debugFiltersSwitch = new Switch(context);
+        debugFiltersSwitch.setPadding(dp(16), 0, dp(16), 0);
+        debugFiltersSwitch.setText("Highlight filters; tap highlight to see matched filter");
+        debugFiltersSwitch.setChecked(ChanSettings.debugFilters.get());
+        debugFiltersSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.debugFilters.toggle());
+        wrapper.addView(debugFiltersSwitch);
+
         // Enable/Disable verbose logs
         Switch verboseLogsSwitch = new Switch(context);
         verboseLogsSwitch.setPadding(dp(16), 0, dp(16), 0);

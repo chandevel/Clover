@@ -18,12 +18,14 @@ package com.github.adamantcheese.chan.ui.text;
 
 import android.text.style.BackgroundColorSpan;
 
+import androidx.annotation.ColorInt;
+
 /**
  * A version of BackgroundColorSpan that has proper equals and hashCode implementations. Used to fix the hashcode result from SpannableStringBuilder.
  */
 public class BackgroundColorSpanHashed
         extends BackgroundColorSpan {
-    public BackgroundColorSpanHashed(int color) {
+    public BackgroundColorSpanHashed(@ColorInt int color) {
         super(color);
     }
 

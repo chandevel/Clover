@@ -299,6 +299,7 @@ public class ChanSettings {
     //endregion
 
     //region DEVELOPER
+    public static final BooleanSetting debugFilters;
     public static final BooleanSetting crashOnWrongThread;
     public static final BooleanSetting verboseLogs;
     //endregion
@@ -479,6 +480,7 @@ public class ChanSettings {
             //endregion
 
             //region DEVELOPER
+            debugFilters = new BooleanSetting(p, "debug_filters", false);
             crashOnWrongThread = new BooleanSetting(p, "crash_on_wrong_thread", true);
             verboseLogs = new BooleanSetting(p, "verbose_logs", false);
             //endregion

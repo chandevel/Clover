@@ -363,7 +363,7 @@ public class Post
         public String tripcode = "";
 
         public long unixTimestampSeconds = -1L;
-        public List<PostImage> images;
+        public List<PostImage> images = new ArrayList<>();
 
         public List<PostHttpIcon> httpIcons;
 
@@ -488,10 +488,6 @@ public class Post
 
         public Builder images(List<PostImage> images) {
             synchronized (this) {
-                if (this.images == null) {
-                    this.images = new ArrayList<>(images.size());
-                }
-
                 this.images.addAll(images);
             }
 

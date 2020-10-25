@@ -783,6 +783,8 @@ public class PostCell
                         for (ClickableSpan s : link) {
                             if (s instanceof PostLinkable && ((PostLinkable) s).type == PostLinkable.Type.SPOILER) {
                                 s.onClick(widget);
+                            } else if (!(s instanceof PostLinkable)) {
+                                s.onClick(widget);
                             }
                         }
 

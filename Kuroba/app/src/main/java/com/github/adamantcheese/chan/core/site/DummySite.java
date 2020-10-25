@@ -13,13 +13,14 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Collections;
@@ -186,16 +187,11 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
+            private PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
+
             @Override
             public PostParser getParser() {
-                return new PostParser() {
-                    @Override
-                    public Post parse(
-                            @NonNull Theme theme, Post.Builder builder, Callback callback
-                    ) {
-                        return null;
-                    }
-                };
+                return (theme, builder, filters, callback) -> postParser.parse(theme, builder, filters, callback);
             }
 
             @Override

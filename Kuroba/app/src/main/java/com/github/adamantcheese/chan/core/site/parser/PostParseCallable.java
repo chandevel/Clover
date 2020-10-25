@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.site.parser;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -28,38 +27,30 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
-import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
-
 // Called concurrently to parse the post html and the filters on it belong to ChanReaderRequest
 class PostParseCallable
         implements Callable<Post> {
-    private FilterEngine filterEngine;
     private List<Filter> filters;
     private DatabaseSavedReplyManager savedReplyManager;
     private Post.Builder postBuilder;
     private ChanReader reader;
     private final Set<Integer> internalIds;
     private final Theme theme;
-    private final boolean forCatalog;
 
     public PostParseCallable(
-            FilterEngine filterEngine,
             List<Filter> filters,
             DatabaseSavedReplyManager savedReplyManager,
             Post.Builder builder,
             ChanReader reader,
             Set<Integer> internalIds,
-            @NonNull Theme theme,
-            boolean forCatalog
+            @NonNull Theme theme
     ) {
-        this.filterEngine = filterEngine;
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
         this.postBuilder = builder;
         this.reader = reader;
         this.internalIds = internalIds;
         this.theme = theme;
-        this.forCatalog = forCatalog;
     }
 
     @Override
@@ -67,10 +58,7 @@ class PostParseCallable
         // needed for "Apply to own posts" to work correctly
         postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.id));
 
-        // Process the filters before finish, because parsing the html is dependent on filter matches
-        processPostFilter(postBuilder);
-
-        return reader.getParser().parse(theme, postBuilder, new PostParser.Callback() {
+        return reader.getParser().parse(theme, postBuilder, filters, new PostParser.Callback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(postBuilder.board, postNo);
@@ -81,29 +69,5 @@ class PostParseCallable
                 return internalIds.contains(postNo);
             }
         });
-    }
-
-    private void processPostFilter(Post.Builder post) {
-        for (Filter f : filters) {
-            FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
-            if (action == WATCH && !forCatalog)
-                continue; // filter watches are only on catalogs, shortcut the expensive filter stuff
-            if (filterEngine.matches(f, post)) {
-                switch (action) {
-                    case COLOR:
-                        post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
-                        break;
-                    case HIDE:
-                        post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
-                        break;
-                    case REMOVE:
-                        post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
-                        break;
-                    case WATCH:
-                        post.filter(0, false, false, true, false, true, false);
-                        break;
-                }
-            }
-        }
     }
 }

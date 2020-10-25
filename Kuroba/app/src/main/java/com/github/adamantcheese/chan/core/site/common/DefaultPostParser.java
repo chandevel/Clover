@@ -25,7 +25,9 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
@@ -50,6 +52,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -58,13 +63,18 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class DefaultPostParser
         implements PostParser {
     private CommentParser commentParser;
+    @Inject
+    private FilterEngine filterEngine;
 
     public DefaultPostParser(CommentParser commentParser) {
         this.commentParser = commentParser;
+        inject(this);
     }
 
     @Override
-    public Post parse(@NonNull Theme theme, Post.Builder builder, Callback callback) {
+    public Post parse(
+            @NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback
+    ) {
         if (!TextUtils.isEmpty(builder.name)) {
             builder.name = Parser.unescapeEntities(builder.name, false);
         }
@@ -80,6 +90,8 @@ public class DefaultPostParser
         } else {
             builder.comment = new SpannableStringBuilder("");
         }
+
+        processPostFilter(filters, builder);
 
         return builder.build();
     }
@@ -246,5 +258,27 @@ public class DefaultPostParser
         }
         rebuilder.append(EmojiParser.parseToUnicode(text.substring(lastIndex)));
         return rebuilder.toString();
+    }
+
+    private void processPostFilter(List<Filter> filters, Post.Builder post) {
+        for (Filter f : filters) {
+            FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
+            if (filterEngine.matches(f, post)) {
+                switch (action) {
+                    case COLOR:
+                        post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
+                        break;
+                    case HIDE:
+                        post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
+                        break;
+                    case REMOVE:
+                        post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
+                        break;
+                    case WATCH:
+                        post.filter(0, false, false, true, false, true, false);
+                        break;
+                }
+            }
+        }
     }
 }

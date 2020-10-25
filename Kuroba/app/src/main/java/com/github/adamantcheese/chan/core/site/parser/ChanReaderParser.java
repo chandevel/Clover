@@ -133,15 +133,12 @@ public class ChanReaderParser
         final Theme currentTheme = ThemeHelper.getTheme();
 
         for (Post.Builder post : toParse) {
-            tasks.add(new PostParseCallable(
-                    filterEngine,
-                    filters,
+            tasks.add(new PostParseCallable(filters,
                     databaseSavedReplyManager,
                     post,
                     reader,
                     internalIds,
-                    currentTheme,
-                    loadable.isCatalogMode()
+                    currentTheme
             ));
         }
 

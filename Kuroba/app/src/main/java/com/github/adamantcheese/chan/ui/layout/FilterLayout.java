@@ -25,7 +25,6 @@ import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.style.BackgroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
@@ -48,6 +47,7 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -293,7 +293,7 @@ public class FilterLayout
                 if (span.getFamily().equals("monospace")) {
                     int start = message.getSpanStart(span);
                     int end = message.getSpanEnd(span);
-                    message.setSpan(new BackgroundColorSpan(0x22000000), start, end, 0);
+                    message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
                 }
             }
 
@@ -302,7 +302,7 @@ public class FilterLayout
                 if (span.getStyle() == Typeface.ITALIC) {
                     int start = message.getSpanStart(span);
                     int end = message.getSpanEnd(span);
-                    message.setSpan(new BackgroundColorSpan(0x22000000), start, end, 0);
+                    message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
                 }
             }
 
@@ -401,7 +401,7 @@ public class FilterLayout
 
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
-        boolean matches = filterEngine.matches(filter, text, true);
+        boolean matches = filterEngine.matches(filter, FilterType.forFlags(filter.type).get(0), text, true);
         patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
     }
 

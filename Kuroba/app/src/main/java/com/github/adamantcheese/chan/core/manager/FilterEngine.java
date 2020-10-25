@@ -16,10 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.text.Spannable;
+import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextUtils;
+import android.text.style.ClickableSpan;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.AnyThread;
-import androidx.core.text.HtmlCompat;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
@@ -32,6 +38,8 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -39,6 +47,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -51,7 +60,10 @@ import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class FilterEngine {
     public enum FilterAction {
@@ -190,13 +202,13 @@ public class FilterEngine {
         if (filter.onlyOnOP && !post.op) return false;
         if (filter.applyToSaved && !post.isSavedReply) return false;
 
-        if (typeMatches(filter, TRIPCODE) && matches(filter, post.tripcode, false)) return true;
-        if (typeMatches(filter, NAME) && matches(filter, post.name, false)) return true;
-        if (typeMatches(filter, COMMENT) && matches(filter, post.comment.toString(), false)) return true;
-        if (typeMatches(filter, ID) && matches(filter, post.posterId, false)) return true;
-        if (typeMatches(filter, SUBJECT) && matches(filter, post.subject, false)) return true;
+        if (matches(filter, TRIPCODE, post.tripcode, false)) return true;
+        if (matches(filter, NAME, post.name, false)) return true;
+        if (matches(filter, COMMENT, post.comment, false)) return true;
+        if (matches(filter, ID, post.posterId, false)) return true;
+        if (matches(filter, SUBJECT, post.subject, false)) return true;
         for (PostImage image : post.images) {
-            if (typeMatches(filter, IMAGE) && matches(filter, image.fileHash, false)) {
+            if (matches(filter, IMAGE, image.fileHash, false)) {
                 //for filtering image hashes, we don't want to apply the post-level filter unless the user set it as such
                 //this takes care of it at an image level, either flagging it to be hidden, which applies a
                 //custom spoiler image, or removes the image from the post entirely since this is a Post.Builder instance
@@ -219,7 +231,7 @@ public class FilterEngine {
                 }
             }
         }
-        if (!countryCode.isEmpty() && typeMatches(filter, COUNTRY_CODE) && matches(filter, countryCode, false)) {
+        if (!countryCode.isEmpty() && matches(filter, COUNTRY_CODE, countryCode, false)) {
             return true;
         }
 
@@ -229,19 +241,15 @@ public class FilterEngine {
                 files.append(image.filename).append(" ");
             }
             String fnames = files.toString();
-            return !fnames.isEmpty() && typeMatches(filter, FILENAME) && matches(filter, fnames, false);
+            return !fnames.isEmpty() && matches(filter, FILENAME, fnames, false);
         }
 
         return false;
     }
 
     @AnyThread
-    public boolean typeMatches(Filter filter, FilterType type) {
-        return (filter.type & type.flag) != 0;
-    }
-
-    @AnyThread
-    public boolean matches(Filter filter, String text, boolean forceCompile) {
+    public boolean matches(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
+        if ((filter.type & type.flag) == 0) return false;
         if (text == null) return false;
 
         Pattern pattern = null;
@@ -252,7 +260,7 @@ public class FilterEngine {
         }
 
         if (pattern == null) {
-            int extraFlags = typeMatches(filter, COUNTRY_CODE) ? Pattern.CASE_INSENSITIVE : 0;
+            int extraFlags = type == COUNTRY_CODE ? Pattern.CASE_INSENSITIVE : 0;
             pattern = compile(filter.pattern, extraFlags);
             if (pattern != null) {
                 synchronized (patternCache) {
@@ -263,8 +271,35 @@ public class FilterEngine {
         }
 
         if (pattern != null) {
-            Matcher matcher = pattern.matcher(HtmlCompat.fromHtml(text, 0).toString());
-            return matcher.find();
+            Matcher matcher = pattern.matcher(text);
+            if (matcher.find()) {
+                MatchResult result = matcher.toMatchResult();
+                if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
+                    ((Spannable) text).setSpan(new BackgroundColorSpanHashed(
+                                    0x7FFFFFFF & getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
+                                            R.attr.colorAccent
+                                    )),
+                            result.start(),
+                            result.end(),
+                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                    );
+                    final String filterPattern = filter.pattern;
+                    ((Spannable) text).setSpan(new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull View widget) {
+                            showToast(getAppContext(), "Matching filter: " + filterPattern, Toast.LENGTH_LONG);
+                        }
+
+                        @Override
+                        public void updateDrawState(@NonNull TextPaint ds) {
+                            ds.setUnderlineText(true);
+                        }
+                    }, result.start(), result.end(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                }
+                return true;
+            } else {
+                return false;
+            }
         } else {
             Logger.e(this, "Invalid pattern");
             return false;
