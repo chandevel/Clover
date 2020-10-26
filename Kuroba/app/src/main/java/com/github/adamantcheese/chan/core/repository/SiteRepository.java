@@ -161,27 +161,27 @@ public class SiteRepository {
     public void removeSite(Site site) {
         DatabaseUtils.runTask(() -> {
             removeFilters(site);
-            DatabaseUtils.runTask(instance(DatabaseBoardManager.class).deleteBoards(site));
+            instance(DatabaseBoardManager.class).deleteBoards(site).call();
 
-            List<Loadable> siteLoadables =
-                    DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).getLoadables(site));
+            List<Loadable> siteLoadables = instance(DatabaseLoadableManager.class).getLoadables(site).call();
             if (!siteLoadables.isEmpty()) {
-                DatabaseUtils.runTask(instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables));
-                DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables));
+                instance(DatabasePinManager.class).deletePinsFromLoadables(siteLoadables).call();
+                instance(DatabaseLoadableManager.class).deleteLoadables(siteLoadables).call();
             }
 
-            DatabaseUtils.runTask(instance(DatabaseSavedReplyManager.class).deleteSavedReplies(site));
-            DatabaseUtils.runTask(instance(DatabaseHideManager.class).deleteThreadHides(site));
-            DatabaseUtils.runTask(instance(DatabaseSiteManager.class).deleteSite(site));
+            instance(DatabaseSavedReplyManager.class).deleteSavedReplies(site).call();
+            instance(DatabaseHideManager.class).deleteThreadHides(site).call();
+            instance(DatabaseSiteManager.class).deleteSite(site).call();
             return null;
         });
     }
 
-    private void removeFilters(Site site) {
+    private void removeFilters(Site site)
+            throws Exception {
         List<Filter> filtersToDelete = new ArrayList<>();
         DatabaseFilterManager databaseFilterManager = instance(DatabaseFilterManager.class);
 
-        for (Filter filter : DatabaseUtils.runTask(databaseFilterManager.getFilters())) {
+        for (Filter filter : databaseFilterManager.getFilters().call()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {
                 continue;
             }
@@ -195,7 +195,7 @@ public class SiteRepository {
             }
         }
 
-        DatabaseUtils.runTask(databaseFilterManager.deleteFilters(filtersToDelete));
+        databaseFilterManager.deleteFilters(filtersToDelete).call();
     }
 
     public class Sites
