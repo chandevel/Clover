@@ -348,12 +348,12 @@ public class Post
     }
 
     public void highlightSearch(String query) {
-        // clear out any old spans
-        for (SearchHighlightSpan span : comment.getSpans(0, comment.length(), SearchHighlightSpan.class)) {
-            comment.removeSpan(span);
-        }
-        if (TextUtils.isEmpty(query)) return;
         synchronized (comment) {
+            // clear out any old spans
+            for (SearchHighlightSpan span : comment.getSpans(0, comment.length(), SearchHighlightSpan.class)) {
+                comment.removeSpan(span);
+            }
+            if (TextUtils.isEmpty(query)) return;
             Pattern search = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
             Matcher searchMatch = search.matcher(comment);
             // apply new spans
