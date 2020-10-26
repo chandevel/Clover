@@ -66,8 +66,7 @@ public abstract class HttpCall
     public void onResponse(@NonNull Call call, @NonNull Response response) {
         try (ResponseBody body = response.body()) {
             if (body != null) {
-                String responseString = body.string();
-                process(response, responseString);
+                process(response, body.string());
             } else {
                 exception = new NetUtils.HttpCodeException(response.code());
             }

@@ -41,7 +41,6 @@ public class DvachReplyCall
     private static final Pattern POST_MESSAGE = Pattern.compile("^\\{\"Error\":null,\"Status\":\"OK\",\"Num\":(\\d+)");
     private static final Pattern THREAD_MESSAGE =
             Pattern.compile("^\\{\"Error\":null,\"Status\":\"Redirect\",\"Target\":(\\d+)");
-    private static final String PROBABLY_BANNED_TEXT = "banned";
 
     DvachReplyCall(Loadable loadable) {
         super(loadable);
@@ -108,7 +107,6 @@ public class DvachReplyCall
         Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
         if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
-            replyResponse.probablyBanned = replyResponse.errorMessage.contains(PROBABLY_BANNED_TEXT);
         } else {
             replyResponse.posted = true;
             Matcher postMessageMatcher = POST_MESSAGE.matcher(result);

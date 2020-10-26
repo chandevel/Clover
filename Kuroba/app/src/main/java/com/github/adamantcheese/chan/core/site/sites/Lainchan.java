@@ -102,7 +102,12 @@ public class Lainchan
             }
         });
 
-        setEndpoints(new VichanEndpoints(this, "https://lainchan.org", "https://lainchan.org"));
+        setEndpoints(new VichanEndpoints(this, "https://lainchan.org", "https://lainchan.org") {
+            @Override
+            public HttpUrl banned() {
+                return root.builder().s("banned").url();
+            }
+        });
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());

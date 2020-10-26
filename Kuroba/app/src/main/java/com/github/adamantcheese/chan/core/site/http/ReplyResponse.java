@@ -40,7 +40,6 @@ public class ReplyResponse {
 
     public int threadNo = 0;
     public int postNo = 0;
-    public boolean probablyBanned = false;
     public boolean requireAuthentication = false;
 
     public ReplyResponse(Loadable originatingLoadable) {

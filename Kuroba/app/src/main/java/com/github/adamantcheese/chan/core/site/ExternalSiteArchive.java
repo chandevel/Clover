@@ -219,6 +219,11 @@ public abstract class ExternalSiteArchive
             return null;
         }
 
+        @Override
+        public HttpUrl banned() {
+            return null;
+        }
+
         public abstract HttpUrl resolvePost(String boardCode, int postNo);
     }
 

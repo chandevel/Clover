@@ -30,6 +30,7 @@ import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
@@ -156,6 +157,7 @@ public class ReplyLayout
     private Runnable closeMessageRunnable = new Runnable() {
         @Override
         public void run() {
+            message.setText(R.string.empty);
             message.setVisibility(GONE);
         }
     };
@@ -236,6 +238,7 @@ public class ReplyLayout
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
         // Setup reply layout views
+        message.setMovementMethod(new LinkMovementMethod());
         filenameNew.setOnClickListener(v -> presenter.filenameNewClicked(false));
         commentQuoteButton.setOnClickListener(this);
         commentSpoilerButton.setOnClickListener(this);
@@ -575,7 +578,7 @@ public class ReplyLayout
     }
 
     @Override
-    public void openMessage(String text) {
+    public void openMessage(CharSequence text) {
         if (text == null) text = "";
         removeCallbacks(closeMessageRunnable);
         message.setText(text);

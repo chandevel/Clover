@@ -18,8 +18,15 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.TextUtils;
+import android.text.style.ClickableSpan;
+import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
@@ -54,7 +61,9 @@ import java.util.regex.Pattern;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -286,9 +295,30 @@ public class ReplyPresenter
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);
         } else {
-            String errorMessage = getString(R.string.reply_error);
+            SpannableStringBuilder errorMessage = new SpannableStringBuilder(getString(R.string.reply_error));
             if (replyResponse.errorMessage != null) {
-                errorMessage = getString(R.string.reply_error_message, replyResponse.errorMessage);
+                errorMessage.clear();
+                errorMessage = errorMessage.append(getString(R.string.reply_error_message, replyResponse.errorMessage));
+            }
+
+            final String bannedString = "banned";
+            int bannedIndex = TextUtils.indexOf(errorMessage, bannedString);
+            if (bannedIndex > 0 && replyResponse.originatingLoadable.site.endpoints().banned() != null) {
+                errorMessage.setSpan(new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        openLinkInBrowser(context,
+                                replyResponse.originatingLoadable.site.endpoints().banned().toString()
+                        );
+                    }
+
+                    @Override
+                    public void updateDrawState(@NonNull TextPaint ds) {
+                        ds.setColor(getColor(R.color.md_red_500));
+                        ds.setUnderlineText(true);
+                        ds.setFakeBoldText(true);
+                    }
+                }, bannedIndex, bannedIndex + bannedString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             }
 
             Logger.e(this, "onPostComplete error", errorMessage);
@@ -600,7 +630,7 @@ public class ReplyPresenter
                 boolean autoReply
         );
 
-        void openMessage(String message);
+        void openMessage(CharSequence message);
 
         void onPosted(boolean newThread, Loadable newThreadLoadable);
 

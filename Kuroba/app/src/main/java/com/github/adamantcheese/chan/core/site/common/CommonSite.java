@@ -403,6 +403,11 @@ public abstract class CommonSite
         public HttpUrl login() {
             return null;
         }
+
+        @Override
+        public HttpUrl banned() {
+            return null;
+        }
     }
 
     public static class SimpleHttpUrl {

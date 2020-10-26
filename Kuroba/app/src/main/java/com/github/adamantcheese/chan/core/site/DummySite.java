@@ -107,64 +107,71 @@ public class DummySite
     @Override
     public SiteEndpoints endpoints() {
         return new SiteEndpoints() {
+            private final HttpUrl dummyUrl = HttpUrl.get("https://www.example.com");
+
             @Override
             public HttpUrl catalog(Board board) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl icon(String icon, Map<String, String> arg) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl boards() {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl pages(Board board) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl archive(Board board) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl reply(Loadable thread) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl delete(Post post) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl report(Post post) {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
             }
 
             @Override
             public HttpUrl login() {
-                return HttpUrl.get("https://www.example.com");
+                return dummyUrl;
+            }
+
+            @Override
+            public HttpUrl banned() {
+                return dummyUrl;
             }
         };
     }
