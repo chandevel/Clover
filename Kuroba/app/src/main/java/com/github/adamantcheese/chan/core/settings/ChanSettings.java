@@ -64,8 +64,24 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ChanSettings {
     public static final String EMPTY_JSON = "{}";
-    public static final String NOTIFY_ALL_POSTS = "all";
-    public static final String NOTIFY_ONLY_QUOTES = "quotes";
+
+    //region Setting Enums
+    public enum WatchNotifyMode
+            implements OptionSettingItem {
+        NOTIFY_ALL_POSTS("all"),
+        NOTIFY_ONLY_QUOTES("quotes");
+
+        String mode;
+
+        WatchNotifyMode(String mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public String getKey() {
+            return mode;
+        }
+    }
 
     public enum MediaAutoLoadMode
             implements OptionSettingItem {
@@ -162,6 +178,7 @@ public class ChanSettings {
             return name;
         }
     }
+    //endregion
 
     private static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
@@ -173,8 +190,8 @@ public class ChanSettings {
     public static final IntegerSetting watchBackgroundInterval;
     public static final BooleanSetting removeWatchedFromCatalog;
     public static final BooleanSetting watchLastPageNotify;
-    public static final StringSetting watchNotifyMode;
-    public static final StringSetting watchSound;
+    public static final OptionsSetting<WatchNotifyMode> watchNotifyMode;
+    public static final OptionsSetting<WatchNotifyMode> watchSound;
     public static final BooleanSetting watchPeek;
     //endregion
 
@@ -331,8 +348,16 @@ public class ChanSettings {
                     watchBackgroundInterval)));
             removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
-            watchNotifyMode = new StringSetting(p, "preference_watch_notify_mode", NOTIFY_ALL_POSTS);
-            watchSound = new StringSetting(p, "preference_watch_sound", "quotes");
+            watchNotifyMode = new OptionsSetting<>(p,
+                    "preference_watch_notify_mode",
+                    WatchNotifyMode.class,
+                    WatchNotifyMode.NOTIFY_ALL_POSTS
+            );
+            watchSound = new OptionsSetting<>(p,
+                    "preference_watch_sound",
+                    WatchNotifyMode.class,
+                    WatchNotifyMode.NOTIFY_ONLY_QUOTES
+            );
             watchPeek = new BooleanSetting(p, "preference_watch_peek", true);
             //endregion
 

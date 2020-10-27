@@ -22,6 +22,7 @@ import android.widget.Switch;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
@@ -32,8 +33,6 @@ import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ALL_POSTS;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.NOTIFY_ONLY_QUOTES;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.HOURS;
@@ -164,14 +163,14 @@ public class WatchSettingsController
                 ChanSettings.watchNotifyMode,
                 R.string.setting_watch_notify_mode,
                 context.getResources().getStringArray(R.array.setting_watch_notify_modes),
-                new String[]{NOTIFY_ALL_POSTS, NOTIFY_ONLY_QUOTES}
+                WatchNotifyMode.values()
         ));
 
         soundMode = settings.add(new ListSettingView<>(this,
                 ChanSettings.watchSound,
                 R.string.setting_watch_sound,
-                context.getResources().getStringArray(R.array.setting_watch_sounds),
-                new String[]{NOTIFY_ALL_POSTS, NOTIFY_ONLY_QUOTES}
+                context.getResources().getStringArray(R.array.setting_watch_notify_modes),
+                WatchNotifyMode.values()
         ));
 
         peekMode = settings.add(new BooleanSettingView(this,

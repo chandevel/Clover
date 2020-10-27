@@ -65,11 +65,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
 
-    <string-array name="setting_watch_sounds">
-        <item>All posts</item>
-        <item>Only posts quoting you</item>
-    </string-array>
-
     <string name="empty" />
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
