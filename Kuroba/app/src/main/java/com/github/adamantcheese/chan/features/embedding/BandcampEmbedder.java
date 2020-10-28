@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
-import android.util.JsonReader;
 
 import androidx.core.util.Pair;
 
@@ -29,10 +28,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class BandcampEmbedder
-        implements Embedder {
+        implements Embedder<Document> {
     // note that for this pattern, we allow for non-album/track links, but in the case of a bandcamp page that links directly
-    // to the music overview, the parse should fail and go to the default fail embed
-    private static final Pattern BANDCAMP_PATTERN = Pattern.compile("https?://(?:\\w+\\.)?bandcamp\\.com(?:/.*)?\\b");
+    // to the music overview, the parse will fail, so don't add in a hotlink
+    private static final Pattern BANDCAMP_PATTERN =
+            Pattern.compile("https?://(?:\\w+\\.)?bandcamp\\.com(?:/.*)?(?:/|\\b)");
     private static final Pattern ALBUMTRACKID_PATTERN = Pattern.compile("(?:album|track)=(\\d+)");
 
     @Override
@@ -61,33 +61,37 @@ public class BandcampEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument) {
-        String extractedPlayer = htmlDocument.select("meta[property=twitter:player]").get(0).attr("content");
-        Matcher idMatcher = ALBUMTRACKID_PATTERN.matcher(extractedPlayer);
-        HttpUrl embeddedPlayer = HttpUrl.get(htmlDocument.location());
-        if (idMatcher.find()) {
-            //noinspection ConstantConditions
-            long id = Long.parseLong(idMatcher.group(1));
-            boolean isAlbum = extractedPlayer.contains("album");
-            String constructedUrl =
-                    "https://bandcamp.com/EmbeddedPlayer/" + (isAlbum ? "album=" : "track=") + id + "/size=large/bgcol="
-                            + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().resValue, R.attr.backcolor))
-                            + "/linkcol=" + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().resValue,
-                            android.R.attr.textColorPrimary
-                    )) + "/minimal=true/transparent=true/";
+    public EmbedResult process(Document response)
+            throws Exception {
+        PostImage extra = null;
+        try {
+            String extractedPlayer = response.select("meta[property=twitter:player]").get(0).attr("content");
+            Matcher idMatcher = ALBUMTRACKID_PATTERN.matcher(extractedPlayer);
+            HttpUrl embeddedPlayer = HttpUrl.get(response.location());
+            if (idMatcher.find()) {
+                //noinspection ConstantConditions
+                long id = Long.parseLong(idMatcher.group(1));
+                boolean isAlbum = extractedPlayer.contains("album");
+                String constructedUrl = "https://bandcamp.com/EmbeddedPlayer/" + (isAlbum ? "album=" : "track=") + id
+                        + "/size=large/bgcol=" + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().resValue,
+                        R.attr.backcolor
+                )) + "/linkcol=" + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().resValue,
+                        android.R.attr.textColorPrimary
+                )) + "/minimal=true/transparent=true/";
 
-            embeddedPlayer = HttpUrl.get(constructedUrl);
+                embeddedPlayer = HttpUrl.get(constructedUrl);
+            }
+            extra = new PostImage.Builder().serverFilename(response.title())
+                    .thumbnailUrl(HttpUrl.get(response.select("#tralbumArt > .popupImage").get(0).attr("href")))
+                    .imageUrl(embeddedPlayer)
+                    .filename(response.title())
+                    .extension("iframe")
+                    .isInlined(true)
+                    .build();
+        } catch (Exception ignored) {
+            // no player on this page
         }
 
-        return new EmbedResult(htmlDocument.title(),
-                "",
-                new PostImage.Builder().serverFilename(htmlDocument.title())
-                        .thumbnailUrl(HttpUrl.get(htmlDocument.select("#tralbumArt > .popupImage").get(0).attr("href")))
-                        .imageUrl(embeddedPlayer)
-                        .filename(htmlDocument.title())
-                        .extension("iframe")
-                        .isInlined(true)
-                        .build()
-        );
+        return new EmbedResult(response.title(), "", extra);
     }
 }

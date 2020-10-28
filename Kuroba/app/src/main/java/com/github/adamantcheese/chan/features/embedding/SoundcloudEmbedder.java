@@ -14,8 +14,6 @@ import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedRes
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import org.jsoup.nodes.Document;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +29,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class SoundcloudEmbedder
-        implements Embedder {
-    private static final Pattern SOUNDCLOUD_PATTERN = Pattern.compile("https?://(?:www\\.)?soundcloud\\.com/.*\\b");
+        implements Embedder<JsonReader> {
+    private static final Pattern SOUNDCLOUD_PATTERN =
+            Pattern.compile("https?://(?:www\\.)?soundcloud\\.com/.*(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -77,23 +76,23 @@ public class SoundcloudEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbedResult process(JsonReader response)
             throws IOException {
         String title = "Soundcloud Link";
         HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
         HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
 
-        jsonReader.beginObject();
-        while (jsonReader.hasNext()) {
-            switch (jsonReader.nextName()) {
+        response.beginObject();
+        while (response.hasNext()) {
+            switch (response.nextName()) {
                 case "title":
-                    title = jsonReader.nextString().replace("by", "|");
+                    title = response.nextString().replace("by", "|");
                     break;
                 case "thumbnail_url":
-                    thumbnailUrl = HttpUrl.get(jsonReader.nextString());
+                    thumbnailUrl = HttpUrl.get(response.nextString());
                     break;
                 case "html":
-                    String html = jsonReader.nextString();
+                    String html = response.nextString();
                     Pattern p = Pattern.compile("src=\"(.*)\"");
                     Matcher m = p.matcher(html);
                     if (m.find()) {
@@ -104,11 +103,11 @@ public class SoundcloudEmbedder
                     }
                     break;
                 default:
-                    jsonReader.skipValue();
+                    response.skipValue();
                     break;
             }
         }
-        jsonReader.endObject();
+        response.endObject();
 
         return new EmbedResult(title,
                 "",

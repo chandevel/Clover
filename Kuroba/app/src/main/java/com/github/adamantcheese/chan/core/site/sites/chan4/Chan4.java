@@ -51,8 +51,10 @@ import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.HTMLProcessor;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -303,15 +305,15 @@ public class Chan4
     private SiteActions actions = new SiteActions() {
         @Override
         public void boards(final BoardsListener listener) {
-            NetUtils.makeJsonRequest(endpoints.boards(), new JsonResult<Boards>() {
+            NetUtils.makeJsonRequest(endpoints.boards(), new ResponseResult<Boards>() {
                 @Override
-                public void onJsonFailure(Exception e) {
+                public void onFailure(Exception e) {
                     Logger.e(Chan4.this, "Failed to get boards from server", e);
                     listener.onBoardsReceived(new Boards());
                 }
 
                 @Override
-                public void onJsonSuccess(Boards result) {
+                public void onSuccess(Boards result) {
                     listener.onBoardsReceived(result);
                 }
             }, new Chan4BoardsRequest(Chan4.this));
@@ -319,15 +321,15 @@ public class Chan4
 
         @Override
         public void pages(Board board, PagesListener listener) {
-            NetUtils.makeJsonRequest(endpoints().pages(board), new JsonResult<ChanPages>() {
+            NetUtils.makeJsonRequest(endpoints().pages(board), new ResponseResult<ChanPages>() {
                 @Override
-                public void onJsonFailure(Exception e) {
+                public void onFailure(Exception e) {
                     Logger.e(Chan4.this, "Failed to get pages for board " + board.code, e);
                     listener.onPagesReceived(board, new ChanPages());
                 }
 
                 @Override
-                public void onJsonSuccess(ChanPages result) {
+                public void onSuccess(ChanPages result) {
                     listener.onPagesReceived(board, result);
                 }
             }, new Chan4PagesParser());
@@ -335,30 +337,34 @@ public class Chan4
 
         @Override
         public void archive(Board board, ArchiveListener archiveListener) {
-            NetUtils.makeHTMLRequest(endpoints().archive(board), new NetUtils.HTMLResult<InternalSiteArchive>() {
+            NetUtils.makeHTMLRequest(endpoints().archive(board), new ResponseResult<InternalSiteArchive>() {
                 @Override
-                public void onHTMLFailure(Exception e) {
+                public void onFailure(Exception e) {
                     archiveListener.onArchiveError();
                 }
 
                 @Override
-                public void onHTMLSuccess(InternalSiteArchive result) {
+                public void onSuccess(InternalSiteArchive result) {
                     archiveListener.onArchive(result);
                 }
-            }, document -> {
-                List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
+            }, new HTMLProcessor<InternalSiteArchive>() {
+                @Override
+                public InternalSiteArchive process(Document response)
+                        throws Exception {
+                    List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
-                Element table = document.getElementById("arc-list");
-                Element tableBody = table.getElementsByTag("tbody").first();
-                Elements trs = tableBody.getElementsByTag("tr");
-                for (Element tr : trs) {
-                    Elements dataElements = tr.getElementsByTag("td");
-                    String description = dataElements.get(1).text();
-                    int id = Integer.parseInt(dataElements.get(0).text());
-                    items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
+                    Element table = response.getElementById("arc-list");
+                    Element tableBody = table.getElementsByTag("tbody").first();
+                    Elements trs = tableBody.getElementsByTag("tr");
+                    for (Element tr : trs) {
+                        Elements dataElements = tr.getElementsByTag("td");
+                        String description = dataElements.get(1).text();
+                        int id = Integer.parseInt(dataElements.get(0).text());
+                        items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
+                    }
+
+                    return InternalSiteArchive.fromItems(items);
                 }
-
-                return InternalSiteArchive.fromItems(items);
             });
         }
 

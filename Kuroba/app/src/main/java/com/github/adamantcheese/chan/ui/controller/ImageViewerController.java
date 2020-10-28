@@ -64,6 +64,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
@@ -376,9 +377,9 @@ public class ImageViewerController
     public void updatePreviewImage(PostImage postImage) {
         NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
                 ? postImage.getThumbnailUrl()
-                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtils.BitmapResult() {
+                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(Bitmap errormap, Exception e) {
+            public void onBitmapFailure(Exception e) {
                 // the preview image will just remain as the last successful response; good enough
             }
 
@@ -480,15 +481,15 @@ public class ImageViewerController
 
         NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
                 ? postImage.getThumbnailUrl()
-                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtils.BitmapResult() {
+                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(Bitmap errormap, Exception e) {
+            public void onBitmapFailure(Exception e) {
                 Logger.e(
                         ImageViewerController.this,
                         "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
                         e
                 );
-                previewImage.setBitmap(errormap);
+                previewImage.setBitmap(BitmapRepository.error);
                 startAnimation.start();
             }
 

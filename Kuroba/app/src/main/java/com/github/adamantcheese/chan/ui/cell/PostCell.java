@@ -74,6 +74,7 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,6 +106,7 @@ public class PostCell
     private static final int COMMENT_MAX_LINES_BOARD = 25;
 
     private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
+    private List<Call> embedCalls = new ArrayList<>();
 
     private RelativeLayout relativeLayoutContainer;
     private TextView title;
@@ -241,6 +243,11 @@ public class PostCell
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        for (Call call : embedCalls) {
+            call.cancel();
+        }
+        embedCalls.clear();
 
         if (post != null && bound) {
             unbindPost(post);
@@ -609,8 +616,14 @@ public class PostCell
             }
         }
 
-        boolean showLoad = callback.getEmbeddingEngine().embed(theme, post, this);
-        if (!showLoad) {
+        if (!embedCalls.isEmpty()) {
+            for (Call call : embedCalls) {
+                call.cancel();
+            }
+            embedCalls.clear();
+        }
+        embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+        if (embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(GONE);
         }
     }
@@ -620,7 +633,6 @@ public class PostCell
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         if (simple) return;
         if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            invalidate();
             recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
         } else {
             post(() -> this.invalidateView(false));
@@ -969,10 +981,10 @@ public class PostCell
         private PostIconsHttpIcon(final PostIcons postIcons, String name, HttpUrl url) {
             this.name = name;
 
-            request = NetUtils.makeBitmapRequest(url, new NetUtils.BitmapResult() {
+            request = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
                 @Override
-                public void onBitmapFailure(Bitmap errormap, Exception e) {
-                    bitmap = errormap;
+                public void onBitmapFailure(Exception e) {
+                    bitmap = BitmapRepository.error;
                     postIcons.invalidate();
                 }
 

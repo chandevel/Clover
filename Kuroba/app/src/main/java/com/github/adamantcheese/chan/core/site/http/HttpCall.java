@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import java.io.IOException;
 
@@ -68,7 +68,7 @@ public abstract class HttpCall
             if (body != null) {
                 process(response, body.string());
             } else {
-                exception = new NetUtils.HttpCodeException(response.code());
+                exception = new NetUtilsClasses.HttpCodeException(response.code());
             }
         } catch (Exception e) {
             exception = new IOException("Error processing response", e);

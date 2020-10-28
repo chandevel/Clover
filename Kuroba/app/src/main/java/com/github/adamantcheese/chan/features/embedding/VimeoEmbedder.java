@@ -11,10 +11,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-
-import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -31,8 +30,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class VimeoEmbedder
-        implements Embedder {
-    private final Pattern VIMEO_PATTERN = Pattern.compile("https?://(?:www\\.)?vimeo\\.com/\\d+/?\\b");
+        implements Embedder<JsonReader> {
+    private final Pattern VIMEO_PATTERN = Pattern.compile("https?://(?:www\\.)?vimeo\\.com/\\d+(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -63,26 +62,24 @@ public class VimeoEmbedder
     }
 
     @Override
-    public EmbeddingEngine.EmbedResult parseResult(
-            JsonReader jsonReader, Document htmlDocument
-    )
+    public EmbedResult process(JsonReader response)
             throws IOException {
         String title = "Vimeo Link";
         String duration = "";
         HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
         HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
 
-        jsonReader.beginObject();
-        while (jsonReader.hasNext()) {
-            switch (jsonReader.nextName()) {
+        response.beginObject();
+        while (response.hasNext()) {
+            switch (response.nextName()) {
                 case "title":
-                    title = jsonReader.nextString().replace("by", "|");
+                    title = response.nextString().replace("by", "|");
                     break;
                 case "thumbnail_url":
-                    thumbnailUrl = HttpUrl.get(jsonReader.nextString());
+                    thumbnailUrl = HttpUrl.get(response.nextString());
                     break;
                 case "html":
-                    String html = jsonReader.nextString();
+                    String html = response.nextString();
                     Pattern p = Pattern.compile("src=\"(.*)\"");
                     Matcher m = p.matcher(html);
                     if (m.find()) {
@@ -93,16 +90,16 @@ public class VimeoEmbedder
                     }
                     break;
                 case "duration":
-                    duration = "[" + DateUtils.formatElapsedTime(jsonReader.nextInt()) + "]";
+                    duration = "[" + DateUtils.formatElapsedTime(response.nextInt()) + "]";
                     break;
                 default:
-                    jsonReader.skipValue();
+                    response.skipValue();
                     break;
             }
         }
-        jsonReader.endObject();
+        response.endObject();
 
-        return new EmbeddingEngine.EmbedResult(title,
+        return new EmbedResult(title,
                 duration,
                 new PostImage.Builder().serverFilename(title)
                         .thumbnailUrl(thumbnailUrl)

@@ -1,9 +1,6 @@
 package com.github.adamantcheese.chan.utils;
 
 import android.graphics.Bitmap;
-import android.util.JsonReader;
-import android.util.LruCache;
-import android.util.MalformedJsonException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,19 +8,14 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,24 +28,22 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.Timeout;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static java.lang.Runtime.getRuntime;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class NetUtils {
     private static final String TAG = "NetUtils";
     // max 1/4 the maximum Dalvik runtime size
     // by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here
-    private static final BitmapLruCache imageCache = new BitmapLruCache((int) (getRuntime().maxMemory() / 4));
+    private static final NetUtilsClasses.BitmapLruCache imageCache =
+            new NetUtilsClasses.BitmapLruCache((int) (getRuntime().maxMemory() / 4));
 
-    private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
+    private static final Map<HttpUrl, List<NetUtilsClasses.BitmapResult>> resultListeners = new HashMap<>();
 
     public synchronized static void cleanup() {
         resultListeners.clear();
@@ -87,12 +77,17 @@ public class NetUtils {
         instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).enqueue(httpCall);
     }
 
-    public static Call makeBitmapRequest(@NonNull final HttpUrl url, @NonNull final BitmapResult result) {
+    public static Call makeBitmapRequest(
+            @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result
+    ) {
         return makeBitmapRequest(url, result, 0, 0);
     }
 
     public static Call makeBitmapRequest(
-            @NonNull final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
+            @NonNull final HttpUrl url,
+            @NonNull final NetUtilsClasses.BitmapResult result,
+            final int width,
+            final int height
     ) {
         Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true);
         return ret == null ? null : ret.first;
@@ -100,18 +95,18 @@ public class NetUtils {
 
     public static Pair<Call, Callback> makeBitmapRequest(
             @NonNull final HttpUrl url,
-            @NonNull final BitmapResult result,
+            @NonNull final NetUtilsClasses.BitmapResult result,
             final int width,
             final int height,
             boolean enqueue
     ) {
         synchronized (NetUtils.class) {
-            List<BitmapResult> results = resultListeners.get(url);
+            List<NetUtilsClasses.BitmapResult> results = resultListeners.get(url);
             if (results != null) {
                 results.add(result);
                 return null;
             } else {
-                List<BitmapResult> listeners = new ArrayList<>();
+                List<NetUtilsClasses.BitmapResult> listeners = new ArrayList<>();
                 listeners.add(result);
                 resultListeners.put(url, listeners);
             }
@@ -139,7 +134,7 @@ public class NetUtils {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    performBitmapFailure(url, new HttpCodeException(response.code()));
+                    performBitmapFailure(url, new NetUtilsClasses.HttpCodeException(response.code()));
                     response.close();
                     return;
                 }
@@ -175,27 +170,21 @@ public class NetUtils {
     private static synchronized void performBitmapSuccess(
             @NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache
     ) {
-        final List<BitmapResult> results = resultListeners.remove(url);
+        final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
-        for (final BitmapResult bitmapResult : results) {
+        for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
             BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(bitmap, fromCache));
         }
     }
 
     private static synchronized void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
-        final List<BitmapResult> results = resultListeners.remove(url);
+        final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
-        for (final BitmapResult bitmapResult : results) {
+        for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(BitmapRepository.error, e));
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(e));
         }
-    }
-
-    public interface BitmapResult {
-        void onBitmapFailure(Bitmap errormap, Exception e);
-
-        void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache);
     }
 
     public static Bitmap getCachedBitmap(HttpUrl url) {
@@ -208,43 +197,75 @@ public class NetUtils {
 
     public static <T> Pair<Call, Callback> makePostJsonCall(
             @NonNull final HttpUrl url,
-            @NonNull final JsonResult<T> result,
-            @NonNull final JsonParser<T> parser,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
             int timeoutMs,
             @NonNull final String postData,
             @NonNull final String contentType
     ) {
-        return makeJsonRequest(url, result, parser, timeoutMs, false, new Pair<>(postData, contentType));
+        return makeRequest(
+                url,
+                new NetUtilsClasses.JSONConverter(),
+                parser,
+                result,
+                timeoutMs,
+                false,
+                new Pair<>(postData, contentType)
+        );
     }
 
     public static <T> Pair<Call, Callback> makeJsonCall(
             @NonNull final HttpUrl url,
-            @NonNull final JsonResult<T> result,
-            @NonNull final JsonParser<T> parser,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
             int timeoutMs
     ) {
-        return makeJsonRequest(url, result, parser, timeoutMs, false, null);
+        return makeRequest(url, new NetUtilsClasses.JSONConverter(), parser, result, timeoutMs, false, null);
     }
 
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
-            @NonNull final JsonResult<T> result,
-            @NonNull final JsonParser<T> parser,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
             int timeoutMs
     ) {
-        return makeJsonRequest(url, result, parser, timeoutMs, true, null).first;
+        return makeRequest(url, new NetUtilsClasses.JSONConverter(), parser, result, timeoutMs, true, null).first;
     }
 
     public static <T> Call makeJsonRequest(
-            @NonNull final HttpUrl url, @NonNull final JsonResult<T> result, @NonNull final JsonParser<T> parser
+            @NonNull final HttpUrl url,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.JSONProcessor<T> parser
     ) {
         return makeJsonRequest(url, result, parser, 0);
     }
 
-    private static <T> Pair<Call, Callback> makeJsonRequest(
+    public static <T> Pair<Call, Callback> makeHTMLCall(
             @NonNull final HttpUrl url,
-            @NonNull final JsonResult<T> result,
-            @NonNull final JsonParser<T> parser,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.HTMLProcessor<T> reader,
+            int timeoutMs
+    ) {
+        return makeRequest(url, new NetUtilsClasses.HTMLConverter(), reader, result, timeoutMs, false, null);
+    }
+
+    @SuppressWarnings("UnusedReturnValue")
+    public static <T> Call makeHTMLRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final NetUtilsClasses.HTMLProcessor<T> reader
+    ) {
+        return makeRequest(url, new NetUtilsClasses.HTMLConverter(), reader, result, 0, true, null).first;
+    }
+
+    /**
+     * This is the mothership of this class mostly, it does all the heavy lifting for you once provided the proper stuff
+     */
+    private static <T, X> Pair<Call, Callback> makeRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final NetUtilsClasses.ResponseConverter<X> converter,
+            @NonNull final NetUtilsClasses.ResponseProcessor<T, X> reader,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
             int timeoutMs,
             boolean enqueue,
             final Pair<String, String> postData
@@ -261,32 +282,26 @@ public class NetUtils {
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                Logger.e(TAG, "Error with request: ", e);
-                BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(e));
+                BackgroundUtils.runOnMainThread(() -> result.onFailure(e));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new HttpCodeException(response.code())));
+                    BackgroundUtils.runOnMainThread(() -> result.onFailure(new NetUtilsClasses.HttpCodeException(
+                            response.code())));
                     response.close();
                     return;
                 }
 
-                //noinspection ConstantConditions
-                try (JsonReader reader = new JsonReader(new InputStreamReader(response.body().byteStream(), UTF_8))) {
-                    T read = parser.parse(reader);
-                    if (read != null) {
-                        BackgroundUtils.runOnMainThread(() -> result.onJsonSuccess(read));
-                    } else {
-                        BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(
-                                "Json parse returned null object")));
-                    }
+                try {
+                    T read = reader.process(converter.convert(response.body()));
+                    if (read == null) throw new NullPointerException("Process returned null!");
+                    BackgroundUtils.runOnMainThread(() -> result.onSuccess(read));
                 } catch (Exception e) {
-                    // response is closed at this point because of the try-with-resources block, and response bodies are only one-time read
-                    // we can't print out the offending JSON without being horribly memory inefficient
-                    Logger.e(TAG, "Error parsing JSON!", e);
-                    BackgroundUtils.runOnMainThread(() -> result.onJsonFailure(new MalformedJsonException(e.getMessage())));
+                    BackgroundUtils.runOnMainThread(() -> result.onFailure(e));
+                } finally {
+                    response.close();
                 }
             }
         };
@@ -296,209 +311,29 @@ public class NetUtils {
         return new Pair<>(call, callback);
     }
 
-    public interface JsonResult<T> {
-        void onJsonFailure(Exception e);
-
-        void onJsonSuccess(T result);
-    }
-
-    public interface JsonParser<T> {
-        T parse(JsonReader reader)
-                throws Exception;
-    }
-
-    public static <T> Pair<Call, Callback> makeHTMLCall(
-            @NonNull final HttpUrl url,
-            @NonNull final HTMLResult<T> result,
-            @NonNull final HTMLReader<T> reader,
-            int timeoutMs
+    public static Call makeHeadersRequest(
+            @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.ResponseResult<Headers> result
     ) {
-        return makeHTMLRequest(url, result, reader, timeoutMs, false);
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public static <T> Call makeHTMLRequest(
-            @NonNull final HttpUrl url, @NonNull final HTMLResult<T> result, @NonNull final HTMLReader<T> reader
-    ) {
-        return makeHTMLRequest(url, result, reader, 0, true).first;
-    }
-
-    public static <T> Pair<Call, Callback> makeHTMLRequest(
-            @NonNull final HttpUrl url,
-            @NonNull final HTMLResult<T> result,
-            @NonNull final HTMLReader<T> reader,
-            int timeoutMs,
-            boolean enqueue
-    ) {
-        OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
-        clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
-        Call call = clientBuilder.build().newCall(new Request.Builder().url(url).build());
-        Callback callback = new Callback() {
-            @Override
-            public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(e));
-            }
-
-            @Override
-            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (!response.isSuccessful()) {
-                    BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(new HttpCodeException(response.code())));
-                    response.close();
-                    return;
-                }
-
-                //noinspection ConstantConditions
-                try (ByteArrayInputStream baos = new ByteArrayInputStream(response.body().bytes())) {
-                    Document document = Jsoup.parse(baos, null, url.toString());
-
-                    T read = reader.read(document);
-                    BackgroundUtils.runOnMainThread(() -> result.onHTMLSuccess(read));
-                } catch (Exception e) {
-                    BackgroundUtils.runOnMainThread(() -> result.onHTMLFailure(e));
-                }
-                response.close();
-            }
-        };
-        if (enqueue) {
-            call.enqueue(callback);
-        }
-        return new Pair<>(call, callback);
-    }
-
-    public interface HTMLResult<T> {
-        void onHTMLFailure(Exception e);
-
-        void onHTMLSuccess(T result);
-    }
-
-    public interface HTMLReader<T> {
-        T read(Document document)
-                throws Exception;
-    }
-
-    public static Call makeHeadersRequest(@NonNull final HttpUrl url, @NonNull final HeaderResult result) {
         Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).head().build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                BackgroundUtils.runOnMainThread(() -> result.onHeaderFailure(e));
+                BackgroundUtils.runOnMainThread(() -> result.onFailure(e));
             }
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    BackgroundUtils.runOnMainThread(() -> result.onHeaderFailure(new HttpCodeException(response.code())));
+                    BackgroundUtils.runOnMainThread(() -> result.onFailure(new NetUtilsClasses.HttpCodeException(
+                            response.code())));
                     response.close();
                     return;
                 }
 
-                BackgroundUtils.runOnMainThread(() -> result.onHeaderSuccess(response.headers()));
+                BackgroundUtils.runOnMainThread(() -> result.onSuccess(response.headers()));
                 response.close();
             }
         });
         return call;
-    }
-
-    public interface HeaderResult {
-        void onHeaderFailure(Exception e);
-
-        void onHeaderSuccess(Headers result);
-    }
-
-    public abstract static class IgnoreFailureCallback
-            implements Callback {
-        public final void onFailure(@NotNull Call call, @NotNull IOException e) {}
-
-        public abstract void onResponse(@NonNull Call call, @NonNull Response response);
-    }
-
-    public static class HttpCodeException
-            extends Exception {
-        public int code;
-
-        public HttpCodeException(int code) {
-            this.code = code;
-        }
-
-        public boolean isServerErrorNotFound() {
-            return code == 404;
-        }
-    }
-
-    public static class NullCall
-            implements Call {
-
-        private final Request request;
-
-        public NullCall(HttpUrl url) {
-            request = new Request.Builder().url(url).build();
-        }
-
-        @Override
-        public void cancel() {}
-
-        @NotNull
-        @Override
-        public Call clone() {
-            return new NullCall(request.url());
-        }
-
-        @Override
-        public void enqueue(@NotNull Callback callback) {
-            BackgroundUtils.runOnBackgroundThread(() -> { // to emulate an actual call coming from a background thread
-                try {
-                    callback.onResponse(
-                            this,
-                            new Response.Builder().code(200)
-                                    .request(request)
-                                    .protocol(Protocol.HTTP_1_1)
-                                    .message("OK")
-                                    .build()
-                    );
-                } catch (IOException e) {
-                    callback.onFailure(this, e);
-                }
-            });
-        }
-
-        @NotNull
-        @Override
-        public Response execute() {
-            return new Response.Builder().code(200).message("OK").build();
-        }
-
-        @Override
-        public boolean isCanceled() {
-            return false;
-        }
-
-        @Override
-        public boolean isExecuted() {
-            return true;
-        }
-
-        @NotNull
-        @Override
-        public Request request() {
-            return request;
-        }
-
-        @NotNull
-        @Override
-        public Timeout timeout() {
-            return Timeout.NONE;
-        }
-    }
-
-    private static class BitmapLruCache
-            extends LruCache<HttpUrl, Bitmap> {
-        public BitmapLruCache(int maxSize) {
-            super(maxSize);
-        }
-
-        @Override
-        protected int sizeOf(HttpUrl key, Bitmap value) {
-            return value.getByteCount();
-        }
     }
 }

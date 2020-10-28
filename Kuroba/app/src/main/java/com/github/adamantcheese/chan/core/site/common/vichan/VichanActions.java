@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import android.util.JsonReader;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -29,6 +31,8 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import org.jsoup.Jsoup;
 
@@ -159,22 +163,25 @@ public class VichanActions
     @Override
     public void pages(Board board, PagesListener pagesListener) {
         // Vichan keeps the pages and the catalog as one JSON unit, so parse those here
-        NetUtils.makeJsonRequest(site.endpoints().catalog(board),
-                new NetUtils.JsonResult<ChanPages>() {
-                    @Override
-                    public void onJsonFailure(Exception e) {
-                        Logger.e(site, "Failed to get pages for board " + board.code, e);
-                        pagesListener.onPagesReceived(board, new ChanPages());
-                    }
+        NetUtils.makeJsonRequest(site.endpoints().catalog(board), new ResponseResult<ChanPages>() {
+            @Override
+            public void onFailure(Exception e) {
+                Logger.e(site, "Failed to get pages for board " + board.code, e);
+                pagesListener.onPagesReceived(board, new ChanPages());
+            }
 
-                    @Override
-                    public void onJsonSuccess(ChanPages result) {
-                        pagesListener.onPagesReceived(board, result);
-                    }
-                },
-                reader -> ((VichanApi) site.chanReader()).readCatalogWithPages(reader,
+            @Override
+            public void onSuccess(ChanPages result) {
+                pagesListener.onPagesReceived(board, result);
+            }
+        }, new JSONProcessor<ChanPages>() {
+            @Override
+            public ChanPages process(JsonReader response)
+                    throws Exception {
+                return ((VichanApi) site.chanReader()).readCatalogWithPages(response,
                         new ChanReaderProcessingQueue(new ArrayList<>(), Loadable.forCatalog(board))
-                )
-        );
+                );
+            }
+        });
     }
 }

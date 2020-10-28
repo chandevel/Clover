@@ -21,14 +21,14 @@ import android.util.JsonReader;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Chan420BoardsParser
-        implements JsonParser<Boards> {
+        extends JSONProcessor<Boards> {
     private final Site site;
 
     public Chan420BoardsParser(Site site) {
@@ -36,7 +36,7 @@ public class Chan420BoardsParser
     }
 
     @Override
-    public Boards parse(JsonReader reader)
+    public Boards process(JsonReader reader)
             throws Exception {
         Boards list = new Boards();
 

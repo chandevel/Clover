@@ -96,7 +96,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
-import static com.github.adamantcheese.chan.utils.NetUtils.BitmapResult;
+import static com.github.adamantcheese.chan.utils.NetUtilsClasses.BitmapResult;
 
 public class MultiImageView
         extends FrameLayout
@@ -327,7 +327,7 @@ public class MultiImageView
         final HttpUrl thumbnailURL = postImage.getThumbnailUrl();
         thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
             @Override
-            public void onBitmapFailure(Bitmap errormap, Exception e) {
+            public void onBitmapFailure(Exception e) {
                 thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 if (center) onError(e);
@@ -556,7 +556,7 @@ public class MultiImageView
                         exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
                         NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                             @Override
-                            public void onBitmapFailure(Bitmap errormap, Exception e) {} // use the default drawable
+                            public void onBitmapFailure(Exception e) {} // use the default drawable
 
                             @Override
                             public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
@@ -676,7 +676,7 @@ public class MultiImageView
             exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
             NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                 @Override
-                public void onBitmapFailure(Bitmap errormap, Exception e) {} // use the default drawable
+                public void onBitmapFailure(Exception e) {} // use the default drawable
 
                 @Override
                 public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {

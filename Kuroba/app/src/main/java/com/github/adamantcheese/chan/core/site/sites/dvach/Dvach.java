@@ -19,7 +19,7 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -201,9 +201,9 @@ public class Dvach
 
             @Override
             public void boards(final BoardsListener listener) {
-                NetUtils.makeJsonRequest(endpoints().boards(), new JsonResult<Boards>() {
+                NetUtils.makeJsonRequest(endpoints().boards(), new ResponseResult<Boards>() {
                     @Override
-                    public void onJsonFailure(Exception e) {
+                    public void onFailure(Exception e) {
                         Logger.e(Dvach.this, "Failed to get boards from server", e);
 
                         // API fail, provide some default boards
@@ -220,7 +220,7 @@ public class Dvach
                     }
 
                     @Override
-                    public void onJsonSuccess(Boards result) {
+                    public void onSuccess(Boards result) {
                         listener.onBoardsReceived(result);
                     }
                 }, new DvachBoardsParser(Dvach.this));

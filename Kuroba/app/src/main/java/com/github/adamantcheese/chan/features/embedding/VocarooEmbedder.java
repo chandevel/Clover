@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
-import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -12,13 +11,13 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.NetUtils;
-
-import org.jsoup.nodes.Document;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,9 +30,9 @@ import okhttp3.Response;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
 
 public class VocarooEmbedder
-        implements Embedder {
+        implements Embedder<Void> {
     private static final Pattern VOCAROO_LINK_PATTERN =
-            Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})\\b");
+            Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -57,6 +56,9 @@ public class VocarooEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
+        if (!StringUtils.containsAny(post.comment.toString(), getShortRepresentations()))
+            return Collections.emptyList();
+
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         if (ChanSettings.parsePostImageLinks.get()) {
             Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
@@ -65,7 +67,7 @@ public class VocarooEmbedder
                 if (URL == null) continue;
                 final String id = linkMatcher.group(1);
 
-                calls.add(new Pair<>(new NetUtils.NullCall(HttpUrl.get(URL)), new NetUtils.IgnoreFailureCallback() {
+                calls.add(new Pair<>(new NetUtilsClasses.NullCall(HttpUrl.get(URL)), new NetUtilsClasses.IgnoreFailureCallback() {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         performStandardEmbedding(theme, post, new EmbedResult(
@@ -89,7 +91,7 @@ public class VocarooEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbedResult process(Void response)
             throws IOException {
         return null; // not used for this embedder, as everything's in the URL
     }

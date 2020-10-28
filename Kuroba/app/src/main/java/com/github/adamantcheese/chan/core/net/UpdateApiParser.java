@@ -24,7 +24,7 @@ import android.util.JsonReader;
 import android.util.MalformedJsonException;
 
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonParser;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -42,13 +42,13 @@ import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class UpdateApiParser
-        implements JsonParser<UpdateApiResponse> {
+        extends JSONProcessor<UpdateApiResponse> {
     private final String versionPatternString = "v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})";
     private final Pattern RELEASE_PATTERN = Pattern.compile(versionPatternString);
     private final Pattern DEV_PATTERN = Pattern.compile(versionPatternString + "-(.*)");
 
     @Override
-    public UpdateApiResponse parse(JsonReader reader)
+    public UpdateApiResponse process(JsonReader reader)
             throws Exception {
         return DEV_BUILD ? parseDev(reader) : parseRelease(reader);
     }

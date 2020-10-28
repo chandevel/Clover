@@ -43,6 +43,8 @@ import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -450,14 +452,14 @@ public class CommentParser {
         public void resolve(@NonNull ResolveCallback callback, @NonNull ResolveParser parser) {
             NetUtils.makeJsonRequest(((ExternalSiteArchive.ArchiveEndpoints) board.site.endpoints()).resolvePost(board.code,
                     postId
-            ), new NetUtils.JsonResult<ThreadLink>() {
+            ), new ResponseResult<ThreadLink>() {
                 @Override
-                public void onJsonFailure(Exception e) {
+                public void onFailure(Exception e) {
                     callback.onProcessed(null);
                 }
 
                 @Override
-                public void onJsonSuccess(ThreadLink result) {
+                public void onSuccess(ThreadLink result) {
                     callback.onProcessed(result);
                 }
             }, parser, 5000);
@@ -468,7 +470,7 @@ public class CommentParser {
         }
 
         public static class ResolveParser
-                implements NetUtils.JsonParser<ThreadLink> {
+                extends JSONProcessor<ThreadLink> {
             private ResolveLink sourceLink;
 
             public ResolveParser(ResolveLink source) {
@@ -476,7 +478,7 @@ public class CommentParser {
             }
 
             @Override
-            public ThreadLink parse(JsonReader reader) {
+            public ThreadLink process(JsonReader reader) {
                 return ((ArchiveSiteUrlHandler) sourceLink.board.site.resolvable()).resolveToThreadLink(sourceLink,
                         reader
                 );

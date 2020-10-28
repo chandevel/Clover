@@ -13,8 +13,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import org.jsoup.nodes.Document;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -28,9 +26,9 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addJSONEmbedCalls;
 
 public class StreamableEmbedder
-        implements Embedder {
+        implements Embedder<JsonReader> {
     private static final Pattern STREAMABLE_LINK_PATTERN =
-            Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})\\b");
+            Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -91,7 +89,7 @@ public class StreamableEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbedResult process(JsonReader response)
             throws IOException {
         String serverFilename = "";
         HttpUrl mp4Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
@@ -101,56 +99,56 @@ public class StreamableEmbedder
         String title = "titleMissing" + Math.random();
         double duration = Double.NaN;
 
-        jsonReader.beginObject(); // JSON start
-        while (jsonReader.hasNext()) {
-            String name = jsonReader.nextName();
+        response.beginObject(); // JSON start
+        while (response.hasNext()) {
+            String name = response.nextName();
             switch (name) {
                 case "url":
-                    serverFilename = jsonReader.nextString();
+                    serverFilename = response.nextString();
                     serverFilename = serverFilename.substring(serverFilename.indexOf('/') + 1);
                     break;
                 case "files":
-                    jsonReader.beginObject();
-                    while (jsonReader.hasNext()) {
-                        String format = jsonReader.nextName();
+                    response.beginObject();
+                    while (response.hasNext()) {
+                        String format = response.nextName();
                         if ("mp4".equals(format)) {
-                            jsonReader.beginObject();
-                            while (jsonReader.hasNext()) {
-                                String innerName = jsonReader.nextName();
+                            response.beginObject();
+                            while (response.hasNext()) {
+                                String innerName = response.nextName();
                                 switch (innerName) {
                                     case "duration":
-                                        duration = jsonReader.nextDouble();
+                                        duration = response.nextDouble();
                                         break;
                                     case "url":
-                                        mp4Url = HttpUrl.get(jsonReader.nextString());
+                                        mp4Url = HttpUrl.get(response.nextString());
                                         break;
                                     case "size":
-                                        size = jsonReader.nextLong();
+                                        size = response.nextLong();
                                         break;
                                     default:
-                                        jsonReader.skipValue();
+                                        response.skipValue();
                                         break;
                                 }
                             }
-                            jsonReader.endObject();
+                            response.endObject();
                         } else {
-                            jsonReader.skipValue();
+                            response.skipValue();
                         }
                     }
-                    jsonReader.endObject();
+                    response.endObject();
                     break;
                 case "title":
-                    title = jsonReader.nextString();
+                    title = response.nextString();
                     break;
                 case "thumbnail_url":
-                    thumbnailUrl = HttpUrl.get("https:" + jsonReader.nextString());
+                    thumbnailUrl = HttpUrl.get("https:" + response.nextString());
                     break;
                 default:
-                    jsonReader.skipValue();
+                    response.skipValue();
                     break;
             }
         }
-        jsonReader.endObject();
+        response.endObject();
 
         return new EmbedResult(
                 title,

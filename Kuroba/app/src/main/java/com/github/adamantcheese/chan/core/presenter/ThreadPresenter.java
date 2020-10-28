@@ -715,11 +715,11 @@ public class ThreadPresenter
             case POST_OPTION_LINKS:
                 Set<String> added = new HashSet<>();
                 List<CharSequence> keys = new ArrayList<>();
-                for (int i = 0; i < post.linkables.size(); i++) {
+                for (PostLinkable linkable : post.linkables) {
                     //skip SPOILER linkables, they aren't useful to display
-                    if (post.linkables.get(i).type == PostLinkable.Type.SPOILER) continue;
-                    String key = post.linkables.get(i).key.toString();
-                    String value = post.linkables.get(i).value.toString();
+                    if (linkable.type == PostLinkable.Type.SPOILER) continue;
+                    String key = linkable.key.toString();
+                    String value = linkable.value.toString();
                     //need to trim off starting spaces for certain media links if embedded
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
                     boolean speciallyProcessed = false;
@@ -742,11 +742,11 @@ public class ThreadPresenter
                 ListView clickables = new ListView(context);
                 clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
                 clickables.setOnItemClickListener((parent, view, position, id1) -> {
-                    onPostLinkableClicked(post, post.linkables.get(position));
+                    onPostLinkableClicked(post, new ArrayList<>(post.linkables).get(position));
                     dialog.dismiss();
                 });
                 clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
-                    setClipboardContent("Linkable URL", post.linkables.get(position).value.toString());
+                    setClipboardContent("Linkable URL", new ArrayList<>(post.linkables).get(position).value.toString());
                     showToast(context, R.string.linkable_copied_to_clipboard);
                     return true;
                 });

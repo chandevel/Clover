@@ -11,8 +11,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import org.jsoup.nodes.Document;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -26,9 +24,9 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addJSONEmbedCalls;
 
 public class YoutubeEmbedder
-        implements Embedder {
+        implements Embedder<JsonReader> {
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
-            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)\\b");
+            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
 
     private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
 
@@ -83,30 +81,30 @@ public class YoutubeEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbedResult process(JsonReader response)
             throws IOException {
-        jsonReader.beginObject(); // JSON start
-        jsonReader.nextName();
-        jsonReader.beginArray();
-        jsonReader.beginObject();
-        jsonReader.nextName(); // video ID
-        jsonReader.nextString();
-        jsonReader.nextName(); // snippet
-        jsonReader.beginObject();
-        jsonReader.nextName(); // title
-        String title = jsonReader.nextString();
+        response.beginObject(); // JSON start
+        response.nextName();
+        response.beginArray();
+        response.beginObject();
+        response.nextName(); // video ID
+        response.nextString();
+        response.nextName(); // snippet
+        response.beginObject();
+        response.nextName(); // title
+        String title = response.nextString();
         String duration = null;
-        jsonReader.endObject();
+        response.endObject();
         if (ChanSettings.parseYoutubeDuration.get()) {
-            jsonReader.nextName(); // content details
-            jsonReader.beginObject();
-            jsonReader.nextName(); // duration
-            duration = getHourMinSecondString(jsonReader.nextString());
-            jsonReader.endObject();
+            response.nextName(); // content details
+            response.beginObject();
+            response.nextName(); // duration
+            duration = getHourMinSecondString(response.nextString());
+            response.endObject();
         }
-        jsonReader.endObject();
-        jsonReader.endArray();
-        jsonReader.endObject();
+        response.endObject();
+        response.endArray();
+        response.endObject();
         return new EmbedResult(title, duration, null);
     }
 

@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -112,19 +113,19 @@ public class PostImageThumbnailView
                                             NetUtils.storeExternalBitmap(url, result);
                                             onBitmapSuccess(result, immediate);
                                         } else {
-                                            onBitmapFailure(null, new NullPointerException("Failed to decode bitmap."));
+                                            onBitmapFailure(new NullPointerException("Failed to decode bitmap."));
                                         }
                                     });
                                 }
 
                                 @Override
                                 public void onFail(Exception exception) {
-                                    onBitmapFailure(null, exception);
+                                    onBitmapFailure(exception);
                                 }
 
                                 @Override
                                 public void onNotFound() {
-                                    onBitmapFailure(null, new NetUtils.HttpCodeException(404));
+                                    onBitmapFailure(new NetUtilsClasses.HttpCodeException(404));
                                 }
                             }
                     );

@@ -46,6 +46,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
+
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -68,6 +70,8 @@ public class CardPostCell
     private ImageView options;
     private View filterMatchColor;
     private RecyclerView recyclerView;
+
+    private List<Call> embedCalls = new ArrayList<>();
 
     public CardPostCell(Context context) {
         super(context);
@@ -150,6 +154,12 @@ public class CardPostCell
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
+        for (Call call : embedCalls) {
+            call.cancel();
+        }
+        embedCalls.clear();
+
         bound = false;
     }
 
@@ -256,8 +266,14 @@ public class CardPostCell
 
         replies.setText(status);
 
-        boolean showLoad = callback.getEmbeddingEngine().embed(theme, post, this);
-        if (!showLoad) {
+        if (!embedCalls.isEmpty()) {
+            for (Call call : embedCalls) {
+                call.cancel();
+            }
+            embedCalls.clear();
+        }
+        embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+        if (embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(GONE);
         }
     }
@@ -267,7 +283,6 @@ public class CardPostCell
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         if (simple) return;
         if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            invalidate();
             recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
         } else {
             post(() -> invalidateView(false));

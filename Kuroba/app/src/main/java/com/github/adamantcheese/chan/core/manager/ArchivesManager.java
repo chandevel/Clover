@@ -25,6 +25,8 @@ import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -38,7 +40,8 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ArchivesManager
-        implements NetUtils.JsonResult<List<ExternalSiteArchive>>, NetUtils.JsonParser<List<ExternalSiteArchive>> {
+        extends JSONProcessor<List<ExternalSiteArchive>>
+        implements ResponseResult<List<ExternalSiteArchive>> {
     private List<ExternalSiteArchive> archivesList;
 
     private Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
@@ -53,7 +56,7 @@ public class ArchivesManager
         try {
             // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
             try (JsonReader reader = new JsonReader(new InputStreamReader(assetManager.open("archives.json")))) {
-                archivesList = parse(reader);
+                archivesList = process(reader);
             }
         } catch (Exception e) {
             Logger.d(this, "Unable to load/parse internal archives list");
@@ -78,7 +81,7 @@ public class ArchivesManager
     }
 
     @Override
-    public List<ExternalSiteArchive> parse(JsonReader reader)
+    public List<ExternalSiteArchive> process(JsonReader reader)
             throws Exception {
         List<ExternalSiteArchive> archives = new ArrayList<>();
 
@@ -134,10 +137,10 @@ public class ArchivesManager
     }
 
     @Override
-    public void onJsonFailure(Exception e) {}
+    public void onFailure(Exception e) {}
 
     @Override
-    public void onJsonSuccess(List<ExternalSiteArchive> result) {
+    public void onSuccess(List<ExternalSiteArchive> result) {
         archivesList = result;
     }
 }

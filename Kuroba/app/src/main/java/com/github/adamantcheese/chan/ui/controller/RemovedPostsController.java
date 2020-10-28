@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -191,9 +192,9 @@ public class RemovedPostsController
                 // load only the first image
                 PostImage image = removedPost.getImages().get(0);
                 postImage.setVisibility(VISIBLE);
-                NetUtils.makeBitmapRequest(image.getThumbnailUrl(), new NetUtils.BitmapResult() {
+                NetUtils.makeBitmapRequest(image.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
                     @Override
-                    public void onBitmapFailure(Bitmap errormap, Exception e) {
+                    public void onBitmapFailure(Exception e) {
                         Logger.e(RemovedPostAdapter.this, "Error while trying to download post image", e);
                         postImage.setVisibility(GONE);
                     }

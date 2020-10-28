@@ -35,8 +35,8 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtils.HttpCodeException;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.HttpCodeException;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -258,14 +258,14 @@ public class ChanThreadLoader {
             cached = thread == null ? new ArrayList<>() : thread.getPosts();
         }
 
-        return NetUtils.makeJsonRequest(getChanUrl(loadable), new JsonResult<ChanLoaderResponse>() {
+        return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
             @Override
-            public void onJsonFailure(Exception e) {
+            public void onFailure(Exception e) {
                 onErrorResponse(e);
             }
 
             @Override
-            public void onJsonSuccess(ChanLoaderResponse result) {
+            public void onSuccess(ChanLoaderResponse result) {
                 clearTimer();
                 BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
             }

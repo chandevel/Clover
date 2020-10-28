@@ -30,7 +30,7 @@ import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +53,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * changed on the main thread.
  */
 public class ChanReaderParser
-        implements NetUtils.JsonParser<ChanLoaderResponse> {
+        extends JSONProcessor<ChanLoaderResponse> {
 
     @Inject
     FilterEngine filterEngine;
@@ -91,7 +91,7 @@ public class ChanReaderParser
     }
 
     @Override
-    public ChanLoaderResponse parse(JsonReader reader)
+    public ChanLoaderResponse process(JsonReader reader)
             throws Exception {
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 

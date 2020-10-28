@@ -13,9 +13,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import org.jsoup.nodes.Document;
-
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -28,8 +25,8 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addJSONEmbedCalls;
 
 public class ClypEmbedder
-        implements Embedder {
-    private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})");
+        implements Embedder<JsonReader> {
+    private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -75,36 +72,36 @@ public class ClypEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
-            throws IOException {
+    public EmbedResult process(JsonReader response)
+            throws Exception {
         String title = "titleMissing" + Math.random();
         double duration = Double.NaN;
 
         HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
         String fileId = "";
 
-        jsonReader.beginObject();
-        while (jsonReader.hasNext()) {
-            String name = jsonReader.nextName();
+        response.beginObject();
+        while (response.hasNext()) {
+            String name = response.nextName();
             switch (name) {
                 case "Title":
-                    title = jsonReader.nextString();
+                    title = response.nextString();
                     break;
                 case "Duration":
-                    duration = jsonReader.nextDouble();
+                    duration = response.nextDouble();
                     break;
                 case "AudioFileId":
-                    fileId = jsonReader.nextString();
+                    fileId = response.nextString();
                     break;
                 case "Mp3Url":
-                    mp3Url = HttpUrl.get(jsonReader.nextString());
+                    mp3Url = HttpUrl.get(response.nextString());
                     break;
                 default:
-                    jsonReader.skipValue();
+                    response.skipValue();
                     break;
             }
         }
-        jsonReader.endObject();
+        response.endObject();
 
         return new EmbedResult(
                 title,

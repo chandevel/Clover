@@ -100,7 +100,7 @@ public class Post
      */
     public final Set<Integer> repliesTo;
 
-    public final List<PostLinkable> linkables;
+    public final Set<PostLinkable> linkables;
 
     public final CharSequence subjectSpan;
 
@@ -183,7 +183,7 @@ public class Post
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = new ArrayList<>(builder.linkables);
+        linkables = new HashSet<>(builder.linkables);
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
 
         needsEmbedding = builder.needsEmbedding;
@@ -593,7 +593,7 @@ public class Post
             }
         }
 
-        public Builder linkables(List<PostLinkable> linkables) {
+        public Builder linkables(Set<PostLinkable> linkables) {
             synchronized (this) {
                 this.linkables = new HashSet<>(linkables);
                 return this;

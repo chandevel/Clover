@@ -12,9 +12,8 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtils;
-
-import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -28,14 +27,14 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
-import okhttp3.Response;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.getStandardCachedCallPair;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.getStandardResponseResult;
 
 public class ShadertoyEmbedder
-        implements Embedder {
+        implements Embedder<Pair<String, JsonReader>> {
     private static final Pattern SHADERTOY_PATTERN =
-            Pattern.compile("https?://(?:www\\.)shadertoy\\.com/view/(.{6})\\b");
+            Pattern.compile("https?://(?:www\\.)shadertoy\\.com/view/(.{6})(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -61,6 +60,9 @@ public class ShadertoyEmbedder
     // A LOT of this is taken from Shadertoy's website by sifting through their Javascript files, so I can't put an example like the others
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
+        if (!StringUtils.containsAny(post.comment.toString(), getShortRepresentations()))
+            return Collections.emptyList();
+
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         //find and replace all video URLs with their titles, but keep track in the map above for spans later
         Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
@@ -69,6 +71,7 @@ public class ShadertoyEmbedder
             String URL = linkMatcher.group(0);
             if (URL == null) continue;
             String shaderID = linkMatcher.group(1);
+            // nonstandard, we need the shader ID and don't care for a generated URL as it is always the same
             toReplace.add(new Pair<>(URL, shaderID));
         }
 
@@ -77,41 +80,21 @@ public class ShadertoyEmbedder
 
             if (result != null) {
                 // we've previously cached this title/duration and we don't need additional information; ignore failures because there's no actual call going on
-                calls.add(new Pair<>(new NetUtils.NullCall(HttpUrl.get(infoPair.first)),
-                        new NetUtils.IgnoreFailureCallback() {
-                            @Override
-                            public void onResponse(@NotNull Call call, @NotNull Response response) {
-                                performStandardEmbedding(theme, post, result, infoPair.first, getIconBitmap());
-                            }
-                        }
-                ));
+                calls.add(getStandardCachedCallPair(theme, post, result, infoPair.first, getIconBitmap()));
             } else {
                 // we haven't cached this media title/duration, or we need additional information
-                calls.add(NetUtils.makePostJsonCall(generateRequestURL(linkMatcher),
-                        new NetUtils.JsonResult<EmbedResult>() {
+                calls.add(NetUtils.makePostJsonCall(
+                        generateRequestURL(linkMatcher),
+                        getStandardResponseResult(theme, post, infoPair.first, getIconBitmap()),
+                        new JSONProcessor<EmbedResult>() {
                             @Override
-                            public void onJsonFailure(Exception e) {
-                                if (!"Canceled".equals(e.getMessage())) {
-                                    //failed to get, replace with just the URL and append the icon
-                                    performStandardEmbedding(theme,
-                                            post,
-                                            new EmbedResult(infoPair.first, "", null),
-                                            infoPair.first,
-                                            getIconBitmap()
-                                    );
-                                }
-                            }
-
-                            @Override
-                            public void onJsonSuccess(EmbedResult result) {
-                                //got a result, replace with the result and also cache the result
-                                EmbeddingEngine.videoTitleDurCache.put(infoPair.first, result);
-                                performStandardEmbedding(theme, post, result, infoPair.first, getIconBitmap());
+                            public EmbedResult process(JsonReader response)
+                                    throws Exception { // nonstandard, requires the shader ID to be passed in
+                                return ShadertoyEmbedder.this.process(new Pair<>(infoPair.second, response));
                             }
                         },
-                        // bit of a hack to get the shaderID in
-                        (reader -> parseResult(reader, new Document(infoPair.second))),
                         2500,
+                        // nonstandard, shadertoy needs a POST request with some extra data
                         "s=" + Uri.encode("{ \"shaders\" : [\"" + infoPair.second + "\"] }") + "&nt=1&nl=1",
                         "application/x-www-form-urlencoded"
                 ));
@@ -121,31 +104,34 @@ public class ShadertoyEmbedder
     }
 
     @Override
-    public EmbedResult parseResult(JsonReader jsonReader, Document htmlDocument)
+    public EmbedResult process(Pair<String, JsonReader> response)
             throws IOException {
-        String shaderID = htmlDocument.location();
+        String shaderID = response.first;
+        JsonReader reader = response.second;
         String title = shaderID;
-        jsonReader.beginArray();
-        jsonReader.beginObject();
-        while (jsonReader.hasNext()) {
-            if ("info".equals(jsonReader.nextName())) {
-                jsonReader.beginObject(); // info object
-                while (jsonReader.hasNext()) {
-                    if ("name".equals(jsonReader.nextName())) {
-                        title = jsonReader.nextString();
+
+        reader.beginArray();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            if ("info".equals(reader.nextName())) {
+                reader.beginObject(); // info object
+                while (reader.hasNext()) {
+                    if ("name".equals(reader.nextName())) {
+                        title = reader.nextString();
                     } else {
-                        jsonReader.skipValue();
+                        reader.skipValue();
                     }
                 }
-                jsonReader.endObject();
+                reader.endObject();
             } else {
-                jsonReader.skipValue();
+                reader.skipValue();
             }
         }
-        jsonReader.endObject();
-        jsonReader.endArray();
+        reader.endObject();
+        reader.endArray();
 
-        return new EmbedResult("Shadertoy - " + title,
+        return new EmbedResult(
+                "Shadertoy - " + title,
                 "",
                 new PostImage.Builder().serverFilename(title)
                         .thumbnailUrl(HttpUrl.get("https://www.shadertoy.com/media/shaders/" + shaderID + ".jpg"))

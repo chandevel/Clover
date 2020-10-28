@@ -43,6 +43,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -53,7 +54,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public abstract class ThumbnailView
         extends View
-        implements NetUtils.BitmapResult {
+        implements NetUtilsClasses.BitmapResult {
     private Call bitmapCall;
     private boolean circular = false;
     private int rounding = 0;
@@ -328,9 +329,9 @@ public abstract class ThumbnailView
     }
 
     @Override
-    public void onBitmapFailure(Bitmap errormap, Exception e) {
-        if (e instanceof NetUtils.HttpCodeException) {
-            errorText = String.valueOf(((NetUtils.HttpCodeException) e).code);
+    public void onBitmapFailure(Exception e) {
+        if (e instanceof NetUtilsClasses.HttpCodeException) {
+            errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
         } else {
             errorText = getString(R.string.thumbnail_load_failed_network);
         }

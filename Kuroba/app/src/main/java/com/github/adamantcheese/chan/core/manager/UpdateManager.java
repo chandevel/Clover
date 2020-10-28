@@ -45,7 +45,7 @@ import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.callback.FileCreateCallback;
@@ -156,28 +156,28 @@ public class UpdateManager {
 
         Logger.d(this, "Calling update API");
         if (!DEV_BUILD) {
-            NetUtils.makeJsonRequest(HttpUrl.get(UPDATE_API_ENDPOINT), new JsonResult<UpdateApiResponse>() {
+            NetUtils.makeJsonRequest(HttpUrl.get(UPDATE_API_ENDPOINT), new ResponseResult<UpdateApiResponse>() {
                 @Override
-                public void onJsonFailure(Exception e) {
+                public void onFailure(Exception e) {
                     failedUpdate(manual);
                 }
 
                 @Override
-                public void onJsonSuccess(UpdateApiResponse result) {
+                public void onSuccess(UpdateApiResponse result) {
                     if (!processUpdateApiResponse(result, manual) && manual && BackgroundUtils.isInForeground()) {
                         showToast(context, getString(R.string.update_none, getApplicationLabel()), Toast.LENGTH_LONG);
                     }
                 }
             }, new UpdateApiParser());
         } else {
-            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT), new JsonResult<UpdateApiResponse>() {
+            NetUtils.makeJsonRequest(HttpUrl.get(DEV_API_ENDPOINT), new ResponseResult<UpdateApiResponse>() {
                 @Override
-                public void onJsonFailure(Exception e) {
+                public void onFailure(Exception e) {
                     failedUpdate(manual);
                 }
 
                 @Override
-                public void onJsonSuccess(UpdateApiResponse result) {
+                public void onSuccess(UpdateApiResponse result) {
                     if (result == null) {
                         failedUpdate(manual);
                     } else if (result.commitHash.equals(COMMIT_HASH)) {

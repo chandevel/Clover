@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentPars
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtils.JsonResult;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 
 import java.util.Collections;
 
@@ -93,9 +93,9 @@ public class Chan420
         setActions(new TaimabaActions(this) {
             @Override
             public void boards(final BoardsListener listener) {
-                NetUtils.makeJsonRequest(endpoints().boards(), new JsonResult<Boards>() {
+                NetUtils.makeJsonRequest(endpoints().boards(), new ResponseResult<Boards>() {
                     @Override
-                    public void onJsonFailure(Exception e) {
+                    public void onFailure(Exception e) {
                         Logger.e(Chan420.this, "Failed to get boards from server", e);
                         Boards list = new Boards();
                         list.add(Board.fromSiteNameCode(Chan420.this, "Cannabis Discussion", "weed"));
@@ -107,7 +107,7 @@ public class Chan420
                     }
 
                     @Override
-                    public void onJsonSuccess(Boards result) {
+                    public void onSuccess(Boards result) {
                         listener.onBoardsReceived(result);
                     }
                 }, new Chan420BoardsParser(Chan420.this));
