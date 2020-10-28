@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 
+import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
@@ -354,7 +355,7 @@ public class Post
                 comment.removeSpan(span);
             }
             if (TextUtils.isEmpty(query)) return;
-            Pattern search = Pattern.compile(query, Pattern.CASE_INSENSITIVE);
+            Pattern search = Pattern.compile(FilterEngine.escapeRegex(query), Pattern.CASE_INSENSITIVE);
             Matcher searchMatch = search.matcher(comment);
             // apply new spans
             while (searchMatch.find()) {

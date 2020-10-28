@@ -359,7 +359,7 @@ public class FilterEngine {
         return pattern;
     }
 
-    private String escapeRegex(String filthy) {
+    public static String escapeRegex(String filthy) {
         return filterFilthyPattern.matcher(filthy).replaceAll("\\\\$1"); // Escape regex special characters with a \
     }
 }
