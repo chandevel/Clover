@@ -230,8 +230,7 @@ public class ChanSettings {
     public static final BooleanSetting showAnonymousName;
     public static final BooleanSetting anonymizeIds;
     public static final BooleanSetting addDubs;
-    public static final BooleanSetting parseMediaTitles;
-    public static final BooleanSetting parseYoutubeDuration;
+    public static final BooleanSetting enableEmbedding;
     public static final BooleanSetting enableEmoji;
 
     // Images
@@ -396,8 +395,7 @@ public class ChanSettings {
             showAnonymousName = new BooleanSetting(p, "preference_show_anonymous_name", false);
             anonymizeIds = new BooleanSetting(p, "preference_anonymize_ids", false);
             addDubs = new BooleanSetting(p, "add_dubs", false);
-            parseMediaTitles = new BooleanSetting(p, "parse_media_titles", true);
-            parseYoutubeDuration = new BooleanSetting(p, "parse_youtube_duration", false);
+            enableEmbedding = new BooleanSetting(p, "parse_media_titles", true);
             enableEmoji = new BooleanSetting(p, "enable_emoji", false);
 
             // Images
@@ -436,9 +434,10 @@ public class ChanSettings {
             shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
 
             // Other options
-            // this is 4chanX's key, but it is recommended that you use your own
-            parseYoutubeAPIKey =
-                    new StringSetting(p, "parse_youtube_API_key", "AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE");
+            // 4chanX's key: AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE; not set as a default because lots of people use it
+            // and the quota tends to run out quickly, ending up in a lot of non-parsed titles
+            // default no-api key tries its best to get the info it can, but may fail on certain youtube videos without warning
+            parseYoutubeAPIKey = new StringSetting(p, "parse_youtube_API_key", "");
             fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
             showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);

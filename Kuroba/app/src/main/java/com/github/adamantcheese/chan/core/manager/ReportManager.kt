@@ -282,8 +282,7 @@ class ReportManager(
     private fun getSettingsStateString(): String {
         return buildString {
             appendLine("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
-            appendLine("Media title parsing enabled: ${ChanSettings.parseMediaTitles.get()}")
-            appendLine("Youtube durations parsing enabled: ${ChanSettings.parseYoutubeDuration.get()}")
+            appendLine("Embedding enabled: ${ChanSettings.enableEmbedding.get()}")
             appendLine("Concurrent file loading chunks count: ${ChanSettings.concurrentDownloadChunkCount.get().toInt()}")
             appendLine("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
             appendLine("Saved files base dir info: ${getFilesLocationInfo()}")

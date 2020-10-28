@@ -260,8 +260,9 @@ public class NetUtils {
 
     /**
      * This is the mothership of this class mostly, it does all the heavy lifting for you once provided the proper stuff
+     * Generally don't use this! Use one of the wrapper methods instead.
      */
-    private static <T, X> Pair<Call, Callback> makeRequest(
+    public static <T, X> Pair<Call, Callback> makeRequest(
             @NonNull final HttpUrl url,
             @NonNull final NetUtilsClasses.ResponseConverter<X> converter,
             @NonNull final NetUtilsClasses.ResponseProcessor<T, X> reader,

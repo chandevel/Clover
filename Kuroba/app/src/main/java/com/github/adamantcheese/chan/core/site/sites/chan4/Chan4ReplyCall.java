@@ -70,7 +70,10 @@ public class Chan4ReplyCall
             if (!reply.flag.isEmpty()) {
                 formBuilder.addFormDataPart("flag", reply.flag);
             } else {
-                formBuilder.addFormDataPart("flag", Chan4.flagType.get());
+                // if for some reason the flag type is empty, set it to the default "whatever the site thinks"
+                formBuilder.addFormDataPart("flag",
+                        Chan4.flagType.get().isEmpty() ? Chan4.flagType.getDefault() : Chan4.flagType.get()
+                );
             }
         }
 

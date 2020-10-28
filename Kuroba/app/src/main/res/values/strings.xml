@@ -637,8 +637,8 @@ Don't have a 4chan Pass?<br>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
     <string name="settings_image_long_url">Enable long-press image URL copy</string>
     <string name="settings_image_long_url_description">Makes long-pressing on post images copy the image URL to the clipboard</string>
-    <string name="setting_media_title">Enable media titles</string>
-    <string name="setting_media_title_description">Replaces Youtube, Streamable, and Clyp.it links with their titles; with image link loading enabled, Streamable, Clyp.it, and Vocaroo links will be embedded as post images</string>
+    <string name="setting_embedding_enable">Enable embedding</string>
+    <string name="setting_embedding_enable_description">Replaces certain links with more readable titles, and displays durations if applicable. If post image linking is enabled, some links will generate as images as well.</string>
     <string name="album_download_could_not_save_one_or_more_images">Could not save one or more images</string>
     <string-array name="setting_watch_notify_modes">
         <item>All posts</item>
@@ -674,8 +674,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="add_dubs_title">Add dubs to post cells</string>
     <string name="add_dubs_description">Appends your GET to your post number, for FUN!</string>
-    <string name="setting_youtube_dur_title">Enable Youtube durations</string>
-    <string name="setting_youtube_dur_description">Adds duration parsing to Youtube titles; does not do anything with media titles off</string>
     <string name="files_base_dir_does_not_exist"><![CDATA[Base directory for files does not exist! Set it manually in the settings (Media -> Save location)]]></string>
     <string name="image_saver_could_not_figure_out_save_location">Couldn\'t figure out save location</string>
     <string name="settings_captcha_setup">Captcha Settings</string>
@@ -750,7 +748,7 @@ Don't have a 4chan Pass?<br>
     <string name="fail_reason_some_part_of_webview_not_initialized">Some part of WebViewChromium couldn\'t get initialized: (%1$s)</string>
 
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
-    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, or FLAC files linked in posts as internally viewable post attachments, with a special spoiler image due to no thumbnails being available</string>
+    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, or FLAC files linked in posts as internally viewable post attachments with a special spoiler image.</string>
     <string name="add_new_zone">Add new zone</string>
     <string name="setting_exclusion_zones_left_zone_portrait">Left zone (Portrait orientation)</string>
     <string name="setting_exclusion_zones_right_zone_portrait">Right zone (Portrait orientation)</string>
@@ -785,4 +783,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="apply_image_filter_to_post">Apply image hash filters to posts</string>
     <string name="apply_image_filter_to_post_description">Applies image hash filtering to posts themselves as opposed to images</string>
+    <string name="yt_api_key_dialog">Youtube API Key</string>
+    <string name="yt_api_key_dialog_description">Without a key parsing is still possible, but may not be reliable. You can use your own key, or snag the one from 4chanX.</string>
 </resources>

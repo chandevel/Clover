@@ -148,7 +148,8 @@ public class BehaviourSettingsController
             reply.add(new StringSettingView(this,
                     ChanSettings.postDefaultName,
                     R.string.setting_post_default_name,
-                    R.string.setting_post_default_name
+                    R.string.setting_post_default_name,
+                    R.string.empty
             ));
 
             groups.add(reply);
@@ -191,8 +192,9 @@ public class BehaviourSettingsController
 
             other.add(new StringSettingView(this,
                     ChanSettings.parseYoutubeAPIKey,
-                    "Youtube API Key",
-                    "Youtube API Key"
+                    R.string.yt_api_key_dialog,
+                    R.string.yt_api_key_dialog,
+                    R.string.yt_api_key_dialog_description
             ));
 
             requiresRestart.add(other.add(new BooleanSettingView(this,
@@ -229,7 +231,8 @@ public class BehaviourSettingsController
             requiresRestart.add(proxy.add(new StringSettingView(this,
                     ChanSettings.proxyAddress,
                     R.string.setting_proxy_address,
-                    R.string.setting_proxy_address
+                    R.string.setting_proxy_address,
+                    R.string.empty
             )));
 
             requiresRestart.add(proxy.add(new IntegerSettingView(this,

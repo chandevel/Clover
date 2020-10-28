@@ -62,7 +62,7 @@ public class CommentParserHelper {
             if (!"http".equals(scheme) && !"https".equals(scheme)) continue; // only autolink URLs, not any random URI
             // if this URL is a link and we're embedding those, skip it, it'll be taken care of later
             // cheap match instead of full matcher for speed
-            if (ChanSettings.parseMediaTitles.get()) {
+            if (ChanSettings.enableEmbedding.get()) {
                 for (Embedder e : embeddingEngine.embedders) {
                     if (StringUtils.containsAny(linkText, e.getShortRepresentations())) {
                         post.needsEmbedding = true;

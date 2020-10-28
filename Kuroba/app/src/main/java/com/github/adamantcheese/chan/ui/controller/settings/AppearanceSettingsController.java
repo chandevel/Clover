@@ -228,15 +228,9 @@ public class AppearanceSettingsController
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.parseMediaTitles,
-                    R.string.setting_media_title,
-                    R.string.setting_media_title_description
-            )));
-
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.parseYoutubeDuration,
-                    R.string.setting_youtube_dur_title,
-                    R.string.setting_youtube_dur_description
+                    ChanSettings.enableEmbedding,
+                    R.string.setting_embedding_enable,
+                    R.string.setting_embedding_enable_description
             )));
 
             //this is also in Behavior settings

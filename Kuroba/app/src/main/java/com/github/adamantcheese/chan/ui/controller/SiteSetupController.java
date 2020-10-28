@@ -119,10 +119,13 @@ public class SiteSetupController
                 case STRING:
                     // Turn the SiteSetting for a string setting into a proper setting with a name and input
                     StringSetting stringSetting = (StringSetting) setting.setting;
-                    StringSettingView view = new StringSettingView(this, stringSetting, setting.name, setting.name);
+                    StringSettingView view =
+                            new StringSettingView(this, stringSetting, setting.name, setting.name, null);
 
                     group.add(view);
                     break;
+                default:
+                    throw new UnsupportedOperationException("Not implemented yet for this setting type!");
             }
         }
 

@@ -309,29 +309,6 @@ public class EmbeddingEngine {
     public static void performStandardEmbedding(
             Theme theme, Post post, @NonNull EmbedResult parseResult, @NonNull String URL, Bitmap icon
     ) {
-        SpannableStringBuilder replacement = new SpannableStringBuilder(
-                "  " + parseResult.title + (!TextUtils.isEmpty(parseResult.duration)
-                        ? " " + parseResult.duration
-                        : ""));
-
-        //set the icon span for the linkable
-        ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
-        int height = sp(ChanSettings.fontSize.get());
-        int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
-        siteIcon.getDrawable().setBounds(0, 0, width, height);
-        replacement.setSpan(siteIcon,
-                0,
-                1,
-                ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        );
-
-        //set the linkable to be the entire length, including the icon
-        PostLinkable pl = new PostLinkable(theme, replacement, URL, PostLinkable.Type.LINK);
-        replacement.setSpan(pl,
-                0,
-                replacement.length(),
-                ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-        );
 
         int index = 0;
         while (true) { // this will always break eventually
@@ -339,6 +316,32 @@ public class EmbeddingEngine {
                 // search from the last known replacement location
                 index = TextUtils.indexOf(post.comment, URL, index);
                 if (index < 0) break;
+
+                // Generate a fresh replacement string (in case of repeats)
+                SpannableStringBuilder replacement = new SpannableStringBuilder(
+                        "  " + parseResult.title + (!TextUtils.isEmpty(parseResult.duration) ? " "
+                                + parseResult.duration : ""));
+
+                // Set the icon span for the linkable
+                ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
+                int height = sp(ChanSettings.fontSize.get());
+                int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
+                siteIcon.getDrawable().setBounds(0, 0, width, height);
+                replacement.setSpan(siteIcon,
+                        0,
+                        1,
+                        ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
+                                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                );
+
+                // Set the linkable to be the entire length, including the icon
+                PostLinkable pl = new PostLinkable(theme, replacement, URL, PostLinkable.Type.LINK);
+                replacement.setSpan(pl,
+                        0,
+                        replacement.length(),
+                        ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
+                                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                );
 
                 // replace the proper section of the comment with the link
                 post.comment.replace(index, index + URL.length(), replacement);

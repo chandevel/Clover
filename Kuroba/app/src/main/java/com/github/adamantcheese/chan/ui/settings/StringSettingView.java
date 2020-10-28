@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -38,17 +39,25 @@ public class StringSettingView
         implements View.OnClickListener {
     private final Setting<String> setting;
     private final String dialogTitle;
+    private final String subTitle;
 
-    public StringSettingView(SettingsController controller, Setting<String> setting, int name, int dialogTitle) {
-        this(controller, setting, getString(name), getString(dialogTitle));
+    public StringSettingView(
+            SettingsController controller, Setting<String> setting, int name, int dialogTitle, int subTitle
+    ) {
+        this(controller, setting, getString(name), getString(dialogTitle), getString(subTitle));
     }
 
     public StringSettingView(
-            SettingsController settingsController, Setting<String> setting, String name, String dialogTitle
+            SettingsController settingsController,
+            Setting<String> setting,
+            String name,
+            String dialogTitle,
+            String subTitle
     ) {
         super(settingsController, name);
         this.setting = setting;
         this.dialogTitle = dialogTitle;
+        this.subTitle = TextUtils.isEmpty(subTitle) ? null : subTitle;
     }
 
     @Override
@@ -59,7 +68,7 @@ public class StringSettingView
 
     @Override
     public String getBottomDescription() {
-        return setting.get().length() > 0 ? setting.get() : null;
+        return setting.get().length() > 0 ? setting.get() : "\" \"";
     }
 
     @Override
@@ -76,10 +85,18 @@ public class StringSettingView
         container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
 
         AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
-            String input = editText.getText().toString();
-            setting.set(input.length() > 0 ? input : setting.getDefault());
+            setting.set(editText.getText().toString());
             settingsController.onPreferenceChange(StringSettingView.this);
-        }).setNegativeButton(R.string.cancel, null).setTitle(dialogTitle).setView(container).create();
+        })
+                .setNeutralButton(R.string.default_, ((dialog1, which) -> {
+                    setting.set(setting.getDefault());
+                    settingsController.onPreferenceChange(StringSettingView.this);
+                }))
+                .setNegativeButton(R.string.cancel, null)
+                .setTitle(dialogTitle)
+                .setMessage(subTitle)
+                .setView(container)
+                .create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         dialog.show();
     }
