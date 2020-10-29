@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.text.format.DateUtils;
 import android.util.Base64;
 
 import androidx.annotation.ColorInt;
@@ -14,6 +15,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import okio.ByteString;
@@ -192,5 +195,45 @@ public class StringUtils {
     public static boolean containsIgnoreCase(@Nullable CharSequence source, @Nullable CharSequence needle) {
         if (source == null || needle == null) return false;
         return source.toString().toLowerCase(Locale.ENGLISH).contains(needle.toString().toLowerCase(Locale.ENGLISH));
+    }
+
+    private static final Pattern iso8601Time = Pattern.compile("PT?(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)S)?");
+
+    public static String prettyPrint8601Time(String ISO8601Duration) {
+        Matcher m = iso8601Time.matcher(ISO8601Duration);
+        String ret;
+        if (m.matches()) {
+            int hours = 0, minutes = 0, seconds = 0;
+            try {
+                hours = Integer.parseInt(m.group(1));
+            } catch (Exception ignored) {}
+            try {
+                minutes = Integer.parseInt(m.group(2));
+            } catch (Exception ignored) {}
+            try {
+                seconds = Integer.parseInt(m.group(3));
+            } catch (Exception ignored) {}
+
+            String secondString = seconds < 10 ? "0" + seconds : "" + seconds;
+            if (hours > 0) {
+                String minuteString = minutes < 10 ? "0" + minutes : "" + minutes;
+                ret = hours + ":" + minuteString + ":" + secondString;
+            } else {
+                ret = minutes + ":" + secondString;
+            }
+        } else if ("P0D".equals(ISO8601Duration)) {
+            ret = "LIVE";
+        } else {
+            //badly formatted time from youtube's API?
+            ret = "??:??";
+        }
+
+        return "[" + ret + "]";
+    }
+
+    public static String prettyPrintDateUtilsElapsedTime(double elapsed) {
+        if (Double.isNaN(elapsed) || Double.isInfinite(elapsed) || elapsed == 0.0) return "?:??";
+        String out = DateUtils.formatElapsedTime(Math.round(elapsed));
+        return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 }

@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
-import android.text.format.DateUtils;
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
@@ -28,6 +27,7 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class VimeoEmbedder
         extends JsonEmbedder {
@@ -90,7 +90,7 @@ public class VimeoEmbedder
                     }
                     break;
                 case "duration":
-                    duration = "[" + DateUtils.formatElapsedTime(response.nextInt()) + "]";
+                    duration = prettyPrintDateUtilsElapsedTime(response.nextInt());
                     break;
                 default:
                     response.skipValue();

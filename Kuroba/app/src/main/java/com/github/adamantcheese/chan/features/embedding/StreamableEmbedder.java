@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
-import android.text.format.DateUtils;
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
@@ -24,6 +23,7 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class StreamableEmbedder
         extends JsonEmbedder {
@@ -152,7 +152,7 @@ public class StreamableEmbedder
 
         return new EmbedResult(
                 title,
-                "[" + DateUtils.formatElapsedTime(Math.round(duration)) + "]",
+                prettyPrintDateUtilsElapsedTime(duration),
                 new PostImage.Builder().serverFilename(serverFilename)
                         .thumbnailUrl(thumbnailUrl)
                         .imageUrl(mp4Url)

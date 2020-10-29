@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
-import android.text.format.DateUtils;
 import android.util.JsonReader;
 
 import androidx.annotation.Nullable;
@@ -28,14 +27,14 @@ import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class YoutubeEmbedder
         extends JsonEmbedder {
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
-
-    private static final Pattern iso8601Time = Pattern.compile("PT((\\d+)H)?((\\d+)M)?((\\d+)S)?");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -128,7 +127,7 @@ public class YoutubeEmbedder
                             title = URLDecoder.decode(response.nextString(), "utf-8");
                             break;
                         case "lengthSeconds":
-                            duration = "[" + DateUtils.formatElapsedTime(response.nextInt()) + "]";
+                            duration = prettyPrintDateUtilsElapsedTime(response.nextInt());
                             break;
                         case "isLiveContent":
                             if (response.nextBoolean()) {
@@ -166,38 +165,11 @@ public class YoutubeEmbedder
         response.nextName(); // content details
         response.beginObject();
         response.nextName(); // duration
-        duration = getHourMinSecondString(response.nextString());
+        duration = prettyPrint8601Time(response.nextString());
         response.endObject();
         response.endObject();
         response.endArray();
         response.endObject();
         return new EmbedResult(title, duration, null);
-    }
-
-    private static String getHourMinSecondString(String ISO8601Duration) {
-        Matcher m = iso8601Time.matcher(ISO8601Duration);
-        String ret;
-        if (m.matches()) {
-            String hours = m.group(2);
-            String minutes = m.group(4);
-            String seconds = m.group(6);
-            //pad seconds to 2 digits
-            seconds = seconds != null ? (seconds.length() == 1 ? "0" + seconds : seconds) : "00";
-            if (hours != null) {
-                //we have hours, pad minutes to 2 digits
-                minutes = minutes != null ? (minutes.length() == 1 ? "0" + minutes : minutes) : null;
-                ret = hours + ":" + (minutes != null ? minutes : "00") + ":" + seconds;
-            } else {
-                //no hours, no need to pad anything else
-                ret = (minutes != null ? minutes : "00") + ":" + seconds;
-            }
-        } else if ("P0D".equals(ISO8601Duration)) {
-            ret = "LIVE";
-        } else {
-            //badly formatted time from youtube's API?
-            ret = "??:??";
-        }
-
-        return "[" + ret + "]";
     }
 }
