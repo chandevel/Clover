@@ -57,7 +57,7 @@ public class NetUtilsClasses {
      * @param <T> The type of the object we want to get out of the body
      */
     public interface ResponseConverter<T> {
-        T convert(@Nullable ResponseBody body)
+        T convert(HttpUrl baseURL, @Nullable ResponseBody body)
                 throws Exception;
     }
 
@@ -103,8 +103,7 @@ public class NetUtilsClasses {
             implements ResponseConverter<JsonReader> {
 
         @Override
-        public JsonReader convert(@Nullable ResponseBody body)
-                throws Exception {
+        public JsonReader convert(HttpUrl baseURL, @Nullable ResponseBody body) {
             return new JsonReader(new InputStreamReader(body.byteStream(), UTF_8));
         }
     }
@@ -117,9 +116,9 @@ public class NetUtilsClasses {
             implements ResponseConverter<Document> {
 
         @Override
-        public Document convert(@Nullable ResponseBody body)
+        public Document convert(HttpUrl baseURL, @Nullable ResponseBody body)
                 throws Exception {
-            return Jsoup.parse(body.byteStream(), null, "");
+            return Jsoup.parse(body.byteStream(), null, baseURL.toString());
         }
     }
 

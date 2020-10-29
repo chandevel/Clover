@@ -631,6 +631,7 @@ public class PostCell
     @Override
     public void invalidateView(boolean simple) {
         findViewById(R.id.embed_spinner).setVisibility(GONE);
+        invalidate();
         if (simple) return;
         if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
             recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));

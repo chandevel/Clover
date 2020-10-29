@@ -231,9 +231,9 @@ public class StringUtils {
         return "[" + ret + "]";
     }
 
-    public static String prettyPrintDateUtilsElapsedTime(double elapsed) {
-        if (Double.isNaN(elapsed) || Double.isInfinite(elapsed) || elapsed == 0.0) return "?:??";
-        String out = DateUtils.formatElapsedTime(Math.round(elapsed));
+    public static String prettyPrintDateUtilsElapsedTime(double elapsedSeconds) {
+        if (Double.isNaN(elapsedSeconds) || Double.isInfinite(elapsedSeconds) || elapsedSeconds == 0.0) return "?:??";
+        String out = DateUtils.formatElapsedTime(Math.round(elapsedSeconds));
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 }

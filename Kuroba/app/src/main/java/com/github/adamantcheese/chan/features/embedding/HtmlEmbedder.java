@@ -6,14 +6,15 @@ import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import org.jsoup.nodes.Document;
 
+import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;
 
 public abstract class HtmlEmbedder
         implements Embedder<Document> {
 
     @Override
-    public Document convert(@Nullable ResponseBody body)
+    public Document convert(HttpUrl baseURL, @Nullable ResponseBody body)
             throws Exception {
-        return new NetUtilsClasses.HTMLConverter().convert(body);
+        return new NetUtilsClasses.HTMLConverter().convert(baseURL, body);
     }
 }

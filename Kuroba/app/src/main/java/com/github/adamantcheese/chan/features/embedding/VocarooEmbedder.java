@@ -88,7 +88,7 @@ public class VocarooEmbedder
     }
 
     @Override
-    public Void convert(@Nullable ResponseBody body) {
+    public Void convert(HttpUrl baseURL, @Nullable ResponseBody body) {
         return null; // not used for this embedder, as everything's in the URL
     }
 

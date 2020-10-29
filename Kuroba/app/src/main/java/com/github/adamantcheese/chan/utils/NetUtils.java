@@ -261,7 +261,7 @@ public class NetUtils {
                 }
 
                 try {
-                    T read = reader.process(converter.convert(response.body()));
+                    T read = reader.process(converter.convert(call.request().url(), response.body()));
                     if (read == null) throw new NullPointerException("Process returned null!");
                     BackgroundUtils.runOnMainThread(() -> result.onSuccess(read));
                 } catch (Exception e) {

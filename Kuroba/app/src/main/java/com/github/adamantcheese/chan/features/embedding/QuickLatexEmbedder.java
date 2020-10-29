@@ -122,7 +122,7 @@ public class QuickLatexEmbedder
                                 }
 
                                 try {
-                                    String responseString = convert(response.body());
+                                    String responseString = convert(null, response.body());
                                     Matcher matcher = QUICK_LATEX_RESPONSE.matcher(responseString);
                                     if (matcher.matches()) {
                                         //noinspection ConstantConditions
@@ -148,7 +148,7 @@ public class QuickLatexEmbedder
     }
 
     @Override
-    public String convert(@Nullable ResponseBody body)
+    public String convert(HttpUrl baseURL, @Nullable ResponseBody body)
             throws Exception {
         return body == null ? null : body.string();
     }

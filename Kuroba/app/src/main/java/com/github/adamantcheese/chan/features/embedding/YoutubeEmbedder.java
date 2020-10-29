@@ -89,7 +89,7 @@ public class YoutubeEmbedder
     }
 
     @Override
-    public JsonReader convert(@Nullable ResponseBody body)
+    public JsonReader convert(HttpUrl baseURL, @Nullable ResponseBody body)
             throws Exception {
         if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
             Pattern params = Pattern.compile("player_response=(.*?)&");

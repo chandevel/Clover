@@ -2,19 +2,24 @@ package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;
+import android.util.JsonToken;
 
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.io.IOException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.StringReader;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -23,15 +28,14 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class SoundcloudEmbedder
-        extends JsonEmbedder {
+        implements Embedder<Pair<HttpUrl, JsonReader>> {
     private static final Pattern SOUNDCLOUD_PATTERN =
-            Pattern.compile("https?://(?:www\\.)?soundcloud\\.com/.*(?:/|\\b)");
+            Pattern.compile("(https?://(?:www\\.)?soundcloud\\.com/.*?/(?:sets/)?[A-Za-z0-9-_.!~*'()]*)(?:/|\\b)");
 
     @Override
     public List<String> getShortRepresentations() {
@@ -50,70 +54,108 @@ public class SoundcloudEmbedder
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        return HttpUrl.get("https://soundcloud.com/oembed?format=json&url=" + matcher.group(0));
+        return HttpUrl.get(
+                "https://w.soundcloud.com/player/?visual=true&url=" + matcher.group(1) + "&show_artwork=true");
     }
-
-    /* EXAMPLE JSON
-        {
-          "version": 1,
-          "type": "rich",
-          "provider_name": "SoundCloud",
-          "provider_url": "https://soundcloud.com",
-          "height": 400,
-          "width": "100%",
-          "title": "Pop Smoke - For The Night (feat. DaBaby & Lil Baby) by POP SMOKE",
-          "description": null,
-          "thumbnail_url": "https://i1.sndcdn.com/artworks-IMxRfEWmddxz-0-t500x500.jpg",
-          "html": "<iframe width=\"100%\" height=\"400\" scrolling=\"no\" frameborder=\"no\" src=\"https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F850507126&show_artwork=true\"></iframe>",
-          "author_name": "POP SMOKE",
-          "author_url": "https://soundcloud.com/biggavelipro"
-        }
-     */
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
         return addStandardEmbedCalls(this, theme, post);
     }
 
-    @Override
-    public EmbedResult process(JsonReader response)
-            throws IOException {
-        String title = "Soundcloud Link";
-        HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
-        HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
+    @SuppressWarnings("RegExpRedundantEscape") // complains, but otherwise will fail at runtime
+    private final Pattern JSON_PATTERN = Pattern.compile("var c=(\\[\\{.*\\}\\])");
 
-        response.beginObject();
-        while (response.hasNext()) {
-            switch (response.nextName()) {
-                case "title":
-                    title = response.nextString().replace("by", "|");
-                    break;
-                case "thumbnail_url":
-                    thumbnailUrl = HttpUrl.get(response.nextString());
-                    break;
-                case "html":
-                    String html = response.nextString();
-                    Pattern p = Pattern.compile("src=\"(.*)\"");
-                    Matcher m = p.matcher(html);
-                    if (m.find()) {
-                        sourceUrl = HttpUrl.get(m.group(1) + "&color=%23" + getRGBColorIntString(getAttrColor(
-                                ThemeHelper.getTheme().accentColor.accentStyleId,
-                                R.attr.colorAccent
-                        )));
-                    }
-                    break;
-                default:
-                    response.skipValue();
-                    break;
+    @Override
+    public Pair<HttpUrl, JsonReader> convert(HttpUrl baseURL, @Nullable ResponseBody body)
+            throws Exception {
+        // we're getting HTML back, but we need to process some JSON from within a script
+        Document document = Jsoup.parse(body.byteStream(), null, baseURL.toString());
+        for (Element e : document.select("script")) {
+            String innerHTML = e.html();
+            if (innerHTML.startsWith("webpackJsonp")) {
+                Matcher jsonMatcher = JSON_PATTERN.matcher(innerHTML);
+                if (jsonMatcher.find()) {
+                    return new Pair<>(baseURL, new JsonReader(new StringReader(jsonMatcher.group(1))));
+                }
             }
         }
-        response.endObject();
+        return null;
+    }
 
-        return new EmbedResult(title,
-                "",
+    @Override
+    public EmbedResult process(Pair<HttpUrl, JsonReader> response)
+            throws Exception {
+        HttpUrl sourceURL = response.first;
+        JsonReader reader = response.second;
+        String artist = "";
+        String title = "";
+        String duration = null;
+        HttpUrl artworkURL = null;
+
+        reader.beginArray();
+        reader.beginObject();
+        while (reader.hasNext()) {
+            if ("data".equals(reader.nextName())) {
+                reader.beginArray();
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    switch (reader.nextName()) {
+                        case "artwork_url":
+                            if (reader.peek() == JsonToken.NULL) {
+                                reader.skipValue(); // if missing, the user's avatar is used
+                            } else {
+                                artworkURL = HttpUrl.get(reader.nextString().replace("large", "t500x500"));
+                            }
+                            break;
+                        case "duration":
+                            duration = StringUtils.prettyPrintDateUtilsElapsedTime(reader.nextDouble() / 1000);
+                            break;
+                        case "title":
+                            title = reader.nextString();
+                            break;
+                        case "user":
+                            reader.beginObject();
+                            while (reader.hasNext()) {
+                                switch (reader.nextName()) {
+                                    case "username":
+                                        artist = reader.nextString();
+                                        break;
+                                    case "avatar_url":
+                                        if (artworkURL == null) {
+                                            artworkURL = HttpUrl.get(reader.nextString().replace("large", "t500x500"));
+                                        } else {
+                                            reader.nextString();
+                                        }
+                                        break;
+                                    default:
+                                        reader.skipValue();
+                                        break;
+                                }
+                            }
+                            reader.endObject();
+                            break;
+                        default:
+                            reader.skipValue();
+                            break;
+                    }
+                }
+                reader.endObject();
+                reader.endArray();
+            } else {
+                reader.skipValue();
+            }
+        }
+        reader.endObject();
+        reader.endArray();
+
+        return new EmbedResult(
+                (artist + title).isEmpty() ? sourceURL.toString() : title + " | " + artist,
+                duration,
                 new PostImage.Builder().serverFilename(title)
-                        .thumbnailUrl(thumbnailUrl)
-                        .imageUrl(sourceUrl)
+                        .thumbnailUrl(artworkURL == null ? HttpUrl.get(
+                                BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png") : artworkURL)
+                        .imageUrl(sourceURL)
                         .filename(title)
                         .extension("iframe")
                         .isInlined(true)
