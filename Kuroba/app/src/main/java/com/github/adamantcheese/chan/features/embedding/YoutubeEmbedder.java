@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.text.format.DateUtils;
 import android.util.JsonReader;
 
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -11,31 +12,26 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.ResponseBody;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.generateReplacements;
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.getStandardCachedCallPair;
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.getStandardResponseResult;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class YoutubeEmbedder
-        implements Embedder<JsonReader> {
+        extends JsonEmbedder {
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
 
@@ -90,37 +86,22 @@ public class YoutubeEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        List<Pair<Call, Callback>> calls = new ArrayList<>();
-        Set<Pair<String, HttpUrl>> toReplace = generateReplacements(this, post);
+        return addStandardEmbedCalls(this, theme, post);
+    }
 
-        for (Pair<String, HttpUrl> urlPair : toReplace) {
-            EmbedResult result = EmbeddingEngine.videoTitleDurCache.get(urlPair.first);
-            if (result != null) {
-                // we've previously cached this embed and we don't need additional information; ignore failures because there's no actual call going on
-                calls.add(getStandardCachedCallPair(theme, post, result, urlPair.first, getIconBitmap()));
-            } else {
-                // we haven't cached this embed, or we need additional information
-                calls.add(NetUtils.makeRequest(urlPair.second, body -> {
-                    if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-                        Pattern params = Pattern.compile("player_response=(.*?)&");
-                        Matcher paramsMatcher = params.matcher(URLDecoder.decode(body.string(), "utf-8"));
-                        if (paramsMatcher.find()) {
-                            return new JsonReader(new StringReader(paramsMatcher.group(1)));
-                        }
-                        return null;
-                    } else {
-                        return new JsonReader(new InputStreamReader(body.byteStream(), UTF_8));
-                    }
-                }, new NetUtilsClasses.JSONProcessor<EmbedResult>() {
-                    @Override
-                    public EmbedResult process(JsonReader response)
-                            throws Exception {
-                        return YoutubeEmbedder.this.process(response);
-                    }
-                }, getStandardResponseResult(theme, post, urlPair.first, getIconBitmap()), 2500, false, null));
+    @Override
+    public JsonReader convert(@Nullable ResponseBody body)
+            throws Exception {
+        if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
+            Pattern params = Pattern.compile("player_response=(.*?)&");
+            Matcher paramsMatcher = params.matcher(URLDecoder.decode(body.string(), "utf-8"));
+            if (paramsMatcher.find()) {
+                return new JsonReader(new StringReader(paramsMatcher.group(1)));
             }
+            return null;
+        } else {
+            return new JsonReader(new InputStreamReader(body.byteStream(), UTF_8));
         }
-        return calls;
     }
 
     @Override
@@ -180,7 +161,7 @@ public class YoutubeEmbedder
         response.beginObject();
         response.nextName(); // title
         String title = response.nextString();
-        String duration = null;
+        String duration;
         response.endObject();
         response.nextName(); // content details
         response.beginObject();

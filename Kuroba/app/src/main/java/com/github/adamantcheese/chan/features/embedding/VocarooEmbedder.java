@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.features.embedding;
 import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -14,7 +15,6 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +25,7 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
 
@@ -87,8 +88,12 @@ public class VocarooEmbedder
     }
 
     @Override
-    public EmbedResult process(Void response)
-            throws IOException {
+    public Void convert(@Nullable ResponseBody body) {
+        return null; // not used for this embedder, as everything's in the URL
+    }
+
+    @Override
+    public EmbedResult process(Void response) {
         return null; // not used for this embedder, as everything's in the URL
     }
 }

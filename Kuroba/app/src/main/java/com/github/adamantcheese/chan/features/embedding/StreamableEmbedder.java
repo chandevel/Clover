@@ -23,10 +23,10 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addJSONEmbedCalls;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 
 public class StreamableEmbedder
-        implements Embedder<JsonReader> {
+        extends JsonEmbedder {
     private static final Pattern STREAMABLE_LINK_PATTERN =
             Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})(?:/|\\b)");
 
@@ -85,7 +85,7 @@ public class StreamableEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addJSONEmbedCalls(this, theme, post);
+        return addStandardEmbedCalls(this, theme, post);
     }
 
     @Override

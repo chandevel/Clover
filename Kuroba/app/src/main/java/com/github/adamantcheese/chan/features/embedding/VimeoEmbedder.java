@@ -25,12 +25,12 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addJSONEmbedCalls;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class VimeoEmbedder
-        implements Embedder<JsonReader> {
+        extends JsonEmbedder {
     private final Pattern VIMEO_PATTERN = Pattern.compile("https?://(?:www\\.)?vimeo\\.com/\\d+(?:/|\\b)");
 
     @Override
@@ -58,7 +58,7 @@ public class VimeoEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addJSONEmbedCalls(this, theme, post);
+        return addStandardEmbedCalls(this, theme, post);
     }
 
     @Override

@@ -23,12 +23,12 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addHTMLEmbedCalls;
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class BandcampEmbedder
-        implements Embedder<Document> {
+        extends HtmlEmbedder {
     // note that for this pattern, we allow for non-album/track links, but in the case of a bandcamp page that links directly
     // to the music overview, the parse will fail, so don't add in a hotlink
     private static final Pattern BANDCAMP_PATTERN =
@@ -57,7 +57,7 @@ public class BandcampEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addHTMLEmbedCalls(this, theme, post);
+        return addStandardEmbedCalls(this, theme, post);
     }
 
     @Override

@@ -8,6 +8,7 @@ import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
@@ -120,9 +121,8 @@ public class QuickLatexEmbedder
                                     return;
                                 }
 
-                                try (ResponseBody body = response.body()) {
-                                    //noinspection ConstantConditions
-                                    String responseString = body.string();
+                                try {
+                                    String responseString = convert(response.body());
                                     Matcher matcher = QUICK_LATEX_RESPONSE.matcher(responseString);
                                     if (matcher.matches()) {
                                         //noinspection ConstantConditions
@@ -136,6 +136,8 @@ public class QuickLatexEmbedder
                                         }
                                     }
                                 } catch (Exception ignored) {
+                                } finally {
+                                    response.close();
                                 }
                             }
                         }
@@ -143,6 +145,12 @@ public class QuickLatexEmbedder
             }
         }
         return ret;
+    }
+
+    @Override
+    public String convert(@Nullable ResponseBody body)
+            throws Exception {
+        return body == null ? null : body.string();
     }
 
     @Override

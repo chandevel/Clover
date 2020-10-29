@@ -5,7 +5,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.util.JsonReader;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
@@ -20,15 +19,12 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.HTMLProcessor;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -190,8 +186,7 @@ public class EmbeddingEngine {
     }
 
     //region Embedding Helper Functions
-    @SuppressWarnings("ConstantConditions")
-    public static List<Pair<Call, Callback>> addJSONEmbedCalls(Embedder<JsonReader> embedder, Theme theme, Post post) {
+    public static <T> List<Pair<Call, Callback>> addStandardEmbedCalls(Embedder<T> embedder, Theme theme, Post post) {
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         Set<Pair<String, HttpUrl>> toReplace = generateReplacements(embedder, post);
 
@@ -202,51 +197,19 @@ public class EmbeddingEngine {
                 calls.add(getStandardCachedCallPair(theme, post, result, urlPair.first, embedder.getIconBitmap()));
             } else {
                 // we haven't cached this embed, or we need additional information
-                calls.add(NetUtils.makeJsonCall(urlPair.second,
+                calls.add(NetUtils.makeCall(urlPair.second,
+                        embedder,
+                        embedder,
                         getStandardResponseResult(theme, post, urlPair.first, embedder.getIconBitmap()),
-                        new JSONProcessor<EmbedResult>() {
-                            @Override
-                            public EmbedResult process(JsonReader response)
-                                    throws Exception {
-                                return embedder.process(response);
-                            }
-                        },
-                        2500
+                        2500,
+                        false
                 ));
             }
         }
         return calls;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    public static List<Pair<Call, Callback>> addHTMLEmbedCalls(Embedder<Document> embedder, Theme theme, Post post) {
-        List<Pair<Call, Callback>> calls = new ArrayList<>();
-        Set<Pair<String, HttpUrl>> toReplace = generateReplacements(embedder, post);
-
-        for (Pair<String, HttpUrl> urlPair : toReplace) {
-            EmbedResult result = videoTitleDurCache.get(urlPair.first);
-            if (result != null) {
-                // we've previously cached this embed and we don't need additional information; ignore failures because there's no actual call going on
-                calls.add(getStandardCachedCallPair(theme, post, result, urlPair.first, embedder.getIconBitmap()));
-            } else {
-                // we haven't cached this embed, or we need additional information
-                calls.add(NetUtils.makeHTMLCall(urlPair.second,
-                        getStandardResponseResult(theme, post, urlPair.first, embedder.getIconBitmap()),
-                        new HTMLProcessor<EmbedResult>() {
-                            @Override
-                            public EmbedResult process(Document response)
-                                    throws Exception {
-                                return embedder.process(response);
-                            }
-                        },
-                        2500
-                ));
-            }
-        }
-        return calls;
-    }
-
-    public static Set<Pair<String, HttpUrl>> generateReplacements(Embedder<?> embedder, Post post) {
+    public static <T> Set<Pair<String, HttpUrl>> generateReplacements(Embedder<T> embedder, Post post) {
         Set<Pair<String, HttpUrl>> result = new HashSet<>();
         Matcher linkMatcher = embedder.getEmbedReplacePattern().matcher(post.comment);
         while (linkMatcher.find()) {

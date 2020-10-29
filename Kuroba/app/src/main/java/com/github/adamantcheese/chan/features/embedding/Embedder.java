@@ -2,11 +2,13 @@ package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
 
+import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseConverter;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseProcessor;
 
 import java.util.List;
@@ -16,9 +18,10 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.ResponseBody;
 
 public interface Embedder<T>
-        extends ResponseProcessor<EmbedResult, T> {
+        extends ResponseProcessor<EmbedResult, T>, ResponseConverter<T> {
     /**
      * This is MAINLY used for the auto-linker to prevent it from linking stuff that'll get processed by an embedder.
      * This is also used in some helper methods to skip expensive generation steps.
@@ -52,6 +55,16 @@ public interface Embedder<T>
      * Calls should NOT be enqueued, as the embedding engine will take care of enqueuing the appropriate call/callback pair.
      */
     List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post);
+
+    /**
+     * This is used by helper calls in EmbeddingEngine to automatically convert a response body to an object that can be processed.
+     *
+     * @param body The body from an OkHttp call
+     * @return The body as a proper object that can be processed by the implemented process method below
+     */
+    @Override
+    T convert(@Nullable ResponseBody body)
+            throws Exception;
 
     /**
      * This is used by helper calls in EmbeddingEngine to automatically process a returned result.

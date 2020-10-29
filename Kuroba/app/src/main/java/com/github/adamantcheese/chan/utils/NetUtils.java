@@ -26,10 +26,8 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -195,43 +193,6 @@ public class NetUtils {
         imageCache.put(url, bitmap);
     }
 
-    public static <T> Pair<Call, Callback> makePostJsonCall(
-            @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
-            int timeoutMs,
-            @NonNull final String postData,
-            @NonNull final String contentType
-    ) {
-        return makeRequest(
-                url,
-                new NetUtilsClasses.JSONConverter(),
-                parser,
-                result,
-                timeoutMs,
-                false,
-                new Pair<>(postData, contentType)
-        );
-    }
-
-    public static <T> Pair<Call, Callback> makeJsonCall(
-            @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
-            int timeoutMs
-    ) {
-        return makeRequest(url, new NetUtilsClasses.JSONConverter(), parser, result, timeoutMs, false, null);
-    }
-
-    public static <T> Call makeJsonRequest(
-            @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
-            int timeoutMs
-    ) {
-        return makeRequest(url, new NetUtilsClasses.JSONConverter(), parser, result, timeoutMs, true, null).first;
-    }
-
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
             @NonNull final NetUtilsClasses.ResponseResult<T> result,
@@ -240,13 +201,13 @@ public class NetUtils {
         return makeJsonRequest(url, result, parser, 0);
     }
 
-    public static <T> Pair<Call, Callback> makeHTMLCall(
+    public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
             @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.HTMLProcessor<T> reader,
+            @NonNull final NetUtilsClasses.JSONProcessor<T> parser,
             int timeoutMs
     ) {
-        return makeRequest(url, new NetUtilsClasses.HTMLConverter(), reader, result, timeoutMs, false, null);
+        return makeRequest(url, new NetUtilsClasses.JSONConverter(), parser, result, timeoutMs);
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -255,30 +216,34 @@ public class NetUtils {
             @NonNull final NetUtilsClasses.ResponseResult<T> result,
             @NonNull final NetUtilsClasses.HTMLProcessor<T> reader
     ) {
-        return makeRequest(url, new NetUtilsClasses.HTMLConverter(), reader, result, 0, true, null).first;
+        return makeRequest(url, new NetUtilsClasses.HTMLConverter(), reader, result, 0);
+    }
+
+    private static <T, X> Call makeRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final NetUtilsClasses.ResponseConverter<X> converter,
+            @NonNull final NetUtilsClasses.ResponseProcessor<T, X> reader,
+            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            int timeoutMs
+    ) {
+        return makeCall(url, converter, reader, result, timeoutMs, true).first;
     }
 
     /**
      * This is the mothership of this class mostly, it does all the heavy lifting for you once provided the proper stuff
      * Generally don't use this! Use one of the wrapper methods instead.
      */
-    public static <T, X> Pair<Call, Callback> makeRequest(
+    public static <T, X> Pair<Call, Callback> makeCall(
             @NonNull final HttpUrl url,
             @NonNull final NetUtilsClasses.ResponseConverter<X> converter,
             @NonNull final NetUtilsClasses.ResponseProcessor<T, X> reader,
             @NonNull final NetUtilsClasses.ResponseResult<T> result,
             int timeoutMs,
-            boolean enqueue,
-            final Pair<String, String> postData
+            boolean enqueue
     ) {
         OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
         Request.Builder builder = new Request.Builder().url(url);
-        if (postData != null) {
-            builder.header("Origin", url.host())
-                    .header("Referer", url.host())
-                    .post(RequestBody.create(postData.first, MediaType.get(postData.second)));
-        }
         Call call = clientBuilder.build().newCall(builder.build());
         Callback callback = new Callback() {
             @Override
