@@ -12,12 +12,11 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,9 +55,6 @@ public class VocarooEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        if (!StringUtils.containsAny(post.comment.toString(), getShortRepresentations()))
-            return Collections.emptyList();
-
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         if (ChanSettings.parsePostImageLinks.get()) {
             Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
@@ -67,7 +63,7 @@ public class VocarooEmbedder
                 if (URL == null) continue;
                 final String id = linkMatcher.group(1);
 
-                calls.add(new Pair<>(new NetUtilsClasses.NullCall(HttpUrl.get(URL)), new NetUtilsClasses.IgnoreFailureCallback() {
+                calls.add(new Pair<>(new NetUtilsClasses.NullCall(HttpUrl.get(URL)), new IgnoreFailureCallback() {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         performStandardEmbedding(theme, post, new EmbedResult(

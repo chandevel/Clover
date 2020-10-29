@@ -18,13 +18,11 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -77,9 +75,6 @@ public class QuickLatexEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        if (!StringUtils.containsAny(post.comment.toString(), getShortRepresentations()))
-            return Collections.emptyList();
-
         List<Pair<Call, Callback>> ret = new ArrayList<>();
         Set<Pair<String, String>> toReplace = new HashSet<>();
         Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);

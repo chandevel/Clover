@@ -13,7 +13,6 @@ import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedRes
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,7 +20,6 @@ import java.io.StringReader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -92,9 +90,6 @@ public class YoutubeEmbedder
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        if (!StringUtils.containsAny(post.comment.toString(), getShortRepresentations()))
-            return Collections.emptyList();
-
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         Set<Pair<String, HttpUrl>> toReplace = generateReplacements(this, post);
 

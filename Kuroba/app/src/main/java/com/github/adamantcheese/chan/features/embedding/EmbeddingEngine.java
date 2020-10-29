@@ -60,7 +60,6 @@ public class EmbeddingEngine {
         embedders.add(new ClypEmbedder());
         embedders.add(new SoundcloudEmbedder());
         embedders.add(new BandcampEmbedder());
-        embedders.add(new ShadertoyEmbedder());
         embedders.add(new VimeoEmbedder());
 
         // Special embedders
@@ -146,6 +145,7 @@ public class EmbeddingEngine {
         // Generate all the calls
         final List<Pair<Call, Callback>> generatedCallPairs = new ArrayList<>();
         for (Embedder<?> e : embedders) {
+            if (!StringUtils.containsAny(post.comment.toString(), e.getShortRepresentations())) continue;
             generatedCallPairs.addAll(e.generateCallPairs(theme, post));
         }
 
@@ -192,9 +192,6 @@ public class EmbeddingEngine {
     //region Embedding Helper Functions
     @SuppressWarnings("ConstantConditions")
     public static List<Pair<Call, Callback>> addJSONEmbedCalls(Embedder<JsonReader> embedder, Theme theme, Post post) {
-        if (!StringUtils.containsAny(post.comment.toString(), embedder.getShortRepresentations()))
-            return Collections.emptyList();
-
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         Set<Pair<String, HttpUrl>> toReplace = generateReplacements(embedder, post);
 
@@ -223,9 +220,6 @@ public class EmbeddingEngine {
 
     @SuppressWarnings("ConstantConditions")
     public static List<Pair<Call, Callback>> addHTMLEmbedCalls(Embedder<Document> embedder, Theme theme, Post post) {
-        if (!StringUtils.containsAny(post.comment.toString(), embedder.getShortRepresentations()))
-            return Collections.emptyList();
-
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         Set<Pair<String, HttpUrl>> toReplace = generateReplacements(embedder, post);
 
