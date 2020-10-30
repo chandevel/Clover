@@ -53,17 +53,7 @@ internal class ChunkDownloader(
             BackgroundUtils.ensureBackgroundThread()
 
             val serializedEmitter = emitter.serialize()
-            val call = okHttpClient.newBuilder()
-                    .addInterceptor(Interceptor.invoke { chain ->
-                        val response = chain.proceed(chain.request())
-                        if ("MISS" == response.header(CF_CACHE_STATUS_HEADER)) {
-                            log(TAG, "CF cache miss, retrying immediately")
-                            response.closeQuietly()
-                            return@invoke chain.proceed(chain.request()) // TODO #1071 this might not be the right solution
-                        }
-                        return@invoke response
-                    }).build()
-                    .newCall(httpRequest)
+            val call = okHttpClient.newCall(httpRequest)
 
             // This function will be used to cancel a CHUNK (not the whole file) download upon
             // cancellation

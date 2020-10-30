@@ -186,6 +186,7 @@ public interface Site {
     ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties();
 
     class ChunkDownloaderSiteProperties {
+        public int maxChunksForSite;
         /**
          * Whether the site send file size info  in bytes or not. Some sites may send it in KB which
          * breaks ChunkedFileDownloader. To figure out whether a site sends us bytes or kilobytes
@@ -200,7 +201,10 @@ public interface Site {
          */
         public boolean canFileHashBeTrusted;
 
-        public ChunkDownloaderSiteProperties(boolean siteSendsCorrectFileSizeInBytes, boolean canFileHashBeTrusted) {
+        public ChunkDownloaderSiteProperties(
+                int maxChunksForSite, boolean siteSendsCorrectFileSizeInBytes, boolean canFileHashBeTrusted
+        ) {
+            this.maxChunksForSite = maxChunksForSite;
             this.siteSendsCorrectFileSizeInBytes = siteSendsCorrectFileSizeInBytes;
             this.canFileHashBeTrusted = canFileHashBeTrusted;
         }

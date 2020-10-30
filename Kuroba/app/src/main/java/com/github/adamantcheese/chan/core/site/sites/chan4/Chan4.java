@@ -572,6 +572,11 @@ public class Chan4
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(true, true);
+        // For preloading in ImageViewerPresenter, a max of 3 images are set to preload
+        // https://developers.cloudflare.com/workers/platform/limits#simultaneous-open-connections seems to be true for any
+        // Cloudflare connection; it prevents more than 6 concurrent connections to its resources, so we shouldn't connect more than that
+        // Or at least minimize that count; fast downloads will reduce the count, but this is just insurance
+        // 3 * chunks <= 6 then, so 2 max chunks per download
+        return new ChunkDownloaderSiteProperties(2, true, true);
     }
 }

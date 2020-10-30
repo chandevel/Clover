@@ -104,6 +104,6 @@ public class Sushichan
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(true, true);
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, true, true);
     }
 }

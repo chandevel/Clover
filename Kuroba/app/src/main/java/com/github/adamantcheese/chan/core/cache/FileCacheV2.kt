@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import com.github.adamantcheese.chan.core.cache.downloader.*
 import com.github.adamantcheese.chan.core.model.PostImage
 import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.core.site.Site.ChunkDownloaderSiteProperties
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.AndroidUtils.getNetworkClass
 import com.github.adamantcheese.chan.utils.BackgroundUtils
@@ -35,7 +36,6 @@ class FileCacheV2(
 
     private val requestQueue = PublishProcessor.create<HttpUrl>()
 
-    private val chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt()
     private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
 
     private val normalThreadIndex = AtomicInteger(0)
@@ -88,9 +88,6 @@ class FileCacheV2(
     )
 
     init {
-        require(chunksCount > 0) { "Chunks count is zero or less $chunksCount" }
-        log(TAG, "chunksCount = $chunksCount")
-
         initNormalRxWorkerQueue()
     }
 
@@ -137,12 +134,13 @@ class FileCacheV2(
     fun enqueueChunkedDownloadFileRequest(
             postImage: PostImage,
             extraInfo: DownloadRequestExtraInfo,
+            chunkDownloaderSiteProperties: ChunkDownloaderSiteProperties,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
                 postImage,
                 extraInfo,
-                chunksCount,
+                4.coerceAtMost(chunkDownloaderSiteProperties.maxChunksForSite),
                 callback
         )
     }
@@ -170,17 +168,6 @@ class FileCacheV2(
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, extraInfo, callback)
-    }
-
-    /**
-     * Enqueue a download request for the given HttpUrl based on the setting of the chunk count.
-     */
-    fun enqueueChunkedDownloadFileRequest(
-            url: HttpUrl,
-            extraInfo: DownloadRequestExtraInfo,
-            callback: FileCacheListener?
-    ): CancelableDownload? {
-        return enqueueDownloadFileRequest(url, chunksCount, extraInfo, callback)
     }
 
     /**

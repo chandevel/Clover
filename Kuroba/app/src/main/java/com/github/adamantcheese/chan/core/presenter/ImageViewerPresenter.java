@@ -116,10 +116,9 @@ public class ImageViewerPresenter
         this.selectedPosition = Math.max(0, Math.min(images.size() - 1, position));
         this.progress = new HashMap<>(images.size());
 
-        int chunksCount = ChanSettings.concurrentDownloadChunkCount.get().toInt();
-
         for (int i = 0; i < images.size(); ++i) {
-            Float[] initialProgress = new Float[chunksCount];
+            Float[] initialProgress =
+                    new Float[Math.min(4, loadable.site.getChunkDownloaderSiteProperties().maxChunksForSite)];
             Arrays.fill(initialProgress, .1f);
             // Always use a little bit of progress so it's obvious that we have started downloading the image
             progress.put(i, initialProgress);
@@ -405,8 +404,11 @@ public class ImageViewerPresenter
             if (loadChunked) {
                 DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
 
-                preloadDownload[0] =
-                        fileCacheV2.enqueueChunkedDownloadFileRequest(postImage, extraInfo, fileCacheListener);
+                preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
+                        extraInfo,
+                        loadable.site.getChunkDownloaderSiteProperties(),
+                        fileCacheListener
+                );
             } else {
                 preloadDownload[0] = fileCacheV2.enqueueNormalDownloadFileRequest(postImage, fileCacheListener);
             }

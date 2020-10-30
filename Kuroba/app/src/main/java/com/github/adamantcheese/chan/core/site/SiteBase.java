@@ -98,7 +98,7 @@ public abstract class SiteBase
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
         // by default, assume everything is bad
-        return new ChunkDownloaderSiteProperties(false, false);
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false, false);
     }
 
     @Override

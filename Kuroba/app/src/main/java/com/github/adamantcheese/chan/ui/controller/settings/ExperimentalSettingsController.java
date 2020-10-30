@@ -11,7 +11,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.ChanSettings.ConcurrentFileDownloadingChunks;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.features.gesture_editor.AttachSide;
 import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
@@ -92,7 +91,6 @@ public class ExperimentalSettingsController
     private void populatePreferences() {
         SettingsGroup group = new SettingsGroup(getString(R.string.experimental_settings_group));
 
-        setupConcurrentFileDownloadingChunksSetting(group);
         setupZonesEditor(group);
         setupZonesResetButton(group);
 
@@ -111,26 +109,6 @@ public class ExperimentalSettingsController
         )));
 
         groups.add(group);
-    }
-
-    private void setupConcurrentFileDownloadingChunksSetting(SettingsGroup group) {
-        List<Item<ConcurrentFileDownloadingChunks>> items = new ArrayList<>();
-
-        for (ConcurrentFileDownloadingChunks setting : ConcurrentFileDownloadingChunks.values()) {
-            items.add(new Item<>(setting.getKey(), setting));
-        }
-
-        requiresRestart.add(group.add(new ListSettingView<ConcurrentFileDownloadingChunks>(
-                this,
-                ChanSettings.concurrentDownloadChunkCount,
-                getString(R.string.settings_concurrent_file_downloading_name),
-                items
-        ) {
-            @Override
-            public String getBottomDescription() {
-                return getString(R.string.settings_concurrent_file_downloading_description) + "\n\n" + selected.name;
-            }
-        }));
     }
 
     private void setupZonesResetButton(SettingsGroup group) {

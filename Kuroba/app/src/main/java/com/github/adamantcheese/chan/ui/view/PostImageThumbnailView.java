@@ -30,7 +30,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -100,9 +99,8 @@ public class PostImageThumbnailView
                 if (cached != null && cached.getWidth() == width && cached.getHeight() == height) {
                     onBitmapSuccess(cached, true);
                 } else {
-                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueChunkedDownloadFileRequest(url,
-                            new DownloadRequestExtraInfo(postImage.size, postImage.fileHash),
-                            new FileCacheListener() {
+                    fullsizeDownload = Chan.instance(FileCacheV2.class)
+                            .enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
                                 @Override
                                 public void onSuccess(RawFile file, boolean immediate) {
                                     BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(file.getFullPath()),
@@ -127,8 +125,7 @@ public class PostImageThumbnailView
                                 public void onNotFound() {
                                     onBitmapFailure(new NetUtilsClasses.HttpCodeException(404));
                                 }
-                            }
-                    );
+                            });
                 }
             } else {
                 setUrl(postImage.getThumbnailUrl(), width, height);

@@ -52,6 +52,9 @@ public class LoadingBar
         } finally {
             a.recycle();
         }
+        if (isInEditMode()) {
+            chunkLoadingProgress = new Float[]{.5f, .5f};
+        }
     }
 
     public void setProgress(@NonNull Float[] updatedProgress) {

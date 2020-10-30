@@ -27,11 +27,26 @@ public class OptionalSwipeViewPager
     private boolean swipingEnabled;
 
     public OptionalSwipeViewPager(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public OptionalSwipeViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
+        /*if (isInEditMode()) {
+            setAdapter(new PagerAdapter() {
+                @Override
+                public int getCount() {
+                    return 1;
+                }
+
+                @Override
+                public boolean isViewFromObject(
+                        @NonNull View view, @NonNull Object object
+                ) {
+                    return false;
+                }
+            });
+        }*/ //TODO
     }
 
     @Override
