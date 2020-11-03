@@ -337,8 +337,8 @@ public class ImageViewerController
         pager.setSwipingEnabled(visible);
     }
 
-    public void setPagerItems(Loadable loadable, List<PostImage> images, int initialIndex) {
-        ImageViewerAdapter adapter = new ImageViewerAdapter(images, loadable, presenter);
+    public void setPagerItems(List<PostImage> images, int initialIndex) {
+        ImageViewerAdapter adapter = new ImageViewerAdapter(images, presenter);
         pager.setAdapter(adapter);
         pager.setCurrentItem(initialIndex);
     }

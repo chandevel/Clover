@@ -125,7 +125,7 @@ public class ImageViewerPresenter
         }
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
-        callback.setPagerItems(loadable, images, selectedPosition);
+        callback.setPagerItems(images, selectedPosition);
         callback.setImageMode(images.get(selectedPosition), LOWRES, true);
     }
 
@@ -542,7 +542,7 @@ public class ImageViewerPresenter
     public void onDownloaded(PostImage postImage) {
         BackgroundUtils.ensureMainThread();
 
-        if (getCurrentPostImage().equals(postImage)) {
+        if (getCurrentPostImage().equals(postImage) && !postImage.deleted) { // don't allow saving the "deleted" image
             callback.showDownloadMenuItem(true);
         }
     }
@@ -688,7 +688,7 @@ public class ImageViewerPresenter
 
         void setPagerVisiblity(boolean visible);
 
-        void setPagerItems(Loadable loadable, List<PostImage> images, int initialIndex);
+        void setPagerItems(List<PostImage> images, int initialIndex);
 
         void setImageMode(PostImage postImage, MultiImageView.Mode mode, boolean center);
 

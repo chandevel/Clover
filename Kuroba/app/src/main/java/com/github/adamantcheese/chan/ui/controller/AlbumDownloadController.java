@@ -120,10 +120,10 @@ public class AlbumDownloadController
                 //generate tasks before prompting
                 List<ImageSaveTask> tasks = new ArrayList<>(items.size());
                 for (AlbumDownloadItem item : items) {
-                    if (item.postImage.isInlined || item.postImage.hidden) {
+                    if (item.postImage.isInlined || item.postImage.hidden || item.postImage.deleted) {
                         // Do not download inlined files via the Album downloads (because they often
                         // fail with SSL exceptions) and we can't really trust those files.
-                        // Also don't download filter hidden items
+                        // Also don't download filter hidden items or deleted ones
                         continue;
                     }
 
@@ -196,10 +196,10 @@ public class AlbumDownloadController
         this.loadable = loadable;
         for (int i = 0, postImagesSize = postImages.size(); i < postImagesSize; i++) {
             PostImage postImage = postImages.get(i);
-            if (postImage.isInlined || postImage.hidden) {
+            if (postImage.isInlined || postImage.hidden || postImage.deleted) {
                 // Do not allow downloading inlined files via the Album downloads (because they often
                 // fail with SSL exceptions) and we can't really trust those files.
-                // Also don't allow filter hidden items
+                // Also don't allow filter hidden items or deleted ones
                 continue;
             }
 

@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -31,17 +30,15 @@ import java.util.List;
 public class ImageViewerAdapter
         extends ViewPagerAdapter {
     private final List<PostImage> images;
-    private final Loadable loadable;
     private final MultiImageView.Callback multiImageViewCallback;
 
     private List<MultiImageView> loadedViews = new ArrayList<>(3);
     private List<ModeChange> pendingModeChanges = new ArrayList<>();
 
     public ImageViewerAdapter(
-            List<PostImage> images, Loadable loadable, MultiImageView.Callback multiImageViewCallback
+            List<PostImage> images, MultiImageView.Callback multiImageViewCallback
     ) {
         this.images = images;
-        this.loadable = loadable;
         this.multiImageViewCallback = multiImageViewCallback;
     }
 

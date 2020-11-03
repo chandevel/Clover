@@ -42,7 +42,7 @@ public class PostImage {
         OTHER
     }
 
-    public boolean hidden = ChanSettings.hideImages.get();
+    public boolean hidden;
 
     public final String serverFilename;
     public final HttpUrl thumbnailUrl;
@@ -57,6 +57,7 @@ public class PostImage {
     public long size;
     @Nullable
     public final String fileHash;
+    public final boolean deleted;
 
     public final Type type;
 
@@ -64,7 +65,6 @@ public class PostImage {
         this.serverFilename = builder.serverFilename;
         this.thumbnailUrl = builder.thumbnailUrl;
         this.spoilerThumbnailUrl = builder.spoilerThumbnailUrl;
-        if (builder.imageUrl == null) throw new NullPointerException("imageUrl must not be null!");
         this.imageUrl = builder.imageUrl;
         this.filename = builder.filename;
         this.extension = builder.extension;
@@ -74,6 +74,8 @@ public class PostImage {
         this.isInlined = builder.isInlined;
         this.size = builder.size;
         this.fileHash = builder.fileHash;
+        this.deleted = builder.deleted;
+        hidden = ChanSettings.hideImages.get() && !deleted;
 
         switch (extension) {
             case "gif":
@@ -125,6 +127,8 @@ public class PostImage {
     }
 
     public static final class Builder {
+        private final HttpUrl DELETED_IMAGE_URL = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "file_deleted.png");
+
         private String serverFilename;
         private HttpUrl thumbnailUrl;
         private HttpUrl spoilerThumbnailUrl;
@@ -138,6 +142,7 @@ public class PostImage {
         private long size;
         @Nullable
         private String fileHash;
+        private boolean deleted;
 
         public Builder() {
         }
@@ -223,9 +228,30 @@ public class PostImage {
             return this;
         }
 
+        public Builder deleted(boolean deleted) {
+            this.deleted = deleted;
+            return this;
+        }
+
         public PostImage build() {
             if (ChanSettings.removeImageSpoilers.get()) {
                 spoiler = false;
+            }
+
+            if (imageUrl == null) throw new NullPointerException("imageUrl must not be null!");
+
+            if (deleted) {
+                this.thumbnailUrl = DELETED_IMAGE_URL;
+                this.spoilerThumbnailUrl = DELETED_IMAGE_URL;
+                this.imageUrl = DELETED_IMAGE_URL;
+                this.serverFilename = "file_deleted";
+                this.filename = "file_deleted";
+                this.extension = "png";
+                this.imageWidth = 128;
+                this.imageHeight = 128;
+                this.spoiler = false;
+                this.size = 3248;
+                this.fileHash = StringUtils.decodeBase64("uQZbJn+xehoTadCv4/Jnpg==");
             }
 
             return new PostImage(this);
