@@ -140,6 +140,7 @@ public abstract class CommonSite
      */
     public void setIcon(SiteIcon icon) {
         this.icon = icon;
+        icon.get(ico -> {});
     }
 
     public void setBoardsType(BoardsType boardsType) {

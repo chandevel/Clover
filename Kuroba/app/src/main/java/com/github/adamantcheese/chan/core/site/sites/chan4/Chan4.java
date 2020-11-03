@@ -481,6 +481,7 @@ public class Chan4
         // token was renamed, before it meant the username, now it means the token returned
         // from the server that the cookie is set to.
         passToken = new StringSetting(p, "preference_pass_id", "");
+        icon().get(icon -> {});
     }
 
     @Override
