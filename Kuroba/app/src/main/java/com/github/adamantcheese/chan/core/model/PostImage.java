@@ -206,8 +206,8 @@ public class PostImage {
             return this;
         }
 
-        public Builder isInlined(boolean inlined) {
-            this.isInlined = inlined;
+        public Builder isInlined() {
+            this.isInlined = true;
             return this;
         }
 

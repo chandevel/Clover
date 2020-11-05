@@ -132,7 +132,7 @@ public class BandcampEmbedder
                     .imageUrl(embeddedPlayer)
                     .filename(response.title())
                     .extension("iframe")
-                    .isInlined(true)
+                    .isInlined()
                     .build();
         } catch (Exception ignored) {
             // no player on this page

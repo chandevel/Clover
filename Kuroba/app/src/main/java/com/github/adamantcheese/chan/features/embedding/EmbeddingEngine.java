@@ -189,7 +189,7 @@ public class EmbeddingEngine {
                             .filename(matcher.group(1))
                             .extension(matcher.group(2))
                             .spoiler(true)
-                            .isInlined(true)
+                            .isInlined()
                             .size(-1)
                             .build();
 

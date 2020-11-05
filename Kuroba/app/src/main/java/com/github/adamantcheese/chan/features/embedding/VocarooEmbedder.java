@@ -76,7 +76,7 @@ public class VocarooEmbedder
                                         .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
                                         .filename("Vocaroo " + id)
                                         .extension("mp3")
-                                        .isInlined(true)
+                                        .isInlined()
                                         .build()
                         ), URL, getIconBitmap());
                     }

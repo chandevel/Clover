@@ -112,7 +112,7 @@ public class ClypEmbedder
                         .imageUrl(mp3Url)
                         .filename(title)
                         .extension("mp3")
-                        .isInlined(true)
+                        .isInlined()
                         .build()
         );
     }

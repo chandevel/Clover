@@ -158,7 +158,7 @@ public class StreamableEmbedder
                         .imageUrl(mp4Url)
                         .filename(title)
                         .extension("mp4")
-                        .isInlined(true)
+                        .isInlined()
                         .size(size)
                         .build()
         );

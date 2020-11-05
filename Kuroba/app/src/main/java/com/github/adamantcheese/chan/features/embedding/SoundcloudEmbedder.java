@@ -158,7 +158,7 @@ public class SoundcloudEmbedder
                         .imageUrl(sourceURL)
                         .filename(title)
                         .extension("iframe")
-                        .isInlined(true)
+                        .isInlined()
                         .build()
         );
     }

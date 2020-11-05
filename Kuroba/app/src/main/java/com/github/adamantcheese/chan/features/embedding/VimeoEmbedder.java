@@ -106,7 +106,7 @@ public class VimeoEmbedder
                         .imageUrl(sourceUrl)
                         .filename(title)
                         .extension("iframe")
-                        .isInlined(true)
+                        .isInlined()
                         .build()
         );
     }
