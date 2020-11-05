@@ -114,8 +114,8 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap, true);
             return null;
         }
-        Call call =
-                instance(OkHttpClientWithUtils.class).getBitmapClient().newCall(new Request.Builder().url(url).build());
+        Call call = instance(OkHttpClientWithUtils.class).getBitmapClient()
+                .newCall(new Request.Builder().url(url).addHeader("Referer", url.toString()).build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

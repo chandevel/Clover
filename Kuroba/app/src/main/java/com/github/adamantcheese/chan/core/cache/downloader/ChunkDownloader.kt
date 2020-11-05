@@ -8,7 +8,6 @@ import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import okhttp3.*
-import okhttp3.internal.closeQuietly
 import java.io.IOException
 
 internal class ChunkDownloader(
@@ -36,6 +35,7 @@ internal class ChunkDownloader(
         val builder = Request.Builder()
                 .url(url)
                 .header("User-Agent", NetModule.USER_AGENT)
+                .header("Referer", url.toString())
 
         if (!chunk.isWholeFile()) {
             // If chunk.isWholeFile == true that means that either the file size is too small (
