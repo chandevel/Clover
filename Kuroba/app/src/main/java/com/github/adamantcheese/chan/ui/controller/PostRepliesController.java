@@ -164,7 +164,6 @@ public class PostRepliesController
             }
         };
         recyclerView.setAdapter(adapter);
-        recyclerView.setItemViewCacheSize(5);
         adapter.setThread(loadable, displayingData.posts, null, true);
         adapter.setLastSeenIndicatorPosition(-1); //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();

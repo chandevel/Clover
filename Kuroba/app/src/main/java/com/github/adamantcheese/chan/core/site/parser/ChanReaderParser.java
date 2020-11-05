@@ -219,10 +219,8 @@ public class ChanReaderParser
                 Post subject = postsByNo.get(key);
                 // Sometimes a post replies to a ghost, a post that doesn't exist.
                 if (subject != null) {
-                    synchronized (subject.repliesFrom) {
-                        subject.repliesFrom.clear();
-                        subject.repliesFrom.addAll(value);
-                    }
+                    subject.repliesFrom.clear();
+                    subject.repliesFrom.addAll(value);
                 }
             }
         }

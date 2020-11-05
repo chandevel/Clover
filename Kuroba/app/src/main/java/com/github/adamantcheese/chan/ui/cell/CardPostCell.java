@@ -61,7 +61,6 @@ public class CardPostCell
     private Post post;
     private PostCellInterface.PostCellCallback callback;
     private boolean compact = false;
-    private Theme theme;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -69,9 +68,8 @@ public class CardPostCell
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;
-    private RecyclerView recyclerView;
 
-    private List<Call> embedCalls = new ArrayList<>();
+    private final List<Call> embedCalls = new ArrayList<>();
 
     public CardPostCell(Context context) {
         super(context);
@@ -151,27 +149,6 @@ public class CardPostCell
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        for (Call call : embedCalls) {
-            call.cancel();
-        }
-        embedCalls.clear();
-
-        bound = false;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (post != null && !bound) {
-            bindPost(theme, post);
-        }
-    }
-
     public void setPost(
             Loadable loadable,
             final Post post,
@@ -192,13 +169,15 @@ public class CardPostCell
 
         if (this.post != null && bound) {
             bound = false;
+            for (Call c : embedCalls) {
+                c.cancel();
+            }
+            embedCalls.clear();
             this.post = null;
         }
 
         this.post = post;
         this.callback = callback;
-        this.theme = theme;
-        this.recyclerView = attachedTo;
 
         bindPost(theme, post);
 
@@ -239,22 +218,12 @@ public class CardPostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        if (!TextUtils.isEmpty(post.subjectSpan)) {
-            title.setVisibility(VISIBLE);
-            title.setText(post.subjectSpan);
-        } else {
-            title.setVisibility(GONE);
-            title.setText(null);
-        }
+        title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
+        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : post.subjectSpan);
 
-        if (ChanSettings.getBoardColumnCount() != 1) {
-            comment.setMaxLines(COMMENT_MAX_LINES);
-            comment.setEllipsize(TextUtils.TruncateAt.END);
-        } else {
-            comment.setMaxLines(Integer.MAX_VALUE);
-            comment.setEllipsize(null);
-        }
-        comment.setText(post.comment);
+        comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
+        comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
+        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
@@ -266,28 +235,16 @@ public class CardPostCell
 
         replies.setText(status);
 
-        if (!embedCalls.isEmpty()) {
-            for (Call call : embedCalls) {
-                call.cancel();
-            }
-            embedCalls.clear();
-        }
         embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
-        if (embedCalls.isEmpty()) {
-            findViewById(R.id.embed_spinner).setVisibility(GONE);
-        }
     }
 
     @Override
-    public void invalidateView(boolean simple) {
+    public void invalidateView(Post post) {
+        if (!bound || !this.post.equals(post)) return;
+        embedCalls.clear();
+        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         invalidate();
-        if (simple) return;
-        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
-        } else {
-            post(() -> invalidateView(false));
-        }
     }
 
     private void setCompact(boolean compact) {

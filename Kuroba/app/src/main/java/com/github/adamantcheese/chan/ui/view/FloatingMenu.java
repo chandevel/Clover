@@ -40,15 +40,16 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.measureContentWidt
 
 public class FloatingMenu<T> {
     private final Context context;
-    private View anchor;
+    private final View anchor;
     private int anchorGravity = Gravity.RIGHT;
     private int anchorOffsetX = -dp(5);
     private int anchorOffsetY = dp(5);
     private int popupHeight = -1;
-    private List<FloatingMenuItem<T>> items;
+    private final List<FloatingMenuItem<T>> items;
     private FloatingMenuItem<T> selectedItem;
     private ListAdapter adapter;
     private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
+    private ViewTreeObserver viewTreeObserver;
 
     private ListPopupWindow popupWindow;
     private FloatingMenuCallback<T> callback;
@@ -138,11 +139,13 @@ public class FloatingMenu<T> {
                 }
             }
         };
-        anchor.getViewTreeObserver().addOnGlobalLayoutListener(globalLayoutListener);
+        viewTreeObserver = anchor.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener);
 
         popupWindow.setOnDismissListener(() -> {
-            if (anchor.getViewTreeObserver().isAlive()) {
-                anchor.getViewTreeObserver().removeOnGlobalLayoutListener(globalLayoutListener);
+            if (viewTreeObserver.isAlive()) {
+                viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener);
+                viewTreeObserver = null;
             }
             globalLayoutListener = null;
             popupWindow = null;
@@ -186,8 +189,9 @@ public class FloatingMenu<T> {
             super(context, resource, objects);
         }
 
+        @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             if (convertView == null) {
                 convertView = inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
             }

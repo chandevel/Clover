@@ -23,6 +23,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -31,13 +32,14 @@ import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,7 +69,7 @@ public class Post
      */
     public final long time;
 
-    public final List<PostImage> images;
+    public final List<PostImage> images = new CopyOnWriteArrayList<>();
 
     public final String tripcode;
 
@@ -108,16 +110,13 @@ public class Post
 
     /**
      * This post has been deleted (the server isn't sending it anymore).
-     * <p><b>This boolean is modified in worker threads, use {@code .get()} to access it.</b>
      */
     public final AtomicBoolean deleted = new AtomicBoolean(false);
 
     /**
      * These ids replied to this post.
-     * <p><b>Manual synchronization is needed, since this list can be modified from any thread.
-     * Wrap all accesses in a {@code synchronized} block.</b>
      */
-    public final List<Integer> repliesFrom = new ArrayList<>();
+    public final List<Integer> repliesFrom = new CopyOnWriteArrayList<>();
 
     // These members may only mutate on the main thread.
     private boolean sticky;
@@ -128,8 +127,6 @@ public class Post
     private int uniqueIps;
     private long lastModified;
     private String title = "";
-
-    public boolean needsEmbedding;
 
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
@@ -155,10 +152,8 @@ public class Post
         tripcode = builder.tripcode;
 
         time = builder.unixTimestampSeconds;
-        if (builder.images == null) {
-            images = Collections.unmodifiableList(Collections.emptyList());
-        } else {
-            images = Collections.unmodifiableList(builder.images);
+        if (builder.images != null) {
+            images.addAll(builder.images);
         }
 
         if (builder.httpIcons != null) {
@@ -183,10 +178,8 @@ public class Post
         subjectSpan = builder.subjectSpan;
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
-        linkables = new HashSet<>(builder.linkables);
+        linkables = new CopyOnWriteArraySet<>(builder.linkables);
         repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
-
-        needsEmbedding = builder.needsEmbedding;
     }
 
     @AnyThread
@@ -284,23 +277,11 @@ public class Post
      * Add images while the post is still a Builder instance if you can instead!
      */
     public void addImage(PostImage image) {
-        try {
-            Field imageList = Post.class.getDeclaredField("images");
-            imageList.setAccessible(true);
-            List<PostImage> newImages = new ArrayList<>(images);
-            for (PostImage postImage : newImages) {
-                if (image.equals(postImage)) {
-                    // this image was already added before (as though it were a set)
-                    imageList.setAccessible(false);
-                    return;
-                }
-            }
-            newImages.add(image);
-            imageList.set(this, Collections.unmodifiableList(newImages));
-            imageList.setAccessible(false);
-        } catch (Exception e) {
-            Logger.d(this, "Failed to add image with reflection", e);
+        if (images.size() >= 5) {
+            Logger.d(this, "Image list is capped at 5 images!");
+            return;
         }
+        images.add(image);
     }
 
     @MainThread
@@ -343,6 +324,7 @@ public class Post
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
                 + "]";
@@ -390,7 +372,7 @@ public class Post
         public String tripcode = "";
 
         public long unixTimestampSeconds = -1L;
-        public List<PostImage> images = new ArrayList<>();
+        public List<PostImage> images = new CopyOnWriteArrayList<>();
 
         public List<PostHttpIcon> httpIcons;
 
@@ -411,10 +393,8 @@ public class Post
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private Set<PostLinkable> linkables = new HashSet<>();
-        private Set<Integer> repliesToIds = new HashSet<>();
-
-        public boolean needsEmbedding;
+        private final Set<PostLinkable> linkables = new CopyOnWriteArraySet<>();
+        private final Set<Integer> repliesToIds = new HashSet<>();
 
         public Builder() {
         }
@@ -514,9 +494,7 @@ public class Post
         }
 
         public Builder images(List<PostImage> images) {
-            synchronized (this) {
-                this.images.addAll(images);
-            }
+            this.images.addAll(images);
 
             return this;
         }
@@ -587,27 +565,13 @@ public class Post
         }
 
         public Builder addLinkable(PostLinkable linkable) {
-            synchronized (this) {
-                linkables.add(linkable);
-                return this;
-            }
+            linkables.add(linkable);
+            return this;
         }
 
         public Builder linkables(Set<PostLinkable> linkables) {
-            synchronized (this) {
-                this.linkables = new HashSet<>(linkables);
-                return this;
-            }
-        }
-
-        public List<PostLinkable> getLinkables() {
-            synchronized (this) {
-                List<PostLinkable> result = new ArrayList<>();
-                if (linkables != null) {
-                    result.addAll(linkables);
-                }
-                return result;
-            }
+            this.linkables.addAll(linkables);
+            return this;
         }
 
         public Builder addReplyTo(int postId) {
@@ -616,7 +580,7 @@ public class Post
         }
 
         public Builder repliesTo(Set<Integer> repliesToIds) {
-            this.repliesToIds = repliesToIds;
+            this.repliesToIds.addAll(repliesToIds);
             return this;
         }
 
@@ -624,8 +588,6 @@ public class Post
             if (board == null || id < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
                 throw new IllegalArgumentException("Post data not complete");
             }
-
-            needsEmbedding = needsEmbedding | board.mathTags;
 
             return new Post(this);
         }

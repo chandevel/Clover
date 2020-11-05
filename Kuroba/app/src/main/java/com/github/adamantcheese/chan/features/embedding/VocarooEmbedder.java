@@ -35,7 +35,7 @@ public class VocarooEmbedder
             Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Arrays.asList("vocaroo", "voca.ro");
     }
 

@@ -105,7 +105,7 @@ public class CommentParser {
         rule(tagRule("span").cssClass("spoiler").link(Type.SPOILER));
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
-        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE).linkify());
+        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
         rule(tagRule("span").cssClass("sjis").typeface(mona));
 
         rule(tagRule("table").action(this::handleTable));
@@ -265,6 +265,7 @@ public class CommentParser {
         return text;
     }
 
+    // TODO this is basically only used for /p/ data parsing, change this to be a clickable span that displays the info?
     public CharSequence handleTable(
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element table
     ) {

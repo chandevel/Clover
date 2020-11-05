@@ -54,7 +54,7 @@ public class QuickLatexEmbedder
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         // this embedder doesn't prevent any URL autolinking, but has quick checking to skip expensive operations
         return Arrays.asList("[math]", "[eqn]");
     }
@@ -77,6 +77,8 @@ public class QuickLatexEmbedder
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
         List<Pair<Call, Callback>> ret = new ArrayList<>();
+        if (!post.board.mathTags) return ret; // only parse math on math enabled boards
+
         Set<Pair<String, String>> toReplace = new HashSet<>();
         Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
         while (linkMatcher.find()) {

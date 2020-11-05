@@ -81,7 +81,6 @@ public class StyleRule {
     private PostLinkable.Type link = null;
 
     private boolean nullify;
-    private boolean linkify;
 
     private String justText = null;
 
@@ -167,11 +166,6 @@ public class StyleRule {
 
     public StyleRule nullify() {
         nullify = true;
-        return this;
-    }
-
-    public StyleRule linkify() {
-        linkify = true;
         return this;
     }
 
@@ -265,10 +259,6 @@ public class StyleRule {
         // Apply break if not the last element.
         if (blockElement && element.nextSibling() != null) {
             result = TextUtils.concat(result, "\n");
-        }
-
-        if (linkify) {
-            CommentParserHelper.detectLinks(theme, post, result.toString(), new SpannableStringBuilder(result));
         }
 
         return result;

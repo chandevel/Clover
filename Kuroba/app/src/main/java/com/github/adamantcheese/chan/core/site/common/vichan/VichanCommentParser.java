@@ -27,9 +27,6 @@ public class VichanCommentParser
         addDefaultRules();
         setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
-        rule(StyleRule.tagRule("p")
-                .cssClass("quote")
-                .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
-                .linkify());
+        rule(StyleRule.tagRule("p").cssClass("quote").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
     }
 }

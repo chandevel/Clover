@@ -172,7 +172,6 @@ public class ThreadListLayout
         );
         recyclerView.setAdapter(postAdapter);
         recyclerView.addOnScrollListener(scrollListener);
-        recyclerView.setItemViewCacheSize(4);
 
         setFastScroll(false);
 

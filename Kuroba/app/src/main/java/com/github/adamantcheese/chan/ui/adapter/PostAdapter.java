@@ -17,11 +17,8 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,7 +28,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.CardPostCell;
-import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
@@ -42,15 +38,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
-import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
-import static android.widget.RelativeLayout.BELOW;
-import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
@@ -226,10 +214,6 @@ public class PostAdapter
             return -2;
         } else {
             Post post = displayList.get(getPostPosition(position));
-            int repliesFromSize;
-            synchronized (post.repliesFrom) {
-                repliesFromSize = post.repliesFrom.size();
-            }
             // in order to invalidate a view while doing a search, we can add in the sum of the search highlight spans
             // the spans change every time a new search query is entered, so this will update the ID as well
             // this makes ID's "stable" during normal use (like for scrolling, hiding/removing posts), but not in a search
@@ -240,41 +224,14 @@ public class PostAdapter
             )) {
                 spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
             }
-            return ((long) repliesFromSize << 32L) + (long) post.no + (compact ? 2L : 1L) + spanTotal;
+            return ((long) post.repliesFrom.size() << 32L) + (long) post.no + (compact ? 2L : 1L) + spanTotal;
         }
     }
 
     @Override
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         super.onViewRecycled(holder);
-        if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == LIST && ChanSettings.shiftPostFormat.get()) {
-            PostCell postCell = (PostCell) holder.itemView;
-            int paddingPx = dp(ChanSettings.fontSize.get() - 6);
-            // reset this view to be in a "default" state so it can be recycled
-            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            commentParams.alignWithParent = true;
-            commentParams.addRule(BELOW, R.id.icons);
-            commentParams.addRule(ALIGN_PARENT_RIGHT);
-            commentParams.addRule(RIGHT_OF, R.id.thumbnail_view);
-            TextView comment = postCell.findViewById(R.id.comment);
-            comment.setLayoutParams(commentParams);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
-
-            RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            replyParams.alignWithParent = true;
-            replyParams.addRule(ALIGN_PARENT_BOTTOM);
-            replyParams.addRule(BELOW, R.id.comment);
-            replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
-            TextView replies = postCell.findViewById(R.id.replies);
-            replies.setLayoutParams(replyParams);
-            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
-            replies.setGravity(Gravity.BOTTOM);
-
-            View divider = postCell.findViewById(R.id.divider);
-            divider.setVisibility(View.VISIBLE);
-
-            postCell.clearThumbnails();
-        } else if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == CARD) {
+        if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == CARD) {
             CardPostCell postCell = (CardPostCell) holder.itemView;
             ((PostImageThumbnailView) postCell.getThumbnailView(null)).setPostImage(null);
         }

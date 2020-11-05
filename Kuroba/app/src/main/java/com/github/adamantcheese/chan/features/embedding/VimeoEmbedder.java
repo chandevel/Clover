@@ -34,7 +34,7 @@ public class VimeoEmbedder
     private final Pattern VIMEO_PATTERN = Pattern.compile("https?://(?:www\\.)?vimeo\\.com/\\d+(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Collections.singletonList("vimeo");
     }
 

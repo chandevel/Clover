@@ -33,7 +33,6 @@ public class TaimabaCommentParser
         rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
         rule(StyleRule.tagRule("blockquote")
                 .cssClass("unkfunc")
-                .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE)
-                .linkify());
+                .foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
     }
 }

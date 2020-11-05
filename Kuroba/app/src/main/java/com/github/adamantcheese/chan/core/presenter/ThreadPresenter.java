@@ -723,7 +723,7 @@ public class ThreadPresenter
                     //need to trim off starting spaces for certain media links if embedded
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
                     boolean speciallyProcessed = false;
-                    for (Embedder e : embeddingEngine.embedders) {
+                    for (Embedder<?> e : embeddingEngine.embedders) {
                         if (StringUtils.containsAny(value, e.getShortRepresentations())) {
                             if (added.contains(trimmedUrl)) continue;
                             keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
@@ -883,13 +883,7 @@ public class ThreadPresenter
                 if (chanLoader.getThread().getLoadable().mode == Loadable.Mode.CATALOG) {
                     threadPresenterCallback.hideThread(post, post.no, hide);
                 } else {
-                    boolean isEmpty;
-
-                    synchronized (post.repliesFrom) {
-                        isEmpty = post.repliesFrom.isEmpty();
-                    }
-
-                    if (isEmpty) {
+                    if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
                         hideOrRemovePosts(hide, false, post, chanLoader.getThread().getOp().no);
                     } else {
@@ -1005,12 +999,10 @@ public class ThreadPresenter
     public void onShowPostReplies(Post post) {
         if (!isBound()) return;
         List<Post> posts = new ArrayList<>();
-        synchronized (post.repliesFrom) {
-            for (int no : post.repliesFrom) {
-                Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
-                if (replyPost != null) {
-                    posts.add(replyPost);
-                }
+        for (int no : post.repliesFrom) {
+            Post replyPost = PostUtils.findPostById(no, chanLoader.getThread());
+            if (replyPost != null) {
+                posts.add(replyPost);
             }
         }
         if (posts.size() > 0) {

@@ -30,9 +30,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -62,7 +60,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 @AnyThread
 public class DefaultPostParser
         implements PostParser {
-    private CommentParser commentParser;
+    private final CommentParser commentParser;
     @Inject
     private FilterEngine filterEngine;
 
@@ -192,8 +190,6 @@ public class DefaultPostParser
             Logger.e(this, "Error parsing comment html", e);
         }
 
-        EmbeddingEngine.addPostImages(post);
-
         return total;
     }
 
@@ -205,9 +201,7 @@ public class DefaultPostParser
                             || text.startsWith("[eqn]"))) {
                 text = processEmojiMath(text);
             }
-            SpannableStringBuilder spannable = new SpannableStringBuilder(text);
-            CommentParserHelper.detectLinks(theme, post, text, spannable);
-            return spannable;
+            return new SpannableStringBuilder(text);
         } else if (node instanceof Element) {
             StringBuilder nodeName = new StringBuilder(node.nodeName());
             String styleAttr = node.attr("style");

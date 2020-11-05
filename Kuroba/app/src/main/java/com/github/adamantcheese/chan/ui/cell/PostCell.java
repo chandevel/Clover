@@ -38,6 +38,7 @@ import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -62,13 +63,11 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.core.site.parser.CommentParserHelper;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
@@ -87,6 +86,12 @@ import static android.text.TextUtils.isEmpty;
 import static android.view.View.MeasureSpec.AT_MOST;
 import static android.view.View.MeasureSpec.EXACTLY;
 import static android.view.View.MeasureSpec.UNSPECIFIED;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
+import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.widget.RelativeLayout.BELOW;
+import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -97,7 +102,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class PostCell
@@ -105,8 +109,7 @@ public class PostCell
         implements PostCellInterface, InvalidateFunction {
     private static final int COMMENT_MAX_LINES_BOARD = 25;
 
-    private List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
-    private List<Call> embedCalls = new ArrayList<>();
+    private final List<PostImageThumbnailView> thumbnailViews = new ArrayList<>(1);
 
     private RelativeLayout relativeLayoutContainer;
     private TextView title;
@@ -136,7 +139,9 @@ public class PostCell
 
     private GestureDetector doubleTapComment;
 
-    private PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
+    private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
+
+    private final List<Call> embedCalls = new ArrayList<>();
 
     public PostCell(Context context) {
         super(context);
@@ -176,7 +181,7 @@ public class PostCell
             icons.setPadding(paddingPx, dp(4), paddingPx, 0);
 
             comment.setTextSize(textSizeSp);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
             replies.setTextSize(textSizeSp);
             replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
@@ -191,12 +196,8 @@ public class PostCell
             if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
             }
-            int repliesFromSize;
-            synchronized (post.repliesFrom) {
-                repliesFromSize = post.repliesFrom.size();
-            }
 
-            if (repliesFromSize > 0) {
+            if (post.repliesFrom.size() > 0) {
                 callback.onShowPostReplies(post);
             }
         };
@@ -238,29 +239,6 @@ public class PostCell
             }
         });
         menu.show();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-
-        for (Call call : embedCalls) {
-            call.cancel();
-        }
-        embedCalls.clear();
-
-        if (post != null && bound) {
-            unbindPost(post);
-        }
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (post != null && !bound) {
-            bindPost(ThemeHelper.getTheme(), post);
-        }
     }
 
     public void setPost(
@@ -356,40 +334,27 @@ public class PostCell
 
         buildThumbnails();
 
-        List<CharSequence> titleParts = new ArrayList<>(5);
+        SpannableStringBuilder titleParts = new SpannableStringBuilder();
 
         if (post.subjectSpan != null) {
-            titleParts.add(post.subjectSpan);
-            titleParts.add("\n");
+            titleParts.append(post.subjectSpan).append("\n");
         }
-
-        titleParts.add(post.nameTripcodeIdCapcodeSpan);
-
-        CharSequence time;
-        if (ChanSettings.postFullDate.get()) {
-            time = PostHelper.getLocalDate(post);
-        } else {
-            time = DateUtils.getRelativeTimeSpanString(post.time * 1000L,
-                    System.currentTimeMillis(),
-                    DateUtils.SECOND_IN_MILLIS,
-                    0
-            );
-        }
+        titleParts.append(post.nameTripcodeIdCapcodeSpan);
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
-
-        String noText = "No. " + post.no;
-        if (ChanSettings.addDubs.get()) {
-            String repeat = CommentParserHelper.getRepeatDigits(post.no);
-            if (repeat != null) {
-                noText += " (" + repeat + ")";
-            }
-        }
-        SpannableString date = new SpannableString(noText + " " + time);
+        SpannableString date = new SpannableString(
+                "No. " + post.no + (ChanSettings.addDubs.get() ? " " + getRepeatDigits(post.no) : "") + " " + (
+                        ChanSettings.postFullDate.get()
+                                ? PostHelper.getLocalDate(post)
+                                : DateUtils.getRelativeTimeSpanString(post.time * 1000L,
+                                        System.currentTimeMillis(),
+                                        DateUtils.SECOND_IN_MILLIS,
+                                        0
+                                )));
         date.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
-        titleParts.add(date);
+        titleParts.append(date);
 
         for (PostImage image : post.images) {
             boolean postFileName = ChanSettings.postFilename.get();
@@ -402,7 +367,7 @@ public class PostCell
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
+                titleParts.append(fileInfo);
             }
 
             if (ChanSettings.postFileInfo.get()) {
@@ -413,11 +378,11 @@ public class PostCell
                 fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
-                titleParts.add(fileInfo);
+                titleParts.append(fileInfo);
             }
         }
 
-        title.setText(TextUtils.concat(titleParts.toArray(new CharSequence[0])));
+        title.setText(titleParts);
 
         icons.edit();
         icons.set(PostIcons.STICKY, post.isSticky());
@@ -428,9 +393,9 @@ public class PostCell
 
         if (post.httpIcons != null) {
             icons.setHttpIcons(post.httpIcons, iconSizePx);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, 0);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
         } else {
-            comment.setPadding(paddingPx, paddingPx / 2, paddingPx, 0);
+            comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
         }
 
         icons.apply();
@@ -454,7 +419,6 @@ public class PostCell
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(post.comment) ? GONE : VISIBLE);
         } else {
-            //noinspection ConstantConditions
             comment.setVisibility(isEmpty(post.comment) && post.images == null ? GONE : VISIBLE);
         }
 
@@ -535,15 +499,10 @@ public class PostCell
             title.setLongClickable(false);
         }
 
-        int repliesFromSize;
-        synchronized (post.repliesFrom) {
-            repliesFromSize = post.repliesFrom.size();
-        }
-
-        if ((!threadMode && post.getReplies() > 0) || (repliesFromSize > 0)) {
+        if ((!threadMode && post.getReplies() > 0) || (post.repliesFrom.size() > 0)) {
             replies.setVisibility(VISIBLE);
 
-            int replyCount = threadMode ? repliesFromSize : post.getReplies();
+            int replyCount = threadMode ? post.repliesFrom.size() : post.getReplies();
             String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
 
             if (!threadMode && post.getImagesCount() > 0) {
@@ -558,16 +517,42 @@ public class PostCell
             }
 
             replies.setText(text);
-            updatePaddings(comment, -1, -1, -1, 0);
-            updatePaddings(replies, -1, -1, paddingPx, -1);
         } else {
             replies.setVisibility(GONE);
-            updatePaddings(comment, -1, -1, -1, paddingPx);
-            updatePaddings(replies, -1, -1, 0, -1);
         }
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
+        clearShiftPostFormatting();
+        doShiftPostFormatting();
+
+        embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+    }
+
+    public void clearShiftPostFormatting() {
+        if (ChanSettings.shiftPostFormat.get()) {
+            int paddingPx = dp(ChanSettings.fontSize.get() - 6);
+
+            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            commentParams.alignWithParent = true;
+            commentParams.addRule(BELOW, R.id.icons);
+            commentParams.addRule(ALIGN_PARENT_RIGHT);
+            commentParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+            comment.setLayoutParams(commentParams);
+            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+
+            RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            replyParams.alignWithParent = true;
+            replyParams.addRule(ALIGN_PARENT_BOTTOM);
+            replyParams.addRule(BELOW, R.id.comment);
+            replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+            replies.setLayoutParams(replyParams);
+            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+            replies.setGravity(Gravity.BOTTOM);
+        }
+    }
+
+    private void doShiftPostFormatting() {
         if (ChanSettings.shiftPostFormat.get() && comment.getVisibility() == VISIBLE && post.images.size() == 1
                 && !ChanSettings.textOnly.get()) {
             int widthMax = recyclerView.getMeasuredWidth();
@@ -615,50 +600,50 @@ public class PostCell
                 replies.setLayoutParams(replyParams);
             }
         }
-
-        if (!embedCalls.isEmpty()) {
-            for (Call call : embedCalls) {
-                call.cancel();
-            }
-            embedCalls.clear();
-        }
-        embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
-        if (embedCalls.isEmpty()) {
-            findViewById(R.id.embed_spinner).setVisibility(GONE);
-        }
     }
 
     @Override
-    public void invalidateView(boolean simple) {
+    public void invalidateView(Post post) {
+        if (!bound || !this.post.equals(post)) return;
+        embedCalls.clear();
+        clearShiftPostFormatting();
+        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
+        buildThumbnails();
+        doShiftPostFormatting();
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         invalidate();
-        if (simple) return;
-        if (!recyclerView.isComputingLayout() && recyclerView.getAdapter() != null) {
-            recyclerView.getAdapter().notifyItemChanged(recyclerView.getChildAdapterPosition(this));
-        } else {
-            post(() -> this.invalidateView(false));
-        }
     }
 
-    public void clearThumbnails() {
-        for (PostImageThumbnailView thumbnailView : thumbnailViews) {
-            thumbnailView.setPostImage(null);
-            relativeLayoutContainer.removeView(thumbnailView);
+    private final String[] dubTexts =
+            {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
+
+    private String getRepeatDigits(int no) {
+        CharSequence number = new StringBuilder().append(no).reverse();
+        char init = number.charAt(0);
+        int count = 1;
+        for (int i = 1; i < number.length(); i++) {
+            if (number.charAt(i) == init) {
+                count++;
+                init = number.charAt(i);
+            } else {
+                break;
+            }
         }
-        thumbnailViews.clear();
+        return dubTexts[count - 1];
     }
 
     private void buildThumbnails() {
-        clearThumbnails();
+        for (PostImageThumbnailView thumbnailView : thumbnailViews) {
+            relativeLayoutContainer.removeView(thumbnailView);
+        }
+        thumbnailViews.clear();
 
         // Places the thumbnails below each other.
         // The placement is done using the RelativeLayout BELOW rule, with generated view ids.
         if (!post.images.isEmpty() && !ChanSettings.textOnly.get()) {
             int lastId = 0;
             int generatedId = 1;
-            boolean first = true;
-            for (int i = 0; i < post.images.size(); i++) {
-                PostImage image = post.images.get(i);
+            for (PostImage image : post.images) {
                 if (image.imageUrl == null) {
                     continue;
                 }
@@ -667,7 +652,7 @@ public class PostCell
 
                 // Set the correct id.
                 // The first thumbnail uses thumbnail_view so that the layout can offset to that.
-                final int idToSet = first ? R.id.thumbnail_view : generatedId++;
+                final int idToSet = image == post.image() ? R.id.thumbnail_view : generatedId++;
                 v.setId(idToSet);
                 int thumbnailSize = getDimen(getContext(), R.dimen.cell_post_thumbnail_size);
                 final int size = thumbnailSize * ChanSettings.thumbnailSize.get() / 100;
@@ -675,7 +660,7 @@ public class PostCell
                 RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(size, size);
                 p.alignWithParent = true;
 
-                if (!first) {
+                if (image != post.image()) {
                     p.addRule(RelativeLayout.BELOW, lastId);
                 }
 
@@ -686,16 +671,15 @@ public class PostCell
                     v.setOnClickListener(v2 -> callback.onThumbnailClicked(image, v));
                 }
                 v.setRounding(dp(2));
-                p.setMargins(paddingPx, first ? paddingPx + dp(2) : 0, 0,
+                p.setMargins(paddingPx, image == post.image() ? paddingPx + dp(2) : 0, 0,
                         //1 extra for bottom divider
-                        i + 1 == post.images.size() ? dp(1) + paddingPx : dp(2)
+                        lastId + 1 == post.images.size() ? dp(1) + paddingPx : dp(2)
                 );
 
                 relativeLayoutContainer.addView(v, p);
                 thumbnailViews.add(v);
 
                 lastId = idToSet;
-                first = false;
             }
         }
     }
@@ -709,6 +693,10 @@ public class PostCell
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
         findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
+        for (Call c : embedCalls) {
+            c.cancel();
+        }
+        embedCalls.clear();
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {
@@ -724,7 +712,7 @@ public class PostCell
         }
     }
 
-    private static BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
+    private static final BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
 
     /**
      * A MovementMethod that searches for PostLinkables.<br>
@@ -834,10 +822,10 @@ public class PostCell
         private int spacing;
         private int icons;
         private int previousIcons;
-        private RectF drawRect = new RectF();
+        private final RectF drawRect = new RectF();
 
-        private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private Rect textRect = new Rect();
+        private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private final Rect textRect = new Rect();
 
         private int httpIconTextColor;
         private int httpIconTextSize;

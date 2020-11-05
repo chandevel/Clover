@@ -31,7 +31,7 @@ public class StreamableEmbedder
             Pattern.compile("https?://(?:www\\.)?streamable\\.com/(.{6})(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Collections.singletonList("streamable");
     }
 

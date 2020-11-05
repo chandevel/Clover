@@ -38,7 +38,7 @@ public class BandcampEmbedder
             Pattern.compile("https?://(?:\\w+\\.)?bandcamp\\.com(?:/.*)?(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Collections.singletonList("bandcamp");
     }
 

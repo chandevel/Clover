@@ -303,7 +303,7 @@ public class ReplyPresenter
 
             final String bannedString = "banned";
             int bannedIndex = TextUtils.indexOf(errorMessage, bannedString);
-            if (bannedIndex > 0 && replyResponse.originatingLoadable.site.endpoints().banned() != null) {
+            if (bannedIndex >= 0 && replyResponse.originatingLoadable.site.endpoints().banned() != null) {
                 errorMessage.setSpan(new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {

@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
 
@@ -113,9 +114,9 @@ public class StringUtils {
         return false;
     }
 
-    public static boolean containsAny(String s, List<String> contains) {
-        for (String contain : contains) {
-            if (s.contains(contain)) {
+    public static boolean containsAny(CharSequence s, List<CharSequence> contains) {
+        for (CharSequence contain : contains) {
+            if (TextUtils.indexOf(s, contain) >= 0) {
                 return true;
             }
         }

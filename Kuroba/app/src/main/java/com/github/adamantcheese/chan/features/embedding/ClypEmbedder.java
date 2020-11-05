@@ -29,7 +29,7 @@ public class ClypEmbedder
     private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Collections.singletonList("clyp.it");
     }
 

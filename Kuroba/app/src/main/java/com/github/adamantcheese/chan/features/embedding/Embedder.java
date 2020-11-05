@@ -28,7 +28,7 @@ public interface Embedder<T>
      *
      * @return A list of strings that represent what this embedder does, usually just the name of the host eg youtube
      */
-    List<String> getShortRepresentations();
+    List<CharSequence> getShortRepresentations();
 
     /**
      * This is used for the helper calls in EmbeddingEngine for a "standard" embed of icon-title-duration.

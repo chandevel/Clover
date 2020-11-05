@@ -35,10 +35,10 @@ import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.a
 public class SoundcloudEmbedder
         implements Embedder<Pair<HttpUrl, JsonReader>> {
     private static final Pattern SOUNDCLOUD_PATTERN =
-            Pattern.compile("(https?://(?:www\\.)?soundcloud\\.com/.*?/(?:sets/)?[A-Za-z0-9-_.!~*'()]*)(?:/|\\b)");
+            Pattern.compile("(https?://(?:\\w+\\.)?soundcloud\\.com/.*?/(?:sets/)?[A-Za-z0-9-_.!~*'()]*)(?:/|\\b)");
 
     @Override
-    public List<String> getShortRepresentations() {
+    public List<CharSequence> getShortRepresentations() {
         return Collections.singletonList("soundcloud");
     }
 
