@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.site;
 
+import android.content.Context;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
@@ -23,12 +24,16 @@ import okhttp3.HttpUrl;
 
 public abstract class ExternalSiteArchive
         implements Site {
+    public Context context;
     public String domain;
     public String name;
     public List<String> boardCodes;
     public boolean searchEnabled;
 
-    public ExternalSiteArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
+    public ExternalSiteArchive(
+            Context context, String domain, String name, List<String> boardCodes, boolean searchEnabled
+    ) {
+        this.context = context;
         this.domain = domain;
         this.name = name;
         this.boardCodes = boardCodes;
@@ -249,7 +254,7 @@ public abstract class ExternalSiteArchive
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
-            return Loadable.emptyLoadable();
+            return Loadable.emptyLoadable(context);
         }
 
         public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);

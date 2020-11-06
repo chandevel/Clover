@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -76,7 +78,8 @@ public class Wired7
         }
     };
 
-    public Wired7() {
+    public Wired7(Context context) {
+        super(context);
         setName("Wired-7");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
     }
@@ -111,7 +114,7 @@ public class Wired7
         setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser());
+        setParser(new VichanCommentParser(context));
     }
 
     private static class Wired7Actions

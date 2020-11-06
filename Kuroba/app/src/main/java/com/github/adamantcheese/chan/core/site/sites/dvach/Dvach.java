@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
+import android.content.Context;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -89,7 +91,8 @@ public class Dvach
         this.postParser = new DvachPostParser(commentParser);
     }
 
-    public Dvach() {
+    public Dvach(Context context) {
+        super(context);
         setName("2ch.hk");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
     }
@@ -229,6 +232,6 @@ public class Dvach
 
         setApi(new DvachApi(this));
 
-        setParser(new DvachCommentParser());
+        setParser(new DvachCommentParser(context));
     }
 }

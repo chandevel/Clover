@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.site;
 
+import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.JsonReader;
@@ -21,7 +22,6 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +30,16 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class DummySite
         implements Site {
+    private final Context context;
+
+    public DummySite(Context context) {
+        this.context = context;
+    }
+
     @Override
     public void initialize(int id, JsonSettings userSettings) {}
 
@@ -50,8 +58,9 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(AndroidUtils.getAppContext()
-                .getResources(), R.drawable.trash_icon)));
+        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(getAppContext().getResources(),
+                R.drawable.trash_icon
+        )));
     }
 
     @Override
@@ -84,7 +93,7 @@ public class DummySite
 
             @Override
             public Loadable resolveLoadable(Site site, HttpUrl url) {
-                return Loadable.emptyLoadable();
+                return Loadable.emptyLoadable(context);
             }
         };
     }
@@ -194,7 +203,7 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
+            private final PostParser postParser = new DefaultPostParser(new CommentParser(context).addDefaultRules());
 
             @Override
             public PostParser getParser() {
@@ -258,12 +267,12 @@ public class DummySite
 
     @Override
     public Board board(String code) {
-        return Board.getDummyBoard();
+        return Board.getDummyBoard(context);
     }
 
     @Override
     public Board createBoard(String name, String code) {
-        return Board.getDummyBoard();
+        return Board.getDummyBoard(context);
     }
 
     @NonNull

@@ -350,7 +350,7 @@ public class SitesSetupController
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            Site s = siteRepository.instantiateSiteClass(siteClasses.get(position));
+            Site s = siteRepository.instantiateSiteClass(siteClasses.get(position), context);
             LinearLayout previewCell = (LinearLayout) inflate(context, R.layout.layout_site_preview);
             ImageView favicon = previewCell.findViewById(R.id.site_icon);
             TextView siteName = previewCell.findViewById(R.id.site_name);

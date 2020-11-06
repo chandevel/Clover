@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan420;
 
+import android.content.Context;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
@@ -69,7 +71,8 @@ public class Chan420
         }
     };
 
-    public Chan420() {
+    public Chan420(Context context) {
+        super(context);
         setName("420Chan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://420chan.org/favicon.ico")));
     }
@@ -114,6 +117,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParser(new TaimabaCommentParser());
+        setParser(new TaimabaCommentParser(context));
     }
 }

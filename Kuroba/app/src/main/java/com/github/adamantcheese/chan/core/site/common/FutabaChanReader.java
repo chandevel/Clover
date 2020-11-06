@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.site.common;
 
+import android.content.Context;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -26,8 +27,8 @@ public class FutabaChanReader
         implements ChanReader {
     private final PostParser postParser;
 
-    public FutabaChanReader() {
-        CommentParser commentParser = new CommentParser().addDefaultRules();
+    public FutabaChanReader(Context context) {
+        CommentParser commentParser = new CommentParser(context).addDefaultRules();
         this.postParser = new DefaultPostParser(commentParser);
     }
 

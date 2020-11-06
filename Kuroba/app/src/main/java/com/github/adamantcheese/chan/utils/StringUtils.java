@@ -225,7 +225,6 @@ public class StringUtils {
         } else if ("P0D".equals(ISO8601Duration)) {
             ret = "LIVE";
         } else {
-            //badly formatted time from youtube's API?
             ret = "??:??";
         }
 

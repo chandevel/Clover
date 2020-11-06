@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -194,11 +195,11 @@ public class Board
 
     private static Board dummyBoard;
 
-    public static Board getDummyBoard() {
+    public static Board getDummyBoard(Context context) {
         if (dummyBoard != null) return dummyBoard;
         Board board = new Board();
         board.name = "Test Board";
-        board.site = new DummySite();
+        board.site = new DummySite(context);
         board.code = "test";
         dummyBoard = board;
         return board;

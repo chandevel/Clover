@@ -92,7 +92,7 @@ public class ThemeSettingsController
         extends Controller {
 
     private static final int TOGGLE_ID = 1;
-    private final Loadable dummyLoadable = Loadable.emptyLoadable();
+    private final Loadable dummyLoadable = Loadable.emptyLoadable(context);
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
@@ -358,11 +358,11 @@ public class ThemeSettingsController
 
             Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
 
-            CommentParser parser = new CommentParser().addDefaultRules();
+            CommentParser parser = new CommentParser(context).addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
 
             //region POSTS
-            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard(context))
                     .id(123456789)
                     .opId(123456789)
                     .op(true)
@@ -374,7 +374,7 @@ public class ThemeSettingsController
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
                     .idColor(Color.WHITE);
 
-            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard(context))
                     .id(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
@@ -384,7 +384,7 @@ public class ThemeSettingsController
                                     + "post for seeing the divider color; below is a youtube link for title/duration testing:<br>"
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
-            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard(context))
                     .id(345678901)
                     .opId(123456789)
                     .name("W.T. Snacks")

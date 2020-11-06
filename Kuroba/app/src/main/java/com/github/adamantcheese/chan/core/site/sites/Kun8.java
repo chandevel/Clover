@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.site.sites;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -53,7 +55,8 @@ public class Kun8
         }
     };
 
-    public Kun8() {
+    public Kun8(Context context) {
+        super(context);
         setName("8kun");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
     }
@@ -130,7 +133,7 @@ public class Kun8
 
         setApi(new VichanApi(this));
 
-        setParser(new VichanCommentParser());
+        setParser(new VichanCommentParser(context));
     }
 
     @NonNull

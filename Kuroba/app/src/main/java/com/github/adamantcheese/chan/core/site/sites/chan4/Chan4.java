@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
@@ -472,7 +473,8 @@ public class Chan4
     private OptionsSetting<CaptchaType> captchaType;
     public static StringSetting flagType;
 
-    public Chan4() {
+    public Chan4(Context context) {
+        super(context);
         // we used these before multisite, and lets keep using them.
         SettingProvider<Object> p = new SharedPreferencesSettingProvider(getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
@@ -559,7 +561,7 @@ public class Chan4
     @Override
     public ChanReader chanReader() {
         if (reader == null) {
-            reader = new FutabaChanReader();
+            reader = new FutabaChanReader(context);
         }
         return reader;
     }

@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.repository;
 
+import android.content.Context;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -21,6 +22,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,7 +81,7 @@ public class SiteRepository {
         });
     }
 
-    public void initialize() {
+    public void initialize(Context context) {
         List<Site> sites = new ArrayList<>();
 
         List<SiteModel> models = DatabaseUtils.runTask(databaseSiteManager.getAll());
@@ -87,7 +89,7 @@ public class SiteRepository {
         for (SiteModel siteModel : models) {
             SiteConfigSettingsHolder holder;
             try {
-                holder = instantiateSiteFromModel(siteModel);
+                holder = instantiateSiteFromModel(siteModel, context);
             } catch (IllegalArgumentException e) {
                 Logger.e(this, "instantiateSiteFromModel", e);
                 break;
@@ -106,8 +108,8 @@ public class SiteRepository {
         sitesObservable.notifyObservers();
     }
 
-    public Site createFromClass(Class<? extends Site> siteClass) {
-        Site site = instantiateSiteClass(siteClass);
+    public Site createFromClass(Class<? extends Site> siteClass, Context context) {
+        Site site = instantiateSiteClass(siteClass, context);
 
         JsonSettings settings = new JsonSettings();
 
@@ -136,24 +138,26 @@ public class SiteRepository {
         return siteModel;
     }
 
-    private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
-        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig(gson));
+    private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel, Context context) {
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID, context),
+                siteModel.loadConfig(gson)
+        );
     }
 
     @NonNull
-    private Site instantiateSiteClass(int classId) {
+    private Site instantiateSiteClass(int classId, Context context) {
         Class<? extends Site> clazz = SITE_CLASSES.get(classId);
         if (clazz == null) {
             throw new IllegalArgumentException("Unknown class id: " + classId);
         }
-        return instantiateSiteClass(clazz);
+        return instantiateSiteClass(clazz, context);
     }
 
     @NonNull
-    public Site instantiateSiteClass(Class<? extends Site> clazz) {
+    public Site instantiateSiteClass(Class<? extends Site> clazz, Context context) {
         try {
-            return clazz.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return clazz.getConstructor(Context.class).newInstance(context);
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new IllegalArgumentException();
         }
     }
@@ -216,8 +220,7 @@ public class SiteRepository {
 
             List<Site> ordered = new ArrayList<>(sites);
             //noinspection ConstantConditions
-            Collections.sort(
-                    ordered,
+            Collections.sort(ordered,
                     (lhs, rhs) -> lhs == null || rhs == null ? 0 : ordering.get(lhs.id()) - ordering.get(rhs.id())
             );
 

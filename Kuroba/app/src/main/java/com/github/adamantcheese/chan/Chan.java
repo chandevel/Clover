@@ -67,12 +67,6 @@ public class Chan
     private int activityForegroundCounter = 0;
 
     @Inject
-    SiteRepository siteRepository;
-
-    @Inject
-    BoardManager boardManager;
-
-    @Inject
     ReportManager reportManager;
 
     private static Feather feather;
@@ -113,9 +107,6 @@ public class Chan
 
         feather = Feather.with(new AppModule(), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
-
-        siteRepository.initialize();
-        boardManager.initialize();
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {

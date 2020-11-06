@@ -16,14 +16,18 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.JsonReader;
+import android.view.View;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -66,10 +70,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
+    private final Context context;
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
+    public static final String EXIF_INFO_STRING = "[EXIF data available. Click here to view.]";
 
     private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
@@ -88,7 +94,8 @@ public class CommentParser {
 
     private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
-    public CommentParser() {
+    public CommentParser(Context context) {
+        this.context = context;
         // Required tags.
         rule(tagRule("p"));
         rule(tagRule("div"));
@@ -265,11 +272,11 @@ public class CommentParser {
         return text;
     }
 
-    // TODO this is basically only used for /p/ data parsing, change this to be a clickable span that displays the info?
+    // This is used on /p/ for exif data.
     public CharSequence handleTable(
             Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element table
     ) {
-        List<CharSequence> parts = new ArrayList<>();
+        SpannableStringBuilder parts = new SpannableStringBuilder();
         Elements tableRows = table.getElementsByTag("tr");
         for (int i = 0; i < tableRows.size(); i++) {
             Element tableRow = tableRows.get(i);
@@ -280,21 +287,30 @@ public class CommentParser {
 
                     SpannableString tableDataPart = new SpannableString(tableData.text());
                     if (tableData.getElementsByTag("b").size() > 0) {
-                        tableDataPart.setSpan(new StyleSpan(Typeface.BOLD), 0, tableDataPart.length(), 0);
-                        tableDataPart.setSpan(new UnderlineSpan(), 0, tableDataPart.length(), 0);
+                        tableDataPart = span(tableDataPart, new StyleSpan(Typeface.BOLD), new UnderlineSpan());
                     }
 
-                    parts.add(tableDataPart);
+                    parts.append(tableDataPart);
 
-                    if (j < tableDatas.size() - 1) parts.add(": ");
+                    if (j < tableDatas.size() - 1) parts.append(": ");
                 }
 
-                if (i < tableRows.size() - 1) parts.add("\n");
+                if (i < tableRows.size() - 1) parts.append("\n");
             }
         }
 
         // Overrides the text (possibly) parsed by child nodes.
-        return span(TextUtils.concat(parts.toArray(new CharSequence[0])),
+        return span(EXIF_INFO_STRING,
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        AlertDialog dialog = new AlertDialog.Builder(context).setMessage(parts)
+                                .setPositiveButton(R.string.ok, null)
+                                .create();
+                        dialog.setCanceledOnTouchOutside(true);
+                        dialog.show();
+                    }
+                },
                 new ForegroundColorSpanHashed(getAttrColor(theme.resValue, R.attr.post_inline_quote_color)),
                 new AbsoluteSizeSpanHashed(sp(12f))
         );

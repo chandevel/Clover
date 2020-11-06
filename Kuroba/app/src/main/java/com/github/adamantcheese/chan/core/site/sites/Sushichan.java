@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -65,7 +67,8 @@ public class Sushichan
         }
     };
 
-    public Sushichan() {
+    public Sushichan(Context context) {
+        super(context);
         setName("Sushichan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
     }
@@ -98,7 +101,7 @@ public class Sushichan
         setEndpoints(new VichanEndpoints(this, "https://sushigirl.us/", "https://sushigirl.us/"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser());
+        setParser(new VichanCommentParser(context));
     }
 
     @NonNull

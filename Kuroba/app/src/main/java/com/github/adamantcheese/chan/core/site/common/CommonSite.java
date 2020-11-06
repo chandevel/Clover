@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
+import android.content.Context;
 import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;
@@ -77,6 +78,10 @@ public abstract class CommonSite
     public PostParser postParser;
 
     private final Boards staticBoards = new Boards();
+
+    public CommonSite(Context context) {
+        super(context);
+    }
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {

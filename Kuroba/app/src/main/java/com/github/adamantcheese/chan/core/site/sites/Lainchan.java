@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -65,7 +67,8 @@ public class Lainchan
         }
     };
 
-    public Lainchan() {
+    public Lainchan(Context context) {
+        super(context);
         setName("Lainchan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
     }
@@ -110,7 +113,7 @@ public class Lainchan
         });
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser());
+        setParser(new VichanCommentParser(context));
     }
 
     @NonNull

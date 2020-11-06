@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import android.content.Context;
+
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
@@ -25,7 +27,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class TaimabaCommentParser
         extends CommentParser {
-    public TaimabaCommentParser() {
+    public TaimabaCommentParser(Context context) {
+        super(context);
         addDefaultRules();
         setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/thread/(\\d+)#(\\d+)"));

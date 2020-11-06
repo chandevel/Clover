@@ -138,7 +138,7 @@ public class BrowseBoardsFloatingMenu
         items.addObserver(this);
 
         if (items.items.size() == 1) {
-            CommonSite setupSite = new CommonSite() {
+            CommonSite setupSite = new CommonSite(getContext()) {
                 @Override
                 public void setup() {
                     setName("App Setup");

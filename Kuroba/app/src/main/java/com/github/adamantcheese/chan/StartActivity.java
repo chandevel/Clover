@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -85,6 +86,7 @@ import kotlin.jvm.functions.Function1;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
@@ -134,6 +136,11 @@ public class StartActivity
     protected void onCreate(Bundle savedInstanceState) {
         currentNightModeBits = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         super.onCreate(savedInstanceState);
+
+        // both of these need to be set up before any other injection occurs in this class
+        instance(SiteRepository.class).initialize(this); // so that sites have access to the context, if needed
+        instance(BoardManager.class).initialize();
+
         inject(this);
 
         if (intentMismatchWorkaround()) {
@@ -405,7 +412,7 @@ public class StartActivity
 
             if (thread == null) {
                 // Make the parcel happy
-                thread = Loadable.emptyLoadable();
+                thread = Loadable.emptyLoadable(this);
             }
 
             outState.putParcelable(STATE_KEY, new ChanState(board.clone(), thread.clone()));

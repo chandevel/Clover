@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -138,10 +139,10 @@ public class Loadable
         return loadable;
     }
 
-    public static Loadable emptyLoadable() {
+    public static Loadable emptyLoadable(Context context) {
         Loadable ret = new Loadable();
-        ret.site = new DummySite();
-        ret.board = Board.getDummyBoard();
+        ret.site = new DummySite(context);
+        ret.board = Board.getDummyBoard(context);
         return ret;
     }
 

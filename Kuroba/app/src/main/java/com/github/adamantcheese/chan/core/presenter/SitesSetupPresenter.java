@@ -99,7 +99,7 @@ public class SitesSetupPresenter
 
     public void onAddClicked(Class<? extends Site> siteClass) {
         //noinspection ConstantConditions
-        Site newSite = siteRepository.createFromClass(siteClass);
+        Site newSite = siteRepository.createFromClass(siteClass, context);
 
         sitesShown.add(newSite);
         saveOrder();
