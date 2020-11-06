@@ -300,7 +300,9 @@ public class ChanThreadLoader {
             onResponseInternal(response);
         } catch (Throwable e) {
             Logger.e(ChanThreadLoader.this, "onResponse error", e);
-            notifyAboutError(e instanceof Exception ? (Exception) e : new Exception(e));
+            BackgroundUtils.runOnMainThread(() -> notifyAboutError(e instanceof Exception
+                    ? (Exception) e
+                    : new Exception(e)));
         }
     }
 
@@ -309,7 +311,7 @@ public class ChanThreadLoader {
 
         // Normal thread, not archived/deleted/closed
         if (response == null || response.posts == null || response.posts.isEmpty()) {
-            onErrorResponse(new Exception("Post size is 0"));
+            BackgroundUtils.runOnMainThread(() -> onErrorResponse(new Exception("Post size is 0")));
             return;
         }
 
