@@ -20,7 +20,7 @@ import android.content.SharedPreferences;
 
 public class SharedPreferencesSettingProvider
         implements SettingProvider<Object> {
-    private SharedPreferences prefs;
+    private final SharedPreferences prefs;
 
     public SharedPreferencesSettingProvider(SharedPreferences prefs) {
         this.prefs = prefs;

@@ -75,16 +75,16 @@ public class CommentParser {
     private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
 
     // A pattern matching any board links
-    private Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
+    private final Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
     //alternate for some sites (formerly 8chan)
-    private Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
+    private final Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     // A pattern matching any board search links
-    private Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
+    private final Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
     // A pattern matching colors for r9k
-    private Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
+    private final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
     // The list of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
-    private Map<String, List<StyleRule>> rules = new HashMap<>();
+    private final Map<String, List<StyleRule>> rules = new HashMap<>();
 
     private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
@@ -472,7 +472,7 @@ public class CommentParser {
 
         public static class ResolveParser
                 extends JSONProcessor<ThreadLink> {
-            private ResolveLink sourceLink;
+            private final ResolveLink sourceLink;
 
             public ResolveParser(ResolveLink source) {
                 sourceLink = source;

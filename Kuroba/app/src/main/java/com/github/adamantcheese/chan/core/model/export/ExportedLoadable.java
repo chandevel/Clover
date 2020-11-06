@@ -27,29 +27,29 @@ import okhttp3.HttpUrl;
 
 public class ExportedLoadable {
     @SerializedName("board_code")
-    private String boardCode;
+    private final String boardCode;
     @SerializedName("loadable_id")
-    private long loadableId;
+    private final long loadableId;
     @SerializedName("last_loaded")
-    private int lastLoaded;
+    private final int lastLoaded;
     @SerializedName("last_viewed")
-    private int lastViewed;
+    private final int lastViewed;
     @SerializedName("list_view_index")
-    private int listViewIndex;
+    private final int listViewIndex;
     @SerializedName("list_view_top")
-    private int listViewTop;
+    private final int listViewTop;
     @SerializedName("mode")
-    private int mode;
+    private final int mode;
     @SerializedName("no")
-    private int no;
+    private final int no;
     @SerializedName("site_id")
-    private int siteId;
+    private final int siteId;
     @SerializedName("title")
     @Nullable
-    private String title;
+    private final String title;
     @SerializedName("thumbnail_url")
     @Nullable
-    private String thumbnailUrl;
+    private final String thumbnailUrl;
 
     public ExportedLoadable(
             String boardCode,

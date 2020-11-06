@@ -26,9 +26,9 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class RemovedPostsHelper {
-    private Context context;
-    private ThreadPresenter presenter;
-    private RemovedPostsCallbacks callbacks;
+    private final Context context;
+    private final ThreadPresenter presenter;
+    private final RemovedPostsCallbacks callbacks;
     private @Nullable
     RemovedPostsController controller;
 

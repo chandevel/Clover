@@ -80,7 +80,7 @@ public class Toolbar
     private ToolbarCallback callback;
     private int lastScrollDeltaOffset;
     private int scrollOffset;
-    private List<ToolbarCollapseCallback> collapseCallbacks = new ArrayList<>();
+    private final List<ToolbarCollapseCallback> collapseCallbacks = new ArrayList<>();
 
     public Toolbar(Context context) {
         this(context, null);

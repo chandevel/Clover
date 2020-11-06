@@ -32,8 +32,8 @@ public class ImageViewerAdapter
     private final List<PostImage> images;
     private final MultiImageView.Callback multiImageViewCallback;
 
-    private List<MultiImageView> loadedViews = new ArrayList<>(3);
-    private List<ModeChange> pendingModeChanges = new ArrayList<>();
+    private final List<MultiImageView> loadedViews = new ArrayList<>(3);
+    private final List<ModeChange> pendingModeChanges = new ArrayList<>();
 
     public ImageViewerAdapter(
             List<PostImage> images, MultiImageView.Callback multiImageViewCallback

@@ -50,7 +50,7 @@ public class PostAdapter
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
-    private RecyclerView recyclerView;
+    private final RecyclerView recyclerView;
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
@@ -67,7 +67,7 @@ public class PostAdapter
 
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
-    private Theme theme;
+    private final Theme theme;
 
     public PostAdapter(
             RecyclerView recyclerView,

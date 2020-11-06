@@ -169,14 +169,14 @@ public class ThreadPresenter
     @Inject
     private EmbeddingEngine embeddingEngine;
 
-    private ThreadPresenterCallback threadPresenterCallback;
+    private final ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
     private boolean forcePageUpdate;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
-    private Context context;
+    private final Context context;
     private List<FloatingMenuItem<Integer>> filterMenu;
     private List<FloatingMenuItem<Integer>> copyMenu;
     //endregion

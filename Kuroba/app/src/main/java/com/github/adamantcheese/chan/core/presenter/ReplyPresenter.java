@@ -77,10 +77,10 @@ public class ReplyPresenter
         LOADING
     }
 
-    private Context context;
+    private final Context context;
     private static final Pattern QUOTE_PATTERN = Pattern.compile(">>\\d+");
 
-    private ReplyPresenterCallback callback;
+    private final ReplyPresenterCallback callback;
     private Loadable loadable;
     private Reply draft;
 

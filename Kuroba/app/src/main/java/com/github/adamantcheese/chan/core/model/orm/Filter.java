@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
@@ -23,7 +25,7 @@ import com.j256.ormlite.table.DatabaseTable;
 @DatabaseTable(tableName = "filter")
 public class Filter
         implements Cloneable {
-    @SuppressWarnings("unused")
+
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -95,6 +97,7 @@ public class Filter
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
+    @NonNull
     public Filter clone() {
         return new Filter(
                 enabled,

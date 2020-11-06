@@ -41,7 +41,7 @@ public class BitmapUtils {
     private static final byte[] WEBP_HEADER2 = new byte[]{'W', 'E', 'B', 'P'};
 
     private static final Random random = new Random();
-    private static BitmapFactory.Options options = new BitmapFactory.Options();
+    private static final BitmapFactory.Options options = new BitmapFactory.Options();
 
     static {
         options.inMutable = true;

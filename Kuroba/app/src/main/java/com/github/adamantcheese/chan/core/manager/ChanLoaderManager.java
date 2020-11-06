@@ -54,9 +54,9 @@ public class ChanLoaderManager {
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     //map between a loadable and a chan loader instance for it, currently in use
-    private Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
+    private final Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     //chan loader cache for released loadables
-    private LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
+    private final LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
     @NonNull
     public synchronized ChanThreadLoader obtain(@NonNull Loadable loadable, ChanLoaderCallback listener) {

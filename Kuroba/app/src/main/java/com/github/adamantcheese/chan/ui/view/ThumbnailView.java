@@ -61,21 +61,21 @@ public abstract class ThumbnailView
 
     private boolean calculate;
     private Bitmap bitmap;
-    private RectF bitmapRect = new RectF();
-    private RectF drawRect = new RectF();
-    private RectF outputRect = new RectF();
+    private final RectF bitmapRect = new RectF();
+    private final RectF drawRect = new RectF();
+    private final RectF outputRect = new RectF();
 
-    private Matrix matrix = new Matrix();
+    private final Matrix matrix = new Matrix();
     BitmapShader bitmapShader;
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
     private boolean foregroundCalculate = false;
     private Drawable foreground;
 
     protected boolean error = false;
     private String errorText;
-    private Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private Rect tmpTextRect = new Rect();
+    private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Rect tmpTextRect = new Rect();
 
     private ValueAnimator fadeIn;
 

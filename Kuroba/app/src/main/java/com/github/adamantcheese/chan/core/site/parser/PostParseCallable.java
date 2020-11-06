@@ -30,10 +30,10 @@ import java.util.concurrent.Callable;
 // Called concurrently to parse the post html and the filters on it belong to ChanReaderRequest
 class PostParseCallable
         implements Callable<Post> {
-    private List<Filter> filters;
-    private DatabaseSavedReplyManager savedReplyManager;
-    private Post.Builder postBuilder;
-    private ChanReader reader;
+    private final List<Filter> filters;
+    private final DatabaseSavedReplyManager savedReplyManager;
+    private final Post.Builder postBuilder;
+    private final ChanReader reader;
     private final Set<Integer> internalIds;
     private final Theme theme;
 

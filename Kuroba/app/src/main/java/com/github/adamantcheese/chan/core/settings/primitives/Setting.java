@@ -25,7 +25,7 @@ public abstract class Setting<T> {
     protected final SettingProvider<Object> settingProvider;
     protected final String key;
     protected final T def;
-    private List<SettingCallback<T>> callbacks = new ArrayList<>();
+    private final List<SettingCallback<T>> callbacks = new ArrayList<>();
 
     protected boolean hasCached = false;
     protected T cached;

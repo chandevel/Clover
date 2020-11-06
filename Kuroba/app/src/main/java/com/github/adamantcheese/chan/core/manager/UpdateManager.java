@@ -93,7 +93,7 @@ public class UpdateManager {
     FileChooser fileChooser;
 
     private ProgressDialog updateDownloadDialog;
-    private Context context;
+    private final Context context;
 
     @Nullable
     private CancelableDownload cancelableDownload;

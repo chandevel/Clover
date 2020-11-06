@@ -25,27 +25,27 @@ public class ExportedFilter {
     @SerializedName("enabled")
     private boolean enabled;
     @SerializedName("type")
-    private int type;
+    private final int type;
     @SerializedName("pattern")
     @Nullable
-    private String pattern;
+    private final String pattern;
     @SerializedName("all_boards")
-    private boolean allBoards;
+    private final boolean allBoards;
     @SerializedName("boards")
     @Nullable
     private String boards;
     @SerializedName("action")
-    private int action;
+    private final int action;
     @SerializedName("color")
-    private int color;
+    private final int color;
     @SerializedName("apply_to_replies")
-    private boolean applyToReplies;
+    private final boolean applyToReplies;
     @SerializedName("order")
-    private int order;
+    private final int order;
     @SerializedName("only_on_op")
-    private boolean onlyOnOP;
+    private final boolean onlyOnOP;
     @SerializedName("apply_to_saved")
-    private boolean applyToSaved;
+    private final boolean applyToSaved;
 
     public ExportedFilter(
             boolean enabled,

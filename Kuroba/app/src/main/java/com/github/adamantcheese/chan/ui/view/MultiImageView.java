@@ -129,14 +129,14 @@ public class MultiImageView
     private CancelableDownload videoRequest;
     private CancelableDownload otherRequest;
     private SimpleExoPlayer exoPlayer;
-    private CancellableToast cancellableToast;
+    private final CancellableToast cancellableToast;
 
     private boolean hasContent = false;
     private boolean mediaSourceCancel = false;
     private boolean transparentBackground = ChanSettings.transparencyOn.get();
     private boolean imageAlreadySaved = false;
-    private GestureDetector gestureDetector;
-    private View exoClickHandler;
+    private final GestureDetector gestureDetector;
+    private final View exoClickHandler;
 
     public MultiImageView(Context context) {
         this(context, null);

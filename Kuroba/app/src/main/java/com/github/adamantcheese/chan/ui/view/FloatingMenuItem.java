@@ -19,8 +19,8 @@ package com.github.adamantcheese.chan.ui.view;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class FloatingMenuItem<T> {
-    private T id;
-    private String text;
+    private final T id;
+    private final String text;
 
     public FloatingMenuItem(T id, int text) {
         this.id = id;

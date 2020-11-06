@@ -63,13 +63,13 @@ public class AlbumDownloadController
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
-    private List<AlbumDownloadItem> items = new ArrayList<>();
+    private final List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
 
     @Inject
     ImageSaver imageSaver;
 
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
     private boolean allChecked = true;
 
     public AlbumDownloadController(Context context) {
@@ -294,8 +294,8 @@ public class AlbumDownloadController
     private class AlbumDownloadHolder
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        private ImageView checkbox;
-        private PostImageThumbnailView thumbnailView;
+        private final ImageView checkbox;
+        private final PostImageThumbnailView thumbnailView;
 
         public AlbumDownloadHolder(View itemView) {
             super(itemView);

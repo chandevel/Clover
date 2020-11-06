@@ -57,8 +57,8 @@ public class Theme {
     public MaterialColorStyle accentColor;
 
     // Defaults for the above colors
-    private MaterialColorStyle defaultPrimary;
-    private MaterialColorStyle defaultAccent;
+    private final MaterialColorStyle defaultPrimary;
+    private final MaterialColorStyle defaultAccent;
     //endregion
 
     public Typeface mainFont = ROBOTO_MEDIUM;

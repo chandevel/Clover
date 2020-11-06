@@ -28,7 +28,7 @@ import java.util.concurrent.Callable;
 
 public class DatabasePinManager {
     DatabaseHelper helper;
-    private DatabaseLoadableManager databaseLoadableManager;
+    private final DatabaseLoadableManager databaseLoadableManager;
 
     public DatabasePinManager(DatabaseHelper helper, DatabaseLoadableManager databaseLoadableManager) {
         this.helper = helper;

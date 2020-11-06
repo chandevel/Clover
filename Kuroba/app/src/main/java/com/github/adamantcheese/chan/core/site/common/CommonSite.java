@@ -72,11 +72,11 @@ public abstract class CommonSite
     private CommonEndpoints endpoints;
     private CommonActions actions;
     private CommonApi api;
-    private CommonCallModifier callModifier = new CommonCallModifier() {};
+    private final CommonCallModifier callModifier = new CommonCallModifier() {};
 
     public PostParser postParser;
 
-    private Boards staticBoards = new Boards();
+    private final Boards staticBoards = new Boards();
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {

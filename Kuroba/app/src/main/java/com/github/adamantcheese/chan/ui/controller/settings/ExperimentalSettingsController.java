@@ -17,15 +17,10 @@ import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
 import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesController;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 

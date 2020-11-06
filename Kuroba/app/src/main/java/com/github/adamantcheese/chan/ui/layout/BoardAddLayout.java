@@ -199,9 +199,9 @@ public class BoardAddLayout
     private static class SuggestionCell
             extends RecyclerView.ViewHolder
             implements CompoundButton.OnCheckedChangeListener {
-        private TextView text;
-        private TextView description;
-        private CheckBox check;
+        private final TextView text;
+        private final TextView description;
+        private final CheckBox check;
 
         private BoardSuggestion suggestion;
 

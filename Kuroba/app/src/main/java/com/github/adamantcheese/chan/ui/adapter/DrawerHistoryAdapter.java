@@ -38,10 +38,10 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell> {
-    private List<History> historyList = new ArrayList<>();
+    private final List<History> historyList = new ArrayList<>();
 
     private History highlighted;
-    private Callback callback;
+    private final Callback callback;
 
     public DrawerHistoryAdapter(Callback callback) {
         this.callback = callback;
@@ -131,9 +131,9 @@ public class DrawerHistoryAdapter
 
     protected class HistoryCell
             extends RecyclerView.ViewHolder {
-        private ThumbnailView thumbnail;
-        private TextView text;
-        private TextView subtext;
+        private final ThumbnailView thumbnail;
+        private final TextView text;
+        private final TextView subtext;
 
         public HistoryCell(View itemView) {
             super(itemView);

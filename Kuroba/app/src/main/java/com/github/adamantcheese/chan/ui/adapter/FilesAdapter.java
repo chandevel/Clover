@@ -37,7 +37,7 @@ public class FilesAdapter
 
     private FileWatcher.FileItem highlightedItem;
     private FileWatcher.FileItems fileItems;
-    private Callback callback;
+    private final Callback callback;
 
     public FilesAdapter(Callback callback) {
         this.callback = callback;
@@ -115,8 +115,8 @@ public class FilesAdapter
     public class FileViewHolder
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        private ImageView image;
-        private TextView text;
+        private final ImageView image;
+        private final TextView text;
 
         public FileViewHolder(View itemView) {
             super(itemView);

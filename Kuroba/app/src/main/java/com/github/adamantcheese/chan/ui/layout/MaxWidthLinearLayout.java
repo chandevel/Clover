@@ -25,7 +25,7 @@ import com.github.adamantcheese.chan.R;
 
 public class MaxWidthLinearLayout
         extends LinearLayout {
-    private float maxWidth;
+    private final float maxWidth;
 
     public MaxWidthLinearLayout(Context context) {
         this(context, null);

@@ -124,13 +124,6 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public ThemeHelper provideThemeHelper() {
-        Logger.d(DI_TAG, "Theme helper");
-        return new ThemeHelper();
-    }
-
-    @Provides
-    @Singleton
     public ImageSaver provideImageSaver(FileManager fileManager) {
         Logger.d(DI_TAG, "Image saver");
         return new ImageSaver(fileManager);

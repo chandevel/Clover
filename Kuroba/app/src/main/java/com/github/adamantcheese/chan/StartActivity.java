@@ -101,7 +101,7 @@ public class StartActivity
         implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
     private static final String STATE_KEY = "chan_state";
 
-    private Stack<Controller> stack = new Stack<>();
+    private final Stack<Controller> stack = new Stack<>();
 
     private DrawerController drawerController;
     private NavigationController mainNavigationController;

@@ -68,8 +68,8 @@ public class CaptchaNoJsHtmlParser {
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
 
-    private NetModule.OkHttpClientWithUtils okHttpClient;
-    private Context context;
+    private final NetModule.OkHttpClientWithUtils okHttpClient;
+    private final Context context;
 
     public CaptchaNoJsHtmlParser(Context context, NetModule.OkHttpClientWithUtils okHttpClient) {
         this.context = context;

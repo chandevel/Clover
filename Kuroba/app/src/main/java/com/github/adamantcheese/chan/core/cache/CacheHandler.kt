@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
 import android.text.TextUtils
+import com.github.adamantcheese.chan.core.cache.downloader.ConcurrentChunkedFileDownloader
 import com.github.adamantcheese.chan.core.di.AppModule.getCacheDir
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils

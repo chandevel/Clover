@@ -71,9 +71,9 @@ public class SitesSetupController
     private HintPopup hintPopup = null;
     private SitesAdapter sitesAdapter;
     private ItemTouchHelper itemTouchHelper;
-    private List<SiteBoardCount> sites = new ArrayList<>();
+    private final List<SiteBoardCount> sites = new ArrayList<>();
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+    private final ItemTouchHelper.SimpleCallback touchHelperCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
                 @Override
                 public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
@@ -260,11 +260,11 @@ public class SitesSetupController
     private class SiteHolder
             extends ViewHolder
             implements View.OnClickListener {
-        private ImageView image;
-        private TextView text;
-        private TextView description;
-        private ImageView removeSite;
-        private ImageView settings;
+        private final ImageView image;
+        private final TextView text;
+        private final TextView description;
+        private final ImageView removeSite;
+        private final ImageView settings;
 
         private Site site;
 
@@ -313,7 +313,7 @@ public class SitesSetupController
     private class SitePreviewAdapter
             extends BaseAdapter {
 
-        private List<Class<? extends Site>> siteClasses = new ArrayList<>();
+        private final List<Class<? extends Site>> siteClasses = new ArrayList<>();
         private AlertDialog dialog;
 
         public SitePreviewAdapter() {

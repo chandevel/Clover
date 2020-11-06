@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LastReplyRepository {
-    private static Map<Board, Long> lastReplyMap = new HashMap<>();
-    private static Map<Board, Long> lastThreadMap = new HashMap<>();
+    private static final Map<Board, Long> lastReplyMap = new HashMap<>();
+    private static final Map<Board, Long> lastThreadMap = new HashMap<>();
 
     public static void putLastReply(Loadable loadable) {
         if (loadable.isCatalogMode()) {

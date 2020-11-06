@@ -36,7 +36,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 public class RuntimePermissionsHelper {
     private static final int RUNTIME_PERMISSION_RESULT_ID = 3;
 
-    private ActivityCompat.OnRequestPermissionsResultCallback callbackActvity;
+    private final ActivityCompat.OnRequestPermissionsResultCallback callbackActvity;
 
     private CallbackHolder pendingCallback;
 

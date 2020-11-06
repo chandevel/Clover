@@ -57,8 +57,8 @@ public class ArrowMenuDrawable
 
     private String badgeText;
     private boolean badgeRed = false;
-    private Paint badgePaint = new Paint();
-    private Rect badgeTextBounds = new Rect();
+    private final Paint badgePaint = new Paint();
+    private final Rect badgeTextBounds = new Rect();
 
     public ArrowMenuDrawable() {
         mPaint.setColor(Color.WHITE);

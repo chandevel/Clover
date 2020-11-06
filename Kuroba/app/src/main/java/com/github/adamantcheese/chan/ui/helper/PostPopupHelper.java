@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PostPopupHelper {
-    private Context context;
-    private ThreadPresenter presenter;
+    private final Context context;
+    private final ThreadPresenter presenter;
     private final PostPopupHelperCallback callback;
 
     private final List<RepliesData> dataQueue = new ArrayList<>();

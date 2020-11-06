@@ -40,7 +40,7 @@ public class ExportedAppSettings {
     private List<ExportedPostHide> exportedPostHides;
     @SerializedName("exported_settings")
     @Nullable
-    private String settings;
+    private final String settings;
 
     public ExportedAppSettings(
             List<ExportedSite> exportedSites,

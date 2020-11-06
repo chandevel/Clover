@@ -49,9 +49,9 @@ public class PostImageThumbnailView
         extends FixedRatioThumbnailView
         implements View.OnLongClickListener {
     private PostImage postImage;
-    private Drawable playIcon;
-    private Rect bounds = new Rect();
-    private float decodeSize;
+    private final Drawable playIcon;
+    private final Rect bounds = new Rect();
+    private final float decodeSize;
 
     private CancelableDownload fullsizeDownload;
 

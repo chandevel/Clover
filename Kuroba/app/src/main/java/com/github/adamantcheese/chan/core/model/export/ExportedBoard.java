@@ -23,58 +23,58 @@ import com.google.gson.annotations.SerializedName;
 
 public class ExportedBoard {
     @SerializedName("site_id")
-    private int siteId;
+    private final int siteId;
     @SerializedName("saved")
-    private boolean saved;
+    private final boolean saved;
     @SerializedName("order")
-    private int order;
+    private final int order;
     @SerializedName("name")
     @Nullable
     private String name;
     @SerializedName("code")
     @Nullable
-    private String code;
+    private final String code;
     @SerializedName("work_safe")
-    private boolean workSafe;
+    private final boolean workSafe;
     @SerializedName("per_page")
-    private int perPage;
+    private final int perPage;
     @SerializedName("pages")
-    private int pages;
+    private final int pages;
     @SerializedName("max_file_size")
-    private int maxFileSize;
+    private final int maxFileSize;
     @SerializedName("max_webm_size")
-    private int maxWebmSize;
+    private final int maxWebmSize;
     @SerializedName("max_comment_chars")
-    private int maxCommentChars;
+    private final int maxCommentChars;
     @SerializedName("bump_limit")
-    private int bumpLimit;
+    private final int bumpLimit;
     @SerializedName("image_limit")
-    private int imageLimit;
+    private final int imageLimit;
     @SerializedName("cooldown_threads")
-    private int cooldownThreads;
+    private final int cooldownThreads;
     @SerializedName("cooldown_replies")
-    private int cooldownReplies;
+    private final int cooldownReplies;
     @SerializedName("cooldown_images")
-    private int cooldownImages;
+    private final int cooldownImages;
     @SerializedName("spoilers")
-    private boolean spoilers;
+    private final boolean spoilers;
     @SerializedName("custom_spoilers")
-    private int customSpoilers;
+    private final int customSpoilers;
     @SerializedName("user_ids")
-    private boolean userIds;
+    private final boolean userIds;
     @SerializedName("code_tags")
-    private boolean codeTags;
+    private final boolean codeTags;
     @SerializedName("preupload_captcha")
-    private boolean preuploadCaptcha;
+    private final boolean preuploadCaptcha;
     @SerializedName("country_flags")
-    private boolean countryFlags;
+    private final boolean countryFlags;
     @SerializedName("math_tags")
-    private boolean mathTags;
+    private final boolean mathTags;
     @SerializedName("description")
     @Nullable
-    private String description;
+    private final String description;
     @SerializedName("archive")
-    private boolean archive;
+    private final boolean archive;
 
     public ExportedBoard(
             int siteId,

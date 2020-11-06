@@ -30,14 +30,14 @@ import static android.text.TextUtils.isEmpty;
 public class ArchivePresenter
         implements SiteActions.ArchiveListener {
 
-    private Callback callback;
-    private Board board;
+    private final Callback callback;
+    private final Board board;
 
     private boolean inRequest = false;
 
     private String filter;
     private List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
-    private List<InternalSiteArchive.ArchiveItem> filteredItems = new ArrayList<>();
+    private final List<InternalSiteArchive.ArchiveItem> filteredItems = new ArrayList<>();
 
     public ArchivePresenter(Callback callback, Board board) {
         this.callback = callback;

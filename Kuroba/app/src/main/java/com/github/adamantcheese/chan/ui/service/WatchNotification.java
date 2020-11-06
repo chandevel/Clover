@@ -62,18 +62,18 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 
 public class WatchNotification
         extends Service {
-    private static String NOTIFICATION_ID_STR = "1";
-    private static String NOTIFICATION_ID_ALERT_STR = "2";
-    private int NOTIFICATION_ID = 1;
+    private static final String NOTIFICATION_ID_STR = "1";
+    private static final String NOTIFICATION_ID_ALERT_STR = "2";
+    private final int NOTIFICATION_ID = 1;
     private static final String NOTIFICATION_NAME = "Watch notification";
     private static final String NOTIFICATION_NAME_ALERT = "Watch notification alert";
     public static final String PAUSE_PINS_KEY = "pause_pins";
 
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
-    private int NOTIFICATION_LIGHT = 0x1;
-    private int NOTIFICATION_SOUND = 0x2;
-    private int NOTIFICATION_PEEK = 0x4;
+    private final int NOTIFICATION_LIGHT = 0x1;
+    private final int NOTIFICATION_SOUND = 0x2;
+    private final int NOTIFICATION_PEEK = 0x4;
 
     @Inject
     WatchManager watchManager;

@@ -58,8 +58,8 @@ public class ImageOptionsController
     @Inject
     Gson gson;
 
-    private ImageReencodingPresenter presenter;
-    private ImageOptionsControllerCallback callback;
+    private final ImageReencodingPresenter presenter;
+    private final ImageOptionsControllerCallback callback;
 
     private ConstraintLayout viewHolder;
     private CardView container;
@@ -80,10 +80,10 @@ public class ImageOptionsController
     private Button ok;
 
     private ImageReencodingPresenter.ImageOptions lastOptions;
-    private Pair<Integer, Integer> dims;
-    private CompressFormat imageFormat;
+    private final Pair<Integer, Integer> dims;
+    private final CompressFormat imageFormat;
 
-    private SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
+    private final SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
         @SuppressWarnings("ConstantConditions")
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {

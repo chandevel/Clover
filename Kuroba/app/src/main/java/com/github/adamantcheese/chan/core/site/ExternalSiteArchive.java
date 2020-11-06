@@ -158,7 +158,7 @@ public abstract class ExternalSiteArchive
         return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false, false);
     }
 
-    public abstract class ArchiveEndpoints
+    public abstract static class ArchiveEndpoints
             implements SiteEndpoints {
 
         @Override

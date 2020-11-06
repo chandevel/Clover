@@ -37,7 +37,7 @@ public class ListSettingView<T>
     public final List<Item<T>> items;
     public Item<T> selected;
 
-    private Setting<T> setting;
+    private final Setting<T> setting;
 
     public ListSettingView(
             SettingsController settingsController, Setting<T> setting, int name, String[] itemNames, T[] keys

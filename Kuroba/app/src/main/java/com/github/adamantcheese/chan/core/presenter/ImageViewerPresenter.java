@@ -70,7 +70,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {
-    private Context context;
+    private final Context context;
     private static final int PRELOAD_IMAGE_INDEX = 1;
     /**
      * We don't want to cancel an image right after we have started preloading it because it
@@ -93,7 +93,7 @@ public class ImageViewerPresenter
     private int selectedPosition = 0;
     private SwipeDirection swipeDirection = SwipeDirection.Default;
     private Loadable loadable;
-    private Set<CancelableDownload> preloadingImages = new HashSet<>();
+    private final Set<CancelableDownload> preloadingImages = new HashSet<>();
     private final Set<HttpUrl> nonCancelableImages = new HashSet<>();
 
     // Disables swiping until the view pager is visible

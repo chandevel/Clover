@@ -30,13 +30,13 @@ import android.view.View;
 public class TransitionImageView
         extends View {
     private Bitmap bitmap;
-    private Matrix matrix = new Matrix();
-    private Paint paint = new Paint();
-    private RectF bitmapRect = new RectF();
-    private RectF destRect = new RectF();
-    private RectF sourceImageRect = new RectF();
-    private PointF sourceOverlap = new PointF();
-    private RectF destClip = new RectF();
+    private final Matrix matrix = new Matrix();
+    private final Paint paint = new Paint();
+    private final RectF bitmapRect = new RectF();
+    private final RectF destRect = new RectF();
+    private final RectF sourceImageRect = new RectF();
+    private final PointF sourceOverlap = new PointF();
+    private final RectF destClip = new RectF();
     private float progress;
     private float stateScale;
     private float stateBitmapScaleDiff;

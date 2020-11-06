@@ -50,7 +50,7 @@ public class SaveLocationController
     private FloatingActionButton addButton;
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private FileWatcher fileWatcher;
-    private SaveLocationControllerCallback callback;
+    private final SaveLocationControllerCallback callback;
 
     public SaveLocationController(Context context, SaveLocationControllerCallback callback) {
         super(context);

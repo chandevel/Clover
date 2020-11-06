@@ -31,10 +31,10 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class DatabaseLoadableManager {
-    private DatabaseHelper helper;
-    private SiteRepository siteRepository;
+    private final DatabaseHelper helper;
+    private final SiteRepository siteRepository;
 
-    private static long HISTORY_LIMIT = 250L;
+    private static final long HISTORY_LIMIT = 250L;
 
     public DatabaseLoadableManager(DatabaseHelper helper, SiteRepository siteRepository) {
         this.helper = helper;
@@ -164,7 +164,7 @@ public class DatabaseLoadableManager {
         };
     }
 
-    public class History {
+    public static class History {
         public Loadable loadable;
         public boolean highlighted;
 

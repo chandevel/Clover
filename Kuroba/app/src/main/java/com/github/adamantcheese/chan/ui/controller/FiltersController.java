@@ -78,7 +78,7 @@ public class FiltersController
     private ItemTouchHelper itemTouchHelper;
     private boolean attached;
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+    private final ItemTouchHelper.SimpleCallback touchHelperCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                     ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
             ) {
@@ -250,7 +250,7 @@ public class FiltersController
     private class FilterAdapter
             extends RecyclerView.Adapter<FilterHolder> {
         private List<Filter> sourceList = new ArrayList<>();
-        private List<Filter> displayList = new ArrayList<>();
+        private final List<Filter> displayList = new ArrayList<>();
         private String searchQuery;
 
         public FilterAdapter() {
@@ -354,8 +354,8 @@ public class FiltersController
     private class FilterHolder
             extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        private TextView text;
-        private TextView subtext;
+        private final TextView text;
+        private final TextView subtext;
 
         @SuppressLint("ClickableViewAccessibility")
         public FilterHolder(View itemView) {

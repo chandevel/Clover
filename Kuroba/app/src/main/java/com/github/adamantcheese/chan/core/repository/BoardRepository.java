@@ -36,8 +36,8 @@ public class BoardRepository
 
     private final SiteRepository.Sites allSites;
 
-    private SitesBoards allBoards = new SitesBoards();
-    private SitesBoards savedBoards = new SitesBoards();
+    private final SitesBoards allBoards = new SitesBoards();
+    private final SitesBoards savedBoards = new SitesBoards();
 
     public BoardRepository(DatabaseBoardManager databaseBoardManager, SiteRepository siteRepository) {
         this.databaseBoardManager = databaseBoardManager;

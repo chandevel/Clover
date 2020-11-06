@@ -38,7 +38,7 @@ import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.I
 
 public class BoardsMenuPresenter
         implements Observer {
-    private BoardRepository.SitesBoards allBoards;
+    private final BoardRepository.SitesBoards allBoards;
 
     private Items items;
 

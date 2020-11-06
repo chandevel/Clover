@@ -22,27 +22,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class ExportedPin {
     @SerializedName("archived")
-    private boolean archived;
+    private final boolean archived;
     @SerializedName("pin_id")
-    private int pinId;
+    private final int pinId;
     @SerializedName("is_error")
-    private boolean isError;
+    private final boolean isError;
     @SerializedName("loadable_id")
-    private int loadableId;
+    private final int loadableId;
     @SerializedName("order")
-    private int order;
+    private final int order;
     @SerializedName("quote_last_count")
-    private int quoteLastCount;
+    private final int quoteLastCount;
     @SerializedName("quote_new_count")
-    private int quoteNewCount;
+    private final int quoteNewCount;
     @SerializedName("watch_last_count")
-    private int watchLastCount;
+    private final int watchLastCount;
     @SerializedName("watch_new_count")
-    private int watchNewCount;
+    private final int watchNewCount;
     @SerializedName("watching")
-    private boolean watching;
+    private final boolean watching;
     @SerializedName("exported_loadable")
-    private ExportedLoadable exportedLoadable;
+    private final ExportedLoadable exportedLoadable;
 
     public ExportedPin(
             boolean archived,

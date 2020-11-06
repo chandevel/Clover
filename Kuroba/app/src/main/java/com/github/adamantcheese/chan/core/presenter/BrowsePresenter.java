@@ -38,7 +38,7 @@ public class BrowsePresenter
     private boolean hadBoards;
     private Board currentBoard;
 
-    private BoardRepository.SitesBoards savedBoardsObservable;
+    private final BoardRepository.SitesBoards savedBoardsObservable;
 
     @Inject
     public BrowsePresenter(BoardManager boardManager) {

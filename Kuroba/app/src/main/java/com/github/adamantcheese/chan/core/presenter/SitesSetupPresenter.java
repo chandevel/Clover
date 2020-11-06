@@ -39,17 +39,17 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class SitesSetupPresenter
         implements Observer {
-    private Context context;
+    private final Context context;
 
     @Inject
     private final SiteRepository siteRepository = null;
     @Inject
     private final BoardManager boardManager = null;
 
-    private Callback callback;
+    private final Callback callback;
 
-    private SiteRepository.Sites sites;
-    private List<Site> sitesShown = new ArrayList<>();
+    private final SiteRepository.Sites sites;
+    private final List<Site> sitesShown = new ArrayList<>();
 
     public SitesSetupPresenter(Context context, Callback callback) {
         inject(this);

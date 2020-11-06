@@ -61,12 +61,12 @@ public class ImageSaveTask
     @Inject
     CacheHandler cacheHandler;
 
-    private PostImage postImage;
+    private final PostImage postImage;
     private AbstractFile destination;
-    private boolean share;
+    private final boolean share;
     private String subFolder;
     private boolean success = false;
-    private SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
+    private final SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
 
     public ImageSaveTask(PostImage postImage, boolean share) {
         inject(this);

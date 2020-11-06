@@ -30,8 +30,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LicensesController
         extends Controller {
-    private String title;
-    private String url;
+    private final String title;
+    private final String url;
 
     public LicensesController(Context context, String title, String url) {
         super(context);

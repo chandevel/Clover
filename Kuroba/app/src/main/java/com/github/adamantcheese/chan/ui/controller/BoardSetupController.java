@@ -70,7 +70,7 @@ public class BoardSetupController
 
     private Site site;
 
-    private ItemTouchHelper.SimpleCallback touchHelperCallback =
+    private final ItemTouchHelper.SimpleCallback touchHelperCallback =
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
                     ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
             ) {
@@ -256,8 +256,8 @@ public class BoardSetupController
 
     private class SavedBoardHolder
             extends RecyclerView.ViewHolder {
-        private TextView text;
-        private TextView description;
+        private final TextView text;
+        private final TextView description;
 
         @SuppressLint("ClickableViewAccessibility")
         public SavedBoardHolder(View itemView) {

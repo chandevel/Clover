@@ -43,8 +43,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostRepliesController
         extends BaseFloatingController {
-    private PostPopupHelper postPopupHelper;
-    private ThreadPresenter presenter;
+    private final PostPopupHelper postPopupHelper;
+    private final ThreadPresenter presenter;
 
     private boolean first = true;
 

@@ -20,7 +20,7 @@ import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 
 public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
         extends Setting<T> {
-    private T[] items;
+    private final T[] items;
 
     public OptionsSetting(SettingProvider<Object> settingProvider, String key, Class<T> clazz, T def) {
         super(settingProvider, key, def);

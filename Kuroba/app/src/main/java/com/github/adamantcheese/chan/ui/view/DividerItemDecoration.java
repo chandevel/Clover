@@ -56,9 +56,9 @@ public class DividerItemDecoration
     @Retention(RetentionPolicy.SOURCE)
     public @interface OrientationMode {}
 
-    private Drawable mDivider;
-    private int mSize;
-    private int mOrientation;
+    private final Drawable mDivider;
+    private final int mSize;
+    private final int mOrientation;
     private final Rect mBounds = new Rect();
 
     public DividerItemDecoration(Context context, @OrientationMode int orientation) {

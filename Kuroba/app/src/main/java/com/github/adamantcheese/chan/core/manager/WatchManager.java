@@ -107,7 +107,7 @@ public class WatchManager
         NONE
     }
 
-    private Handler handler;
+    private final Handler handler;
     private static final long FOREGROUND_INTERVAL = SECONDS.toMillis(15);
     private static final int MESSAGE_UPDATE = 1;
 
@@ -119,9 +119,9 @@ public class WatchManager
 
     private IntervalType currentInterval = NONE;
     private final List<Pin> pins;
-    private Debouncer stateUpdateDebouncer;
+    private final Debouncer stateUpdateDebouncer;
 
-    private Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
+    private final Map<Pin, PinWatcher> pinWatchers = new HashMap<>();
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     public WatchManager(
@@ -236,10 +236,6 @@ public class WatchManager
             }
 
             DatabaseUtils.runTask(databasePinManager.deletePins(pinList));
-            List<Loadable> loadableList = new ArrayList<>(pinList.size());
-            for (Pin pin : pinList) {
-                loadableList.add(pin.loadable);
-            }
 
             // Update the new orders
             Collections.sort(pins);

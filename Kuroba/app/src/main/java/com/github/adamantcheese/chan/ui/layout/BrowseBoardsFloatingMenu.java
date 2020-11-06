@@ -82,7 +82,7 @@ public class BrowseBoardsFloatingMenu
     private View anchor;
     private RecyclerView recyclerView;
 
-    private Point position = new Point(0, 0);
+    private final Point position = new Point(0, 0);
     private boolean dismissed = false;
 
     @Inject
@@ -92,7 +92,7 @@ public class BrowseBoardsFloatingMenu
     private BrowseBoardsAdapter adapter;
 
     private ClickCallback clickCallback;
-    private ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::repositionToAnchor;
+    private final ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::repositionToAnchor;
 
     public BrowseBoardsFloatingMenu(Context context) {
         this(context, null);
@@ -371,7 +371,7 @@ public class BrowseBoardsFloatingMenu
     private class InputViewHolder
             extends ViewHolder
             implements TextWatcher, OnFocusChangeListener, OnClickListener, OnKeyListener {
-        private EditText input;
+        private final EditText input;
 
         public InputViewHolder(View itemView) {
             super(itemView);

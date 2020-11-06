@@ -83,12 +83,12 @@ public class ViewThreadController
     private Loadable loadable;
 
     //pairs of the current thread loadable and the thread we're going to's hashcode
-    private Deque<Pair<Loadable, Integer>> threadFollowerpool = new ArrayDeque<>();
+    private final Deque<Pair<Loadable, Integer>> threadFollowerpool = new ArrayDeque<>();
 
     @Nullable
     private HintPopup hintPopup = null;
 
-    private FloatingMenu floatingMenu;
+    private FloatingMenu<ToolbarMenuSubItem> floatingMenu;
 
     public ViewThreadController(Context context, Loadable loadable) {
         super(context);

@@ -48,7 +48,7 @@ public class LoginController
     private EditText inputPin;
     private TextView authenticated;
 
-    private Site site;
+    private final Site site;
 
     public LoginController(Context context, Site site) {
         super(context);

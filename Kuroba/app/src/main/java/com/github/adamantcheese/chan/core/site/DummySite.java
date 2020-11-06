@@ -194,7 +194,7 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
+            private final PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
 
             @Override
             public PostParser getParser() {
@@ -269,6 +269,6 @@ public class DummySite
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE,false, false);
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false, false);
     }
 }

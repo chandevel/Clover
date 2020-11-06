@@ -43,7 +43,7 @@ public class SiteSetupController
         implements SiteSetupPresenter.Callback {
     SiteSetupPresenter presenter;
 
-    private Site site;
+    private final Site site;
     private LinkSettingView boardsLink;
     private LinkSettingView loginLink;
 

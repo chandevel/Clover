@@ -92,14 +92,14 @@ public class ThemeSettingsController
         extends Controller {
 
     private static final int TOGGLE_ID = 1;
-    private Loadable dummyLoadable = Loadable.emptyLoadable();
+    private final Loadable dummyLoadable = Loadable.emptyLoadable();
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
         dummyLoadable.lastViewed = 234567890;
     }
 
-    private PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
+    private final PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
         final EmbeddingEngine embeddingEngine = instance(EmbeddingEngine.class);
 
         @Override
@@ -153,7 +153,7 @@ public class ThemeSettingsController
         }
     };
 
-    private PostParser.Callback parserCallback = new PostParser.Callback() {
+    private final PostParser.Callback parserCallback = new PostParser.Callback() {
         @Override
         public boolean isSaved(int postNo) {
             return false;
@@ -534,8 +534,8 @@ public class ThemeSettingsController
 
     private static class ColorsAdapter
             extends BaseAdapter {
-        private List<FloatingMenuItem<MaterialColorStyle>> colors;
-        private boolean useAccentColors;
+        private final List<FloatingMenuItem<MaterialColorStyle>> colors;
+        private final boolean useAccentColors;
 
         public ColorsAdapter(List<FloatingMenuItem<MaterialColorStyle>> items, boolean useAccentColors) {
             this.colors = items;

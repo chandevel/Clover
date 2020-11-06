@@ -32,7 +32,7 @@ public class ToolbarPresenter {
         POP
     }
 
-    private Callback callback;
+    private final Callback callback;
 
     private NavigationItem item;
     private NavigationItem transition;

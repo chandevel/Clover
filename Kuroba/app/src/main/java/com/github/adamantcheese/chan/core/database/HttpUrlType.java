@@ -15,7 +15,7 @@ public class HttpUrlType
         extends BaseDataType {
 
     private static final HttpUrlType singleton = new HttpUrlType();
-    private static Class<?>[] associatedClassNames = new Class<?>[]{HttpUrl.class};
+    private static final Class<?>[] associatedClassNames = new Class<?>[]{HttpUrl.class};
 
     public static HttpUrlType getSingleton() {
         return singleton;

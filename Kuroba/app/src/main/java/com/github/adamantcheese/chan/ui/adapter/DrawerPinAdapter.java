@@ -173,10 +173,10 @@ public class DrawerPinAdapter
 
     public class PinViewHolder
             extends ViewHolder {
-        private ThumbnailView image;
-        private TextView title;
-        private TextView threadInfo;
-        private TextView watchCountText;
+        private final ThumbnailView image;
+        private final TextView title;
+        private final TextView threadInfo;
+        private final TextView watchCountText;
 
         private PinViewHolder(View itemView) {
             super(itemView);

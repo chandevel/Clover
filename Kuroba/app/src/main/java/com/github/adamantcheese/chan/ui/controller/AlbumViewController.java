@@ -152,7 +152,7 @@ public class AlbumViewController
 
     private class AlbumAdapter
             extends RecyclerView.Adapter<AlbumAdapter.AlbumItemCellHolder> {
-        private Loadable loadable;
+        private final Loadable loadable;
 
         public AlbumAdapter(Loadable loadable) {
             setHasStableIds(true);
@@ -190,7 +190,7 @@ public class AlbumViewController
 
         private class AlbumItemCellHolder
                 extends RecyclerView.ViewHolder {
-            private AlbumViewCell cell;
+            private final AlbumViewCell cell;
 
             public AlbumItemCellHolder(View itemView) {
                 super(itemView);

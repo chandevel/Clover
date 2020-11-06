@@ -33,7 +33,7 @@ public class LoadingBar
         extends View {
     @NonNull
     private Float[] chunkLoadingProgress = new Float[1];
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public LoadingBar(Context context) {
         this(context, null);

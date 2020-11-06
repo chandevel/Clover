@@ -44,9 +44,9 @@ import okhttp3.ResponseBody;
  * {@link #get()} blocks, run it off the main thread.
  */
 public class VichanAntispam {
-    private HttpUrl url;
+    private final HttpUrl url;
 
-    private List<String> fieldsToIgnore = new ArrayList<>();
+    private final List<String> fieldsToIgnore = new ArrayList<>();
 
     public VichanAntispam(HttpUrl url) {
         this.url = url;

@@ -60,7 +60,7 @@ public interface Embedder<T>
      * This is used by helper calls in EmbeddingEngine to automatically convert a response body to an object that can be processed.
      *
      * @param baseURL The URL that this body was retrieved from
-     * @param body The body from an OkHttp call
+     * @param body    The body from an OkHttp call
      * @return The body as a proper object that can be processed by the implemented process method below
      */
     @Override

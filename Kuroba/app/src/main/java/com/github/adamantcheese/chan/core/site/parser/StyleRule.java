@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.site.parser;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
@@ -66,7 +65,7 @@ public class StyleRule {
     private String tag;
     private List<String> classes;
 
-    private List<Action> actions = new ArrayList<>();
+    private final List<Action> actions = new ArrayList<>();
 
     private ForegroundColor foregroundColor = null;
     private BackgroundColor backgroundColor = null;

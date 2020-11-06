@@ -117,7 +117,7 @@ public class NetModule {
     // and constructing a non-concurrent client for some calls
     public static class OkHttpClientWithUtils
             extends OkHttpClient {
-        private Dispatcher bitmapDispatcher = new Dispatcher();
+        private final Dispatcher bitmapDispatcher = new Dispatcher();
 
         //This constructs your base client, which is used for pretty much everything
         public OkHttpClientWithUtils(Builder builder) {

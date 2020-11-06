@@ -64,7 +64,7 @@ public class ImportExportSettingsController
     @Nullable
     private OnExportSuccessCallbacks callbacks;
 
-    private LoadingViewController loadingViewController;
+    private final LoadingViewController loadingViewController;
 
     public ImportExportSettingsController(Context context, @NonNull OnExportSuccessCallbacks callbacks) {
         super(context);

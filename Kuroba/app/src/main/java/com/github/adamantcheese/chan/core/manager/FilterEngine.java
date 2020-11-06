@@ -80,7 +80,7 @@ public class FilterEngine {
             return enums[id];
         }
 
-        private static FilterAction[] enums = new FilterAction[4];
+        private static final FilterAction[] enums = new FilterAction[4];
 
         static {
             for (FilterAction type : values()) {

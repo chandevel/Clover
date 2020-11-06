@@ -46,14 +46,14 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  * Deals with background alarms specifically. No foreground stuff here.
  */
 public class WakeManager {
-    private Map<Object, WakeLock> wakeLocks = new HashMap<>();
+    private final Map<Object, WakeLock> wakeLocks = new HashMap<>();
 
     private final AlarmManager alarmManager;
     private final PowerManager powerManager;
 
-    private Set<Wakeable> wakeableSet = new HashSet<>();
+    private final Set<Wakeable> wakeableSet = new HashSet<>();
     public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
-    private PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+    private final PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
     private long lastBackgroundUpdateTime = System.currentTimeMillis();
     private boolean alarmRunning;
 

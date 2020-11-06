@@ -55,9 +55,9 @@ public class PostsFilter {
         return Long.compare(score1, score2);
     };
 
-    private Order order;
-    private String query;
-    private DatabaseHideManager databaseHideManager;
+    private final Order order;
+    private final String query;
+    private final DatabaseHideManager databaseHideManager;
 
     public PostsFilter(Order order, String query, DatabaseHideManager databaseHideManager) {
         this.order = order;

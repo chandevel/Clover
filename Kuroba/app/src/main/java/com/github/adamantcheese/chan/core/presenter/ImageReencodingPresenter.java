@@ -43,9 +43,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ImageReencodingPresenter {
-    private Context context;
-    private ImageReencodingPresenterCallback callback;
-    private Reply draft;
+    private final Context context;
+    private final ImageReencodingPresenterCallback callback;
+    private final Reply draft;
 
     @Inject
     Gson gson;

@@ -37,7 +37,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public class RemovedPostsController
         extends BaseFloatingController
         implements View.OnClickListener {
-    private RemovedPostsHelper removedPostsHelper;
+    private final RemovedPostsHelper removedPostsHelper;
 
     private ConstraintLayout viewHolder;
     private ListView postsListView;
@@ -123,9 +123,9 @@ public class RemovedPostsController
     }
 
     public static class RemovedPost {
-        private List<PostImage> images;
-        private int postNo;
-        private String comment;
+        private final List<PostImage> images;
+        private final int postNo;
+        private final String comment;
         private boolean checked;
 
         public RemovedPost(List<PostImage> images, int postNo, String comment, boolean checked) {
@@ -158,7 +158,7 @@ public class RemovedPostsController
 
     public static class RemovedPostAdapter
             extends ArrayAdapter<RemovedPost> {
-        private List<RemovedPost> removedPostsCopy = new ArrayList<>();
+        private final List<RemovedPost> removedPostsCopy = new ArrayList<>();
 
         public RemovedPostAdapter(@NonNull Context context, int resource) {
             super(context, resource);

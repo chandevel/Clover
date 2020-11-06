@@ -25,7 +25,7 @@ public class CaptchaNoJsV2Adapter
 
     private int imageSize = 0;
 
-    private List<ImageChallengeInfo> imageList = new ArrayList<>();
+    private final List<ImageChallengeInfo> imageList = new ArrayList<>();
 
     public CaptchaNoJsV2Adapter() { }
 
@@ -115,7 +115,7 @@ public class CaptchaNoJsV2Adapter
     }
 
     public static class ImageChallengeInfo {
-        private Bitmap bitmap;
+        private final Bitmap bitmap;
         private boolean isChecked;
 
         public ImageChallengeInfo(Bitmap bitmap, boolean isChecked) {

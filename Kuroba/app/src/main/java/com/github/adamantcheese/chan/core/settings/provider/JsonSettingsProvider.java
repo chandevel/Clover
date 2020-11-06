@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings.JsonS
 public class JsonSettingsProvider
         implements SettingProvider<Object> {
     public final JsonSettings jsonSettings;
-    private Callback callback;
+    private final Callback callback;
 
     public JsonSettingsProvider(JsonSettings jsonSettings, Callback callback) {
         this.jsonSettings = jsonSettings;

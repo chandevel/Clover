@@ -56,10 +56,6 @@ import static android.content.Context.ACTIVITY_SERVICE;
 public class SkiaPooledImageRegionDecoder
         implements ImageRegionDecoder {
 
-    private static final String TAG = SkiaPooledImageRegionDecoder.class.getSimpleName();
-
-    private static boolean debug = false;
-
     private DecoderPool decoderPool = new DecoderPool();
     private final ReadWriteLock decoderLock = new ReentrantReadWriteLock(true);
 
@@ -95,17 +91,6 @@ public class SkiaPooledImageRegionDecoder
     }
 
     /**
-     * Controls logging of debug messages. All instances are affected.
-     *
-     * @param debug true to enable debug logging, false to disable.
-     */
-    @Keep
-    @SuppressWarnings("unused")
-    public static void setDebug(boolean debug) {
-        SkiaPooledImageRegionDecoder.debug = debug;
-    }
-
-    /**
      * Initialises the decoder pool. This method creates one decoder on the current thread and uses
      * it to decode the bounds, then spawns an independent thread to populate the pool with an
      * additional three decoders. The thread will abort if {@link #recycle()} is called.
@@ -126,7 +111,6 @@ public class SkiaPooledImageRegionDecoder
      */
     private void lazyInit() {
         if (lazyInited.compareAndSet(false, true) && fileLength < Long.MAX_VALUE) {
-            debug("Starting lazy init of additional decoders");
             Thread thread = new Thread() {
                 @Override
                 public void run() {
@@ -135,15 +119,10 @@ public class SkiaPooledImageRegionDecoder
                         // them being initialised while the pool is being recycled.
                         try {
                             if (decoderPool != null) {
-                                long start = System.currentTimeMillis();
-                                debug("Starting decoder");
                                 initialiseDecoder();
-                                long end = System.currentTimeMillis();
-                                debug("Started decoder, took " + (end - start) + "ms");
                             }
-                        } catch (Exception e) {
+                        } catch (Exception ignored) {
                             // A decoder has already been successfully created so we can ignore this
-                            debug("Failed to start decoder: " + e.getMessage());
                         }
                     }
                 }
@@ -254,7 +233,6 @@ public class SkiaPooledImageRegionDecoder
     @Override
     @NonNull
     public Bitmap decodeRegion(@NonNull Rect sRect, int sampleSize) {
-        debug("Decode region " + sRect + " on thread " + Thread.currentThread().getName());
         if (sRect.width() < imageDimensions.x || sRect.height() < imageDimensions.y) {
             lazyInit();
         }
@@ -327,21 +305,14 @@ public class SkiaPooledImageRegionDecoder
     @SuppressWarnings("WeakerAccess")
     protected boolean allowAdditionalDecoder(int numberOfDecoders, long fileLength) {
         if (numberOfDecoders >= 4) {
-            debug("No additional decoders allowed, reached hard limit (4)");
             return false;
         } else if (numberOfDecoders * fileLength > 20 * 1024 * 1024) {
-            debug("No additional encoders allowed, reached hard memory limit (20Mb)");
             return false;
         } else if (numberOfDecoders >= Runtime.getRuntime().availableProcessors()) {
-            debug("No additional encoders allowed, limited by CPU cores (" + Runtime.getRuntime().availableProcessors()
-                    + ")");
             return false;
         } else if (isLowMemory()) {
-            debug("No additional encoders allowed, memory is low");
             return false;
         }
-        debug("Additional decoder allowed, current count is " + numberOfDecoders + ", estimated native memory " + (
-                (fileLength * numberOfDecoders) / (1024 * 1024)) + "Mb");
         return true;
     }
 
@@ -439,12 +410,6 @@ public class SkiaPooledImageRegionDecoder
             return memoryInfo.lowMemory;
         } else {
             return true;
-        }
-    }
-
-    private static void debug(String message) {
-        if (debug) {
-            Log.d(TAG, message);
         }
     }
 }

@@ -31,9 +31,9 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
-    private DatabaseSiteManager databaseSiteManager;
-    private Gson gson;
-    private Sites sitesObservable = new Sites();
+    private final DatabaseSiteManager databaseSiteManager;
+    private final Gson gson;
+    private final Sites sitesObservable = new Sites();
 
     public Site forId(int id) {
         return sitesObservable.forId(id);

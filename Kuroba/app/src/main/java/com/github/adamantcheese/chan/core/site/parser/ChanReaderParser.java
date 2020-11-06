@@ -61,11 +61,11 @@ public class ChanReaderParser
     @Inject
     DatabaseSavedReplyManager databaseSavedReplyManager;
 
-    private Loadable loadable;
-    private List<Post> cached;
-    private ChanReader reader;
+    private final Loadable loadable;
+    private final List<Post> cached;
+    private final ChanReader reader;
 
-    private List<Filter> filters;
+    private final List<Filter> filters;
 
     /**
      * @param loadable    The loadable associated with this parser

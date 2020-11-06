@@ -278,7 +278,7 @@ public class Chan4
         }
     };
 
-    private CommonCallModifier siteCallModifier = new CommonCallModifier() {
+    private final CommonCallModifier siteCallModifier = new CommonCallModifier() {
         @Override
         public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
             if (actions.isLoggedIn()) {
@@ -302,7 +302,7 @@ public class Chan4
         }
     };
 
-    private SiteActions actions = new SiteActions() {
+    private final SiteActions actions = new SiteActions() {
         @Override
         public void boards(final BoardsListener listener) {
             NetUtils.makeJsonRequest(endpoints.boards(), new ResponseResult<Boards>() {
@@ -349,8 +349,7 @@ public class Chan4
                 }
             }, new HTMLProcessor<InternalSiteArchive>() {
                 @Override
-                public InternalSiteArchive process(Document response)
-                        throws Exception {
+                public InternalSiteArchive process(Document response) {
                     List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
                     Element table = response.getElementById("arc-list");

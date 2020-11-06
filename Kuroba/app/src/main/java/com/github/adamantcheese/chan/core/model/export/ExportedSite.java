@@ -25,17 +25,17 @@ import java.util.List;
 
 public class ExportedSite {
     @SerializedName("site_id")
-    private int siteId;
+    private final int siteId;
     @SerializedName("configuration")
     @Nullable
-    private String configuration;
+    private final String configuration;
     @SerializedName("order")
-    private int order;
+    private final int order;
     @SerializedName("user_settings")
     @NonNull
     private String userSettings;
     @SerializedName("exported_pins")
-    private List<ExportedPin> exportedPins;
+    private final List<ExportedPin> exportedPins;
     @SerializedName("class_id")
     private int classId;
 

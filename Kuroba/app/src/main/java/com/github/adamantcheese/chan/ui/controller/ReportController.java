@@ -38,8 +38,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ReportController
         extends Controller {
-    private Post post;
-    private Loadable loadable;
+    private final Post post;
+    private final Loadable loadable;
 
     public ReportController(Context context, Post post, Loadable loadable) {
         super(context);

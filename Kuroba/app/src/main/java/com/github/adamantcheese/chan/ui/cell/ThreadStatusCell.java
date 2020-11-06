@@ -46,7 +46,7 @@ public class ThreadStatusCell
 
     private TextView text;
     private String error;
-    private Handler handler = new Handler(msg -> {
+    private final Handler handler = new Handler(msg -> {
         if (msg.what == MESSAGE_INVALIDATE) {
             if (running && update()) {
                 schedule();

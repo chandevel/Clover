@@ -103,7 +103,7 @@ public class ThreadListLayout
     private boolean searchOpen;
     private int lastPostCount;
 
-    private RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
+    private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             if (showingThread != null) {

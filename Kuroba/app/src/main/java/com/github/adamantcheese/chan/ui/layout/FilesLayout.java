@@ -49,7 +49,7 @@ public class FilesLayout
 
     private FilesAdapter filesAdapter;
 
-    private Map<String, FileItemHistory> history = new HashMap<>();
+    private final Map<String, FileItemHistory> history = new HashMap<>();
     private FileItemHistory currentHistory;
     private FileWatcher.FileItems currentFileItems;
 

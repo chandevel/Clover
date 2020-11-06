@@ -42,7 +42,7 @@ import okhttp3.ResponseBody;
 @SuppressWarnings("unchecked")
 public abstract class HttpCall
         implements Callback {
-    private Site site;
+    private final Site site;
 
     @SuppressWarnings("rawtypes")
     private HttpCallback callback;

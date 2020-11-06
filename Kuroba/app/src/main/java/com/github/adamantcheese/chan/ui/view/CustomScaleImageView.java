@@ -107,7 +107,7 @@ public class CustomScaleImageView
         public final static int TOP_SIDE = 1 << 2;
         public final static int BOTTOM_SIDE = 1 << 3;
 
-        private int side;
+        private final int side;
 
         public ImageViewportTouchSide(int side) {
             this.side = side;

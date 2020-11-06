@@ -31,8 +31,8 @@ import com.github.adamantcheese.chan.R;
  */
 public class GridRecyclerView
         extends RecyclerView {
-    private GridLayoutManager gridLayoutManager;
-    private float spanWidth;
+    private final GridLayoutManager gridLayoutManager;
+    private final float spanWidth;
     private int realSpanWidth;
 
     public GridRecyclerView(Context context) {

@@ -13,7 +13,7 @@ public class LoadingViewController
         extends BaseFloatingController {
     private TextView textView;
     private ProgressBar progressBar;
-    private boolean indeterminate;
+    private final boolean indeterminate;
 
     public LoadingViewController(Context context, boolean indeterminate) {
         super(context);

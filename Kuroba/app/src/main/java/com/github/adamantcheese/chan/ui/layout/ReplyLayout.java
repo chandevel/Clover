@@ -154,7 +154,7 @@ public class ReplyLayout
     private FrameLayout captchaContainer;
     private ImageView captchaHardReset;
 
-    private Runnable closeMessageRunnable = new Runnable() {
+    private final Runnable closeMessageRunnable = new Runnable() {
         @Override
         public void run() {
             message.setText(R.string.empty);

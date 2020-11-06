@@ -129,9 +129,9 @@ public class DrawerController
             }
         }
     };
-    private ItemTouchHelper pinTouchHelper = new ItemTouchHelper(pinItemTouchHelperCallback);
+    private final ItemTouchHelper pinTouchHelper = new ItemTouchHelper(pinItemTouchHelperCallback);
 
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     @Inject
     WatchManager watchManager;

@@ -53,11 +53,11 @@ public class ArchiveController
     private View progress;
     private View errorView;
 
-    private ArchivePresenter presenter;
+    private final ArchivePresenter presenter;
 
     private ArchiveAdapter adapter;
 
-    private Board board;
+    private final Board board;
 
     public ArchiveController(Context context, Board board) {
         super(context);
@@ -176,7 +176,7 @@ public class ArchiveController
 
     private class ArchiveHolder
             extends RecyclerView.ViewHolder {
-        private TextView text;
+        private final TextView text;
         private InternalSiteArchive.ArchiveItem item;
 
         public ArchiveHolder(View itemView) {

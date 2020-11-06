@@ -36,9 +36,9 @@ public class ColorPickerView
     private static final int[] COLORS =
             new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
 
-    private Paint paint;
-    private Paint centerPaint;
-    private int centerRadius;
+    private final Paint paint;
+    private final Paint centerPaint;
+    private final int centerRadius;
 
     public ColorPickerView(Context context) {
         super(context);

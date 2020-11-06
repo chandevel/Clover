@@ -156,8 +156,7 @@ public class QuickLatexEmbedder
     }
 
     @Override
-    public EmbeddingEngine.EmbedResult process(String response)
-            throws Exception {
+    public EmbeddingEngine.EmbedResult process(String response) {
         return null; // not used, this embedder is rather specialized
     }
 

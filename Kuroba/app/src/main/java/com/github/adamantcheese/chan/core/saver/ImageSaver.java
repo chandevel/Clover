@@ -89,26 +89,26 @@ public class ImageSaver {
     /**
      * Amount of successfully downloaded images
      */
-    private AtomicInteger doneTasks = new AtomicInteger(0);
+    private final AtomicInteger doneTasks = new AtomicInteger(0);
     /**
      * Total amount of images in a batch to download
      */
-    private AtomicInteger totalTasks = new AtomicInteger(0);
+    private final AtomicInteger totalTasks = new AtomicInteger(0);
     /**
      * Amount of images we couldn't download
      */
-    private AtomicInteger failedTasks = new AtomicInteger(0);
+    private final AtomicInteger failedTasks = new AtomicInteger(0);
 
-    private FileManager fileManager;
+    private final FileManager fileManager;
     /**
      * Like a normal toast but automatically cancels previous toast when showing a new one to avoid
      * toast spam.
      */
-    private CancellableToast cancellableToast = new CancellableToast();
+    private final CancellableToast cancellableToast = new CancellableToast();
     /**
      * Reactive queue used for batch image downloads.
      */
-    private FlowableProcessor<ImageSaveTask> imageSaverQueue = PublishProcessor.create();
+    private final FlowableProcessor<ImageSaveTask> imageSaverQueue = PublishProcessor.create();
 
     /**
      * Only for batch downloads. Holds the urls of all images in a batch. Use for batch canceling.
@@ -117,7 +117,7 @@ public class ImageSaver {
     @GuardedBy("itself")
     private final Set<HttpUrl> activeDownloads = new HashSet<>(64);
 
-    private Scheduler workerScheduler = Schedulers.from(new ForkJoinPool(1));
+    private final Scheduler workerScheduler = Schedulers.from(new ForkJoinPool(1));
 
     /**
      * This is a singleton class so we don't care about the disposable since we will never should

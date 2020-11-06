@@ -23,11 +23,11 @@ import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 public class CaptchaHolder {
     private static final long INTERVAL = 5000;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-    private AtomicBoolean running = new AtomicBoolean(false);
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     private Timer timer;
 
-    private List<CaptchaValidationListener> captchaValidationListeners = new ArrayList<>();
+    private final List<CaptchaValidationListener> captchaValidationListeners = new ArrayList<>();
 
     // this Deque operates as a queue, where the first added captcha token is the first removed, as it would be the first to expire
     @GuardedBy("itself")

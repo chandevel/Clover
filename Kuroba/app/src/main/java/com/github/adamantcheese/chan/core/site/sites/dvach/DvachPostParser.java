@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class DvachPostParser
         extends DefaultPostParser {
 
-    private Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
+    private final Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
 
     public DvachPostParser(CommentParser commentParser) {
         super(commentParser);

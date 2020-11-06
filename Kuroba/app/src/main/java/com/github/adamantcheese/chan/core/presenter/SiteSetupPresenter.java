@@ -12,9 +12,9 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class SiteSetupPresenter {
-    private Callback callback;
-    private Site site;
-    private boolean hasLogin;
+    private final Callback callback;
+    private final Site site;
+    private final boolean hasLogin;
 
     @Inject
     DatabaseBoardManager databaseBoardManager;

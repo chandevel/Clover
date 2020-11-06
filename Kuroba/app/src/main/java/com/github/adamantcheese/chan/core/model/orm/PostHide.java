@@ -24,7 +24,7 @@ import java.util.Objects;
 
 @DatabaseTable(tableName = "posthide")
 public class PostHide {
-    @SuppressWarnings("unused")
+
     @DatabaseField(generatedId = true)
     public int id;
 

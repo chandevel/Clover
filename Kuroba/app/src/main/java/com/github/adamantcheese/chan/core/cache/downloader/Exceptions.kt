@@ -27,7 +27,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
             val path: String,
             val exists: Boolean,
             val isFile: Boolean,
-            val canRead: Boolean
+            canRead: Boolean
     ) : FileCacheException("Could not get input stream, exists = $exists, isFile = $isFile, canRead = $canRead, path = $path")
 
     internal class CouldNotGetOutputStreamException(

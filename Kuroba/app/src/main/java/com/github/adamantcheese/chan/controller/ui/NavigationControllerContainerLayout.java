@@ -53,15 +53,15 @@ public class NavigationControllerContainerLayout
         extends FrameLayout {
     private NavigationController navigationController;
 
-    private int slopPixels;
+    private final int slopPixels;
 
     /**
      * How many pixels we should move a finger to the right before we start moving the whole controller to the right
      * when a controller is being swiped. (The lower it is the easier it is to start moving the controller which may
      * make it harder to click other views)
      */
-    private int minimalMovedPixels = dp(10);
-    private int maxFlingPixels;
+    private final int minimalMovedPixels = dp(10);
+    private final int maxFlingPixels;
 
     private boolean swipeEnabled = true;
 
@@ -87,15 +87,15 @@ public class NavigationControllerContainerLayout
     private VelocityTracker velocityTracker;
 
     // Used to fling and scroll the tracking view
-    private Scroller scroller;
+    private final Scroller scroller;
 
     // Indicate if the controller should be popped after the animation ends
     private boolean finishTransitionAfterAnimation = false;
 
     // Paint, draw rect and position for drawing the shadow
     // The shadow is only drawn when tracking is true
-    private Paint shadowPaint;
-    private Rect shadowRect = new Rect();
+    private final Paint shadowPaint;
+    private final Rect shadowRect = new Rect();
     private int shadowPosition;
 
     @Inject
@@ -331,7 +331,7 @@ public class NavigationControllerContainerLayout
         behindTrackingController = null;
     }
 
-    private Runnable flingRunnable = new Runnable() {
+    private final Runnable flingRunnable = new Runnable() {
         @Override
         public void run() {
             if (!tracking)

@@ -70,7 +70,7 @@ public class ImagePickDelegate {
     @Inject
     FileCacheV2 fileCacheV2;
 
-    private Activity activity;
+    private final Activity activity;
     private ImagePickCallback callback;
     private Uri uri;
     private String fileName = "";

@@ -37,7 +37,7 @@ import javax.inject.Inject;
 
 public class BoardSetupPresenter
         implements Observer {
-    private BoardManager boardManager;
+    private final BoardManager boardManager;
 
     private PresenterCallback callback;
     private LayoutCallback addCallback;

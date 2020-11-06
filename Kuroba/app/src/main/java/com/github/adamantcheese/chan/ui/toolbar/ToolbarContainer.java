@@ -89,7 +89,7 @@ public class ToolbarContainer
     @Nullable
     private ToolbarPresenter.TransitionAnimationStyle transitionAnimationStyle;
 
-    private Map<View, Animator> animatorSet = new HashMap<>();
+    private final Map<View, Animator> animatorSet = new HashMap<>();
 
     public ToolbarContainer(Context context) {
         this(context, null);

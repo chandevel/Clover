@@ -23,20 +23,20 @@ import com.google.gson.annotations.SerializedName;
 
 public class ExportedPostHide {
     @SerializedName("site")
-    private int site;
+    private final int site;
     @SerializedName("board")
     @Nullable
-    private String board;
+    private final String board;
     @SerializedName("no")
-    private int no;
+    private final int no;
     @SerializedName("wholeThread")
-    private boolean wholeThread;
+    private final boolean wholeThread;
     @SerializedName("hide")
-    private boolean hide;
+    private final boolean hide;
     @SerializedName("hideRepliesToThisPost")
-    private boolean hideRepliesToThisPost;
+    private final boolean hideRepliesToThisPost;
     @SerializedName("threadNo")
-    private int threadNo;
+    private final int threadNo;
 
     public ExportedPostHide(
             int site,

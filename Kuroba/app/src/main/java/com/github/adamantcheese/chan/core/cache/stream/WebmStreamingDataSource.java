@@ -56,12 +56,12 @@ public class WebmStreamingDataSource
             }
         }
 
-        private List<Range<Long>> cachedRanges = new ArrayList<>();
-        private byte[] cachedRangesData;
+        private final List<Range<Long>> cachedRanges = new ArrayList<>();
+        private final byte[] cachedRangesData;
         private long pos = 0;
-        private long fileLength;
+        private final long fileLength;
         private boolean firedCacheComplete = false;
-        private List<Runnable> listeners = new ArrayList<>();
+        private final List<Runnable> listeners = new ArrayList<>();
 
         PartialFileCache(long fileLength) {
             this.fileLength = fileLength;
@@ -213,18 +213,18 @@ public class WebmStreamingDataSource
         }
     }
 
-    private FileManager fileManager;
-    private HttpDataSource dataSource;
+    private final FileManager fileManager;
+    private final HttpDataSource dataSource;
     private PartialFileCache partialFileCache;
     private byte[] dataToFillCache = null;
     private int dataToFillCacheLength = 0;
     private PartialFileCache.RegionStats activeRegionStats;
     private Range<Long> httpActiveRange;
-    private List<Callback> listeners = new ArrayList<>();
+    private final List<Callback> listeners = new ArrayList<>();
 
-    private RawFile file;
+    private final RawFile file;
     @Nullable
-    private Uri uri;
+    private final Uri uri;
 
     private long pos;
     private long end;

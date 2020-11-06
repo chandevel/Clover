@@ -106,7 +106,7 @@ public class ImageViewerController
 
     private ImageViewerCallback imageViewerCallback;
     private GoPostCallback goPostCallback;
-    private ImageViewerPresenter presenter;
+    private final ImageViewerPresenter presenter;
 
     private final Toolbar toolbar;
     private TransitionImageView previewImage;
@@ -114,8 +114,8 @@ public class ImageViewerController
     private LoadingBar loadingBar;
 
     private boolean isInImmersiveMode = false;
-    private Handler mainHandler = new Handler(Looper.getMainLooper());
-    private Runnable uiHideCall = this::hideSystemUI;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Runnable uiHideCall = this::hideSystemUI;
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);

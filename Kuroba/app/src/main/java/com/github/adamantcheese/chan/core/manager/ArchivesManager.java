@@ -44,7 +44,7 @@ public class ArchivesManager
         implements ResponseResult<List<ExternalSiteArchive>> {
     private List<ExternalSiteArchive> archivesList;
 
-    private Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
+    private final Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
 
     public ArchivesManager() {
         // setup mappings (nothing for fuuka, doesn't have an API)
@@ -124,11 +124,7 @@ public class ArchivesManager
             reader.endObject();
             Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
-                archives.add((ExternalSiteArchive) archiveClass.getConstructor(String.class,
-                        String.class,
-                        List.class,
-                        boolean.class
-                )
+                archives.add(archiveClass.getConstructor(String.class, String.class, List.class, boolean.class)
                         .newInstance(domain, name, boardCodes, search));
             }
         }

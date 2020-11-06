@@ -42,7 +42,7 @@ public class SelectLayout<T>
     private RecyclerView recyclerView;
     private Button checkAllButton;
 
-    private List<SelectItem<T>> items = new ArrayList<>();
+    private final List<SelectItem<T>> items = new ArrayList<>();
     private SelectAdapter adapter;
     private boolean allChecked = false;
 
@@ -122,8 +122,8 @@ public class SelectLayout<T>
 
     private class SelectAdapter
             extends RecyclerView.Adapter<BoardSelectViewHolder> {
-        private List<SelectItem<T>> sourceList = new ArrayList<>();
-        private List<SelectItem<T>> displayList = new ArrayList<>();
+        private final List<SelectItem<T>> sourceList = new ArrayList<>();
+        private final List<SelectItem<T>> displayList = new ArrayList<>();
         private String searchQuery;
 
         public SelectAdapter() {
@@ -194,9 +194,9 @@ public class SelectLayout<T>
     private class BoardSelectViewHolder
             extends RecyclerView.ViewHolder
             implements CompoundButton.OnCheckedChangeListener, OnClickListener {
-        private CheckBox checkBox;
-        private TextView text;
-        private TextView description;
+        private final CheckBox checkBox;
+        private final TextView text;
+        private final TextView description;
 
         public BoardSelectViewHolder(View itemView) {
             super(itemView);

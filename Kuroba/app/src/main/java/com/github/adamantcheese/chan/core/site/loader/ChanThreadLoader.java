@@ -304,13 +304,13 @@ public class ChanThreadLoader {
         }
     }
 
-    private Boolean onResponseInternal(ChanLoaderResponse response) {
+    private void onResponseInternal(ChanLoaderResponse response) {
         BackgroundUtils.ensureBackgroundThread();
 
         // Normal thread, not archived/deleted/closed
         if (response == null || response.posts == null || response.posts.isEmpty()) {
             onErrorResponse(new Exception("Post size is 0"));
-            return false;
+            return;
         }
 
         synchronized (this) {
@@ -376,7 +376,6 @@ public class ChanThreadLoader {
                 l.onChanLoaderData(localThread);
             }
         });
-        return true;
     }
 
     private void onErrorResponse(Exception error) {
@@ -414,7 +413,7 @@ public class ChanThreadLoader {
 
     public static class ChanLoaderException
             extends Exception {
-        private Exception exception;
+        private final Exception exception;
 
         public ChanLoaderException(Exception exception) {
             this.exception = exception;

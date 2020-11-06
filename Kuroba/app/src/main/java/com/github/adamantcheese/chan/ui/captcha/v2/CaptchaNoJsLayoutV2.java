@@ -57,12 +57,12 @@ public class CaptchaNoJsLayoutV2
         implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
-    private TextView captchaChallengeTitle;
-    private GridView captchaImagesGrid;
-    private Button captchaVerifyButton;
+    private final TextView captchaChallengeTitle;
+    private final GridView captchaImagesGrid;
+    private final Button captchaVerifyButton;
 
-    private CaptchaNoJsV2Adapter adapter;
-    private CaptchaNoJsPresenterV2 presenter;
+    private final CaptchaNoJsV2Adapter adapter;
+    private final CaptchaNoJsPresenterV2 presenter;
     private AuthenticationLayoutCallback callback;
 
     private boolean isAutoReply = true;

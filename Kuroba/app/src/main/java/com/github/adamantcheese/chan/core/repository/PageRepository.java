@@ -36,12 +36,12 @@ import java.util.concurrent.ConcurrentMap;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PageRepository {
-    private static Set<Board> requestedBoards = Collections.synchronizedSet(new HashSet<>());
-    private static Set<Board> savedBoards = Collections.synchronizedSet(new HashSet<>());
-    private static ConcurrentMap<Board, ChanPages> boardPagesMap = new ConcurrentHashMap<>();
-    private static ConcurrentMap<Board, Long> boardTimeMap = new ConcurrentHashMap<>();
+    private static final Set<Board> requestedBoards = Collections.synchronizedSet(new HashSet<>());
+    private static final Set<Board> savedBoards = Collections.synchronizedSet(new HashSet<>());
+    private static final ConcurrentMap<Board, ChanPages> boardPagesMap = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Board, Long> boardTimeMap = new ConcurrentHashMap<>();
 
-    private static List<PageCallback> callbackList = new ArrayList<>();
+    private static final List<PageCallback> callbackList = new ArrayList<>();
 
     public static ChanPage getPage(@NonNull Post op) {
         return findPage(op.board, op.no);

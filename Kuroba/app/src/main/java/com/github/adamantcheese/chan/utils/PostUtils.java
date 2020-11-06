@@ -7,7 +7,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;

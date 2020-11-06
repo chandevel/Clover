@@ -46,7 +46,7 @@ public class GenericWebViewAuthenticationLayout
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private boolean resettingFromFoundText = false;
-    private boolean isAutoReply = true;
+    private final boolean isAutoReply = true;
 
     @Inject
     CaptchaHolder captchaHolder;

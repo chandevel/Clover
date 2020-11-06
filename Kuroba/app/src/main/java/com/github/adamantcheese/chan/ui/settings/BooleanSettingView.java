@@ -30,8 +30,8 @@ public class BooleanSettingView
         extends SettingView
         implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private Switch switcher;
-    private Setting<Boolean> setting;
-    private String description;
+    private final Setting<Boolean> setting;
+    private final String description;
     private boolean building = true;
 
     public BooleanSettingView(SettingsController controller, Setting<Boolean> setting, int name, int description) {

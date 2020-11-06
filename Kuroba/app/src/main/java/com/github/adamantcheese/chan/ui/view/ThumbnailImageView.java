@@ -16,8 +16,8 @@ public class ThumbnailImageView
         extends AppCompatImageView {
 
     private PostImage.Type type = PostImage.Type.STATIC;
-    private Drawable playIcon;
-    private Rect bounds = new Rect();
+    private final Drawable playIcon;
+    private final Rect bounds = new Rect();
 
     public ThumbnailImageView(Context context) {
         this(context, null);
