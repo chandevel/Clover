@@ -361,9 +361,11 @@ public class ChanThreadLoader {
 
         int postCount = localThread.getPostsCount();
         if (postCount > lastPostCount) {
+            // fresh posts, reset timer to minimum 10 seconds, or if sticky 30
             lastPostCount = postCount;
-            currentTimeout = 0;
+            currentTimeout = localThread.getOp().isSticky() ? 3 : 0;
         } else {
+            // no new posts, increase timer
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
