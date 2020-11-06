@@ -42,9 +42,9 @@ public class SitesSetupPresenter
     private final Context context;
 
     @Inject
-    private final SiteRepository siteRepository = null;
+    private SiteRepository siteRepository;
     @Inject
-    private final BoardManager boardManager = null;
+    private BoardManager boardManager;
 
     private final Callback callback;
 
@@ -56,7 +56,6 @@ public class SitesSetupPresenter
         this.context = context;
         this.callback = callback;
 
-        //noinspection ConstantConditions this is dependency injected and will not be null
         sites = siteRepository.all();
         sites.addObserver(this);
 
