@@ -62,7 +62,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -323,7 +322,7 @@ public class CommentParser {
         try {
             if (!(builder.board.site instanceof Chan4)) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
-            List<ExternalSiteArchive> boards = instance(ArchivesManager.class).archivesForBoard(builder.board);
+            List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(builder.board);
             if (!boards.isEmpty()) {
                 PostLinkable newLinkable = new PostLinkable(theme,
                         text,

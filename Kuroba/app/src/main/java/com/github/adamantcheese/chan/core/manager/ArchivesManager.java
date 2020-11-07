@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.JsonReader;
 
@@ -42,24 +44,38 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class ArchivesManager
         extends JSONProcessor<List<ExternalSiteArchive>>
         implements ResponseResult<List<ExternalSiteArchive>> {
+    private final Context context;
     private List<ExternalSiteArchive> archivesList;
 
     private final Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
 
-    public ArchivesManager() {
+    @SuppressLint("StaticFieldLeak")
+    private static ArchivesManager instance;
+
+    public static void setupContext(Context context) {
+        if (instance != null) return;
+        instance = new ArchivesManager(context);
+    }
+
+    public static ArchivesManager getInstance() {
+        return instance;
+    }
+
+    private ArchivesManager(Context context) {
+        this.context = context;
         // setup mappings (nothing for fuuka, doesn't have an API)
         jsonMapping.put("foolfuuka", FoolFuukaArchive.class);
         jsonMapping.put("fuuka", null);
 
         //setup the archives list from the internal file, populated when you build the application
-        AssetManager assetManager = getAppContext().getAssets();
+        AssetManager assetManager = context.getAssets();
         try {
             // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
             try (JsonReader reader = new JsonReader(new InputStreamReader(assetManager.open("archives.json")))) {
                 archivesList = process(reader);
             }
         } catch (Exception e) {
-            Logger.d(this, "Unable to load/parse internal archives list");
+            Logger.d(this, "Unable to load/parse internal archives list", e);
         }
 
         // fresh copy request, in case of updates
@@ -124,8 +140,13 @@ public class ArchivesManager
             reader.endObject();
             Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
-                archives.add(archiveClass.getConstructor(String.class, String.class, List.class, boolean.class)
-                        .newInstance(domain, name, boardCodes, search));
+                archives.add(archiveClass.getConstructor(Context.class,
+                        String.class,
+                        String.class,
+                        List.class,
+                        boolean.class
+                )
+                        .newInstance(context, domain, name, boardCodes, search));
             }
         }
         reader.endArray();

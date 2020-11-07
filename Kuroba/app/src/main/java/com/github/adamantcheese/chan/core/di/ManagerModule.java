@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.di;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -101,13 +100,6 @@ public class ManagerModule {
                 gson,
                 chanLoaderManager
         );
-    }
-
-    @Provides
-    @Singleton
-    public ArchivesManager provideArchivesManager() {
-        Logger.d(AppModule.DI_TAG, "Archives manager (4chan only)");
-        return new ArchivesManager();
     }
 
     @Provides

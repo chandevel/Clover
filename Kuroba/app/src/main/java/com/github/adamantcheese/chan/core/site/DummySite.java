@@ -30,8 +30,6 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-
 public class DummySite
         implements Site {
     private final Context context;
@@ -58,7 +56,7 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(getAppContext().getResources(),
+        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.trash_icon
         )));
     }

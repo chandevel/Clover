@@ -13,8 +13,6 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 
-import javax.inject.Inject;
-
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class ArchivesLayout
@@ -25,9 +23,6 @@ public class ArchivesLayout
     private int opNo;
     private int postNo = -1;
     private AlertDialog alertDialog;
-
-    @Inject
-    ArchivesManager archivesManager;
 
     public ArchivesLayout(Context context) {
         this(context, null);
@@ -55,7 +50,7 @@ public class ArchivesLayout
 
     public boolean setBoard(Board b) {
         boardCode = b.code;
-        adapter.addAll(archivesManager.archivesForBoard(b));
+        adapter.addAll(ArchivesManager.getInstance().archivesForBoard(b));
         return !adapter.isEmpty();
     }
 
