@@ -73,6 +73,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -379,12 +381,12 @@ public class ImageViewerController
                 ? postImage.getThumbnailUrl()
                 : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(Exception e) {
+            public void onBitmapFailure(HttpUrl source, Exception e) {
                 // the preview image will just remain as the last successful response; good enough
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 previewImage.setBitmap(bitmap);
             }
         }, previewImage.getWidth(), previewImage.getHeight());
@@ -483,7 +485,7 @@ public class ImageViewerController
                 ? postImage.getThumbnailUrl()
                 : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(Exception e) {
+            public void onBitmapFailure(HttpUrl source, Exception e) {
                 Logger.e(
                         ImageViewerController.this,
                         "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
@@ -494,7 +496,7 @@ public class ImageViewerController
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 previewImage.setBitmap(bitmap);
                 startAnimation.start();
             }

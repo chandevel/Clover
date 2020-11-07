@@ -54,7 +54,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class CardPostCell
         extends CardView
-        implements PostCellInterface, View.OnClickListener, InvalidateFunction {
+        implements PostCellInterface, InvalidateFunction {
     private static final int COMMENT_MAX_LINES = 10;
 
     private boolean bound;
@@ -88,14 +88,14 @@ public class CardPostCell
         super.onFinishInflate();
 
         thumbView = findViewById(R.id.thumbnail);
-        thumbView.setOnClickListener(this);
+        thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), (ThumbnailView) view));
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
         options = findViewById(R.id.options);
         filterMatchColor = findViewById(R.id.filter_match_color);
 
-        setOnClickListener(this);
+        setOnClickListener((view) -> callback.onPostClicked(post));
 
         if (!isInEditMode()) {
             setCompact(compact);
@@ -138,15 +138,6 @@ public class CardPostCell
             }
         });
         menu.show();
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == thumbView) {
-            callback.onThumbnailClicked(post.image(), thumbView);
-        } else if (v == this) {
-            callback.onPostClicked(post);
-        }
     }
 
     public void setPost(
@@ -244,7 +235,6 @@ public class CardPostCell
         embedCalls.clear();
         comment.setText(post.comment, TextView.BufferType.SPANNABLE);
         findViewById(R.id.embed_spinner).setVisibility(GONE);
-        invalidate();
     }
 
     private void setCompact(boolean compact) {

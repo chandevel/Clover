@@ -172,7 +172,7 @@ public class NetUtils {
         if (results == null) return;
         for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(bitmap, fromCache));
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap, fromCache));
         }
     }
 
@@ -181,7 +181,7 @@ public class NetUtils {
         if (results == null) return;
         for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(e));
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(url, e));
         }
     }
 

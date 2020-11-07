@@ -611,7 +611,6 @@ public class PostCell
         buildThumbnails();
         doShiftPostFormatting();
         findViewById(R.id.embed_spinner).setVisibility(GONE);
-        invalidate();
     }
 
     private final String[] dubTexts =
@@ -972,13 +971,13 @@ public class PostCell
 
             request = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
                 @Override
-                public void onBitmapFailure(Exception e) {
+                public void onBitmapFailure(HttpUrl source, Exception e) {
                     bitmap = BitmapRepository.error;
                     postIcons.invalidate();
                 }
 
                 @Override
-                public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                     PostIconsHttpIcon.this.bitmap = bitmap;
                     postIcons.invalidate();
                 }

@@ -196,7 +196,7 @@ public class BitmapUtils {
     public static Bitmap decode(InputStream data, int maxWidth, int maxHeight) {
         // If we have to resize this image, first get the natural bounds.
         Bitmap tempBitmap = BitmapFactory.decodeStream(data);
-        if (tempBitmap == null) return null;
+        if (tempBitmap == null || options.outWidth == -1 || options.outHeight == -1) return null;
         int actualWidth = tempBitmap.getWidth();
         int actualHeight = tempBitmap.getHeight();
 

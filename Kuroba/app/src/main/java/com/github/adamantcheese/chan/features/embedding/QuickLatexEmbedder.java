@@ -184,10 +184,10 @@ public class QuickLatexEmbedder
         // that means that we can't enqueue this request
         return NetUtils.makeBitmapRequest(imageUrl, new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(Exception e) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
+            public void onBitmapFailure(HttpUrl source, Exception e) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
 
             @Override
-            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 int startIndex = 0;
                 while (true) {
                     synchronized (post.comment) {

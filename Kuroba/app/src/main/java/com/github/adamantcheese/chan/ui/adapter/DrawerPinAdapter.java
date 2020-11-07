@@ -140,7 +140,7 @@ public class DrawerPinAdapter
     @Override
     public void onViewRecycled(@NonNull PinViewHolder holder) {
         holder.image.setGreyscale(false);
-        holder.image.setUrl(null);
+        holder.image.setUrl(null, 0, 0);
         holder.watchCountText.setText("");
         holder.title.setText("");
         holder.threadInfo.setText("");

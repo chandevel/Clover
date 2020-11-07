@@ -107,7 +107,7 @@ public class DrawerHistoryAdapter
         // since views can be recycled, we need to take care of everything that could've occurred, including the loading screen
         holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         holder.thumbnail.setVisibility(View.VISIBLE);
-        holder.thumbnail.setUrl(null);
+        holder.thumbnail.setUrl(null, 0, 0);
         holder.text.setText("");
         holder.text.setGravity(TOP | START | CENTER);
         holder.text.getLayoutParams().height = WRAP_CONTENT;

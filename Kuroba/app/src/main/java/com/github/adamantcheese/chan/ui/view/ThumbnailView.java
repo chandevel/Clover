@@ -120,15 +120,9 @@ public abstract class ThumbnailView
 
         source = url;
 
-        if (url == null) {
-            return;
-        }
+        if (url == null) return;
 
         bitmapCall = NetUtils.makeBitmapRequest(url, this, maxWidth, maxHeight);
-    }
-
-    public void setUrl(HttpUrl url) {
-        setUrl(url, 0, 0);
     }
 
     public void setCircular(boolean circular) {
@@ -329,7 +323,8 @@ public abstract class ThumbnailView
     }
 
     @Override
-    public void onBitmapFailure(Exception e) {
+    public void onBitmapFailure(HttpUrl source, Exception e) {
+        if (!this.source.equals(source)) return;
         if (e instanceof NetUtilsClasses.HttpCodeException) {
             errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
         } else {
@@ -343,7 +338,8 @@ public abstract class ThumbnailView
     }
 
     @Override
-    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+    public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+        if (!this.source.equals(source)) return;
         setImageBitmap(bitmap);
         onImageSet(fromCache);
         bitmapCall = null;

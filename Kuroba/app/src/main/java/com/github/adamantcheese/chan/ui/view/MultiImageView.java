@@ -327,14 +327,14 @@ public class MultiImageView
         final HttpUrl thumbnailURL = postImage.getThumbnailUrl();
         thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
             @Override
-            public void onBitmapFailure(Exception e) {
+            public void onBitmapFailure(HttpUrl source, Exception e) {
                 thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 if (center) onError(e);
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
@@ -564,10 +564,10 @@ public class MultiImageView
                         exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
                         NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                             @Override
-                            public void onBitmapFailure(Exception e) {} // use the default drawable
+                            public void onBitmapFailure(HttpUrl source, Exception e) {} // use the default drawable
 
                             @Override
-                            public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                            public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                                 exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                             }
                         });
@@ -688,10 +688,10 @@ public class MultiImageView
             exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
             NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                 @Override
-                public void onBitmapFailure(Exception e) {} // use the default drawable
+                public void onBitmapFailure(HttpUrl source, Exception e) {} // use the default drawable
 
                 @Override
-                public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                     exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                 }
             });

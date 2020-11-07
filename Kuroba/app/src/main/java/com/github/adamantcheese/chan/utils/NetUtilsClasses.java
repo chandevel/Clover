@@ -65,9 +65,9 @@ public class NetUtilsClasses {
      * A response wrapper for Bitmaps, noting if the bitmap was cached or not
      */
     public interface BitmapResult {
-        void onBitmapFailure(Exception e);
+        void onBitmapFailure(HttpUrl source, Exception e);
 
-        void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache);
+        void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache);
     }
 
     /**
