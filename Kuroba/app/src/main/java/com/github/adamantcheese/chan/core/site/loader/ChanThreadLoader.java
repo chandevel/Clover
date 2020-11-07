@@ -51,7 +51,6 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
@@ -220,7 +219,6 @@ public class ChanThreadLoader {
         clearPendingRunnable();
 
         int watchTimeout = WATCH_TIMEOUTS[currentTimeout];
-        Logger.d(this, "Scheduled reload in " + watchTimeout + "s");
 
         pendingFuture =
                 BackgroundUtils.backgroundScheduledService.schedule(() -> BackgroundUtils.runOnMainThread(() -> {
@@ -251,8 +249,6 @@ public class ChanThreadLoader {
     }
 
     private Call getData() {
-        Logger.d(this, "Requested /" + loadable.boardCode + "/, " + maskPostNo(loadable.no));
-
         List<Post> cached;
         synchronized (this) {
             cached = thread == null ? new ArrayList<>() : thread.getPosts();
@@ -401,7 +397,6 @@ public class ChanThreadLoader {
         BackgroundUtils.ensureMainThread();
 
         if (pendingFuture != null) {
-            Logger.d(this, "Cleared runnable");
             pendingFuture.cancel(false);
             pendingFuture = null;
         }

@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.JavaUtils.inputStreamMD5hash
+import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
@@ -27,7 +28,7 @@ internal class ChunkMerger(
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
             if (ChanSettings.verboseLogs.get()) {
-                log(TAG, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
+                Logger.d(this, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
                         "chunks count = ${chunkSuccessEvents.size}")
             }
 
@@ -74,7 +75,7 @@ internal class ChunkMerger(
                 // In case of success or an error we want delete all chunk files
                 chunkSuccessEvents.forEach { event ->
                     if (!fileManager.delete(event.chunkCacheFile)) {
-                        logError(TAG, "Couldn't delete chunk file: ${event.chunkCacheFile.getFullPath()}")
+                        Logger.e(this, "Couldn't delete chunk file: ${event.chunkCacheFile.getFullPath()}")
                     }
                 }
             }
@@ -132,9 +133,5 @@ internal class ChunkMerger(
         if (!cacheHandler.markFileDownloaded(request.output)) {
             throw FileCacheException.CouldNotMarkFileAsDownloaded(request.output)
         }
-    }
-
-    companion object {
-        private const val TAG = "ChunkPersister"
     }
 }

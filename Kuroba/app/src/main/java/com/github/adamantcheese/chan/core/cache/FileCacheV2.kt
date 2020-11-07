@@ -45,7 +45,7 @@ class FileCacheV2(
                         runnable,
                         String.format(
                                 Locale.ENGLISH,
-                                THREAD_NAME_FORMAT,
+                                "FileCacheV2Thread-%d",
                                 normalThreadIndex.getAndIncrement()
                         )
                 )
@@ -56,7 +56,7 @@ class FileCacheV2(
             okHttpClient,
             activeDownloads,
             siteResolver,
-            MAX_TIMEOUT_MS
+            1000
     )
 
     private val chunkDownloader = ChunkDownloader(
@@ -112,12 +112,12 @@ class FileCacheV2(
                 .subscribe({
                     // Do nothing
                 }, { error ->
-                    throw RuntimeException("$TAG Uncaught exception!!! " +
+                    throw RuntimeException("FileCacheV2 Uncaught exception!!! " +
                             "workerQueue is in error state now!!! " +
                             "This should not happen!!!, original error = " + error.message)
                 }, {
                     throw RuntimeException(
-                            "$TAG workerQueue stream has completed!!! This should not happen!!!"
+                            "FileCacheV2 workerQueue stream has completed!!! This should not happen!!!"
                     )
                 })
     }
@@ -213,7 +213,9 @@ class FileCacheV2(
             return null
         }
 
-        log(TAG, "Downloading a file, url = ${maskImageUrl(url)}")
+        if (ChanSettings.verboseLogs.get()) {
+            Logger.d(this, "Downloading a file, url = ${maskImageUrl(url)}")
+        }
         requestQueue.onNext(url)
 
         return cancelableDownload
@@ -230,7 +232,9 @@ class FileCacheV2(
             return false
         }
 
-        log(TAG, "File already downloaded, url = ${maskImageUrl(url)}")
+        if (ChanSettings.verboseLogs.get()) {
+            Logger.d(this, "File already downloaded, url = ${maskImageUrl(url)}")
+        }
 
         try {
             handleFileImmediatelyAvailable(file, url)
@@ -256,7 +260,9 @@ class FileCacheV2(
         return synchronized(activeDownloads) {
             val prevRequest = activeDownloads.get(url)
             if (prevRequest != null) {
-                log(TAG, "Request ${maskImageUrl(url)} is already active, re-subscribing to it")
+                if (ChanSettings.verboseLogs.get()) {
+                    Logger.d(this, "Request ${maskImageUrl(url)} is already active, re-subscribing to it")
+                }
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
@@ -324,7 +330,7 @@ class FileCacheV2(
             when (result) {
                 is FileDownloadResult.Start -> {
                     if (ChanSettings.verboseLogs.get()) {
-                        log(TAG, "Download (${request}) has started. " +
+                        Logger.d(this, "Download (${request}) has started. " +
                                 "Chunks count = ${result.chunksCount}. " +
                                 "Network class = $networkClass. " +
                                 "Downloads = $activeDownloadsCount")
@@ -355,14 +361,16 @@ class FileCacheV2(
                     val downloadedString = PostUtils.getReadableFileSize(downloaded)
                     val totalString = PostUtils.getReadableFileSize(total)
 
-                    log(TAG, "Success (" +
-                            "downloaded = $downloadedString ($downloaded B), " +
-                            "total = $totalString ($total B), " +
-                            "took ${result.requestTime}ms, " +
-                            "network class = $networkClass, " +
-                            "downloads = $activeDownloadsCount" +
-                            ") for request $request"
-                    )
+                    if (ChanSettings.verboseLogs.get()) {
+                        Logger.d(this, "Success (" +
+                                "downloaded = $downloadedString ($downloaded B), " +
+                                "total = $totalString ($total B), " +
+                                "took ${result.requestTime}ms, " +
+                                "network class = $networkClass, " +
+                                "downloads = $activeDownloadsCount" +
+                                ") for request $request"
+                        )
+                    }
 
                     // Trigger cache trimmer after a file has been successfully downloaded
                     cacheHandler.fileWasAdded(total)
@@ -385,12 +393,14 @@ class FileCacheV2(
                         val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
                         val totalString = PostUtils.getReadableFileSize(chunkSize)
 
-                        log(TAG,
-                                "Progress " +
-                                        "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
-                                        "(${result.downloaded} B) / $totalString (${chunkSize} B), " +
-                                        "${percents}%) for request $request"
-                        )
+                        if (ChanSettings.verboseLogs.get()) {
+                            Logger.d(this,
+                                    "Progress " +
+                                            "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
+                                            "(${result.downloaded} B) / $totalString (${chunkSize} B), " +
+                                            "${percents}%) for request $request"
+                            )
+                        }
                     }
 
                     // Progress is not a terminal event so we don't want to remove request from the
@@ -427,11 +437,13 @@ class FileCacheV2(
                         "stopped"
                     }
 
-                    log(TAG, "Request $request $causeText, " +
-                            "downloaded = $downloaded, " +
-                            "total = $total, " +
-                            "network class = $networkClass, " +
-                            "downloads = $activeDownloadsCount")
+                    if (ChanSettings.verboseLogs.get()) {
+                        Logger.d(this, "Request $request $causeText, " +
+                                "downloaded = $downloaded, " +
+                                "total = $total, " +
+                                "network class = $networkClass, " +
+                                "downloads = $activeDownloadsCount")
+                    }
 
                     resultHandler(url, request, true) {
                         if (isCanceled) {
@@ -447,7 +459,7 @@ class FileCacheV2(
                     val message = "Exception for request ${request}, " +
                             "network class = $networkClass, downloads = $activeDownloadsCount"
 
-                    logError(TAG, message, result.fileCacheException)
+                    Logger.e(this, message, result.fileCacheException)
 
                     resultHandler(url, request, true) {
                         when (result.fileCacheException) {
@@ -481,7 +493,7 @@ class FileCacheV2(
                 }
                 is FileDownloadResult.UnknownException -> {
                     val message = logErrorsAndExtractErrorMessage(
-                            TAG,
+                            "FileCacheV2",
                             "Unknown exception",
                             result.error
                     )
@@ -493,7 +505,7 @@ class FileCacheV2(
                 }
             }.exhaustive
         } catch (error: Throwable) {
-            Logger.e(TAG, "An error in result handler", error)
+            Logger.e(this, "An error in result handler", error)
         }
     }
 
@@ -593,18 +605,16 @@ class FileCacheV2(
             return
         }
 
-        log(TAG, "Purging ${maskImageUrl(url)}, file = ${output.getFullPath()}")
+        if (ChanSettings.verboseLogs.get()) {
+            Logger.d(this, "Purging ${maskImageUrl(url)}, file = ${output.getFullPath()}")
+        }
 
         if (!cacheHandler.deleteCacheFile(output)) {
-            logError(TAG, "Could not delete the file in purgeOutput, output = ${output.getFullPath()}")
+            Logger.e(this, "Could not delete the file in purgeOutput, output = ${output.getFullPath()}")
         }
     }
 
     companion object {
-        private const val TAG = "FileCacheV2"
-        private const val THREAD_NAME_FORMAT = "FileCacheV2Thread-%d"
-        private const val MAX_TIMEOUT_MS = 1000L
-
         const val MIN_CHUNK_SIZE = 1024L * 8L // 8 KB
     }
 }

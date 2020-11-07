@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.adamantcheese.chan.utils.exhaustive
 import com.github.k1rakishou.fsaf.FileManager
@@ -38,7 +39,7 @@ internal class ChunkPersister(
 
             try {
                 if (ChanSettings.verboseLogs.get()) {
-                    log(TAG,
+                    Logger.d(this,
                             "storeChunkInFile($chunkIndex) (${maskImageUrl(url)}) " +
                                     "called for chunk ${chunk.start}..${chunk.end}"
                     )
@@ -96,7 +97,7 @@ internal class ChunkPersister(
                     }
 
                     if (ChanSettings.verboseLogs.get()) {
-                        log(TAG, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
+                        Logger.d(this, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
                                 "chunk ${chunk.start}..${chunk.end}")
                     }
                 } catch (error: Throwable) {
@@ -131,7 +132,9 @@ internal class ChunkPersister(
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
-            log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
+            if (ChanSettings.verboseLogs.get()) {
+                Logger.d(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
+            }
 
             // First emit an error
             if (isStoppedOrCanceled) {
@@ -153,7 +156,9 @@ internal class ChunkPersister(
                 DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
             }.exhaustive
         } else {
-            log(TAG, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
+            if (ChanSettings.verboseLogs.get()) {
+                Logger.d(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
+            }
             serializedEmitter.tryOnError(error)
         }
     }
@@ -252,13 +257,13 @@ internal class ChunkPersister(
                 )
 
                 if (downloaded != chunkSize) {
-                    logError(TAG, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
+                    Logger.e(this, "downloaded (${downloaded}) != chunkSize (${chunkSize})")
                     activeDownloads.throwCancellationException(url)
                 }
             }
 
             if (ChanSettings.verboseLogs.get()) {
-                log(TAG,
+                Logger.d(this,
                         "pipeChunk($chunkIndex) (${maskImageUrl(url)}) SUCCESS for chunk " +
                                 "${chunk.start}..${chunk.end}"
                 )
@@ -294,11 +299,7 @@ internal class ChunkPersister(
 
     private fun deleteChunkFile(chunkFile: RawFile) {
         if (!fileManager.delete(chunkFile)) {
-            logError(TAG, "Couldn't delete chunk file: ${chunkFile.getFullPath()}")
+            Logger.e(this, "Couldn't delete chunk file: ${chunkFile.getFullPath()}")
         }
-    }
-
-    companion object {
-        private const val TAG = "ChunkReader"
     }
 }

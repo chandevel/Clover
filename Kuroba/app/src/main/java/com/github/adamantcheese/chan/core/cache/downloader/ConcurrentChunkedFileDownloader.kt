@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.RawFile
@@ -77,18 +78,18 @@ internal class ConcurrentChunkedFileDownloader constructor(
                 }
                         .doOnSubscribe {
                             if (ChanSettings.verboseLogs.get()) {
-                                log(TAG, "Starting downloading (${maskImageUrl(url)})")
+                                Logger.d(this, "Starting downloading (${maskImageUrl(url)})")
                             }
                         }
                         .doOnComplete {
                             if (ChanSettings.verboseLogs.get()) {
-                                log(TAG, "Completed downloading (${maskImageUrl(url)})")
+                                Logger.d(this, "Completed downloading (${maskImageUrl(url)})")
                             }
                             removeChunksFromDisk(url)
                         }
                         .doOnError { error ->
                             logErrorsAndExtractErrorMessage(
-                                    TAG,
+                                    "ConcurrentChunkedFileDownloader",
                                     "Error while trying to download",
                                     error
                             )
@@ -110,9 +111,11 @@ internal class ConcurrentChunkedFileDownloader constructor(
                     ?: continue
 
             if (fileManager.delete(chunkFile)) {
-                log(TAG, "Deleted chunk file ${chunkFile.getFullPath()}")
+                if (ChanSettings.verboseLogs.get()) {
+                    Logger.d(this, "Deleted chunk file ${chunkFile.getFullPath()}")
+                }
             } else {
-                logError(TAG, "Couldn't delete chunk file ${chunkFile.getFullPath()}")
+                Logger.e(this, "Couldn't delete chunk file ${chunkFile.getFullPath()}")
             }
         }
 
@@ -126,7 +129,7 @@ internal class ConcurrentChunkedFileDownloader constructor(
             output: RawFile
     ): Flowable<FileDownloadResult> {
         if (ChanSettings.verboseLogs.get()) {
-            log(TAG, "File (${maskImageUrl(url)}) was split into chunks: $chunks")
+            Logger.d(this, "File (${maskImageUrl(url)}) was split into chunks: $chunks")
         }
 
         if (!partialContentCheckResult.couldDetermineFileSize() && chunks.size != 1) {
@@ -289,9 +292,5 @@ internal class ConcurrentChunkedFileDownloader constructor(
                             totalChunksCount
                     )
                 }
-    }
-
-    companion object {
-        private const val TAG = "ConcurrentChunkedFileDownloader"
     }
 }

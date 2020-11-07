@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
+import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import io.reactivex.exceptions.CompositeException
@@ -76,12 +77,12 @@ internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error:
         }
 
         val result = sb.toString()
-        logError(tag, result)
+        Logger.e(tag, result)
 
         result
     } else {
         val msg = "$prefix, class = ${error.javaClass.simpleName}, message = ${error.message}"
-        logError(tag, msg)
+        Logger.e(tag, msg)
 
         msg
     }

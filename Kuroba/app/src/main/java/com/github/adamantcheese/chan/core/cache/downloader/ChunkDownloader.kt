@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCan
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
+import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -29,7 +30,7 @@ internal class ChunkDownloader(
         }
 
         if (ChanSettings.verboseLogs.get()) {
-            log(TAG, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
+            Logger.d(this, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
         }
 
         val builder = Request.Builder()
@@ -61,11 +62,12 @@ internal class ChunkDownloader(
                 BackgroundUtils.ensureBackgroundThread()
 
                 if (ChanSettings.verboseLogs.get() && !call.isCanceled()) {
-                    log(
-                            TAG,
-                            "Disposing OkHttp Call for CHUNKED request $request via " +
-                                    "manual canceling (${chunk.start}..${chunk.end})"
-                    )
+                    if (ChanSettings.verboseLogs.get()) {
+                        Logger.d(this,
+                                "Disposing OkHttp Call for CHUNKED request $request via " +
+                                        "manual canceling (${chunk.start}..${chunk.end})"
+                        )
+                    }
 
                     call.cancel()
                 }
@@ -97,10 +99,12 @@ internal class ChunkDownloader(
                     val diff = System.currentTimeMillis() - startTime
                     val exceptionMessage = e.message ?: "No message"
 
-                    log(TAG,
-                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
-                                    " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
-                    )
+                    if (ChanSettings.verboseLogs.get()) {
+                        Logger.d(this,
+                                "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
+                                        " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
+                        )
+                    }
 
                     if (!isCancellationError(e)) {
                         serializedEmitter.tryOnError(e)
@@ -117,7 +121,7 @@ internal class ChunkDownloader(
                 override fun onResponse(call: Call, response: Response) {
                     if (ChanSettings.verboseLogs.get()) {
                         val diff = System.currentTimeMillis() - startTime
-                        log(TAG, "Got chunk response in (${maskImageUrl(url)}) " +
+                        Logger.d(this, "Got chunk response in (${maskImageUrl(url)}) " +
                                 "${chunk.start}..${chunk.end} in ${diff}ms")
                     }
 
@@ -126,10 +130,5 @@ internal class ChunkDownloader(
                 }
             })
         }, BackpressureStrategy.BUFFER)
-    }
-
-    companion object {
-        private const val TAG = "ChunkDownloader"
-        private const val CF_CACHE_STATUS_HEADER = "CF-Cache-Status"
     }
 }
