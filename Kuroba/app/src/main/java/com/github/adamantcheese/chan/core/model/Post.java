@@ -281,6 +281,9 @@ public class Post
             Logger.d(this, "Image list is capped at 5 images!");
             return;
         }
+        for (PostImage i : images) {
+            if (i.equals(image)) return;
+        }
         images.add(image);
     }
 
