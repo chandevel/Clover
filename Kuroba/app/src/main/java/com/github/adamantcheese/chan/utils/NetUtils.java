@@ -114,8 +114,9 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap, true);
             return null;
         }
-        Call call = instance(OkHttpClientWithUtils.class).getBitmapClient()
-                .newCall(new Request.Builder().url(url).addHeader("Referer", url.toString()).build());
+        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
+                .addHeader("Referer", url.toString())
+                .build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -143,9 +144,15 @@ public class NetUtils {
                             performBitmapFailure(url, new NullPointerException("No response data"));
                             return;
                         }
-                        Bitmap bitmap = BitmapUtils.decode(body.byteStream(), width, height);
+                        ExceptionCatchingInputStream wrappedStream =
+                                new ExceptionCatchingInputStream(body.byteStream());
+                        Bitmap bitmap = BitmapUtils.decode(wrappedStream, width, height);
                         if (bitmap == null) {
                             performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
+                            return;
+                        }
+                        if (wrappedStream.getException() != null) {
+                            performBitmapFailure(url, wrappedStream.getException());
                             return;
                         }
                         imageCache.put(url, bitmap);

@@ -160,6 +160,7 @@ public class CardPostCell
 
         if (this.post != null && bound) {
             bound = false;
+            thumbView.setPostImage(null);
             for (Call c : embedCalls) {
                 c.cancel();
             }

@@ -228,15 +228,6 @@ public class PostAdapter
         }
     }
 
-    @Override
-    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
-        super.onViewRecycled(holder);
-        if (holder.getItemViewType() == TYPE_POST && getPostViewMode() == CARD) {
-            CardPostCell postCell = (CardPostCell) holder.itemView;
-            ((PostImageThumbnailView) postCell.getThumbnailView(null)).setPostImage(null);
-        }
-    }
-
     public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery, boolean hardRefresh) {
         BackgroundUtils.ensureMainThread();
         this.searchQuery = searchQuery;

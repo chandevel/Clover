@@ -16,8 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -44,6 +44,8 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
+
+import java.util.Random;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -77,8 +79,6 @@ public abstract class ThumbnailView
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect tmpTextRect = new Rect();
 
-    private ValueAnimator fadeIn;
-
     private HttpUrl source = null;
 
     public ThumbnailView(Context context) {
@@ -108,10 +108,6 @@ public abstract class ThumbnailView
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
         error = false;
         setImageBitmap(null);
-        if (fadeIn != null) {
-            fadeIn.end();
-            fadeIn = null;
-        }
 
         if (bitmapCall != null) {
             bitmapCall.cancel();
@@ -296,17 +292,23 @@ public abstract class ThumbnailView
     }
 
     private void onImageSet(boolean isImmediate) {
-        clearAnimation();
-        if (!isImmediate) {
-            setAlpha(0f);
-            fadeIn = ObjectAnimator.ofFloat(this, View.ALPHA, 0f, 1f).setDuration(200);
-            fadeIn.start();
-        } else {
-            if (fadeIn != null) {
-                fadeIn.cancel();
-                fadeIn = null;
-            }
+        if (isImmediate) {
             setAlpha(1f);
+            animate().cancel();
+        } else {
+            setAlpha(0f);
+            animate().alpha(1f)
+                    // a bit of random delay lets lots of thumbnails not make the system chug [0-750]ms
+                    .setStartDelay(new Random().nextInt(16) * 50)
+                    .setDuration(200)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
+                            setAlpha(1f);
+                            invalidate();
+                        }
+                    });
         }
     }
 

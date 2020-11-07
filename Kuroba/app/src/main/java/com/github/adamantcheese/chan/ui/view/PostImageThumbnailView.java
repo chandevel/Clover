@@ -77,58 +77,57 @@ public class PostImageThumbnailView
         }
     }
 
-    public void setPostImage(PostImage postImage) {
-        if (this.postImage != postImage) {
-            this.postImage = postImage;
-            setUrl(null);
+    public void setPostImage(final PostImage postImage) {
+        if (this.postImage == postImage) return;
+
+        this.postImage = postImage;
+        int width = decodeSize == -1 ? getWidth() : (int) decodeSize;
+        int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
+
+        if (postImage != null) {
+            setUrl(postImage.getThumbnailUrl(), width, height);
+        } else {
+            setUrl(null, 0, 0);
+            return;
+        }
+
+        if (ChanSettings.shouldUseFullSizeImage(postImage)) {
             if (fullsizeDownload != null) {
                 fullsizeDownload.cancel();
                 fullsizeDownload = null;
             }
-
-            if (postImage == null) {
-                return;
-            }
-
-            int width = decodeSize == -1 ? getWidth() : (int) decodeSize;
-            int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
-
-            if (ChanSettings.shouldUseFullSizeImage(postImage)) {
-                HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
-                Bitmap cached = NetUtils.getCachedBitmap(url);
-                if (cached != null && cached.getWidth() == width && cached.getHeight() == height) {
-                    onBitmapSuccess(cached, true);
-                } else {
-                    fullsizeDownload = Chan.instance(FileCacheV2.class)
-                            .enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
-                                @Override
-                                public void onSuccess(RawFile file, boolean immediate) {
-                                    BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(file.getFullPath()),
-                                            width * 2,
-                                            height * 2
-                                    ), result -> {
-                                        if (result != null) {
-                                            NetUtils.storeExternalBitmap(url, result);
-                                            onBitmapSuccess(result, immediate);
-                                        } else {
-                                            onBitmapFailure(new NullPointerException("Failed to decode bitmap."));
-                                        }
-                                    });
-                                }
-
-                                @Override
-                                public void onFail(Exception exception) {
-                                    onBitmapFailure(exception);
-                                }
-
-                                @Override
-                                public void onNotFound() {
-                                    onBitmapFailure(new NetUtilsClasses.HttpCodeException(404));
-                                }
-                            });
-                }
+            HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
+            Bitmap cached = NetUtils.getCachedBitmap(url);
+            if (cached != null && cached.getWidth() == width && cached.getHeight() == height) {
+                onBitmapSuccess(url, cached, true);
             } else {
-                setUrl(postImage.getThumbnailUrl(), width, height);
+                fullsizeDownload =
+                        Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
+                            @Override
+                            public void onSuccess(RawFile file, boolean immediate) {
+                                BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(file.getFullPath()),
+                                        width * 2,
+                                        height * 2
+                                ), result -> {
+                                    if (result != null) {
+                                        NetUtils.storeExternalBitmap(url, result);
+                                        onBitmapSuccess(url, result, immediate);
+                                    } else {
+                                        onFail(new NullPointerException("Failed to decode bitmap."));
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onFail(Exception exception) {
+                                onBitmapFailure(url, exception);
+                            }
+
+                            @Override
+                            public void onNotFound() {
+                                onFail(new NetUtilsClasses.HttpCodeException(404));
+                            }
+                        });
             }
         }
     }

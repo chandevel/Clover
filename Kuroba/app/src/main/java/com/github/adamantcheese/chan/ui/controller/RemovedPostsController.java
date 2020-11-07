@@ -30,6 +30,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.HttpUrl;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -194,13 +196,13 @@ public class RemovedPostsController
                 postImage.setVisibility(VISIBLE);
                 NetUtils.makeBitmapRequest(image.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
                     @Override
-                    public void onBitmapFailure(Exception e) {
+                    public void onBitmapFailure(HttpUrl source, Exception e) {
                         Logger.e(RemovedPostAdapter.this, "Error while trying to download post image", e);
                         postImage.setVisibility(GONE);
                     }
 
                     @Override
-                    public void onBitmapSuccess(@NonNull Bitmap bitmap, boolean fromCache) {
+                    public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                         postImage.setImageBitmap(bitmap);
                     }
                 }, postImage.getWidth(), postImage.getHeight());

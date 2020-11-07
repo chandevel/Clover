@@ -38,7 +38,6 @@ import java.util.List;
 
 import javax.inject.Singleton;
 
-import okhttp3.Dispatcher;
 import okhttp3.Dns;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -113,32 +112,17 @@ public class NetModule {
         return Collections.singletonList(HTTP_1_1);
     }
 
-    // Basically the same as OkHttpClient, but has extra methods for constructing a proxied client for a specific call
-    // and constructing a non-concurrent client for some calls
+    // Basically the same as OkHttpClient, but has an extra method for constructing a proxied client for a specific call
     public static class OkHttpClientWithUtils
             extends OkHttpClient {
-        private final Dispatcher bitmapDispatcher = new Dispatcher();
 
-        //This constructs your base client, which is used for pretty much everything
         public OkHttpClientWithUtils(Builder builder) {
             super(builder);
-            // Bitmap requests from NetUtils.makeBitmapRequest() should be sequential-ish (ie not concurrent) in order to
-            // prevent excessive main thread lag when they are completed and the image is rendered; ie animate calls all
-            // run on the main/UI thread and a lot of them running simultaneously cause it to lag immensely. Since this
-            // _should_ only be used for thumbnails or other small size images, this is fine as requests will be parsed
-            // and completed quickly and the animation should be finished quickly as well.
-            // This roughly mirrors how the old Volley implementation worked, with 4 workers by default.
-            bitmapDispatcher.setMaxRequests(4);
         }
 
         //This adds a proxy to the base client
         public OkHttpClient getProxiedClient() {
             return newBuilder().proxy(ChanSettings.getProxy()).build();
-        }
-
-        //This changes the dispatcher of the base client to the one with a max of 4 concurrent requests
-        public OkHttpClient getBitmapClient() {
-            return newBuilder().dispatcher(bitmapDispatcher).build();
         }
     }
 }
