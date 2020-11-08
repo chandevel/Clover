@@ -382,6 +382,8 @@ public class ThreadPresenter
         if (isBound()) {
             if (isWatching()) {
                 chanLoader.setTimer();
+            } else {
+                chanLoader.clearTimer();
             }
         } else {
             Logger.e(this, "onChanLoaderData when not bound!");
