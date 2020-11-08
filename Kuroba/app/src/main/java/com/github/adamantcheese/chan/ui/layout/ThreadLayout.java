@@ -595,8 +595,8 @@ public class ThreadLayout
     }
 
     @Override
-    public void showNewPostsNotification(boolean show, int more) {
-        if (show) {
+    public void showNewPostsSnackbar(int more) {
+        if (more > 0) {
             if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()
                     && threadListLayout.getReplyPresenter().getPage() == Page.INPUT) {
                 String text = getQuantityString(R.plurals.thread_new_posts, more, more);

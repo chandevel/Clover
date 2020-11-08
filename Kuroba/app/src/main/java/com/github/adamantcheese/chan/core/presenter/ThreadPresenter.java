@@ -415,7 +415,7 @@ public class ThreadPresenter
             loadable.lastLoaded = result.getPosts().get(result.getPosts().size() - 1).no;
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
-                threadPresenterCallback.showNewPostsNotification(true, more);
+                threadPresenterCallback.showNewPostsSnackbar(more);
                 //deal with any "requests" for a page update
                 if (forcePageUpdate) {
                     PageRepository.forceUpdateForBoard(loadable.board);
@@ -464,7 +464,7 @@ public class ThreadPresenter
             watchManager.onBottomPostViewed(pin);
         }
 
-        threadPresenterCallback.showNewPostsNotification(false, -1);
+        threadPresenterCallback.showNewPostsSnackbar(-1);
 
         // Update the last seen indicator
         showPosts();
@@ -1408,7 +1408,7 @@ public class ThreadPresenter
 
         void hideThread(Post post, int threadNo, boolean hide);
 
-        void showNewPostsNotification(boolean show, int more);
+        void showNewPostsSnackbar(int more);
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 
