@@ -36,6 +36,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,16 +98,20 @@ public class EmbeddingEngine {
         doAutoLinking(theme, post);
         addPostImages(post);
 
-        // Generate all the calls
+        // Generate all the calls if embedding is on
         final List<Pair<Call, Callback>> generatedCallPairs = new ArrayList<>();
-        for (Embedder<?> e : embedders) {
-            if (!ChanSettings.enableEmbedding.get()) continue;
-            if (!StringUtils.containsAny(post.comment, e.getShortRepresentations())) continue;
-            generatedCallPairs.addAll(e.generateCallPairs(theme, post));
+        if (ChanSettings.enableEmbedding.get() && !post.embedComplete.get()) {
+            for (Embedder<?> e : embedders) {
+                if (!StringUtils.containsAny(post.comment, e.getShortRepresentations())) continue;
+                generatedCallPairs.addAll(e.generateCallPairs(theme, post));
+            }
         }
 
         if (generatedCallPairs.isEmpty()) { // nothing to embed
-            BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(post));
+            if (!post.embedComplete.get()) {
+                post.embedComplete.set(true);
+                BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(post));
+            }
             return Collections.emptyList();
         }
 
@@ -114,12 +119,14 @@ public class EmbeddingEngine {
         final int callCount = generatedCallPairs.size();
         final List<Call> calls = new ArrayList<>();
         final AtomicInteger processed = new AtomicInteger();
+        final AtomicBoolean setComplete = new AtomicBoolean(true);
         for (final Pair<Call, Callback> c : generatedCallPairs) {
             // enqueue all at the same time, wrapped callback to check when everything's complete
             c.first.enqueue(new Callback() {
                 @Override
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     c.second.onFailure(call, e);
+                    setComplete.set(false); // we'll need to re-embed this on a failure
                     checkInvalidate();
                 }
 
@@ -132,6 +139,7 @@ public class EmbeddingEngine {
 
                 private void checkInvalidate() {
                     if (callCount != processed.incrementAndGet()) return; // still completing calls
+                    post.embedComplete.set(setComplete.get());
                     BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(post));
                 }
             });

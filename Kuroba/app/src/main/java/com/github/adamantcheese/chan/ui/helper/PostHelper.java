@@ -46,7 +46,6 @@ public class PostHelper {
         return string;
     }
 
-    @SuppressWarnings("ConstantConditions")
     public static String getTitle(@Nullable Post post, @NonNull Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {

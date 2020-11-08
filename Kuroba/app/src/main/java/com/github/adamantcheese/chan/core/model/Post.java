@@ -128,6 +128,8 @@ public class Post
     private long lastModified;
     private String title = "";
 
+    public AtomicBoolean embedComplete = new AtomicBoolean(false);
+
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
     }

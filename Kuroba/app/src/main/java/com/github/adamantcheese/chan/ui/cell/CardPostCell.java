@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import okhttp3.Call;
 
@@ -69,7 +70,7 @@ public class CardPostCell
     private ImageView options;
     private View filterMatchColor;
 
-    private final List<Call> embedCalls = new ArrayList<>();
+    private final List<Call> embedCalls = new CopyOnWriteArrayList<>();
 
     public CardPostCell(Context context) {
         super(context);

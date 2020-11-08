@@ -78,6 +78,7 @@ import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -141,7 +142,7 @@ public class PostCell
 
     private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
-    private final List<Call> embedCalls = new ArrayList<>();
+    private final List<Call> embedCalls = new CopyOnWriteArrayList<>();
 
     public PostCell(Context context) {
         super(context);
