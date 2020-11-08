@@ -54,11 +54,9 @@ public class PostAdapter
     private Loadable loadable = null;
     private String error = null;
     private String searchQuery = null;
-    private Post highlightedPost;
-    private String highlightedPostId;
-    private int highlightedPostNo = -1;
-    private String highlightedPostTripcode;
-    private int selectedPost = -1;
+    private String highlightedId;
+    private int highlightedNo = -1;
+    private String highlightedTripcode;
     private int lastSeenIndicatorPosition = -1;
 
     private ChanSettings.PostViewMode postViewMode;
@@ -134,7 +132,6 @@ public class PostAdapter
                         postCellCallback,
                         isInPopup(),
                         shouldHighlight(post),
-                        isSelected(post),
                         getMarkedNo(),
                         showDivider(position),
                         getPostViewMode(),
@@ -160,12 +157,7 @@ public class PostAdapter
     }
 
     public boolean shouldHighlight(Post post) {
-        return post == highlightedPost || post.id.equals(highlightedPostId) || post.no == highlightedPostNo
-                || post.tripcode.equals(highlightedPostTripcode);
-    }
-
-    public boolean isSelected(Post post) {
-        return post.no == selectedPost;
+        return post.id.equals(highlightedId) || post.no == highlightedNo || post.tripcode.equals(highlightedTripcode);
     }
 
     public int getMarkedNo() {
@@ -220,29 +212,19 @@ public class PostAdapter
             )) {
                 spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
             }
-            return ((long) post.repliesFrom.size() << 32L) + (long) post.no + (compact ? 2L : 1L) + spanTotal;
+            //@formatter:off
+            return (((long) post.repliesFrom.size() << 32L) + post.no + spanTotal) * (compact ? 4L : 2L)
+                    * (post.no == highlightedNo ? 2L : 1L);
+            //@formatter:on
         }
     }
 
-    public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery, boolean hardRefresh) {
+    public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery) {
         BackgroundUtils.ensureMainThread();
         this.searchQuery = searchQuery;
-        boolean changed = (this.loadable != null && !this.loadable.equals(threadLoadable)); //changed threads, update
 
         this.loadable = threadLoadable;
         showError(null);
-
-        int lastLastSeenIndicator = lastSeenIndicatorPosition;
-        if (!changed && displayList.size() == posts.size()) {
-            for (int i = 0; i < displayList.size(); i++) {
-                if (!displayList.get(i).equals(posts.get(i))) {
-                    changed = true; //posts are different, or a post got deleted and needs to be updated
-                    break;
-                }
-            }
-        } else {
-            changed = true; //new posts or fewer posts, update
-        }
 
         displayList.clear();
         displayList.addAll(posts);
@@ -259,11 +241,7 @@ public class PostAdapter
             }
         }
 
-        // update for indicator (adds/removes extra recycler item that causes inconsistency exceptions)
-        // or if something changed per reasons above
-        if (lastLastSeenIndicator != lastSeenIndicatorPosition || changed || hardRefresh) {
-            notifyDataSetChanged();
-        }
+        notifyDataSetChanged();
     }
 
     public void setLastSeenIndicatorPosition(int position) {
@@ -276,11 +254,9 @@ public class PostAdapter
     }
 
     public void cleanup() {
-        highlightedPost = null;
-        highlightedPostId = null;
-        highlightedPostNo = -1;
-        highlightedPostTripcode = null;
-        selectedPost = -1;
+        highlightedId = null;
+        highlightedNo = -1;
+        highlightedTripcode = null;
         lastSeenIndicatorPosition = -1;
         error = null;
     }
@@ -292,48 +268,30 @@ public class PostAdapter
             for (int i = 0; i < childCount; i++) {
                 View child = recyclerView.getChildAt(i);
                 if (child instanceof ThreadStatusCell) {
-                    ThreadStatusCell threadStatusCell = (ThreadStatusCell) child;
-                    threadStatusCell.setError(error);
-                    threadStatusCell.update();
+                    ((ThreadStatusCell) child).setError(error);
                 }
             }
         }
     }
 
-    public void highlightPost(Post post) {
-        highlightedPost = post;
-        highlightedPostId = null;
-        highlightedPostNo = -1;
-        highlightedPostTripcode = null;
-        notifyDataSetChanged();
-    }
-
     public void highlightPostId(String id) {
-        highlightedPost = null;
-        highlightedPostId = id;
-        highlightedPostNo = -1;
-        highlightedPostTripcode = null;
+        highlightedId = id;
+        highlightedNo = -1;
+        highlightedTripcode = null;
         notifyDataSetChanged();
     }
 
     public void highlightPostTripcode(String tripcode) {
-        highlightedPost = null;
-        highlightedPostId = null;
-        highlightedPostNo = -1;
-        highlightedPostTripcode = tripcode;
+        highlightedId = null;
+        highlightedNo = -1;
+        highlightedTripcode = tripcode;
         notifyDataSetChanged();
     }
 
     public void highlightPostNo(int no) {
-        highlightedPost = null;
-        highlightedPostId = null;
-        highlightedPostNo = no;
-        highlightedPostTripcode = null;
-        notifyDataSetChanged();
-    }
-
-    public void selectPost(int no) {
-        selectedPost = no;
+        highlightedId = null;
+        highlightedNo = no;
+        highlightedTripcode = null;
         notifyDataSetChanged();
     }
 
@@ -370,13 +328,11 @@ public class PostAdapter
 
     public boolean showStatusView() {
         if (postAdapterCallback == null) return false;
-        Loadable loadable = postAdapterCallback.getLoadable();
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         return loadable != null && loadable.isThreadMode();
     }
 
-    //region Holders
     public static class PostViewHolder
             extends RecyclerView.ViewHolder {
         public PostViewHolder(PostCellInterface postView) {
@@ -397,11 +353,8 @@ public class PostAdapter
             super(itemView);
         }
     }
-    //endregion
 
     public interface PostAdapterCallback {
-        Loadable getLoadable();
-
         void onUnhidePostClick(Post post);
     }
 }

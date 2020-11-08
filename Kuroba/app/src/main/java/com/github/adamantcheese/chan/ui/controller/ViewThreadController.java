@@ -407,7 +407,7 @@ public class ViewThreadController
                 }
             }
             if (threadController != null) {
-                threadController.selectPost(loadable != null ? loadable.no : -1);
+                threadController.highlightPostNo(loadable != null ? loadable.no : -1);
             }
         }
     }

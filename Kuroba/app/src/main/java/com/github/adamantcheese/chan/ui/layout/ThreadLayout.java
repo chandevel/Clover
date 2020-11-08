@@ -238,13 +238,13 @@ public class ThreadLayout
     }
 
     @Override
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean hardRefresh) {
+    public void showPosts(ChanThread thread, PostsFilter filter) {
 
         if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof ExternalSiteArchive)) {
             replyButton.show();
         }
 
-        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD, hardRefresh);
+        threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
 
         switchVisible(Visible.THREAD);
         callback.onShowPosts(thread.getLoadable());
@@ -385,8 +385,8 @@ public class ThreadLayout
     }
 
     @Override
-    public void highlightPost(Post post) {
-        threadListLayout.highlightPost(post);
+    public void highlightPostNo(int postNo) {
+        threadListLayout.highlightPostNo(postNo);
     }
 
     @Override
@@ -467,11 +467,6 @@ public class ThreadLayout
 
             dialog.show();
         }
-    }
-
-    @Override
-    public void selectPost(int post) {
-        threadListLayout.selectPost(post);
     }
 
     @Override

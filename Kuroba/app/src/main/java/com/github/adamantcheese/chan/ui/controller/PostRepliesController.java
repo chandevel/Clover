@@ -134,11 +134,6 @@ public class PostRepliesController
             }
 
             @Override
-            public boolean isSelected(Post post) {
-                return false;
-            }
-
-            @Override
             public int getMarkedNo() {
                 return displayingData.forPostNo;
             }
@@ -164,7 +159,7 @@ public class PostRepliesController
             }
         };
         recyclerView.setAdapter(adapter);
-        adapter.setThread(loadable, displayingData.posts, null, true);
+        adapter.setThread(loadable, displayingData.posts, null);
         adapter.setLastSeenIndicatorPosition(-1); //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         layoutManager.scrollToPositionWithOffset(data.listViewIndex, data.listViewTop);

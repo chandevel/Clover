@@ -82,6 +82,8 @@ public class ThreadStatusCell
         this.error = error;
         if (error == null) {
             schedule();
+        } else {
+            update();
         }
     }
 

@@ -132,7 +132,6 @@ public class PostCell
     private PostCellCallback callback;
     private boolean inPopup;
     private boolean highlighted;
-    private boolean selected;
     private int markedNo;
     private boolean showDivider;
 
@@ -248,7 +247,6 @@ public class PostCell
             PostCellInterface.PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
-            boolean selected,
             int markedNo,
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
@@ -256,8 +254,8 @@ public class PostCell
             Theme theme,
             RecyclerView attachedTo
     ) {
-        if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.selected == selected
-                && this.markedNo == markedNo && this.showDivider == showDivider) {
+        if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.markedNo == markedNo
+                && this.showDivider == showDivider) {
             return;
         }
 
@@ -271,7 +269,6 @@ public class PostCell
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
-        this.selected = selected;
         this.markedNo = markedNo;
         this.showDivider = showDivider;
         this.recyclerView = attachedTo;
@@ -318,7 +315,7 @@ public class PostCell
             replies.setBackgroundResource(0);
         }
 
-        if (highlighted || post.isSavedReply || selected) {
+        if (highlighted || post.isSavedReply) {
             setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_color));
         } else if (threadMode) {
             setBackgroundResource(0);

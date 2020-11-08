@@ -424,11 +424,6 @@ public class ThemeSettingsController
             postsView.setLayoutManager(layoutManager);
             PostAdapter adapter = new PostAdapter(postsView, new PostAdapter.PostAdapterCallback() {
                 @Override
-                public Loadable getLoadable() {
-                    return dummyLoadable;
-                }
-
-                @Override
                 public void onUnhidePostClick(Post post) {
                 }
             }, dummyPostCallback, new ThreadStatusCell.Callback() {
@@ -458,8 +453,8 @@ public class ThemeSettingsController
                     return 123456789;
                 }
             };
-            adapter.setThread(dummyLoadable, posts, null, true);
-            adapter.highlightPost(posts.get(posts.size() - 1)); // highlight last post
+            adapter.setThread(dummyLoadable, posts, null);
+            adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
             postsView.setAdapter(adapter);

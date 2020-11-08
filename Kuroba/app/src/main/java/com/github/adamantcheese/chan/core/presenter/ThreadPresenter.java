@@ -310,14 +310,14 @@ public class ThreadPresenter
         }
 
         if (chanLoader != null && chanLoader.getThread() != null && !visible) {
-            showPosts(true);
+            showPosts();
         }
     }
 
     public void onSearchEntered(String entered) {
         searchQuery = entered;
         if (chanLoader != null && chanLoader.getThread() != null) {
-            showPosts(true);
+            showPosts();
             if (TextUtils.isEmpty(entered)) {
                 threadPresenterCallback.setSearchStatus(null, true, false);
             } else {
@@ -337,7 +337,7 @@ public class ThreadPresenter
     }
 
     public void refreshUI() {
-        showPosts(true);
+        showPosts();
     }
 
     public synchronized void showAlbum() {
@@ -409,10 +409,11 @@ public class ThreadPresenter
                 }
             }
 
+            loadable.lastLoaded = result.getPosts().get(result.getPosts().size() - 1).no;
+            // this loadable is fresh, for new post reasons set it to the last loaded
             if (loadable.lastViewed == -1) {
                 loadable.lastViewed = loadable.lastLoaded;
             }
-            loadable.lastLoaded = result.getPosts().get(result.getPosts().size() - 1).no;
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsSnackbar(more);
@@ -427,7 +428,7 @@ public class ThreadPresenter
         if (loadable.markedNo >= 0) {
             Post markedPost = PostUtils.findPostById(loadable.markedNo, chanLoader.getThread());
             if (markedPost != null) {
-                highlightPost(markedPost);
+                highlightPostNo(markedPost.no);
                 if (BackgroundUtils.isInForeground()) {
                     scrollToPost(markedPost, false);
                 }
@@ -528,12 +529,8 @@ public class ThreadPresenter
         }
     }
 
-    public void highlightPost(Post post) {
-        threadPresenterCallback.highlightPost(post);
-    }
-
-    public void selectPost(int post) {
-        threadPresenterCallback.selectPost(post);
+    public void highlightPostNo(int postNo) {
+        threadPresenterCallback.highlightPostNo(postNo);
     }
 
     public void selectPostImage(PostImage postImage) {
@@ -542,7 +539,7 @@ public class ThreadPresenter
             for (PostImage image : post.images) {
                 if (image == postImage) {
                     scrollToPost(post, false);
-                    highlightPost(post);
+                    highlightPostNo(post.no);
                     return;
                 }
             }
@@ -568,7 +565,6 @@ public class ThreadPresenter
     public void onPostClicked(Post post) {
         if (!isBound()) return;
         if (loadable.isCatalogMode()) {
-            highlightPost(post);
             threadPresenterCallback.showThread(Loadable.forThread(post.board,
                     post.no,
                     PostHelper.getTitle(post, loadable)
@@ -581,10 +577,10 @@ public class ThreadPresenter
         if (isBound() && loadable.isThreadMode()) {
             if (searchOpen) {
                 searchQuery = null;
-                showPosts(true);
+                showPosts();
                 threadPresenterCallback.setSearchStatus(null, false, true);
                 threadPresenterCallback.showSearch(false);
-                highlightPost(post);
+                highlightPostNo(post.no);
                 scrollToPost(post, false);
             } else {
                 threadPresenterCallback.postClicked(post);
@@ -1226,14 +1222,9 @@ public class ThreadPresenter
     }
 
     private void showPosts() {
-        showPosts(false);
-    }
-
-    private void showPosts(boolean hardRefresh) {
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
-                    new PostsFilter(order, searchQuery, databaseHideManager),
-                    hardRefresh
+                    new PostsFilter(order, searchQuery, databaseHideManager)
             );
         }
     }
@@ -1332,7 +1323,7 @@ public class ThreadPresenter
     }
 
     public interface ThreadPresenterCallback {
-        void showPosts(ChanThread thread, PostsFilter filter, boolean hardRefresh);
+        void showPosts(ChanThread thread, PostsFilter filter);
 
         void postClicked(Post post);
 
@@ -1368,7 +1359,7 @@ public class ThreadPresenter
 
         void smoothScrollNewPosts(int displayPosition);
 
-        void highlightPost(Post post);
+        void highlightPostNo(int postNo);
 
         void highlightPostId(String id);
 
@@ -1389,8 +1380,6 @@ public class ThreadPresenter
         void filterPostTripcode(String tripcode);
 
         void filterPostImageHash(Post post);
-
-        void selectPost(int post);
 
         void showSearch(boolean show);
 

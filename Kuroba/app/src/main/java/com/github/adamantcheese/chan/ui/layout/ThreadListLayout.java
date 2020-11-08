@@ -259,7 +259,7 @@ public class ThreadListLayout
         }
     }
 
-    public void showPosts(ChanThread thread, PostsFilter filter, boolean initial, boolean hardRefresh) {
+    public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
         showingThread = thread;
         if (initial) {
             reply.getPresenter().bindLoadable(thread.getLoadable());
@@ -318,7 +318,7 @@ public class ThreadListLayout
             filteredPosts.removeAll(toRemove);
         }
 
-        postAdapter.setThread(thread.getLoadable(), filteredPosts, filter.getQuery(), hardRefresh);
+        postAdapter.setThread(thread.getLoadable(), filteredPosts, filter.getQuery());
     }
 
     public boolean onBack() {
@@ -593,20 +593,12 @@ public class ThreadListLayout
         }
     }
 
-    public void highlightPost(Post post) {
-        postAdapter.highlightPost(post);
-    }
-
     public void highlightPostId(String id) {
         postAdapter.highlightPostId(id);
     }
 
     public void highlightPostTripcode(String tripcode) {
         postAdapter.highlightPostTripcode(tripcode);
-    }
-
-    public void selectPost(int post) {
-        postAdapter.selectPost(post);
     }
 
     @Override

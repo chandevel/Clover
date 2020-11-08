@@ -109,8 +109,8 @@ public abstract class ThreadController
         return threadLayout.getPresenter().getLoadable();
     }
 
-    public void selectPost(int post) {
-        threadLayout.getPresenter().selectPost(post);
+    public void highlightPostNo(int postNo) {
+        threadLayout.getPresenter().highlightPostNo(postNo);
     }
 
     @Override

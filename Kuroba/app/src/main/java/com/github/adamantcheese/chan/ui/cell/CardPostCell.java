@@ -51,6 +51,7 @@ import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class CardPostCell
@@ -61,6 +62,7 @@ public class CardPostCell
     private boolean bound;
     private Post post;
     private PostCellInterface.PostCellCallback callback;
+    private boolean highlighted = false;
     private boolean compact = false;
 
     private PostImageThumbnailView thumbView;
@@ -147,7 +149,6 @@ public class CardPostCell
             PostCellInterface.PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
-            boolean selected,
             int markedNo,
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
@@ -171,14 +172,13 @@ public class CardPostCell
         }
 
         this.post = post;
+        this.highlighted = highlighted;
         this.callback = callback;
 
         bindPost(theme, post);
 
-        if (this.compact != compact) {
-            this.compact = compact;
-            setCompact(compact);
-        }
+        this.compact = compact;
+        setCompact(compact);
     }
 
     public Post getPost() {
@@ -196,6 +196,12 @@ public class CardPostCell
 
     private void bindPost(Theme theme, Post post) {
         bound = true;
+
+        if (highlighted || post.isSavedReply) {
+            setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_color));
+        } else {
+            setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+        }
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);

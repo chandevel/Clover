@@ -125,28 +125,12 @@ public class PostStubCell
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        bound = false;
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-
-        if (post != null && !bound) {
-            bindPost(post);
-        }
-    }
-
     public void setPost(
             Loadable loadable,
             final Post post,
             PostCellInterface.PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
-            boolean selected,
             int markedNo,
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
