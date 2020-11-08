@@ -324,7 +324,7 @@ public class ChanThreadLoader {
         }
 
         ChanThread localThread = thread;
-        if (loadable.isThreadMode() && thread.getPostsCount() > 0) {
+        if (loadable.isThreadMode() && thread.getPosts().size() > 0) {
             // Replace some op parameters to the real op (index 0).
             // This is done on the main thread to avoid race conditions.
             Post realOp = thread.getOp();
@@ -357,7 +357,7 @@ public class ChanThreadLoader {
 
         lastLoadTime = System.currentTimeMillis();
 
-        int postCount = localThread.getPostsCount();
+        int postCount = localThread.getPosts().size();
         if (postCount > lastPostCount) {
             // fresh posts, reset timer to minimum 10 seconds, or if sticky 30
             lastPostCount = postCount;

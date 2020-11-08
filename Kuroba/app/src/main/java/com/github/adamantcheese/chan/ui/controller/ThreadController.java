@@ -130,7 +130,7 @@ public abstract class ThreadController
 
     @Subscribe
     public void onEvent(RefreshUIMessage message) {
-        threadLayout.getPresenter().requestData();
+        onRefresh();
     }
 
     @Override

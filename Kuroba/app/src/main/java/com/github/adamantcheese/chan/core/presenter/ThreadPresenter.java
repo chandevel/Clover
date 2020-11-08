@@ -401,16 +401,16 @@ public class ThreadPresenter
             if (lastLoaded > 0) {
                 for (Post p : result.getPosts()) {
                     if (p.no == lastLoaded) {
-                        more = result.getPostsCount() - result.getPosts().indexOf(p) - 1;
+                        more = result.getPosts().size() - result.getPosts().indexOf(p) - 1;
                         break;
                     }
                 }
             }
 
-            loadable.lastLoaded = result.getPosts().get(result.getPostsCount() - 1).no;
             if (loadable.lastViewed == -1) {
                 loadable.lastViewed = loadable.lastLoaded;
             }
+            loadable.lastLoaded = result.getPosts().get(result.getPosts().size() - 1).no;
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsNotification(true, more);
@@ -452,7 +452,7 @@ public class ThreadPresenter
     @Override
     public void onListScrolledToBottom() {
         if (!isBound()) return;
-        if (chanLoader.getThread() != null && loadable.isThreadMode() && chanLoader.getThread().getPostsCount() > 0) {
+        if (chanLoader.getThread() != null && loadable.isThreadMode() && chanLoader.getThread().getPosts().size() > 0) {
             List<Post> posts = chanLoader.getThread().getPosts();
             loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
@@ -579,7 +579,7 @@ public class ThreadPresenter
         if (isBound() && loadable.isThreadMode()) {
             if (searchOpen) {
                 searchQuery = null;
-                showPosts();
+                showPosts(true);
                 threadPresenterCallback.setSearchStatus(null, false, true);
                 threadPresenterCallback.showSearch(false);
                 highlightPost(post);
