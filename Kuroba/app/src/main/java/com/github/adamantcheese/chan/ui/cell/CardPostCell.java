@@ -166,6 +166,7 @@ public class CardPostCell
                 c.cancel();
             }
             embedCalls.clear();
+            findViewById(R.id.embed_spinner).setVisibility(GONE);
             this.post = null;
         }
 
@@ -229,6 +230,9 @@ public class CardPostCell
         replies.setText(status);
 
         embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+        if (!embedCalls.isEmpty()) {
+            findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
+        }
     }
 
     @Override

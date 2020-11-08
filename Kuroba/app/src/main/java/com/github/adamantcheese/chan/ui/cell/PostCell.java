@@ -528,6 +528,9 @@ public class PostCell
         doShiftPostFormatting();
 
         embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+        if (!embedCalls.isEmpty()) {
+            findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
+        }
     }
 
     public void clearShiftPostFormatting() {
@@ -692,11 +695,11 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
-        findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
         for (Call c : embedCalls) {
             c.cancel();
         }
         embedCalls.clear();
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {
