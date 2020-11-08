@@ -45,7 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -474,7 +473,6 @@ public class SubsamplingScaleImageView
      * @param state         State to be restored. Nullable.
      */
     public final void setImage(@NonNull ImageSource imageSource, ImageSource previewSource, ImageViewState state) {
-        //noinspection ConstantConditions
         if (imageSource == null) {
             throw new NullPointerException("imageSource must not be null");
         }
@@ -1968,7 +1966,6 @@ public class SubsamplingScaleImageView
                         exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
                 if (orientationAttr == ExifInterface.ORIENTATION_NORMAL
                         || orientationAttr == ExifInterface.ORIENTATION_UNDEFINED) {
-                    //noinspection ConstantConditions
                     exifOrientation = ORIENTATION_0;
                 } else if (orientationAttr == ExifInterface.ORIENTATION_ROTATE_90) {
                     exifOrientation = ORIENTATION_90;
@@ -2471,7 +2468,6 @@ public class SubsamplingScaleImageView
      * @param regionDecoderClass The {@link ImageRegionDecoder} implementation to use.
      */
     public final void setRegionDecoderClass(@NonNull Class<? extends ImageRegionDecoder> regionDecoderClass) {
-        //noinspection ConstantConditions
         if (regionDecoderClass == null) {
             throw new IllegalArgumentException("Decoder class cannot be set to null");
         }
@@ -2488,7 +2484,6 @@ public class SubsamplingScaleImageView
     public final void setRegionDecoderFactory(
             @NonNull DecoderFactory<? extends ImageRegionDecoder> regionDecoderFactory
     ) {
-        //noinspection ConstantConditions
         if (regionDecoderFactory == null) {
             throw new IllegalArgumentException("Decoder factory cannot be set to null");
         }
@@ -2503,7 +2498,6 @@ public class SubsamplingScaleImageView
      * @param bitmapDecoderClass The {@link ImageDecoder} implementation to use.
      */
     public final void setBitmapDecoderClass(@NonNull Class<? extends ImageDecoder> bitmapDecoderClass) {
-        //noinspection ConstantConditions
         if (bitmapDecoderClass == null) {
             throw new IllegalArgumentException("Decoder class cannot be set to null");
         }
@@ -2517,7 +2511,6 @@ public class SubsamplingScaleImageView
      * @param bitmapDecoderFactory The {@link DecoderFactory} implementation that produces {@link ImageDecoder} instances.
      */
     public final void setBitmapDecoderFactory(@NonNull DecoderFactory<? extends ImageDecoder> bitmapDecoderFactory) {
-        //noinspection ConstantConditions
         if (bitmapDecoderFactory == null) {
             throw new IllegalArgumentException("Decoder factory cannot be set to null");
         }
@@ -2812,7 +2805,6 @@ public class SubsamplingScaleImageView
     @Nullable
     public final ImageViewState getState() {
         if (vTranslate != null && sWidth > 0 && sHeight > 0) {
-            //noinspection ConstantConditions
             return new ImageViewState(getScale(), getCenter(), getOrientation());
         }
         return null;
@@ -2961,7 +2953,6 @@ public class SubsamplingScaleImageView
      * @param executor an {@link Executor} for image loading.
      */
     public void setExecutor(@NonNull Executor executor) {
-        //noinspection ConstantConditions
         if (executor == null) {
             throw new NullPointerException("Executor must not be null");
         }

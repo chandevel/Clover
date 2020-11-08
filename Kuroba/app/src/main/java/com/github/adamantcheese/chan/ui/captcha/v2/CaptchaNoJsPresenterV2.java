@@ -110,7 +110,7 @@ public class CaptchaNoJsPresenterV2 {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
-            BackgroundUtils.backgroundService.submit(() -> {
+            BackgroundUtils.runOnBackgroundThread(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
                     RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
@@ -170,7 +170,7 @@ public class CaptchaNoJsPresenterV2 {
 
             lastTimeCaptchaRequest = System.currentTimeMillis();
 
-            BackgroundUtils.backgroundService.submit(() -> {
+            BackgroundUtils.runOnBackgroundThread(() -> {
                 try {
                     try {
                         prevCaptchaInfo = getCaptchaInfo();

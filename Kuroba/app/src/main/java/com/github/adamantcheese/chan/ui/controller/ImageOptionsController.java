@@ -84,7 +84,6 @@ public class ImageOptionsController
     private final CompressFormat imageFormat;
 
     private final SeekBar.OnSeekBarChangeListener listener = new SeekBar.OnSeekBarChangeListener() {
-        @SuppressWarnings("ConstantConditions")
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (seekBar == quality) {

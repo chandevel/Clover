@@ -907,7 +907,6 @@ public class ThreadPresenter
             matching.add(post);
         } else {
             //match all post IDs
-            //noinspection ConstantConditions, isBound check takes care of this
             for (Post p : getChanThread().getPosts()) {
                 if (!TextUtils.isEmpty(p.id) && p.id.equals(post.id)) {
                     matching.add(p);
@@ -1043,7 +1042,6 @@ public class ThreadPresenter
     @Override
     public void onListStatusClicked() {
         if (!isBound()) return;
-        //noinspection ConstantConditions
         if (!chanLoader.getThread().isArchived()) {
             chanLoader.requestMoreData();
         } else {

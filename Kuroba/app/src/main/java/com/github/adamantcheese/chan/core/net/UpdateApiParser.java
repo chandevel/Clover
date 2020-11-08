@@ -53,7 +53,7 @@ public class UpdateApiParser
         return DEV_BUILD ? parseDev(reader) : parseRelease(reader);
     }
 
-    @SuppressWarnings({"ConstantConditions", "PointlessArithmeticExpression"})
+    @SuppressWarnings("PointlessArithmeticExpression")
     public UpdateApiResponse parseRelease(JsonReader reader)
             throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();
@@ -106,7 +106,7 @@ public class UpdateApiParser
         return response;
     }
 
-    @SuppressWarnings({"ConstantConditions", "PointlessArithmeticExpression"})
+    @SuppressWarnings("PointlessArithmeticExpression")
     public UpdateApiResponse parseDev(JsonReader reader)
             throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();

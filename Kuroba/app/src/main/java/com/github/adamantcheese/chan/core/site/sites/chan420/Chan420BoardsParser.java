@@ -84,7 +84,6 @@ public class Chan420BoardsParser
                 case "board":
                     board.code = reader.nextString();
                     if (fileSizeLimit.containsKey(board.code)) {
-                        //noinspection ConstantConditions
                         board.maxFileSize = fileSizeLimit.get(board.code);
                     } else {
                         board.maxFileSize = 20480 * 1024;

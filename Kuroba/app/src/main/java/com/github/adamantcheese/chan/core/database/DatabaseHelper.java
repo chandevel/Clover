@@ -100,7 +100,6 @@ public class DatabaseHelper
         if (loadableDao == null) {
             loadableDao = getDaoForClass(Loadable.class);
             try {
-                //noinspection ConstantConditions
                 loadableDao.setObjectCache(true);
             } catch (SQLException ignored) {}
         }
@@ -527,7 +526,7 @@ public class DatabaseHelper
 
         if (oldVersion < 50) {
             try {
-                DeleteBuilder deleteBuilder = getLoadableDao().deleteBuilder();
+                DeleteBuilder<Loadable, Integer> deleteBuilder = getLoadableDao().deleteBuilder();
                 deleteBuilder.where().eq("title", "");
                 deleteBuilder.delete();
             } catch (Exception e) {

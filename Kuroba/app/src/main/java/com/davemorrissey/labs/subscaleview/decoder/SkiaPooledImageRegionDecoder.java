@@ -14,7 +14,6 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
@@ -310,10 +309,7 @@ public class SkiaPooledImageRegionDecoder
             return false;
         } else if (numberOfDecoders >= Runtime.getRuntime().availableProcessors()) {
             return false;
-        } else if (isLowMemory()) {
-            return false;
-        }
-        return true;
+        } else return !isLowMemory();
     }
 
     /**

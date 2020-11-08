@@ -87,7 +87,6 @@ public final class ImageSource {
      */
     @NonNull
     public static ImageSource asset(@NonNull String assetName) {
-        //noinspection ConstantConditions
         if (assetName == null) {
             throw new NullPointerException("Asset name must not be null");
         }
@@ -103,7 +102,6 @@ public final class ImageSource {
      */
     @NonNull
     public static ImageSource uri(@NonNull String uri) {
-        //noinspection ConstantConditions
         if (uri == null) {
             throw new NullPointerException("Uri must not be null");
         }
@@ -124,7 +122,6 @@ public final class ImageSource {
      */
     @NonNull
     public static ImageSource uri(@NonNull Uri uri) {
-        //noinspection ConstantConditions
         if (uri == null) {
             throw new NullPointerException("Uri must not be null");
         }
@@ -139,7 +136,6 @@ public final class ImageSource {
      */
     @NonNull
     public static ImageSource bitmap(@NonNull Bitmap bitmap) {
-        //noinspection ConstantConditions
         if (bitmap == null) {
             throw new NullPointerException("Bitmap must not be null");
         }
@@ -156,7 +152,6 @@ public final class ImageSource {
      */
     @NonNull
     public static ImageSource cachedBitmap(@NonNull Bitmap bitmap) {
-        //noinspection ConstantConditions
         if (bitmap == null) {
             throw new NullPointerException("Bitmap must not be null");
         }

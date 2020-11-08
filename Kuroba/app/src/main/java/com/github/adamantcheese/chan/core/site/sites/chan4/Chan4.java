@@ -210,7 +210,6 @@ public class Chan4
             }
         }
 
-        @SuppressWarnings("ConstantConditions")
         @Override
         public HttpUrl icon(String icon, Map<String, String> arg) {
             HttpUrl.Builder b = s.newBuilder().addPathSegment("image");

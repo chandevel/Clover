@@ -371,7 +371,6 @@ public class ReplyLayout
         }
     }
 
-    @SuppressWarnings("ConstantConditions")
     private boolean insertQuote() {
         int selectionStart = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
         int selectionEnd = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
@@ -387,7 +386,6 @@ public class ReplyLayout
         return true;
     }
 
-    @SuppressWarnings("ConstantConditions")
     private boolean insertTags(String before, String after) {
         int selectionStart = comment.getSelectionStart();
         comment.getText().insert(comment.getSelectionEnd(), after);

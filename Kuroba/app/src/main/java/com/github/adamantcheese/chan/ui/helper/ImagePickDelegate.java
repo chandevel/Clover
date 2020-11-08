@@ -213,7 +213,7 @@ public class ImagePickDelegate {
                     fileName = TextUtils.isEmpty(fileName) ? DEFAULT_FILE_NAME : fileName;
                 }
 
-                BackgroundUtils.backgroundService.execute(this::doFilePicked);
+                BackgroundUtils.runOnBackgroundThread(this::doFilePicked);
                 ok = true;
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {

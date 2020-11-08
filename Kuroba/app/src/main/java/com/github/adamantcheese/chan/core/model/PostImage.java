@@ -166,7 +166,6 @@ public class PostImage {
         }
 
         public Builder imageUrl(@NonNull HttpUrl imageUrl) {
-            //noinspection ConstantConditions
             if (imageUrl == null) {
                 throw new NullPointerException("imageUrl must not be null!");
             }

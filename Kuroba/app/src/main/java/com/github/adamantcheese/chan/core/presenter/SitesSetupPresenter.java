@@ -97,7 +97,6 @@ public class SitesSetupPresenter
     }
 
     public void onAddClicked(Class<? extends Site> siteClass) {
-        //noinspection ConstantConditions
         Site newSite = siteRepository.createFromClass(siteClass, context);
 
         sitesShown.add(newSite);
@@ -111,14 +110,12 @@ public class SitesSetupPresenter
     }
 
     private void saveOrder() {
-        //noinspection ConstantConditions
         siteRepository.updateSiteOrderingAsync(sitesShown);
     }
 
     private void updateSitesInUi() {
         List<SiteBoardCount> r = new ArrayList<>();
         for (Site site : sitesShown) {
-            //noinspection ConstantConditions
             r.add(new SiteBoardCount(site, boardManager.getSiteSavedBoards(site).size()));
         }
         callback.setSites(r);
@@ -126,7 +123,6 @@ public class SitesSetupPresenter
 
     public void removeSite(Site site) {
         try {
-            //noinspection ConstantConditions
             siteRepository.removeSite(site);
             ((StartActivity) context).restartApp();
         } catch (Throwable error) {

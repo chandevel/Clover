@@ -92,7 +92,7 @@ class CacheHandler(
 
     private fun clearChunksCacheDir() {
         if (trimChunksRunning.compareAndSet(false, true)) {
-            BackgroundUtils.backgroundService.execute {
+            BackgroundUtils.runOnBackgroundThread {
                 try {
                     fileManager.deleteContent(chunksCacheDirFile)
                 } finally {
@@ -300,7 +300,7 @@ class CacheHandler(
                 && now - trimTime > MIN_TRIM_INTERVAL
                 && trimRunning.compareAndSet(false, true)
         ) {
-            BackgroundUtils.backgroundService.execute {
+            BackgroundUtils.runOnBackgroundThread {
                 try {
                     trim()
                 } catch (e: Exception) {
@@ -664,8 +664,7 @@ class CacheHandler(
             // Already running. Do not use compareAndSet() here!
             return
         }
-
-        BackgroundUtils.backgroundService.submit { recalculateSize() }
+        BackgroundUtils.runOnBackgroundThread { recalculateSize() }
     }
 
     private fun recalculateSize() {

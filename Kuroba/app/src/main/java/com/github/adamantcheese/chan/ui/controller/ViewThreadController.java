@@ -449,7 +449,6 @@ public class ViewThreadController
     public boolean threadBackPressed() {
         //clear the pool if the current thread isn't a part of this crosspost chain
         //ie a new thread is loaded and a new chain is started; this will never throw null pointer exceptions
-        //noinspection ConstantConditions
         if (!threadFollowerpool.isEmpty() && threadFollowerpool.peekFirst().second != loadable.hashCode()) {
             threadFollowerpool.clear();
         }
@@ -457,7 +456,6 @@ public class ViewThreadController
         if (threadFollowerpool.isEmpty()) {
             return false;
         }
-        //noinspection ConstantConditions
         loadThread(threadFollowerpool.removeFirst().first);
         return true;
     }

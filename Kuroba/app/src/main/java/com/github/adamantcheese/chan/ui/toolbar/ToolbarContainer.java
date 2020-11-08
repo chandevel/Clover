@@ -393,7 +393,6 @@ public class ToolbarContainer
     }
 
     private void removeItem(@NonNull ItemView item) {
-        //noinspection ConstantConditions
         if (item == null) return;
         item.remove();
         removeView(item.view);

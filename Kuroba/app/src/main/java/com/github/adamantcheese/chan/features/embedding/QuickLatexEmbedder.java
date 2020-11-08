@@ -127,7 +127,6 @@ public class QuickLatexEmbedder
                                     String responseString = convert(null, response.body());
                                     Matcher matcher = QUICK_LATEX_RESPONSE.matcher(responseString);
                                     if (matcher.matches()) {
-                                        //noinspection ConstantConditions
                                         HttpUrl url = HttpUrl.get(matcher.group(1));
                                         String err = matcher.group(2);
                                         if (err == null) {
