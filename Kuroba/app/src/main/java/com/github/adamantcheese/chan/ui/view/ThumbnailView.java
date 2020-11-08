@@ -294,19 +294,19 @@ public abstract class ThumbnailView
     private void onImageSet(boolean isImmediate) {
         if (isImmediate) {
             setAlpha(1f);
+            onSetAlpha(255);
             animate().cancel();
         } else {
             setAlpha(0f);
+            onSetAlpha(0);
             animate().alpha(1f)
-                    // a bit of random delay lets lots of thumbnails not make the system chug [0-750]ms
-                    .setStartDelay(new Random().nextInt(16) * 50)
                     .setDuration(200)
                     .setListener(new AnimatorListenerAdapter() {
                         @Override
                         public void onAnimationEnd(Animator animation) {
                             super.onAnimationEnd(animation);
                             setAlpha(1f);
-                            invalidate();
+                            onSetAlpha(255);
                         }
                     });
         }
