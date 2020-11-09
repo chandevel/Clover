@@ -53,7 +53,7 @@ public abstract class SettingView {
     }
 
     public String getBottomDescription() {
-        return null;
+        return "";
     }
 
     public SettingNotification getSettingNotificationType() {

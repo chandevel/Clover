@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.PorterDuff;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -234,7 +235,7 @@ public class SettingsController
         final TextView bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
             bottom.setText(bottomText);
-            bottom.setVisibility(bottomText == null ? GONE : VISIBLE);
+            bottom.setVisibility(TextUtils.isEmpty(bottomText) ? GONE : VISIBLE);
         }
     }
 }
