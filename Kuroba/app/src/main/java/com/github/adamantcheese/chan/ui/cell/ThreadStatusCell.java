@@ -176,7 +176,7 @@ public class ThreadStatusCell
             return;
         }
         error = null;
-        if (callback.getChanThread() != null && !callback.getChanThread().isArchived()) {
+        if (callback.getChanThread() != null) {
             callback.onListStatusClicked();
         }
         update();

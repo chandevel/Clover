@@ -40,9 +40,14 @@ public abstract class ExternalSiteArchive
         this.searchEnabled = searchEnabled;
     }
 
-    public Loadable getArchiveLoadable(String boardCode, int opNo, int postNo) {
-        Loadable l = Loadable.forThread(board(boardCode), opNo, "", false);
-        if (opNo != postNo) l.markedNo = postNo;
+    public Loadable getArchiveLoadable(Loadable op, int postNo) {
+        Loadable l = Loadable.forThread(board(op.boardCode), op.no, op.title, false);
+        if (op.no != postNo) l.markedNo = postNo;
+        if (!(op.site instanceof ExternalSiteArchive) && op.no == postNo) {
+            // copy the scroll location
+            l.listViewIndex = op.listViewIndex;
+            l.listViewTop = op.listViewTop;
+        }
         return l;
     }
 

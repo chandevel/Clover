@@ -131,7 +131,7 @@ public class ViewThreadController
         if (loadable.site instanceof Chan4) { //archives are 4chan only
             menuOverflowBuilder.withSubItem(ARCHIVE_ID,
                     R.string.thread_view_external_archive,
-                    () -> threadLayout.getPresenter().showArchives(loadable.board.code, loadable.no, -1)
+                    () -> threadLayout.getPresenter().showArchives(loadable, loadable.no)
             );
         }
         menuOverflowBuilder.withSubItem(REMOVED_ID,
@@ -438,11 +438,11 @@ public class ViewThreadController
     }
 
     @Override
-    public void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo) {
+    public void openArchive(ExternalSiteArchive externalSiteArchive, Loadable op, int postNo) {
         threadFollowerpool.addFirst(new Pair<>(loadable,
-                externalSiteArchive.getArchiveLoadable(boardCode, opNo, postNo).hashCode()
+                externalSiteArchive.getArchiveLoadable(op, postNo).hashCode()
         ));
-        threadLayout.getPresenter().openArchive(externalSiteArchive, boardCode, opNo, postNo);
+        threadLayout.getPresenter().openArchive(externalSiteArchive, op, postNo);
     }
 
     @Override

@@ -956,21 +956,36 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.ARCHIVE) {
             if (linkable.value instanceof ThreadLink) {
                 ThreadLink opPostPair = (ThreadLink) linkable.value;
-                showArchives(opPostPair.board, opPostPair.threadId, opPostPair.postId);
+                Loadable constructed =
+                        Loadable.forThread(Board.fromSiteNameCode(loadable.site, opPostPair.board, opPostPair.board),
+                                opPostPair.threadId,
+                                "",
+                                false
+                        );
+                showArchives(constructed, opPostPair.postId);
             } else if (linkable.value instanceof ResolveLink) {
                 ResolveLink toResolve = (ResolveLink) linkable.value;
                 if (toResolve.board.site instanceof ExternalSiteArchive) {
                     showToast(context, "Calling archive API, just a moment!");
                     toResolve.resolve((threadLink) -> {
                         if (threadLink != null) {
-                            showArchives(threadLink.board, threadLink.threadId, threadLink.postId);
+                            Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(toResolve.board.site,
+                                    threadLink.board,
+                                    threadLink.board
+                                    ),
+                                    threadLink.threadId,
+                                    "",
+                                    false
+                            );
+                            showArchives(constructed, threadLink.postId);
                         } else {
                             showToast(context, "Failed to resolve thread external post link!");
                         }
                     }, new ResolveLink.ResolveParser(toResolve));
                 } else {
                     // for any dead links that aren't in an archive, assume that they're a link to a previous thread OP
-                    showArchives(toResolve.board.code, toResolve.postId, toResolve.postId);
+                    Loadable constructed = Loadable.forThread(toResolve.board, toResolve.postId, "", false);
+                    showArchives(constructed, toResolve.postId);
                 }
             }
         }
@@ -1035,21 +1050,20 @@ public class ThreadPresenter
         if (!chanLoader.getThread().isArchived()) {
             chanLoader.requestMoreData();
         } else {
-            showArchives(loadable.board.code, loadable.no, -1);
+            showArchives(loadable, loadable.no);
         }
     }
 
-    public void showArchives(String boardCode, int opNo, int postNo) {
+    public void showArchives(Loadable op, int postNo) {
         @SuppressLint("InflateParams")
         final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
-        boolean hasContents = dialogView.setBoard(loadable.board);
-        dialogView.setOpNo(opNo);
+        boolean hasContents = dialogView.setLoadable(op);
         dialogView.setPostNo(postNo);
         dialogView.setCallback(this);
 
         if (loadable.site instanceof ExternalSiteArchive) {
             // skip the archive picker, re-use the same archive we're already in
-            openArchive((ExternalSiteArchive) loadable.site, boardCode, opNo, postNo);
+            openArchive((ExternalSiteArchive) loadable.site, op, postNo);
         } else if (hasContents) {
             AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
                     .setTitle(R.string.thread_view_external_archive)
@@ -1254,9 +1268,9 @@ public class ThreadPresenter
     }
 
     @Override
-    public void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo) {
+    public void openArchive(ExternalSiteArchive externalSiteArchive, Loadable op, int postNo) {
         if (isBound()) {
-            showThread(externalSiteArchive.getArchiveLoadable(boardCode, opNo, postNo));
+            showThread(externalSiteArchive.getArchiveLoadable(op, postNo));
         }
     }
 

@@ -6,11 +6,13 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 
 import static com.github.adamantcheese.chan.Chan.inject;
@@ -19,8 +21,7 @@ public class ArchivesLayout
         extends LinearLayout {
     private Callback callback;
     private ArrayAdapter<ExternalSiteArchive> adapter;
-    private String boardCode;
-    private int opNo;
+    private Loadable op;
     private int postNo = -1;
     private AlertDialog alertDialog;
 
@@ -35,6 +36,7 @@ public class ArchivesLayout
     public ArchivesLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         inject(this);
+        op = Loadable.emptyLoadable(getContext());
     }
 
     @Override
@@ -43,23 +45,19 @@ public class ArchivesLayout
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
         ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> {
-            callback.openArchive((ExternalSiteArchive) parent.getItemAtPosition(position), boardCode, opNo, postNo);
+            callback.openArchive((ExternalSiteArchive) parent.getItemAtPosition(position), op, postNo);
             if (alertDialog != null) alertDialog.dismiss();
         });
     }
 
-    public boolean setBoard(Board b) {
-        boardCode = b.code;
-        adapter.addAll(ArchivesManager.getInstance().archivesForBoard(b));
+    public boolean setLoadable(@NonNull Loadable op) {
+        this.op = op;
+        adapter.addAll(ArchivesManager.getInstance().archivesForBoard(op.board));
         return !adapter.isEmpty();
     }
 
     public void setCallback(Callback c) {
         callback = c;
-    }
-
-    public void setOpNo(int opNo) {
-        this.opNo = opNo;
     }
 
     public void setPostNo(int postNo) {
@@ -71,6 +69,6 @@ public class ArchivesLayout
     }
 
     public interface Callback {
-        void openArchive(ExternalSiteArchive externalSiteArchive, String boardCode, int opNo, int postNo);
+        void openArchive(ExternalSiteArchive externalSiteArchive, Loadable op, int postNo);
     }
 }

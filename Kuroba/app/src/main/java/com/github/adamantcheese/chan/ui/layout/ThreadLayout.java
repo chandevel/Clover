@@ -184,7 +184,7 @@ public class ThreadLayout
             if (!archiveButton) {
                 presenter.requestData();
             } else {
-                presenter.showArchives(presenter.getLoadable().board.code, presenter.getLoadable().no, -1);
+                presenter.showArchives(presenter.getLoadable(), presenter.getLoadable().no);
             }
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
