@@ -230,14 +230,11 @@ public class PostAdapter
         displayList.addAll(posts);
 
         lastSeenIndicatorPosition = -1;
-        if (threadLoadable.lastViewed >= 0) {
-            // Do not process the last post, the indicator does not have to appear at the bottom
-            for (int i = 0, displayListSize = displayList.size() - 1; i < displayListSize; i++) {
-                Post post = displayList.get(i);
-                if (post.no == threadLoadable.lastViewed) {
-                    lastSeenIndicatorPosition = i + 1;
-                    break;
-                }
+        // Do not process the last post, the indicator does not have to appear at the bottom
+        for (int i = 0; i < displayList.size() - 1; i++) {
+            if (displayList.get(i).no == threadLoadable.lastViewed) {
+                lastSeenIndicatorPosition = i + 1;
+                break;
             }
         }
 

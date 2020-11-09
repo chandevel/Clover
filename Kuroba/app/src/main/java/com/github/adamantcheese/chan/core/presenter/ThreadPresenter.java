@@ -397,18 +397,23 @@ public class ThreadPresenter
         }
 
         if (loadable.isThreadMode()) {
-            int lastLoaded = loadable.lastLoaded;
+            List<Post> posts = result.getPosts();
+            int postsCount = posts.size();
+
+            // calculate how many new posts since last load
             int more = 0;
-            if (lastLoaded > 0) {
-                for (Post p : result.getPosts()) {
-                    if (p.no == lastLoaded) {
-                        more = result.getPosts().size() - result.getPosts().indexOf(p) - 1;
-                        break;
-                    }
+            for (int i = 0; i < postsCount; i++) {
+                Post p = posts.get(i);
+                if (p.no == loadable.lastLoaded) {
+                    // end index minus last loaded index
+                    more = (postsCount - 1) - i;
+                    break;
                 }
             }
 
-            loadable.lastLoaded = result.getPosts().get(result.getPosts().size() - 1).no;
+            // update last loaded post
+            loadable.lastLoaded = posts.get(postsCount - 1).no;
+
             // this loadable is fresh, for new post reasons set it to the last loaded
             if (loadable.lastViewed == -1) {
                 loadable.lastViewed = loadable.lastLoaded;

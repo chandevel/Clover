@@ -101,7 +101,6 @@ public class ThreadListLayout
     private ChanSettings.PostViewMode postViewMode;
     private int spanCount = 2;
     private boolean searchOpen;
-    private int lastPostCount;
 
     private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -112,10 +111,7 @@ public class ThreadListLayout
                 showingThread.getLoadable().listViewIndex = indexTop[0];
                 showingThread.getLoadable().listViewTop = indexTop[1];
 
-                int last = getCompleteBottomAdapterPosition();
-                if (last == postAdapter.getItemCount() - 1 && last > lastPostCount) {
-                    lastPostCount = last;
-
+                if (getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1) {
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
                     // while in a layout pass. Postpone to the next frame.
                     BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
@@ -524,7 +520,6 @@ public class ThreadListLayout
             openSearch(false);
         }
         showingThread = null;
-        lastPostCount = 0;
         noParty();
         noSanta();
     }
