@@ -174,7 +174,6 @@ public class ThreadPresenter
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
-    private boolean forcePageUpdate;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private final Context context;
     private List<FloatingMenuItem<Integer>> filterMenu;
@@ -417,11 +416,6 @@ public class ThreadPresenter
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsSnackbar(more);
-                //deal with any "requests" for a page update
-                if (forcePageUpdate) {
-                    PageRepository.forceUpdateForBoard(loadable.board);
-                    forcePageUpdate = false;
-                }
             }
         }
 
@@ -1077,8 +1071,7 @@ public class ThreadPresenter
     public void requestNewPostLoad() {
         if (isBound() && loadable.isThreadMode()) {
             chanLoader.requestMoreData();
-            //put in a "request" for a page update whenever the next set of data comes in
-            forcePageUpdate = true;
+            BackgroundUtils.runOnBackgroundThread(() -> PageRepository.forceUpdateForBoard(loadable.board), 10000);
         }
     }
 

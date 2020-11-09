@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:paddingHorizontal="8dp"
             tools:paddingTop="4dp" />
 
-        <TextView
+        <com.github.adamantcheese.chan.utils.IgnoreEmptySelectionTextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
