@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.media.MediaMetadataRetriever;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -12,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 
 import java.io.File;
@@ -27,6 +30,7 @@ import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
 import static android.graphics.Bitmap.CompressFormat.WEBP;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
@@ -245,5 +249,49 @@ public class BitmapUtils {
 
     public static Bitmap decode(Context c, @DrawableRes int resId) {
         return BitmapFactory.decodeResource(c.getResources(), resId);
+    }
+
+    public static void decodeFilePreviewImage(
+            final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback
+    ) {
+        BackgroundUtils.runOnBackgroundThread(() -> {
+            final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
+            Bitmap videoBitmap = null;
+            try {
+                MediaMetadataRetriever video = new MediaMetadataRetriever();
+                video.setDataSource(file.getAbsolutePath());
+                Bitmap frameBitmap = video.getFrameAtTime();
+                Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
+                Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
+                        audioIconBitmap.getWidth() * 3,
+                        audioIconBitmap.getHeight() * 3,
+                        true
+                );
+                boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
+                if (hasAudio && frameBitmap != null) {
+                    videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(),
+                            frameBitmap.getHeight(),
+                            frameBitmap.getConfig()
+                    );
+                    Canvas temp = new Canvas(videoBitmap);
+                    temp.drawBitmap(frameBitmap, new Matrix(), null);
+                    temp.drawBitmap(audioBitmap,
+                            frameBitmap.getWidth() - audioBitmap.getWidth(),
+                            frameBitmap.getHeight() - audioBitmap.getHeight(),
+                            null
+                    );
+                } else {
+                    videoBitmap = frameBitmap;
+                }
+            } catch (Exception ignored) {
+            }
+
+            final Bitmap finalVideoBitmap = videoBitmap;
+            BackgroundUtils.runOnMainThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
+        });
+    }
+
+    public interface ImageDecoderCallback {
+        void onImageBitmap(Bitmap bitmap);
     }
 }

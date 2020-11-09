@@ -23,7 +23,6 @@ import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
 import android.text.Editable;
@@ -77,7 +76,7 @@ import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
-import com.github.adamantcheese.chan.utils.ImageDecoder;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -103,8 +102,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ReplyLayout
         extends LoadView
         implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-                   ImageDecoder.ImageDecoderCallback, SelectionListeningEditText.SelectionChangedListener,
-                   CaptchaHolder.CaptchaValidationListener {
+                   SelectionListeningEditText.SelectionChangedListener, CaptchaHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
     @Inject
@@ -769,7 +767,17 @@ public class ReplyLayout
     public void openPreview(boolean show, File previewFile) {
         previewHolder.setClickable(false);
         if (show) {
-            ImageDecoder.decodeFileOnBackgroundThread(previewFile, dp(400), dp(300), this);
+            BitmapUtils.decodeFilePreviewImage(previewFile, dp(400), dp(300), bitmap -> {
+                if (bitmap != null) {
+                    preview.setImageBitmap(bitmap);
+                    previewHolder.setVisibility(VISIBLE);
+                    callback.updatePadding();
+
+                    showReencodeImageHint();
+                } else {
+                    openPreviewMessage(true, getString(R.string.reply_no_preview));
+                }
+            });
             attach.setImageResource(R.drawable.ic_clear_themed_24dp);
         } else {
             spoiler.setVisibility(GONE);
@@ -801,19 +809,6 @@ public class ReplyLayout
     public void enableImageAttach(boolean canAttach) {
         attach.setVisibility(canAttach ? VISIBLE : GONE);
         attach.setEnabled(canAttach);
-    }
-
-    @Override
-    public void onImageBitmap(Bitmap bitmap) {
-        if (bitmap != null) {
-            preview.setImageBitmap(bitmap);
-            previewHolder.setVisibility(VISIBLE);
-            callback.updatePadding();
-
-            showReencodeImageHint();
-        } else {
-            openPreviewMessage(true, getString(R.string.reply_no_preview));
-        }
     }
 
     @Override

@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.ImageDecoder;
 import com.google.gson.Gson;
 
 import javax.inject.Inject;
@@ -60,7 +59,7 @@ public class ImageReencodingPresenter {
 
     public void loadImagePreview() {
         Point displaySize = getDisplaySize();
-        ImageDecoder.decodeFileOnBackgroundThread(draft.file,
+        BitmapUtils.decodeFilePreviewImage(draft.file,
                 //decode to the device width/height, whatever is smaller
                 dp(Math.min(displaySize.x, displaySize.y)), 0, bitmap -> {
                     if (bitmap == null) {
