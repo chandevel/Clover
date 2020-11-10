@@ -45,8 +45,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 
-import java.util.Random;
-
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -299,16 +297,14 @@ public abstract class ThumbnailView
         } else {
             setAlpha(0f);
             onSetAlpha(0);
-            animate().alpha(1f)
-                    .setDuration(200)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            super.onAnimationEnd(animation);
-                            setAlpha(1f);
-                            onSetAlpha(255);
-                        }
-                    });
+            animate().alpha(1f).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    setAlpha(1f);
+                    onSetAlpha(255);
+                }
+            });
         }
     }
 
@@ -326,7 +322,7 @@ public abstract class ThumbnailView
 
     @Override
     public void onBitmapFailure(HttpUrl source, Exception e) {
-        if (!this.source.equals(source)) return;
+        if (this.source == null || !this.source.equals(source)) return; // source changed while call occurred, ignore
         if (e instanceof NetUtilsClasses.HttpCodeException) {
             errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
         } else {
@@ -341,7 +337,7 @@ public abstract class ThumbnailView
 
     @Override
     public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-        if (!this.source.equals(source)) return;
+        if (this.source == null || !this.source.equals(source)) return; // source changed while call occurred, ignore
         setImageBitmap(bitmap);
         onImageSet(fromCache);
         bitmapCall = null;
