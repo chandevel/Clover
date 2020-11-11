@@ -53,7 +53,6 @@ public class PostAdapter
 
     private Loadable loadable = null;
     private String error = null;
-    private String searchQuery = null;
     private String highlightedId;
     private int highlightedNo = -1;
     private String highlightedTripcode;
@@ -126,7 +125,6 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                post.highlightSearch(searchQuery);
                 ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
                         post,
                         postCellCallback,
@@ -206,25 +204,27 @@ public class PostAdapter
             // the spans change every time a new search query is entered, so this will update the ID as well
             // this makes ID's "stable" during normal use (like for scrolling, hiding/removing posts), but not in a search
             long spanTotal = 0;
-            for (SearchHighlightSpan span : post.comment.getSpans(0,
-                    post.comment.length(),
-                    SearchHighlightSpan.class
-            )) {
-                spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
+            synchronized (post.comment) {
+                for (SearchHighlightSpan span : post.comment.getSpans(0,
+                        post.comment.length(),
+                        SearchHighlightSpan.class
+                )) {
+                    spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
+                }
             }
-            //@formatter:off
-            return (((long) post.repliesFrom.size() << 32L) + post.no + spanTotal) * (compact ? 4L : 2L)
-                    * (post.no == highlightedNo ? 2L : 1L);
-            //@formatter:on
+            return (post.repliesFrom.size() << 8) + (spanTotal << (post.no == highlightedNo ? 2 : 1)) + post.no;
         }
     }
 
     public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery) {
         BackgroundUtils.ensureMainThread();
-        this.searchQuery = searchQuery;
 
         this.loadable = threadLoadable;
         showError(null);
+
+        for (Post post : posts) {
+            post.highlightSearch(searchQuery);
+        }
 
         displayList.clear();
         displayList.addAll(posts);

@@ -295,10 +295,12 @@ public class Post
      */
     public synchronized void setComment(SpannableStringBuilder replacement) {
         try {
-            Field c = Post.class.getField("comment");
-            c.setAccessible(true);
-            c.set(this, replacement);
-            c.setAccessible(false);
+            synchronized (comment) {
+                Field c = Post.class.getField("comment");
+                c.setAccessible(true);
+                c.set(this, replacement);
+                c.setAccessible(false);
+            }
         } catch (Exception e) {
             Logger.d(this, "Failed to set new comment!");
         }
@@ -350,6 +352,11 @@ public class Post
                 + "]";
     }
 
+    /**
+     * Clears out and reapplies highlighting spans for the given search query.
+     *
+     * @param query The substring to apply highlighting to
+     */
     public void highlightSearch(String query) {
         synchronized (comment) {
             // clear out any old spans
