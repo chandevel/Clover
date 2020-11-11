@@ -845,6 +845,10 @@ public class ThreadListLayout
         reply.onImageOptionsComplete();
     }
 
+    public boolean isReplyLayoutOpen() {
+        return replyOpen;
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 

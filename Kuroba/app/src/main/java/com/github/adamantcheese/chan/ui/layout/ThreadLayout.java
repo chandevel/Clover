@@ -591,20 +591,22 @@ public class ThreadLayout
 
     @Override
     public void showNewPostsSnackbar(int more) {
-        if (more > 0) {
-            if (!threadListLayout.scrolledToBottom() && BackgroundUtils.isInForeground()
-                    && threadListLayout.getReplyPresenter().getPage() == Page.INPUT) {
-                String text = getQuantityString(R.plurals.thread_new_posts, more, more);
+        if (more <= 0 || threadListLayout.scrolledToBottom() || !BackgroundUtils.isInForeground() || (
+                threadListLayout.isReplyLayoutOpen() && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
+                        && ChanSettings.moveInputToBottom.get())) {
+            dismissSnackbar();
+            return;
+        }
+
+        if (threadListLayout.getReplyPresenter().getPage() != Page.AUTHENTICATION) {
+            String text = getQuantityString(R.plurals.thread_new_posts, more, more);
+            dismissSnackbar();
+            newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
+            newPostsNotification.setGestureInsetBottomIgnored(true);
+            newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
+                presenter.onNewPostsViewClicked();
                 dismissSnackbar();
-                newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
-                newPostsNotification.setGestureInsetBottomIgnored(true);
-                newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                    presenter.onNewPostsViewClicked();
-                    dismissSnackbar();
-                }).show();
-            } else {
-                dismissSnackbar();
-            }
+            }).show();
         } else {
             dismissSnackbar();
         }
