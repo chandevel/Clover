@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:clipToPadding="false"
             android:padding="8dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/cell_archive" />
+            tools:listitem="@layout/simple_list_item"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
