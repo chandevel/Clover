@@ -223,7 +223,7 @@ public class CardPostCell
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
         comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
-        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
+        comment.setText(post.comment);
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
@@ -245,7 +245,7 @@ public class CardPostCell
     public void invalidateView(Post post) {
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
-        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
+        comment.setText(post.comment);
         findViewById(R.id.embed_spinner).setVisibility(GONE);
     }
 

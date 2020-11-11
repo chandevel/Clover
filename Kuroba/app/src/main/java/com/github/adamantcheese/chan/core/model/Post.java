@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -278,15 +279,29 @@ public class Post
      * Adds an image to the images set; generally don't do this unless you have some special reason for it!
      * Add images while the post is still a Builder instance if you can instead!
      */
-    public void addImage(PostImage image) {
-        if (images.size() >= 5) {
-            Logger.d(this, "Image list is capped at 5 images!");
-            return;
-        }
+    public void addImages(List<PostImage> images) {
         for (PostImage i : images) {
-            if (i.equals(image)) return;
+            if (this.images.contains(i)) continue;
+            if (images.size() >= 5) {
+                Logger.d(this, "Image list is capped at 5 images!");
+                return;
+            }
+            this.images.add(i);
         }
-        images.add(image);
+    }
+
+    /**
+     * @param replacement The replacement comment to override the existing one in this post. Use wisely!
+     */
+    public synchronized void setComment(SpannableStringBuilder replacement) {
+        try {
+            Field c = Post.class.getField("comment");
+            c.setAccessible(true);
+            c.set(this, replacement);
+            c.setAccessible(false);
+        } catch (Exception e) {
+            Logger.d(this, "Failed to set new comment!");
+        }
     }
 
     @MainThread

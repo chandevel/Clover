@@ -1,16 +1,20 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,8 +41,8 @@ public class YoutubeEmbedder
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
 
     @Override
-    public List<CharSequence> getShortRepresentations() {
-        return Arrays.asList("youtu.be", "youtube");
+    public boolean shouldEmbed(CharSequence comment, Board board) {
+        return StringUtils.containsAny(comment, Arrays.asList("youtu.be", "youtube"));
     }
 
     @Override
@@ -84,8 +88,13 @@ public class YoutubeEmbedder
      */
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addStandardEmbedCalls(this, theme, post);
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    ) {
+        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
     }
 
     @Override

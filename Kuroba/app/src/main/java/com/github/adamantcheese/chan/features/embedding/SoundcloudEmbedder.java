@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
@@ -8,8 +9,9 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -38,8 +40,8 @@ public class SoundcloudEmbedder
             Pattern.compile("(https?://(?:\\w+\\.)?soundcloud\\.com/.*?/(?:sets/)?[A-Za-z0-9-_.!~*'()]*)(?:/|\\b)");
 
     @Override
-    public List<CharSequence> getShortRepresentations() {
-        return Collections.singletonList("soundcloud");
+    public boolean shouldEmbed(CharSequence comment, Board board) {
+        return StringUtils.containsAny(comment, Collections.singletonList("soundcloud"));
     }
 
     @Override
@@ -54,13 +56,17 @@ public class SoundcloudEmbedder
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        return HttpUrl.get(
-                "https://w.soundcloud.com/player/?visual=true&url=" + matcher.group(1) + "&show_artwork=true");
+        return HttpUrl.get("https://w.soundcloud.com/player/?visual=true&show_artwork=true&url=" + matcher.group(1));
     }
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addStandardEmbedCalls(this, theme, post);
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    ) {
+        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
     }
 
     @SuppressWarnings("RegExpRedundantEscape") // complains, but otherwise will fail at runtime
@@ -150,7 +156,9 @@ public class SoundcloudEmbedder
         reader.endArray();
 
         return new EmbedResult(
-                (artist + title).isEmpty() ? sourceURL.toString() : title + " | " + artist,
+                (artist + title).isEmpty()
+                        ? sourceURL.toString().substring(sourceURL.toString().lastIndexOf('=') + 1)
+                        : title + " | " + artist,
                 duration,
                 new PostImage.Builder().serverFilename(title)
                         .thumbnailUrl(artworkURL == null ? HttpUrl.get(

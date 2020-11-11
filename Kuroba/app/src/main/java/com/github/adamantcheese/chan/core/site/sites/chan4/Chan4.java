@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.HTMLProcessor;
@@ -340,12 +341,12 @@ public class Chan4
             NetUtils.makeHTMLRequest(endpoints().archive(board), new ResponseResult<InternalSiteArchive>() {
                 @Override
                 public void onFailure(Exception e) {
-                    archiveListener.onArchiveError();
+                    BackgroundUtils.runOnMainThread(archiveListener::onArchiveError);
                 }
 
                 @Override
                 public void onSuccess(InternalSiteArchive result) {
-                    archiveListener.onArchive(result);
+                    BackgroundUtils.runOnMainThread(() -> archiveListener.onArchive(result));
                 }
             }, new HTMLProcessor<InternalSiteArchive>() {
                 @Override

@@ -608,7 +608,7 @@ public class PostCell
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
         clearShiftPostFormatting();
-        comment.setText(post.comment, TextView.BufferType.SPANNABLE);
+        comment.setText(post.comment);
         buildThumbnails();
         doShiftPostFormatting();
         findViewById(R.id.embed_spinner).setVisibility(GONE);

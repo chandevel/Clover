@@ -228,8 +228,6 @@ public class ChanThreadLoader {
     }
 
     public void clearTimer() {
-        BackgroundUtils.ensureMainThread();
-
         currentTimeout = 0;
         clearPendingRunnable();
     }
@@ -257,7 +255,7 @@ public class ChanThreadLoader {
         return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
             @Override
             public void onFailure(Exception e) {
-                onErrorResponse(e);
+                BackgroundUtils.runOnMainThread(() -> onErrorResponse(e));
             }
 
             @Override
@@ -394,8 +392,6 @@ public class ChanThreadLoader {
     }
 
     private void clearPendingRunnable() {
-        BackgroundUtils.ensureMainThread();
-
         if (pendingFuture != null) {
             pendingFuture.cancel(false);
             pendingFuture = null;

@@ -75,7 +75,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
@@ -721,7 +720,7 @@ public class ThreadPresenter
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
                     boolean speciallyProcessed = false;
                     for (Embedder<?> e : embeddingEngine.embedders) {
-                        if (StringUtils.containsAny(value, e.getShortRepresentations())) {
+                        if (e.shouldEmbed(value, loadable.board)) {
                             if (added.contains(trimmedUrl)) continue;
                             keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
                             added.add(trimmedUrl);
@@ -737,7 +736,7 @@ public class ThreadPresenter
                 AlertDialog dialog = new AlertDialog.Builder(context).create();
 
                 ListView clickables = new ListView(context);
-                clickables.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, keys));
+                clickables.setAdapter(new ArrayAdapter<>(context, R.layout.simple_list_item, keys));
                 clickables.setOnItemClickListener((parent, view, position, id1) -> {
                     onPostLinkableClicked(post, new ArrayList<>(post.linkables).get(position));
                     dialog.dismiss();

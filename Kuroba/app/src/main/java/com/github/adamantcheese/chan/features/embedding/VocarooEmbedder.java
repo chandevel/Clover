@@ -1,19 +1,22 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,8 +38,8 @@ public class VocarooEmbedder
             Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})(?:/|\\b)");
 
     @Override
-    public List<CharSequence> getShortRepresentations() {
-        return Arrays.asList("vocaroo", "voca.ro");
+    public boolean shouldEmbed(CharSequence comment, Board board) {
+        return StringUtils.containsAny(comment, Arrays.asList("vocaroo", "voca.ro"));
     }
 
     @Override
@@ -55,30 +58,41 @@ public class VocarooEmbedder
     }
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    ) {
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         if (ChanSettings.parsePostImageLinks.get()) {
-            Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
+            Matcher linkMatcher = getEmbedReplacePattern().matcher(commentCopy);
             while (linkMatcher.find()) {
-                final String URL = linkMatcher.group(0);
+                String URL = linkMatcher.group(0);
                 if (URL == null) continue;
-                final String id = linkMatcher.group(1);
+                String id = linkMatcher.group(1);
 
                 calls.add(new Pair<>(new NetUtilsClasses.NullCall(HttpUrl.get(URL)), new IgnoreFailureCallback() {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
-                        performStandardEmbedding(theme, post, new EmbedResult(
-                                "Vocaroo attached! ♫",
-                                "",
-                                new PostImage.Builder().serverFilename(id)
-                                        .thumbnailUrl(HttpUrl.parse(
-                                                "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
-                                        .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
-                                        .filename("Vocaroo " + id)
-                                        .extension("mp3")
-                                        .isInlined()
-                                        .build()
-                        ), URL, getIconBitmap());
+                        performStandardEmbedding(theme,
+                                commentCopy,
+                                generatedLinkables,
+                                generatedImages,
+                                new EmbedResult("Vocaroo attached! ♫",
+                                        "",
+                                        new PostImage.Builder().serverFilename(id)
+                                                .thumbnailUrl(HttpUrl.parse(
+                                                        "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
+                                                .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
+                                                .filename("Vocaroo " + id)
+                                                .extension("mp3")
+                                                .isInlined()
+                                                .build()
+                                ),
+                                URL,
+                                getIconBitmap()
+                        );
                     }
                 }));
             }

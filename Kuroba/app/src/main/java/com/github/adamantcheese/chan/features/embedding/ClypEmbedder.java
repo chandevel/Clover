@@ -1,16 +1,19 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +32,8 @@ public class ClypEmbedder
     private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})(?:/|\\b)");
 
     @Override
-    public List<CharSequence> getShortRepresentations() {
-        return Collections.singletonList("clyp.it");
+    public boolean shouldEmbed(CharSequence comment, Board board) {
+        return StringUtils.containsAny(comment, Collections.singletonList("clyp.it"));
     }
 
     @Override
@@ -67,8 +70,13 @@ public class ClypEmbedder
      */
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
-        return addStandardEmbedCalls(this, theme, post);
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    ) {
+        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
     }
 
     @Override

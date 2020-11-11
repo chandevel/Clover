@@ -1,11 +1,14 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.graphics.Bitmap;
+import android.text.SpannableStringBuilder;
 
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseConverter;
@@ -22,13 +25,13 @@ import okhttp3.ResponseBody;
 
 public interface Embedder<T>
         extends ResponseProcessor<EmbedResult, T>, ResponseConverter<T> {
+
     /**
-     * This is MAINLY used for the auto-linker to prevent it from linking stuff that'll get processed by an embedder.
-     * This is also used in some helper methods to skip expensive generation steps.
-     *
-     * @return A list of strings that represent what this embedder does, usually just the name of the host eg youtube
+     * @param comment A copy of the post's initial data
+     * @param board   The board for the post
+     * @return true if this embedder should be run on this content
      */
-    List<CharSequence> getShortRepresentations();
+    boolean shouldEmbed(CharSequence comment, Board board);
 
     /**
      * This is used for the helper calls in EmbeddingEngine for a "standard" embed of icon-title-duration.
@@ -49,12 +52,19 @@ public interface Embedder<T>
     HttpUrl generateRequestURL(Matcher matcher);
 
     /**
-     * @param theme The current theme, for post linkables (generally is ThemeHelper.getCurrentTheme())
-     * @param post  The post for the embedding, where any embeds should be replaced or any additional images should be attached
+     * @param theme              The current theme, for post linkables (generally is ThemeHelper.getCurrentTheme())
+     * @param commentCopy        A copy of the post's comment, to which spans can be attached
+     * @param generatedLinkables A list of linkables that will be added to the original post after everything is complete; pair this will adding spans to commentCopy
+     * @param generatedImages    A list of images that will be added to the original post after everything is complete
      * @return A list of pairs of call/callback that will do the embedding. A post may have more than one thing to be embedded.
      * Calls should NOT be enqueued, as the embedding engine will take care of enqueuing the appropriate call/callback pair.
      */
-    List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post);
+    List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    );
 
     /**
      * This is used by helper calls in EmbeddingEngine to automatically convert a response body to an object that can be processed.

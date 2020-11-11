@@ -12,13 +12,16 @@ import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
-import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -46,7 +49,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntStri
 
 public class QuickLatexEmbedder
         implements Embedder<String> {
-    private final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(?:math|eqn)].*?\\[/(?:math|eqn)]");
+    private final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(math|eqn)].*?\\[/\\1]", Pattern.DOTALL);
     private final Pattern QUICK_LATEX_RESPONSE =
             Pattern.compile(".*?\r\n(\\S+)\\s.*?\\s\\d+\\s\\d+(?:\r\n([\\s\\S]+))?");
 
@@ -54,9 +57,8 @@ public class QuickLatexEmbedder
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
     @Override
-    public List<CharSequence> getShortRepresentations() {
-        // this embedder doesn't prevent any URL autolinking, but has quick checking to skip expensive operations
-        return Arrays.asList("[math]", "[eqn]");
+    public boolean shouldEmbed(CharSequence comment, Board board) {
+        return board.mathTags && StringUtils.containsAny(comment, Arrays.asList("[math]", "[eqn]"));
     }
 
     @Override
@@ -75,14 +77,17 @@ public class QuickLatexEmbedder
     }
 
     @Override
-    public List<Pair<Call, Callback>> generateCallPairs(Theme theme, Post post) {
+    public List<Pair<Call, Callback>> generateCallPairs(
+            Theme theme,
+            SpannableStringBuilder commentCopy,
+            List<PostLinkable> generatedLinkables,
+            List<PostImage> generatedImages
+    ) {
         List<Pair<Call, Callback>> ret = new ArrayList<>();
-        if (!post.board.mathTags) return ret; // only parse math on math enabled boards
-
         Set<Pair<String, String>> toReplace = new HashSet<>();
-        Matcher linkMatcher = getEmbedReplacePattern().matcher(post.comment);
+        Matcher linkMatcher = getEmbedReplacePattern().matcher(commentCopy);
         while (linkMatcher.find()) {
-            final String rawMath = linkMatcher.group(0);
+            String rawMath = linkMatcher.group(0);
             if (rawMath == null) continue;
 
             String sanitizedMath = rawMath.replace("[math]", "$")
@@ -102,7 +107,7 @@ public class QuickLatexEmbedder
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         BackgroundUtils.runOnBackgroundThread(() -> {
-                            Pair<Call, Callback> ret = generateMathSpanCalls(post, imageUrl, math.first);
+                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy, imageUrl, math.first);
                             if (ret == null || ret.first == null || ret.second == null) return;
                             try {
                                 ret.second.onResponse(ret.first, ret.first.execute());
@@ -131,7 +136,8 @@ public class QuickLatexEmbedder
                                         String err = matcher.group(2);
                                         if (err == null) {
                                             mathCache.put(math.first, url);
-                                            Pair<Call, Callback> ret = generateMathSpanCalls(post, url, math.first);
+                                            Pair<Call, Callback> ret =
+                                                    generateMathSpanCalls(commentCopy, url, math.first);
                                             if (ret == null || ret.first == null || ret.second == null) return;
                                             ret.second.onResponse(ret.first, ret.first.execute());
                                         }
@@ -177,20 +183,24 @@ public class QuickLatexEmbedder
     }
 
     private Pair<Call, Callback> generateMathSpanCalls(
-            Post post, @NonNull final HttpUrl imageUrl, final String rawMath
+            SpannableStringBuilder comment, @NonNull HttpUrl imageUrl, String rawMath
     ) {
         // execute immediately, so that the invalidate function is called when all embeds are done
         // that means that we can't enqueue this request
         return NetUtils.makeBitmapRequest(imageUrl, new NetUtilsClasses.BitmapResult() {
             @Override
-            public void onBitmapFailure(HttpUrl source, Exception e) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
+            public void onBitmapFailure(
+                    HttpUrl source, Exception e
+            ) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
 
             @Override
             public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                // while this does run on the main thread (and shouldn't!), it's too much of a hassle to do this properly
+                // this returns fast enough that the other embed processing time gives this time to complete before invalidate
                 int startIndex = 0;
                 while (true) {
-                    synchronized (post.comment) {
-                        startIndex = TextUtils.indexOf(post.comment, rawMath, startIndex);
+                    synchronized (comment) {
+                        startIndex = TextUtils.indexOf(comment, rawMath, startIndex);
                         if (startIndex < 0) break;
 
                         SpannableStringBuilder replacement = new SpannableStringBuilder(" ");
@@ -203,7 +213,7 @@ public class QuickLatexEmbedder
                         );
 
                         // replace the proper section of the comment
-                        post.comment.replace(startIndex, startIndex + rawMath.length(), replacement);
+                        comment.replace(startIndex, startIndex + rawMath.length(), replacement);
 
                         // update the index to the next location
                         startIndex = startIndex + replacement.length();
