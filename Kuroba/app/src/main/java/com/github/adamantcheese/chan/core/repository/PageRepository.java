@@ -52,7 +52,9 @@ public class PageRepository {
     }
 
     public static void forceUpdateForBoard(Board b) {
-        requestBoard(b);
+        if (b != null) {
+            requestBoard(b);
+        }
     }
 
     private static ChanPage findPage(Board board, int opNo) {
