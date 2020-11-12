@@ -69,7 +69,7 @@ public class ImageReencodingPresenter {
                     }
 
                     callback.showImagePreview(bitmap);
-                }
+                }, true
         );
     }
 

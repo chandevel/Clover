@@ -777,7 +777,7 @@ public class ReplyLayout
                 } else {
                     openPreviewMessage(true, getString(R.string.reply_no_preview));
                 }
-            });
+            }, true);
             attach.setImageResource(R.drawable.ic_clear_themed_24dp);
         } else {
             spoiler.setVisibility(GONE);

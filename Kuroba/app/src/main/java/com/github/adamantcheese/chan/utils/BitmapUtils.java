@@ -16,6 +16,7 @@ import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -251,44 +252,53 @@ public class BitmapUtils {
         return BitmapFactory.decodeResource(c.getResources(), resId);
     }
 
-    public static void decodeFilePreviewImage(
-            final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback
+    public static Bitmap decodeFilePreviewImage(
+            final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback, boolean addAudioIcon
     ) {
-        BackgroundUtils.runOnBackgroundThread(() -> {
-            final Bitmap bitmap = decodeFile(file, maxWidth, maxHeight);
-            Bitmap videoBitmap = null;
-            try {
-                MediaMetadataRetriever video = new MediaMetadataRetriever();
-                video.setDataSource(file.getAbsolutePath());
-                Bitmap frameBitmap = video.getFrameAtTime();
+        if (callback != null) {
+            BackgroundUtils.runOnBackgroundThread(() -> {
+                Bitmap result = decodeFilePreviewImage(file, maxWidth, maxHeight, addAudioIcon);
+                BackgroundUtils.runOnMainThread(() -> callback.onImageBitmap(result));
+            });
+            return null;
+        } else {
+            return decodeFilePreviewImage(file, maxWidth, maxHeight, addAudioIcon);
+        }
+    }
+
+    private static Bitmap decodeFilePreviewImage(final File file, int maxWidth, int maxHeight, boolean addAudioIcon) {
+        Bitmap result = BitmapRepository.error;
+        try {
+            result = decodeFile(file, maxWidth, maxHeight);
+        } catch (Exception ignored) {
+        }
+        try {
+            MediaMetadataRetriever video = new MediaMetadataRetriever();
+            video.setDataSource(file.getAbsolutePath());
+            Bitmap frameBitmap = video.getFrameAtTime();
+            boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
+            if (hasAudio && frameBitmap != null && addAudioIcon) {
                 Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
                 Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
                         audioIconBitmap.getWidth() * 3,
                         audioIconBitmap.getHeight() * 3,
                         true
                 );
-                boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
-                if (hasAudio && frameBitmap != null) {
-                    videoBitmap = Bitmap.createBitmap(frameBitmap.getWidth(),
-                            frameBitmap.getHeight(),
-                            frameBitmap.getConfig()
-                    );
-                    Canvas temp = new Canvas(videoBitmap);
-                    temp.drawBitmap(frameBitmap, new Matrix(), null);
-                    temp.drawBitmap(audioBitmap,
-                            frameBitmap.getWidth() - audioBitmap.getWidth(),
-                            frameBitmap.getHeight() - audioBitmap.getHeight(),
-                            null
-                    );
-                } else {
-                    videoBitmap = frameBitmap;
-                }
-            } catch (Exception ignored) {
+                result = Bitmap.createBitmap(frameBitmap.getWidth(), frameBitmap.getHeight(), frameBitmap.getConfig());
+                Canvas temp = new Canvas(result);
+                temp.drawBitmap(frameBitmap, new Matrix(), null);
+                temp.drawBitmap(audioBitmap,
+                        frameBitmap.getWidth() - audioBitmap.getWidth(),
+                        frameBitmap.getHeight() - audioBitmap.getHeight(),
+                        null
+                );
+            } else {
+                result = frameBitmap;
             }
+        } catch (Exception ignored) {
+        }
 
-            final Bitmap finalVideoBitmap = videoBitmap;
-            BackgroundUtils.runOnMainThread(() -> callback.onImageBitmap(bitmap != null ? bitmap : finalVideoBitmap));
-        });
+        return result;
     }
 
     public interface ImageDecoderCallback {

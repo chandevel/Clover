@@ -15,11 +15,14 @@ import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
@@ -32,6 +35,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.lang.Runtime.getRuntime;
 
 public class NetUtils {
@@ -159,18 +163,31 @@ public class NetUtils {
                         performBitmapFailure(url, new NullPointerException("No response data"));
                         return;
                     }
-                    ExceptionCatchingInputStream wrappedStream = new ExceptionCatchingInputStream(body.byteStream());
-                    Bitmap bitmap = BitmapUtils.decode(wrappedStream, width, height);
-                    if (bitmap == null) {
+                    Bitmap result;
+                    String fileExtension = StringUtils.extractFileNameExtension(url.toString());
+                    if (fileExtension != null && fileExtension.equalsIgnoreCase("webm")) {
+                        File tempFile =
+                                File.createTempFile(UUID.randomUUID().toString(), "tmp", getAppContext().getCacheDir());
+                        try (FileOutputStream output = new FileOutputStream(tempFile)) {
+                            output.write(response.body().bytes());
+                        }
+                        result = BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, null, false);
+                        tempFile.delete();
+                    } else {
+                        ExceptionCatchingInputStream wrappedStream =
+                                new ExceptionCatchingInputStream(body.byteStream());
+                        result = BitmapUtils.decode(wrappedStream, width, height);
+                        if (wrappedStream.getException() != null) {
+                            performBitmapFailure(url, wrappedStream.getException());
+                            return;
+                        }
+                    }
+                    if (result == null) {
                         performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
                         return;
                     }
-                    if (wrappedStream.getException() != null) {
-                        performBitmapFailure(url, wrappedStream.getException());
-                        return;
-                    }
-                    imageCache.put(url, bitmap);
-                    performBitmapSuccess(url, bitmap, false);
+                    imageCache.put(url, result);
+                    performBitmapSuccess(url, result, false);
                 } catch (Exception e) {
                     performBitmapFailure(url, e);
                 } catch (OutOfMemoryError e) {
