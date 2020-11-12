@@ -237,7 +237,7 @@ public class DefaultPostParser
 
     // Modified from 3.20 of Regular Expressions Cookbook, 2nd Edition
     // find that bad boy on LibGen, it's good stuff
-    private final Pattern MATH_PATTERN = Pattern.compile("\\[(math|eqn)].*?\\[/\1]");
+    private final Pattern MATH_PATTERN = Pattern.compile("\\[(math|eqn)].*?\\[/\\1]");
 
     private String processEmojiMath(String text) {
         StringBuilder rebuilder = new StringBuilder();

@@ -46,7 +46,7 @@ public class DummySite
 
     @Override
     public int id() {
-        return Integer.MIN_VALUE;
+        return -1;
     }
 
     @Override
