@@ -46,6 +46,7 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
@@ -471,12 +472,12 @@ public class CommentParser {
             ), new ResponseResult<ThreadLink>() {
                 @Override
                 public void onFailure(Exception e) {
-                    callback.onProcessed(null);
+                    BackgroundUtils.runOnMainThread(() -> callback.onProcessed(null));
                 }
 
                 @Override
                 public void onSuccess(ThreadLink result) {
-                    callback.onProcessed(result);
+                    BackgroundUtils.runOnMainThread(() -> callback.onProcessed(result));
                 }
             }, parser, 5000);
         }
