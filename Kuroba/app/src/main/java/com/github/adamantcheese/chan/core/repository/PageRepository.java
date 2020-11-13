@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,9 +52,9 @@ public class PageRepository {
         return findPage(opLoadable.board, opLoadable.no);
     }
 
-    public static void forceUpdateForBoard(Board b) {
+    public static void forceUpdateForBoard(final Board b) {
         if (b != null) {
-            requestBoard(b);
+            BackgroundUtils.runOnBackgroundThread(() -> requestBoard(b), 10000);
         }
     }
 

@@ -1089,9 +1089,7 @@ public class ThreadPresenter
     public void requestNewPostLoad() {
         if (isBound() && loadable.isThreadMode()) {
             chanLoader.requestMoreData();
-            BackgroundUtils.runOnBackgroundThread(() -> PageRepository.forceUpdateForBoard(chanLoader.getLoadable().board),
-                    10000
-            );
+            PageRepository.forceUpdateForBoard(chanLoader.getLoadable().board);
         }
     }
 
