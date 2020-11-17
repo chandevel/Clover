@@ -31,321 +31,327 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:animateLayoutChanges="true"
         android:baselineAligned="false"
         android:minHeight="124dp"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         tools:background="?backcolor"
         tools:ignore="ContentDescription,RtlSymmetry">
 
-        <LinearLayout
-            android:layout_width="0dp"
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical"
-            android:paddingLeft="8dp"
-            android:paddingVertical="8dp">
+            android:padding="8dp"
+            android:textColor="@color/md_red_500"
+            android:visibility="gone"
+            tools:text="Notifications go here when they appear."
+            tools:visibility="visible" />
 
-            <TextView
-                android:id="@+id/message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:textColor="@color/md_red_500"
-                android:visibility="gone"
-                tools:text="Notifications go here when they appear."
-                tools:visibility="visible" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:id="@+id/name_options"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                tools:visibility="visible">
+                android:layout_weight="1"
+                android:animateLayoutChanges="true"
+                android:orientation="vertical"
+                android:paddingVertical="8dp"
+                android:paddingLeft="8dp">
+
+                <LinearLayout
+                    android:id="@+id/name_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <EditText
+                        android:id="@+id/name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2"
+                        android:hint="@string/reply_name"
+                        android:inputType="textCapSentences|textAutoCorrect"
+                        android:singleLine="true"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/flag"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Flag"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <EditText
+                        android:id="@+id/options"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/reply_options"
+                        android:singleLine="true"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
 
                 <EditText
-                    android:id="@+id/name"
-                    android:layout_width="0dp"
+                    android:id="@+id/subject"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="2"
-                    android:hint="@string/reply_name"
+                    android:hint="@string/reply_subject"
                     android:inputType="textCapSentences|textAutoCorrect"
                     android:singleLine="true"
-                    android:textSize="16sp" />
-
-                <EditText
-                    android:id="@+id/flag"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="Flag"
-                    android:singleLine="true"
                     android:textSize="16sp"
                     android:visibility="gone"
                     tools:visibility="visible" />
 
-                <EditText
-                    android:id="@+id/options"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/reply_options"
-                    android:singleLine="true"
-                    android:textSize="16sp" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-            </LinearLayout>
+                    <com.github.adamantcheese.chan.ui.view.SelectionListeningEditText
+                        android:id="@+id/comment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:imeActionLabel="@string/submit"
+                        android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
+                        android:maxLines="6"
+                        android:minHeight="108dp"
+                        android:textSize="16sp"
+                        tools:text="@string/lorem_ipsum" />
 
-            <EditText
-                android:id="@+id/subject"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/reply_subject"
-                android:inputType="textCapSentences|textAutoCorrect"
-                android:singleLine="true"
-                android:textSize="16sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                    <TextView
+                        android:id="@+id/comment_counter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:paddingRight="4dp"
+                        android:textColor="?android:textColorSecondary"
+                        android:textSize="12sp"
+                        android:translationY="-2dp"
+                        tools:ignore="RelativeOverlap"
+                        tools:text="0/2000" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                </RelativeLayout>
 
-                <com.github.adamantcheese.chan.ui.view.SelectionListeningEditText
-                    android:id="@+id/comment"
+                <LinearLayout
+                    style="@style/Widget.AppCompat.ButtonBar"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="top"
-                    android:imeActionLabel="@string/submit"
-                    android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
-                    android:maxLines="6"
-                    android:minHeight="108dp"
-                    android:textSize="16sp"
-                    tools:text="@string/lorem_ipsum" />
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/comment_quote"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_quote"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/comment_spoiler"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_spoiler_tag"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/comment_code"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_code_tag"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/comment_eqn"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_eqn_tag"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/comment_math"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="50dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_math_tag"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <Button
+                        android:id="@+id/comment_sjis"
+                        style="@style/Widget.AppCompat.Button.Borderless"
+                        android:layout_width="50dp"
+                        android:layout_height="40dp"
+                        android:layout_margin="0dp"
+                        android:padding="0dp"
+                        android:text="@string/reply_comment_button_sjis_tag"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                </LinearLayout>
+
+                <CheckBox
+                    android:id="@+id/spoiler"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reply_spoiler_image"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <LinearLayout
+                    android:id="@+id/preview_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <ImageView
+                        android:id="@+id/preview"
+                        android:layout_width="128dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:scaleType="fitCenter"
+                        tools:src="@mipmap/ic_launcher_foreground" />
+
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/comment_counter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentRight="true"
-                    android:paddingRight="4dp"
-                    android:textColor="?android:textColorSecondary"
-                    android:textSize="12sp"
-                    android:translationY="-2dp"
-                    tools:ignore="RelativeOverlap"
-                    tools:text="0/2000" />
-
-            </RelativeLayout>
-
-            <LinearLayout
-                style="@style/Widget.AppCompat.ButtonBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <Button
-                    android:id="@+id/comment_quote"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_quote"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <Button
-                    android:id="@+id/comment_spoiler"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_spoiler_tag"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <Button
-                    android:id="@+id/comment_code"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_code_tag"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <Button
-                    android:id="@+id/comment_eqn"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_eqn_tag"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <Button
-                    android:id="@+id/comment_math"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="50dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_math_tag"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-                <Button
-                    android:id="@+id/comment_sjis"
-                    style="@style/Widget.AppCompat.Button.Borderless"
-                    android:layout_width="50dp"
-                    android:layout_height="40dp"
-                    android:layout_margin="0dp"
-                    android:padding="0dp"
-                    android:text="@string/reply_comment_button_sjis_tag"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
-            </LinearLayout>
-
-            <CheckBox
-                android:id="@+id/spoiler"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/reply_spoiler_image"
-                android:textSize="14sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <LinearLayout
-                android:id="@+id/preview_holder"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:orientation="horizontal"
-                android:visibility="gone"
-                tools:visibility="visible">
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/preview"
-                    android:layout_width="128dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="2"
-                    android:scaleType="fitCenter"
-                    tools:src="@mipmap/ic_launcher_foreground" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1" />
-
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/preview_message"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:visibility="gone"
-                tools:visibility="visible" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/file_name"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:hint="@string/reply_file_name"
-                    android:singleLine="true"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintRight_toLeftOf="@id/filename_new"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:visibility="visible" />
-
-                <ImageView
-                    android:id="@+id/filename_new"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:src="@drawable/ic_refresh_themed_24dp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="52dp"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="8dp">
-
-            <ImageView
-                android:id="@+id/more"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/ripple_item_background"
-                android:padding="6dp"
-                android:scaleX="1.25"
-                android:scaleY="1.25"
-                android:src="@drawable/ic_expand_more_white_24dp"
-                app:tint="?attr/themeDrawableColor" />
-
-            <ImageView
-                android:id="@+id/attach"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/ripple_item_background"
-                android:padding="6dp"
-                android:src="@drawable/ic_image_themed_24dp"
-                app:tint="?attr/themeDrawableColor" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/submit"
-                android:layout_width="36dp"
-                android:layout_height="36dp">
-
-                <ImageView
+                    android:id="@+id/preview_message"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/file_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:hint="@string/reply_file_name"
+                        android:singleLine="true"
+                        android:textSize="16sp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintLeft_toLeftOf="parent"
+                        app:layout_constraintRight_toLeftOf="@id/filename_new"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:visibility="visible" />
+
+                    <ImageView
+                        android:id="@+id/filename_new"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="8dp"
+                        android:src="@drawable/ic_refresh_themed_24dp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintRight_toRightOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
+
+                <ImageView
+                    android:id="@+id/more"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
                     android:background="@drawable/ripple_item_background"
                     android:padding="6dp"
-                    android:src="@drawable/ic_send_themed_24dp" />
+                    android:scaleX="1.25"
+                    android:scaleY="1.25"
+                    android:src="@drawable/ic_expand_more_white_24dp"
+                    app:tint="?attr/themeDrawableColor" />
 
-                <TextView
-                    android:id="@+id/valid_captchas_count"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/circle_background"
-                    android:clickable="false"
-                    android:gravity="center"
-                    android:textColor="#fff"
-                    android:textSize="12sp"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    tools:text="2"
-                    tools:visibility="visible" />
+                <ImageView
+                    android:id="@+id/attach"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_image_themed_24dp"
+                    app:tint="?attr/themeDrawableColor" />
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/submit"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp">
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@drawable/ripple_item_background"
+                        android:padding="6dp"
+                        android:src="@drawable/ic_send_themed_24dp" />
+
+                    <TextView
+                        android:id="@+id/valid_captchas_count"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:background="@drawable/circle_background"
+                        android:clickable="false"
+                        android:gravity="center"
+                        android:textColor="#fff"
+                        android:textSize="12sp"
+                        android:visibility="gone"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        tools:text="2"
+                        tools:visibility="visible" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
-
     </LinearLayout>
 
 </ScrollView>
