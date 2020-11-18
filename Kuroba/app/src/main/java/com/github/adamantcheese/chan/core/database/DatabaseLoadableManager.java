@@ -218,8 +218,7 @@ public class DatabaseLoadableManager {
             for (Loadable l : helper.getLoadableDao()
                     .queryBuilder()
                     .selectColumns("id")
-                    .orderBy("lastLoadDate", false)
-                    .limit(HISTORY_LIMIT)
+                    .limit(HISTORY_LIMIT + helper.getPinDao().countOf())
                     .where()
                     .ne("lastLoadDate", EPOCH_DATE)
                     .query()) {
@@ -230,7 +229,12 @@ public class DatabaseLoadableManager {
             }
 
             List<History> history = new ArrayList<>();
-            for (Loadable l : helper.getLoadableDao().queryBuilder().where().in("id", historyLoadableIds).query()) {
+            for (Loadable l : helper.getLoadableDao()
+                    .queryBuilder()
+                    .orderBy("lastLoadDate", false)
+                    .where()
+                    .in("id", historyLoadableIds)
+                    .query()) {
                 l.site = siteRepository.forId(l.siteId);
                 l.board = l.site.board(l.boardCode);
                 history.add(new History(l));
