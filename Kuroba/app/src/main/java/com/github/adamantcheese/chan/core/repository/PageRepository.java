@@ -86,7 +86,7 @@ public class PageRepository {
 
     private static void shouldUpdate(Board b) {
         if (b == null) return; //if for any reason the board is null, don't do anything
-        Long lastUpdate = boardTimeMap.get(b); //had some null issues for some reason? arisuchan in particular?
+        Long lastUpdate = boardTimeMap.get(b);
         long lastUpdateTime = lastUpdate != null ? lastUpdate : 0L;
         if (lastUpdateTime + MINUTES.toMillis(3) <= System.currentTimeMillis()) {
             requestBoard(b);

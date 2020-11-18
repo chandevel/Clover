@@ -768,7 +768,6 @@ public class WatchManager
         private boolean notified = true;
 
         public int lastReplyCount = -1;
-        public int latestKnownPage = -1;
 
         public PinWatcher(Pin pin) {
             this.pin = pin;
@@ -830,11 +829,7 @@ public class WatchManager
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
-                ChanPage page = PageRepository.getPage(chanLoader.getLoadable());
-                if (page != null) {
-                    latestKnownPage = page.page;
-                    doPageNotification(page);
-                }
+                doPageNotification();
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
                     chanLoader.clearTimer();
@@ -949,15 +944,11 @@ public class WatchManager
 
         @Override
         public void onPagesReceived() {
-            //this call will return the proper value now, but if it returns null just skip everything
-            ChanPage p = PageRepository.getPage(chanLoader.getLoadable());
-            if (p != null) {
-                latestKnownPage = p.page;
-            }
-            doPageNotification(p);
+            doPageNotification();
         }
 
-        private void doPageNotification(ChanPage page) {
+        private void doPageNotification() {
+            ChanPage page = PageRepository.getPage(chanLoader.getLoadable());
             if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
