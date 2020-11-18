@@ -482,7 +482,15 @@ public class ToolbarContainer
         private LinearLayout createSearchLayout(NavigationItem item) {
             SearchLayout searchLayout = new SearchLayout(getContext());
 
-            searchLayout.setCallback(input -> callback.searchInput(input));
+            searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+                @Override
+                public void onSearchEntered(String entered) {
+                    callback.searchInput(entered);
+                }
+
+                @Override
+                public void onClearPressedWhenEmpty() {}
+            });
 
             if (item.searchText != null) {
                 searchLayout.setText(item.searchText);

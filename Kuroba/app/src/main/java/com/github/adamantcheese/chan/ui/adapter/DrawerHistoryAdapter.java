@@ -14,6 +14,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -37,9 +38,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerHistoryAdapter
-        extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell> {
+        extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell>
+        implements SearchLayout.SearchLayoutCallback {
     private final List<History> historyList = new ArrayList<>();
 
+    private String searchQuery = "";
     private History highlighted;
     private final Callback callback;
 
@@ -71,6 +74,18 @@ public class DrawerHistoryAdapter
     public void onBindViewHolder(HistoryCell holder, int position) {
         History history = historyList.get(position);
         if (history != null) {
+            if (!history.loadable.title.toLowerCase().contains(searchQuery.toLowerCase())) {
+                holder.itemView.setVisibility(View.GONE);
+                ViewGroup.LayoutParams oldParams = holder.itemView.getLayoutParams();
+                oldParams.height = 0;
+                oldParams.width = 0;
+                holder.itemView.setLayoutParams(oldParams);
+                return;
+            } else {
+                holder.itemView.setVisibility(View.VISIBLE);
+                holder.itemView.getLayoutParams().width = MATCH_PARENT;
+                holder.itemView.getLayoutParams().height = WRAP_CONTENT;
+            }
             holder.thumbnail.setUrl(history.loadable.thumbnailUrl, dp(48), dp(48));
 
             holder.text.setText(history.loadable.title);
@@ -129,7 +144,19 @@ public class DrawerHistoryAdapter
                 : (historyList.get(position).loadable == null ? NO_ID : historyList.get(position).loadable.id);
     }
 
-    protected class HistoryCell
+    @Override
+    public void onSearchEntered(String entered) {
+        searchQuery = entered;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClearPressedWhenEmpty() {
+        searchQuery = "";
+        notifyDataSetChanged();
+    }
+
+    public class HistoryCell
             extends RecyclerView.ViewHolder {
         private final ThumbnailView thumbnail;
         private final TextView text;
@@ -158,7 +185,7 @@ public class DrawerHistoryAdapter
             });
         }
 
-        private History getHistory() {
+        public History getHistory() {
             int position = getAdapterPosition();
             if (position >= 0 && position < getItemCount()) {
                 return historyList.get(position);

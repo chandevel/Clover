@@ -100,8 +100,4 @@ public class DatabasePinManager {
             return null;
         };
     }
-
-    public Callable<Pin> getPinByLoadableId(int loadableId) {
-        return () -> helper.getPinDao().queryBuilder().where().eq("loadable_id", loadableId).queryForFirst();
-    }
 }

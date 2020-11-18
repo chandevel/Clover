@@ -17,8 +17,10 @@
 package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -39,22 +41,22 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.requestKeyboardFo
 
 public class SearchLayout
         extends LinearLayout {
-    private EditText searchView;
-    private ImageView clearButton;
+    private final EditText searchView;
+    private final ImageView clearButton;
+
+    private boolean alwaysShowClear;
+    private SearchLayoutCallback callback;
 
     public SearchLayout(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public SearchLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
     }
 
     public SearchLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    public void setCallback(final SearchLayoutCallback callback) {
         searchView = new EditText(getContext());
         searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
         searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
@@ -68,8 +70,10 @@ public class SearchLayout
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                clearButton.setAlpha(s.length() == 0 ? 0.0f : 1.0f);
-                callback.onSearchEntered(s.toString());
+                clearButton.setAlpha(s.length() == 0 && !alwaysShowClear ? 0.0f : 1.0f);
+                if (callback != null) {
+                    callback.onSearchEntered(s.toString());
+                }
             }
 
             @Override
@@ -83,7 +87,9 @@ public class SearchLayout
         searchView.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboard(searchView);
-                callback.onSearchEntered(getText());
+                if (callback != null) {
+                    callback.onSearchEntered(getText());
+                }
                 return true;
             }
             return false;
@@ -104,15 +110,25 @@ public class SearchLayout
         searchView.setFocusable(true);
         searchView.requestFocus();
 
-        clearButton.setAlpha(0f);
+        clearButton.setAlpha(isInEditMode() ? 1.0f : 0.0f);
         clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
         clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColorPrimary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
-            searchView.setText("");
+            if (TextUtils.isEmpty(searchView.getText())) {
+                if (callback != null) {
+                    callback.onClearPressedWhenEmpty();
+                }
+            } else {
+                searchView.setText("");
+            }
             requestKeyboardFocus(searchView);
         });
         addView(clearButton, dp(getContext(), 48), MATCH_PARENT);
+    }
+
+    public void setCallback(SearchLayoutCallback callback) {
+        this.callback = callback;
     }
 
     public void setText(String text) {
@@ -129,7 +145,19 @@ public class SearchLayout
         clearButton.getDrawable().setTintList(null);
     }
 
+    public void setThemedSearchColors() {
+        clearButton.getDrawable()
+                .setTintList(ColorStateList.valueOf(getAttrColor(getContext(), R.attr.themeDrawableColor)));
+    }
+
+    public void setAlwaysShowClear() {
+        alwaysShowClear = true;
+        clearButton.setAlpha(1.0f);
+    }
+
     public interface SearchLayoutCallback {
         void onSearchEntered(String entered);
+
+        void onClearPressedWhenEmpty();
     }
 }

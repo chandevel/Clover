@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:background="?android:attr/selectableItemBackground">
 
                 <Space
-                    android:layout_width="8dp"
+                    android:layout_width="4dp"
                     android:layout_height="match_parent" />
 
                 <ImageView
@@ -94,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="48dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="8dp"
+                android:layout_marginRight="4dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:scaleType="center"
                 android:src="@drawable/ic_history_themed_24dp"
@@ -102,46 +102,72 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         </LinearLayout>
 
-        <LinearLayout
+        <com.github.adamantcheese.chan.ui.view.CrossfadeView
             android:id="@+id/header"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:orientation="horizontal"
             tools:background="?backcolor">
 
-            <TextView
-                android:id="@+id/header_text"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:id="@+id/buttons"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:gravity="center_vertical"
-                android:paddingHorizontal="16dp"
-                android:singleLine="true"
-                android:text="@string/drawer_pinned"
-                android:textSize="14sp" />
+                android:orientation="horizontal"
+                tools:visibility="gone">
 
-            <ImageView
-                android:id="@+id/refresh"
-                android:layout_width="48dp"
+                <TextView
+                    android:id="@+id/header_text"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:singleLine="true"
+                    android:text="@string/drawer_pinned"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/refresh"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="4dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_refresh_themed_24dp" />
+
+                <ImageView
+                    android:id="@+id/search"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="4dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_search_themed_24dp" />
+
+                <ImageView
+                    android:id="@+id/clear"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="4dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_clear_themed_24dp" />
+
+            </LinearLayout>
+
+            <com.github.adamantcheese.chan.ui.layout.SearchLayout
+                android:id="@+id/searchview"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="8dp"
-                android:background="@drawable/ripple_item_background"
-                android:scaleType="center"
-                android:src="@drawable/ic_refresh_themed_24dp" />
-
-            <ImageView
-                android:id="@+id/clear"
-                android:layout_width="48dp"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="8dp"
-                android:background="@drawable/ripple_item_background"
-                android:scaleType="center"
-                android:src="@drawable/ic_clear_themed_24dp" />
-
-        </LinearLayout>
+                android:layout_marginLeft="18dp"
+                android:layout_marginRight="4dp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+        </com.github.adamantcheese.chan.ui.view.CrossfadeView>
 
         <View
             android:id="@+id/divider"

@@ -25,6 +25,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -34,17 +35,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
+import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.DrawerHistoryAdapter;
 import com.github.adamantcheese.chan.ui.adapter.DrawerPinAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -62,6 +68,8 @@ import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
 import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
 import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
 import static androidx.recyclerview.widget.ItemTouchHelper.UP;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.EPOCH_DATE;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -79,11 +87,12 @@ public class DrawerController
     protected LinearLayout drawer;
 
     protected LinearLayout settings;
-    protected LinearLayout header;
+    protected CrossfadeView buttonSearchSwitch;
 
     protected RecyclerView recyclerView;
 
     private boolean pinMode = true;
+    private boolean inViewMode = true;
 
     public enum HeaderAction {
         CLEAR,
@@ -93,14 +102,19 @@ public class DrawerController
     private final Runnable refreshRunnable = new Runnable() {
         @Override
         public void run() {
-            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
+            buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE);
         }
     };
 
-    private final ItemTouchHelper.Callback pinItemTouchHelperCallback = new ItemTouchHelper.Callback() {
+    private final ItemTouchHelper.Callback drawerItemTouchHelperCallback = new ItemTouchHelper.Callback() {
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
             return makeMovementFlags(UP | DOWN, RIGHT | LEFT);
+        }
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return pinMode;
         }
 
         @Override
@@ -109,7 +123,6 @@ public class DrawerController
                 @NonNull RecyclerView.ViewHolder viewHolder,
                 @NonNull RecyclerView.ViewHolder target
         ) {
-            if (!pinMode) return false;
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
 
@@ -118,18 +131,31 @@ public class DrawerController
                 watchManager.getAllPins().add(to, item);
             }
             watchManager.reorder();
-            getPinAdapter().notifyItemMoved(from, to);
+            recyclerView.getAdapter().notifyItemMoved(from, to);
             return true;
         }
 
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-            synchronized (watchManager.getAllPins()) {
-                onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
+            if (pinMode) {
+                synchronized (watchManager.getAllPins()) {
+                    onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
+                }
+            } else {
+                try {
+                    Loadable historyLoadable = ((DrawerHistoryAdapter.HistoryCell) viewHolder).getHistory().loadable;
+                    historyLoadable.lastLoadDate = EPOCH_DATE;
+                    DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).updateLoadable(historyLoadable,
+                            true
+                    ));
+                    ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
+                } catch (Exception e) {
+                    showToast(context, "Failed to mark loadable to not show in history!");
+                }
             }
         }
     };
-    private final ItemTouchHelper pinTouchHelper = new ItemTouchHelper(pinItemTouchHelperCallback);
+    private final ItemTouchHelper drawerTouchHelper = new ItemTouchHelper(drawerItemTouchHelperCallback);
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -163,10 +189,19 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
-        view.findViewById(R.id.history).setOnClickListener(this::toggleHistoryMode);
+        view.findViewById(R.id.history).setOnClickListener(v -> {
+            toggleHistoryMode(v);
+            ((SearchLayout) buttonSearchSwitch.findViewById(R.id.searchview)).setText("");
+            ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
+            buttonSearchSwitch.toggle(true, true);
+            inViewMode = true;
+        });
 
-        header = view.findViewById(R.id.header);
-        header.findViewById(R.id.refresh).setOnClickListener(v -> {
+        buttonSearchSwitch = view.findViewById(R.id.header);
+        buttonSearchSwitch.toggle(true, false); // initialization step, required
+
+        LinearLayout buttonsHeader = buttonSearchSwitch.findViewById(R.id.buttons);
+        buttonsHeader.findViewById(R.id.refresh).setOnClickListener(v -> {
             if (pinMode) {
                 wakeManager.onBroadcastReceived(false);
                 v.setVisibility(GONE);
@@ -176,21 +211,46 @@ public class DrawerController
                 ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
             }
         });
-        header.findViewById(R.id.clear).setOnClickListener(v -> onHeaderClicked(CLEAR));
-        header.findViewById(R.id.clear).setOnLongClickListener(v -> onHeaderClicked(CLEAR_ALL));
+        buttonsHeader.findViewById(R.id.search).setOnClickListener(v -> {
+            inViewMode = !inViewMode;
+            buttonSearchSwitch.toggle(inViewMode, true);
+            if (!inViewMode) {
+                buttonSearchSwitch.findViewById(R.id.searchview).requestFocus();
+            }
+        });
+        ImageView clearButton = buttonsHeader.findViewById(R.id.clear);
+        clearButton.setOnClickListener(v -> onHeaderClicked(CLEAR));
+        clearButton.setOnLongClickListener(v -> onHeaderClicked(CLEAR_ALL));
+
+        SearchLayout searchLayout = buttonSearchSwitch.findViewById(R.id.searchview);
+        searchLayout.setAlwaysShowClear();
+        searchLayout.setThemedSearchColors();
+        searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+            @Override
+            public void onSearchEntered(String entered) {
+                ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onSearchEntered(entered);
+            }
+
+            @Override
+            public void onClearPressedWhenEmpty() {
+                ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
+                buttonSearchSwitch.toggle(!inViewMode, true);
+                inViewMode = !inViewMode;
+            }
+        });
 
         recyclerView = view.findViewById(R.id.drawer_recycler_view);
         recyclerView.setHasFixedSize(true);
 
         recyclerView.setAdapter(new DrawerPinAdapter(this));
-        pinTouchHelper.attachToRecyclerView(recyclerView);
+        drawerTouchHelper.attachToRecyclerView(recyclerView);
 
         updateBadge();
     }
 
     @Override
     public void onDestroy() {
-        pinTouchHelper.attachToRecyclerView(null);
+        drawerTouchHelper.attachToRecyclerView(null);
         recyclerView.setAdapter(null);
         mainHandler.removeCallbacks(refreshRunnable);
         EventBus.getDefault().unregister(this);
@@ -250,7 +310,16 @@ public class DrawerController
     }
 
     public boolean onHeaderClicked(HeaderAction headerAction) {
-        onHeaderClickedInternal(headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get());
+        if (pinMode) {
+            onHeaderClickedInternal(headerAction == CLEAR_ALL || !ChanSettings.watchEnabled.get());
+        } else {
+            if (headerAction == CLEAR_ALL) {
+                DatabaseUtils.runTaskAsync(instance(DatabaseLoadableManager.class).clearHistory());
+                toggleHistoryMode(view.findViewById(R.id.history));
+            } else {
+                showToast(context, R.string.clear_history, Toast.LENGTH_LONG);
+            }
+        }
         return true;
     }
 
@@ -281,22 +350,18 @@ public class DrawerController
             pinMode = false;
             recyclerView.setAdapter(null);
             ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
-            ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_history);
+            ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
             mainHandler.removeCallbacks(refreshRunnable);
-            header.findViewById(R.id.clear).setVisibility(GONE);
-            header.findViewById(R.id.refresh).setVisibility(VISIBLE);
+            buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE);
 
-            pinTouchHelper.attachToRecyclerView(null);
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));
         } else {
             // swap to pin mode
             pinMode = true;
             recyclerView.setAdapter(null);
             ((ImageView) historyView).setImageResource(R.drawable.ic_history_themed_24dp);
-            ((TextView) header.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
-            header.findViewById(R.id.clear).setVisibility(VISIBLE);
+            ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
 
-            pinTouchHelper.attachToRecyclerView(recyclerView);
             recyclerView.setAdapter(new DrawerPinAdapter(this));
         }
     }
@@ -320,14 +385,14 @@ public class DrawerController
 
     public void setPinHighlighted(Pin pin) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
-        getPinAdapter().setHighlightedPin(pin);
+        ((DrawerPinAdapter) recyclerView.getAdapter()).setHighlightedPin(pin);
     }
 
     @Subscribe
     public void onEvent(PinMessages.PinAddedMessage message) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
         synchronized (watchManager.getAllPins()) {
-            getPinAdapter().notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
+            recyclerView.getAdapter().notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
             recyclerView.scrollToPosition(watchManager.getAllPins().indexOf(message.pin));
         }
         if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
@@ -349,7 +414,7 @@ public class DrawerController
     @Subscribe
     public void onEvent(PinMessages.PinRemovedMessage message) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
-        getPinAdapter().notifyItemRemoved(message.index);
+        recyclerView.getAdapter().notifyItemRemoved(message.index);
         updateBadge();
     }
 
@@ -359,7 +424,7 @@ public class DrawerController
         synchronized (watchManager.getAllPins()) {
             // notify with an unused Object to indicate a "partial" update, which prevents onViewRecycled being called
             // this prevents flicker every time a thread updates
-            getPinAdapter().notifyItemChanged(watchManager.getAllPins().indexOf(message.pin), new Object());
+            recyclerView.getAdapter().notifyItemChanged(watchManager.getAllPins().indexOf(message.pin), new Object());
         }
         updateBadge();
     }
@@ -367,12 +432,8 @@ public class DrawerController
     @Subscribe
     public void onEvent(PinMessages.PinsChangedMessage message) {
         if (recyclerView.getAdapter() == null || !pinMode) return;
-        getPinAdapter().notifyDataSetChanged();
+        recyclerView.getAdapter().notifyDataSetChanged();
         updateBadge();
-    }
-
-    private DrawerPinAdapter getPinAdapter() {
-        return (DrawerPinAdapter) recyclerView.getAdapter();
     }
 
     @Subscribe(sticky = true)

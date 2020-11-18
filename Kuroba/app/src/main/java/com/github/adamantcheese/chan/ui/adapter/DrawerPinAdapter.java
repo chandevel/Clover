@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
@@ -42,6 +43,8 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -52,11 +55,13 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
 public class DrawerPinAdapter
-        extends RecyclerView.Adapter<DrawerPinAdapter.PinViewHolder> {
+        extends RecyclerView.Adapter<DrawerPinAdapter.PinViewHolder>
+        implements SearchLayout.SearchLayoutCallback {
 
     @Inject
     WatchManager watchManager;
 
+    private String searchQuery = "";
     private final Callback callback;
     private Pin highlighted;
 
@@ -78,6 +83,20 @@ public class DrawerPinAdapter
         synchronized (watchManager.getAllPins()) {
             pin = watchManager.getAllPins().get(position);
         }
+
+        if (!pin.loadable.title.toLowerCase().contains(searchQuery.toLowerCase())) {
+            holder.itemView.setVisibility(View.GONE);
+            ViewGroup.LayoutParams oldParams = holder.itemView.getLayoutParams();
+            oldParams.height = 0;
+            oldParams.width = 0;
+            holder.itemView.setLayoutParams(oldParams);
+            return;
+        } else {
+            holder.itemView.setVisibility(View.VISIBLE);
+            holder.itemView.getLayoutParams().width = MATCH_PARENT;
+            holder.itemView.getLayoutParams().height = WRAP_CONTENT;
+        }
+
         CharSequence title = pin.loadable.title;
         if (pin.archived) {
             title = PostHelper.prependIcon(holder.itemView.getContext(), title, BitmapRepository.archivedIcon, sp(16));
@@ -169,6 +188,18 @@ public class DrawerPinAdapter
         notifyItemChanged(watchManager.getAllPins().indexOf(this.highlighted));
         notifyItemChanged(watchManager.getAllPins().indexOf(highlighted));
         this.highlighted = highlighted;
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {
+        searchQuery = entered;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClearPressedWhenEmpty() {
+        searchQuery = "";
+        notifyDataSetChanged();
     }
 
     public class PinViewHolder

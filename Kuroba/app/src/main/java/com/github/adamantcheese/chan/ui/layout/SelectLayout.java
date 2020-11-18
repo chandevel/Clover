@@ -64,6 +64,9 @@ public class SelectLayout<T>
     }
 
     @Override
+    public void onClearPressedWhenEmpty() {}
+
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 

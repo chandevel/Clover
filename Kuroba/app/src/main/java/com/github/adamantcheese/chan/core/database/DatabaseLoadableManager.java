@@ -16,18 +16,27 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
+import android.annotation.SuppressLint;
+
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.support.DatabaseConnection;
 
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabaseLoadableManager {
@@ -35,6 +44,20 @@ public class DatabaseLoadableManager {
     private final SiteRepository siteRepository;
 
     private static final long HISTORY_LIMIT = 250L;
+    @SuppressLint("ConstantLocale")
+    public static final SimpleDateFormat EPOCH_DATE_FORMAT =
+            new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+    public static final Date EPOCH_DATE;
+
+    static {
+        Date temp;
+        try {
+            temp = EPOCH_DATE_FORMAT.parse("1970-01-01 00:00:01");
+        } catch (ParseException e) {
+            temp = new Date(1000);
+        }
+        EPOCH_DATE = temp;
+    }
 
     public DatabaseLoadableManager(DatabaseHelper helper, SiteRepository siteRepository) {
         this.helper = helper;
@@ -50,9 +73,23 @@ public class DatabaseLoadableManager {
             DatabaseConnection connection = helper.getLoadableDao().startThreadConnection();
             Calendar oneMonthAgo = GregorianCalendar.getInstance();
             oneMonthAgo.add(Calendar.MONTH, -1);
-            DeleteBuilder<Loadable, Integer> delete = helper.getLoadableDao().deleteBuilder();
-            delete.where().lt("lastLoadDate", oneMonthAgo.getTime()).prepare();
-            delete.delete();
+
+            Set<Integer> toRemoveLoadableIds = new HashSet<>();
+
+            for (Loadable l : helper.getLoadableDao()
+                    .queryBuilder()
+                    .selectColumns("id")
+                    .where()
+                    .lt("lastLoadDate", oneMonthAgo.getTime())
+                    .query()) {
+                toRemoveLoadableIds.add(l.id);
+            }
+            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
+                toRemoveLoadableIds.remove(p.loadable.id);
+            }
+
+            helper.getLoadableDao().deleteIds(toRemoveLoadableIds);
+
             connection.commit(null);
             helper.getLoadableDao().endThreadConnection(connection);
             return null;
@@ -141,21 +178,59 @@ public class DatabaseLoadableManager {
         };
     }
 
-    public Callable<Void> updateLoadable(Loadable updatedLoadable) {
+    public Callable<Void> updateLoadable(Loadable updatedLoadable, boolean commit) {
         return () -> {
             if (updatedLoadable.isThreadMode()) {
-                helper.getLoadableDao().update(updatedLoadable);
+                if (commit) {
+                    DatabaseConnection connection = helper.getLoadableDao().startThreadConnection();
+                    helper.getLoadableDao().update(updatedLoadable);
+                    connection.commit(null);
+                    helper.getLoadableDao().endThreadConnection(connection);
+                } else {
+                    helper.getLoadableDao().update(updatedLoadable);
+                }
             }
+            return null;
+        };
+    }
+
+    public Callable<Void> clearHistory() {
+        return () -> {
+            Set<Integer> toUpdate = new HashSet<>();
+            for (Loadable l : helper.getLoadableDao().queryBuilder().selectColumns("id").query()) {
+                toUpdate.add(l.id);
+            }
+            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
+                toUpdate.remove(p.loadable.id);
+            }
+
+            UpdateBuilder<Loadable, Integer> builder =
+                    helper.getLoadableDao().updateBuilder().updateColumnValue("lastLoadDate", EPOCH_DATE);
+            builder.where().in("id", toUpdate);
+            builder.update();
             return null;
         };
     }
 
     public Callable<List<History>> getHistory() {
         return () -> {
-            List<Loadable> historyLoadables =
-                    helper.getLoadableDao().queryBuilder().orderBy("lastLoadDate", false).limit(HISTORY_LIMIT).query();
+            Set<Integer> historyLoadableIds = new HashSet<>();
+            for (Loadable l : helper.getLoadableDao()
+                    .queryBuilder()
+                    .selectColumns("id")
+                    .orderBy("lastLoadDate", false)
+                    .limit(HISTORY_LIMIT)
+                    .where()
+                    .ne("lastLoadDate", EPOCH_DATE)
+                    .query()) {
+                historyLoadableIds.add(l.id);
+            }
+            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
+                historyLoadableIds.remove(p.loadable.id);
+            }
+
             List<History> history = new ArrayList<>();
-            for (Loadable l : historyLoadables) {
+            for (Loadable l : helper.getLoadableDao().queryBuilder().where().in("id", historyLoadableIds).query()) {
                 l.site = siteRepository.forId(l.siteId);
                 l.board = l.site.board(l.boardCode);
                 history.add(new History(l));

@@ -365,7 +365,7 @@ public class ChanThreadLoader {
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
-        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
+        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
         BackgroundUtils.runOnMainThread(() -> {
             for (ChanLoaderCallback l : listeners) {

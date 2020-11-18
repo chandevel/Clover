@@ -199,7 +199,7 @@ public class ThreadPresenter
             this.loadable = loadable;
 
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
+            DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
             chanLoader = chanLoaderManager.obtain(loadable, this);
             threadPresenterCallback.showLoading();
@@ -218,7 +218,7 @@ public class ThreadPresenter
     }
 
     public void updateDatabaseLoadable() {
-        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable));
+        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
     }
 
     private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
