@@ -70,6 +70,10 @@ public class BackgroundUtils {
         mainHandler.postDelayed(runnable, delay);
     }
 
+    public static void cleanup() {
+        mainHandler.removeCallbacksAndMessages(null);
+    }
+
     public static void runOnBackgroundThread(Runnable runnable) {
         if (BuildConfig.DEBUG && backgroundService.isTerminated()) {
             throw new AssertionError("Executor pool is terminated, this should never occur.");

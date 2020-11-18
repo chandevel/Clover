@@ -99,13 +99,6 @@ public class DrawerController
         CLEAR_ALL
     }
 
-    private final Runnable refreshRunnable = new Runnable() {
-        @Override
-        public void run() {
-            buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE);
-        }
-    };
-
     private final ItemTouchHelper.Callback drawerItemTouchHelperCallback = new ItemTouchHelper.Callback() {
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
@@ -157,7 +150,7 @@ public class DrawerController
     };
     private final ItemTouchHelper drawerTouchHelper = new ItemTouchHelper(drawerItemTouchHelperCallback);
 
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Inject
     WatchManager watchManager;
@@ -205,7 +198,9 @@ public class DrawerController
             if (pinMode) {
                 wakeManager.onBroadcastReceived(false);
                 v.setVisibility(GONE);
-                mainHandler.postDelayed(refreshRunnable, MINUTES.toMillis(5));
+                handler.postDelayed(() -> buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE),
+                        MINUTES.toMillis(5)
+                );
             } else {
                 if (recyclerView.getAdapter() == null) return;
                 ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
@@ -252,7 +247,7 @@ public class DrawerController
     public void onDestroy() {
         drawerTouchHelper.attachToRecyclerView(null);
         recyclerView.setAdapter(null);
-        mainHandler.removeCallbacks(refreshRunnable);
+        handler.removeCallbacksAndMessages(null);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -351,7 +346,7 @@ public class DrawerController
             recyclerView.setAdapter(null);
             ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
             ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
-            mainHandler.removeCallbacks(refreshRunnable);
+            handler.removeCallbacksAndMessages(null);
             buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE);
 
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));

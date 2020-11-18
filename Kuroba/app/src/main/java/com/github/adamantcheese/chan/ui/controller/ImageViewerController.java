@@ -116,8 +116,7 @@ public class ImageViewerController
     private LoadingBar loadingBar;
 
     private boolean isInImmersiveMode = false;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final Runnable uiHideCall = this::hideSystemUI;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -192,13 +191,13 @@ public class ImageViewerController
             this.imageViewerCallback = imageViewerCallback;
             waitForLayout(view, view -> {
                 showSystemUI();
-                mainHandler.removeCallbacks(uiHideCall);
+                handler.removeCallbacksAndMessages(null);
                 presenter.onExit();
                 return false;
             });
         } else {
             showSystemUI();
-            mainHandler.removeCallbacks(uiHideCall);
+            handler.removeCallbacksAndMessages(null);
             presenter.onExit();
         }
     }
@@ -242,7 +241,7 @@ public class ImageViewerController
         super.onDestroy();
 
         showSystemUI();
-        mainHandler.removeCallbacks(uiHideCall);
+        handler.removeCallbacksAndMessages(null);
         getWindow(context).clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -313,7 +312,7 @@ public class ImageViewerController
     public boolean onBack() {
         if (presenter.isTransitioning()) return false;
         showSystemUI();
-        mainHandler.removeCallbacks(uiHideCall);
+        handler.removeCallbacksAndMessages(null);
         presenter.onExit();
         return true;
     }
@@ -624,7 +623,7 @@ public class ImageViewerController
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0 && isInImmersiveMode) {
                 showSystemUI();
-                mainHandler.postDelayed(uiHideCall, 2500);
+                handler.postDelayed(this::hideSystemUI, 2500);
             }
         });
 
@@ -638,7 +637,7 @@ public class ImageViewerController
     public void showSystemUI(boolean show) {
         if (show) {
             showSystemUI();
-            mainHandler.postDelayed(uiHideCall, 2500);
+            handler.postDelayed(this::hideSystemUI, 2500);
         } else {
             hideSystemUI();
         }
