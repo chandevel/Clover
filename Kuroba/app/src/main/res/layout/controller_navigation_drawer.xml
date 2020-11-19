@@ -128,16 +128,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:textSize="14sp" />
 
                 <ImageView
-                    android:id="@+id/refresh"
-                    android:layout_width="48dp"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginRight="4dp"
-                    android:background="@drawable/ripple_item_background"
-                    android:scaleType="center"
-                    android:src="@drawable/ic_refresh_themed_24dp" />
-
-                <ImageView
                     android:id="@+id/search"
                     android:layout_width="48dp"
                     android:layout_height="match_parent"
@@ -177,17 +167,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_marginRight="8dp"
             android:background="?attr/divider_color" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/drawer_recycler_view"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/refresh_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:clipToPadding="false"
-            android:paddingVertical="8dp"
             android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/cell_pin" />
+            android:scrollbars="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/drawer_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingVertical="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/cell_pin" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     </com.github.adamantcheese.chan.ui.view.TouchBlockingLinearLayout>
 

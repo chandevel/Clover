@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -77,7 +78,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class DrawerController
         extends Controller
@@ -194,18 +194,6 @@ public class DrawerController
         buttonSearchSwitch.toggle(true, false); // initialization step, required
 
         LinearLayout buttonsHeader = buttonSearchSwitch.findViewById(R.id.buttons);
-        buttonsHeader.findViewById(R.id.refresh).setOnClickListener(v -> {
-            if (pinMode) {
-                wakeManager.onBroadcastReceived(false);
-                v.setVisibility(GONE);
-                handler.postDelayed(() -> buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE),
-                        MINUTES.toMillis(5)
-                );
-            } else {
-                if (recyclerView.getAdapter() == null) return;
-                ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
-            }
-        });
         buttonsHeader.findViewById(R.id.search).setOnClickListener(v -> {
             inViewMode = !inViewMode;
             buttonSearchSwitch.toggle(inViewMode, true);
@@ -239,6 +227,17 @@ public class DrawerController
 
         recyclerView.setAdapter(new DrawerPinAdapter(this));
         drawerTouchHelper.attachToRecyclerView(recyclerView);
+
+        SwipeRefreshLayout refreshLayout = view.findViewById(R.id.refresh_layout);
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            if (pinMode) {
+                wakeManager.onBroadcastReceived(true);
+            } else {
+                if (recyclerView.getAdapter() == null) return;
+                ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();
+            }
+        });
 
         updateBadge();
     }
@@ -347,7 +346,6 @@ public class DrawerController
             ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
             ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
             handler.removeCallbacksAndMessages(null);
-            buttonSearchSwitch.findViewById(R.id.refresh).setVisibility(VISIBLE);
 
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));
         } else {
