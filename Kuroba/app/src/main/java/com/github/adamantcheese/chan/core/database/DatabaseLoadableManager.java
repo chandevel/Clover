@@ -19,9 +19,9 @@ package com.github.adamantcheese.chan.core.database;
 import android.annotation.SuppressLint;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
 import com.j256.ormlite.support.DatabaseConnection;
@@ -33,10 +33,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class DatabaseLoadableManager {
@@ -62,38 +60,6 @@ public class DatabaseLoadableManager {
     public DatabaseLoadableManager(DatabaseHelper helper, SiteRepository siteRepository) {
         this.helper = helper;
         this.siteRepository = siteRepository;
-    }
-
-    /**
-     * Called when the application goes into the background, to purge any old loadables that won't be used anymore; keeps
-     * the database clean and small.
-     */
-    public Callable<Void> purgeOld() {
-        return () -> {
-            DatabaseConnection connection = helper.getLoadableDao().startThreadConnection();
-            Calendar oneMonthAgo = GregorianCalendar.getInstance();
-            oneMonthAgo.add(Calendar.MONTH, -1);
-
-            Set<Integer> toRemoveLoadableIds = new HashSet<>();
-
-            for (Loadable l : helper.getLoadableDao()
-                    .queryBuilder()
-                    .selectColumns("id")
-                    .where()
-                    .lt("lastLoadDate", oneMonthAgo.getTime())
-                    .query()) {
-                toRemoveLoadableIds.add(l.id);
-            }
-            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
-                toRemoveLoadableIds.remove(p.loadable.id);
-            }
-
-            helper.getLoadableDao().deleteIds(toRemoveLoadableIds);
-
-            connection.commit(null);
-            helper.getLoadableDao().endThreadConnection(connection);
-            return null;
-        };
     }
 
     /**
@@ -194,46 +160,56 @@ public class DatabaseLoadableManager {
         };
     }
 
+    /**
+     * Called when the application goes into the background, to purge any old loadables that won't be used anymore; keeps
+     * the database clean and small. Avoids purging pin loadables.
+     */
+    public Callable<Void> purgeOld() {
+        return () -> {
+            DatabaseConnection connection = helper.getLoadableDao().startThreadConnection();
+            Calendar oneMonthAgo = GregorianCalendar.getInstance();
+            oneMonthAgo.add(Calendar.MONTH, -1);
+
+            DeleteBuilder<Loadable, Integer> builder = helper.getLoadableDao().deleteBuilder();
+            builder.where()
+                    .lt("lastLoadDate", oneMonthAgo.getTime())
+                    .and()
+                    .notIn("id", helper.getPinDao().queryBuilder().selectColumns("loadable_id"));
+            builder.delete();
+
+            connection.commit(null);
+            helper.getLoadableDao().endThreadConnection(connection);
+            return null;
+        };
+    }
+
+    /**
+     * @return A callable that "clears" history by setting the last load date to far in the past for all non-pin associated loadables.
+     */
     public Callable<Void> clearHistory() {
         return () -> {
-            Set<Integer> toUpdate = new HashSet<>();
-            for (Loadable l : helper.getLoadableDao().queryBuilder().selectColumns("id").query()) {
-                toUpdate.add(l.id);
-            }
-            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
-                toUpdate.remove(p.loadable.id);
-            }
-
             UpdateBuilder<Loadable, Integer> builder =
                     helper.getLoadableDao().updateBuilder().updateColumnValue("lastLoadDate", EPOCH_DATE);
-            builder.where().in("id", toUpdate);
+            builder.where().notIn("id", helper.getPinDao().queryBuilder().selectColumns("loadable_id"));
             builder.update();
             return null;
         };
     }
 
+    /**
+     * @return A callable that returns a list of history, ignoring pins.
+     */
     public Callable<List<History>> getHistory() {
         return () -> {
-            Set<Integer> historyLoadableIds = new HashSet<>();
-            for (Loadable l : helper.getLoadableDao()
-                    .queryBuilder()
-                    .selectColumns("id")
-                    .limit(HISTORY_LIMIT + helper.getPinDao().countOf())
-                    .where()
-                    .ne("lastLoadDate", EPOCH_DATE)
-                    .query()) {
-                historyLoadableIds.add(l.id);
-            }
-            for (Pin p : helper.getPinDao().queryBuilder().selectColumns("loadable_id").query()) {
-                historyLoadableIds.remove(p.loadable.id);
-            }
-
             List<History> history = new ArrayList<>();
             for (Loadable l : helper.getLoadableDao()
                     .queryBuilder()
                     .orderBy("lastLoadDate", false)
+                    .limit(HISTORY_LIMIT)
                     .where()
-                    .in("id", historyLoadableIds)
+                    .notIn("id", helper.getPinDao().queryBuilder().selectColumns("loadable_id"))
+                    .and()
+                    .ne("lastLoadDate", EPOCH_DATE)
                     .query()) {
                 l.site = siteRepository.forId(l.siteId);
                 l.board = l.site.board(l.boardCode);

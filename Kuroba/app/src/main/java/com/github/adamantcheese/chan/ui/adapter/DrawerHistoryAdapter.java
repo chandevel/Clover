@@ -46,6 +46,10 @@ public class DrawerHistoryAdapter
     private History highlighted;
     private final Callback callback;
 
+    // Placeholder history variables
+    private final History LOADING = new History(null);
+    private final History NO_HISTORY = new History(null);
+
     public DrawerHistoryAdapter(Callback callback) {
         this.callback = callback;
         setHasStableIds(true);
@@ -54,12 +58,15 @@ public class DrawerHistoryAdapter
 
     public void load() {
         historyList.clear();
-        historyList.add(null);
+        historyList.add(LOADING);
         highlighted = null;
         notifyDataSetChanged();
 
         DatabaseUtils.runTaskAsync(instance(DatabaseLoadableManager.class).getHistory(), (result) -> {
             historyList.clear();
+            if (result.isEmpty()) {
+                result.add(NO_HISTORY);
+            }
             historyList.addAll(result);
             notifyDataSetChanged();
         });
@@ -73,7 +80,7 @@ public class DrawerHistoryAdapter
     @Override
     public void onBindViewHolder(HistoryCell holder, int position) {
         History history = historyList.get(position);
-        if (history != null) {
+        if (history != LOADING && history != NO_HISTORY) {
             if (!history.loadable.title.toLowerCase().contains(searchQuery.toLowerCase())) {
                 holder.itemView.setVisibility(View.GONE);
                 ViewGroup.LayoutParams oldParams = holder.itemView.getLayoutParams();
@@ -107,7 +114,8 @@ public class DrawerHistoryAdapter
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call
             holder.itemView.getLayoutParams().height = MATCH_PARENT;
             holder.thumbnail.setVisibility(View.GONE);
-            SpannableString s = new SpannableString(getString(R.string.loading));
+            SpannableString s =
+                    new SpannableString(getString(history == LOADING ? R.string.loading : R.string.no_history));
             s.setSpan(new StyleSpan(BOLD), 0, s.length(), 0);
             holder.text.setText(s);
             holder.text.setGravity(CENTER_VERTICAL | CENTER_HORIZONTAL);

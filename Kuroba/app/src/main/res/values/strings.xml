@@ -785,4 +785,5 @@ Don't have a 4chan Pass?<br>
     <string name="yt_api_key_dialog_description">Without a key parsing is still possible, but may not be reliable. You can use your own key, or snag the one from 4chanX.</string>
 
     <string name="clear_history">Long press to clear all history!</string>
+    <string name="no_history">No history available.</string>
 </resources>
