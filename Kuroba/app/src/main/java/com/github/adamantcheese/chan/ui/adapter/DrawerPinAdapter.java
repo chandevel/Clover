@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableStringBuilder;
@@ -79,6 +80,7 @@ public class DrawerPinAdapter
 
     @Override
     public void onBindViewHolder(@NonNull PinViewHolder holder, int position) {
+        Context context = holder.itemView.getContext();
         final Pin pin;
         synchronized (watchManager.getAllPins()) {
             pin = watchManager.getAllPins().get(position);
@@ -97,14 +99,7 @@ public class DrawerPinAdapter
             holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         }
 
-        CharSequence title = pin.loadable.title;
-        if (pin.archived) {
-            title = PostHelper.prependIcon(holder.itemView.getContext(), title, BitmapRepository.archivedIcon, sp(16));
-        }
-        if (pin.isSticky) {
-            title = PostHelper.prependIcon(holder.itemView.getContext(), title, BitmapRepository.stickyIcon, sp(16));
-        }
-        holder.title.setText(title);
+        holder.title.setText(pin.loadable.title);
 
         if (holder.image.getSource() != pin.loadable.thumbnailUrl) {
             holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
@@ -113,15 +108,22 @@ public class DrawerPinAdapter
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
-            SpannableStringBuilder summary = pinWatcher.getSummary();
-            if (summary != null) {
-                SpannableStringBuilder info = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - ");
-                info.append(summary);
-                holder.threadInfo.setVisibility(VISIBLE);
-                holder.threadInfo.setText(info);
+            CharSequence summary = pinWatcher.getSummary();
+            if (summary == null) {
+                summary = new SpannableStringBuilder(BoardHelper.getName(pin.loadable.board));
             } else {
-                holder.threadInfo.setText(BoardHelper.getName(pin.loadable.board));
+                summary = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - " + summary);
             }
+
+            if (pin.archived) {
+                summary = PostHelper.prependIcon(context, summary, BitmapRepository.archivedIcon, sp(16));
+            }
+            if (pin.isSticky) {
+                summary = PostHelper.prependIcon(context, summary, BitmapRepository.stickyIcon, sp(16));
+            }
+
+            holder.threadInfo.setVisibility(VISIBLE);
+            holder.threadInfo.setText(summary);
         } else {
             holder.threadInfo.setVisibility(GONE);
             holder.title.setText(String.format("/%s/ - %s", pin.loadable.boardCode, holder.title.getText()));
@@ -146,13 +148,9 @@ public class DrawerPinAdapter
         }
 
         if (pin.drawerHighlight) {
-            holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
-                    R.attr.highlight_color
-            )));
+            holder.itemView.setBackground(new ColorDrawable(getAttrColor(context, R.attr.highlight_color)));
         } else {
-            holder.itemView.setBackground(getAttrDrawable(holder.itemView.getContext(),
-                    R.drawable.ripple_item_background
-            ));
+            holder.itemView.setBackground(getAttrDrawable(context, R.drawable.ripple_item_background));
         }
     }
 
