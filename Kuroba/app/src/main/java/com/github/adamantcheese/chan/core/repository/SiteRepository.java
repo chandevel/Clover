@@ -90,7 +90,7 @@ public class SiteRepository {
             SiteConfigSettingsHolder holder;
             try {
                 holder = instantiateSiteFromModel(siteModel, context);
-            } catch (IllegalArgumentException e) {
+            } catch (Exception e) {
                 Logger.e(this, "instantiateSiteFromModel", e);
                 break;
             }
@@ -158,7 +158,7 @@ public class SiteRepository {
         try {
             return clazz.getConstructor(Context.class).newInstance(context);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            throw new IllegalArgumentException();
+            throw new RuntimeException(e);
         }
     }
 
