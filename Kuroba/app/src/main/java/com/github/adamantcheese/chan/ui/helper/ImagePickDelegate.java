@@ -140,11 +140,15 @@ public class ImagePickDelegate {
         CancellableToast toast = new CancellableToast();
         toast.showToast(activity, R.string.image_url_get_attempt);
         HttpUrl clipboardURL;
+        CharSequence clipboard = null;
         try {
+            clipboard = getClipboardContent();
             //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
-            clipboardURL = HttpUrl.get(getClipboardContent());
+            clipboardURL = HttpUrl.get(clipboard.toString());
         } catch (Exception exception) {
-            toast.showToast(activity, getString(R.string.image_url_get_failed, exception.getMessage()));
+            toast.showToast(activity,
+                    getString(R.string.image_url_get_failed, exception.getMessage(), String.valueOf(clipboard))
+            );
             callback.onFilePickError(true);
             reset();
 

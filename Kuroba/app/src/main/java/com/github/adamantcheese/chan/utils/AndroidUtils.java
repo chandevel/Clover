@@ -576,9 +576,9 @@ public class AndroidUtils {
         return (ClipboardManager) application.getSystemService(CLIPBOARD_SERVICE);
     }
 
-    public static String getClipboardContent() {
+    public static CharSequence getClipboardContent() {
         ClipData primary = getClipboardManager().getPrimaryClip();
-        return primary != null ? primary.getItemAt(0).getText().toString() : "";
+        return primary != null ? primary.getItemAt(0).coerceToText(getAppContext()) : "";
     }
 
     public static void setClipboardContent(String label, String content) {
