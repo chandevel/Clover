@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.layout.ThreadLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -32,6 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:alpha="0"
         android:scaleX="0"
         android:scaleY="0"
-        android:src="@drawable/ic_create_white_24dp" />
+        android:src="@drawable/ic_create_white_24dp"
+        tools:alpha="1"
+        tools:scaleX="1"
+        tools:scaleY="1" />
 
 </com.github.adamantcheese.chan.ui.layout.ThreadLayout>
