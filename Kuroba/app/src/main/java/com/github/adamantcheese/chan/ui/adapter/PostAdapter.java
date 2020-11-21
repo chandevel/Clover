@@ -20,6 +20,7 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -148,6 +149,16 @@ public class PostAdapter
             case TYPE_LAST_SEEN:
                 break;
         }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+        //this is a hack to make sure text is selectable
+        super.onViewAttachedToWindow(holder);
+        try {
+            holder.itemView.findViewById(R.id.comment).setEnabled(false);
+            holder.itemView.findViewById(R.id.comment).setEnabled(true);
+        } catch (Exception ignored) {}
     }
 
     public boolean isInPopup() {
