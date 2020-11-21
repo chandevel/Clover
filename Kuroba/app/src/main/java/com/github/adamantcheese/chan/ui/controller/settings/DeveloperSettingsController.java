@@ -35,11 +35,13 @@ import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -123,13 +125,35 @@ public class DeveloperSettingsController
         summaryText.setPadding(dp(16), dp(5), 0, 0);
         wrapper.addView(summaryText);
 
-        //DATABASE RESET
+        //APP RESET
         Button resetDbButton = new Button(context);
         resetDbButton.setOnClickListener(v -> {
             databaseHelper.reset();
+            for (Field f : ChanSettings.class.getFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())
+                        && Setting.class.isAssignableFrom(f.getType())) {
+                    try {
+                        Setting setting = (Setting) f.get(ChanSettings.class);
+                        setting.setSync(setting.getDefault());
+                    } catch (Exception e) {
+                        Logger.e(this, "", e);
+                    }
+                }
+            }
+            for (Field f : PersistableChanState.class.getFields()) {
+                if (Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())
+                        && Setting.class.isAssignableFrom(f.getType())) {
+                    try {
+                        Setting setting = (Setting) f.get(ChanSettings.class);
+                        setting.setSync(setting.getDefault());
+                    } catch (Exception e) {
+                        Logger.e(this, "", e);
+                    }
+                }
+            }
             ((StartActivity) context).restartApp();
         });
-        resetDbButton.setText("Delete database & restart");
+        resetDbButton.setText("Reset application and restart fresh");
         wrapper.addView(resetDbButton);
 
         //FILTER WATCH IGNORE RESET
