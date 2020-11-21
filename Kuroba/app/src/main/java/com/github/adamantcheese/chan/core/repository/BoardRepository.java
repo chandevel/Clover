@@ -32,6 +32,7 @@ import java.util.Observer;
 
 public class BoardRepository
         implements Observer {
+    private boolean initialized = false;
     private final DatabaseBoardManager databaseBoardManager;
 
     private final SiteRepository.Sites allSites;
@@ -45,6 +46,8 @@ public class BoardRepository
     }
 
     public void initialize() {
+        if (initialized) return;
+        initialized = true;
         updateObservablesSync();
 
         allSites.addObserver(this);
@@ -117,18 +120,14 @@ public class BoardRepository
     public void setSaved(Board board, boolean saved) {
         board.saved = saved;
         board.order = saved ? board.order : 0;
-        DatabaseUtils.runTaskAsync(databaseBoardManager.updateIncludingUserFields(board),
-                (e) -> updateObservablesAsync()
-        );
+        DatabaseUtils.runTaskAsync(databaseBoardManager.update(board), (e) -> updateObservablesAsync());
     }
 
     public void setAllSaved(Boards boards, boolean saved) {
         for (Board board : boards) {
             board.saved = saved;
         }
-        DatabaseUtils.runTaskAsync(databaseBoardManager.updateIncludingUserFields(boards),
-                (e) -> updateObservablesAsync()
-        );
+        DatabaseUtils.runTaskAsync(databaseBoardManager.updateAll(boards), (e) -> updateObservablesAsync());
     }
 
     private void updateObservablesSync() {

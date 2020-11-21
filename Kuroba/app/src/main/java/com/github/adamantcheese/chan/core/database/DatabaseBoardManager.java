@@ -28,7 +28,7 @@ public class DatabaseBoardManager {
         this.helper = helper;
     }
 
-    public Callable<Void> updateIncludingUserFields(final Board board) {
+    public Callable<Void> update(final Board board) {
         return () -> {
             helper.getBoardDao().update(board);
 
@@ -36,7 +36,7 @@ public class DatabaseBoardManager {
         };
     }
 
-    public Callable<Void> updateIncludingUserFields(final Boards boards) {
+    public Callable<Void> updateAll(final Boards boards) {
         return () -> {
             for (Board board : boards) {
                 helper.getBoardDao().update(board);

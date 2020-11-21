@@ -33,6 +33,7 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 
 public class SiteRepository {
+    private boolean initialized = false;
     private final DatabaseSiteManager databaseSiteManager;
     private final Gson gson;
     private final Sites sitesObservable = new Sites();
@@ -82,6 +83,8 @@ public class SiteRepository {
     }
 
     public void initialize(Context context) {
+        if (initialized) return;
+        initialized = true;
         List<Site> sites = new ArrayList<>();
 
         List<SiteModel> models = DatabaseUtils.runTask(databaseSiteManager.getAll());

@@ -80,10 +80,6 @@ public interface SiteActions {
         void onArchiveError();
     }
 
-    /* TODO(multi-site) this login mechanism is probably not generic enough right now,
-     * especially if we're thinking about what a login really is
-     * We'll expand this later when we have a better idea of what other sites require.
-     */
     void login(LoginRequest loginRequest, LoginListener loginListener);
 
     void logout();

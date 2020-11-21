@@ -141,7 +141,7 @@ public class StartActivity
         // both of these need to be set up before any other injection occurs in this class
         instance(SiteRepository.class).initialize(this); // so that sites have access to the context, if needed
         instance(BoardManager.class).initialize();
-        ArchivesManager.setupContext(this);
+        ArchivesManager.initialize(this);
 
         inject(this);
 

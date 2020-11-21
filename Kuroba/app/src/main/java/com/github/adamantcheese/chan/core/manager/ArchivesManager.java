@@ -52,7 +52,7 @@ public class ArchivesManager
     @SuppressLint("StaticFieldLeak")
     private static ArchivesManager instance;
 
-    public static void setupContext(Context context) {
+    public static void initialize(Context context) {
         if (instance != null) return;
         instance = new ArchivesManager(context);
     }

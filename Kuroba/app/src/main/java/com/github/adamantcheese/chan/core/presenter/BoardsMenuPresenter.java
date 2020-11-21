@@ -149,15 +149,9 @@ public class BoardsMenuPresenter
 
     public static class Item {
         public enum Type {
-            BOARD(0),
-            SITE(1),
-            SEARCH(2);
-
-            public int typeId;
-
-            Type(int typeId) {
-                this.typeId = typeId;
-            }
+            BOARD,
+            SITE,
+            SEARCH
         }
 
         public final Type type;
