@@ -36,7 +36,6 @@ import okhttp3.Response;
 public abstract class CommonReplyHttpCall
         extends HttpCall {
     private static final Pattern THREAD_NO_PATTERN = Pattern.compile("<!-- thread:([0-9]+),no:([0-9]+) -->");
-    private static final Pattern ERROR_MESSAGE = Pattern.compile("\"errmsg\"[^>]*>(.*?)</span");
 
     public final ReplyResponse replyResponse;
 
@@ -75,9 +74,8 @@ public abstract class CommonReplyHttpCall
 
         First parameter is always parsed as threadNo, second always as postNo
         */
-        Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
-        if (errorMessageMatcher.find()) {
-            replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
+        if (result.contains("errmsg")) {
+            replyResponse.errorMessage = Jsoup.parse(result).select("#errmsg").first().html();
         } else {
             Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
             if (threadNoMatcher.find()) {
