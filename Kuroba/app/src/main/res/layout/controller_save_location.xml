@@ -86,7 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="16dp"
-            android:src="@drawable/ic_fluent_checkmark_24_filled" />
+            android:src="@drawable/ic_fluent_checkmark_24_filled"
+            app:tint="@color/white" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_button"
@@ -94,7 +95,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_above="@+id/set_button"
             android:layout_alignLeft="@+id/set_button"
-            android:src="@drawable/ic_fluent_add_24_filled" />
+            android:src="@drawable/ic_fluent_add_24_filled"
+            app:tint="@color/white" />
     </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/wrapper"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -31,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingHorizontal="12dp"
-            android:clipToPadding="false" />
+            android:clipToPadding="false"
+            android:paddingHorizontal="12dp" />
 
     </LinearLayout>
 
@@ -42,7 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_fluent_checkmark_24_filled" />
+        android:src="@drawable/ic_fluent_checkmark_24_filled"
+        app:tint="@color/white" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
