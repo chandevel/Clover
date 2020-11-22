@@ -91,8 +91,7 @@ public class Dvach
         this.postParser = new DvachPostParser(commentParser);
     }
 
-    public Dvach(Context context) {
-        super(context);
+    public Dvach() {
         setName("2ch.hk");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
     }
@@ -231,7 +230,6 @@ public class Dvach
         });
 
         setApi(new DvachApi(this));
-
-        setParser(new DvachCommentParser(context));
+        setParser(new DvachCommentParser());
     }
 }

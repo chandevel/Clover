@@ -20,8 +20,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
@@ -30,6 +28,7 @@ import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
@@ -68,6 +67,12 @@ public class Chan
     private int activityForegroundCounter = 0;
 
     @Inject
+    SiteRepository siteRepository;
+
+    @Inject
+    BoardManager boardManger;
+
+    @Inject
     ReportManager reportManager;
 
     private static Feather feather;
@@ -83,8 +88,6 @@ public class Chan
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        AndroidUtils.init(this);
-        BitmapRepository.initialize(this);
         // remove this if you need to debug some sort of event bus issue
         try {
             EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
@@ -102,12 +105,18 @@ public class Chan
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
 
+        AndroidUtils.init(this, null);
+        BitmapRepository.initialize(this);
+
         WatchNotification.setupChannel();
         SavingNotification.setupChannel();
         LastPageNotification.setupChannel();
 
         feather = Feather.with(new AppModule(), new NetModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
+
+        siteRepository.initialize();
+        boardManger.initialize();
 
         RxJavaPlugins.setErrorHandler(e -> {
             if (e instanceof UndeliverableException) {
@@ -254,6 +263,7 @@ public class Chan
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+        AndroidUtils.cleanup();
         BackgroundUtils.cleanup();
         NetUtils.cleanup();
     }

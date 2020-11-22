@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_gravity="left|top"
         android:paddingLeft="7dp"
         android:paddingTop="7dp"
-        tools:src="@drawable/ic_blue_checkmark_24dp" />
+        app:tint="?attr/themeDrawableColor"
+        tools:src="@drawable/ic_fluent_checkmark_circle_24_filled" />
 
 </FrameLayout>

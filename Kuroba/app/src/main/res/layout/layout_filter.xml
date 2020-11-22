@@ -53,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:background="@drawable/ripple_item_background"
                 android:padding="4dp"
-                android:src="@drawable/ic_help_outline_white_24dp"
+                android:src="@drawable/ic_fluent_question_circle_24_regular"
                 app:tint="?attr/themeDrawableColor" />
 
         </LinearLayout>
@@ -79,7 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:drawablePadding="8dp"
                 android:paddingLeft="4dp"
                 android:paddingVertical="4dp"
-                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
                 tools:drawableTint="?themeDrawableColor"
                 tools:text="Types (1)" />
 
@@ -89,7 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
                 android:drawablePadding="8dp"
-                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
                 tools:drawableTint="?themeDrawableColor"
                 tools:text="Boards (All)" />
 
@@ -117,7 +117,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:drawablePadding="8dp"
                 android:paddingHorizontal="4dp"
                 android:paddingTop="4dp"
-                tools:drawableRight="@drawable/ic_arrow_drop_down_white_24dp"
+                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
                 tools:drawableTint="?themeDrawableColor"
                 tools:text="Hide post" />
 

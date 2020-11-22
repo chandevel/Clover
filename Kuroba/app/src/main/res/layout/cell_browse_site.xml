@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingVertical="8dp"
         android:scaleType="fitCenter"
         android:src="@drawable/exo_controls_fullscreen_enter"
-        tools:src="@drawable/ic_help_outline_white_24dp" />
+        tools:src="@drawable/ic_fluent_question_circle_24_regular" />
 
     <TextView
         android:id="@+id/text"

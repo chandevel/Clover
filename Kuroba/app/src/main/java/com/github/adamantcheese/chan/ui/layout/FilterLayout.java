@@ -153,7 +153,7 @@ public class FilterLayout
         onlyOnOP = findViewById(R.id.only_on_op_checkbox);
         applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
-        Drawable dropdownDrawable = getRes().getDrawable(R.drawable.ic_arrow_drop_down_white_24dp);
+        Drawable dropdownDrawable = getRes().getDrawable(R.drawable.ic_fluent_caret_down_16_filled);
         dropdownDrawable.setTint(getAttrColor(getContext(), android.R.attr.textColorSecondary));
         typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
         boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);

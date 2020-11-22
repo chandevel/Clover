@@ -17,8 +17,8 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Configuration;
-import android.graphics.PorterDuff;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -214,17 +214,14 @@ public class SettingsController
             case ApkUpdate:
             case CrashLog:
                 if (settingNotification == preferenceView.getSettingNotificationType()) {
-                    notificationIcon.setColorFilter(
-                            getRes().getColor(settingNotification.getNotificationIconTintColor()),
-                            PorterDuff.Mode.SRC_IN
-                    );
+                    notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotification.getNotificationIconTintColor())));
                 } else {
                     notificationIcon.setVisibility(GONE);
                 }
                 break;
             case Both:
-                notificationIcon.setColorFilter(getRes().getColor(preferenceView.getSettingNotificationType()
-                        .getNotificationIconTintColor()), PorterDuff.Mode.SRC_IN);
+                notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(preferenceView.getSettingNotificationType()
+                        .getNotificationIconTintColor())));
                 break;
         }
     }

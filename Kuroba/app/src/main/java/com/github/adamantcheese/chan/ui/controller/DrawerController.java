@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.Gravity;
@@ -52,7 +53,9 @@ import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsControll
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.snackbar.Snackbar;
+import com.skydoves.balloon.ArrowOrientation;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -175,6 +178,26 @@ public class DrawerController
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(@NonNull View drawerView, float slideOffset) {}
+
+            @Override
+            public void onDrawerOpened(@NonNull View drawerView) {
+                AndroidUtils.getBaseToolTip(context)
+                        .setPreferenceName("DrawerPinHistoryHint")
+                        .setArrowOrientation(ArrowOrientation.TOP)
+                        .setText("Tap to view history/bookmarks")
+                        .build()
+                        .showAlignBottom(view.findViewById(R.id.history_pin_mode_toggle));
+            }
+
+            @Override
+            public void onDrawerClosed(@NonNull View drawerView) {}
+
+            @Override
+            public void onDrawerStateChanged(int newState) {}
+        });
         drawer = view.findViewById(R.id.drawer);
 
         settings = view.findViewById(R.id.settings);
@@ -182,8 +205,8 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
-        view.findViewById(R.id.history).setOnClickListener(v -> {
-            toggleHistoryMode(v);
+        view.findViewById(R.id.history_pin_mode_toggle).setOnClickListener(v -> {
+            togglePinHistoryMode((ImageView) v);
             ((SearchLayout) buttonSearchSwitch.findViewById(R.id.searchview)).setText("");
             ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
             buttonSearchSwitch.toggle(true, true);
@@ -265,7 +288,11 @@ public class DrawerController
 
     @Override
     public boolean onBack() {
-        if (drawerLayout.isDrawerOpen(drawer)) {
+        if (!inViewMode) {
+            inViewMode = !inViewMode;
+            buttonSearchSwitch.toggle(inViewMode, true);
+            return true;
+        } else if (drawerLayout.isDrawerOpen(drawer)) {
             drawerLayout.closeDrawer(drawer);
             return true;
         } else {
@@ -309,7 +336,7 @@ public class DrawerController
         } else {
             if (headerAction == CLEAR_ALL) {
                 DatabaseUtils.runTaskAsync(instance(DatabaseLoadableManager.class).clearHistory());
-                toggleHistoryMode(view.findViewById(R.id.history));
+                togglePinHistoryMode(view.findViewById(R.id.history_pin_mode_toggle));
             } else {
                 showToast(context, R.string.clear_history, Toast.LENGTH_LONG);
             }
@@ -338,12 +365,12 @@ public class DrawerController
         }
     }
 
-    private void toggleHistoryMode(View historyView) {
+    private void togglePinHistoryMode(ImageView toggleView) {
         if (pinMode) {
             // swap to history mode
             pinMode = false;
             recyclerView.setAdapter(null);
-            ((ImageView) historyView).setImageResource(R.drawable.ic_bookmark_themed_24dp);
+            toggleView.setImageResource(R.drawable.ic_fluent_bookmark_24_filled);
             ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
             handler.removeCallbacksAndMessages(null);
 
@@ -352,7 +379,7 @@ public class DrawerController
             // swap to pin mode
             pinMode = true;
             recyclerView.setAdapter(null);
-            ((ImageView) historyView).setImageResource(R.drawable.ic_history_themed_24dp);
+            toggleView.setImageResource(R.drawable.ic_fluent_history_24_filled);
             ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
 
             recyclerView.setAdapter(new DrawerPinAdapter(this));
@@ -388,18 +415,8 @@ public class DrawerController
             recyclerView.getAdapter().notifyItemInserted(watchManager.getAllPins().indexOf(message.pin));
             recyclerView.scrollToPosition(watchManager.getAllPins().indexOf(message.pin));
         }
-        if (ChanSettings.drawerAutoOpenCount.get() < 5 || ChanSettings.alwaysOpenDrawer.get()) {
+        if (ChanSettings.alwaysOpenDrawer.get()) {
             drawerLayout.openDrawer(drawer);
-            //max out at 5
-            int curCount = ChanSettings.drawerAutoOpenCount.get();
-            ChanSettings.drawerAutoOpenCount.set(Math.min(curCount + 1, 5));
-            if (ChanSettings.drawerAutoOpenCount.get() < 5 && !ChanSettings.alwaysOpenDrawer.get()) {
-                int countLeft = 5 - ChanSettings.drawerAutoOpenCount.get();
-                showToast(context,
-                        "Drawer will auto-show " + countLeft + " more time" + (countLeft == 1 ? "" : "s")
-                                + " as a reminder."
-                );
-            }
         }
         updateBadge();
     }
@@ -437,7 +454,7 @@ public class DrawerController
         ImageView notificationIcon = settings.findViewById(R.id.setting_notification_icon);
         if (type != SettingNotification.Default) {
             notificationIcon.setVisibility(VISIBLE);
-            notificationIcon.setColorFilter(getRes().getColor(type.getNotificationIconTintColor()));
+            notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(type.getNotificationIconTintColor())));
         } else {
             notificationIcon.setVisibility(GONE);
         }

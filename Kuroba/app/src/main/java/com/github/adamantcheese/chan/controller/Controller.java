@@ -211,12 +211,14 @@ public abstract class Controller {
 
         controller.onCreate();
         controller.attachToView(contentView);
-        controller.onShow();
 
         if (animated) {
             ControllerTransition transition = new FadeInTransition();
             transition.to = controller;
+            transition.setCallback(transition1 -> controller.onShow());
             transition.perform();
+        } else {
+            controller.onShow();
         }
 
         ((StartActivity) context).pushController(controller);

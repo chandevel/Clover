@@ -241,6 +241,9 @@ public abstract class ThreadController
     }
 
     @Override
+    public void onNavItemSet() {}
+
+    @Override
     public void openFilterForType(FilterType type, String filterText) {
         FiltersController filtersController = new FiltersController(context);
         if (doubleNavigationController != null) {

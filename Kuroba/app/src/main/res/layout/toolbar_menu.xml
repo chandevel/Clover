@@ -18,13 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center_vertical"
-    android:baselineAligned="false"
-    android:orientation="horizontal"
-    tools:layout_height="@dimen/toolbar_height"
-    tools:layout_width="150dp"
-    tools:background="@color/md_red_500">
+    android:layout_height="@dimen/toolbar_height"
+    tools:background="?backcolor">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/title_container"
@@ -33,15 +28,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_weight="1"
         android:minWidth="150dp"
         android:orientation="vertical"
-        android:paddingLeft="4dp"
-        tools:ignore="UselessParent,SpUsage">
+        android:paddingLeft="4dp">
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:gravity="center_vertical"
             android:lines="1"
             android:singleLine="true"
             android:textColor="@color/white"
@@ -57,7 +50,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:gravity="center_vertical"
             android:lines="1"
             android:singleLine="true"
             android:textColor="@color/white"
@@ -70,8 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/dropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_drop_down_white_24dp"
-            android:translationY="3dp"
+            android:src="@drawable/ic_fluent_caret_down_24_filled"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"

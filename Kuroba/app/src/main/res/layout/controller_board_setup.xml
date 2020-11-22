@@ -66,6 +66,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="right|bottom"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_add_white_24dp" />
+        android:src="@drawable/ic_fluent_add_24_filled" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

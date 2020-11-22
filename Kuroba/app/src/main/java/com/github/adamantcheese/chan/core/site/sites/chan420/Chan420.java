@@ -71,8 +71,7 @@ public class Chan420
         }
     };
 
-    public Chan420(Context context) {
-        super(context);
+    public Chan420() {
         setName("420Chan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://420chan.org/favicon.ico")));
     }
@@ -117,6 +116,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParser(new TaimabaCommentParser(context));
+        setParser(new TaimabaCommentParser());
     }
 }

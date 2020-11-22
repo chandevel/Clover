@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:padding="8dp"
         android:scaleType="center"
-        android:src="@drawable/ic_reorder_white_24dp"
+        android:src="@drawable/ic_fluent_re_order_24_filled"
         app:tint="?android:textColorPrimary" />
 
 </LinearLayout>

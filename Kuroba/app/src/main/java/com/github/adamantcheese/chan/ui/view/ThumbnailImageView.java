@@ -29,7 +29,7 @@ public class ThumbnailImageView
 
     public ThumbnailImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
+        playIcon = context.getDrawable(R.drawable.ic_fluent_play_circle_24_regular);
     }
 
     public void setType(PostImage.Type type) {

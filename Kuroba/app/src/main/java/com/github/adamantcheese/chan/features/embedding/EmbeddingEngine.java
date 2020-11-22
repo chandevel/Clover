@@ -176,7 +176,7 @@ public class EmbeddingEngine {
             if (p.type == PostLinkable.Type.LINK) {
                 for (Embedder<?> e : embedders) {
                     if (TextUtils.equals(p.key, p.value.toString()) && e.shouldEmbed(p.value.toString(),
-                            Board.getDummyBoard(getAppContext())
+                            Board.getDummyBoard()
                     )) {
                         toClear.add(p);
                         break;

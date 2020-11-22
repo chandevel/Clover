@@ -181,7 +181,7 @@ public class BoardAddLayout
                 boardSuggestion = suggestionList.get(position);
             } else {
                 //this is here for android studio's layout preview
-                boardSuggestion = new BoardSuggestion(Board.getDummyBoard(getContext()));
+                boardSuggestion = new BoardSuggestion(Board.getDummyBoard());
             }
             holder.setSuggestion(boardSuggestion);
             holder.text.setText(boardSuggestion.getName());

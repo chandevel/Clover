@@ -68,7 +68,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
                     android:text="@string/back"
-                    app:drawableLeftCompat="@drawable/ic_arrow_back_themed_24dp" />
+                    app:drawableLeftCompat="@drawable/ic_fluent_arrow_left_24_filled"
+                    app:drawableTint="?attr/themeDrawableColor" />
             </FrameLayout>
 
             <FrameLayout
@@ -88,7 +89,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
                     android:text="@string/close"
-                    app:drawableLeftCompat="@drawable/ic_done_themed_24dp" />
+                    app:drawableLeftCompat="@drawable/ic_fluent_checkmark_24_filled"
+                    app:drawableTint="?attr/themeDrawableColor" />
             </FrameLayout>
         </LinearLayout>
 

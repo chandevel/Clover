@@ -53,10 +53,12 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.PreferenceManager;
 
 import com.github.adamantcheese.chan.R;
+import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -80,11 +82,20 @@ public class AndroidUtils {
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
+    private static AppCompatActivity activity;
 
-    public static void init(Application application) {
+    public static void init(Application application, AppCompatActivity activity) {
         if (AndroidUtils.application == null) {
             AndroidUtils.application = application;
         }
+        if (AndroidUtils.activity == null) {
+            AndroidUtils.activity = activity;
+        }
+    }
+
+    public static void cleanup() {
+        application = null;
+        activity = null;
     }
 
     public static Resources getRes() {
@@ -93,6 +104,15 @@ public class AndroidUtils {
 
     public static Context getAppContext() {
         return application;
+    }
+
+    /**
+     * LIKE SERIOUSLY DON'T USE THIS IF YOU DON'T NEED TO
+     *
+     * @return The activity as a context.
+     */
+    public static Context getActivityContext() {
+        return activity;
     }
 
     public static String getString(int res) {
@@ -662,5 +682,26 @@ public class AndroidUtils {
         }
 
         return "Unknown";
+    }
+
+    /**
+     * You'll need to add the following after you get this base popup:<br>
+     * Arrow constraints (if needed)<br>
+     * Arrow orientation<br>
+     * The text for the hint (resID or String)<br>
+     * A preference name, to only show this once<br><br>
+     * You'll also need to call showAlignX, where X is opposite of the arrow orientation
+     *
+     * @param context The AppCompatActivity context for this hint.
+     * @return A hint popup that still needs additional information.
+     */
+    public static Balloon.Builder getBaseToolTip(Context context) {
+        return new Balloon.Builder(context).setTextSize(14f)
+                .setPadding(10)
+                .setCornerRadius(2f)
+                .setDismissWhenClicked(true)
+                .setTextColor(getContrastColor(getAttrColor(context, R.attr.colorAccent)))
+                .setBackgroundColor(getAttrColor(context, R.attr.colorAccent))
+                .setLifecycleOwner((AppCompatActivity) context);
     }
 }

@@ -139,10 +139,10 @@ public class Loadable
         return loadable;
     }
 
-    public static Loadable emptyLoadable(Context context) {
+    public static Loadable emptyLoadable() {
         Loadable ret = new Loadable();
-        ret.site = new DummySite(context);
-        ret.board = Board.getDummyBoard(context);
+        ret.site = new DummySite();
+        ret.board = Board.getDummyBoard();
         return ret;
     }
 

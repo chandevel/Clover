@@ -300,12 +300,6 @@ public class ChanSettings {
     //region DATA
     // While not a setting, the last image options selected should be persisted even after import.
     public static final StringSetting lastImageOptions;
-
-    // While these are not "settings", they are here instead of in PersistableChanState because they control the appearance of hints.
-    // Hints should not be shown if re-imported.
-    public static final CounterSetting threadOpenCounter;
-    public static final IntegerSetting drawerAutoOpenCount;
-    public static final BooleanSetting reencodeHintShown;
     //endregion
     //endregion
 
@@ -483,9 +477,6 @@ public class ChanSettings {
 
             //region DATA
             lastImageOptions = new StringSetting(p, "last_image_options", "");
-            threadOpenCounter = new CounterSetting(p, "counter_thread_open");
-            drawerAutoOpenCount = new IntegerSetting(p, "drawer_auto_open_count", 0);
-            reencodeHintShown = new BooleanSetting(p, "preference_reencode_hint_already_shown", false);
             //endregion
 
         } catch (Throwable error) {

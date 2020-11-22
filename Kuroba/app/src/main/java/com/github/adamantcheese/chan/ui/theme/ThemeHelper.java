@@ -52,6 +52,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class ThemeHelper {
+    private static boolean initialized = false;
     /*
         Theme guide, continued from styles.xml
         4) Add in a new line
@@ -83,6 +84,8 @@ public class ThemeHelper {
             Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
 
     public static void init() {
+        if (initialized) return;
+        initialized = true;
         themes.add(new Theme("Light", R.style.Chan_Theme_Light, GREEN, GREEN));
         themes.add(defaultNightTheme);
         themes.add(new Theme("Black", R.style.Chan_Theme_Black, BLACK, INDIGO));

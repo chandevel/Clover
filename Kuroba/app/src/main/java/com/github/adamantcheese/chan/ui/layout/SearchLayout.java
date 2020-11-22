@@ -111,7 +111,7 @@ public class SearchLayout
         searchView.requestFocus();
 
         clearButton.setAlpha(isInEditMode() ? 1.0f : 0.0f);
-        clearButton.setImageResource(R.drawable.ic_clear_white_24dp);
+        clearButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColorPrimary));
         clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {

@@ -79,7 +79,7 @@ public class ArchiveController
 
         // Navigation
         navigation.title = getString(R.string.archive_title, BoardHelper.getName(board));
-        navigation.buildMenu().withItem(R.drawable.ic_search_white_24dp, this::searchClicked).build();
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked).build();
 
         // View binding
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
@@ -113,6 +113,9 @@ public class ArchiveController
     public void onSearchVisibilityChanged(boolean visible) {
         presenter.onSearchVisibility(visible);
     }
+
+    @Override
+    public void onNavItemSet() {}
 
     @Override
     public void onRefresh() {

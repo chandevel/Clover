@@ -148,10 +148,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/ripple_item_background"
-            android:paddingTop="2dp"
-            android:paddingRight="2dp"
-            android:paddingBottom="2dp"
-            android:src="@drawable/ic_overflow"
+            android:paddingTop="8dp"
+            android:paddingLeft="10dp"
+            android:paddingBottom="4dp"
+            android:src="@drawable/ic_fluent_more_vertical_24_filled"
             app:tint="?android:textColorSecondary"
             tools:ignore="ContentDescription" />
 

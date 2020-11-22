@@ -79,10 +79,6 @@ public abstract class CommonSite
 
     private final Boards staticBoards = new Boards();
 
-    public CommonSite(Context context) {
-        super(context);
-    }
-
     @Override
     public void initialize(int id, JsonSettings userSettings) {
         super.initialize(id, userSettings);

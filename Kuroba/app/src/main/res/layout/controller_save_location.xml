@@ -48,7 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="56dp"
                     android:layout_height="match_parent"
                     android:scaleType="center"
-                    android:src="@drawable/ic_chevron_left_black_24dp" />
+                    android:src="@drawable/ic_fluent_chevron_left_24_filled"
+                    app:tint="?attr/themeDrawableColor" />
 
                 <TextView
                     android:id="@+id/back_text"
@@ -85,7 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_alignParentBottom="true"
             android:layout_margin="16dp"
-            android:src="@drawable/ic_done_white_24dp" />
+            android:src="@drawable/ic_fluent_checkmark_24_filled" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/add_button"
@@ -93,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_above="@+id/set_button"
             android:layout_alignLeft="@+id/set_button"
-            android:src="@drawable/ic_add_white_24dp" />
+            android:src="@drawable/ic_fluent_add_24_filled" />
     </RelativeLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

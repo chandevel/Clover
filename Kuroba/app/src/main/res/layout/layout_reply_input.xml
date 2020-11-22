@@ -285,11 +285,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="8dp"
-                        android:src="@drawable/ic_refresh_themed_24dp"
+                        android:src="@drawable/ic_fluent_arrow_clockwise_24_filled"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:tint="?attr/themeDrawableColor"
+                        tools:visibility="visible" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
@@ -306,9 +308,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="36dp"
                     android:background="@drawable/ripple_item_background"
                     android:padding="6dp"
-                    android:scaleX="1.25"
-                    android:scaleY="1.25"
-                    android:src="@drawable/ic_expand_more_white_24dp"
+                    android:src="@drawable/ic_fluent_caret_down_24_filled"
                     app:tint="?attr/themeDrawableColor" />
 
                 <ImageView
@@ -317,7 +317,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="36dp"
                     android:background="@drawable/ripple_item_background"
                     android:padding="6dp"
-                    android:src="@drawable/ic_image_themed_24dp"
+                    android:src="@drawable/ic_fluent_image_add_24_filled"
                     app:tint="?attr/themeDrawableColor" />
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -330,13 +330,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_height="match_parent"
                         android:background="@drawable/ripple_item_background"
                         android:padding="6dp"
-                        android:src="@drawable/ic_send_themed_24dp" />
+                        android:src="@drawable/ic_fluent_send_24_filled"
+                        app:tint="?attr/themeDrawableColor"/>
 
                     <TextView
                         android:id="@+id/valid_captchas_count"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:background="@drawable/circle_background"
+                        android:background="@drawable/ic_fluent_circle_24_filled"
+                        android:backgroundTint="@color/transparent_black"
                         android:clickable="false"
                         android:gravity="center"
                         android:textColor="#fff"

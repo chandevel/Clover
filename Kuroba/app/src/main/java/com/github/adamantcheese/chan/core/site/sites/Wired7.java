@@ -78,8 +78,7 @@ public class Wired7
         }
     };
 
-    public Wired7(Context context) {
-        super(context);
+    public Wired7() {
         setName("Wired-7");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://wired-7.org/favicon.ico")));
     }
@@ -114,7 +113,7 @@ public class Wired7
         setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser(context));
+        setParser(new VichanCommentParser());
     }
 
     private static class Wired7Actions

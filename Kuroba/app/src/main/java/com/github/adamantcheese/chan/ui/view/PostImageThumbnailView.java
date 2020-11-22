@@ -67,7 +67,7 @@ public class PostImageThumbnailView
         super(context, attrs, defStyle);
         this.setOnLongClickListener(this);
 
-        playIcon = context.getDrawable(R.drawable.ic_play_circle_outline_white_24dp);
+        playIcon = context.getDrawable(R.drawable.ic_fluent_play_circle_24_regular);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PostImageThumbnailView);
         try {

@@ -195,11 +195,11 @@ public class Board
 
     private static Board dummyBoard;
 
-    public static Board getDummyBoard(Context context) {
+    public static Board getDummyBoard() {
         if (dummyBoard != null) return dummyBoard;
         Board board = new Board();
         board.name = "Test Board";
-        board.site = new DummySite(context);
+        board.site = new DummySite();
         board.code = "test";
         dummyBoard = board;
         return board;

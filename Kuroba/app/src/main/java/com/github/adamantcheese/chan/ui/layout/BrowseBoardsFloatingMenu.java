@@ -138,11 +138,11 @@ public class BrowseBoardsFloatingMenu
         items.addObserver(this);
 
         if (items.items.size() == 1) {
-            CommonSite setupSite = new CommonSite(getContext()) {
+            CommonSite setupSite = new CommonSite() {
                 @Override
                 public void setup() {
                     setName("App Setup");
-                    setIcon(SiteIcon.fromDrawable(getContext().getDrawable(R.drawable.ic_settings_themed_24dp)));
+                    setIcon(SiteIcon.fromDrawable(getContext().getDrawable(R.drawable.ic_fluent_settings_24_filled)));
                 }
             };
             setupSite.setup();

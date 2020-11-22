@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
@@ -44,7 +45,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 public class ArchivesManager
         extends JSONProcessor<List<ExternalSiteArchive>>
         implements ResponseResult<List<ExternalSiteArchive>> {
-    private final Context context;
     private List<ExternalSiteArchive> archivesList;
 
     private final Map<String, Class<? extends ExternalSiteArchive>> jsonMapping = new HashMap<>();
@@ -52,23 +52,20 @@ public class ArchivesManager
     @SuppressLint("StaticFieldLeak")
     private static ArchivesManager instance;
 
-    public static void initialize(Context context) {
-        if (instance != null) return;
-        instance = new ArchivesManager(context);
-    }
-
     public static ArchivesManager getInstance() {
+        if(instance == null) {
+            instance = new ArchivesManager();
+        }
         return instance;
     }
 
-    private ArchivesManager(Context context) {
-        this.context = context;
+    private ArchivesManager() {
         // setup mappings (nothing for fuuka, doesn't have an API)
         jsonMapping.put("foolfuuka", FoolFuukaArchive.class);
         jsonMapping.put("fuuka", null);
 
         //setup the archives list from the internal file, populated when you build the application
-        AssetManager assetManager = context.getAssets();
+        AssetManager assetManager = getAppContext().getAssets();
         try {
             // archives.json should only contain FoolFuuka archives, as no other proper archiving software with an API seems to exist
             try (JsonReader reader = new JsonReader(new InputStreamReader(assetManager.open("archives.json")))) {
@@ -140,13 +137,13 @@ public class ArchivesManager
             reader.endObject();
             Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
-                archives.add(archiveClass.getConstructor(Context.class,
+                archives.add(archiveClass.getConstructor(
                         String.class,
                         String.class,
                         List.class,
                         boolean.class
                 )
-                        .newInstance(context, domain, name, boardCodes, search));
+                        .newInstance(domain, name, boardCodes, search));
             }
         }
         reader.endArray();

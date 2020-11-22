@@ -54,7 +54,7 @@ public class LogsController
         super.onCreate();
 
         navigation.setTitle(R.string.settings_logs_screen);
-        navigation.buildMenu().withItem(R.drawable.ic_clipboard_white_24dp, this::copyLogsClicked).build();
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_clipboard_code_24_filled, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
         container.setBackgroundColor(getAttrColor(context, R.attr.backcolor));

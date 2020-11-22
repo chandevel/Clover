@@ -139,6 +139,8 @@ public class ToolbarContainer
         setArrowProgress(1f, !currentView.item.hasArrow());
 
         itemView.attach();
+
+        callback.onNavItemSet(item);
     }
 
     public void update(NavigationItem item) {
@@ -198,6 +200,8 @@ public class ToolbarContainer
         }
 
         itemView.attach();
+
+        callback.onNavItemSet(item);
     }
 
     public void stopTransition(boolean didComplete) {
@@ -505,5 +509,7 @@ public class ToolbarContainer
 
     public interface Callback {
         void searchInput(String input);
+
+        void onNavItemSet(NavigationItem item);
     }
 }

@@ -41,7 +41,6 @@ import static com.github.adamantcheese.chan.Chan.inject;
 
 public abstract class SiteBase
         implements Site {
-    protected Context context;
     protected int id;
 
     @Inject
@@ -53,10 +52,6 @@ public abstract class SiteBase
     protected SettingProvider<Object> settingsProvider;
     private JsonSettings userSettings;
     private boolean initialized = false;
-
-    public SiteBase(Context context) {
-        this.context = context;
-    }
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {

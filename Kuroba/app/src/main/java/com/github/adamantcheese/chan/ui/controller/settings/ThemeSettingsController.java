@@ -92,7 +92,7 @@ public class ThemeSettingsController
         extends Controller {
 
     private static final int TOGGLE_ID = 1;
-    private final Loadable dummyLoadable = Loadable.emptyLoadable(context);
+    private final Loadable dummyLoadable = Loadable.emptyLoadable();
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;
@@ -183,10 +183,12 @@ public class ThemeSettingsController
         navigation.setTitle(R.string.settings_screen_theme);
         navigation.swipeable = false;
         NavigationItem.MenuBuilder builder =
-                navigation.buildMenu().withItem(R.drawable.ic_help_outline_white_24dp, this::helpClicked);
+                navigation.buildMenu().withItem(R.drawable.ic_fluent_question_circle_24_regular, this::helpClicked);
         if (isAndroid10()) {
             builder.withItem(TOGGLE_ID,
-                    ThemeHelper.isNightTheme ? R.drawable.ic_moon_white_24dp : R.drawable.ic_sun_white_24dp,
+                    ThemeHelper.isNightTheme
+                            ? R.drawable.ic_fluent_weather_moon_24_filled
+                            : R.drawable.ic_fluent_weather_sunny_24_filled,
                     this::dayNightToggle
             );
         }
@@ -268,10 +270,10 @@ public class ThemeSettingsController
 
         //toggle toolbar item
         if (ThemeHelper.isNightTheme) {
-            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_sun_white_24dp);
+            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_fluent_weather_sunny_24_filled);
             ThemeHelper.isNightTheme = false;
         } else {
-            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_moon_white_24dp);
+            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_fluent_weather_moon_24_filled);
             ThemeHelper.isNightTheme = true;
         }
         navigationController.getToolbar().updateViewForItem(navigation);
@@ -358,11 +360,11 @@ public class ThemeSettingsController
 
             Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
 
-            CommentParser parser = new CommentParser(context).addDefaultRules();
+            CommentParser parser = new CommentParser().addDefaultRules();
             DefaultPostParser postParser = new DefaultPostParser(parser);
 
             //region POSTS
-            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard(context))
+            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .id(123456789)
                     .opId(123456789)
                     .op(true)
@@ -374,7 +376,7 @@ public class ThemeSettingsController
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
                     .idColor(Color.WHITE);
 
-            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard(context))
+            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
                     .id(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
@@ -384,7 +386,7 @@ public class ThemeSettingsController
                                     + "post for seeing the divider color; below is a youtube link for title/duration testing:<br>"
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
-            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard(context))
+            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
                     .id(345678901)
                     .opId(123456789)
                     .name("W.T. Snacks")
@@ -460,7 +462,7 @@ public class ThemeSettingsController
             postsView.setAdapter(adapter);
 
             final Toolbar toolbar = new Toolbar(themeContext);
-            toolbar.setMenuDrawable(R.drawable.ic_format_paint_white_24dp);
+            toolbar.setMenuDrawable(R.drawable.ic_fluent_paint_brush_20_filled);
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
                 FloatingMenuItem<MaterialColorStyle> selected = null;
@@ -499,6 +501,10 @@ public class ThemeSettingsController
 
                 @Override
                 public void onSearchEntered(NavigationItem item, String entered) {
+                }
+
+                @Override
+                public void onNavItemSet(NavigationItem item) {
                 }
             });
             final NavigationItem item = new NavigationItem();

@@ -50,7 +50,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -71,15 +70,17 @@ import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayo
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
 import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
-import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.skydoves.balloon.ArrowConstraints;
+import com.skydoves.balloon.ArrowOrientation;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.greenrobot.eventbus.EventBus;
@@ -101,7 +102,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 
 public class ReplyLayout
         extends LoadView
-        implements View.OnClickListener, ReplyPresenter.ReplyPresenterCallback, TextWatcher,
+        implements ReplyPresenter.ReplyPresenterCallback, TextWatcher,
                    SelectionListeningEditText.SelectionChangedListener, CaptchaHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
@@ -144,13 +145,9 @@ public class ReplyLayout
     private ImageView attach;
     private TextView validCaptchasCount;
     private ImageView more;
-    private ConstraintLayout submit;
-    @Nullable
-    private HintPopup hintPopup = null;
 
     // Captcha views:
     private FrameLayout captchaContainer;
-    private ImageView captchaHardReset;
 
     private final Runnable closeMessageRunnable = new Runnable() {
         @Override
@@ -185,11 +182,6 @@ public class ReplyLayout
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (isInEditMode()) return;
-
-        if (hintPopup != null) {
-            hintPopup.dismiss();
-            hintPopup = null;
-        }
 
         EventBus.getDefault().unregister(this);
         captchaHolder.removeListener(this);
@@ -229,7 +221,7 @@ public class ReplyLayout
         attach = replyInputLayout.findViewById(R.id.attach);
         validCaptchasCount = replyInputLayout.findViewById(R.id.valid_captchas_count);
         more = replyInputLayout.findViewById(R.id.more);
-        submit = replyInputLayout.findViewById(R.id.submit);
+        ConstraintLayout submit = replyInputLayout.findViewById(R.id.submit);
 
         progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
         progressBar = progressLayout.findViewById(R.id.progress_bar);
@@ -238,12 +230,12 @@ public class ReplyLayout
         // Setup reply layout views
         message.setMovementMethod(new LinkMovementMethod());
         filenameNew.setOnClickListener(v -> presenter.filenameNewClicked(false));
-        commentQuoteButton.setOnClickListener(this);
-        commentSpoilerButton.setOnClickListener(this);
-        commentCodeButton.setOnClickListener(this);
-        commentMathButton.setOnClickListener(this);
-        commentEqnButton.setOnClickListener(this);
-        commentSJISButton.setOnClickListener(this);
+        commentQuoteButton.setOnClickListener(v -> insertQuote());
+        commentSpoilerButton.setOnClickListener(v -> insertTags("[spoiler]", "[/spoiler]"));
+        commentCodeButton.setOnClickListener(v -> insertTags("[code]", "[/code]"));
+        commentMathButton.setOnClickListener(v -> insertTags("[math]", "[/math]"));
+        commentEqnButton.setOnClickListener(v -> insertTags("[eqn]", "[/eqn]"));
+        commentSJISButton.setOnClickListener(v -> insertTags("[sjis]", "[/sjis]"));
 
         name.addTextChangedListener(this);
         flag.addTextChangedListener(this);
@@ -260,7 +252,14 @@ public class ReplyLayout
 
         setupOptionsContextMenu();
 
-        previewHolder.setOnClickListener(this);
+        previewHolder.setOnClickListener(v -> {
+            if (presenter.isAttachedFileSupportedForReencoding()) {
+                attach.setClickable(false); // prevent immediately removing the file
+                callback.showImageReencodingWindow();
+            } else {
+                showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
+            }
+        });
         previewHolder.setOnLongClickListener(v -> {
             presenter.filenameNewClicked(true);
             return true;
@@ -269,15 +268,15 @@ public class ReplyLayout
         if (!isInEditMode()) {
             more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
         }
-        more.setOnClickListener(this);
+        more.setOnClickListener(v -> presenter.onMoreClicked());
 
-        attach.setOnClickListener(this);
+        attach.setOnClickListener(v -> presenter.onAttachClicked(false));
         attach.setOnLongClickListener(v -> {
             presenter.onAttachClicked(true);
             return true;
         });
 
-        submit.setOnClickListener(this);
+        submit.setOnClickListener(v -> presenter.onSubmitClicked(false));
         submit.setOnLongClickListener(v -> {
             presenter.onSubmitClicked(true);
             return true;
@@ -285,12 +284,16 @@ public class ReplyLayout
 
         // Inflate captcha layout
         captchaContainer = (FrameLayout) LayoutUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
-        captchaHardReset = captchaContainer.findViewById(R.id.reset);
+        ImageView captchaHardReset = captchaContainer.findViewById(R.id.reset);
 
         // Setup captcha layout views
         captchaContainer.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
-        captchaHardReset.setOnClickListener(this);
+        captchaHardReset.setOnClickListener(v -> {
+            if (authenticationLayout != null) {
+                authenticationLayout.hardReset();
+            }
+        });
 
         setView(replyInputLayout);
     }
@@ -333,40 +336,6 @@ public class ReplyLayout
         }
 
         setLayoutParams(params);
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == more) {
-            presenter.onMoreClicked();
-        } else if (v == attach) {
-            presenter.onAttachClicked(false);
-        } else if (v == submit) {
-            presenter.onSubmitClicked(false);
-        } else if (v == previewHolder) {
-            if (presenter.isAttachedFileSupportedForReencoding()) {
-                attach.setClickable(false); // prevent immediately removing the file
-                callback.showImageReencodingWindow();
-            } else {
-                showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
-            }
-        } else if (v == captchaHardReset) {
-            if (authenticationLayout != null) {
-                authenticationLayout.hardReset();
-            }
-        } else if (v == commentQuoteButton) {
-            insertQuote();
-        } else if (v == commentSpoilerButton) {
-            insertTags("[spoiler]", "[/spoiler]");
-        } else if (v == commentCodeButton) {
-            insertTags("[code]", "[/code]");
-        } else if (v == commentEqnButton) {
-            insertTags("[eqn]", "[/eqn]");
-        } else if (v == commentMathButton) {
-            insertTags("[math]", "[/math]");
-        } else if (v == commentSJISButton) {
-            insertTags("[sjis]", "[/sjis]");
-        }
     }
 
     private boolean insertQuote() {
@@ -778,13 +747,13 @@ public class ReplyLayout
                     openPreviewMessage(true, getString(R.string.reply_no_preview));
                 }
             }, true);
-            attach.setImageResource(R.drawable.ic_clear_themed_24dp);
+            attach.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         } else {
             spoiler.setVisibility(GONE);
             previewHolder.setVisibility(GONE);
             previewMessage.setVisibility(GONE);
             callback.updatePadding();
-            attach.setImageResource(R.drawable.ic_image_themed_24dp);
+            attach.setImageResource(R.drawable.ic_fluent_image_add_24_filled);
         }
         // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
         // only allow the preview to be clicked if it is fully visible
@@ -1013,19 +982,13 @@ public class ReplyLayout
     }
 
     private void showReencodeImageHint() {
-        if (!ChanSettings.reencodeHintShown.get()) {
-            String message = getString(R.string.click_image_for_extra_options);
-
-            if (hintPopup != null) {
-                hintPopup.dismiss();
-                hintPopup = null;
-            }
-
-            hintPopup = HintPopup.show(getContext(), preview, message, dp(-32), dp(16));
-            hintPopup.wiggle();
-
-            ChanSettings.reencodeHintShown.set(true);
-        }
+        AndroidUtils.getBaseToolTip(getContext())
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("ReencodeHint")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.tap_image_for_extra_options)
+                .build()
+                .showAlignBottom(preview);
     }
 
     @Override

@@ -70,7 +70,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 @AnyThread
 public class CommentParser {
-    private final Context context;
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
@@ -94,8 +93,7 @@ public class CommentParser {
 
     private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
 
-    public CommentParser(Context context) {
-        this.context = context;
+    public CommentParser() {
         // Required tags.
         rule(tagRule("p"));
         rule(tagRule("div"));
@@ -304,7 +302,7 @@ public class CommentParser {
                 new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        AlertDialog dialog = new AlertDialog.Builder(context).setMessage(parts)
+                        AlertDialog dialog = new AlertDialog.Builder(getAppContext()).setMessage(parts)
                                 .setPositiveButton(R.string.ok, null)
                                 .create();
                         dialog.setCanceledOnTouchOutside(true);

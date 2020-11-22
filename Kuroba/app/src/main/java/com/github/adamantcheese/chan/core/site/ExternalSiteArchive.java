@@ -24,16 +24,14 @@ import okhttp3.HttpUrl;
 
 public abstract class ExternalSiteArchive
         implements Site {
-    public Context context;
     public String domain;
     public String name;
     public List<String> boardCodes;
     public boolean searchEnabled;
 
     public ExternalSiteArchive(
-            Context context, String domain, String name, List<String> boardCodes, boolean searchEnabled
+            String domain, String name, List<String> boardCodes, boolean searchEnabled
     ) {
-        this.context = context;
         this.domain = domain;
         this.name = name;
         this.boardCodes = boardCodes;
@@ -259,7 +257,7 @@ public abstract class ExternalSiteArchive
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
-            return Loadable.emptyLoadable(context);
+            return Loadable.emptyLoadable();
         }
 
         public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);

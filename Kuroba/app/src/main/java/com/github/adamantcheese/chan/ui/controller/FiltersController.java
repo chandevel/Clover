@@ -41,8 +41,12 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.skydoves.balloon.ArrowConstraints;
+import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.Balloon;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,35 +82,35 @@ public class FiltersController
     private ItemTouchHelper itemTouchHelper;
     private boolean attached;
 
-    private final ItemTouchHelper.SimpleCallback touchHelperCallback =
-            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                    ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-            ) {
-                @Override
-                public boolean onMove(
-                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
-                ) {
-                    int from = viewHolder.getAdapterPosition();
-                    int to = target.getAdapterPosition();
+    private final ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+    ) {
+        @Override
+        public boolean onMove(
+                RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+        ) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
 
-                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION
-                            || !TextUtils.isEmpty(adapter.searchQuery)) {
-                        //require that no search is going on while we do the sorting
-                        return false;
-                    }
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION
+                    || !TextUtils.isEmpty(adapter.searchQuery)) {
+                //require that no search is going on while we do the sorting
+                return false;
+            }
 
-                    adapter.move(from, to);
-                    return true;
-                }
+            adapter.move(from, to);
+            return true;
+        }
 
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                    if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                        int position = viewHolder.getAdapterPosition();
-                        deleteFilter(adapter.displayList.get(position));
-                    }
-                }
-            };
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
+                int position = viewHolder.getAdapterPosition();
+                deleteFilter(adapter.displayList.get(position));
+            }
+        }
+    };
 
     public FiltersController(Context context) {
         super(context);
@@ -120,7 +124,7 @@ public class FiltersController
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
-        navigation.buildMenu().withItem(R.drawable.ic_search_white_24dp, this::searchClicked).build();
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked).build();
 
         adapter = new FilterAdapter();
 
@@ -137,6 +141,26 @@ public class FiltersController
 
         enable = view.findViewById(R.id.enable);
         enable.setOnClickListener(this);
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+
+        Balloon addHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("AddFilter")
+                .setArrowOrientation(ArrowOrientation.BOTTOM)
+                .setTextResource(R.string.filter_add_hint)
+                .build();
+        Balloon toggleHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("ToggleFilter")
+                .setArrowOrientation(ArrowOrientation.BOTTOM)
+                .setTextResource(R.string.filter_toggle_hint)
+                .build();
+        addHint.relayShowAlignTop(toggleHint, enable);
+        addHint.showAlignTop(add);
     }
 
     @Override
@@ -162,13 +186,13 @@ public class FiltersController
             List<Filter> allFilters = filterEngine.getAllFilters();
             if (enabledFilters.isEmpty()) {
                 setFilters(allFilters, true);
-                enableButton.setImageResource(R.drawable.ic_clear_white_24dp);
+                enableButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
             } else if (enabledFilters.size() == allFilters.size()) {
                 setFilters(allFilters, false);
-                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
+                enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
             } else {
                 setFilters(enabledFilters, false);
-                enableButton.setImageResource(R.drawable.ic_done_white_24dp);
+                enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
             }
             postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         }
@@ -194,9 +218,9 @@ public class FiltersController
                 new AlertDialog.Builder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
                     filterEngine.createOrUpdateFilter(layout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {
-                        enable.setImageResource(R.drawable.ic_done_white_24dp);
+                        enable.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
                     } else {
-                        enable.setImageResource(R.drawable.ic_clear_white_24dp);
+                        enable.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
                     }
                     postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
                     adapter.reload();
@@ -246,6 +270,9 @@ public class FiltersController
         adapter.searchQuery = entered;
         adapter.filter();
     }
+
+    @Override
+    public void onNavItemSet() {}
 
     private class FilterAdapter
             extends RecyclerView.Adapter<FilterHolder> {

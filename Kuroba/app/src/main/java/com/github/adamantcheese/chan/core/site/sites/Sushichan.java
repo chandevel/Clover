@@ -67,8 +67,7 @@ public class Sushichan
         }
     };
 
-    public Sushichan(Context context) {
-        super(context);
+    public Sushichan() {
         setName("Sushichan");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
     }
@@ -102,7 +101,7 @@ public class Sushichan
         setEndpoints(new VichanEndpoints(this, "https://sushigirl.us/", "https://sushigirl.us/"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser(context));
+        setParser(new VichanCommentParser());
     }
 
     @NonNull

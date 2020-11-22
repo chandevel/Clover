@@ -13,7 +13,7 @@ class JsCaptchaCookiesEditorController(context: Context) :
         super.onCreate()
 
         navigation.setTitle(R.string.settings_js_captcha_cookies_title)
-        navigation.buildMenu().withItem(R.drawable.ic_help_outline_white_24dp) { displayHelp() }
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_question_circle_24_regular) { displayHelp() }
         view = JsCaptchaCookiesEditorLayout(context).apply {
             onReady(this@JsCaptchaCookiesEditorController)
         }

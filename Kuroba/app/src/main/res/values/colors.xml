@@ -7,6 +7,8 @@
 
     <color name="textColorSecondary">?android:textColorSecondary</color>
 
+    <color name="fluent_default_icon_tint">#FFFFFFFF</color>
+
     <!-- basic colors -->
     <color name="black">#000000</color>
     <color name="almost_black">#010101</color>
@@ -14,6 +16,8 @@
     <color name="red">#FF0000</color>
     <color name="green">#00FF00</color>
     <color name="blue">#0000FF</color>
+
+    <color name="transparent_black">#80000000</color>
 
     <!-- xml from https://gist.github.com/daniellevass/b0b8cfa773488e138037 -->
     <!-- google's material design colours from

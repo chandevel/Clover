@@ -64,6 +64,7 @@ import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
@@ -138,10 +139,7 @@ public class StartActivity
         currentNightModeBits = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         super.onCreate(savedInstanceState);
 
-        // both of these need to be set up before any other injection occurs in this class
-        instance(SiteRepository.class).initialize(this); // so that sites have access to the context, if needed
-        instance(BoardManager.class).initialize();
-        ArchivesManager.initialize(this);
+        AndroidUtils.init(null, this);
 
         inject(this);
 
@@ -414,7 +412,7 @@ public class StartActivity
 
             if (thread == null) {
                 // Make the parcel happy
-                thread = Loadable.emptyLoadable(this);
+                thread = Loadable.emptyLoadable();
             }
 
             outState.putParcelable(STATE_KEY, new ChanState(board.clone(), thread.clone()));

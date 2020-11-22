@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:paddingTop="4dp"
         android:paddingRight="16dp"
         android:paddingBottom="4dp"
-        android:src="@drawable/ic_setting_alert"
+        android:src="@drawable/ic_fluent_error_circle_24_regular"
         android:visibility="gone"
         tools:tint="@color/md_green_500"
         tools:visibility="visible" />

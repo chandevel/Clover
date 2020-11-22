@@ -56,6 +56,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
@@ -561,7 +562,7 @@ public class MultiImageView
                         exoVideoView.setControllerHideOnTouch(false);
                         exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
                         exoVideoView.setUseArtwork(true);
-                        exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+                        exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_24_filled));
                         NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                             @Override
                             public void onBitmapFailure(HttpUrl source, Exception e) {} // use the default drawable
@@ -685,7 +686,7 @@ public class MultiImageView
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
-            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_volume_up_white_24dp));
+            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_24_filled));
             NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                 @Override
                 public void onBitmapFailure(HttpUrl source, Exception e) {} // use the default drawable

@@ -295,6 +295,18 @@ public class ThreadSlideController
         }
     }
 
+    @Override
+    public void onNavItemSet() {
+        if (leftOpen() && leftController != null
+                && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+            ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onNavItemSet();
+        }
+        if (!leftOpen() && rightController != null
+                && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
+            ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onNavItemSet();
+        }
+    }
+
     private boolean leftOpen() {
         return slidingPaneLayout.isOpen();
     }

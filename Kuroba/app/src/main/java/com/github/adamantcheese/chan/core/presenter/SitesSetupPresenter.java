@@ -62,10 +62,6 @@ public class SitesSetupPresenter
         sitesShown.addAll(sites.getAllInOrder());
 
         updateSitesInUi();
-
-        if (sites.getAll().isEmpty()) {
-            callback.showHint();
-        }
     }
 
     public void destroy() {
@@ -83,6 +79,10 @@ public class SitesSetupPresenter
 
     public void show() {
         updateSitesInUi();
+
+        if (sites.getAll().isEmpty()) {
+            callback.showHint();
+        }
     }
 
     public void move(int from, int to) {
@@ -97,7 +97,7 @@ public class SitesSetupPresenter
     }
 
     public void onAddClicked(Class<? extends Site> siteClass) {
-        Site newSite = siteRepository.createFromClass(siteClass, context);
+        Site newSite = siteRepository.createFromClass(siteClass);
 
         sitesShown.add(newSite);
         saveOrder();

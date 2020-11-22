@@ -55,8 +55,7 @@ public class Kun8
         }
     };
 
-    public Kun8(Context context) {
-        super(context);
+    public Kun8() {
         setName("8kun");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
     }
@@ -132,8 +131,7 @@ public class Kun8
         });
 
         setApi(new VichanApi(this));
-
-        setParser(new VichanCommentParser(context));
+        setParser(new VichanCommentParser());
     }
 
     @NonNull

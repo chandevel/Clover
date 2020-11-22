@@ -95,7 +95,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_marginRight="4dp"
                     android:background="@drawable/ripple_item_background"
                     android:scaleType="center"
-                    android:src="@drawable/ic_search_themed_24dp" />
+                    android:src="@drawable/ic_fluent_search_24_filled"
+                    app:tint="?attr/themeDrawableColor"/>
 
                 <ImageView
                     android:id="@+id/clear"
@@ -105,7 +106,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_marginRight="4dp"
                     android:background="@drawable/ripple_item_background"
                     android:scaleType="center"
-                    android:src="@drawable/ic_clear_themed_24dp" />
+                    android:src="@drawable/ic_fluent_dismiss_24_filled"
+                    app:tint="?attr/themeDrawableColor" />
 
             </LinearLayout>
 
@@ -139,7 +141,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:scaleType="center"
-                    android:src="@drawable/ic_settings_themed_24dp"
+                    android:src="@drawable/ic_fluent_settings_24_filled"
+                    app:tint="?attr/themeDrawableColor"
                     tools:ignore="ContentDescription" />
 
                 <TextView
@@ -159,7 +162,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
                     android:padding="6dp"
-                    android:src="@drawable/ic_setting_alert"
+                    android:src="@drawable/ic_fluent_error_circle_24_regular"
                     android:visibility="gone"
                     tools:tint="@color/md_green_500"
                     tools:visibility="visible" />
@@ -172,14 +175,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_weight="1" />
 
             <ImageView
-                android:id="@+id/history"
+                android:id="@+id/history_pin_mode_toggle"
                 android:layout_width="48dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="4dp"
                 android:background="?android:attr/selectableItemBackground"
                 android:scaleType="center"
-                android:src="@drawable/ic_history_themed_24dp"
+                android:src="@drawable/ic_fluent_history_24_filled"
+                app:tint="?attr/themeDrawableColor"
                 tools:ignore="ContentDescription" />
 
         </LinearLayout>

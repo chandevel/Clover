@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="32dp"
             android:layout_gravity="center_vertical"
             android:padding="4dp"
-            android:src="@drawable/ic_reorder_white_24dp"
+            android:src="@drawable/ic_fluent_re_order_24_filled"
             app:tint="?android:textColorSecondary"
             tools:ignore="ContentDescription" />
 

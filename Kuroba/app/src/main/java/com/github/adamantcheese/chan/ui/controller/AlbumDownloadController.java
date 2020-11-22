@@ -60,6 +60,7 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 public class AlbumDownloadController
         extends Controller
         implements View.OnClickListener {
+    private final int CHECK_ALL_ID = 1;
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
@@ -83,7 +84,9 @@ public class AlbumDownloadController
         view = inflate(context, R.layout.controller_album_download);
 
         updateTitle();
-        navigation.buildMenu().withItem(R.drawable.ic_select_all_white_24dp, this::onCheckAllClicked).build();
+        navigation.buildMenu()
+                .withItem(CHECK_ALL_ID, R.drawable.ic_fluent_select_all_off_24_filled, this::onCheckAllClicked)
+                .build();
 
         download = view.findViewById(R.id.download);
         download.setOnClickListener(this);
@@ -190,6 +193,7 @@ public class AlbumDownloadController
         }
         updateAllChecked();
         updateTitle();
+        updateDownloadIcon();
     }
 
     public void setPostImages(Loadable loadable, List<PostImage> postImages) {
@@ -210,6 +214,15 @@ public class AlbumDownloadController
     private void updateTitle() {
         navigation.title = getString(R.string.album_download_screen, getCheckCount(), items.size());
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+    }
+
+    private void updateDownloadIcon() {
+        ImageView downloadAllButton = navigation.findItem(CHECK_ALL_ID).getView();
+        if (allChecked) {
+            downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_off_24_filled);
+        } else {
+            downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_24_filled);
+        }
     }
 
     private void updateAllChecked() {
@@ -312,6 +325,7 @@ public class AlbumDownloadController
             item.checked = !item.checked;
             updateAllChecked();
             updateTitle();
+            updateDownloadIcon();
             setItemChecked(this, item.checked, true);
         }
     }
@@ -327,7 +341,7 @@ public class AlbumDownloadController
         }
 
         cell.checkbox.setImageResource(checked
-                ? R.drawable.ic_blue_checkmark_24dp
-                : R.drawable.ic_radio_button_unchecked_white_24dp);
+                ? R.drawable.ic_fluent_checkmark_circle_24_filled
+                : R.drawable.ic_fluent_record_24_filled);
     }
 }

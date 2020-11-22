@@ -292,6 +292,11 @@ public class Toolbar
     }
 
     @Override
+    public void onNavItemSet(NavigationItem item) {
+        callback.onNavItemSet(item);
+    }
+
+    @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
         callback.onSearchVisibilityChanged(item, visible);
 
@@ -333,6 +338,8 @@ public class Toolbar
         void onSearchVisibilityChanged(NavigationItem item, boolean visible);
 
         void onSearchEntered(NavigationItem item, String entered);
+
+        void onNavItemSet(NavigationItem item);
     }
 
     public interface ToolbarCollapseCallback {

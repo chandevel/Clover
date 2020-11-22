@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.site;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
@@ -33,9 +32,9 @@ public class FoolFuukaArchive
     private FoolFuukaReader reader;
 
     public FoolFuukaArchive(
-            Context context, String domain, String name, List<String> boardCodes, boolean searchEnabled
+            String domain, String name, List<String> boardCodes, boolean searchEnabled
     ) {
-        super(context, domain, name, boardCodes, searchEnabled);
+        super(domain, name, boardCodes, searchEnabled);
     }
 
     private class FoolFuukaReader
@@ -46,7 +45,7 @@ public class FoolFuukaArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new DefaultPostParser(new FoolFuukaCommentParser(context, domain));
+                parser = new DefaultPostParser(new FoolFuukaCommentParser(domain));
             }
             return parser;
         }
@@ -220,8 +219,8 @@ public class FoolFuukaArchive
 
     private static class FoolFuukaCommentParser
             extends CommentParser {
-        public FoolFuukaCommentParser(Context context, String domain) {
-            super(context);
+        public FoolFuukaCommentParser(String domain) {
+            super();
             addDefaultRules();
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved

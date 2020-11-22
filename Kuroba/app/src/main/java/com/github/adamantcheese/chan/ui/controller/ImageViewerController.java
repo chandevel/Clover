@@ -135,11 +135,11 @@ public class ImageViewerController
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
         if (goPostCallback != null) {
-            menuBuilder.withItem(R.drawable.ic_subdirectory_arrow_left_white_24dp, this::goPostClicked);
+            menuBuilder.withItem(R.drawable.ic_fluent_arrow_reply_down_20_filled, this::goPostClicked);
         }
 
-        menuBuilder.withItem(VOLUME_ID, R.drawable.ic_volume_off_white_24dp, this::volumeClicked);
-        menuBuilder.withItem(SAVE_ID, R.drawable.ic_file_download_white_24dp, this::saveClicked);
+        menuBuilder.withItem(VOLUME_ID, R.drawable.ic_fluent_speaker_off_24_filled, this::volumeClicked);
+        menuBuilder.withItem(SAVE_ID, R.drawable.ic_fluent_arrow_download_24_filled, this::saveClicked);
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
         overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
@@ -417,7 +417,9 @@ public class ImageViewerController
     public void showVolumeMenuItem(boolean show, boolean muted) {
         ToolbarMenuItem volumeMenuItem = navigation.findItem(VOLUME_ID);
         volumeMenuItem.setVisible(show);
-        volumeMenuItem.setImage(muted ? R.drawable.ic_volume_off_white_24dp : R.drawable.ic_volume_up_white_24dp);
+        volumeMenuItem.setImage(muted
+                ? R.drawable.ic_fluent_speaker_off_24_filled
+                : R.drawable.ic_fluent_speaker_24_filled);
     }
 
     @Override

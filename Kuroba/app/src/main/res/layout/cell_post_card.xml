@@ -34,30 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         app:layout_ratio="0.5"
         tools:layout_ratio="0.0f">
 
-        <FrameLayout
+        <!-- ratio 16/13 -->
+        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
+            android:id="@+id/thumbnail"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <!-- ratio 16/13 -->
-            <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
-                android:id="@+id/thumbnail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:ratio="1.2307692307692307692307692307692" />
-
-            <ImageView
-                android:id="@+id/options"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|right"
-                android:background="@drawable/ripple_item_background"
-                android:paddingTop="5dp"
-                android:paddingRight="5dp"
-                android:src="@drawable/ic_overflow"
-                app:tint="?android:textColorSecondary"
-                tools:ignore="ContentDescription" />
-
-        </FrameLayout>
+            android:layout_height="wrap_content"
+            app:ratio="1.2307692307692307692307692307692" />
 
         <View
             android:id="@+id/filter_match_color"
@@ -89,31 +71,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="32dp">
 
             <TextView
                 android:id="@+id/replies"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingTop="4dp"
-                android:paddingRight="8dp"
-                android:paddingBottom="8dp"
+                android:layout_height="match_parent"
                 android:singleLine="true"
                 android:textColor="?android:textColorSecondary"
+                tools:padding="8dp"
                 tools:text="2 replies, 1 image" />
 
             <ProgressBar
                 android:id="@+id/embed_spinner"
                 android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_alignParentRight="true"
+                android:layout_height="match_parent"
+                android:layout_toLeftOf="@id/options"
                 android:indeterminate="true"
                 android:indeterminateTint="?colorAccent"
                 android:indeterminateTintMode="src_atop"
-                android:padding="4dp"
+                android:padding="5dp"
                 android:visibility="gone"
                 tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/options"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/ripple_item_background"
+                android:src="@drawable/ic_fluent_more_vertical_20_filled"
+                app:tint="?android:textColorSecondary"
+                tools:ignore="ContentDescription"
+                tools:padding="4dp"
+                tools:paddingLeft="8dp" />
         </RelativeLayout>
 
     </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>

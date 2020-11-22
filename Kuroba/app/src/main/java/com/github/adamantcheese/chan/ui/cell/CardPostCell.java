@@ -53,6 +53,7 @@ import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBu
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class CardPostCell
         extends CardView
@@ -261,8 +262,6 @@ public class CardPostCell
         title.setPadding(p, p, p, 0);
         comment.setPadding(p, p, p, 0);
         replies.setPadding(p, p / 2, p, p);
-
-        int optionsPadding = compact ? 0 : dp(5);
-        options.setPadding(0, optionsPadding, optionsPadding, 0);
+        options.setPadding(p, p / 2, p / 2, p / 2);
     }
 }

@@ -17,7 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
         android:id="@+id/reset"
@@ -25,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="36dp"
         android:layout_gravity="top|right"
         android:padding="6dp"
-        android:src="@drawable/ic_refresh_themed_24dp"
+        android:src="@drawable/ic_fluent_arrow_clockwise_24_filled"
+        app:tint="?attr/themeDrawableColor"
         android:background="@drawable/ripple_item_background"
         tools:ignore="ContentDescription" />
 

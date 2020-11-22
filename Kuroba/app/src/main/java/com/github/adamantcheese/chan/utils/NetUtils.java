@@ -324,7 +324,7 @@ public class NetUtils {
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                BackgroundUtils.runOnBackgroundThread(() -> result.onFailure(e));
+                result.onFailure(e);
             }
 
             @Override

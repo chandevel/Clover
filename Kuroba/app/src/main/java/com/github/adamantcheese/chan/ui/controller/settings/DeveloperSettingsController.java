@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.skydoves.balloon.BalloonPersistence;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -89,6 +90,7 @@ public class DeveloperSettingsController
         Switch debugFiltersSwitch = new Switch(context);
         debugFiltersSwitch.setPadding(dp(16), 0, dp(16), 0);
         debugFiltersSwitch.setText("Highlight filters; tap highlight to see matched filter");
+        debugFiltersSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         debugFiltersSwitch.setChecked(ChanSettings.debugFilters.get());
         debugFiltersSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.debugFilters.toggle());
         wrapper.addView(debugFiltersSwitch);
@@ -97,6 +99,7 @@ public class DeveloperSettingsController
         Switch verboseLogsSwitch = new Switch(context);
         verboseLogsSwitch.setPadding(dp(16), 0, dp(16), 0);
         verboseLogsSwitch.setText("Verbose downloader logs");
+        verboseLogsSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         verboseLogsSwitch.setChecked(ChanSettings.verboseLogs.get());
         verboseLogsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.verboseLogs.toggle());
         wrapper.addView(verboseLogsSwitch);
@@ -151,6 +154,7 @@ public class DeveloperSettingsController
                     }
                 }
             }
+            context.getSharedPreferences("com.skydoves.balloon", Context.MODE_PRIVATE).edit().clear().commit();
             ((StartActivity) context).restartApp();
         });
         resetDbButton.setText("Reset application and restart fresh");
@@ -212,18 +216,10 @@ public class DeveloperSettingsController
         dumpAllThreadStacks.setText("Dump active thread stack traces to log");
         wrapper.addView(dumpAllThreadStacks);
 
-        // Reset the thread open counter
-        Button resetThreadOpenCounter = new Button(context);
-        resetThreadOpenCounter.setOnClickListener(v -> {
-            ChanSettings.threadOpenCounter.reset();
-            showToast(context, "Done");
-        });
-        resetThreadOpenCounter.setText("Reset thread open counter");
-        wrapper.addView(resetThreadOpenCounter);
-
         Switch threadCrashSwitch = new Switch(context);
         threadCrashSwitch.setPadding(dp(16), 0, dp(16), 0);
         threadCrashSwitch.setText("Crash on wrong thread");
+        threadCrashSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         threadCrashSwitch.setChecked(ChanSettings.crashOnWrongThread.get());
         threadCrashSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.crashOnWrongThread.toggle());
         wrapper.addView(threadCrashSwitch);

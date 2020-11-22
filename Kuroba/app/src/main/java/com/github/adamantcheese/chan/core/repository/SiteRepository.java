@@ -82,7 +82,7 @@ public class SiteRepository {
         });
     }
 
-    public void initialize(Context context) {
+    public void initialize() {
         if (initialized) return;
         initialized = true;
         List<Site> sites = new ArrayList<>();
@@ -92,7 +92,7 @@ public class SiteRepository {
         for (SiteModel siteModel : models) {
             SiteConfigSettingsHolder holder;
             try {
-                holder = instantiateSiteFromModel(siteModel, context);
+                holder = instantiateSiteFromModel(siteModel);
             } catch (Exception e) {
                 Logger.e(this, "instantiateSiteFromModel", e);
                 break;
@@ -111,8 +111,8 @@ public class SiteRepository {
         sitesObservable.notifyObservers();
     }
 
-    public Site createFromClass(Class<? extends Site> siteClass, Context context) {
-        Site site = instantiateSiteClass(siteClass, context);
+    public Site createFromClass(Class<? extends Site> siteClass) {
+        Site site = instantiateSiteClass(siteClass);
 
         JsonSettings settings = new JsonSettings();
 
@@ -141,26 +141,26 @@ public class SiteRepository {
         return siteModel;
     }
 
-    private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel, Context context) {
-        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID, context),
+    private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID),
                 siteModel.loadConfig(gson)
         );
     }
 
     @NonNull
-    private Site instantiateSiteClass(int classId, Context context) {
+    private Site instantiateSiteClass(int classId) {
         Class<? extends Site> clazz = SITE_CLASSES.get(classId);
         if (clazz == null) {
             throw new IllegalArgumentException("Unknown class id: " + classId);
         }
-        return instantiateSiteClass(clazz, context);
+        return instantiateSiteClass(clazz);
     }
 
     @NonNull
-    public Site instantiateSiteClass(Class<? extends Site> clazz, Context context) {
+    public Site instantiateSiteClass(Class<? extends Site> clazz) {
         try {
-            return clazz.getConstructor(Context.class).newInstance(context);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+            return clazz.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }

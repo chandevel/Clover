@@ -174,12 +174,12 @@ Re-enable this permission in the app settings if you permanently disabled it."</
     <string name="thread_empty_select">Please select a thread</string>
     <string name="thread_up_down_hint">Scroll to top/bottom</string>
     <string name="thread_pin_hint">Bookmark this thread</string>
+    <string name="thread_album_hint">View thread album</string>
 
     <string name="thread_view_local_archive">View local archive</string>
     <string name="thread_view_external_archive">View external archive</string>
     <string name="thread_empty_setup_title">Nothing to show</string>
     <string name="thread_empty_setup_body">Add a site to begin browsing</string>
-    <string name="thread_empty_setup_hint">Add a site here</string>
     <string name="setup_sites_title">Set up sites</string>
 
     <string name="setup_sites_empty">No sites added</string>
@@ -575,7 +575,7 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_re_encode_image_text">Re-encode %s image as</string>
     <string name="reencode_image_as_jpeg">JPEG</string>
     <string name="reencode_image_as_png">PNG</string>
-    <string name="click_image_for_extra_options">Click image for extra options</string>
+    <string name="tap_image_for_extra_options">Tap image for extra options</string>
 
     <string name="settings_import_export">Import/Export</string>
     <string name="settings_import_export_description">Import/export settings/pins, etc.</string>
@@ -786,4 +786,8 @@ Don't have a 4chan Pass?<br>
 
     <string name="clear_history">Long press to clear all history!</string>
     <string name="no_history">No history available.</string>
+
+    <string name="filter_add_hint">Add a filter</string>
+    <string name="filter_toggle_hint">Toggle all filters on/off</string>
+    <string name="album_download_hint">Download multiple images</string>
 </resources>

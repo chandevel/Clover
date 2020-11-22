@@ -24,8 +24,6 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 
-import androidx.annotation.Nullable;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -37,7 +35,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -69,9 +66,6 @@ public class BrowseController
     @Inject
     BrowsePresenter presenter;
 
-    private Order order;
-    @Nullable
-    private HintPopup hint = null;
     public String searchQuery = null;
 
     public BrowseController(Context context) {
@@ -83,9 +77,8 @@ public class BrowseController
         super.onCreate();
 
         // Initialization
-        order = Order.find(ChanSettings.boardOrder.get());
         threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
-        threadLayout.getPresenter().setOrder(order);
+        threadLayout.getPresenter().setOrder(Order.find(ChanSettings.boardOrder.get()));
 
         // Navigation
         initNavigation();
@@ -94,28 +87,7 @@ public class BrowseController
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        if (hint != null) {
-            hint.dismiss();
-            hint = null;
-        }
-
         presenter.destroy();
-    }
-
-    @Override
-    public void showSitesNotSetup() {
-        super.showSitesNotSetup();
-
-        if (hint != null) {
-            hint.dismiss();
-            hint = null;
-        }
-
-        View hintView = getToolbar().findViewById(R.id.title_container);
-        hint = HintPopup.show(context, hintView, R.string.thread_empty_setup_hint);
-        hint.alignCenter();
-        hint.wiggle();
     }
 
     @Override
@@ -146,10 +118,10 @@ public class BrowseController
 
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
         if (ChanSettings.moveSortToToolbar.get()) {
-            menuBuilder.withItem(R.drawable.ic_sort_white_24dp, this::handleSorting);
+            menuBuilder.withItem(R.drawable.ic_fluent_list_24_filled, this::handleSorting);
         }
-        menuBuilder.withItem(R.drawable.ic_search_white_24dp, this::searchClicked);
-        menuBuilder.withItem(R.drawable.ic_refresh_white_24dp, this::reloadClicked);
+        menuBuilder.withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked);
+        menuBuilder.withItem(R.drawable.ic_fluent_arrow_clockwise_24_filled, this::reloadClicked);
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
@@ -334,7 +306,7 @@ public class BrowseController
             }
 
             String name = getString(nameId);
-            if (order == this.order) {
+            if (order == Order.find(ChanSettings.boardOrder.get())) {
                 name = "\u2713 " + name; // Checkmark
             }
 
@@ -355,7 +327,6 @@ public class BrowseController
             public void onFloatingMenuItemClicked(FloatingMenu<Order> menu, FloatingMenuItem<Order> item) {
                 Order order = item.getId();
                 ChanSettings.boardOrder.set(order.name().toLowerCase());
-                BrowseController.this.order = order;
                 presenter.setOrder(order);
             }
         });
@@ -434,6 +405,7 @@ public class BrowseController
 
                 if (navigationController.getTop() instanceof ViewThreadController) {
                     ((ViewThreadController) navigationController.getTop()).loadThread(threadLoadable);
+                    ((ViewThreadController) navigationController.getTop()).onNavItemSet();
                 }
             } else {
                 StyledToolbarNavigationController navigationController = new StyledToolbarNavigationController(context);

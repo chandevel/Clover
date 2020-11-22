@@ -17,11 +17,9 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
@@ -39,7 +37,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.ui.helper.HintPopup;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -47,7 +44,11 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.k1rakishou.fsaf.FileManager;
+import com.skydoves.balloon.ArrowConstraints;
+import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -59,9 +60,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
@@ -69,10 +68,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 public class ViewThreadController
         extends ThreadController
         implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback, ToolbarMenuItem.OverflowMenuCallback {
-    private static final int PIN_ID = 1;
-    private static final int REPLY_ID = 2;
-    private static final int ARCHIVE_ID = 3;
-    private static final int REMOVED_ID = 4;
+    private static final int ALBUM_ID = 1;
+    private static final int PIN_ID = 2;
+    private static final int REPLY_ID = 3;
+    private static final int ARCHIVE_ID = 4;
+    private static final int REMOVED_ID = 5;
 
     @Inject
     WatchManager watchManager;
@@ -84,9 +84,6 @@ public class ViewThreadController
 
     //pairs of the current thread loadable and the thread we're going to's hashcode
     private final Deque<Pair<Loadable, Integer>> threadFollowerpool = new ArrayDeque<>();
-
-    @Nullable
-    private HintPopup hintPopup = null;
 
     private FloatingMenu<ToolbarMenuSubItem> floatingMenu;
 
@@ -112,11 +109,9 @@ public class ViewThreadController
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
 
         if (!ChanSettings.textOnly.get()) {
-            Drawable imageWhite = context.getDrawable(R.drawable.ic_image_themed_24dp);
-            imageWhite.setTint(Color.WHITE);
-            menuBuilder.withItem(-1, imageWhite, this::albumClicked);
+            menuBuilder.withItem(ALBUM_ID, R.drawable.ic_fluent_image_24_filled, this::albumClicked);
         }
-        menuBuilder.withItem(PIN_ID, R.drawable.ic_bookmark_border_white_24dp, this::pinClicked);
+        menuBuilder.withItem(PIN_ID, R.drawable.ic_fluent_bookmark_24_regular, this::pinClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
@@ -209,7 +204,6 @@ public class ViewThreadController
     public void onDestroy() {
         super.onDestroy();
 
-        dismissHintPopup();
         updateDrawerHighlighting(null);
         updateLeftPaneHighlighting(null);
     }
@@ -331,36 +325,55 @@ public class ViewThreadController
         updateDrawerHighlighting(loadable);
         updateLeftPaneHighlighting(loadable);
         presenter.requestInitialData();
+    }
 
+    @Override
+    public void onNavItemSet() {
+        if (navigation.search) return; // bit of a hack to ignore the search change
         showHints();
     }
 
     private void showHints() {
-        int counter = ChanSettings.threadOpenCounter.increase();
-        if (counter == 2) {
-            view.postDelayed(() -> {
-                View view = navigation.findItem(OVERFLOW_ID).getView();
-                if (view != null) {
-                    dismissHintPopup();
-                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_up_down_hint), -dp(1), 0);
-                }
-            }, 600);
-        } else if (counter == 3) {
-            view.postDelayed(() -> {
-                View view = navigation.findItem(PIN_ID).getView();
-                if (view != null) {
-                    dismissHintPopup();
-                    hintPopup = HintPopup.show(context, view, getString(R.string.thread_pin_hint), -dp(1), 0);
-                }
-            }, 600);
-        }
-    }
+        Balloon pinHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("ThreadPinHint")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.thread_pin_hint)
+                .build();
+        Balloon albumHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("ThreadAlbumHint")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.thread_album_hint)
+                .build();
+        Balloon scrollHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("ThreadUpDownHint")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.thread_up_down_hint)
+                .build();
 
-    private void dismissHintPopup() {
-        if (hintPopup != null) {
-            hintPopup.dismiss();
-            hintPopup = null;
+        // Drawer hint
+        View drawer = null;
+        if (navigationController.parentController instanceof DrawerController) {
+            drawer = ((DrawerController) navigationController.parentController).view.findViewById(R.id.drawer);
+        } else if (doubleNavigationController != null) {
+            Controller doubleNav = (Controller) doubleNavigationController;
+            if (doubleNav.parentController instanceof DrawerController) {
+                drawer = ((DrawerController) doubleNav.parentController).view.findViewById(R.id.drawer);
+            }
         }
+        if (drawer == null) return;
+        Balloon drawerHint = AndroidUtils.getBaseToolTip(context)
+                .setPreferenceName("DrawerHint")
+                .setArrowOrientation(ArrowOrientation.LEFT)
+                .setText("Swipe right to access bookmarks and settings")
+                .build();
+
+        drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(PIN_ID).getView())
+                .relayShowAlignBottom(albumHint, navigation.findItem(ALBUM_ID).getView())
+                .relayShowAlignBottom(scrollHint, navigation.findItem(OVERFLOW_ID).getView());
+        drawerHint.showAlignRight(drawer);
     }
 
     private void dismissFloatingMenu() {
@@ -430,8 +443,8 @@ public class ViewThreadController
 
         pinItemPinned = pinned;
 
-        Drawable outline = context.getDrawable(R.drawable.ic_bookmark_border_white_24dp);
-        Drawable white = context.getDrawable(R.drawable.ic_bookmark_white_24dp);
+        Drawable outline = context.getDrawable(R.drawable.ic_fluent_bookmark_24_regular);
+        Drawable white = context.getDrawable(R.drawable.ic_fluent_bookmark_24_filled);
 
         Drawable drawable = pinned ? white : outline;
         menuItem.setImage(drawable, animated);

@@ -278,7 +278,7 @@ public class BitmapUtils {
             Bitmap frameBitmap = video.getFrameAtTime();
             boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
             if (hasAudio && frameBitmap != null && addAudioIcon) {
-                Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_volume_up_white_24dp);
+                Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_fluent_speaker_24_filled);
                 Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
                         audioIconBitmap.getWidth() * 3,
                         audioIconBitmap.getHeight() * 3,

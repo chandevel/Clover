@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import android.content.Context;
-
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
@@ -25,8 +23,8 @@ import java.util.regex.Pattern;
 
 public class VichanCommentParser
         extends CommentParser {
-    public VichanCommentParser(Context context) {
-        super(context);
+    public VichanCommentParser() {
+        super();
         addDefaultRules();
         setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));

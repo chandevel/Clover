@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:alpha="0"
         android:scaleX="0"
         android:scaleY="0"
-        android:src="@drawable/ic_create_white_24dp"
+        android:src="@drawable/ic_fluent_edit_24_filled"
         tools:alpha="1"
         tools:scaleX="1"
         tools:scaleY="1" />

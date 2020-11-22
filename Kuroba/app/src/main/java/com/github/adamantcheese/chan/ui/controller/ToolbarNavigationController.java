@@ -102,7 +102,7 @@ public abstract class ToolbarNavigationController
     @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
         for (Controller controller : childControllers) {
-            if (controller.navigation == item) {
+            if (controller.navigation == item && controller instanceof ToolbarSearchCallback) {
                 ((ToolbarSearchCallback) controller).onSearchVisibilityChanged(visible);
                 break;
             }
@@ -112,8 +112,18 @@ public abstract class ToolbarNavigationController
     @Override
     public void onSearchEntered(NavigationItem item, String entered) {
         for (Controller controller : childControllers) {
-            if (controller.navigation == item) {
+            if (controller.navigation == item && controller instanceof ToolbarSearchCallback) {
                 ((ToolbarSearchCallback) controller).onSearchEntered(entered);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onNavItemSet(NavigationItem item) {
+        for (Controller controller : childControllers) {
+            if (controller.navigation == item && controller instanceof ToolbarSearchCallback) {
+                ((ToolbarSearchCallback) controller).onNavItemSet();
                 break;
             }
         }
@@ -133,5 +143,7 @@ public abstract class ToolbarNavigationController
         void onSearchVisibilityChanged(boolean visible);
 
         void onSearchEntered(String entered);
+
+        void onNavItemSet();
     }
 }

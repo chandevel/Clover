@@ -19,10 +19,14 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.skydoves.balloon.Balloon;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,13 +80,13 @@ public class ImageViewerAdapter
     }
 
     @Override
-    public void finishUpdate(ViewGroup container) {
+    public void finishUpdate(@NonNull ViewGroup container) {
         for (ModeChange change : pendingModeChanges) {
             MultiImageView view = find(change.postImage);
             if (view == null || view.getWindowToken() == null) {
                 Logger.w(this, "finishUpdate setMode view still not found");
             } else {
-                view.setMode(change.mode, change.center);
+                setModeInternal(change.postImage, change.mode, change.center);
             }
         }
         pendingModeChanges.clear();
@@ -93,7 +97,34 @@ public class ImageViewerAdapter
         if (view == null || view.getWindowToken() == null) {
             pendingModeChanges.add(new ModeChange(mode, postImage, center));
         } else {
-            view.setMode(mode, center);
+            setModeInternal(postImage, mode, center);
+        }
+    }
+
+    private void setModeInternal(PostImage image, MultiImageView.Mode mode, boolean center) {
+        MultiImageView view = find(image);
+        view.setMode(mode, center);
+
+        Balloon.Builder hintBuilder = AndroidUtils.getBaseToolTip(view.getContext())
+                .setPreferenceName(mode.name() + "HINT")
+                .setArrowVisible(false);
+        switch (mode) {
+            case VIDEO:
+                hintBuilder.setText("Single tap for controls\nDouble tap to pause/play").build().show(view);
+                break;
+            case BIGIMAGE:
+                hintBuilder.setText("Two finger tap to rotate").build().show(view);
+                break;
+            case GIFIMAGE:
+                hintBuilder.setText("Double tap to pause/play").build().show(view);
+                break;
+            case OTHER:
+            case LOWRES:
+            case WEBVIEW:
+            case UNLOADED:
+            default:
+                // no hints for these modes
+                break;
         }
     }
 

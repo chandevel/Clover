@@ -30,13 +30,10 @@ import java.util.Map;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 public class DummySite
         implements Site {
-    private final Context context;
-
-    public DummySite(Context context) {
-        this.context = context;
-    }
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {}
@@ -56,7 +53,7 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(context.getResources(),
+        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(getAppContext().getResources(),
                 R.drawable.trash_icon
         )));
     }
@@ -91,7 +88,7 @@ public class DummySite
 
             @Override
             public Loadable resolveLoadable(Site site, HttpUrl url) {
-                return Loadable.emptyLoadable(context);
+                return Loadable.emptyLoadable();
             }
         };
     }
@@ -201,7 +198,7 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new DefaultPostParser(new CommentParser(context).addDefaultRules());
+            private final PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
 
             @Override
             public PostParser getParser() {
@@ -265,12 +262,12 @@ public class DummySite
 
     @Override
     public Board board(String code) {
-        return Board.getDummyBoard(context);
+        return Board.getDummyBoard();
     }
 
     @Override
     public Board createBoard(String name, String code) {
-        return Board.getDummyBoard(context);
+        return Board.getDummyBoard();
     }
 
     @NonNull

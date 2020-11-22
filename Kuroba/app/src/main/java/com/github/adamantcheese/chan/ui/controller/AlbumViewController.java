@@ -17,8 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,6 +32,9 @@ import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.skydoves.balloon.ArrowConstraints;
+import com.skydoves.balloon.ArrowOrientation;
 
 import java.util.List;
 
@@ -42,7 +43,9 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class AlbumViewController
         extends Controller
-        implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback {
+        implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback,
+                   ToolbarNavigationController.ToolbarSearchCallback {
+    private final int DOWNLOAD_ALBUM_ID = 1;
     private GridRecyclerView recyclerView;
 
     private List<PostImage> postImages;
@@ -73,9 +76,9 @@ public class AlbumViewController
         this.loadable = loadable;
         this.postImages = postImages;
 
-        Drawable downloadDrawable = context.getDrawable(R.drawable.ic_file_download_white_24dp);
-        downloadDrawable.setTint(Color.WHITE);
-        navigation.buildMenu().withItem(Integer.MAX_VALUE, downloadDrawable, this::downloadAlbumClicked).build();
+        navigation.buildMenu()
+                .withItem(DOWNLOAD_ALBUM_ID, R.drawable.ic_fluent_table_move_down_24_filled, this::downloadAlbumClicked)
+                .build();
 
         navigation.title = title;
         navigation.subtitle = getQuantityString(R.plurals.image, postImages.size(), postImages.size());
@@ -148,6 +151,23 @@ public class AlbumViewController
     @Override
     public Loadable getLoadable() {
         return loadable;
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {}
+
+    @Override
+    public void onSearchEntered(String entered) {}
+
+    @Override
+    public void onNavItemSet() {
+        AndroidUtils.getBaseToolTip(context)
+                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setPreferenceName("DownloadAlbumHint")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.album_download_hint)
+                .build()
+                .showAlignBottom(navigation.findItem(DOWNLOAD_ALBUM_ID).getView());
     }
 
     private class AlbumAdapter
