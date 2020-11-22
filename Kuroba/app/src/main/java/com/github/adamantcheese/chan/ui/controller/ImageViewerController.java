@@ -572,7 +572,7 @@ public class ImageViewerController
 
         Bitmap bitmap = startView.getBitmap();
         if (bitmap == null) {
-            bitmap = BitmapRepository.error;
+            bitmap = BitmapRepository.empty;
         }
 
         int[] loc = new int[2];

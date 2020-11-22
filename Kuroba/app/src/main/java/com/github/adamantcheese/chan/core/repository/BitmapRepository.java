@@ -23,6 +23,7 @@ public class BitmapRepository {
     public static Bitmap trashIcon;
     public static Bitmap archivedIcon;
     public static Bitmap error;
+    public static Bitmap empty;
 
     public static Bitmap partyHat;
     public static Bitmap santaHat;
@@ -43,6 +44,7 @@ public class BitmapRepository {
         trashIcon = decode(c, R.drawable.trash_icon);
         archivedIcon = decode(c, R.drawable.archived_icon);
         error = decode(c, R.drawable.error_icon);
+        empty = decode(c, R.drawable.empty);
 
         partyHat = decode(c, R.drawable.partyhat);
         santaHat = decode(c, R.drawable.santahat);
