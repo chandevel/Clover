@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.random.Random;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -174,7 +175,7 @@ public class QuickLatexEmbedder
                 "&mode=0" +
                 "&out=1" +
                 "&preamble=\\usepackage{amsmath}\r\n\\usepackage{amsfonts}\r\n\\usepackage{amssymb}" +
-                "&rnd=" + Math.random() * 100 +
+                "&rnd=" + Random.Default.nextDouble() * 100 +
                 "&remhost=quicklatex.com";
         //@formatter:on
         return new Request.Builder().url("https://www.quicklatex.com/latex3.f")

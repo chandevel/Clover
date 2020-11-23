@@ -19,8 +19,8 @@ package com.github.adamantcheese.chan.core.site.http;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import java.io.File;
-import java.security.SecureRandom;
-import java.util.Random;
+
+import static kotlin.random.Random.Default;
 
 /**
  * The data needed to send a reply.
@@ -59,11 +59,6 @@ public class Reply {
         subject = "";
         comment = "";
         spoilerImage = false;
-        //try to use a secure random instance if it exists to generate a password, fallback to a regular random otherwise
-        try {
-            password = Long.toHexString(SecureRandom.getInstance("NativePRNG").nextLong());
-        } catch (Exception e) {
-            password = Long.toHexString(new Random().nextLong());
-        }
+        password = Long.toHexString(Default.nextLong());
     }
 }

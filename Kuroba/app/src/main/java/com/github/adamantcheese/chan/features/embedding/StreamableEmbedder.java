@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.random.Random;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -104,7 +105,7 @@ public class StreamableEmbedder
         HttpUrl thumbnailUrl = null;
         long size = -1L;
 
-        String title = "titleMissing" + Math.random();
+        String title = "titleMissing" + Random.Default.nextDouble();
         double duration = Double.NaN;
 
         response.beginObject(); // JSON start

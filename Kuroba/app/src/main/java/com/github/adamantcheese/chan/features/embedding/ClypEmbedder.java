@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.random.Random;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
@@ -82,7 +83,7 @@ public class ClypEmbedder
     @Override
     public EmbedResult process(JsonReader response)
             throws Exception {
-        String title = "titleMissing" + Math.random();
+        String title = "titleMissing" + Random.Default.nextDouble();
         double duration = Double.NaN;
 
         HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");

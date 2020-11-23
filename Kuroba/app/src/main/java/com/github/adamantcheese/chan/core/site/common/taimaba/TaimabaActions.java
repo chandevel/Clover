@@ -28,6 +28,7 @@ import org.jsoup.Jsoup;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.random.Random;
 import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
@@ -43,7 +44,7 @@ public class TaimabaActions
     @Override
     public void setupPost(Loadable loadable, MultipartHttpCall call) {
         Reply reply = loadable.draft;
-        call.parameter("fart", Integer.toString((int) (Math.random() * 15000) + 5000));
+        call.parameter("fart", Integer.toString((int) (Random.Default.nextDouble() * 15000) + 5000));
 
         call.parameter("board", loadable.boardCode);
         call.parameter("task", "post");

@@ -25,7 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
-import java.util.Random;
+
+import kotlin.random.Random;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
@@ -45,7 +46,6 @@ public class BitmapUtils {
     private static final byte[] WEBP_HEADER1 = new byte[]{'R', 'I', 'F', 'F'};
     private static final byte[] WEBP_HEADER2 = new byte[]{'W', 'E', 'B', 'P'};
 
-    private static final Random random = new Random();
     private static final BitmapFactory.Options options = new BitmapFactory.Options();
 
     static {
@@ -65,8 +65,8 @@ public class BitmapUtils {
 
         //slightly change one pixel of the image to change it's checksum
         if (imageOptions.changeImageChecksum) {
-            int randomX = Math.abs(random.nextInt()) % bitmap.getWidth();
-            int randomY = Math.abs(random.nextInt()) % bitmap.getHeight();
+            int randomX = Math.abs(Random.Default.nextInt()) % bitmap.getWidth();
+            int randomY = Math.abs(Random.Default.nextInt()) % bitmap.getHeight();
 
             // one pixel is enough to change the checksum of an image
             int pixel = bitmap.getPixel(randomX, randomY);

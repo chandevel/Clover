@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
-import android.content.Context;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
@@ -65,8 +64,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
+import kotlin.random.Random;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
@@ -75,8 +74,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
-    private static final Random random = new Random();
-
     private ChanReader reader;
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
@@ -195,7 +192,7 @@ public class Chan4
             if (spoiler) {
                 HttpUrl.Builder image = s.newBuilder().addPathSegment("image");
                 if (post.board.customSpoilers >= 0) {
-                    int i = random.nextInt(post.board.customSpoilers) + 1;
+                    int i = Random.Default.nextInt(post.board.customSpoilers) + 1;
                     image.addPathSegment("spoiler-" + post.board.code + i + ".png");
                 } else {
                     image.addPathSegment("spoiler.png");
