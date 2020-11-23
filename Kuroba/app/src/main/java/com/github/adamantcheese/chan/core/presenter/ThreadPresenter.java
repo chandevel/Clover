@@ -1059,7 +1059,6 @@ public class ThreadPresenter
     }
 
     public void showArchives(Loadable op, int postNo) {
-        @SuppressLint("InflateParams")
         final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
         boolean hasContents = dialogView.setLoadable(op);
         dialogView.setPostNo(postNo);
@@ -1101,7 +1100,6 @@ public class ThreadPresenter
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
-            @SuppressLint("InflateParams")
             final View view = LayoutUtils.inflate(context, R.layout.dialog_post_delete, null);
             CheckBox checkBox = view.findViewById(R.id.image_only);
             new AlertDialog.Builder(context).setTitle(R.string.delete_confirm)

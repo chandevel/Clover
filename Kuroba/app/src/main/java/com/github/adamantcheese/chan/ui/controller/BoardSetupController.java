@@ -154,7 +154,6 @@ public class BoardSetupController
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams")
         final BoardAddLayout boardAddLayout = (BoardAddLayout) inflate(context, R.layout.layout_board_add, null);
 
         boardAddLayout.setPresenter(presenter);

@@ -66,7 +66,7 @@ public class GenericWebViewAuthenticationLayout
         setFocusableInTouchMode(true);
     }
 
-    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;

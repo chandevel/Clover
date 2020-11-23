@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -35,6 +34,7 @@ public class ColorPickerView
         extends View {
     private static final int[] COLORS =
             new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
+    private final RectF ovalRect = new RectF();
 
     private final Paint paint;
     private final Paint centerPaint;
@@ -82,12 +82,12 @@ public class ColorPickerView
         return true;
     }
 
-    @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
         float r = Math.min(getWidth() / 2f, getHeight() / 2f) - paint.getStrokeWidth() * 0.5f;
+        ovalRect.set(-r, -r, r, r);
         canvas.translate(getWidth() / 2f, getHeight() / 2f);
-        canvas.drawOval(new RectF(-r, -r, r, r), paint);
+        canvas.drawOval(ovalRect, paint);
         canvas.drawCircle(0, 0, centerRadius, centerPaint);
     }
 

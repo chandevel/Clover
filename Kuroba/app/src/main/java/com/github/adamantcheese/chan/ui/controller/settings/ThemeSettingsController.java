@@ -545,7 +545,6 @@ public class ThemeSettingsController
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            @SuppressLint("ViewHolder")
             TextView textView = (TextView) inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
             textView.setText(getItem(position));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);

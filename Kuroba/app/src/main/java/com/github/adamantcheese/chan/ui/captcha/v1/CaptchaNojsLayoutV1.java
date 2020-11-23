@@ -86,7 +86,7 @@ public class CaptchaNojsLayoutV1
         inject(this);
     }
 
-    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;

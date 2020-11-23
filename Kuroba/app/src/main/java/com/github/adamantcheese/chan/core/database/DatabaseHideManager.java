@@ -45,7 +45,6 @@ public class DatabaseHideManager {
                 postNoList.add(post.no);
             }
 
-            @SuppressLint("UseSparseArrays")
             Map<Integer, Post> postsFastLookupMap = new LinkedHashMap<>();
             for (Post post : posts) {
                 postsFastLookupMap.put(post.no, post);
@@ -170,7 +169,6 @@ public class DatabaseHideManager {
                 .eq("board", board)
                 .query());
 
-        @SuppressLint("UseSparseArrays")
         Map<Integer, PostHide> hiddenMap = new HashMap<>();
 
         for (PostHide postHide : hiddenInDatabase) {

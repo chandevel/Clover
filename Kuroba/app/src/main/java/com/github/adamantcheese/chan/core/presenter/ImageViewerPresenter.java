@@ -109,7 +109,6 @@ public class ImageViewerPresenter
         inject(this);
     }
 
-    @SuppressLint("UseSparseArrays")
     public void showImages(List<PostImage> images, int position, Loadable loadable) {
         this.images = images;
         this.loadable = loadable;

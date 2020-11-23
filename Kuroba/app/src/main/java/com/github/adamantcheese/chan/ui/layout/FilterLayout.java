@@ -225,7 +225,6 @@ public class FilterLayout
                     })
                     .show();
         } else if (v == boardsSelector) {
-            @SuppressLint("InflateParams")
             @SuppressWarnings("unchecked")
             final SelectLayout<Board> selectLayout =
                     (SelectLayout<Board>) LayoutUtils.inflate(getContext(), R.layout.layout_select, null);

@@ -432,7 +432,6 @@ public class ToolbarContainer
 
         @NonNull
         private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
-            @SuppressLint("InflateParams")
             LinearLayout menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
             ConstraintLayout titleContainer = menu.findViewById(R.id.title_container);
 

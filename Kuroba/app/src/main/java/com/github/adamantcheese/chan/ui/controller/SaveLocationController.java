@@ -86,7 +86,6 @@ public class SaveLocationController
             onDirectoryChosen();
             navigationController.popController();
         } else if (v == addButton) {
-            @SuppressLint("InflateParams")
             final NewFolderLayout dialogView = (NewFolderLayout) inflate(context, R.layout.layout_folder_add, null);
 
             new AlertDialog.Builder(context).setView(dialogView)

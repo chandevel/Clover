@@ -716,7 +716,6 @@ public class ThreadLayout
         }
     }
 
-    @SuppressLint("InflateParams")
     private View inflateEmptyView() {
         View view = LayoutUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);

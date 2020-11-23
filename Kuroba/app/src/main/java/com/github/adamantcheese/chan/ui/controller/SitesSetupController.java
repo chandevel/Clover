@@ -161,7 +161,6 @@ public class SitesSetupController
 
     @Override
     public void showAddDialog() {
-        @SuppressLint("InflateParams")
         final ListView dialogView = new ListView(context);
         SitePreviewAdapter adapter = new SitePreviewAdapter();
         if (adapter.siteClasses.isEmpty()) {

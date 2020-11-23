@@ -68,7 +68,7 @@ public class LegacyCaptchaLayout
         super(context, attrs, defStyleAttr);
     }
 
-    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();

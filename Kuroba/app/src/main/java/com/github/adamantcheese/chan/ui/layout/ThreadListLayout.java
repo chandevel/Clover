@@ -438,8 +438,6 @@ public class ThreadListLayout
         }
     }
 
-    @SuppressLint("StringFormatMatches")
-    //android studio doesn't like the nested getQuantityString and messes up, but nothing is wrong
     public void setSearchStatus(String query, boolean setEmptyText, boolean hideKeyboard) {
         if (hideKeyboard) {
             hideKeyboard(this);

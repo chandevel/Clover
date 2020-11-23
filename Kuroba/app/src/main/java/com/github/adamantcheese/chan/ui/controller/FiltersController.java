@@ -245,7 +245,6 @@ public class FiltersController
         s.show();
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
         if (!visible) {

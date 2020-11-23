@@ -110,7 +110,6 @@ public class DatabaseBoardManager {
         };
     }
 
-    @SuppressLint("UseSparseArrays")
     public Callable<List<Pair<Site, Boards>>> getBoardsForAllSitesOrdered(List<Site> sites) {
         return () -> {
             // Query the orders of the sites.

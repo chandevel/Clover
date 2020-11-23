@@ -320,10 +320,7 @@ constructor(
 
     @Throws(java.sql.SQLException::class, IOException::class)
     private fun readSettingsFromDatabase(): ExportedAppSettings {
-        @SuppressLint("UseSparseArrays")
         val sitesMap = fillSitesMap()
-
-        @SuppressLint("UseSparseArrays")
         val loadableMap = fillLoadablesMap()
 
         val pins = HashSet(databaseHelper.pinDao.queryForAll())

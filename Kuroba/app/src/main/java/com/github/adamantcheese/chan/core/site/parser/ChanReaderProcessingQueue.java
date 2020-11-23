@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 public class ChanReaderProcessingQueue {
-    @SuppressLint("UseSparseArrays")
     private final Map<Integer, Post> cachedByNo = new HashMap<>();
     private final Loadable loadable;
 

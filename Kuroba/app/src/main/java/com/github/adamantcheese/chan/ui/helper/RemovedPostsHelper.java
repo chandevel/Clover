@@ -65,7 +65,6 @@ public class RemovedPostsHelper {
         List<PostHide> hiddenPosts = instance(DatabaseHideManager.class).getRemovedPostsWithThreadNo(threadNo);
         List<Post> removedPosts = new ArrayList<>();
 
-        @SuppressLint("UseSparseArrays")
         Map<Integer, PostHide> fastLookupMap = new HashMap<>();
 
         for (PostHide postHide : hiddenPosts) {
