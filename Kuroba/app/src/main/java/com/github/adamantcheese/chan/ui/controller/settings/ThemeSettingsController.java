@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -455,7 +454,7 @@ public class ThemeSettingsController
                     return 123456789;
                 }
             };
-            adapter.setThread(dummyLoadable, posts, null);
+            adapter.setThread(new ChanThread(dummyLoadable, posts), null);
             adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
             adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));

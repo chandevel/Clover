@@ -24,26 +24,32 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
-import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_LAST_SEEN;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private static final int TYPE_POST = 0;
-    private static final int TYPE_STATUS = 1;
-    private static final int TYPE_POST_STUB = 2;
-    private static final int TYPE_LAST_SEEN = 3;
+    enum CellType {
+        TYPE_POST,
+        TYPE_STATUS,
+        TYPE_POST_STUB,
+        TYPE_LAST_SEEN
+    }
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
@@ -57,6 +63,7 @@ public class PostAdapter
     private String highlightedId;
     private int highlightedNo = -1;
     private String highlightedTripcode;
+    private String searchQuery;
     private int lastSeenIndicatorPosition = -1;
 
     private ChanSettings.PostViewMode postViewMode;
@@ -82,7 +89,7 @@ public class PostAdapter
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context inflateContext = parent.getContext();
-        switch (viewType) {
+        switch (CellType.values()[viewType]) {
             case TYPE_POST:
                 int layout = 0;
                 switch (getPostViewMode()) {
@@ -117,7 +124,7 @@ public class PostAdapter
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         int itemViewType = getItemViewType(position);
-        switch (itemViewType) {
+        switch (CellType.values()[itemViewType]) {
             case TYPE_POST:
             case TYPE_POST_STUB:
                 if (loadable == null) {
@@ -126,7 +133,8 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(getPostPosition(position));
-                ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
+                ((PostCellInterface) postViewHolder.itemView).setPost(
+                        loadable,
                         post,
                         postCellCallback,
                         isInPopup(),
@@ -135,11 +143,12 @@ public class PostAdapter
                         showDivider(position),
                         getPostViewMode(),
                         isCompact(),
+                        searchQuery,
                         theme,
                         recyclerView
                 );
 
-                if (itemViewType == TYPE_POST_STUB && postAdapterCallback != null) {
+                if (itemViewType == TYPE_POST_STUB.ordinal() && postAdapterCallback != null) {
                     holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
@@ -189,15 +198,15 @@ public class PostAdapter
     @Override
     public int getItemViewType(int position) {
         if (position == lastSeenIndicatorPosition) {
-            return TYPE_LAST_SEEN;
+            return TYPE_LAST_SEEN.ordinal();
         } else if (showStatusView() && position == getItemCount() - 1) {
-            return TYPE_STATUS;
+            return TYPE_STATUS.ordinal();
         } else {
             Post post = displayList.get(getPostPosition(position));
             if (post.filterStub) {
-                return TYPE_POST_STUB;
+                return TYPE_POST_STUB.ordinal();
             } else {
-                return TYPE_POST;
+                return TYPE_POST.ordinal();
             }
         }
     }
@@ -205,45 +214,30 @@ public class PostAdapter
     @Override
     public long getItemId(int position) {
         int itemViewType = getItemViewType(position);
-        if (itemViewType == TYPE_STATUS) {
-            return -1;
-        } else if (itemViewType == TYPE_LAST_SEEN) {
+        if (itemViewType == TYPE_STATUS.ordinal()) {
             return -2;
+        } else if (itemViewType == TYPE_LAST_SEEN.ordinal()) {
+            return -3;
         } else {
-            Post post = displayList.get(getPostPosition(position));
-            // in order to invalidate a view while doing a search, we can add in the sum of the search highlight spans
-            // the spans change every time a new search query is entered, so this will update the ID as well
-            // this makes ID's "stable" during normal use (like for scrolling, hiding/removing posts), but not in a search
-            long spanTotal = 0;
-            synchronized (post.comment) {
-                for (SearchHighlightSpan span : post.comment.getSpans(0,
-                        post.comment.length(),
-                        SearchHighlightSpan.class
-                )) {
-                    spanTotal += post.comment.getSpanEnd(span) - post.comment.getSpanStart(span);
-                }
-            }
-            return (post.repliesFrom.size() << 8) + (spanTotal << (post.no == highlightedNo ? 2 : 1)) + post.no;
+            return displayList.get(getPostPosition(position)).no;
         }
     }
 
-    public void setThread(Loadable threadLoadable, List<Post> posts, String searchQuery) {
+    public void setThread(ChanThread thread, PostsFilter filter) {
         BackgroundUtils.ensureMainThread();
 
-        this.loadable = threadLoadable;
+        this.loadable = thread.getLoadable();
+        this.searchQuery = filter == null ? null : filter.getQuery();
+
         showError(null);
 
-        for (Post post : posts) {
-            post.highlightSearch(searchQuery);
-        }
-
         displayList.clear();
-        displayList.addAll(posts);
+        displayList.addAll(filter == null ? thread.getPosts() : filter.apply(thread));
 
         lastSeenIndicatorPosition = -1;
         // Do not process the last post, the indicator does not have to appear at the bottom
         for (int i = 0; i < displayList.size() - 1; i++) {
-            if (displayList.get(i).no == threadLoadable.lastViewed) {
+            if (displayList.get(i).no == loadable.lastViewed) {
                 lastSeenIndicatorPosition = i + 1;
                 break;
             }

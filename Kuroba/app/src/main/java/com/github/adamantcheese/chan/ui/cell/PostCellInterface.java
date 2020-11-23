@@ -43,6 +43,7 @@ public interface PostCellInterface {
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
+            String searchQuery,
             Theme theme,
             RecyclerView attachedTo
     );

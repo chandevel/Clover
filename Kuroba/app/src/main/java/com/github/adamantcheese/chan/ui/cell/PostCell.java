@@ -104,6 +104,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class PostCell
         extends LinearLayout
@@ -134,6 +135,7 @@ public class PostCell
     private boolean highlighted;
     private int markedNo;
     private boolean showDivider;
+    private String searchQuery;
 
     private RecyclerView recyclerView;
 
@@ -251,14 +253,10 @@ public class PostCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
+            String searchQuery,
             Theme theme,
             RecyclerView attachedTo
     ) {
-        if (this.post == post && this.inPopup == inPopup && this.highlighted == highlighted && this.markedNo == markedNo
-                && this.showDivider == showDivider) {
-            return;
-        }
-
         if (this.post != null && bound) {
             unbindPost(this.post);
             this.post = null;
@@ -271,6 +269,7 @@ public class PostCell
         this.highlighted = highlighted;
         this.markedNo = markedNo;
         this.showDivider = showDivider;
+        this.searchQuery = searchQuery;
         this.recyclerView = attachedTo;
 
         bindPost(theme, post);
@@ -420,11 +419,12 @@ public class PostCell
             comment.setVisibility(isEmpty(post.comment) && post.images == null ? GONE : VISIBLE);
         }
 
+        comment.setText(applySearchSpans(post.comment, searchQuery));
+
         if (threadMode) {
             comment.setTextIsSelectable(true);
             comment.setFocusable(true);
             comment.setFocusableInTouchMode(true);
-            comment.setText(post.comment, TextView.BufferType.SPANNABLE);
             comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                 private MenuItem quoteMenuItem;
                 private MenuItem webSearchItem;
@@ -486,7 +486,6 @@ public class PostCell
                 });
             }
         } else {
-            comment.setText(post.comment);
             comment.setOnTouchListener(null);
             comment.setClickable(false);
 
@@ -608,7 +607,7 @@ public class PostCell
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
         clearShiftPostFormatting();
-        comment.setText(post.comment);
+        comment.setText(applySearchSpans(post.comment, searchQuery));
         buildThumbnails();
         doShiftPostFormatting();
         findViewById(R.id.embed_spinner).setVisibility(GONE);

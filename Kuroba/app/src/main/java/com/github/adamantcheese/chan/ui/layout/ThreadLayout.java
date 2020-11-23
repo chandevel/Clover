@@ -116,7 +116,7 @@ public class ThreadLayout
     private Button errorRetryButton;
     private PostPopupHelper postPopupHelper;
     private RemovedPostsHelper removedPostsHelper;
-    private Visible visible;
+    private Visible visible = Visible.EMPTY;
     private ProgressDialog deletingDialog;
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
@@ -681,15 +681,13 @@ public class ThreadLayout
 
     private void switchVisible(Visible visible) {
         if (this.visible != visible) {
-            if (this.visible != null) {
-                if (this.visible == Visible.THREAD) {
-                    threadListLayout.cleanup();
-                    postPopupHelper.popAll();
-                    if (presenter.getLoadable() == null || presenter.getLoadable().isThreadMode()) {
-                        showSearch(false);
-                    }
-                    dismissSnackbar();
+            if (this.visible == Visible.THREAD) {
+                threadListLayout.cleanup();
+                postPopupHelper.popAll();
+                if (presenter.getLoadable() == null || presenter.getLoadable().isThreadMode()) {
+                    showSearch(false);
                 }
+                dismissSnackbar();
             }
 
             this.visible = visible;

@@ -18,17 +18,13 @@ package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Color;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
@@ -42,8 +38,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Contains all data needed to represent a single post.<br>
@@ -313,11 +307,7 @@ public class Post
 
     @Override
     public int hashCode() {
-        int commentTotal = 0;
-        for (char c : comment.toString().toCharArray()) {
-            commentTotal += c;
-        }
-        return Objects.hash(no, board.code, board.siteId, deleted.get(), commentTotal);
+        return Objects.hash(no, board.code, board.siteId, comment, deleted.get());
     }
 
     @Override
@@ -341,7 +331,7 @@ public class Post
                 && this.board.code.equals(otherPost.board.code)
                 && this.board.siteId == otherPost.board.siteId
                 && this.deleted.get() == otherPost.deleted.get()
-                && this.comment.toString().equals(otherPost.comment.toString());
+                && this.comment.equals(otherPost.comment);
         //@formatter:on
     }
 
@@ -350,32 +340,6 @@ public class Post
     public String toString() {
         return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
                 + "]";
-    }
-
-    /**
-     * Clears out and reapplies highlighting spans for the given search query.
-     *
-     * @param query The substring to apply highlighting to
-     */
-    public void highlightSearch(String query) {
-        synchronized (comment) {
-            // clear out any old spans
-            for (SearchHighlightSpan span : comment.getSpans(0, comment.length(), SearchHighlightSpan.class)) {
-                comment.removeSpan(span);
-            }
-            if (TextUtils.isEmpty(query)) return;
-            Pattern search = Pattern.compile(FilterEngine.escapeRegex(query), Pattern.CASE_INSENSITIVE);
-            Matcher searchMatch = search.matcher(comment);
-            // apply new spans
-            while (searchMatch.find()) {
-                comment.setSpan(
-                        new SearchHighlightSpan(),
-                        searchMatch.toMatchResult().start(),
-                        searchMatch.toMatchResult().end(),
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                );
-            }
-        }
     }
 
     @SuppressWarnings("UnusedReturnValue")

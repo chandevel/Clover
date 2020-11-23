@@ -36,12 +36,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -62,12 +60,10 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -281,39 +277,7 @@ public class ThreadListLayout
 
         setFastScroll(true);
 
-        /*
-         * We call a blocking function that accesses the database from a background thread but doesn't
-         * throw an exception here. Why, you would ask? Because we can't use callbacks here, otherwise
-         * everything in ThreadPresenter.onChanLoaderData() below showPosts will be executed BEFORE
-         * filtered posts are shown in the RecyclerView. This will break scrolling to the last seen
-         * post as well as introduce some visual posts jiggling. This can be fixed by executing everything
-         * in ThreadPresenter.onChanLoaderData() below showPosts in a callback that is called after
-         * posts are assigned to the adapter. But that's a lot of code and it may break something else.
-         *
-         * This solution works but it will hang the main thread for some time (it shouldn't be for very
-         * long since we have like 300-500 posts in a thread to filter in the database).
-         * BUT if for some reason it starts to cause ANRs then we will have to apply the callback solution.
-         */
-        List<Post> filteredPosts =
-                filter.apply(thread.getPosts(), thread.getLoadable().siteId, thread.getLoadable().boardCode);
-
-        //Filter out any bookmarked threads from the catalog
-        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
-            List<Post> toRemove = new ArrayList<>();
-            WatchManager watchManager = instance(WatchManager.class);
-            synchronized (watchManager.getAllPins()) {
-                for (Pin pin : watchManager.getAllPins()) {
-                    for (Post post : filteredPosts) {
-                        if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, post.no, "", false))) {
-                            toRemove.add(post);
-                        }
-                    }
-                }
-            }
-            filteredPosts.removeAll(toRemove);
-        }
-
-        postAdapter.setThread(thread.getLoadable(), filteredPosts, filter.getQuery());
+        postAdapter.setThread(thread, filter);
     }
 
     public boolean onBack() {

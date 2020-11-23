@@ -53,7 +53,7 @@ import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBu
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
         extends CardView
@@ -65,6 +65,7 @@ public class CardPostCell
     private PostCellInterface.PostCellCallback callback;
     private boolean highlighted = false;
     private boolean compact = false;
+    private String searchQuery;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -154,13 +155,10 @@ public class CardPostCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
+            String searchQuery,
             Theme theme,
             RecyclerView attachedTo
     ) {
-        if (this.post == post) {
-            return;
-        }
-
         if (this.post != null && bound) {
             bound = false;
             thumbView.setPostImage(null);
@@ -175,6 +173,7 @@ public class CardPostCell
         this.post = post;
         this.highlighted = highlighted;
         this.callback = callback;
+        this.searchQuery = searchQuery;
 
         bindPost(theme, post);
 
@@ -224,7 +223,7 @@ public class CardPostCell
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
         comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
-        comment.setText(post.comment);
+        comment.setText(applySearchSpans(post.comment, searchQuery));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
@@ -246,7 +245,7 @@ public class CardPostCell
     public void invalidateView(Post post) {
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
-        comment.setText(post.comment);
+        comment.setText(applySearchSpans(post.comment, searchQuery));
         findViewById(R.id.embed_spinner).setVisibility(GONE);
     }
 

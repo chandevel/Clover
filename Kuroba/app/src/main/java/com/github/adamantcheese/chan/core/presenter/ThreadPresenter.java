@@ -160,9 +160,6 @@ public class ThreadPresenter
     private BoardManager boardManager;
 
     @Inject
-    private DatabaseHideManager databaseHideManager;
-
-    @Inject
     private FilterWatchManager filterWatchManager;
 
     @Inject
@@ -307,14 +304,14 @@ public class ThreadPresenter
             searchQuery = null;
         }
 
-        if (chanLoader != null && chanLoader.getThread() != null && !visible) {
+        if (isBound() && chanLoader.getThread() != null && !visible) {
             showPosts();
         }
     }
 
     public void onSearchEntered(String entered) {
         searchQuery = entered;
-        if (chanLoader != null && chanLoader.getThread() != null) {
+        if (isBound() && chanLoader.getThread() != null) {
             showPosts();
             if (TextUtils.isEmpty(entered)) {
                 threadPresenterCallback.setSearchStatus(null, true, false);
@@ -327,7 +324,7 @@ public class ThreadPresenter
     public void setOrder(PostsFilter.Order order) {
         if (this.order != order) {
             this.order = order;
-            if (chanLoader != null && chanLoader.getThread() != null) {
+            if (isBound() && chanLoader.getThread() != null) {
                 scrollTo(0, false);
                 showPosts();
             }
@@ -1233,7 +1230,7 @@ public class ThreadPresenter
     private void showPosts() {
         if (chanLoader != null && chanLoader.getThread() != null) {
             threadPresenterCallback.showPosts(chanLoader.getThread(),
-                    new PostsFilter(order, searchQuery, databaseHideManager)
+                    new PostsFilter(order, searchQuery)
             );
         }
     }

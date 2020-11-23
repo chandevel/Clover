@@ -135,13 +135,10 @@ public class PostStubCell
             boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
+            String searchQuery,
             Theme theme,
             RecyclerView attachedTo
     ) {
-        if (this.post == post) {
-            return;
-        }
-
         if (this.post != null && bound) {
             bound = false;
             this.post = null;

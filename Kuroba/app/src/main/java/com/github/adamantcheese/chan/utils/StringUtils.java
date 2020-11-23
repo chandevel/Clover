@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
@@ -8,6 +10,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.text.DateFormat;
@@ -235,5 +239,23 @@ public class StringUtils {
         if (Double.isNaN(elapsedSeconds) || Double.isInfinite(elapsedSeconds) || elapsedSeconds == 0.0) return "?:??";
         String out = DateUtils.formatElapsedTime(Math.round(elapsedSeconds));
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
+    }
+
+    public static SpannableStringBuilder applySearchSpans(SpannableStringBuilder commentSource, String searchQuery) {
+        SpannableStringBuilder commentCopy = new SpannableStringBuilder(commentSource);
+        if (!TextUtils.isEmpty(searchQuery)) {
+            Pattern search = Pattern.compile(FilterEngine.escapeRegex(searchQuery), Pattern.CASE_INSENSITIVE);
+            Matcher searchMatch = search.matcher(commentCopy);
+            // apply new spans
+            while (searchMatch.find()) {
+                commentCopy.setSpan(
+                        new SearchHighlightSpan(),
+                        searchMatch.toMatchResult().start(),
+                        searchMatch.toMatchResult().end(),
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                );
+            }
+        }
+        return commentCopy;
     }
 }

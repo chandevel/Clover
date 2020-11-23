@@ -19,8 +19,13 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.text.TextUtils;
 
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
+import com.github.adamantcheese.chan.core.manager.WatchManager;
+import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -28,6 +33,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
+import static com.github.adamantcheese.chan.Chan.instance;
 
 public class PostsFilter {
     private static final Comparator<Post> IMAGE_COMPARATOR = (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
@@ -57,24 +64,20 @@ public class PostsFilter {
 
     private final Order order;
     private final String query;
-    private final DatabaseHideManager databaseHideManager;
 
-    public PostsFilter(Order order, String query, DatabaseHideManager databaseHideManager) {
+    public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
-        this.databaseHideManager = databaseHideManager;
     }
 
     /**
      * Creates a copy of {@code original} and applies any sorting or filtering to it.
      *
-     * @param original List of {@link Post}s to filter.
-     * @param siteId   to get rid of collisions when figuring out if a post is hidden.
-     * @param board    to get rid of collisions when figuring out if a post is hidden.
+     * @param thread The thread to filter
      * @return a new filtered List
      */
-    public List<Post> apply(List<Post> original, int siteId, String board) {
-        List<Post> posts = new ArrayList<>(original);
+    public List<Post> apply(ChanThread thread) {
+        List<Post> posts = new ArrayList<>(thread.getPosts());
 
         // Process order
         if (order != PostsFilter.Order.BUMP) {
@@ -126,8 +129,25 @@ public class PostsFilter {
             }
         }
 
+        //Filter out any bookmarked threads from the catalog
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
+            Iterator<Post> i = posts.iterator();
+            List<Pin> pins = new ArrayList<>(instance(WatchManager.class).getAllPins());
+            while (i.hasNext()) {
+                Post item = i.next();
+                for (Pin pin : pins) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, item.no, "", false))) {
+                        i.remove();
+                    }
+                }
+            }
+        }
+
         // Process hidden by filter and post/thread hiding
-        return databaseHideManager.filterHiddenPosts(posts, siteId, board);
+        return instance(DatabaseHideManager.class).filterHiddenPosts(posts,
+                thread.getLoadable().siteId,
+                thread.getLoadable().boardCode
+        );
     }
 
     public String getQuery() {
