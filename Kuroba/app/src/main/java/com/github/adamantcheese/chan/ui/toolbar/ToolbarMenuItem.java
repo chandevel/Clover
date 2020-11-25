@@ -90,8 +90,8 @@ public class ToolbarMenuItem {
             return;
         }
 
-        removeFromParentView(view);
-        view = null;
+        removeFromParentView(this.view);
+        this.view = null;
     }
 
     public ImageView getView() {

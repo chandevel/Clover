@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -130,12 +131,14 @@ public class ToolbarContainer
             setAnimation(itemView, previousView, animation);
         } else {
             if (previousView != null) {
-                removeView(previousView.view);
+                removeItem(previousView);
                 previousView = null;
             }
         }
 
         setArrowProgress(1f, !currentView.item.hasArrow());
+
+        itemView.attach();
 
         callback.onNavItemSet(item);
     }
@@ -196,6 +199,8 @@ public class ToolbarContainer
             throw new IllegalArgumentException("More than 2 child views attached");
         }
 
+        itemView.attach();
+
         callback.onNavItemSet(item);
     }
 
@@ -205,10 +210,10 @@ public class ToolbarContainer
         }
 
         if (didComplete) {
-            removeView(currentView.view);
+            removeItem(currentView);
             currentView = transitionView;
         } else {
-            removeView(transitionView.view);
+            removeItem(transitionView);
         }
         transitionView = null;
 
@@ -260,7 +265,7 @@ public class ToolbarContainer
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     animatorSet.remove(previousView.view);
-                    removeView(previousView.view);
+                    removeItem(previousView);
                     ToolbarContainer.this.previousView = null;
                 }
             });
@@ -299,7 +304,7 @@ public class ToolbarContainer
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     animatorSet.remove(previousView.view);
-                    removeView(previousView.view);
+                    removeItem(previousView);
                     ToolbarContainer.this.previousView = null;
                 }
             });
@@ -391,13 +396,34 @@ public class ToolbarContainer
         return animator;
     }
 
+    private void removeItem(@NonNull ItemView item) {
+        if (item == null) return;
+        item.remove();
+        removeView(item.view);
+    }
+
     private class ItemView {
         final View view;
         final NavigationItem item;
 
+        @Nullable
+        private ToolbarMenuView menuView;
+
         public ItemView(NavigationItem item, Theme theme) {
             this.view = createNavigationItemView(item, theme);
             this.item = item;
+        }
+
+        public void attach() {
+            if (item.menu != null && menuView != null) {
+                menuView.attach(item.menu);
+            }
+        }
+
+        public void remove() {
+            if (menuView != null) {
+                menuView.detach();
+            }
         }
 
         private LinearLayout createNavigationItemView(final NavigationItem item, Theme theme) {
@@ -446,11 +472,10 @@ public class ToolbarContainer
 
             // Possible menu with items.
             if (item.menu != null) {
-                ToolbarMenuView menuView = new ToolbarMenuView(getContext());
-                menuView.attach(item.menu);
+                menuView = new ToolbarMenuView(getContext());
 
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
-                menu.addView(menuView, lp);
+                menu.addView(this.menuView, lp);
             }
 
             return menu;
