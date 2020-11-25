@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.view.View;
@@ -31,7 +30,6 @@ import androidx.appcompat.app.AlertDialog;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -1229,9 +1227,7 @@ public class ThreadPresenter
 
     private void showPosts() {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(chanLoader.getThread(),
-                    new PostsFilter(order, searchQuery)
-            );
+            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
         }
     }
 

@@ -219,7 +219,7 @@ public class CardPostCell
         }
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
-        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : post.subjectSpan);
+        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : applySearchSpans(post.subjectSpan, searchQuery));
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
         comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);

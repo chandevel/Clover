@@ -312,6 +312,9 @@ public class PostAdapter
         return compact;
     }
 
+    /**
+     * Given a viewholder position, translate it to a displaylist position.
+     */
     public int getPostPosition(int position) {
         int postPosition = position;
         if (lastSeenIndicatorPosition >= 0 && position > lastSeenIndicatorPosition) {
@@ -320,6 +323,9 @@ public class PostAdapter
         return postPosition;
     }
 
+    /**
+     * Given a displaylist position, translate it to a viewholder position.
+     */
     public int getScrollPosition(int displayPosition) {
         int postPosition = displayPosition;
         if (lastSeenIndicatorPosition >= 0 && displayPosition > lastSeenIndicatorPosition) {

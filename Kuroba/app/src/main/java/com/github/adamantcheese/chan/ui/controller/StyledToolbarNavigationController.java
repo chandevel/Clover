@@ -64,7 +64,7 @@ public class StyledToolbarNavigationController
         if (to != null) {
             DrawerController drawerController = getDrawerController();
             if (drawerController != null) {
-                drawerController.setDrawerEnabled(to.navigation.hasDrawer);
+                drawerController.setDrawerEnabled(to.navigation.hasDrawer); // TODO #974, if to is anything except a BrowseController, ThreadSlideController, or ViewThreadController, this will lock
             }
         }
     }
@@ -76,7 +76,7 @@ public class StyledToolbarNavigationController
         if (finish) {
             DrawerController drawerController = getDrawerController();
             if (drawerController != null) {
-                drawerController.setDrawerEnabled(to.navigation.hasDrawer);
+                drawerController.setDrawerEnabled(to.navigation.hasDrawer); // TODO #974, if to is anything except a BrowseController, ThreadSlideController, or ViewThreadController, this will lock
             }
         }
     }

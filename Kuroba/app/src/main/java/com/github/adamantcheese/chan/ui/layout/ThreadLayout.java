@@ -238,7 +238,6 @@ public class ThreadLayout
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
-
         if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof ExternalSiteArchive)) {
             replyButton.show();
         }

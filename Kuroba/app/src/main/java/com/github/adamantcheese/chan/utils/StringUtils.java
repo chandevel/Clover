@@ -241,8 +241,8 @@ public class StringUtils {
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 
-    public static SpannableStringBuilder applySearchSpans(SpannableStringBuilder commentSource, String searchQuery) {
-        SpannableStringBuilder commentCopy = new SpannableStringBuilder(commentSource);
+    public static SpannableStringBuilder applySearchSpans(CharSequence source, String searchQuery) {
+        SpannableStringBuilder commentCopy = new SpannableStringBuilder(source);
         if (!TextUtils.isEmpty(searchQuery)) {
             Pattern search = Pattern.compile(FilterEngine.escapeRegex(searchQuery), Pattern.CASE_INSENSITIVE);
             Matcher searchMatch = search.matcher(commentCopy);

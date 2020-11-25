@@ -334,9 +334,9 @@ public class PostCell
         SpannableStringBuilder titleParts = new SpannableStringBuilder();
 
         if (post.subjectSpan != null) {
-            titleParts.append(post.subjectSpan).append("\n");
+            titleParts.append(applySearchSpans(post.subjectSpan, searchQuery)).append("\n");
         }
-        titleParts.append(post.nameTripcodeIdCapcodeSpan);
+        titleParts.append(applySearchSpans(post.nameTripcodeIdCapcodeSpan, searchQuery));
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
         SpannableString date = new SpannableString(
@@ -360,7 +360,8 @@ public class PostCell
                 String filename = '\u200E' + (image.spoiler() ? (image.hidden
                         ? getString(R.string.image_hidden_filename)
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
-                SpannableString fileInfo = new SpannableString("\n" + filename);
+                SpannableStringBuilder fileInfo =
+                        new SpannableStringBuilder().append("\n").append(applySearchSpans(filename, searchQuery));
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
