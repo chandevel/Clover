@@ -176,25 +176,18 @@ public class BoardAddLayout
 
         @Override
         public void onBindViewHolder(@NonNull SuggestionCell holder, int position) {
-            BoardSuggestion boardSuggestion;
-            if (presenter != null) {
-                boardSuggestion = suggestionList.get(position);
-            } else {
-                //this is here for android studio's layout preview
-                boardSuggestion = new BoardSuggestion(Board.getDummyBoard());
-            }
-            holder.setSuggestion(boardSuggestion);
-            holder.text.setText(boardSuggestion.getName());
-            holder.description.setText(boardSuggestion.getDescription());
+            holder.setSuggestion(presenter != null ? suggestionList.get(position) :
+                    // this is for android studio's preview
+                    new BoardSuggestion(Board.getDummyBoard()));
         }
 
         @Override
         public void onViewRecycled(@NonNull SuggestionCell holder) {
             holder.description.setText("");
             holder.text.setText("");
-            holder.ignoreCheckChange = true;
+            holder.check.setOnCheckedChangeListener(null);
             holder.check.setChecked(false);
-            holder.ignoreCheckChange = false;
+            holder.itemView.setOnClickListener(null);
             holder.suggestion = null;
         }
     }
@@ -208,37 +201,33 @@ public class BoardAddLayout
 
         private BoardSuggestion suggestion;
 
-        private boolean ignoreCheckChange = false;
-
         public SuggestionCell(View itemView) {
             super(itemView);
 
             text = itemView.findViewById(R.id.text);
             description = itemView.findViewById(R.id.description);
             check = itemView.findViewById(R.id.check);
-            check.setOnCheckedChangeListener(this);
-            itemView.setOnClickListener(v -> toggle());
         }
 
         public void setSuggestion(BoardSuggestion suggestion) {
             this.suggestion = suggestion;
-            ignoreCheckChange = true;
+            text.setText(suggestion.getName());
+            description.setText(suggestion.getDescription());
             check.setChecked(suggestion.isChecked());
-            ignoreCheckChange = false;
+            check.setOnCheckedChangeListener(this);
+            itemView.setOnClickListener(v -> onCheckedChanged(null, false));
         }
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if (!ignoreCheckChange) {
-                toggle();
-            }
-        }
+            check.setOnCheckedChangeListener(null);
+            itemView.setOnClickListener(null);
 
-        private void toggle() {
             suggestion.checked = !suggestion.checked;
-            ignoreCheckChange = true;
             check.setChecked(suggestion.isChecked());
-            ignoreCheckChange = false;
+
+            check.setOnCheckedChangeListener(this);
+            itemView.setOnClickListener(v -> onCheckedChanged(null, false));
         }
     }
 }
