@@ -235,6 +235,7 @@ public class CardPostCell
 
         replies.setText(status);
 
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
         if (!embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
@@ -242,11 +243,10 @@ public class CardPostCell
     }
 
     @Override
-    public void invalidateView(Post post) {
+    public void invalidateView(Theme theme, Post post) {
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
-        comment.setText(applySearchSpans(post.comment, searchQuery));
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
+        bindPost(theme, post);
     }
 
     private void setCompact(boolean compact) {

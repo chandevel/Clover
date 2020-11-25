@@ -120,7 +120,7 @@ public class EmbeddingEngine {
             post.setComment(modifiableCopy);
             post.linkables.addAll(generatedLinkables);
             post.addImages(generatedImages);
-            invalidateFunction.invalidateView(post);
+            invalidateFunction.invalidateView(theme, post);
             return Collections.emptyList();
         }
 
@@ -154,7 +154,13 @@ public class EmbeddingEngine {
 
                 private void checkInvalidate() {
                     if (callCount != processed.incrementAndGet()) return; // still completing calls
-                    onEmbeddingComplete(post, modifiableCopy, generatedLinkables, generatedImages, invalidateFunction);
+                    onEmbeddingComplete(theme,
+                            post,
+                            modifiableCopy,
+                            generatedLinkables,
+                            generatedImages,
+                            invalidateFunction
+                    );
                 }
             });
             calls.add(c.first);
@@ -164,6 +170,7 @@ public class EmbeddingEngine {
     }
 
     private void onEmbeddingComplete(
+            Theme theme,
             Post post,
             SpannableStringBuilder modifiableCopy,
             List<PostLinkable> generatedLinkables,
@@ -210,7 +217,7 @@ public class EmbeddingEngine {
         post.setComment(modifiableCopy);
         post.linkables.addAll(generatedLinkables);
         post.addImages(generatedImages);
-        BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(post));
+        BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(theme, post));
     }
 
     //region Embedding Helper Functions
@@ -477,7 +484,7 @@ public class EmbeddingEngine {
     }
 
     public interface InvalidateFunction {
-        void invalidateView(Post post);
+        void invalidateView(Theme theme, Post post);
     }
     //endregion
 }

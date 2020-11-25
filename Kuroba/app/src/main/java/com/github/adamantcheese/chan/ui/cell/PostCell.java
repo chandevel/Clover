@@ -521,9 +521,12 @@ public class PostCell
 
         divider.setVisibility(showDivider ? VISIBLE : GONE);
 
-        clearShiftPostFormatting();
-        doShiftPostFormatting();
+        if (ChanSettings.shiftPostFormat.get()) {
+            clearShiftPostFormatting();
+            doShiftPostFormatting();
+        }
 
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
         if (!embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
@@ -531,31 +534,28 @@ public class PostCell
     }
 
     public void clearShiftPostFormatting() {
-        if (ChanSettings.shiftPostFormat.get()) {
-            int paddingPx = dp(ChanSettings.fontSize.get() - 6);
+        int paddingPx = dp(ChanSettings.fontSize.get() - 6);
 
-            RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            commentParams.alignWithParent = true;
-            commentParams.addRule(BELOW, R.id.icons);
-            commentParams.addRule(ALIGN_PARENT_RIGHT);
-            commentParams.addRule(RIGHT_OF, R.id.thumbnail_view);
-            comment.setLayoutParams(commentParams);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
+        RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        commentParams.alignWithParent = true;
+        commentParams.addRule(BELOW, R.id.icons);
+        commentParams.addRule(ALIGN_PARENT_RIGHT);
+        commentParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+        comment.setLayoutParams(commentParams);
+        comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
-            RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            replyParams.alignWithParent = true;
-            replyParams.addRule(ALIGN_PARENT_BOTTOM);
-            replyParams.addRule(BELOW, R.id.comment);
-            replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
-            replies.setLayoutParams(replyParams);
-            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
-            replies.setGravity(Gravity.BOTTOM);
-        }
+        RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        replyParams.alignWithParent = true;
+        replyParams.addRule(ALIGN_PARENT_BOTTOM);
+        replyParams.addRule(BELOW, R.id.comment);
+        replyParams.addRule(RIGHT_OF, R.id.thumbnail_view);
+        replies.setLayoutParams(replyParams);
+        replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+        replies.setGravity(Gravity.BOTTOM);
     }
 
     private void doShiftPostFormatting() {
-        if (ChanSettings.shiftPostFormat.get() && comment.getVisibility() == VISIBLE && post.images.size() == 1
-                && !ChanSettings.textOnly.get()) {
+        if (comment.getVisibility() == VISIBLE && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
             int widthMax = recyclerView.getMeasuredWidth();
             int heightMax = recyclerView.getMeasuredHeight();
             int thumbnailSize =
@@ -604,14 +604,10 @@ public class PostCell
     }
 
     @Override
-    public void invalidateView(Post post) {
+    public void invalidateView(Theme theme, Post post) {
         if (!bound || !this.post.equals(post)) return;
         embedCalls.clear();
-        clearShiftPostFormatting();
-        comment.setText(applySearchSpans(post.comment, searchQuery));
-        buildThumbnails();
-        doShiftPostFormatting();
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
+        bindPost(theme, post);
     }
 
     private final String[] dubTexts =
