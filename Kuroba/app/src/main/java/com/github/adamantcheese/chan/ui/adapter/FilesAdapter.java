@@ -113,8 +113,7 @@ public class FilesAdapter
     }
 
     public class FileViewHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            extends RecyclerView.ViewHolder {
         private final ImageView image;
         private final TextView text;
 
@@ -122,13 +121,7 @@ public class FilesAdapter
             super(itemView);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            FileWatcher.FileItem item = getItem(getAdapterPosition());
-            onItemClicked(item);
+            itemView.setOnClickListener(v -> onItemClicked(getItem(getAdapterPosition())));
         }
     }
 
