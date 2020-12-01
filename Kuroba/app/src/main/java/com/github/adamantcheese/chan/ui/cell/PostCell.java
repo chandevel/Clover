@@ -354,6 +354,7 @@ public class PostCell
         titleParts.append(date);
 
         for (PostImage image : post.images) {
+            if (ChanSettings.textOnly.get()) continue;
             boolean postFileName = ChanSettings.postFilename.get();
             if (postFileName) {
                 //that special character forces it to be left-to-right, as textDirection didn't want to be obeyed
