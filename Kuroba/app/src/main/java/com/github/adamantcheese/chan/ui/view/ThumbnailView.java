@@ -113,10 +113,7 @@ public abstract class ThumbnailView
         }
 
         source = url;
-
-        if (url == null) return;
-
-        bitmapCall = NetUtils.makeBitmapRequest(url, this, maxWidth, maxHeight);
+        bitmapCall = NetUtils.makeBitmapRequest(source, this, maxWidth, maxHeight);
     }
 
     public void setCircular(boolean circular) {

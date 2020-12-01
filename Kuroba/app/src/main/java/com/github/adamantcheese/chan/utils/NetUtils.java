@@ -80,7 +80,7 @@ public class NetUtils {
     }
 
     public static Call makeBitmapRequest(
-            @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result
+            final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result
     ) {
         return makeBitmapRequest(url, result, 0, 0);
     }
@@ -93,10 +93,7 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(
-            @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.BitmapResult result,
-            final int width,
-            final int height
+            final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result, final int width, final int height
     ) {
         Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true);
         return ret == null ? null : ret.first;
@@ -112,12 +109,13 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Pair<Call, Callback> makeBitmapRequest(
-            @NonNull final HttpUrl url,
+            final HttpUrl url,
             @NonNull final NetUtilsClasses.BitmapResult result,
             final int width,
             final int height,
             boolean enqueue
     ) {
+        if (url == null) return null;
         synchronized (NetUtils.class) {
             List<NetUtilsClasses.BitmapResult> results = resultListeners.get(url);
             if (results != null) {
