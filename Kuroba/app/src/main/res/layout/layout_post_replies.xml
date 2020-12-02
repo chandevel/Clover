@@ -80,7 +80,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:gravity="center_vertical"
                     android:paddingRight="20dp"
                     android:text="@string/close"
-                    app:drawableLeftCompat="@drawable/ic_fluent_checkmark_24_filled"
+                    app:drawableLeftCompat="@drawable/ic_fluent_dismiss_24_filled"
                     app:drawableTint="?attr/themeDrawableColor" />
             </FrameLayout>
         </LinearLayout>
