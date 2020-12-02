@@ -17,10 +17,12 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -33,7 +35,6 @@ import com.github.adamantcheese.chan.core.presenter.ArchivePresenter;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
-import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 
 import java.util.ArrayList;
@@ -44,8 +45,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
@@ -92,7 +93,19 @@ public class ArchiveController
 
         // View setup
         archiveRecyclerview.setAdapter(adapter);
-        archiveRecyclerview.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
+        DividerItemDecoration divider = new DividerItemDecoration(context, DividerItemDecoration.VERTICAL);
+        divider.setDrawable(new ColorDrawable(getAttrColor(context, R.attr.divider_color)) {
+            @Override
+            public int getIntrinsicHeight() {
+                return dp(context, 1);
+            }
+
+            @Override
+            public int getIntrinsicWidth() {
+                return dp(context, 1);
+            }
+        });
+        archiveRecyclerview.addItemDecoration(divider);
         FastScrollerHelper.create(archiveRecyclerview);
         swipeRefreshLayout.setOnRefreshListener(this);
 

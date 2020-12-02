@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,7 +42,6 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.layout.BoardAddLayout;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
-import com.github.adamantcheese.chan.ui.view.DividerItemDecoration;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -49,8 +50,8 @@ import javax.inject.Inject;
 import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static android.widget.LinearLayout.VERTICAL;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
@@ -70,33 +71,33 @@ public class BoardSetupController
 
     private Site site;
 
-    private final ItemTouchHelper.SimpleCallback touchHelperCallback =
-            new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
-                    ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
-            ) {
-                @Override
-                public boolean onMove(
-                        RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
-                ) {
-                    int from = viewHolder.getAdapterPosition();
-                    int to = target.getAdapterPosition();
+    private final ItemTouchHelper.SimpleCallback touchHelperCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+            ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT
+    ) {
+        @Override
+        public boolean onMove(
+                RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+        ) {
+            int from = viewHolder.getAdapterPosition();
+            int to = target.getAdapterPosition();
 
-                    if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
-                        return false;
-                    }
+            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
+                return false;
+            }
 
-                    presenter.move(from, to);
+            presenter.move(from, to);
 
-                    return true;
-                }
+            return true;
+        }
 
-                @Override
-                public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                    int position = viewHolder.getAdapterPosition();
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            int position = viewHolder.getAdapterPosition();
 
-                    presenter.removeBoard(position);
-                }
-            };
+            presenter.removeBoard(position);
+        }
+    };
 
     public BoardSetupController(Context context) {
         super(context);
@@ -123,7 +124,19 @@ public class BoardSetupController
 
         // View setup
         savedBoardsRecycler.setAdapter(savedAdapter);
-        savedBoardsRecycler.addItemDecoration(new DividerItemDecoration(context, VERTICAL));
+        DividerItemDecoration divider = new DividerItemDecoration(context, DividerItemDecoration.VERTICAL);
+        divider.setDrawable(new ColorDrawable(getAttrColor(context, R.attr.divider_color)) {
+            @Override
+            public int getIntrinsicHeight() {
+                return dp(context, 1);
+            }
+
+            @Override
+            public int getIntrinsicWidth() {
+                return dp(context, 1);
+            }
+        });
+        savedBoardsRecycler.addItemDecoration(divider);
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
