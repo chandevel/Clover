@@ -40,7 +40,6 @@ public interface PostCellInterface {
             boolean inPopup,
             boolean highlighted,
             int markedNo,
-            boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
             String searchQuery,

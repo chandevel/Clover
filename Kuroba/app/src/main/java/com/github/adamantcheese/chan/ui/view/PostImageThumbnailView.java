@@ -149,7 +149,7 @@ public class PostImageThumbnailView
 
     @Override
     public boolean onLongClick(View v) {
-        if (postImage == null || postImage.imageUrl == null || !ChanSettings.enableLongPressURLCopy.get()) {
+        if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
             return false;
         }
 

@@ -478,8 +478,8 @@ public class ThreadPresenter
                 }
             }
         }
-        //-1 is fine here because we add 1 down the chain to make it 0 if there's no last viewed
-        threadPresenterCallback.smoothScrollNewPosts(position);
+        // scroll to post after last viewed
+        threadPresenterCallback.smoothScrollNewPosts(position + 1);
     }
 
     public void scrollTo(int displayPosition, boolean smooth) {

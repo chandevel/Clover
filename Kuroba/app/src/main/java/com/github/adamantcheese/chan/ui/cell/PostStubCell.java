@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,20 +41,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class PostStubCell
         extends RelativeLayout
-        implements PostCellInterface, View.OnClickListener {
+        implements PostCellInterface {
     private static final int TITLE_MAX_LENGTH = 100;
 
     private boolean bound;
     private Post post;
-    private ChanSettings.PostViewMode postViewMode;
-    private boolean showDivider;
     private PostCellInterface.PostCellCallback callback;
 
     private TextView title;
-    private View divider;
 
     public PostStubCell(Context context) {
         super(context);
@@ -73,7 +72,6 @@ public class PostStubCell
 
         title = findViewById(R.id.title);
         ImageView options = findViewById(R.id.options);
-        divider = findViewById(R.id.divider);
 
         if (!isInEditMode()) {
             int textSizeSp = ChanSettings.fontSize.get();
@@ -81,14 +79,7 @@ public class PostStubCell
 
             int paddingPx = dp(textSizeSp - 6);
             title.setPadding(paddingPx, 0, 0, 0);
-
-            RelativeLayout.LayoutParams dividerParams = (RelativeLayout.LayoutParams) divider.getLayoutParams();
-            dividerParams.leftMargin = paddingPx;
-            dividerParams.rightMargin = paddingPx;
-            divider.setLayoutParams(dividerParams);
         }
-
-        setOnClickListener(this);
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem<Integer>> items = new ArrayList<>();
@@ -118,13 +109,6 @@ public class PostStubCell
         menu.show();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == this) {
-            callback.onPostClicked(post);
-        }
-    }
-
     public void setPost(
             Loadable loadable,
             final Post post,
@@ -132,7 +116,6 @@ public class PostStubCell
             boolean inPopup,
             boolean highlighted,
             int markedNo,
-            boolean showDivider,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
             String searchQuery,
@@ -146,10 +129,8 @@ public class PostStubCell
 
         this.post = post;
         this.callback = callback;
-        this.postViewMode = postViewMode;
-        this.showDivider = showDivider;
 
-        bindPost(post);
+        bindPost(post, postViewMode);
     }
 
     public Post getPost() {
@@ -165,7 +146,7 @@ public class PostStubCell
         return false;
     }
 
-    private void bindPost(Post post) {
+    private void bindPost(Post post, ChanSettings.PostViewMode mode) {
         bound = true;
 
         if (!TextUtils.isEmpty(post.subjectSpan)) {
@@ -180,6 +161,22 @@ public class PostStubCell
             title.setText(titleText);
         }
 
-        divider.setVisibility(postViewMode == ChanSettings.PostViewMode.CARD ? GONE : (showDivider ? VISIBLE : GONE));
+        // These onclick listeners are overridden in PostAdapter's onBindViewHolder
+        if (mode == ChanSettings.PostViewMode.CARD) {
+            setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+            int dp2 = dp(getContext(), 2);
+            ((ViewGroup.MarginLayoutParams) getLayoutParams()).setMargins(dp2, dp2, dp2, dp2);
+            ((RelativeLayout.LayoutParams) title.getLayoutParams()).removeRule(RelativeLayout.CENTER_VERTICAL);
+            setElevation(dp2);
+            title.setSingleLine(false);
+            setOnClickListener(null);
+        } else {
+            setBackgroundResource(R.drawable.ripple_item_background);
+            ((ViewGroup.MarginLayoutParams) getLayoutParams()).setMargins(0, 0, 0, 0);
+            ((RelativeLayout.LayoutParams) title.getLayoutParams()).addRule(RelativeLayout.CENTER_VERTICAL);
+            setElevation(0);
+            title.setSingleLine(true);
+            setOnClickListener(v -> callback.onPostClicked(post));
+        }
     }
 }

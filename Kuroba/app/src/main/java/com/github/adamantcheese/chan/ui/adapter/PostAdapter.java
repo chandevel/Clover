@@ -17,6 +17,9 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -36,10 +39,11 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_LAST_SEEN;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
@@ -47,8 +51,7 @@ public class PostAdapter
     enum CellType {
         TYPE_POST,
         TYPE_STATUS,
-        TYPE_POST_STUB,
-        TYPE_LAST_SEEN
+        TYPE_POST_STUB
     }
 
     private final PostAdapterCallback postAdapterCallback;
@@ -64,7 +67,7 @@ public class PostAdapter
     private int highlightedNo = -1;
     private String highlightedTripcode;
     private String searchQuery;
-    private int lastSeenIndicatorPosition = -1;
+    private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
 
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
@@ -82,8 +85,46 @@ public class PostAdapter
         this.postCellCallback = postCellCallback;
         this.statusCellCallback = statusCellCallback;
         this.theme = theme;
-
         setHasStableIds(true);
+
+        divider.setTint(getAttrColor(recyclerView.getContext(), R.attr.divider_color));
+        final ShapeDrawable lastSeen = new ShapeDrawable();
+        lastSeen.setTint(getAttrColor(recyclerView.getContext(), R.attr.colorAccent));
+
+        // Last seen decoration
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDrawOver(
+                    @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
+            ) {
+                super.onDrawOver(c, parent, state);
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    View child = parent.getChildAt(i);
+                    if (parent.getChildAdapterPosition(child) == lastSeenIndicatorPosition) {
+                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                        int dividerTop = child.getBottom() + params.bottomMargin;
+                        int dividerBottom = dividerTop + dp(4);
+
+                        lastSeen.setBounds(0, dividerTop, parent.getWidth(), dividerBottom);
+                        lastSeen.draw(c);
+                    }
+                }
+            }
+
+            @Override
+            public void getItemOffsets(
+                    @NonNull Rect outRect,
+                    @NonNull View view,
+                    @NonNull RecyclerView parent,
+                    @NonNull RecyclerView.State state
+            ) {
+                super.getItemOffsets(outRect, view, parent, state);
+                if (parent.getChildAdapterPosition(view) == lastSeenIndicatorPosition) {
+                    outRect.top = dp(4);
+                }
+            }
+        });
     }
 
     @Override
@@ -107,8 +148,6 @@ public class PostAdapter
                 PostCellInterface postCellStub =
                         (PostCellInterface) inflate(inflateContext, R.layout.cell_post_stub, parent, false);
                 return new PostViewHolder(postCellStub);
-            case TYPE_LAST_SEEN:
-                return new LastSeenViewHolder(inflate(inflateContext, R.layout.cell_post_last_seen, parent, false));
             case TYPE_STATUS:
                 ThreadStatusCell statusCell =
                         (ThreadStatusCell) inflate(inflateContext, R.layout.cell_thread_status, parent, false);
@@ -132,7 +171,7 @@ public class PostAdapter
                 }
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
-                Post post = displayList.get(getPostPosition(position));
+                Post post = displayList.get(position);
                 ((PostCellInterface) postViewHolder.itemView).setPost(
                         loadable,
                         post,
@@ -140,7 +179,6 @@ public class PostAdapter
                         isInPopup(),
                         shouldHighlight(post),
                         getMarkedNo(),
-                        showDivider(position),
                         getPostViewMode(),
                         isCompact(),
                         searchQuery,
@@ -154,8 +192,6 @@ public class PostAdapter
                 break;
             case TYPE_STATUS:
                 ((ThreadStatusCell) holder.itemView).update();
-                break;
-            case TYPE_LAST_SEEN:
                 break;
         }
     }
@@ -182,27 +218,21 @@ public class PostAdapter
         return -1;
     }
 
-    public boolean showDivider(int position) {
-        return true;
-    }
-
     public ChanSettings.PostViewMode getPostViewMode() {
         return postViewMode;
     }
 
     @Override
     public int getItemCount() {
-        return displayList.size() + (showStatusView() ? 1 : 0) + (lastSeenIndicatorPosition >= 0 ? 1 : 0);
+        return displayList.size() + (showStatusView() ? 1 : 0);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == lastSeenIndicatorPosition) {
-            return TYPE_LAST_SEEN.ordinal();
-        } else if (showStatusView() && position == getItemCount() - 1) {
+        if (showStatusView() && position == getItemCount() - 1) {
             return TYPE_STATUS.ordinal();
         } else {
-            Post post = displayList.get(getPostPosition(position));
+            Post post = displayList.get(position);
             if (post.filterStub) {
                 return TYPE_POST_STUB.ordinal();
             } else {
@@ -216,10 +246,8 @@ public class PostAdapter
         int itemViewType = getItemViewType(position);
         if (itemViewType == TYPE_STATUS.ordinal()) {
             return -2;
-        } else if (itemViewType == TYPE_LAST_SEEN.ordinal()) {
-            return -3;
         } else {
-            return displayList.get(getPostPosition(position)).no;
+            return displayList.get(position).no;
         }
     }
 
@@ -234,11 +262,11 @@ public class PostAdapter
         displayList.clear();
         displayList.addAll(filter == null ? thread.getPosts() : filter.apply(thread));
 
-        lastSeenIndicatorPosition = -1;
+        lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
         for (int i = 0; i < displayList.size() - 1; i++) {
             if (displayList.get(i).no == loadable.lastViewed) {
-                lastSeenIndicatorPosition = i + 1;
+                lastSeenIndicatorPosition = i;
                 break;
             }
         }
@@ -259,7 +287,7 @@ public class PostAdapter
         highlightedId = null;
         highlightedNo = -1;
         highlightedTripcode = null;
-        lastSeenIndicatorPosition = -1;
+        lastSeenIndicatorPosition = Integer.MIN_VALUE;
         error = null;
     }
 
@@ -297,8 +325,50 @@ public class PostAdapter
         notifyDataSetChanged();
     }
 
+    private final ShapeDrawable divider = new ShapeDrawable();
+    // From https://github.com/DhruvamSharma/Recycler-View-Series; comments are there
+    private final RecyclerView.ItemDecoration DIVIDER_DECORATION = new RecyclerView.ItemDecoration() {
+        @Override
+        public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+            super.onDraw(c, parent, state);
+            int paddingPx = dp(parent.getContext(), ChanSettings.fontSize.get() - 6);
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                if (i != parent.getChildCount() - 1) {
+                    View child = parent.getChildAt(i);
+                    RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                    int dividerTop = child.getBottom() + params.bottomMargin;
+                    int dividerBottom = dividerTop + dp(1);
+
+                    divider.setBounds(paddingPx, dividerTop, parent.getWidth() - paddingPx, dividerBottom);
+                    divider.draw(c);
+                }
+            }
+        }
+
+        @Override
+        public void getItemOffsets(
+                @NonNull Rect outRect,
+                @NonNull View view,
+                @NonNull RecyclerView parent,
+                @NonNull RecyclerView.State state
+        ) {
+            super.getItemOffsets(outRect, view, parent, state);
+            if (parent.getChildAdapterPosition(view) == 0) {
+                return;
+            }
+            outRect.top = dp(1);
+        }
+    };
+
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         this.postViewMode = postViewMode;
+
+        if (postViewMode == ChanSettings.PostViewMode.LIST) {
+            recyclerView.addItemDecoration(DIVIDER_DECORATION);
+        } else {
+            recyclerView.removeItemDecoration(DIVIDER_DECORATION);
+        }
     }
 
     public void setCompact(boolean compact) {
@@ -310,28 +380,6 @@ public class PostAdapter
 
     public boolean isCompact() {
         return compact;
-    }
-
-    /**
-     * Given a viewholder position, translate it to a displaylist position.
-     */
-    public int getPostPosition(int position) {
-        int postPosition = position;
-        if (lastSeenIndicatorPosition >= 0 && position > lastSeenIndicatorPosition) {
-            postPosition--;
-        }
-        return postPosition;
-    }
-
-    /**
-     * Given a displaylist position, translate it to a viewholder position.
-     */
-    public int getScrollPosition(int displayPosition) {
-        int postPosition = displayPosition;
-        if (lastSeenIndicatorPosition >= 0 && displayPosition > lastSeenIndicatorPosition) {
-            postPosition++;
-        }
-        return postPosition;
     }
 
     public boolean showStatusView() {
@@ -352,13 +400,6 @@ public class PostAdapter
             extends RecyclerView.ViewHolder {
         public StatusViewHolder(ThreadStatusCell threadStatusCell) {
             super(threadStatusCell);
-        }
-    }
-
-    public static class LastSeenViewHolder
-            extends RecyclerView.ViewHolder {
-        public LastSeenViewHolder(View itemView) {
-            super(itemView);
         }
     }
 

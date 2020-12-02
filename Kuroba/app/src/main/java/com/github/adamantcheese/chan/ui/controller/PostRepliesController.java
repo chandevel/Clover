@@ -141,16 +141,6 @@ public class PostRepliesController
             }
 
             @Override
-            public boolean showDivider(int position) {
-                return position < getDisplayList().size() - 1;
-            }
-
-            @Override
-            public ChanSettings.PostViewMode getPostViewMode() {
-                return ChanSettings.PostViewMode.LIST;
-            }
-
-            @Override
             public boolean isCompact() {
                 return false;
             }
@@ -160,6 +150,7 @@ public class PostRepliesController
                 return false;
             }
         };
+        adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
         recyclerView.setAdapter(adapter);
         adapter.setThread(new ChanThread(loadable, displayingData.posts),
                 new PostsFilter(PostsFilter.Order.BUMP, null)

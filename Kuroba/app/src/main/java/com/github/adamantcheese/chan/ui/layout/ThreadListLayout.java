@@ -464,9 +464,9 @@ public class ThreadListLayout
     public void smoothScrollNewPosts(int displayPosition) {
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
             ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(
+                    //position + 1 to fully render the post after last viewed post (actually scrolls to top of post after post after last viewed)
                     displayPosition + 1,
-                    //position + 1 for last seen view, dp(4) for it's height
-                    recyclerView.getHeight() - recyclerView.getPaddingTop() - dp(4)
+                    recyclerView.getHeight() - recyclerView.getPaddingTop()
             );
         } else {
             Logger.wtf(this, "Layout manager is grid inside thread??");
@@ -528,17 +528,15 @@ public class ThreadListLayout
                 });
             }
         } else {
-            int scrollPosition = postAdapter.getScrollPosition(displayPosition);
-
-            int difference = Math.abs(scrollPosition - getTopAdapterPosition());
+            int difference = Math.abs(displayPosition - getTopAdapterPosition());
             if (difference > MAX_SMOOTH_SCROLL_DISTANCE) {
                 smooth = false;
             }
 
             if (smooth) {
-                recyclerView.smoothScrollToPosition(scrollPosition);
+                recyclerView.smoothScrollToPosition(displayPosition);
             } else {
-                recyclerView.scrollToPosition(scrollPosition);
+                recyclerView.scrollToPosition(displayPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
                 final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
                 waitForLayout(recyclerView, view -> {

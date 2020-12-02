@@ -32,29 +32,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         tools:visibility="visible" />
 
     <RelativeLayout
-        android:id="@+id/relative_layout_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:ignore="UnknownIdInLayout">
 
-        <!-- FOR TESTING IMAGE DISPLAY --> <!--
-        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
-            android:id="@+id/thumbnail_view"
-            android:layout_width="@dimen/cell_post_thumbnail_size"
-            android:layout_height="@dimen/cell_post_thumbnail_size" />
-
-        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
-            android:id="@+id/thumbnail_view_2"
-            android:layout_width="@dimen/cell_post_thumbnail_size"
-            android:layout_height="@dimen/cell_post_thumbnail_size"
-            android:layout_below="@+id/thumbnail_view" />
-
-        <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
-            android:id="@+id/thumbnail_view_3"
-            android:layout_width="@dimen/cell_post_thumbnail_size"
-            android:layout_height="@dimen/cell_post_thumbnail_size"
-            android:layout_below="@+id/thumbnail_view_2" />
-         -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/thumbnail_views"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_alignWithParentIfMissing="true"
+            tools:itemCount="1"
+            tools:layout_width="@dimen/cell_post_thumbnail_size"
+            tools:listitem="@layout/cell_album_download" />
 
         <TextView
             android:id="@+id/title"
@@ -63,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:includeFontPadding="false"
             tools:paddingLeft="8dp"
@@ -81,7 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/title"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_views"
             tools:paddingHorizontal="8dp"
             tools:paddingTop="4dp" />
 
@@ -92,7 +82,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/icons"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_views"
             tools:paddingHorizontal="8dp"
             tools:paddingTop="8dp"
             tools:text="@string/lorem_ipsum" />
@@ -104,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/comment"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/thumbnail_view"
+            android:layout_toRightOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:gravity="bottom"
             android:singleLine="true"
@@ -127,20 +117,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:visibility="gone"
             tools:visibility="visible" />
 
-        <View
-            android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:background="?attr/divider_color"
-            tools:layout_alignBottom="@+id/replies"
-            tools:layout_alignParentBottom="false"
-            tools:layout_alignWithParentIfMissing="true"
-            tools:layout_marginLeft="8dp"
-            tools:layout_marginRight="8dp" />
-
         <ImageView
             android:id="@+id/options"
             android:layout_width="wrap_content"
@@ -148,8 +124,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/ripple_item_background"
-            android:paddingTop="8dp"
             android:paddingLeft="10dp"
+            android:paddingTop="8dp"
             android:paddingBottom="4dp"
             android:src="@drawable/ic_fluent_more_vertical_24_filled"
             app:tint="?android:textColorSecondary"

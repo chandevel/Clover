@@ -19,23 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/ripple_item_background"
     android:orientation="horizontal"
+    tools:background="?backcolor"
     tools:ignore="UseCompoundDrawables,ContentDescription">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/options"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/options"
-        android:gravity="center_vertical"
-        android:singleLine="true"
+        android:ellipsize="end"
+        android:padding="8dp"
         android:textColor="?android:textColorSecondary"
-        tools:paddingLeft="8dp"
-        tools:text="Title for the stubbed cell"
+        tools:layout_centerVertical="true"
+        tools:text="@string/lorem_ipsum"
         tools:textsize="8sp" />
 
     <ImageView
@@ -44,24 +41,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_gravity="top|right"
         android:background="@drawable/ripple_item_background"
         android:padding="4dp"
         android:src="@drawable/ic_fluent_more_vertical_24_filled"
         app:tint="?android:textColorSecondary"
         tools:ignore="ContentDescription" />
-
-    <View
-        android:id="@+id/divider"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/options"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:background="?attr/divider_color"
-        tools:layout_alignParentBottom="false"
-        tools:layout_marginLeft="8dp"
-        tools:layout_marginRight="8dp" />
 
 </com.github.adamantcheese.chan.ui.cell.PostStubCell>
