@@ -39,8 +39,6 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
-import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -65,7 +63,6 @@ import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
@@ -88,7 +85,6 @@ import kotlin.jvm.functions.Function1;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
@@ -97,7 +93,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class StartActivity
@@ -116,7 +111,6 @@ public class StartActivity
     private UpdateManager updateManager;
 
     private boolean intentMismatchWorkaroundActive = false;
-    private boolean exitFlag = false;
 
     public static boolean loadedFromURL = false;
     private int currentNightModeBits;
@@ -509,14 +503,7 @@ public class StartActivity
     @Override
     public void onBackPressed() {
         if (!stack.peek().onBack()) {
-            if (!exitFlag) {
-                showToast(this, R.string.action_confirm_exit);
-                exitFlag = true;
-                BackgroundUtils.runOnMainThread(() -> exitFlag = false, 750);
-            } else {
-                exitFlag = false;
-                StartActivity.super.onBackPressed();
-            }
+            StartActivity.super.onBackPressed();
         }
     }
 
