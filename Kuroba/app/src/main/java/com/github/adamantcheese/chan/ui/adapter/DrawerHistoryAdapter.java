@@ -36,6 +36,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell>
@@ -95,7 +96,7 @@ public class DrawerHistoryAdapter
             }
             holder.thumbnail.setUrl(history.loadable.thumbnailUrl, dp(48), dp(48));
 
-            holder.text.setText(history.loadable.title);
+            holder.text.setText(applySearchSpans(history.loadable.title, searchQuery));
             holder.subtext.setText(String.format("/%s/ – %s",
                     history.loadable.board.code,
                     history.loadable.board.name

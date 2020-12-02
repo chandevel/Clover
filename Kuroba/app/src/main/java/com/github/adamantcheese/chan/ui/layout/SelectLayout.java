@@ -36,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+
 public class SelectLayout<T>
         extends LinearLayout
         implements SearchLayout.SearchLayoutCallback, View.OnClickListener {
@@ -146,10 +148,22 @@ public class SelectLayout<T>
         public void onBindViewHolder(BoardSelectViewHolder holder, int position) {
             SelectItem<T> item = displayList.get(position);
             holder.checkBox.setChecked(item.checked);
-            holder.text.setText(item.name);
+
+            //noinspection StringEquality this is meant to be a reference comparison, not a string comparison
+            if (item.searchTerm == item.name) {
+                holder.text.setText(applySearchSpans(item.name, searchQuery));
+            } else {
+                holder.text.setText(item.name);
+            }
+
             if (item.description != null) {
                 holder.description.setVisibility(VISIBLE);
-                holder.description.setText(item.description);
+                //noinspection StringEquality this is meant to be a reference comparison, not a string comparison
+                if (item.searchTerm == item.description) {
+                    holder.description.setText(applySearchSpans(item.description, searchQuery));
+                } else {
+                    holder.description.setText(item.description);
+                }
             } else {
                 holder.description.setVisibility(GONE);
             }

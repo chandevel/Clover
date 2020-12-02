@@ -53,6 +53,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
 public class DrawerPinAdapter
@@ -99,7 +100,7 @@ public class DrawerPinAdapter
             holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         }
 
-        holder.title.setText(pin.loadable.title);
+        holder.title.setText(applySearchSpans(pin.loadable.title, searchQuery));
 
         if (holder.image.getSource() != pin.loadable.thumbnailUrl) {
             holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
