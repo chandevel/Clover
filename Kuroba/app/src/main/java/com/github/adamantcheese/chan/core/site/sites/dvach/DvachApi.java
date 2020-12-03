@@ -108,7 +108,7 @@ public class DvachApi
                     break;
                 case "op":
                     int opId = reader.nextInt();
-                    builder.op(opId == 0 && queue.getLoadable().no == builder.id);
+                    builder.op(opId == 0 && queue.getLoadable().no == builder.no);
                     builder.opId(opId);
                     break;
                 case "sticky":
@@ -131,7 +131,7 @@ public class DvachApi
                     break;
                 case "num":
                     String num = reader.nextString();
-                    builder.id(Integer.parseInt(num));
+                    builder.no(Integer.parseInt(num));
                     break;
                 case "files":
                     reader.beginArray();
@@ -168,7 +168,7 @@ public class DvachApi
             queue.setOp(op);
         }
 
-        Post cached = queue.getCachedPost(builder.id);
+        Post cached = queue.getCachedPost(builder.no);
         if (cached != null) {
             // Id is known, use the cached post object.
             queue.addForReuse(cached);

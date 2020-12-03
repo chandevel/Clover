@@ -364,7 +364,7 @@ public class ThemeSettingsController
 
             //region POSTS
             Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
-                    .id(123456789)
+                    .no(123456789)
                     .opId(123456789)
                     .op(true)
                     .replies(1)
@@ -376,7 +376,7 @@ public class ThemeSettingsController
                     .idColor(Color.WHITE);
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
-                    .id(234567890)
+                    .no(234567890)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
@@ -386,7 +386,7 @@ public class ThemeSettingsController
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
-                    .id(345678901)
+                    .no(345678901)
                     .opId(123456789)
                     .name("W.T. Snacks")
                     .tripcode("!TcT.PTG1.2")

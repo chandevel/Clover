@@ -1,7 +1,5 @@
 package com.github.adamantcheese.chan.core.database;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -246,7 +244,7 @@ public class DatabaseHideManager {
         return new Post.Builder().board(childPost.board)
                 .posterId(childPost.id)
                 .opId(childPost.opId)
-                .id(childPost.no)
+                .no(childPost.no)
                 .op(childPost.isOP)
                 .replies(childPost.getReplies())
                 .images(childPost.getImagesCount())

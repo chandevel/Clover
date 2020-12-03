@@ -115,19 +115,18 @@ public class ChanReaderParser
 
         List<Post.Builder> toParse = queue.getToParse();
 
-        // A list of all ids in the thread. Used for checking if a quote if for the current
-        // thread or externally.
-        Set<Integer> internalIds = new HashSet<>();
-        // All ids of cached posts.
+        // A set of all post numbers in the thread. Used for checking if a quote if for the current thread or externally.
+        Set<Integer> internalNums = new HashSet<>();
+        // All nos of cached posts.
         for (Post post : cached) {
-            internalIds.add(post.no);
+            internalNums.add(post.no);
         }
-        // And ids for posts to parse, from the builder.
+        // And nos for posts to parse, from the builder.
         for (Post.Builder builder : toParse) {
-            internalIds.add(builder.id);
+            internalNums.add(builder.no);
         }
-        // Do not modify internalIds after this point.
-        internalIds = Collections.unmodifiableSet(internalIds);
+        // Do not modify internalNums after this point.
+        internalNums = Collections.unmodifiableSet(internalNums);
 
         List<Callable<Post>> tasks = new ArrayList<>(toParse.size());
         final Theme currentTheme = ThemeHelper.getTheme();
@@ -137,7 +136,7 @@ public class ChanReaderParser
                     databaseSavedReplyManager,
                     post,
                     reader,
-                    internalIds,
+                    internalNums,
                     currentTheme
             ));
         }

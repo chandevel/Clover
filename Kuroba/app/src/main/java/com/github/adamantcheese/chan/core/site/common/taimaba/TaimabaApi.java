@@ -114,7 +114,7 @@ public class TaimabaApi
 
             switch (key) {
                 case "no":
-                    builder.id(reader.nextInt());
+                    builder.no(reader.nextInt());
                     break;
                 case "resto":
                     opId = reader.nextInt();
@@ -258,7 +258,7 @@ public class TaimabaApi
             queue.setOp(op);
         }
 
-        Post cached = queue.getCachedPost(builder.id);
+        Post cached = queue.getCachedPost(builder.no);
         if (cached != null) {
             // Id is known, use the cached post object.
             queue.addForReuse(cached);

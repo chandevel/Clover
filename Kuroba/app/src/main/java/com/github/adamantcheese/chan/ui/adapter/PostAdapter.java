@@ -340,7 +340,6 @@ public class PostAdapter
     public void setCompact(boolean compact) {
         if (this.compact != compact) {
             this.compact = compact;
-            notifyDataSetChanged();
         }
     }
 

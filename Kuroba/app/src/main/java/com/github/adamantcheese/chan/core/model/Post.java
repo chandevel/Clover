@@ -93,7 +93,7 @@ public class Post
     public final boolean filterSaved;
 
     /**
-     * This post replies to the these ids.
+     * This post replies to the these post numbers.
      */
     public final Set<Integer> repliesTo;
 
@@ -109,7 +109,7 @@ public class Post
     public final AtomicBoolean deleted = new AtomicBoolean(false);
 
     /**
-     * These ids replied to this post.
+     * These post numbers replied to this post.
      */
     public final List<Integer> repliesFrom = new CopyOnWriteArrayList<>();
 
@@ -132,7 +132,7 @@ public class Post
     private Post(Builder builder) {
         board = builder.board;
         boardId = builder.board.code;
-        no = builder.id;
+        no = builder.no;
 
         isOP = builder.op;
         replies = builder.replies;
@@ -176,7 +176,7 @@ public class Post
         nameTripcodeIdCapcodeSpan = builder.nameTripcodeIdCapcodeSpan;
 
         linkables = new CopyOnWriteArraySet<>(builder.linkables);
-        repliesTo = Collections.unmodifiableSet(builder.repliesToIds);
+        repliesTo = Collections.unmodifiableSet(builder.repliesToNos);
     }
 
     @AnyThread
@@ -345,7 +345,7 @@ public class Post
     @SuppressWarnings("UnusedReturnValue")
     public static final class Builder {
         public Board board;
-        public int id = -1;
+        public int no = -1;
         public int opId = -1;
 
         public boolean op;
@@ -385,7 +385,7 @@ public class Post
         public CharSequence nameTripcodeIdCapcodeSpan;
 
         private final Set<PostLinkable> linkables = new CopyOnWriteArraySet<>();
-        private final Set<Integer> repliesToIds = new HashSet<>();
+        private final Set<Integer> repliesToNos = new HashSet<>();
 
         public Builder() {
         }
@@ -395,8 +395,8 @@ public class Post
             return this;
         }
 
-        public Builder id(int id) {
-            this.id = id;
+        public Builder no(int no) {
+            this.no = no;
             return this;
         }
 
@@ -565,18 +565,18 @@ public class Post
             return this;
         }
 
-        public Builder addReplyTo(int postId) {
-            repliesToIds.add(postId);
+        public Builder addReplyTo(int postNo) {
+            repliesToNos.add(postNo);
             return this;
         }
 
-        public Builder repliesTo(Set<Integer> repliesToIds) {
-            this.repliesToIds.addAll(repliesToIds);
+        public Builder repliesTo(Set<Integer> repliesToNos) {
+            this.repliesToNos.addAll(repliesToNos);
             return this;
         }
 
         public Post build() {
-            if (board == null || id < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
+            if (board == null || no < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
                 throw new IllegalArgumentException("Post data not complete");
             }
 

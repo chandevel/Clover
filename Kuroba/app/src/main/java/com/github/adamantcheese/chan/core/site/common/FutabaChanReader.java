@@ -121,7 +121,7 @@ public class FutabaChanReader
 
             switch (key) {
                 case "no":
-                    builder.id(reader.nextInt());
+                    builder.no(reader.nextInt());
                     break;
                 /*case "now":
                     post.date = reader.nextString();
@@ -269,9 +269,9 @@ public class FutabaChanReader
             queue.setOp(op);
         }
 
-        Post cached = queue.getCachedPost(builder.id);
+        Post cached = queue.getCachedPost(builder.no);
         if (cached != null) {
-            // Id is known, use the cached post object.
+            // Post no is known, use the cached post object.
             queue.addForReuse(cached);
             return;
         }

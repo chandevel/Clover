@@ -90,7 +90,7 @@ public class FoolFuukaArchive
                 String key = reader.nextName();
                 switch (key) {
                     case "num":
-                        builder.id(reader.nextInt());
+                        builder.no(reader.nextInt());
                         break;
                     case "thread_num":
                         builder.opId(reader.nextInt());

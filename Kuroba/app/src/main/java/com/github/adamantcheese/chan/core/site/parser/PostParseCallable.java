@@ -34,7 +34,7 @@ class PostParseCallable
     private final DatabaseSavedReplyManager savedReplyManager;
     private final Post.Builder postBuilder;
     private final ChanReader reader;
-    private final Set<Integer> internalIds;
+    private final Set<Integer> internalNos;
     private final Theme theme;
 
     public PostParseCallable(
@@ -42,21 +42,21 @@ class PostParseCallable
             DatabaseSavedReplyManager savedReplyManager,
             Post.Builder builder,
             ChanReader reader,
-            Set<Integer> internalIds,
+            Set<Integer> internalNos,
             @NonNull Theme theme
     ) {
         this.filters = filters;
         this.savedReplyManager = savedReplyManager;
         this.postBuilder = builder;
         this.reader = reader;
-        this.internalIds = internalIds;
+        this.internalNos = internalNos;
         this.theme = theme;
     }
 
     @Override
     public Post call() {
         // needed for "Apply to own posts" to work correctly
-        postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.id));
+        postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.no));
 
         return reader.getParser().parse(theme, postBuilder, filters, new PostParser.Callback() {
             @Override
@@ -66,7 +66,7 @@ class PostParseCallable
 
             @Override
             public boolean isInternal(int postNo) {
-                return internalIds.contains(postNo);
+                return internalNos.contains(postNo);
             }
         });
     }

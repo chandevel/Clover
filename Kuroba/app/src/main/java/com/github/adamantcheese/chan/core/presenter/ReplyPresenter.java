@@ -272,7 +272,7 @@ public class ReplyPresenter
                     Post fakeOP = new Post.Builder().subject(originatingLoadable.draft.subject)
                             .comment(originatingLoadable.draft.comment)
                             .board(originatingLoadable.board)
-                            .id(replyResponse.postNo)
+                            .no(replyResponse.postNo)
                             .opId(replyResponse.postNo)
                             .setUnixTimestampSeconds(System.currentTimeMillis() / 1000L)
                             .build();

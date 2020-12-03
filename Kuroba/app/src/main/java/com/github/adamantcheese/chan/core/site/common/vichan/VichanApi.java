@@ -140,7 +140,7 @@ public class VichanApi
 
             switch (key) {
                 case "no":
-                    builder.id(reader.nextInt());
+                    builder.no(reader.nextInt());
                     break;
                 case "sub":
                     builder.subject(reader.nextString());
@@ -276,11 +276,11 @@ public class VichanApi
             queue.setOp(op);
         }
 
-        Post cached = queue.getCachedPost(builder.id);
+        Post cached = queue.getCachedPost(builder.no);
         if (cached != null) {
             // Id is known, use the cached post object.
             queue.addForReuse(cached);
-            return new Pair<>(builder.id, builder.lastModified); // this return is only used for pages!
+            return new Pair<>(builder.no, builder.lastModified); // this return is only used for pages!
         }
 
         if (countryCode != null && countryName != null) {
@@ -294,7 +294,7 @@ public class VichanApi
         }
 
         queue.addForParse(builder);
-        return new Pair<>(builder.id, builder.lastModified); // this return is only used for pages!
+        return new Pair<>(builder.no, builder.lastModified); // this return is only used for pages!
     }
 
     private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)
