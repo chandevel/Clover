@@ -16,11 +16,22 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+
 import java.lang.reflect.Field;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class RecyclerUtils {
     private static final String TAG = "RecyclerUtils";
@@ -46,5 +57,56 @@ public class RecyclerUtils {
             top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
         }
         return new int[]{index, top};
+    }
+
+    public static ColorDrawable getDivider(Context context) {
+        return new ColorDrawable(getAttrColor(context, R.attr.divider_color)) {
+            @Override
+            public int getIntrinsicHeight() {
+                return dp(context, 1);
+            }
+
+            @Override
+            public int getIntrinsicWidth() {
+                return dp(context, 1);
+            }
+        };
+    }
+
+    // From https://github.com/DhruvamSharma/Recycler-View-Series; comments are there
+    public static RecyclerView.ItemDecoration getDividerDecoration(ColorDrawable divider) {
+        return new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+                super.onDraw(c, parent, state);
+                int paddingPx = dp(parent.getContext(), ChanSettings.fontSize.get() - 6);
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    if (i != parent.getChildCount() - 1) {
+                        View child = parent.getChildAt(i);
+                        RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
+
+                        int dividerTop = child.getBottom() + params.bottomMargin;
+                        int dividerBottom = dividerTop + dp(1);
+
+                        divider.setBounds(paddingPx, dividerTop, parent.getWidth() - paddingPx, dividerBottom);
+                        divider.draw(c);
+                    }
+                }
+            }
+
+            @Override
+            public void getItemOffsets(
+                    @NonNull Rect outRect,
+                    @NonNull View view,
+                    @NonNull RecyclerView parent,
+                    @NonNull RecyclerView.State state
+            ) {
+                super.getItemOffsets(outRect, view, parent, state);
+                if (parent.getChildAdapterPosition(view) == 0) {
+                    return;
+                }
+                outRect.top = dp(1);
+            }
+        };
     }
 }

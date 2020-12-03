@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,6 +73,7 @@ public class PostAdapter
     private ChanSettings.PostViewMode postViewMode;
     private boolean compact = false;
     private final Theme theme;
+    private final RecyclerView.ItemDecoration divider;
 
     public PostAdapter(
             RecyclerView recyclerView,
@@ -87,7 +89,7 @@ public class PostAdapter
         this.theme = theme;
         setHasStableIds(true);
 
-        divider.setTint(getAttrColor(recyclerView.getContext(), R.attr.divider_color));
+        divider = RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(recyclerView.getContext()));
         final ShapeDrawable lastSeen = new ShapeDrawable();
         lastSeen.setTint(getAttrColor(recyclerView.getContext(), R.attr.colorAccent));
 
@@ -325,49 +327,13 @@ public class PostAdapter
         notifyDataSetChanged();
     }
 
-    private final ShapeDrawable divider = new ShapeDrawable();
-    // From https://github.com/DhruvamSharma/Recycler-View-Series; comments are there
-    private final RecyclerView.ItemDecoration DIVIDER_DECORATION = new RecyclerView.ItemDecoration() {
-        @Override
-        public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-            super.onDraw(c, parent, state);
-            int paddingPx = dp(parent.getContext(), ChanSettings.fontSize.get() - 6);
-            for (int i = 0; i < parent.getChildCount(); i++) {
-                if (i != parent.getChildCount() - 1) {
-                    View child = parent.getChildAt(i);
-                    RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
-
-                    int dividerTop = child.getBottom() + params.bottomMargin;
-                    int dividerBottom = dividerTop + dp(1);
-
-                    divider.setBounds(paddingPx, dividerTop, parent.getWidth() - paddingPx, dividerBottom);
-                    divider.draw(c);
-                }
-            }
-        }
-
-        @Override
-        public void getItemOffsets(
-                @NonNull Rect outRect,
-                @NonNull View view,
-                @NonNull RecyclerView parent,
-                @NonNull RecyclerView.State state
-        ) {
-            super.getItemOffsets(outRect, view, parent, state);
-            if (parent.getChildAdapterPosition(view) == 0) {
-                return;
-            }
-            outRect.top = dp(1);
-        }
-    };
-
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         this.postViewMode = postViewMode;
 
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
-            recyclerView.addItemDecoration(DIVIDER_DECORATION);
+            recyclerView.addItemDecoration(divider);
         } else {
-            recyclerView.removeItemDecoration(DIVIDER_DECORATION);
+            recyclerView.removeItemDecoration(divider);
         }
     }
 

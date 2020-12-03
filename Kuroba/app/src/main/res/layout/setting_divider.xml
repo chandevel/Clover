@@ -19,3 +19,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="1dp"
     android:background="?divider_color" />
+<!-- TODO remove this and use item decorations in a recycler view instead -->
