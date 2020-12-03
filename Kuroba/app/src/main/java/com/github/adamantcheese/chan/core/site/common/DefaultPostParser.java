@@ -143,7 +143,7 @@ public class DefaultPostParser
         }
 
         if (!TextUtils.isEmpty(builder.posterId)) {
-            idSpan = new SpannableString("  ID: " + builder.posterId + "  ");
+            idSpan = new SpannableString("  " + builder.posterId + "  ");
             idSpan.setSpan(new ForegroundColorSpanHashed(getContrastColor(builder.idColor)), 0, idSpan.length(), 0);
             idSpan.setSpan(new BackgroundColorSpan(builder.idColor), 0, idSpan.length(), 0);
             idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
