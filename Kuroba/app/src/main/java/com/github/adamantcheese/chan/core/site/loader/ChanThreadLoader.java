@@ -247,9 +247,12 @@ public class ChanThreadLoader {
     }
 
     private Call getData() {
-        List<Post> cached;
+        List<Post> cachedClones = new ArrayList<>();
         synchronized (this) {
-            cached = thread == null ? new ArrayList<>() : thread.getPosts();
+            List<Post> cached = thread == null ? new ArrayList<>() : thread.getPosts();
+            for (Post p : cached) {
+                cachedClones.add(p.clone());
+            }
         }
 
         return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
@@ -263,7 +266,7 @@ public class ChanThreadLoader {
                 clearTimer();
                 BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
             }
-        }, new ChanReaderParser(loadable, cached, null));
+        }, new ChanReaderParser(loadable, cachedClones, null));
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {

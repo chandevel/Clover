@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * All {@code final} fields are thread-safe.
  */
 public class Post
-        implements Comparable<Post> {
+        implements Comparable<Post>, Cloneable {
     public final String boardId;
 
     public final Board board;
@@ -306,33 +306,83 @@ public class Post
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(no, board.code, board.siteId, comment, deleted.get());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        //@formatter:off
+        return no == post.no
+                && isOP == post.isOP
+                && time == post.time
+                && opId == post.opId
+                && isSavedReply == post.isSavedReply
+                && filterHighlightedColor == post.filterHighlightedColor
+                && filterStub == post.filterStub
+                && filterRemove == post.filterRemove
+                && filterWatch == post.filterWatch
+                && filterReplies == post.filterReplies
+                && filterOnlyOP == post.filterOnlyOP
+                && filterSaved == post.filterSaved
+                && sticky == post.sticky
+                && closed == post.closed
+                && archived == post.archived
+                && lastModified == post.lastModified
+                && Objects.equals(boardId, post.boardId)
+                && Objects.equals(board, post.board)
+                && Objects.equals(name, post.name)
+                && Objects.equals(comment, post.comment)
+                && Objects.equals(subject, post.subject)
+                && Objects.equals(images, post.images)
+                && Objects.equals(tripcode, post.tripcode)
+                && Objects.equals(id, post.id)
+                && Objects.equals(capcode, post.capcode)
+                && Objects.equals(httpIcons, post.httpIcons)
+                && Objects.equals(repliesTo, post.repliesTo)
+                && Objects.equals(linkables, post.linkables)
+                && Objects.equals(deleted.get(), post.deleted.get())
+                && Objects.equals(repliesFrom, post.repliesFrom)
+                && Objects.equals(title, post.title)
+                && Objects.equals(embedComplete.get(), post.embedComplete.get()
+        );
+        //@formatter:on
     }
 
     @Override
-    public boolean equals(Object other) {
-        if (other == null) {
-            return false;
-        }
-
-        if (other == this) {
-            return true;
-        }
-
-        if (this.getClass() != other.getClass()) {
-            return false;
-        }
-
-        Post otherPost = (Post) other;
-
-        //@formatter:off
-        return this.no == otherPost.no
-                && this.board.code.equals(otherPost.board.code)
-                && this.board.siteId == otherPost.board.siteId
-                && this.deleted.get() == otherPost.deleted.get()
-                && this.comment.equals(otherPost.comment);
-        //@formatter:on
+    public int hashCode() {
+        return Objects.hash(
+                boardId,
+                board,
+                no,
+                isOP,
+                name,
+                comment,
+                subject,
+                time,
+                images,
+                tripcode,
+                id,
+                opId,
+                capcode,
+                httpIcons,
+                isSavedReply,
+                filterHighlightedColor,
+                filterStub,
+                filterRemove,
+                filterWatch,
+                filterReplies,
+                filterOnlyOP,
+                filterSaved,
+                repliesTo,
+                linkables,
+                deleted.get(),
+                repliesFrom,
+                sticky,
+                closed,
+                archived,
+                lastModified,
+                title,
+                embedComplete.get()
+        );
     }
 
     @Override
@@ -340,6 +390,50 @@ public class Post
     public String toString() {
         return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
                 + "]";
+    }
+
+    @NonNull
+    @Override
+    public Post clone() {
+        Post clone = new Builder().board(board)
+                .no(no)
+                .opId(opId)
+                .op(isOP)
+                .replies(replies)
+                .images(imagesCount)
+                .uniqueIps(uniqueIps)
+                .sticky(sticky)
+                .archived(archived)
+                .lastModified(lastModified)
+                .closed(closed)
+                .subject(subject)
+                .name(name)
+                .comment(comment)
+                .tripcode(tripcode)
+                .setUnixTimestampSeconds(time)
+                .images(images)
+                .posterId(id)
+                .moderatorCapcode(capcode)
+                .setHttpIcons(httpIcons)
+                .filter(
+                        filterHighlightedColor,
+                        filterStub,
+                        filterRemove,
+                        filterWatch,
+                        filterReplies,
+                        filterOnlyOP,
+                        filterSaved
+                )
+                .isSavedReply(isSavedReply)
+                .spans(subjectSpan, nameTripcodeIdCapcodeSpan)
+                .linkables(linkables)
+                .repliesTo(repliesTo)
+                .build();
+        clone.repliesFrom.addAll(repliesFrom);
+        clone.setTitle(getTitle());
+        clone.deleted.set(deleted.get());
+        clone.embedComplete.set(embedComplete.get());
+        return clone;
     }
 
     @SuppressWarnings("UnusedReturnValue")

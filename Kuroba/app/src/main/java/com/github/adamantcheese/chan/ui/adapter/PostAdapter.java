@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -257,23 +258,57 @@ public class PostAdapter
         BackgroundUtils.ensureMainThread();
 
         this.loadable = thread.getLoadable();
+        boolean queryChanged =
+                this.searchQuery != null && filter != null && !this.searchQuery.equals(filter.getQuery());
         this.searchQuery = filter == null ? null : filter.getQuery();
 
         showError(null);
 
-        displayList.clear();
-        displayList.addAll(filter == null ? thread.getPosts() : filter.apply(thread));
+        List<Post> newList = filter == null ? thread.getPosts() : filter.apply(thread);
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
-        for (int i = 0; i < displayList.size() - 1; i++) {
-            if (displayList.get(i).no == loadable.lastViewed) {
+        for (int i = 0; i < newList.size() - 1; i++) {
+            if (newList.get(i).no == loadable.lastViewed) {
                 lastSeenIndicatorPosition = i;
                 break;
             }
         }
 
-        notifyDataSetChanged();
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            // +1 for status cells
+            @Override
+            public int getOldListSize() {
+                return displayList.size() + (showStatusView() ? 1 : 0);
+            }
+
+            @Override
+            public int getNewListSize() {
+                return newList.size() + (showStatusView() ? 1 : 0);
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                // if the query's changed, invalidate all items
+                // if the status view is shown and the oldposition/newposition matches the list size, invalidate that as well (index is status cell)
+                if (queryChanged || (showStatusView() && oldItemPosition == displayList.size()) || (showStatusView()
+                        && newItemPosition == newList.size())) {
+                    return false;
+                }
+                return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                // uses Post.equals() to compare
+                return displayList.get(oldItemPosition).equals(newList.get(newItemPosition));
+            }
+        });
+
+        displayList.clear();
+        displayList.addAll(newList);
+
+        result.dispatchUpdatesTo(this); // better than notifyDataSetChanged for small UI updates, but can also act as a full refresh if needed
     }
 
     public void setLastSeenIndicatorPosition(int position) {
