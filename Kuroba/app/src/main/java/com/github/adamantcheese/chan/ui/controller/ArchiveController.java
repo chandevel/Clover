@@ -91,7 +91,7 @@ public class ArchiveController
 
         // View setup
         archiveRecyclerview.setAdapter(adapter);
-        archiveRecyclerview.addItemDecoration(RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(context)));
+        archiveRecyclerview.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
         FastScrollerHelper.create(archiveRecyclerview);
         swipeRefreshLayout.setOnRefreshListener(this);
 

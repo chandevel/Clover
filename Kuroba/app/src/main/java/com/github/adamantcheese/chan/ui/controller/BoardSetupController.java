@@ -122,7 +122,7 @@ public class BoardSetupController
 
         // View setup
         savedBoardsRecycler.setAdapter(savedAdapter);
-        savedBoardsRecycler.addItemDecoration(RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(context)));
+        savedBoardsRecycler.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);

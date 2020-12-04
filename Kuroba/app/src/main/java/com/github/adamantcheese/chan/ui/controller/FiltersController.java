@@ -129,7 +129,7 @@ public class FiltersController
 
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(context)));
+        recyclerView.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);

@@ -114,7 +114,7 @@ public class SitesSetupController
         // View setup
         sitesRecyclerview.getLayoutManager().setItemPrefetchEnabled(false);
         sitesRecyclerview.setAdapter(sitesAdapter);
-        sitesRecyclerview.addItemDecoration(RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(context)));
+        sitesRecyclerview.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);

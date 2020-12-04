@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.LayoutUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -148,12 +149,29 @@ public class BrowseBoardsFloatingMenu
             setupSite.setup();
             items.items.add(new Item(1, setupSite));
         }
+
+        // items should exist before this is added
+        recyclerView.addItemDecoration(RecyclerUtils.getDividerDecoration(getContext(),
+                new RecyclerUtils.ShowDividerFunction() {
+                    @Override
+                    public boolean shouldShowDivider(int adapterSize, int adapterPosition) {
+                        // ignore first site, search bar acts as a divider
+                        return items.getAtPosition(adapterPosition).type == SITE;
+                    }
+
+                    @Override
+                    public boolean showDividerTop() {
+                        return true;
+                    }
+                }
+        ));
     }
 
     @Override
     public void update(Observable o, Object arg) {
         if (o == presenter.items()) {
             adapter.notifyDataSetChanged();
+            recyclerView.invalidateItemDecorations();
         }
     }
 
@@ -307,14 +325,12 @@ public class BrowseBoardsFloatingMenu
 
         @Override
         public long getItemId(int position) {
-            Item item = items.getAtPosition(position);
-            return item.id;
+            return items.getAtPosition(position).id;
         }
 
         @Override
         public int getItemViewType(int position) {
-            Item item = items.getAtPosition(position);
-            return item.type.ordinal();
+            return items.getAtPosition(position).type.ordinal();
         }
 
         @NonNull
@@ -419,7 +435,6 @@ public class BrowseBoardsFloatingMenu
 
     private class SiteViewHolder
             extends ViewHolder {
-        View divider;
         ImageView image;
         TextView text;
 
@@ -427,7 +442,6 @@ public class BrowseBoardsFloatingMenu
 
         public SiteViewHolder(View itemView) {
             super(itemView);
-            divider = itemView.findViewById(R.id.divider);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
             text.setTypeface(ThemeHelper.getTheme().mainFont);
@@ -436,7 +450,6 @@ public class BrowseBoardsFloatingMenu
         public void bind(Site site) {
             this.site = site;
             itemView.setOnClickListener(v -> itemClicked(site, null));
-            divider.setVisibility(getAdapterPosition() == 0 ? GONE : VISIBLE);
             site.icon().get(image::setImageDrawable);
             text.setText(site.name());
         }

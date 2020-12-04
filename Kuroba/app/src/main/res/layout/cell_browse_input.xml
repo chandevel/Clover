@@ -14,21 +14,14 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/input"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    android:orientation="horizontal">
-
-    <EditText
-        android:id="@+id/input"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:hint="@string/thread_boards_search_hint"
-        android:inputType="text"
-        android:maxLines="1"
-        android:paddingHorizontal="16dp"
-        android:textSize="14sp" />
-
-</LinearLayout>
+    android:ellipsize="end"
+    android:gravity="center_vertical"
+    android:hint="@string/thread_boards_search_hint"
+    android:inputType="text"
+    android:maxLines="1"
+    android:paddingHorizontal="16dp"
+    android:textSize="14sp" />

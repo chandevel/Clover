@@ -90,7 +90,7 @@ public class PostAdapter
         this.theme = theme;
         setHasStableIds(true);
 
-        divider = RecyclerUtils.getDividerDecoration(RecyclerUtils.getDivider(recyclerView.getContext()));
+        divider = RecyclerUtils.getBottomDividerDecoration(recyclerView.getContext());
         final ShapeDrawable lastSeen = new ShapeDrawable();
         lastSeen.setTint(getAttrColor(recyclerView.getContext(), R.attr.colorAccent));
 
