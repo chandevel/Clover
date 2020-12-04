@@ -3,7 +3,7 @@ package com.github.adamantcheese.chan.utils;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import kotlin.io.ByteStreamsKt;
+import kotlin.random.Random;
 import okio.ByteString;
 
 public class JavaUtils {
@@ -22,10 +22,18 @@ public class JavaUtils {
     }
 
     public static String inputStreamMD5hash(InputStream inputStream) {
-        return ByteString.of(ByteStreamsKt.readBytes(inputStream)).md5().hex();
+        try {
+            return ByteString.read(inputStream, inputStream.available()).md5().hex();
+        } catch (Throwable t) {
+            return ByteString.encodeUtf8(String.valueOf(Random.Default.nextLong())).md5().hex();
+        }
     }
 
     public static String stringMD5hash(String inputString) {
-        return ByteString.encodeUtf8(inputString).md5().hex();
+        try {
+            return ByteString.encodeUtf8(inputString).md5().hex();
+        } catch (Throwable t) {
+            return ByteString.encodeUtf8(String.valueOf(Random.Default.nextLong())).md5().hex();
+        }
     }
 }
