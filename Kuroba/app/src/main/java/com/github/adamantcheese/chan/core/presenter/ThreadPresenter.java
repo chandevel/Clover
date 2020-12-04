@@ -160,9 +160,6 @@ public class ThreadPresenter
     @Inject
     private FilterWatchManager filterWatchManager;
 
-    @Inject
-    private EmbeddingEngine embeddingEngine;
-
     private final ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
@@ -358,11 +355,6 @@ public class ThreadPresenter
     @Override
     public Loadable getLoadable() {
         return loadable;
-    }
-
-    @Override
-    public EmbeddingEngine getEmbeddingEngine() {
-        return embeddingEngine;
     }
 
     /*
@@ -714,7 +706,7 @@ public class ThreadPresenter
                     //need to trim off starting spaces for certain media links if embedded
                     String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
                     boolean speciallyProcessed = false;
-                    for (Embedder<?> e : embeddingEngine.embedders) {
+                    for (Embedder<?> e : EmbeddingEngine.getInstance().getEmbedders()) {
                         if (e.shouldEmbed(value, loadable.board)) {
                             if (added.contains(trimmedUrl)) continue;
                             keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));

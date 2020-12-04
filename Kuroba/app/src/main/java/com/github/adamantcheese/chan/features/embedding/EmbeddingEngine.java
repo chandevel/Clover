@@ -52,7 +52,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class EmbeddingEngine {
-    public final List<Embedder<?>> embedders = new NoDeleteArrayList<>();
+    private static EmbeddingEngine instance;
+    private final List<Embedder<?>> embedders = new NoDeleteArrayList<>();
 
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
@@ -61,7 +62,7 @@ public class EmbeddingEngine {
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    public EmbeddingEngine() {
+    private EmbeddingEngine() {
         // Media embedders
         embedders.add(new YoutubeEmbedder());
         embedders.add(new StreamableEmbedder());
@@ -74,6 +75,17 @@ public class EmbeddingEngine {
 
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
+    }
+
+    public static EmbeddingEngine getInstance() {
+        if (instance == null) {
+            instance = new EmbeddingEngine();
+        }
+        return instance;
+    }
+
+    public List<Embedder<?>> getEmbedders() {
+        return Collections.unmodifiableList(embedders);
     }
 
     /**

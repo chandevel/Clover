@@ -12,7 +12,7 @@ internal object ErrorMapper {
             url: HttpUrl,
             throwable: Throwable,
             activeDownloads: ActiveDownloads
-    ): FileDownloadResult? {
+    ): FileDownloadResult {
         // CompositeException is a RxJava type of exception that is being thrown when multiple
         // exceptions are being thrown concurrently from multiple threads (e.g. You have a reactive
         // stream that splits into multiple streams and all those streams throw an exceptions).

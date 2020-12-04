@@ -54,8 +54,6 @@ public interface PostCellInterface {
     interface PostCellCallback {
         Loadable getLoadable();
 
-        EmbeddingEngine getEmbeddingEngine();
-
         void onPostClicked(Post post);
 
         void onPostDoubleClicked(Post post);

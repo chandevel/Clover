@@ -99,16 +99,9 @@ public class ThemeSettingsController
     }
 
     private final PostCell.PostCellCallback dummyPostCallback = new PostCell.PostCellCallback() {
-        final EmbeddingEngine embeddingEngine = instance(EmbeddingEngine.class);
-
         @Override
         public Loadable getLoadable() {
             return dummyLoadable;
-        }
-
-        @Override
-        public EmbeddingEngine getEmbeddingEngine() {
-            return embeddingEngine;
         }
 
         @Override

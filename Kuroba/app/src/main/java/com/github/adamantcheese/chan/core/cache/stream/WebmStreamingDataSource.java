@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.stream;
 import android.net.Uri;
 import android.util.Range;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
@@ -286,7 +287,7 @@ public class WebmStreamingDataSource
     }
 
     @Override
-    public long open(DataSpec dataSpec)
+    public long open(@NonNull DataSpec dataSpec)
             throws IOException {
         if (!prepared) {
             prepare();
@@ -344,7 +345,7 @@ public class WebmStreamingDataSource
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int readLength)
+    public int read(@NonNull byte[] buffer, int offset, int readLength)
             throws IOException {
         if (readLength == 0) {
             return 0;

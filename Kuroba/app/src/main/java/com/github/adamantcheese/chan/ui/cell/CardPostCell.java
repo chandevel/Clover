@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -235,7 +236,7 @@ public class CardPostCell
         replies.setText(status);
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
-        embedCalls.addAll(callback.getEmbeddingEngine().embed(theme, post, this));
+        embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
         if (!embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
         }
