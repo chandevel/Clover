@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.repository
 
-import android.annotation.SuppressLint
 import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseUtils

@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.controller.LogsController;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.skydoves.balloon.BalloonPersistence;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

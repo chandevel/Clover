@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 

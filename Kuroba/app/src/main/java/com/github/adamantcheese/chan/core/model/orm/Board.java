@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;

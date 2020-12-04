@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan420;
 
-import android.content.Context;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteIcon;

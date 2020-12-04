@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.Nullable;

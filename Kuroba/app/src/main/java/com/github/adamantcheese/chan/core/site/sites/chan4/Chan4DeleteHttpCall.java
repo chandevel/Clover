@@ -26,9 +26,6 @@ import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jsoup.Jsoup;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;

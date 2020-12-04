@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.ui.helper;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.Nullable;

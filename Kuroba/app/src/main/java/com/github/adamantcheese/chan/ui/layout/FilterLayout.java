@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;

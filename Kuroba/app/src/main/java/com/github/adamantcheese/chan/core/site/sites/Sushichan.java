@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;

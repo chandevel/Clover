@@ -1,7 +1,5 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
-import android.content.Context;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;

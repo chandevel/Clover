@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.site;
 
-import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.JsonReader;

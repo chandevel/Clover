@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
-import android.content.Context;
 import android.os.Parcel;
 import android.text.TextUtils;
 

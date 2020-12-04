@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-import android.content.Context;
 import android.webkit.WebView;
 
 import androidx.annotation.CallSuper;

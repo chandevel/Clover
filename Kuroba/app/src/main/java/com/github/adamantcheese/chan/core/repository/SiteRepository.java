@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.repository;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -22,7 +21,6 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.Gson;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -142,9 +140,7 @@ public class SiteRepository {
     }
 
     private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
-        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID),
-                siteModel.loadConfig(gson)
-        );
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig(gson));
     }
 
     @NonNull

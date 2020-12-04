@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.CounterSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
