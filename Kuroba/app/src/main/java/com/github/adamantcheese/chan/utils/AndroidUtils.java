@@ -54,6 +54,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.PreferenceManager;
 
@@ -222,9 +223,13 @@ public class AndroidUtils {
             }
 
             if (openWithCustomTabs) {
-                new CustomTabsIntent.Builder().setToolbarColor(getAttrColor(context, R.attr.colorPrimary))
+                //@formatter:off
+                new CustomTabsIntent.Builder()
+                        .setDefaultColorSchemeParams(new CustomTabColorSchemeParams.Builder()
+                                .setToolbarColor(getAttrColor(context, R.attr.colorPrimary)).build())
                         .build()
                         .launchUrl(context, Uri.parse(link));
+                //@formatter:on
             } else {
                 openLink(link);
             }

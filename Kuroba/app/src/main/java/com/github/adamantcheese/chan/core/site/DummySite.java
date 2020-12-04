@@ -52,9 +52,10 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(BitmapFactory.decodeResource(getAppContext().getResources(),
-                R.drawable.trash_icon
-        )));
+        return SiteIcon.fromDrawable(new BitmapDrawable(
+                getAppContext().getResources(),
+                BitmapFactory.decodeResource(getAppContext().getResources(), R.drawable.trash_icon)
+        ));
     }
 
     @Override

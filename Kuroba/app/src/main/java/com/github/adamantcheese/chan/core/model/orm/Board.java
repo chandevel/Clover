@@ -125,7 +125,9 @@ public class Board
     @DatabaseField
     public boolean archive = false;
 
-    @Deprecated // public, at least
+    /**
+     * Empty constructor, generally used for parsing a board from somewhere else and adding in fields manually
+     */
     public Board() {
     }
 
