@@ -1,43 +1,44 @@
 package com.github.adamantcheese.chan.core.site;
 
-import android.text.TextUtils;
 import android.util.JsonReader;
-import android.util.JsonToken;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Element;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import kotlin.NotImplementedError;
 import okhttp3.HttpUrl;
 
-public class FoolFuukaArchive
+public class AyaseArchive
         extends ExternalSiteArchive {
+    private AyaseReader reader;
 
-    private FoolFuukaReader reader;
-
-    public FoolFuukaArchive(
-            String domain, String name, List<String> boardCodes, boolean searchEnabled
-    ) {
+    public AyaseArchive(String domain, String name, List<String> boardCodes, boolean searchEnabled) {
         super(domain, name, boardCodes, searchEnabled);
     }
 
-    private class FoolFuukaReader
+    /*
+
+        ----------------------------    NOTE    ----------------------------
+
+        Pretty much everything in here is currently "unimplemented" and will throw exceptions; there aren't really any
+        sites that use this archive yet so I haven't written the parsing for them. The parsing should end up looking
+        pretty similar to Chan4's though.
+
+        Commented out code is currently taken from FoolFuukaArchive as an example; don't use as-is, it won't work.
+
+     */
+
+    private class AyaseReader
             extends ExternalArchiveChanReader {
 
         private PostParser parser;
@@ -45,7 +46,7 @@ public class FoolFuukaArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new DefaultPostParser(new FoolFuukaCommentParser(domain));
+                parser = new DefaultPostParser(new AyaseCommentParser(domain));
             }
             return parser;
         }
@@ -55,7 +56,8 @@ public class FoolFuukaArchive
                 JsonReader reader, ChanReaderProcessingQueue queue
         )
                 throws Exception {
-            reader.beginObject(); // start JSON
+            throw new NotImplementedError();
+            /*reader.beginObject(); // start JSON
             reader.nextName(); // the op number, duplicated in the post object itself
             reader.beginObject();
             // OP object
@@ -69,7 +71,7 @@ public class FoolFuukaArchive
             }
             reader.endObject();
             reader.endObject();
-            reader.endObject();
+            reader.endObject();*/
         }
 
         @Override
@@ -79,7 +81,8 @@ public class FoolFuukaArchive
                 throws Exception {
             Post.Builder builder = new Post.Builder();
             builder.board(queue.getLoadable().board);
-            reader.nextName(); // "op" or post number; not necessary as it's in the rest of the data so ignore this
+            throw new NotImplementedError();
+            /*reader.nextName(); // "op" or post number; not necessary as it's in the rest of the data so ignore this
             reader.beginObject(); // post object itself
             while (reader.hasNext()) {
                 String key = reader.nextName();
@@ -208,22 +211,23 @@ public class FoolFuukaArchive
             }
             reader.endObject();
 
-            queue.addForParse(builder);
+            queue.addForParse(builder);*/
         }
     }
 
-    private static class FoolFuukaCommentParser
+    private static class AyaseCommentParser
             extends CommentParser {
-        public FoolFuukaCommentParser(String domain) {
+        public AyaseCommentParser(String domain) {
             super();
             addDefaultRules();
-            // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
+            throw new NotImplementedError();
+            /*// matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
             Pattern compiledPattern = Pattern.compile(
                     "(?:https://)?" + domain.replaceAll("\\.", "\\\\.") + "/(.*?)/(?:.*?)/(\\d*+)/?#?p?(\\d+)?/?");
             setQuotePattern(compiledPattern);
             // note that if an archive does NOT support a board, it will not match this as the archiver leaves things as-as
-            setFullQuotePattern(compiledPattern);
+            setFullQuotePattern(compiledPattern);*/
         }
 
         @Override
@@ -235,7 +239,8 @@ public class FoolFuukaArchive
                 CharSequence text,
                 Element element
         ) {
-            // for some reason, stuff is wrapped in a "greentext" span if it starts with a >, so we want to handle the inner element directly if there are any
+            throw new NotImplementedError(); // this likely can be fully removed and not overridden
+            /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a >, so we want to handle the inner element directly if there are any
             if (element.getElementsByTag("span").hasClass("greentext") && element.childrenSize() > 0) {
                 return super.handleTag(callback,
                         theme,
@@ -245,7 +250,7 @@ public class FoolFuukaArchive
                         element.children().first()
                 );
             }
-            return super.handleTag(callback, theme, post, tag, text, element);
+            return super.handleTag(callback, theme, post, tag, text, element);*/
         }
     }
 
@@ -254,29 +259,31 @@ public class FoolFuukaArchive
         return new ArchiveSiteUrlHandler() {
             @Override
             public String desktopUrl(Loadable loadable, int postNo) {
-                if (loadable.isThreadMode()) {
+                throw new NotImplementedError();
+                /*if (loadable.isThreadMode()) {
                     return "https://" + domain + "/" + loadable.boardCode + "/thread/" + loadable.no + (postNo > 0 ? "#"
                             + postNo : "");
                 } else {
                     return "https://" + domain + "/" + loadable.boardCode;
-                }
+                }*/
             }
 
             @Override
-            public ThreadLink resolveToThreadLink(ResolveLink source, JsonReader reader) {
-                try {
+            public CommentParser.ThreadLink resolveToThreadLink(CommentParser.ResolveLink source, JsonReader reader) {
+                throw new NotImplementedError();
+                /*try {
                     reader.beginObject(); //begin JSON
                     while (reader.hasNext()) {
                         String name = reader.nextName();
                         if ("thread_num".equals(name)) { // we only care about the thread number, everything else we have
-                            return new ThreadLink(source.board.code, reader.nextInt(), source.postId);
+                            return new CommentParser.ThreadLink(source.board.code, reader.nextInt(), source.postId);
                         } else {
                             reader.skipValue();
                         }
                     }
                     reader.endObject();
                 } catch (Exception ignored) {}
-                return null;
+                return null;*/
             }
         };
     }
@@ -286,13 +293,14 @@ public class FoolFuukaArchive
         return new ArchiveEndpoints() {
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return HttpUrl.get("https://" + domain + "/_/api/chan/thread/?board=" + loadable.boardCode + "&num="
-                        + loadable.no);
+                throw new NotImplementedError();
+                //return HttpUrl.get("https://" + domain + "/_/api/chan/thread/?board=" + loadable.boardCode + "&num="+ loadable.no);
             }
 
             @Override
             public HttpUrl resolvePost(String boardCode, int postNo) {
-                return HttpUrl.get("https://" + domain + "/_/api/chan/post/?board=" + boardCode + "&num=" + postNo);
+                throw new NotImplementedError();
+                //return HttpUrl.get("https://" + domain + "/_/api/chan/post/?board=" + boardCode + "&num=" + postNo);
             }
         };
     }
@@ -300,7 +308,7 @@ public class FoolFuukaArchive
     @Override
     public ExternalArchiveChanReader chanReader() {
         if (reader == null) {
-            reader = new FoolFuukaReader();
+            reader = new AyaseReader();
         }
         return reader;
     }

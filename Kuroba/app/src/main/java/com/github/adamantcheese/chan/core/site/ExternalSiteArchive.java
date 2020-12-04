@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.core.site;
 
-import android.content.Context;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
@@ -13,8 +12,10 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -108,7 +109,7 @@ public abstract class ExternalSiteArchive
     }
 
     @Override
-    public abstract ChanReader chanReader();
+    public abstract ExternalArchiveChanReader chanReader();
 
     @Override
     public SiteActions actions() {
@@ -260,6 +261,33 @@ public abstract class ExternalSiteArchive
             return Loadable.emptyLoadable();
         }
 
+        /**
+         * Given a source ResolveLink, turn it into a regular ThreadLink that can be used by the application without any additional API calls.
+         * Originally added for FoolFuuka, because of how that archiver works.
+         *
+         * @param sourceLink The source of the link that needs resolution
+         * @param reader     The JSON of the API query
+         * @return A ThreadLink that the ResolveLink is processed into
+         */
         public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);
+    }
+
+    public abstract class ExternalArchiveChanReader
+            implements ChanReader {
+        @Override
+        public abstract PostParser getParser();
+
+        @Override
+        public abstract void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
+                throws Exception;
+
+        @Override
+        public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) {
+            // external archives don't support catalogs
+        }
+
+        @Override
+        public abstract void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
+                throws Exception;
     }
 }

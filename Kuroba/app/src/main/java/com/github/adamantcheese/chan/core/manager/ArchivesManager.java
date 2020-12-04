@@ -17,15 +17,14 @@
 package com.github.adamantcheese.chan.core.manager;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.site.AyaseArchive;
 import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
@@ -53,16 +52,19 @@ public class ArchivesManager
     private static ArchivesManager instance;
 
     public static ArchivesManager getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new ArchivesManager();
         }
         return instance;
     }
 
     private ArchivesManager() {
-        // setup mappings (nothing for fuuka, doesn't have an API)
-        jsonMapping.put("foolfuuka", FoolFuukaArchive.class);
+        // fuuka does not provide an easy API, and is only used for warosu
         jsonMapping.put("fuuka", null);
+        // foolfuuka is currently the de-facto archiver of choice
+        jsonMapping.put("foolfuuka", FoolFuukaArchive.class);
+        // ayase is a replacement for foolfuuka, but currently has no sites and the implementation throws NotImplementedErrors
+        jsonMapping.put("ayase", AyaseArchive.class);
 
         //setup the archives list from the internal file, populated when you build the application
         AssetManager assetManager = getAppContext().getAssets();
@@ -137,12 +139,7 @@ public class ArchivesManager
             reader.endObject();
             Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
-                archives.add(archiveClass.getConstructor(
-                        String.class,
-                        String.class,
-                        List.class,
-                        boolean.class
-                )
+                archives.add(archiveClass.getConstructor(String.class, String.class, List.class, boolean.class)
                         .newInstance(domain, name, boardCodes, search));
             }
         }
