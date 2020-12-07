@@ -75,6 +75,8 @@ public abstract class Controller {
 
     public Controller(Context context) {
         this.context = context;
+        // for any controller, injection is taken care of here so the user can just specify the needed injections without
+        // having to worry about this
         inject(this);
     }
 

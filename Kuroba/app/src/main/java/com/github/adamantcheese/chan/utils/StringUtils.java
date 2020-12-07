@@ -258,4 +258,31 @@ public class StringUtils {
         }
         return commentCopy;
     }
+
+    // Copied from Apache Commons Lang 3, modified for SpannableStringBuilders
+    public static CharSequence chomp(final SpannableStringBuilder str) {
+        if (str == null || str.length() == 0) {
+            return str;
+        }
+
+        if (str.length() == 1) {
+            final char ch = str.charAt(0);
+            if (ch == '\r' || ch == '\n') {
+                return new SpannableStringBuilder("");
+            }
+            return str;
+        }
+
+        int lastIdx = str.length() - 1;
+        final char last = str.charAt(lastIdx);
+
+        if (last == '\n') {
+            if (str.charAt(lastIdx - 1) == '\r') {
+                lastIdx--;
+            }
+        } else if (last != '\r') {
+            lastIdx++;
+        }
+        return str.subSequence(0, lastIdx);
+    }
 }

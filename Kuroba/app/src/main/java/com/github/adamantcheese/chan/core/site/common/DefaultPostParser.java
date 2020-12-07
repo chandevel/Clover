@@ -195,7 +195,7 @@ public class DefaultPostParser
 
     private SpannableStringBuilder parseNode(@NonNull Theme theme, Post.Builder post, Callback callback, Node node) {
         if (node instanceof TextNode) {
-            String text = ((TextNode) node).text();
+            String text = ((TextNode) node).getWholeText();
             if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]
                     (node.parent() instanceof Element && (((Element) node.parent()).hasClass("prettyprint")))
                             || text.startsWith("[eqn]"))) {

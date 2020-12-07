@@ -127,10 +127,7 @@ public class CommentParser {
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());
 
-        rule(tagRule("pre").cssClass("prettyprint")
-                .monospace()
-                .size(sp(12f))
-                .backgroundColor(StyleRule.BackgroundColor.CODE));
+        rule(tagRule("pre").cssClass("prettyprint").monospace().code().trimEndWhitespace().size(sp(12f)));
         return this;
     }
 
