@@ -699,7 +699,7 @@ Don't have a 4chan Pass?<br>
     <string name="report_controller_title_cannot_be_empty_error">Title cannot be empty!</string>
     <string name="report_controller_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
     <string name="report_controller_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
-    <string name="report_controller_report_sent">Sent \;)</string>
+    <string name="report_controller_report_sent">Sent report!</string>
     <string name="report_controller_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 
     <string name="hsid_cookie_text">HSID</string>

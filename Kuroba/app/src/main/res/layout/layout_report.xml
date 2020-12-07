@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="8dp">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -22,7 +23,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="4dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -47,7 +49,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="4dp">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
@@ -73,7 +76,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="4dp">
 
                 <CheckBox
                     android:id="@+id/report_controller_attach_logs_button"
@@ -84,25 +88,14 @@
                     android:paddingEnd="4dp"
                     android:text="@string/report_controller_attach_logs" />
 
-                <com.google.android.material.textfield.TextInputLayout
+                <TextView
+                    android:id="@+id/report_controller_logs_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:counterEnabled="true"
-                    app:counterMaxLength="65535">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/report_controller_logs_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="none"
-                        android:maxLength="65535"
-                        android:editable="false"
-                        android:text="@string/report_controller_no_logs"
-                        android:textSize="14sp"
-                        tools:text="@string/lorem_ipsum" />
-
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:padding="4dp"
+                    android:text="@string/report_controller_no_logs"
+                    android:textSize="14sp"
+                    tools:text="@string/lorem_ipsum" />
 
             </LinearLayout>
 

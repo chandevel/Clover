@@ -5,10 +5,19 @@ import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.ui.view.ReportProblemView
 
-class ReportProblemController(context: Context) : Controller(context) {
+class ReportProblemController(context: Context)
+    : Controller(context), ReportProblemView.ReportProblemControllerCallbacks {
+
     override fun onCreate() {
         super.onCreate()
         navigation.setTitle(R.string.report_controller_report_an_error_problem)
-        view = ReportProblemView(context)
+
+        view = ReportProblemView(context).apply {
+            onReady(this@ReportProblemController)
+        }
+    }
+
+    override fun onFinished() {
+        this.navigationController.popController()
     }
 }

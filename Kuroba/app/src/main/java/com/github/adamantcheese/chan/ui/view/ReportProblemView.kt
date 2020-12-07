@@ -1,9 +1,11 @@
 package com.github.adamantcheese.chan.ui.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.FrameLayout
+import android.widget.TextView
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
@@ -22,12 +24,11 @@ class ReportProblemView(context: Context) : FrameLayout(context) {
     lateinit var reportManager: ReportManager
 
     private var callbacks: ReportProblemControllerCallbacks? = null
-    private lateinit var compositeDisposable: CompositeDisposable
 
     private val reportActivityProblemTitle: TextInputEditText
     private val reportActivityProblemDescription: TextInputEditText
     private val reportActivityAttachLogsButton: CheckBox
-    private val reportActivityLogsText: TextInputEditText
+    private val reportActivityLogsText: TextView
     private val reportActivitySendReport: Button
 
     init {
@@ -43,26 +44,17 @@ class ReportProblemView(context: Context) : FrameLayout(context) {
     }
 
     fun onReady(controllerCallbacks: ReportProblemControllerCallbacks) {
-        compositeDisposable = CompositeDisposable()
-
         val logs = LogsController.loadLogs()
         if (logs != null) {
-            reportActivityLogsText.setText(logs)
+            reportActivityLogsText.text = logs
         }
 
-        reportActivityAttachLogsButton.setOnCheckedChangeListener { _, isChecked ->
-            reportActivityLogsText.isEnabled = isChecked
-        }
         reportActivitySendReport.setOnClickListener { onSendReportClick() }
 
         this.callbacks = controllerCallbacks
     }
 
-    fun destroy() {
-        compositeDisposable.dispose()
-        callbacks = null
-    }
-
+    @SuppressLint("CheckResult")
     private fun onSendReportClick() {
         if (callbacks == null) {
             return
@@ -96,15 +88,11 @@ class ReportProblemView(context: Context) : FrameLayout(context) {
             logs
         }
 
-        callbacks?.showProgressDialog()
-
         reportManager.sendReport(title, description, logsParam)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate { callbacks?.hideProgressDialog() }
                 .subscribe({ result ->
                     if (result is ReportManager.Ok) {
                         showToast(context, R.string.report_controller_report_sent)
-                        callbacks?.onFinished()
                     }
                 }, { error ->
                     Logger.e(TAG, "Send report error", error)
@@ -117,12 +105,12 @@ class ReportProblemView(context: Context) : FrameLayout(context) {
 
                     showToast(context, formattedMessage)
                 })
-                .also { disposable -> compositeDisposable.add(disposable) }
+
+        callbacks?.onFinished()
+        callbacks = null
     }
 
     interface ReportProblemControllerCallbacks {
-        fun showProgressDialog()
-        fun hideProgressDialog()
         fun onFinished()
     }
 
