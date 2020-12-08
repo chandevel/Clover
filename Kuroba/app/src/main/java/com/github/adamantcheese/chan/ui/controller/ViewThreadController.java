@@ -370,9 +370,12 @@ public class ViewThreadController
                 .setText("Swipe right to access bookmarks and settings")
                 .build();
 
-        drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(PIN_ID).getView())
-                .relayShowAlignBottom(albumHint, navigation.findItem(ALBUM_ID).getView())
-                .relayShowAlignBottom(scrollHint, navigation.findItem(OVERFLOW_ID).getView());
+        Balloon chain1 = drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(PIN_ID).getView());
+        Balloon chain2 = chain1;
+        if (!ChanSettings.textOnly.get()) {
+            chain2 = chain1.relayShowAlignBottom(albumHint, navigation.findItem(ALBUM_ID).getView());
+        }
+        chain2.relayShowAlignBottom(scrollHint, navigation.findItem(OVERFLOW_ID).getView());
         drawerHint.showAlignRight(drawer);
     }
 
