@@ -429,7 +429,8 @@ public class ThreadListLayout
             if (searchOpen) {
                 int searchExtraHeight = findViewById(R.id.search_status).getHeight();
                 if (postViewMode == LIST) {
-                    return top.getTop() != searchExtraHeight;
+                    //dp(1) for divider item decor
+                    return top.getTop() - dp(1) != searchExtraHeight;
                 } else {
                     if (top instanceof PostStubCell) {
                         // PostStubCell does not have grid_card_margin
@@ -443,7 +444,8 @@ public class ThreadListLayout
 
             switch (postViewMode) {
                 case LIST:
-                    return top.getTop() != toolbarHeight();
+                    //dp(1) for divider item decor
+                    return top.getTop() - dp(1) != toolbarHeight();
                 case CARD:
                     if (top instanceof PostStubCell) {
                         // PostStubCell does not have grid_card_margin
