@@ -39,9 +39,6 @@ import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
@@ -54,8 +51,6 @@ public class MainSettingsController
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
-    private LinkSettingView updateSettingView;
-    private LinkSettingView reportSettingView;
     private BooleanSettingView collectCrashLogsSettingView;
 
     @Inject
@@ -76,10 +71,6 @@ public class MainSettingsController
         super.onCreate();
 
         navigation.setTitle(R.string.settings_screen);
-        setupLayout();
-        populatePreferences();
-        buildPreferences();
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -91,21 +82,9 @@ public class MainSettingsController
 
         sitesSetting.setDescription(getQuantityString(R.plurals.site, siteCount, siteCount));
         filtersSetting.setDescription(getQuantityString(R.plurals.filter, filterCount, filterCount));
-        watchLink.setDescription(ChanSettings.watchEnabled.get()
-                ? R.string.setting_watch_summary_enabled
-                : R.string.setting_watch_summary_disabled);
-    }
-
-    @Override
-    public void onDestroy() {
-        EventBus.getDefault().unregister(this);
-        super.onDestroy();
-    }
-
-    @Subscribe(sticky = true)
-    public void onNotificationsChanged(SettingNotification newType) {
-        updateSettingNotificationIcon(newType, updateSettingView);
-        updateSettingNotificationIcon(newType, reportSettingView);
+        watchLink.setDescription(ChanSettings.watchEnabled.get() ? (ChanSettings.watchBackground.get()
+                ? R.string.setting_watch_summary_enabled_background
+                : R.string.setting_watch_summary_enabled) : R.string.setting_watch_summary_disabled);
     }
 
     @Override
@@ -122,7 +101,8 @@ public class MainSettingsController
         }
     }
 
-    private void populatePreferences() {
+    @Override
+    public void populatePreferences() {
         // General group
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_settings);
@@ -186,20 +166,20 @@ public class MainSettingsController
     private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
-        updateSettingView = new LinkSettingView(this,
+        LinkSettingView updateSettingView = new LinkSettingView(this,
                 getApplicationLabel() + " " + BuildConfig.VERSION_NAME,
                 "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         );
-        updateSettingView.setSettingNotificationType(SettingNotification.ApkUpdate);
+        updateSettingView.settingNotificationType = SettingNotification.ApkUpdate;
         about.add(updateSettingView);
 
-        reportSettingView = new LinkSettingView(this,
+        LinkSettingView reportSettingView = new LinkSettingView(this,
                 R.string.settings_report,
                 R.string.settings_report_description,
                 v -> onReportSettingClick()
         );
-        reportSettingView.setSettingNotificationType(SettingNotification.CrashLog);
+        reportSettingView.settingNotificationType = SettingNotification.CrashLog;
         about.add(reportSettingView);
 
         about.add(collectCrashLogsSettingView = new BooleanSettingView(this,

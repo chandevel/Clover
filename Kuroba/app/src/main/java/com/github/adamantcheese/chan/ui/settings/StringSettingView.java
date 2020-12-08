@@ -62,8 +62,8 @@ public class StringSettingView
 
     @Override
     public void setView(View view) {
-        super.setView(view);
         view.setOnClickListener(this);
+        super.setView(view);
     }
 
     @Override

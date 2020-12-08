@@ -53,17 +53,10 @@ public class BehaviourSettingsController
     public void onCreate() {
         super.onCreate();
         navigation.setTitle(R.string.settings_screen_behavior);
-
-        setupLayout();
-        rebuildPreferences();
     }
 
-    private void rebuildPreferences() {
-        populatePreferences();
-        buildPreferences();
-    }
-
-    private void populatePreferences() {
+    @Override
+    protected void populatePreferences() {
         requiresUiRefresh.clear();
         groups.clear();
         requiresRestart.clear();

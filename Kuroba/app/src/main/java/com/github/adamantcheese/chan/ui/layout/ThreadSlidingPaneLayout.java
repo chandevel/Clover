@@ -57,7 +57,7 @@ public class ThreadSlidingPaneLayout
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        // Forces a relayout after it has already been layed out, because SlidingPaneLayout sucks and otherwise
+        // Forces a relayout after it has already been laid out, because SlidingPaneLayout sucks and otherwise
         // gives the children too much room until they request a relayout.
         waitForLayout(this, view -> {
             requestLayout();

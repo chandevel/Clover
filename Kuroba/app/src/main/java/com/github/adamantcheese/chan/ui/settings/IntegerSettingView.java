@@ -71,8 +71,8 @@ public class IntegerSettingView
 
     @Override
     public void setView(View view) {
-        super.setView(view);
         view.setOnClickListener(this);
+        super.setView(view);
     }
 
     @Override

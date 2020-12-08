@@ -16,18 +16,26 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import android.content.res.ColorStateList;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
+import org.greenrobot.eventbus.Subscribe;
+
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class LinkSettingView
         extends SettingView {
+    public SettingNotification settingNotificationType = SettingNotification.Default;
     private final View.OnClickListener clickListener;
     private String description;
-    private boolean built = false;
 
     public LinkSettingView(
             SettingsController settingsController, int name, int description, View.OnClickListener clickListener
@@ -45,9 +53,13 @@ public class LinkSettingView
 
     @Override
     public void setView(View view) {
-        super.setView(view);
         view.setOnClickListener(clickListener);
-        built = true;
+        super.setView(view);
+    }
+
+    @Subscribe(sticky = true)
+    public void onNotificationsChanged(SettingNotification newType) {
+        updateSettingNotificationIcon(newType);
     }
 
     @Override
@@ -57,11 +69,14 @@ public class LinkSettingView
 
     @Override
     public void setEnabled(boolean enabled) {
-        view.setEnabled(enabled);
-        view.findViewById(R.id.top).setEnabled(enabled);
-        View bottom = view.findViewById(R.id.bottom);
-        if (bottom != null) {
-            bottom.setEnabled(enabled);
+        super.setEnabled(enabled);
+        if (built) {
+            view.setEnabled(enabled);
+            view.findViewById(R.id.top).setEnabled(enabled);
+            View bottom = view.findViewById(R.id.bottom);
+            if (bottom != null) {
+                bottom.setEnabled(enabled);
+            }
         }
     }
 
@@ -73,6 +88,30 @@ public class LinkSettingView
         this.description = description;
         if (built) {
             settingsController.onPreferenceChange(this);
+        }
+    }
+
+    protected void updateSettingNotificationIcon(SettingNotification settingNotification) {
+        if (!built) return;
+        ImageView notificationIcon = view.findViewById(R.id.setting_notification_icon);
+        if (notificationIcon == null) return; // no notification icon for this view
+
+        notificationIcon.setVisibility(VISIBLE);
+        switch (settingNotification) {
+            case Default:
+                notificationIcon.setVisibility(GONE);
+                break;
+            case ApkUpdate:
+            case CrashLog:
+                if (settingNotification == settingNotificationType) {
+                    notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotification.getNotificationIconTintColor())));
+                } else {
+                    notificationIcon.setVisibility(GONE);
+                }
+                break;
+            case Both:
+                notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotificationType.getNotificationIconTintColor())));
+                break;
         }
     }
 }

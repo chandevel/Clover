@@ -380,12 +380,12 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="settings_filters">Filters</string>
 
     <!-- Thread watcher -->
-    <string name="setting_watch_summary_enabled">Watching bookmarked threads</string>
+    <string name="setting_watch_summary_enabled">On</string>
+    <string name="setting_watch_summary_enabled_background">On, in background</string>
     <string name="setting_watch_summary_disabled">Off</string>
 
     <string name="settings_screen_watch">Thread watcher settings</string>
     <string name="settings_group_watch">Settings</string>
-    <string name="setting_watch_info">To watch bookmarks for new posts, turn the thread watcher on.</string>
     <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
     <string name="setting_watch_background_timeout">Background update interval</string>

@@ -127,13 +127,6 @@ public class ImageViewerPresenter
         callback.setImageMode(images.get(selectedPosition), LOWRES, true);
     }
 
-    public void onViewMeasured() {
-        // Pager is measured, but still invisible
-        PostImage postImage = images.get(selectedPosition);
-        callback.startPreviewInTransition(postImage);
-        callback.setTitle(postImage, selectedPosition, images.size(), postImage.spoiler());
-    }
-
     public boolean isTransitioning() {
         return entering;
     }

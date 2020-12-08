@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
-import android.widget.CompoundButton;
 import android.widget.Switch;
 
 import com.github.adamantcheese.chan.R;
@@ -28,22 +27,17 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.HOURS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class WatchSettingsController
-        extends SettingsController
-        implements CompoundButton.OnCheckedChangeListener {
-    private CrossfadeView crossfadeView;
-
+        extends SettingsController {
     private SettingView enableBackground;
 
     private SettingView backgroundTimeout;
@@ -61,34 +55,17 @@ public class WatchSettingsController
     public void onCreate() {
         super.onCreate();
 
-        boolean enabled = ChanSettings.watchEnabled.get();
-
         navigation.setTitle(R.string.settings_screen_watch);
 
-        view = inflate(context, R.layout.controller_watch);
-        content = view.findViewById(R.id.scrollview_content);
-        crossfadeView = view.findViewById(R.id.crossfade);
-
-        crossfadeView.toggle(enabled, false);
-
         Switch globalSwitch = new Switch(context);
-        globalSwitch.setChecked(enabled);
-        globalSwitch.setOnCheckedChangeListener(this);
+        globalSwitch.setChecked(ChanSettings.watchEnabled.get());
+        globalSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ChanSettings.watchEnabled.set(isChecked);
+            onPreferenceChange(enableBackground);
+        });
         navigation.setRightView(globalSwitch);
 
-        populatePreferences();
-
-        buildPreferences();
-
-        if (!ChanSettings.watchBackground.get()) {
-            switchVisibility(false);
-        }
-    }
-
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        ChanSettings.watchEnabled.set(isChecked);
-        crossfadeView.toggle(isChecked, true);
+        switchVisibility(ChanSettings.watchBackground.get());
     }
 
     @Override
@@ -96,21 +73,22 @@ public class WatchSettingsController
         super.onPreferenceChange(item);
 
         if (item == enableBackground) {
-            boolean enabled = ChanSettings.watchBackground.get();
-            switchVisibility(enabled);
+            switchVisibility(ChanSettings.watchBackground.get());
         }
     }
 
     private void switchVisibility(boolean enabled) {
-        setSettingViewVisibility(backgroundTimeout, enabled);
-        setSettingViewVisibility(removeWatched, enabled);
-        setSettingViewVisibility(lastPageNotifyMode, enabled);
-        setSettingViewVisibility(notifyMode, enabled);
-        setSettingViewVisibility(soundMode, enabled);
-        setSettingViewVisibility(peekMode, enabled);
+        enableBackground.setEnabled(ChanSettings.watchEnabled.get());
+        backgroundTimeout.setEnabled(enabled && ChanSettings.watchEnabled.get());
+        removeWatched.setEnabled(enabled && ChanSettings.watchEnabled.get());
+        lastPageNotifyMode.setEnabled(enabled && ChanSettings.watchEnabled.get());
+        notifyMode.setEnabled(enabled && ChanSettings.watchEnabled.get());
+        soundMode.setEnabled(enabled && ChanSettings.watchEnabled.get());
+        peekMode.setEnabled(enabled && ChanSettings.watchEnabled.get());
     }
 
-    private void populatePreferences() {
+    @Override
+    protected void populatePreferences() {
         SettingsGroup settings = new SettingsGroup(R.string.settings_group_watch);
 
         enableBackground = settings.add(new BooleanSettingView(this,

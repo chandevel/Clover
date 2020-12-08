@@ -15,12 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
     android:layout_marginTop="6dp"
+    android:layout_marginBottom="6dp"
     android:background="?backcolor"
     android:elevation="4dp"
     android:orientation="vertical"
@@ -37,6 +38,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:singleLine="true"
         android:textColor="?android:textColorSecondary"
         android:textSize="16sp"
-        tools:text="Setting group name"/>
+        tools:text="Setting group name" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/setting_view_recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/setting_boolean" />
 
 </LinearLayout>

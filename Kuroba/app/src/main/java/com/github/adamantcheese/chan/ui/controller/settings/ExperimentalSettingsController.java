@@ -17,7 +17,6 @@ import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
 import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesController;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import org.jetbrains.annotations.Nullable;
@@ -68,10 +67,6 @@ public class ExperimentalSettingsController
 
         navigation.setTitle(R.string.settings_experimental_settings_title);
 
-        setupLayout();
-        populatePreferences();
-        buildPreferences();
-
         if (!isAndroid10()) {
             resetExclusionZonesSetting.setEnabled(false);
             gestureExclusionZonesSetting.setEnabled(false);
@@ -79,11 +74,7 @@ public class ExperimentalSettingsController
     }
 
     @Override
-    public void onPreferenceChange(SettingView item) {
-        super.onPreferenceChange(item);
-    }
-
-    private void populatePreferences() {
+    protected void populatePreferences() {
         SettingsGroup group = new SettingsGroup(getString(R.string.experimental_settings_group));
 
         setupZonesEditor(group);

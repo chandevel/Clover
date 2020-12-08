@@ -50,15 +50,10 @@ public class AppearanceSettingsController
         super.onCreate();
 
         navigation.setTitle(R.string.settings_screen_appearance);
-
-        setupLayout();
-
-        populatePreferences();
-
-        buildPreferences();
     }
 
-    private void populatePreferences() {
+    @Override
+    protected void populatePreferences() {
         // Appearance group
         {
             SettingsGroup appearance = new SettingsGroup(R.string.settings_group_appearance);

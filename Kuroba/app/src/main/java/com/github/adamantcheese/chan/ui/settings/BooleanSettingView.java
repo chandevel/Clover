@@ -32,7 +32,6 @@ public class BooleanSettingView
     private Switch switcher;
     private final Setting<Boolean> setting;
     private final String description;
-    private boolean building = true;
 
     public BooleanSettingView(SettingsController controller, Setting<Boolean> setting, int name, int description) {
         this(controller, setting, getString(name), getString(description));
@@ -52,16 +51,13 @@ public class BooleanSettingView
 
     @Override
     public void setView(View view) {
-        super.setView(view);
-
         view.setOnClickListener(this);
 
         switcher = view.findViewById(R.id.switcher);
         switcher.setOnCheckedChangeListener(this);
 
         switcher.setChecked(setting.get());
-
-        building = false;
+        super.setView(view);
     }
 
     @Override
@@ -71,13 +67,16 @@ public class BooleanSettingView
 
     @Override
     public void setEnabled(boolean enabled) {
-        view.setEnabled(enabled);
-        view.findViewById(R.id.top).setEnabled(enabled);
-        View bottom = view.findViewById(R.id.bottom);
-        if (bottom != null) {
-            bottom.setEnabled(enabled);
+        super.setEnabled(enabled);
+        if(built) {
+            view.setEnabled(enabled);
+            view.findViewById(R.id.top).setEnabled(enabled);
+            View bottom = view.findViewById(R.id.bottom);
+            if (bottom != null) {
+                bottom.setEnabled(enabled);
+            }
+            switcher.setEnabled(enabled);
         }
-        switcher.setEnabled(enabled);
     }
 
     @Override
@@ -87,7 +86,7 @@ public class BooleanSettingView
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (!building) {
+        if (built) {
             setting.set(isChecked);
             settingsController.onPreferenceChange(this);
         }

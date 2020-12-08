@@ -72,9 +72,9 @@ public class MediaSettingsController
     private ListSettingView<MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<MediaAutoLoadMode> videoAutoLoadView;
 
-    private MediaSettingsControllerPresenter presenter;
-    private RuntimePermissionsHelper runtimePermissionsHelper;
-    private SaveLocationSetupDelegate saveLocationSetupDelegate;
+    private final MediaSettingsControllerPresenter presenter;
+    private final RuntimePermissionsHelper runtimePermissionsHelper;
+    private final SaveLocationSetupDelegate saveLocationSetupDelegate;
 
     @Inject
     FileManager fileManager;
@@ -85,27 +85,23 @@ public class MediaSettingsController
 
     public MediaSettingsController(Context context) {
         super(context);
+
+        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
+        presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, context);
+        SharedLocationSetupDelegate sharedLocationSetupDelegate =
+                new SharedLocationSetupDelegate(context, this, presenter, fileManager);
+        saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
+        presenter.onCreate(sharedLocationSetupDelegate);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
         EventBus.getDefault().register(this);
         navigation.setTitle(R.string.settings_screen_media);
 
-        presenter = new MediaSettingsControllerPresenter(fileManager, fileChooser, context);
-        SharedLocationSetupDelegate sharedLocationSetupDelegate =
-                new SharedLocationSetupDelegate(context, this, presenter, fileManager);
-        saveLocationSetupDelegate = new SaveLocationSetupDelegate(context, this, presenter);
-        presenter.onCreate(sharedLocationSetupDelegate);
-
-        setupLayout();
-        populatePreferences();
-        buildPreferences();
-
-        onPreferenceChange(imageAutoLoadView);
+        updateVideoLoadModes();
 
         imageThreadFolderSetting.setEnabled(ChanSettings.saveImageBoardFolder.get());
         albumThreadFolderSetting.setEnabled(ChanSettings.saveAlbumBoardFolder.get());
@@ -131,7 +127,7 @@ public class MediaSettingsController
         } else if (item == albumBoardFolderSetting) {
             updateAlbumThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
-            updateHeadsetDefaultMutedSetting();
+            headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
         }
     }
 
@@ -147,13 +143,18 @@ public class MediaSettingsController
         }
     }
 
-    private void populatePreferences() {
+    @Override
+    protected void populatePreferences() {
         // Media group
         {
             SettingsGroup media = new SettingsGroup(R.string.settings_group_saving);
 
             //Save locations
-            setupSaveLocationSetting(media);
+            saveLocation = (LinkSettingView) media.add(new LinkSettingView(this,
+                    getString(R.string.save_location_screen),
+                    saveLocationSetupDelegate.getSaveLocation(),
+                    v -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
+            ));
 
             //Save modifications
             imageBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
@@ -266,17 +267,6 @@ public class MediaSettingsController
                         + selected.name;
             }
         });
-    }
-
-    private void setupSaveLocationSetting(SettingsGroup media) {
-        LinkSettingView chooseSaveLocationSetting = new LinkSettingView(this,
-                R.string.save_location_screen,
-                R.string.empty,
-                v -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
-        );
-
-        saveLocation = (LinkSettingView) media.add(chooseSaveLocationSetting);
-        saveLocation.setDescription(saveLocationSetupDelegate.getSaveLocation());
     }
 
     @Override
@@ -409,10 +399,6 @@ public class MediaSettingsController
             albumThreadFolderSetting.setEnabled(false);
             ChanSettings.saveAlbumThreadFolder.set(false);
         }
-    }
-
-    private void updateHeadsetDefaultMutedSetting() {
-        headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
     }
     //endregion
 }

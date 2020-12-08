@@ -92,7 +92,8 @@ import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ImageViewerController
         extends Controller
-        implements ImageViewerPresenter.Callback, ToolbarMenuItem.OverflowMenuCallback {
+        implements ImageViewerPresenter.Callback, ToolbarMenuItem.OverflowMenuCallback,
+                   ToolbarNavigationController.ToolbarSearchCallback {
     private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
@@ -171,15 +172,31 @@ public class ImageViewerController
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        waitForLayout(parentController.view.getViewTreeObserver(), view, view -> {
-            ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
-            if (saveMenuItem != null) {
-                saveMenuItem.setEnabled(false);
-            }
-
-            presenter.onViewMeasured();
+        waitForLayout(parentController.view.getViewTreeObserver(), view, view1 -> {
+            // Pager is measured, but still invisible
+            PostImage postImage = presenter.getCurrentPostImage();
+            startPreviewInTransition(postImage);
+            setTitle(postImage,
+                    presenter.getAllPostImages().indexOf(postImage),
+                    presenter.getAllPostImages().size(),
+                    postImage.spoiler()
+            );
             return true;
         });
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {}
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {}
+
+    @Override
+    public void onNavItemSet() {
+        ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
+        if (saveMenuItem != null) {
+            saveMenuItem.setEnabled(false);
+        }
     }
 
     private void goPostClicked(ToolbarMenuItem item) {

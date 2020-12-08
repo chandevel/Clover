@@ -17,20 +17,19 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -39,7 +38,9 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,19 +49,15 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.SETTINGS_REFRESH_REQUEST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.findViewsById;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
-public class SettingsController
-        extends Controller
-        implements AndroidUtils.OnMeasuredCallback {
+public abstract class SettingsController
+        extends Controller {
 
-    protected LinearLayout content;
     protected List<SettingsGroup> groups = new ArrayList<>();
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
     // Very user unfriendly.
@@ -72,15 +69,32 @@ public class SettingsController
     }
 
     @Override
-    public void onShow() {
-        super.onShow();
+    public void onCreate() {
+        super.onCreate();
 
-        waitForLayout(view, this);
+        view = new RecyclerView(context);
+        ((RecyclerView) view).setLayoutManager(new LinearLayoutManager(context) {
+            @Override
+            protected void calculateExtraLayoutSpace(
+                    @NonNull RecyclerView.State state, @NonNull int[] extraLayoutSpace
+            ) {
+                extraLayoutSpace[0] = Integer.MAX_VALUE / 2;
+                extraLayoutSpace[1] = Integer.MAX_VALUE / 2;
+            }
+        });
+        view.setBackgroundColor(getAttrColor(context, R.attr.backcolor_secondary));
+        view.setId(R.id.recycler_view);
+
+        populatePreferences();
+
+        ((RecyclerView) view.findViewById(R.id.recycler_view)).setAdapter(new SettingsGroupAdapter());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        ((RecyclerView) view.findViewById(R.id.recycler_view)).setAdapter(null); // unbinds all attached groups
 
         if (needRestart) {
             ((StartActivity) context).restartApp();
@@ -90,13 +104,7 @@ public class SettingsController
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        waitForLayout(view, this);
-    }
-
-    @Override
-    public boolean onMeasured(View view) {
-        setMargins();
-        return false;
+        ((RecyclerView) view).getAdapter().notifyDataSetChanged();
     }
 
     public void onPreferenceChange(SettingView item) {
@@ -112,119 +120,7 @@ public class SettingsController
         }
     }
 
-    private void setMargins() {
-        int margin = 0;
-        if (isTablet()) {
-            margin = (int) (view.getWidth() * 0.1);
-        }
-
-        int itemMargin = 0;
-        if (isTablet()) {
-            itemMargin = dp(16);
-        }
-
-        List<View> groups = findViewsById(content, R.id.group);
-        for (View group : groups) {
-            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) group.getLayoutParams();
-            params.leftMargin = margin;
-            params.rightMargin = margin;
-            group.setLayoutParams(params);
-        }
-
-        List<View> items = findViewsById(content, R.id.preference_item);
-        for (View item : items) {
-            updatePaddings(item, itemMargin, itemMargin, -1, -1);
-        }
-    }
-
-    protected void setSettingViewVisibility(SettingView settingView, boolean visible) {
-        settingView.view.setVisibility(visible ? VISIBLE : GONE);
-
-        if (settingView.divider != null) {
-            settingView.divider.setVisibility(visible ? VISIBLE : GONE);
-        }
-    }
-
-    protected void setupLayout() {
-        view = inflate(context, R.layout.settings_layout);
-        content = view.findViewById(R.id.scrollview_content);
-    }
-
-    protected void buildPreferences() {
-        boolean firstGroup = true;
-        content.removeAllViews();
-
-        for (SettingsGroup group : groups) {
-            LinearLayout groupLayout = (LinearLayout) inflate(context, R.layout.setting_group, content, false);
-            ((TextView) groupLayout.findViewById(R.id.header)).setText(group.name);
-
-            if (firstGroup) {
-                firstGroup = false;
-                ((LinearLayout.LayoutParams) groupLayout.getLayoutParams()).topMargin = 0;
-            }
-
-            content.addView(groupLayout);
-
-            for (int i = 0; i < group.settingViews.size(); i++) {
-                SettingView settingView = group.settingViews.get(i);
-
-                ViewGroup preferenceView = null;
-                String topValue = settingView.getTopDescription();
-                String bottomValue = settingView.getBottomDescription();
-
-                if ((settingView instanceof ListSettingView) || (settingView instanceof LinkSettingView)
-                        || (settingView instanceof StringSettingView) || (settingView instanceof IntegerSettingView)) {
-                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_link, groupLayout, false);
-                } else if (settingView instanceof BooleanSettingView) {
-                    preferenceView = (ViewGroup) inflate(context, R.layout.setting_boolean, groupLayout, false);
-                }
-
-                if (preferenceView != null) {
-                    setDescriptionText(preferenceView, topValue, bottomValue);
-
-                    groupLayout.addView(preferenceView);
-                    settingView.setView(preferenceView);
-                }
-
-                if (i < group.settingViews.size() - 1) {
-                    settingView.divider = inflate(context, R.layout.setting_divider, groupLayout, false);
-
-                    int paddingPx = dp(ChanSettings.fontSize.get() - 6);
-                    LinearLayout.LayoutParams dividerParams =
-                            (LinearLayout.LayoutParams) settingView.divider.getLayoutParams();
-                    dividerParams.leftMargin = paddingPx;
-                    dividerParams.rightMargin = paddingPx;
-                    settingView.divider.setLayoutParams(dividerParams);
-
-                    groupLayout.addView(settingView.divider);
-                }
-            }
-        }
-    }
-
-    protected void updateSettingNotificationIcon(SettingNotification settingNotification, SettingView preferenceView) {
-        ImageView notificationIcon = preferenceView.getView().findViewById(R.id.setting_notification_icon);
-        if (notificationIcon == null) return; // no notification icon for this view
-
-        notificationIcon.setVisibility(VISIBLE);
-        switch (settingNotification) {
-            case Default:
-                notificationIcon.setVisibility(GONE);
-                break;
-            case ApkUpdate:
-            case CrashLog:
-                if (settingNotification == preferenceView.getSettingNotificationType()) {
-                    notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotification.getNotificationIconTintColor())));
-                } else {
-                    notificationIcon.setVisibility(GONE);
-                }
-                break;
-            case Both:
-                notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(preferenceView.getSettingNotificationType()
-                        .getNotificationIconTintColor())));
-                break;
-        }
-    }
+    protected abstract void populatePreferences();
 
     private void setDescriptionText(View view, String topText, String bottomText) {
         ((TextView) view.findViewById(R.id.top)).setText(topText);
@@ -233,6 +129,135 @@ public class SettingsController
         if (bottom != null) {
             bottom.setText(bottomText);
             bottom.setVisibility(TextUtils.isEmpty(bottomText) ? GONE : VISIBLE);
+        }
+    }
+
+    private class SettingsGroupAdapter
+            extends RecyclerView.Adapter<SettingsGroupAdapter.SettingsGroupViewHolder> {
+        public SettingsGroupAdapter() {
+            setHasStableIds(true);
+        }
+
+        @NonNull
+        @Override
+        public SettingsGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View inflatedView = inflate(context, R.layout.setting_group, parent, false);
+            RecyclerView settingViewRecycler = (RecyclerView) inflatedView.findViewById(R.id.setting_view_recycler);
+            settingViewRecycler.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
+            return new SettingsGroupViewHolder(inflatedView);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull SettingsGroupViewHolder holder, int position) {
+            SettingsGroup group = groups.get(position);
+            ((TextView) holder.itemView.findViewById(R.id.header)).setText(group.name);
+            if (position == 0) {
+                ((RecyclerView.LayoutParams) holder.itemView.getLayoutParams()).topMargin = 0;
+            }
+
+            int margin = 0;
+            if (isTablet()) {
+                margin = (int) (SettingsController.this.view.getWidth() * 0.1);
+            }
+
+            RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) holder.itemView.getLayoutParams();
+            params.leftMargin = margin;
+            params.rightMargin = margin;
+
+            RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
+            settingViewRecycler.swapAdapter(new SettingViewAdapter(group), false);
+        }
+
+        @Override
+        public void onViewRecycled(@NonNull SettingsGroupViewHolder holder) {
+            ((RecyclerView) holder.itemView.findViewById(R.id.setting_view_recycler)).setAdapter(null); // unbinds all attached settings
+        }
+
+        @Override
+        public int getItemCount() {
+            return groups.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return groups.get(position).name.hashCode();
+        }
+
+        private class SettingsGroupViewHolder
+                extends RecyclerView.ViewHolder {
+            public SettingsGroupViewHolder(@NonNull View itemView) {
+                super(itemView);
+            }
+        }
+    }
+
+    private class SettingViewAdapter
+            extends RecyclerView.Adapter<SettingViewAdapter.SettingViewHolder> {
+        private final SettingsGroup group;
+
+        public SettingViewAdapter(SettingsGroup group) {
+            this.group = group;
+            setHasStableIds(true);
+        }
+
+        @NonNull
+        @Override
+        public SettingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View preferenceView;
+            if (viewType == BooleanSettingView.class.getSimpleName().hashCode()) {
+                preferenceView = inflate(context, R.layout.setting_boolean, parent, false);
+            } else {
+                preferenceView = inflate(context, R.layout.setting_link, parent, false);
+            }
+            return new SettingViewHolder(preferenceView);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull SettingViewHolder holder, int position) {
+            int itemMargin = 0;
+            if (isTablet()) {
+                itemMargin = dp(16);
+            }
+
+            updatePaddings(holder.itemView, itemMargin, itemMargin, -1, -1);
+
+            SettingView settingView = group.settingViews.get(position);
+            setDescriptionText(holder.itemView, settingView.getTopDescription(), settingView.getBottomDescription());
+            settingView.setView(holder.itemView);
+            try {
+                if (settingView instanceof LinkSettingView) {
+                    EventBus.getDefault().register(settingView); // for setting notifications
+                }
+            } catch (Exception ignored) {}
+        }
+
+        @Override
+        public void onViewRecycled(
+                @NonNull SettingViewHolder holder
+        ) {
+            SettingView settingView = group.settingViews.get(holder.getAdapterPosition());
+            try {
+                if (settingView instanceof LinkSettingView) {
+                    EventBus.getDefault().unregister(settingView); // for setting notifications
+                }
+            } catch (Exception ignored) {}
+        }
+
+        @Override
+        public int getItemCount() {
+            return group.settingViews.size();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return group.settingViews.get(position).getClass().getSimpleName().hashCode();
+        }
+
+        private class SettingViewHolder
+                extends RecyclerView.ViewHolder {
+            public SettingViewHolder(@NonNull View itemView) {
+                super(itemView);
+            }
         }
     }
 }

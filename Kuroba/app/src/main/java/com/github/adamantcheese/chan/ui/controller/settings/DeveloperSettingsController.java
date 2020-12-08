@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
+import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
@@ -87,7 +88,6 @@ public class DeveloperSettingsController
 
         // Debug filters (highlights matches in comments)
         Switch debugFiltersSwitch = new Switch(context);
-        debugFiltersSwitch.setPadding(dp(16), 0, dp(16), 0);
         debugFiltersSwitch.setText("Highlight filters; tap highlight to see matched filter");
         debugFiltersSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         debugFiltersSwitch.setChecked(ChanSettings.debugFilters.get());
@@ -96,7 +96,6 @@ public class DeveloperSettingsController
 
         // Enable/Disable verbose logs
         Switch verboseLogsSwitch = new Switch(context);
-        verboseLogsSwitch.setPadding(dp(16), 0, dp(16), 0);
         verboseLogsSwitch.setText("Verbose downloader logs");
         verboseLogsSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         verboseLogsSwitch.setChecked(ChanSettings.verboseLogs.get());
@@ -124,7 +123,7 @@ public class DeveloperSettingsController
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + DatabaseUtils.getDatabaseSummary());
-        summaryText.setPadding(dp(16), dp(5), 0, 0);
+        summaryText.setPadding(0, dp(5), 0, 0);
         wrapper.addView(summaryText);
 
         //APP RESET
@@ -216,14 +215,28 @@ public class DeveloperSettingsController
         wrapper.addView(dumpAllThreadStacks);
 
         Switch threadCrashSwitch = new Switch(context);
-        threadCrashSwitch.setPadding(dp(16), 0, dp(16), 0);
         threadCrashSwitch.setText("Crash on wrong thread");
         threadCrashSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         threadCrashSwitch.setChecked(ChanSettings.crashOnWrongThread.get());
         threadCrashSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.crashOnWrongThread.toggle());
         wrapper.addView(threadCrashSwitch);
 
+        Button setAppUpdate = new Button(context);
+        setAppUpdate.setOnClickListener(v -> {
+            SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.ApkUpdate);
+        });
+        setAppUpdate.setText("Post app update notification");
+        wrapper.addView(setAppUpdate);
+
+        Button setReport = new Button(context);
+        setReport.setOnClickListener(v -> {
+            SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.CrashLog);
+        });
+        setReport.setText("Post report notification");
+        wrapper.addView(setReport);
+
         ScrollView scrollView = new ScrollView(context);
+        scrollView.setPadding(dp(16), dp(16), dp(16), dp(16));
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));

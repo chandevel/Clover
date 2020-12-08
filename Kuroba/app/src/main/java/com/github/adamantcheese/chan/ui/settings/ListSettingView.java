@@ -78,17 +78,20 @@ public class ListSettingView<T>
 
     @Override
     public void setView(View view) {
-        super.setView(view);
         view.setOnClickListener(this);
+        super.setView(view);
     }
 
     @Override
     public void setEnabled(boolean enabled) {
-        view.setEnabled(enabled);
-        view.findViewById(R.id.top).setEnabled(enabled);
-        View bottom = view.findViewById(R.id.bottom);
-        if (bottom != null) {
-            bottom.setEnabled(enabled);
+        super.setEnabled(enabled);
+        if (built) {
+            view.setEnabled(enabled);
+            view.findViewById(R.id.top).setEnabled(enabled);
+            View bottom = view.findViewById(R.id.bottom);
+            if (bottom != null) {
+                bottom.setEnabled(enabled);
+            }
         }
     }
 

@@ -36,7 +36,6 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class SiteSetupController
         extends SettingsController
@@ -60,14 +59,6 @@ public class SiteSetupController
         // Navigation
         navigation.setTitle(R.string.settings_screen);
         navigation.title = getString(R.string.setup_site_title, site.name());
-
-        // View binding
-        view = inflate(context, R.layout.settings_layout);
-        content = view.findViewById(R.id.scrollview_content);
-
-        // Preferences
-        populatePreferences();
-        buildPreferences();
     }
 
     @Override
@@ -146,7 +137,8 @@ public class SiteSetupController
         groups.add(login);
     }
 
-    private void populatePreferences() {
+    @Override
+    protected void populatePreferences() {
         SettingsGroup general = new SettingsGroup(R.string.setup_site_group_general);
 
         boardsLink = new LinkSettingView(this, getString(R.string.setup_site_boards), "", v -> {
