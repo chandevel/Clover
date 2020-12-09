@@ -7,8 +7,8 @@ import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
+import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
-import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import javax.inject.Inject

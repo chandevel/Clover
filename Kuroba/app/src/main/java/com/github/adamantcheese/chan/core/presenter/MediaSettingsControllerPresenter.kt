@@ -7,8 +7,8 @@ import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegateCallbacks
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory
+import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
-import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.BackgroundUtils.runOnMainThread
 import com.github.adamantcheese.chan.utils.Logger

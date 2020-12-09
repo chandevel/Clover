@@ -86,7 +86,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 

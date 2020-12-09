@@ -55,7 +55,6 @@ import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;
@@ -89,12 +88,12 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 import static com.github.adamantcheese.chan.utils.NetUtilsClasses.BitmapResult;
 
@@ -129,7 +128,6 @@ public class MultiImageView
     private CancelableDownload videoRequest;
     private CancelableDownload otherRequest;
     private SimpleExoPlayer exoPlayer;
-    private final CancellableToast cancellableToast;
 
     private boolean hasContent = false;
     private boolean mediaSourceCancel = false;
@@ -148,7 +146,6 @@ public class MultiImageView
 
     public MultiImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        this.cancellableToast = new CancellableToast();
         this.gestureDetector = new GestureDetector(context, new MultiImageViewGestureDetector(this));
 
         exoClickHandler = new View(getContext());
@@ -866,23 +863,23 @@ public class MultiImageView
                 exception.getMessage()
         );
 
-        cancellableToast.showToast(getContext(), message);
+        showToast(getContext(), message);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onNotFoundError() {
-        cancellableToast.showToast(getContext(), R.string.image_not_found);
+        showToast(getContext(), R.string.image_not_found);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onOutOfMemoryError() {
-        cancellableToast.showToast(getContext(), R.string.image_preview_failed_oom);
+        showToast(getContext(), R.string.image_preview_failed_oom);
         callback.hideProgress(MultiImageView.this);
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
-            cancellableToast.showToast(getContext(), R.string.image_failed_big_image);
+            showToast(getContext(), R.string.image_failed_big_image);
             callback.hideProgress(MultiImageView.this);
         }
     }

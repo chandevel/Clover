@@ -58,7 +58,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class ImagePickDelegate {
     private static final int IMAGE_PICK_RESULT = 2;
@@ -137,8 +137,7 @@ public class ImagePickDelegate {
     }
 
     private void pickRemoteFile(ImagePickCallback callback) {
-        CancellableToast toast = new CancellableToast();
-        toast.showToast(activity, R.string.image_url_get_attempt);
+        showToast(activity, R.string.image_url_get_attempt);
         HttpUrl clipboardURL;
         CharSequence clipboard = null;
         try {
@@ -146,7 +145,7 @@ public class ImagePickDelegate {
             //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
             clipboardURL = HttpUrl.get(clipboard.toString());
         } catch (Exception exception) {
-            toast.showToast(activity,
+            showToast(activity,
                     getString(R.string.image_url_get_failed, exception.getMessage(), String.valueOf(clipboard))
             );
             callback.onFilePickError(true);
@@ -164,7 +163,7 @@ public class ImagePickDelegate {
         cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL, new FileCacheListener() {
             @Override
             public void onSuccess(RawFile file, boolean immediate) {
-                toast.showToast(activity, R.string.image_url_get_success);
+                showToast(activity, R.string.image_url_get_success);
                 Uri imageURL = Uri.parse(finalClipboardURL.toString());
                 callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
             }
@@ -178,7 +177,7 @@ public class ImagePickDelegate {
             public void onFail(Exception exception) {
                 String message = getString(R.string.image_url_get_failed, exception.getMessage());
 
-                toast.showToast(activity, message);
+                showToast(activity, message);
                 callback.onFilePickError(true);
             }
 

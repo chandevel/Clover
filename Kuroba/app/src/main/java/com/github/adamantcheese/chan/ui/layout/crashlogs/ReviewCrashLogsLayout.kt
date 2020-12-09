@@ -7,8 +7,8 @@ import android.widget.ListView
 import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.manager.ReportManager
+import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
-import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers

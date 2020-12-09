@@ -65,7 +65,7 @@ import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static java.nio.charset.StandardCharsets.UTF_8;
 

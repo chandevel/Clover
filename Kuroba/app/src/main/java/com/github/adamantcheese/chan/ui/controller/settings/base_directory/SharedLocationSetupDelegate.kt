@@ -6,8 +6,8 @@ import androidx.appcompat.app.AlertDialog
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.core.presenter.MediaSettingsControllerPresenter
 import com.github.adamantcheese.chan.ui.controller.LoadingViewController
+import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
-import com.github.adamantcheese.chan.utils.AndroidUtils.showToast
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile

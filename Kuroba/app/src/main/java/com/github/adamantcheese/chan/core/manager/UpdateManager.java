@@ -76,7 +76,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvide
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**

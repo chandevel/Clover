@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -76,6 +75,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class AndroidUtils {
     private static final String TAG = "AndroidUtils";
@@ -491,23 +491,6 @@ public class AndroidUtils {
         }
     }
 
-    public static List<View> findViewsById(ViewGroup root, int id) {
-        List<View> views = new ArrayList<>();
-        int childCount = root.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View child = root.getChildAt(i);
-            if (child instanceof ViewGroup) {
-                views.addAll(findViewsById((ViewGroup) child, id));
-            }
-
-            if (child.getId() == id) {
-                views.add(child);
-            }
-        }
-
-        return views;
-    }
-
     public static boolean removeFromParentView(View view) {
         if (view.getParent() instanceof ViewGroup && ((ViewGroup) view.getParent()).indexOfChild(view) >= 0) {
             ((ViewGroup) view.getParent()).removeView(view);
@@ -515,10 +498,6 @@ public class AndroidUtils {
         } else {
             return false;
         }
-    }
-
-    public static ActivityManager getActivityManager() {
-        return (ActivityManager) application.getSystemService(Context.ACTIVITY_SERVICE);
     }
 
     public static boolean isConnected(int type) {
@@ -575,22 +554,6 @@ public class AndroidUtils {
         } else {
             return null;
         }
-    }
-
-    public static void showToast(Context context, String message, int duration) {
-        BackgroundUtils.runOnMainThread(() -> Toast.makeText(context, message, duration).show());
-    }
-
-    public static void showToast(Context context, String message) {
-        showToast(context, message, Toast.LENGTH_SHORT);
-    }
-
-    public static void showToast(Context context, int resId, int duration) {
-        showToast(context, getString(resId), duration);
-    }
-
-    public static void showToast(Context context, int resId) {
-        showToast(context, getString(resId));
     }
 
     private static InputMethodManager getInputManager() {

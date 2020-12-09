@@ -65,7 +65,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {

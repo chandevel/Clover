@@ -15,7 +15,9 @@ import com.github.adamantcheese.chan.controller.Controller
 import com.github.adamantcheese.chan.features.gesture_editor.AdjustAndroid10GestureZonesView
 import com.github.adamantcheese.chan.features.gesture_editor.AttachSide
 import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone
-import com.github.adamantcheese.chan.utils.AndroidUtils.*
+import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
+import com.github.adamantcheese.chan.utils.AndroidUtils.dp
+import com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation
 
 
 @RequiresApi(Build.VERSION_CODES.Q)

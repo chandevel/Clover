@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.showToast;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class RemovedPostsHelper {
     private final Context context;
