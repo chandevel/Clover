@@ -9,6 +9,15 @@ object CancellableToast {
     private var toast: Toast? = null
 
     @JvmStatic
+    @Synchronized
+    fun cleanup() {
+        if (toast != null) {
+            toast!!.cancel()
+            toast = null
+        }
+    }
+
+    @JvmStatic
     fun showToast(context: Context, message: String) {
         showToast(context, message, Toast.LENGTH_SHORT)
     }
@@ -34,11 +43,7 @@ object CancellableToast {
 
     @Synchronized
     private fun showToastInternal(context: Context, message: String, duration: Int) {
-        if (toast != null) {
-            toast!!.cancel()
-            toast = null
-        }
-
+        cleanup()
         toast = Toast.makeText(context, message, duration).apply { show() }
     }
 }
