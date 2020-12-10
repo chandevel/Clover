@@ -81,6 +81,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.skydoves.balloon.ArrowConstraints;
 import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.Balloon;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.greenrobot.eventbus.EventBus;
@@ -791,6 +792,7 @@ public class ReplyLayout
             spacer.setVisibility(VISIBLE);
             filenameNew.setVisibility(VISIBLE);
             spoiler.setVisibility(presenter.canPostSpoileredImages() ? VISIBLE : GONE);
+            showImageOptionHints();
             attach.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         } else {
             fileName.setVisibility(GONE);
@@ -1030,6 +1032,23 @@ public class ReplyLayout
                 .setTextResource(R.string.tap_image_for_extra_options)
                 .build()
                 .showAlignBottom(preview);
+    }
+
+    private void showImageOptionHints() {
+        Balloon filenameHint = AndroidUtils.getBaseToolTip(getContext())
+                .setPreferenceName("ReplyFilenameRefreshHint")
+                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setTextResource(R.string.reply_filename_hint)
+                .build();
+        Balloon spoilerHint = AndroidUtils.getBaseToolTip(getContext())
+                .setPreferenceName("ReplyImageSpoilerHint")
+                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setTextResource(R.string.reply_spoiler_hint)
+                .build();
+        if (presenter.canPostSpoileredImages()) {
+            spoilerHint.showAlignLeft(spoiler);
+        }
+        filenameHint.showAlignLeft(filenameNew);
     }
 
     @Override
