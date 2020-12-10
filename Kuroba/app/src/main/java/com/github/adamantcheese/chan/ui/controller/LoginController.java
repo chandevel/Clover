@@ -17,12 +17,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -78,7 +79,8 @@ public class LoginController
         }
         button.setOnClickListener(this);
 
-        bottomDescription.setText(Html.fromHtml(getString(R.string.setting_pass_bottom_description)));
+        bottomDescription.setText(HtmlCompat.fromHtml(getString(R.string.setting_pass_bottom_description),
+                HtmlCompat.FROM_HTML_MODE_LEGACY));
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
         LoginRequest loginDetails = site.actions().getLoginDetails();

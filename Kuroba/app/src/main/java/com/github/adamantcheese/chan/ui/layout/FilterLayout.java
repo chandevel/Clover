@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -35,6 +34,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
@@ -285,7 +285,8 @@ public class FilterLayout
             });
             menu.show();
         } else if (v == help) {
-            SpannableStringBuilder message = (SpannableStringBuilder) Html.fromHtml(getString(R.string.filter_help));
+            SpannableStringBuilder message = (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
+                    HtmlCompat.FROM_HTML_MODE_LEGACY);
             TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
             for (TypefaceSpan span : typefaceSpans) {
                 if (span.getFamily().equals("monospace")) {

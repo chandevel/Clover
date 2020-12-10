@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.ui.settings
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.k1rakishou.fsaf.manager.base_directory.BaseDirectory
 import java.io.File
@@ -22,7 +23,7 @@ class SavedFilesBaseDirectory : BaseDirectory() {
             return null
         }
 
-        return Uri.parse(path)
+        return path.toUri()
     }
 
     override fun currentActiveBaseDirType(): ActiveBaseDirType {

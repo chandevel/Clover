@@ -16,12 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.net;
 
-import android.os.Build;
-import android.text.Html;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.util.JsonReader;
 import android.util.MalformedJsonException;
+
+import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
@@ -35,7 +35,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static android.text.Html.FROM_HTML_MODE_LEGACY;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
@@ -58,8 +57,9 @@ public class UpdateApiParser
             throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();
         //default body
-        response.body = Html.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
-                + " Your Android API is too low to properly render the changelog from the site.");
+        response.body = HtmlCompat.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
+                + " Your Android API is too low to properly render the changelog from the site.",
+                HtmlCompat.FROM_HTML_MODE_LEGACY);
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -89,13 +89,11 @@ public class UpdateApiParser
                     response.updateTitle = reader.nextString();
                     break;
                 case "body":
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        Node updateLog = Parser.builder().build().parse(reader.nextString());
-                        response.body = Html.fromHtml(
-                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
-                                FROM_HTML_MODE_LEGACY
-                        );
-                    }
+                    Node updateLog = Parser.builder().build().parse(reader.nextString());
+                    response.body = HtmlCompat.fromHtml(
+                            "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
+                            HtmlCompat.FROM_HTML_MODE_LEGACY
+                    );
                     break;
                 default:
                     reader.skipValue();

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.repository
 
-import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseUtils
 import com.github.adamantcheese.chan.core.model.export.*
@@ -485,7 +484,7 @@ constructor(
         //filters
         val filtersToDelete = ArrayList<ExportedFilter>()
         for (filter in appSettings.exportedFilters) {
-            if (filter.isAllBoards || TextUtils.isEmpty(filter.boards)) {
+            if (filter.isAllBoards || filter.boards.isNullOrEmpty()) {
                 continue
             }
 
