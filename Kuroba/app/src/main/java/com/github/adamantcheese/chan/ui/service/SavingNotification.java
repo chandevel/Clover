@@ -97,6 +97,11 @@ public class SavingNotification
                 return START_STICKY;
             }
         }
+        startForeground(NOTIFICATION_ID,
+                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).setSmallIcon(R.drawable.ic_stat_notify)
+                        .setOngoing(true)
+                        .build()
+        );
         stopSelf();
         return START_NOT_STICKY;
     }
