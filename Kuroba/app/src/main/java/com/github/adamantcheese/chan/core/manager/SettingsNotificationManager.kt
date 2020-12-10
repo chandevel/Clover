@@ -52,12 +52,8 @@ object SettingsNotificationManager {
 
         companion object {
             private fun fromTypeInt(typeFlags: Int): SettingNotification {
-                for (n in values()) {
-                    if (n.typeFlags == typeFlags) {
-                        return n
-                    }
-                }
-                return Default
+                return values().firstOrNull { it.typeFlags == typeFlags }
+                        ?: Default
             }
         }
 

@@ -272,7 +272,7 @@ public abstract class ExternalSiteArchive
         public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);
     }
 
-    public abstract class ExternalArchiveChanReader
+    public abstract static class ExternalArchiveChanReader
             implements ChanReader {
         @Override
         public abstract PostParser getParser();

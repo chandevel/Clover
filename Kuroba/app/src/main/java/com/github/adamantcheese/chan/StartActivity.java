@@ -599,8 +599,8 @@ public class StartActivity
         Map<String, EmbedResult> titles = gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
         //reconstruct
         EmbeddingEngine.videoTitleDurCache = new LruCache<>(500);
-        for (String s : titles.keySet()) {
-            EmbeddingEngine.videoTitleDurCache.put(s, titles.get(s));
+        for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
+            EmbeddingEngine.videoTitleDurCache.put(entry.getKey(), entry.getValue());
         }
     }
 

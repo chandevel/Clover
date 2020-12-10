@@ -68,9 +68,9 @@ class PartialContentSupportCheckerTest {
             partialContentSupportChecker.check(url)
                 .test()
                 .awaitCount(1)
-                .assertValue { value ->
-                    assertFalse(value.supportsPartialContentDownload)
-                    assertEquals(1024L, value.length)
+                .assertValue { (supportsPartialContentDownload, _, length) ->
+                    assertFalse(supportsPartialContentDownload)
+                    assertEquals(1024L, length)
                     true
                 }
                 .assertComplete()
@@ -107,8 +107,8 @@ class PartialContentSupportCheckerTest {
             partialContentSupportChecker.check(url)
                 .test()
                 .awaitCount(1)
-                .assertValue { value ->
-                    assertFalse(value.supportsPartialContentDownload)
+                .assertValue { (supportsPartialContentDownload) ->
+                    assertFalse(supportsPartialContentDownload)
                     true
                 }
                 .assertComplete()
@@ -259,10 +259,10 @@ class PartialContentSupportCheckerTest {
             partialContentSupportChecker.check(url)
                 .test()
                 .awaitCount(1)
-                .assertValue { value ->
-                    assertTrue(value.supportsPartialContentDownload)
-                    assertFalse(value.notFoundOnServer)
-                    assertEquals(9999L, value.length)
+                .assertValue { (supportsPartialContentDownload, notFoundOnServer, length) ->
+                    assertTrue(supportsPartialContentDownload)
+                    assertFalse(notFoundOnServer)
+                    assertEquals(9999L, length)
                     true
                 }
                 .assertComplete()

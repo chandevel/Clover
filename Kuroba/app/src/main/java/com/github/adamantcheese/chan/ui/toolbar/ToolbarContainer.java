@@ -436,7 +436,7 @@ public class ToolbarContainer
 
             // Title
             final TextView titleView = menu.findViewById(R.id.title);
-            titleView.setTypeface(theme != null ? theme.mainFont : ThemeHelper.getTheme().mainFont);
+            titleView.setTypeface((theme != null ? theme : ThemeHelper.getTheme()).mainFont);
             titleView.setText(item.title);
 
             // Middle title with arrow and callback

@@ -219,9 +219,9 @@ public class StringUtils {
                 seconds = Integer.parseInt(m.group(3));
             } catch (Exception ignored) {}
 
-            String secondString = seconds < 10 ? "0" + seconds : "" + seconds;
+            String secondString = (seconds < 10 ? "0" : "") + seconds;
             if (hours > 0) {
-                String minuteString = minutes < 10 ? "0" + minutes : "" + minutes;
+                String minuteString = (minutes < 10 ? "0" : "") + minutes;
                 ret = hours + ":" + minuteString + ":" + secondString;
             } else {
                 ret = minutes + ":" + secondString;

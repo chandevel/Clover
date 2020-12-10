@@ -142,7 +142,7 @@ public abstract class SettingsController
         @Override
         public SettingsGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflatedView = inflate(context, R.layout.setting_group, parent, false);
-            RecyclerView settingViewRecycler = (RecyclerView) inflatedView.findViewById(R.id.setting_view_recycler);
+            RecyclerView settingViewRecycler = inflatedView.findViewById(R.id.setting_view_recycler);
             settingViewRecycler.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
             return new SettingsGroupViewHolder(inflatedView);
         }

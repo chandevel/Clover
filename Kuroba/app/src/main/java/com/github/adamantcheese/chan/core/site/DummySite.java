@@ -202,7 +202,7 @@ public class DummySite
 
             @Override
             public PostParser getParser() {
-                return (theme, builder, filters, callback) -> postParser.parse(theme, builder, filters, callback);
+                return postParser;
             }
 
             @Override

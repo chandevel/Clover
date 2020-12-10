@@ -202,7 +202,7 @@ class ReportManager(
             return
         }
 
-        crashLogs.forEach { crashLog -> crashLog.file.delete() }
+        crashLogs.forEach { (file) -> file.delete() }
 
         val remainingCrashLogs = crashLogsDirPath.listFiles()?.size ?: 0
         if (remainingCrashLogs == 0) {

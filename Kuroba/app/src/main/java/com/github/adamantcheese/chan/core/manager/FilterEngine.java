@@ -196,7 +196,7 @@ public class FilterEngine {
      */
     @AnyThread
     public boolean matches(Filter filter, Post.Builder post) {
-        if (!post.moderatorCapcode.equals("") || post.sticky) return false;
+        if (!post.moderatorCapcode.isEmpty() || post.sticky) return false;
         if (filter.onlyOnOP && !post.op) return false;
         if (filter.applyToSaved && !post.isSavedReply) return false;
 

@@ -18,8 +18,6 @@ internal class CrashLogsListArrayAdapter(
         crashLogs: List<CrashLog>,
         private val callbacks: CrashLogsListCallbacks
 ) : ArrayAdapter<CrashLog>(context, R.layout.cell_crashlog_item) {
-    private val inflater: LayoutInflater =
-            context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     private val handler = Handler(Looper.getMainLooper())
 
     init {
@@ -33,7 +31,8 @@ internal class CrashLogsListArrayAdapter(
             "Item with position $position is null! Items count = $count"
         }
 
-        val cellView = inflater.inflate(R.layout.cell_crashlog_item, parent, false)
+        val cellView = LayoutInflater.from(context)
+                .inflate(R.layout.cell_crashlog_item, parent, false)
         val fileNameView = cellView.findViewById<TextView>(R.id.cell_crashlog_file_name)
         val checkBox = cellView.findViewById<CheckBox>(R.id.cell_crashlog_send_checkbox)
         val clickArea = cellView.findViewById<FrameLayout>(R.id.cell_crashlog_click_area)

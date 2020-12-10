@@ -391,7 +391,7 @@ public class CommentParser {
                 if (boardLinkMatcher.matches() || boardLinkMatcher8Chan.matches()) {
                     //board link
                     t = Type.BOARD;
-                    value = boardLinkMatcher.matches() ? boardLinkMatcher.group(1) : boardLinkMatcher8Chan.group(1);
+                    value = (boardLinkMatcher.matches() ? boardLinkMatcher : boardLinkMatcher8Chan).group(1);
                 } else if (boardSearchMatcher.matches()) {
                     //search link
                     String board = boardSearchMatcher.group(1);

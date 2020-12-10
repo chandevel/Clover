@@ -31,7 +31,7 @@ public class IgnoreEmptySelectionTextView
         if (VERSION.SDK_INT >= VERSION_CODES.P) {
             if (getSelectionStart() >= 0 && getSelectionEnd() >= getSelectionStart()) {
                 String testSubsequence = TextUtils.substring(getText(), getSelectionStart(), getSelectionEnd());
-                if (testSubsequence.length() > 0 && testSubsequence.trim().length() == 0) {
+                if (testSubsequence.length() > 0 && testSubsequence.trim().isEmpty()) {
                     // "Empty" selections of zero rendered width will crash on Android P and above on a drag action,
                     // which is handled by the long click listener of the textview; we override this method to handle
                     // this case first, so that no crashes occur

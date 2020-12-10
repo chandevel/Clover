@@ -169,12 +169,11 @@ public class YoutubeEmbedder
         response.beginObject();
         response.nextName(); // title
         String title = response.nextString();
-        String duration;
         response.endObject();
         response.nextName(); // content details
         response.beginObject();
         response.nextName(); // duration
-        duration = prettyPrint8601Time(response.nextString());
+        String duration = prettyPrint8601Time(response.nextString());
         response.endObject();
         response.endObject();
         response.endArray();
