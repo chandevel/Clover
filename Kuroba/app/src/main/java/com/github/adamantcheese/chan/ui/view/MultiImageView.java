@@ -164,7 +164,7 @@ public class MultiImageView
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     public void onPause() {
         if (exoPlayer != null) {
-            exoPlayer.setPlayWhenReady(false);
+            exoPlayer.pause();
         }
     }
 
@@ -569,7 +569,7 @@ public class MultiImageView
                             }
                         });
                         exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
-                        exoPlayer.setPlayWhenReady(true);
+                        exoPlayer.play();
                         onModeLoaded(Mode.VIDEO, exoVideoView);
                         callback.onDownloaded(postImage);
                     }
@@ -669,7 +669,7 @@ public class MultiImageView
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
             ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
             MediaSource videoSource =
-                    progressiveFactory.createMediaSource(new MediaItem.Builder().setUri(Uri.fromFile(file)).build());
+                    progressiveFactory.createMediaSource(MediaItem.fromUri(Uri.fromFile(file)));
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
@@ -693,7 +693,7 @@ public class MultiImageView
                 }
             });
             exoPlayer.setVolume(getDefaultMuteState() ? 0 : 1);
-            exoPlayer.setPlayWhenReady(true);
+            exoPlayer.play();
             onModeLoaded(Mode.VIDEO, exoVideoView);
         }
     }
