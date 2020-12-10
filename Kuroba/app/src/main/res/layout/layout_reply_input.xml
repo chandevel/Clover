@@ -35,6 +35,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         tools:background="?backcolor"
         tools:ignore="ContentDescription,RtlSymmetry">
 
+        <View
+            android:id="@+id/top_div"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?divider_color" />
+
         <TextView
             android:id="@+id/message"
             android:layout_width="match_parent"
@@ -60,7 +66,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:paddingLeft="8dp">
 
                 <LinearLayout
-                    android:id="@+id/name_options"
+                    android:id="@+id/post_options"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -215,19 +221,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 </LinearLayout>
 
-                <CheckBox
-                    android:id="@+id/spoiler"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/reply_spoiler_image"
-                    android:textSize="14sp"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
-
                 <LinearLayout
                     android:id="@+id/preview_holder"
                     android:layout_width="match_parent"
-                    android:layout_height="100dp"
+                    android:layout_height="150dp"
                     android:orientation="horizontal"
                     android:visibility="gone"
                     tools:visibility="visible">
@@ -239,7 +236,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                     <ImageView
                         android:id="@+id/preview"
-                        android:layout_width="128dp"
+                        android:layout_width="150dp"
                         android:layout_height="match_parent"
                         android:layout_weight="2"
                         android:scaleType="fitCenter"
@@ -257,42 +254,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <EditText
+                    android:id="@+id/file_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/reply_file_name"
+                    android:singleLine="true"
+                    android:textSize="16sp"
                     android:visibility="gone"
                     tools:visibility="visible" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <EditText
-                        android:id="@+id/file_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:hint="@string/reply_file_name"
-                        android:singleLine="true"
-                        android:textSize="16sp"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintHorizontal_bias="0.0"
-                        app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toLeftOf="@id/filename_new"
-                        app:layout_constraintTop_toTopOf="parent"
-                        tools:visibility="visible" />
-
-                    <ImageView
-                        android:id="@+id/filename_new"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:src="@drawable/ic_fluent_arrow_clockwise_24_filled"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintRight_toRightOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:tint="?attr/themeDrawableColor"
-                        tools:visibility="visible" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </LinearLayout>
 
@@ -331,7 +303,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:background="@drawable/ripple_item_background"
                         android:padding="6dp"
                         android:src="@drawable/ic_fluent_send_24_filled"
-                        app:tint="?attr/themeDrawableColor"/>
+                        app:tint="?attr/themeDrawableColor" />
 
                     <TextView
                         android:id="@+id/valid_captchas_count"
@@ -351,9 +323,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
+                <Space
+                    android:id="@+id/spacer"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/filename_new"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_fluent_image_alt_text_24_filled"
+                    android:visibility="gone"
+                    app:tint="?attr/themeDrawableColor"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/spoiler"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_fluent_eye_show_24_filled"
+                    android:visibility="gone"
+                    app:tint="?attr/themeDrawableColor"
+                    tools:visibility="visible" />
+
             </LinearLayout>
 
         </LinearLayout>
+
+        <View
+            android:id="@+id/bot_div"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?divider_color" />
+
     </LinearLayout>
 
 </ScrollView>

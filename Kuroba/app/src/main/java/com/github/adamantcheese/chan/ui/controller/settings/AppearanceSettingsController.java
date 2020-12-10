@@ -81,6 +81,12 @@ public class AppearanceSettingsController
                     R.string.empty
             )));
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.alwaysShowPostOptions,
+                    "Always show post options",
+                    "Always displays the reply name, options, and subject field (if applicable)"
+            )));
+
             requiresRestart.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.enableReplyFab,
                     R.string.setting_enable_reply_fab,

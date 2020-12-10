@@ -41,12 +41,12 @@ import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -93,12 +93,12 @@ import javax.inject.Inject;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class ReplyLayout
         extends LoadView
@@ -128,8 +128,7 @@ public class ReplyLayout
     private EditText flag;
     private EditText options;
     private EditText fileName;
-    private ImageView filenameNew;
-    private LinearLayout nameOptions;
+    private LinearLayout postOptions;
     private Button commentQuoteButton;
     private Button commentSpoilerButton;
     private Button commentCodeButton;
@@ -138,13 +137,17 @@ public class ReplyLayout
     private Button commentSJISButton;
     private SelectionListeningEditText comment;
     private TextView commentCounter;
-    private CheckBox spoiler;
     private LinearLayout previewHolder;
     private ImageView preview;
     private TextView previewMessage;
-    private ImageView attach;
     private TextView validCaptchasCount;
+
     private ImageView more;
+    private ImageView attach;
+    private Space spacer;
+    private ImageView filenameNew;
+    // the tag on this is the spoiler state; that is, getTag -> true means image will be spoilered
+    private ImageView spoiler;
 
     // Captcha views:
     private FrameLayout captchaContainer;
@@ -205,7 +208,7 @@ public class ReplyLayout
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         filenameNew = replyInputLayout.findViewById(R.id.filename_new);
-        nameOptions = replyInputLayout.findViewById(R.id.name_options);
+        postOptions = replyInputLayout.findViewById(R.id.post_options);
         commentQuoteButton = replyInputLayout.findViewById(R.id.comment_quote);
         commentSpoilerButton = replyInputLayout.findViewById(R.id.comment_spoiler);
         commentCodeButton = replyInputLayout.findViewById(R.id.comment_code);
@@ -214,14 +217,17 @@ public class ReplyLayout
         commentSJISButton = replyInputLayout.findViewById(R.id.comment_sjis);
         comment = replyInputLayout.findViewById(R.id.comment);
         commentCounter = replyInputLayout.findViewById(R.id.comment_counter);
-        spoiler = replyInputLayout.findViewById(R.id.spoiler);
         preview = replyInputLayout.findViewById(R.id.preview);
         previewHolder = replyInputLayout.findViewById(R.id.preview_holder);
         previewMessage = replyInputLayout.findViewById(R.id.preview_message);
-        attach = replyInputLayout.findViewById(R.id.attach);
         validCaptchasCount = replyInputLayout.findViewById(R.id.valid_captchas_count);
+
         more = replyInputLayout.findViewById(R.id.more);
+        attach = replyInputLayout.findViewById(R.id.attach);
         ConstraintLayout submit = replyInputLayout.findViewById(R.id.submit);
+        spacer = replyInputLayout.findViewById(R.id.spacer);
+        filenameNew = replyInputLayout.findViewById(R.id.filename_new);
+        spoiler = replyInputLayout.findViewById(R.id.spoiler);
 
         progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
         progressBar = progressLayout.findViewById(R.id.progress_bar);
@@ -229,7 +235,6 @@ public class ReplyLayout
 
         // Setup reply layout views
         message.setMovementMethod(new LinkMovementMethod());
-        filenameNew.setOnClickListener(v -> presenter.filenameNewClicked(false));
         commentQuoteButton.setOnClickListener(v -> insertQuote());
         commentSpoilerButton.setOnClickListener(v -> insertTags("[spoiler]", "[/spoiler]"));
         commentCodeButton.setOnClickListener(v -> insertTags("[code]", "[/code]"));
@@ -260,10 +265,6 @@ public class ReplyLayout
                 showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
             }
         });
-        previewHolder.setOnLongClickListener(v -> {
-            presenter.filenameNewClicked(true);
-            return true;
-        });
 
         if (!isInEditMode()) {
             more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
@@ -282,6 +283,21 @@ public class ReplyLayout
             return true;
         });
 
+        filenameNew.setOnClickListener(v -> presenter.filenameNewClicked());
+
+        spoiler.setTag(false);
+        spoiler.setOnClickListener(v -> {
+            if ((boolean) spoiler.getTag()) {
+                // unspoiler
+                spoiler.setTag(false);
+                spoiler.setImageResource(R.drawable.ic_fluent_eye_show_24_filled);
+            } else {
+                // spoiler
+                spoiler.setTag(true);
+                spoiler.setImageResource(R.drawable.ic_fluent_eye_hide_24_filled);
+            }
+        });
+
         // Inflate captcha layout
         captchaContainer = (FrameLayout) LayoutUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
         ImageView captchaHardReset = captchaContainer.findViewById(R.id.reset);
@@ -296,6 +312,8 @@ public class ReplyLayout
         });
 
         setView(replyInputLayout);
+
+        setDividerVisibility(false);
     }
 
     public void setCallback(ReplyLayoutCallback callback) {
@@ -509,7 +527,8 @@ public class ReplyLayout
         fileName.setText(draft.fileName);
         comment.setText(draft.comment);
         blockTextChange = false;
-        spoiler.setChecked(draft.spoilerImage);
+        spoiler.setTag(draft.spoilerImage);
+        setSpoilerIcon();
     }
 
     @Override
@@ -520,7 +539,7 @@ public class ReplyLayout
         draft.options = options.getText().toString();
         draft.comment = comment.getText().toString();
         draft.fileName = fileName.getText().toString();
-        draft.spoilerImage = spoiler.isChecked();
+        draft.spoilerImage = (boolean) spoiler.getTag();
 
         if (ChanSettings.enableEmoji.get()) {
             draft.name = StringUtils.parseEmojiToAscii(draft.name);
@@ -613,6 +632,7 @@ public class ReplyLayout
 
     private void postComplete(boolean newThread, Loadable newLoadable) {
         presenter.switchPage(ReplyPresenter.Page.INPUT);
+        presenter.closeAll();
         callback.openReply(false);
         progressBar.setAlpha(1f);
         currentProgress.setText("");
@@ -646,6 +666,8 @@ public class ReplyLayout
             params.gravity = Gravity.BOTTOM;
             setLayoutParams(params);
         }
+
+        setDividerVisibility(false);
     }
 
     @Override
@@ -654,11 +676,35 @@ public class ReplyLayout
         comment.setMaxLines(expanded ? 500 : 6);
         previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(150) : dp(100)));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
+
+        setDividerVisibility(expanded);
+
+        if (!expanded) {
+            hideKeyboard(comment);
+        }
+    }
+
+    private void setDividerVisibility(boolean hide) {
+        if (hide) {
+            findViewById(R.id.top_div).setVisibility(GONE);
+            findViewById(R.id.bot_div).setVisibility(GONE);
+        } else {
+            findViewById(R.id.top_div).setVisibility(ChanSettings.moveInputToBottom.get() ? VISIBLE : GONE);
+            findViewById(R.id.bot_div).setVisibility(ChanSettings.moveInputToBottom.get() ? GONE : VISIBLE);
+        }
+    }
+
+    private void setSpoilerIcon() {
+        if ((boolean) spoiler.getTag()) {
+            spoiler.setImageResource(R.drawable.ic_fluent_eye_hide_24_filled);
+        } else {
+            spoiler.setImageResource(R.drawable.ic_fluent_eye_show_24_filled);
+        }
     }
 
     @Override
-    public void openNameOptions(boolean open) {
-        nameOptions.setVisibility(open ? VISIBLE : GONE);
+    public void openPostOptions(boolean open) {
+        postOptions.setVisibility(open || ChanSettings.alwaysShowPostOptions.get() ? VISIBLE : GONE);
     }
 
     @Override
@@ -702,12 +748,6 @@ public class ReplyLayout
     }
 
     @Override
-    public void openFileName(boolean open) {
-        fileName.setVisibility(open ? VISIBLE : GONE);
-        filenameNew.setVisibility(open ? VISIBLE : GONE);
-    }
-
-    @Override
     public void setFileName(String name) {
         fileName.setText(name);
     }
@@ -747,9 +787,18 @@ public class ReplyLayout
                     openPreviewMessage(true, getString(R.string.reply_no_preview));
                 }
             }, true);
+            fileName.setVisibility(presenter.isExpanded() ? VISIBLE : GONE);
+            spacer.setVisibility(VISIBLE);
+            filenameNew.setVisibility(VISIBLE);
+            spoiler.setVisibility(presenter.canPostSpoileredImages() ? VISIBLE : GONE);
             attach.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         } else {
+            fileName.setVisibility(GONE);
+            spacer.setVisibility(GONE);
+            filenameNew.setVisibility(GONE);
             spoiler.setVisibility(GONE);
+            spoiler.setTag(previewFile == null ? false : spoiler.getTag());
+            setSpoilerIcon();
             previewHolder.setVisibility(GONE);
             previewMessage.setVisibility(GONE);
             callback.updatePadding();
@@ -764,14 +813,6 @@ public class ReplyLayout
     public void openPreviewMessage(boolean show, String message) {
         previewMessage.setVisibility(show ? VISIBLE : GONE);
         previewMessage.setText(message);
-    }
-
-    @Override
-    public void openSpoiler(boolean show, boolean setUnchecked) {
-        spoiler.setVisibility(show && presenter.canPostSpoileredImages() ? VISIBLE : GONE);
-        if (setUnchecked) {
-            spoiler.setChecked(false);
-        }
     }
 
     @Override
