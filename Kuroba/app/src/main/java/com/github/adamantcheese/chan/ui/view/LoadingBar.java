@@ -32,7 +32,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 public class LoadingBar
         extends View {
     @NonNull
-    private Float[] chunkLoadingProgress = new Float[1];
+    private Float[] chunkLoadingProgress = new Float[0];
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     public LoadingBar(Context context) {
@@ -63,7 +63,7 @@ public class LoadingBar
         // Set and clamp
         chunkLoadingProgress = updatedProgress;
         for (int i = 0; i < updatedProgress.length; i++) {
-            chunkLoadingProgress[i] = Math.min(Math.max(updatedProgress[i], .1f), 1f);
+            chunkLoadingProgress[i] = Math.min(updatedProgress[i], 1f);
         }
 
         invalidate();
@@ -73,15 +73,12 @@ public class LoadingBar
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float width = (float) getWidth() / chunkLoadingProgress.length;
-        float offset = 0f;
-
-        for (Float progress : chunkLoadingProgress) {
-            if (progress > 0f) {
-                canvas.drawRect(offset, 0f, offset + (width * progress), getHeight(), paint);
-            }
-
-            offset += width;
+        float total = 0.0f;
+        for (Float f : chunkLoadingProgress) {
+            total += f;
         }
+        total = Math.max(total, 0.1f); // always show 1%
+
+        canvas.drawRect(0f, 0f, getWidth() * total, getHeight(), paint);
     }
 }

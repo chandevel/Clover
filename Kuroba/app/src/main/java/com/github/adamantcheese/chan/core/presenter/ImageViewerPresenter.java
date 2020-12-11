@@ -117,8 +117,7 @@ public class ImageViewerPresenter
         for (int i = 0; i < images.size(); ++i) {
             Float[] initialProgress =
                     new Float[Math.min(4, loadable.site.getChunkDownloaderSiteProperties().maxChunksForSite)];
-            Arrays.fill(initialProgress, .1f);
-            // Always use a little bit of progress so it's obvious that we have started downloading the image
+            Arrays.fill(initialProgress, 0f);
             progress.put(i, initialProgress);
         }
 
@@ -513,7 +512,7 @@ public class ImageViewerPresenter
         }
 
         Float[] initialProgress = new Float[chunksCount];
-        Arrays.fill(initialProgress, .1f);
+        Arrays.fill(initialProgress, 0f);
 
         for (int i = 0; i < images.size(); i++) {
             PostImage postImage = images.get(i);
