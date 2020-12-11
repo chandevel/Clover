@@ -237,8 +237,8 @@ public class ReplyLayout
         progressBar = progressLayout.findViewById(R.id.progress_bar);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
-        topDivider = findViewById(R.id.top_div);
-        botDivider = findViewById(R.id.bot_div);
+        topDivider = replyInputLayout.findViewById(R.id.top_div);
+        botDivider = replyInputLayout.findViewById(R.id.bot_div);
 
         // Setup reply layout views
         message.setMovementMethod(new LinkMovementMethod());
