@@ -515,15 +515,15 @@ public class ChanSettings {
     }
 
     public static int getBoardColumnCount() {
-        return getScreenOrientation() == ORIENTATION_PORTRAIT
-                ? ChanSettings.boardGridSpanCountPortrait.get()
-                : ChanSettings.boardGridSpanCountLandscape.get();
+        return (getScreenOrientation() == ORIENTATION_PORTRAIT
+                ? ChanSettings.boardGridSpanCountPortrait
+                : ChanSettings.boardGridSpanCountLandscape).get();
     }
 
     public static int getAlbumColumnCount() {
-        return getScreenOrientation() == ORIENTATION_PORTRAIT
-                ? ChanSettings.albumGridSpanCountPortrait.get()
-                : ChanSettings.albumGridSpanCountLandscape.get();
+        return (getScreenOrientation() == ORIENTATION_PORTRAIT
+                ? ChanSettings.albumGridSpanCountPortrait
+                : ChanSettings.albumGridSpanCountLandscape).get();
     }
 
     public static boolean shouldUseFullSizeImage(PostImage postImage) {

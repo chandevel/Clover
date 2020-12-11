@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.cache
 
 import android.os.Environment
-import android.text.TextUtils
 import com.github.adamantcheese.chan.core.cache.downloader.ConcurrentChunkedFileDownloader
 import com.github.adamantcheese.chan.core.di.AppModule.getCacheDir
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -365,7 +364,7 @@ class CacheHandler(
     private fun deleteCacheFile(fileName: String): Boolean {
         val originalFileName = StringUtils.removeExtensionFromFileName(fileName)
 
-        if (TextUtils.isEmpty(originalFileName)) {
+        if (originalFileName.isEmpty()) {
             Logger.e(TAG, "Couldn't parse original file name, fileName = $fileName")
             return false
         }

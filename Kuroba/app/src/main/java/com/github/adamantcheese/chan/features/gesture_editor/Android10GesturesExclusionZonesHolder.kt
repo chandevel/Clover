@@ -109,14 +109,14 @@ class Android10GesturesExclusionZonesHolder(
             val newExclusionZones = mutableListOf<ExclusionZoneJson>()
 
             exclusionZones.forEach { (orientation, zones) ->
-                zones.forEach { zone ->
+                zones.forEach { (_, attachSide1, left, right, top, bottom) ->
                     newExclusionZones += ExclusionZoneJson(
                             screenOrientation = orientation,
-                            attachSide = zone.attachSide.id,
-                            left = zone.left,
-                            right = zone.right,
-                            top = zone.top,
-                            bottom = zone.bottom
+                            attachSide = attachSide1.id,
+                            left = left,
+                            right = right,
+                            top = top,
+                            bottom = bottom
                     )
                 }
             }

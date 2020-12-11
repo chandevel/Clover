@@ -51,7 +51,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
@@ -75,7 +74,6 @@ import okhttp3.HttpUrl;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -416,10 +414,7 @@ public class ThemeSettingsController
             RecyclerView postsView = new RecyclerView(themeContext);
             LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
             postsView.setLayoutManager(layoutManager);
-            PostAdapter adapter = new PostAdapter(postsView, new PostAdapter.PostAdapterCallback() {
-                @Override
-                public void onUnhidePostClick(Post post) {
-                }
+            PostAdapter adapter = new PostAdapter(postsView, post -> {
             }, dummyPostCallback, new ThreadStatusCell.Callback() {
                 @Override
                 public long getTimeUntilLoadMore() {

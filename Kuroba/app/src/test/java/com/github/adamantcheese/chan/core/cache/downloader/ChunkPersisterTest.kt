@@ -164,7 +164,7 @@ class ChunkPersisterTest {
             .filterIsInstance<ChunkDownloadEvent.Progress>()
             .groupBy { event -> event.chunkIndex }
 
-        assertEquals(2, successEventsGrouped.values.count())
+        assertEquals(2, successEventsGrouped.values.size)
         successEventsGrouped.forEach { (_, chunkSuccessEvents) ->
             assertEquals(1, chunkSuccessEvents.size)
             val chunkSuccessEvent = chunkSuccessEvents.first()
@@ -180,7 +180,7 @@ class ChunkPersisterTest {
             assertArrayEquals(expectedBytes, actualBytes)
         }
 
-        assertEquals(30, progressEventsGrouped.values.map { it.count() }.sum())
+        assertEquals(30, progressEventsGrouped.values.map { it.size }.sum())
         progressEventsGrouped.forEach { (chunkIndex, chunkProgressEvents) ->
             chunkProgressEvents.zipWithNext().forEach { (current, next) ->
                 assertEquals(chunkIndex, current.chunkIndex)

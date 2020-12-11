@@ -104,7 +104,7 @@ public class BoardsMenuPresenter
 
                 items.add(new Item(itemIdCounter++, site));
 
-                if (filter == null || filter.length() == 0) {
+                if (filter == null || filter.isEmpty()) {
                     for (Board board : boards) {
                         if (board.saved) {
                             items.add(new Item(itemIdCounter++, board));

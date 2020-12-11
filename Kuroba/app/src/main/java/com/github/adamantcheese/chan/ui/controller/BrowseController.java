@@ -313,7 +313,7 @@ public class BrowseController
             items.add(new FloatingMenuItem<>(order, name));
         }
         ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
-        View anchor = item != null ? item.getView() : overflow.getView();
+        View anchor = (item != null ? item : overflow).getView();
         FloatingMenu<Order> menu;
         if (anchor != null) {
             menu = new FloatingMenu<>(context, anchor, items);

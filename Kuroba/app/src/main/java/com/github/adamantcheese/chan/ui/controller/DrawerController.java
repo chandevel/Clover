@@ -391,9 +391,7 @@ public class DrawerController
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
 
-        Snackbar snackbar;
-
-        snackbar = Snackbar.make(drawerLayout,
+        Snackbar snackbar = Snackbar.make(drawerLayout,
                 getString(R.string.drawer_pin_removed, pin.loadable.title),
                 Snackbar.LENGTH_LONG
         );

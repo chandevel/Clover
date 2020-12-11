@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 public abstract class SettingView {

@@ -222,16 +222,14 @@ public class DeveloperSettingsController
         wrapper.addView(threadCrashSwitch);
 
         Button setAppUpdate = new Button(context);
-        setAppUpdate.setOnClickListener(v -> {
-            SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.ApkUpdate);
-        });
+        setAppUpdate.setOnClickListener(v ->
+                SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.ApkUpdate));
         setAppUpdate.setText("Post app update notification");
         wrapper.addView(setAppUpdate);
 
         Button setReport = new Button(context);
-        setReport.setOnClickListener(v -> {
-            SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.CrashLog);
-        });
+        setReport.setOnClickListener(v ->
+                SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.CrashLog));
         setReport.setText("Post report notification");
         wrapper.addView(setReport);
 

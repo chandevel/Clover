@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.cache.stream
 
 import android.net.Uri
+import androidx.core.net.toUri
 import com.github.adamantcheese.chan.core.cache.CacheHandler
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.FileCacheV2
@@ -23,7 +24,7 @@ class WebmStreamingSource(
 ) {
 
     fun createMediaSource(postImage: PostImage, callback: MediaSourceCallback) {
-        val uri = Uri.parse(postImage.imageUrl.toString())
+        val uri = postImage.imageUrl.toString().toUri()
         val alreadyExists = cacheHandler.exists(postImage.imageUrl)
         val rawFile = cacheHandler.getOrCreateCacheFile(postImage.imageUrl)
         val fileCacheSource = WebmStreamingDataSource(uri, rawFile, fileManager)
@@ -50,9 +51,7 @@ class WebmStreamingSource(
                         // The webm file is already completely downloaded, just use it from the disk
                         callback.onMediaSourceReady(
                                 ProgressiveMediaSource.Factory { fileCacheSource }
-                                        .createMediaSource(MediaItem.Builder()
-                                                .setUri(uri)
-                                                .build())
+                                        .createMediaSource(MediaItem.fromUri(uri))
                         )
                     }
 
@@ -114,21 +113,17 @@ class WebmStreamingSource(
 
         callback.onMediaSourceReady(
                 ProgressiveMediaSource.Factory { fileCacheSource }
-                        .createMediaSource(MediaItem.Builder()
-                                .setUri(uri)
-                                .build())
+                        .createMediaSource(MediaItem.fromUri(uri))
         )
     }
 
     private fun loadFromCacheFile(rawFile: RawFile, callback: MediaSourceCallback) {
         Logger.d(TAG, "createMediaSource() Loading already downloaded file from the disk")
-        val fileUri = Uri.parse(rawFile.getFullPath())
+        val fileUri = rawFile.getFullPath().toUri()
 
         callback.onMediaSourceReady(
                 ProgressiveMediaSource.Factory { FileDataSource() }
-                        .createMediaSource(MediaItem.Builder()
-                                .setUri(fileUri)
-                                .build())
+                        .createMediaSource(MediaItem.fromUri(fileUri))
         )
     }
 

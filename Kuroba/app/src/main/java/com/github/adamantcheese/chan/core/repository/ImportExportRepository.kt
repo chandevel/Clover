@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.repository
 
-import android.text.TextUtils
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseUtils
 import com.github.adamantcheese.chan.core.model.export.*
@@ -384,68 +383,62 @@ constructor(
             exportedSites.add(exportedSite)
         }
 
-        val exportedBoards = ArrayList<ExportedBoard>()
-
-        for (board in databaseHelper.boardDao.queryForAll()) {
-            exportedBoards.add(ExportedBoard(
-                    board.siteId,
-                    board.saved,
-                    board.order,
-                    board.name,
-                    board.code,
-                    board.workSafe,
-                    board.perPage,
-                    board.pages,
-                    board.maxFileSize,
-                    board.maxWebmSize,
-                    board.maxCommentChars,
-                    board.bumpLimit,
-                    board.imageLimit,
-                    board.cooldownThreads,
-                    board.cooldownReplies,
-                    board.cooldownImages,
-                    board.spoilers,
-                    board.customSpoilers,
-                    board.userIds,
-                    board.codeTags,
-                    board.preuploadCaptcha,
-                    board.countryFlags,
-                    board.mathTags,
-                    board.description,
-                    board.archive
-            ))
+        val exportedBoards = databaseHelper.boardDao.queryForAll().map {
+            ExportedBoard(
+                    it.siteId,
+                    it.saved,
+                    it.order,
+                    it.name,
+                    it.code,
+                    it.workSafe,
+                    it.perPage,
+                    it.pages,
+                    it.maxFileSize,
+                    it.maxWebmSize,
+                    it.maxCommentChars,
+                    it.bumpLimit,
+                    it.imageLimit,
+                    it.cooldownThreads,
+                    it.cooldownReplies,
+                    it.cooldownImages,
+                    it.spoilers,
+                    it.customSpoilers,
+                    it.userIds,
+                    it.codeTags,
+                    it.preuploadCaptcha,
+                    it.countryFlags,
+                    it.mathTags,
+                    it.description,
+                    it.archive
+            )
         }
 
-        val exportedFilters = ArrayList<ExportedFilter>()
-
-        for (filter in databaseHelper.filterDao.queryForAll()) {
-            exportedFilters.add(ExportedFilter(
-                    filter.enabled,
-                    filter.type,
-                    filter.pattern,
-                    filter.allBoards,
-                    filter.boards,
-                    filter.action,
-                    filter.color,
-                    filter.applyToReplies,
-                    filter.order,
-                    filter.onlyOnOP,
-                    filter.applyToSaved
-            ))
+        val exportedFilters = databaseHelper.filterDao.queryForAll().map {
+            ExportedFilter(
+                    it.enabled,
+                    it.type,
+                    it.pattern,
+                    it.allBoards,
+                    it.boards,
+                    it.action,
+                    it.color,
+                    it.applyToReplies,
+                    it.order,
+                    it.onlyOnOP,
+                    it.applyToSaved
+            )
         }
 
-        val exportedPostHides = ArrayList<ExportedPostHide>()
-
-        for (threadHide in databaseHelper.postHideDao.queryForAll()) {
-            exportedPostHides.add(ExportedPostHide(
-                    threadHide.site,
-                    threadHide.board,
-                    threadHide.no,
-                    threadHide.wholeThread,
-                    threadHide.hide,
-                    threadHide.hideRepliesToThisPost,
-                    threadHide.threadNo
-            ))
+        val exportedPostHides = databaseHelper.postHideDao.queryForAll().map {
+            ExportedPostHide(
+                    it.site,
+                    it.board,
+                    it.no,
+                    it.wholeThread,
+                    it.hide,
+                    it.hideRepliesToThisPost,
+                    it.threadNo
+            )
         }
 
         val settings = ChanSettings.serializeToString()
@@ -485,7 +478,7 @@ constructor(
         //filters
         val filtersToDelete = ArrayList<ExportedFilter>()
         for (filter in appSettings.exportedFilters) {
-            if (filter.isAllBoards || TextUtils.isEmpty(filter.boards)) {
+            if (filter.isAllBoards || filter.boards.isNullOrEmpty()) {
                 continue
             }
 
@@ -505,12 +498,7 @@ constructor(
         appSettings.exportedFilters.removeAll(filtersToDelete)
 
         //boards
-        val boardsToDelete = ArrayList<ExportedBoard>()
-        for (board in appSettings.exportedBoards) {
-            if (board.siteId == site.siteId) {
-                boardsToDelete.add(board)
-            }
-        }
+        val boardsToDelete = appSettings.exportedBoards.filter { it.siteId == site.siteId }
         appSettings.exportedBoards.removeAll(boardsToDelete)
 
         //loadables for saved threads
@@ -525,12 +513,7 @@ constructor(
         }
 
         //post hides
-        val hidesToDelete = ArrayList<ExportedPostHide>()
-        for (hide in appSettings.exportedPostHides) {
-            if (hide.site == site.siteId) {
-                hidesToDelete.add(hide)
-            }
-        }
+        val hidesToDelete = appSettings.exportedPostHides.filter { it.site == site.siteId }
 
         appSettings.exportedPostHides.removeAll(hidesToDelete)
 
