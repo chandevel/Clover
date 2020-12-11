@@ -150,6 +150,9 @@ public class ReplyLayout
     // the tag on this is the spoiler state; that is, getTag -> true means image will be spoilered
     private ImageView spoiler;
 
+    private View topDivider;
+    private View botDivider;
+
     // Captcha views:
     private FrameLayout captchaContainer;
 
@@ -233,6 +236,9 @@ public class ReplyLayout
         progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
         progressBar = progressLayout.findViewById(R.id.progress_bar);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
+
+        topDivider = findViewById(R.id.top_div);
+        botDivider = findViewById(R.id.bot_div);
 
         // Setup reply layout views
         message.setMovementMethod(new LinkMovementMethod());
@@ -687,11 +693,11 @@ public class ReplyLayout
 
     private void setDividerVisibility(boolean hide) {
         if (hide) {
-            findViewById(R.id.top_div).setVisibility(GONE);
-            findViewById(R.id.bot_div).setVisibility(GONE);
+            topDivider.setVisibility(GONE);
+            botDivider.setVisibility(GONE);
         } else {
-            findViewById(R.id.top_div).setVisibility(ChanSettings.moveInputToBottom.get() ? VISIBLE : GONE);
-            findViewById(R.id.bot_div).setVisibility(ChanSettings.moveInputToBottom.get() ? GONE : VISIBLE);
+            topDivider.setVisibility(ChanSettings.moveInputToBottom.get() ? VISIBLE : GONE);
+            botDivider.setVisibility(ChanSettings.moveInputToBottom.get() ? GONE : VISIBLE);
         }
     }
 
