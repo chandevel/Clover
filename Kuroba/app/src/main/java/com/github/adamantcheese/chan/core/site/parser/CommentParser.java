@@ -85,8 +85,6 @@ public class CommentParser {
     private final Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     // A pattern matching any board search links
     private final Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
-    // A pattern matching colors for r9k
-    private final Pattern colorPattern = Pattern.compile("color:#([0-9a-fA-F]+)");
 
     // The list of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
     private final Map<String, List<StyleRule>> rules = new HashMap<>();
@@ -215,7 +213,7 @@ public class CommentParser {
 
         if (handlerLink.type == Type.QUOTE) {
             int postNo = (int) handlerLink.value;
-            post.addReplyTo(postNo);
+            post.repliesTo(Collections.singleton(postNo));
 
             // Append (OP) when it's a reply to OP
             if (postNo == post.opId && !handlerLink.key.toString().contains(OP_REPLY_SUFFIX)) {
@@ -250,17 +248,10 @@ public class CommentParser {
         // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
         String style = span.attr("style");
         if (!TextUtils.isEmpty(style)) {
-            style = style.replace(" ", "");
-
-            Matcher matcher = colorPattern.matcher(style);
-            if (matcher.find()) {
-                int hexColor = Integer.parseInt(matcher.group(1), 16);
-                if (hexColor >= 0 && hexColor <= 0xffffff) {
-                    text = span(text,
-                            new ForegroundColorSpanHashed(0xff000000 + hexColor),
-                            new StyleSpan(Typeface.BOLD)
-                    );
-                }
+            style = style.replace(" ", "").substring(style.indexOf('#') + 1);
+            int hexColor = Integer.parseInt(style, 16);
+            if (hexColor >= 0 && hexColor <= 0xffffff) {
+                text = span(text, new ForegroundColorSpanHashed(0xff000000 + hexColor), new StyleSpan(Typeface.BOLD));
             }
         }
 

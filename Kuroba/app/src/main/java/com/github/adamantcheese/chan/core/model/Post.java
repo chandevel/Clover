@@ -659,11 +659,11 @@ public class Post
             return this;
         }
 
-        public Builder addReplyTo(int postNo) {
-            repliesToNos.add(postNo);
-            return this;
-        }
-
+        /**
+         * Specify that this post replies to these post number
+         *
+         * @param repliesToNos The post numbers that are being replied to
+         */
         public Builder repliesTo(Set<Integer> repliesToNos) {
             this.repliesToNos.addAll(repliesToNos);
             return this;

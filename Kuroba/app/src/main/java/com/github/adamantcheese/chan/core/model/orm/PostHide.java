@@ -28,13 +28,16 @@ public class PostHide {
     @DatabaseField(generatedId = true)
     public int id;
 
-    @DatabaseField(columnName = "site")
+    @DatabaseField
     public int site;
 
-    @DatabaseField(columnName = "board")
+    @DatabaseField
     public String board;
 
-    @DatabaseField(columnName = "no")
+    /**
+     * The post number that is being hidden
+     */
+    @DatabaseField
     public int no;
 
     /**
@@ -46,7 +49,7 @@ public class PostHide {
     /**
      * Indicates whether we should just hide (grey out) or completely remove this post
      */
-    @DatabaseField(columnName = "hide")
+    @DatabaseField
     public boolean hide;
 
     /**
@@ -107,14 +110,12 @@ public class PostHide {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
-        PostHide that = (PostHide) o;
-
-        return no == that.no && board.equals(that.board) && site == that.site;
+        PostHide hide = (PostHide) o;
+        return site == hide.site && no == hide.no && board.equals(hide.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(board, no, site);
+        return Objects.hash(site, board, no);
     }
 }
