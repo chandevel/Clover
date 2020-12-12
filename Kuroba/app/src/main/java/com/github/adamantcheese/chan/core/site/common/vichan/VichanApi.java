@@ -266,6 +266,8 @@ public class VichanApi
         if (builder.op) {
             // Update OP fields later on the main thread
             Post.Builder op = new Post.Builder();
+            op.op(true);
+            op.no(builder.no);
             op.closed(builder.closed);
             op.archived(builder.archived);
             op.sticky(builder.sticky);
