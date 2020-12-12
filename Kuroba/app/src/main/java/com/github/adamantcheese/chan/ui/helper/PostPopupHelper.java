@@ -28,6 +28,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+
 public class PostPopupHelper {
     private final Context context;
     private final ThreadPresenter presenter;
@@ -43,6 +45,10 @@ public class PostPopupHelper {
     }
 
     public void showPosts(Post forPost, List<Post> posts) {
+        if (posts.isEmpty()) {
+            showToast(context, "No posts to display! Posts may have been removed.");
+            return;
+        }
         RepliesData data = new RepliesData(forPost, posts);
 
         dataQueue.add(data);

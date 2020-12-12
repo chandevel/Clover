@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.List;
@@ -34,6 +35,7 @@ class PostParseCallable
     private final DatabaseSavedReplyManager savedReplyManager;
     private final Post.Builder postBuilder;
     private final ChanReader reader;
+    private final List<PostHide> removedPosts;
     private final Set<Integer> internalNos;
     private final Theme theme;
 
@@ -42,6 +44,7 @@ class PostParseCallable
             DatabaseSavedReplyManager savedReplyManager,
             Post.Builder builder,
             ChanReader reader,
+            List<PostHide> removedPosts,
             Set<Integer> internalNos,
             @NonNull Theme theme
     ) {
@@ -49,6 +52,7 @@ class PostParseCallable
         this.savedReplyManager = savedReplyManager;
         this.postBuilder = builder;
         this.reader = reader;
+        this.removedPosts = removedPosts;
         this.internalNos = internalNos;
         this.theme = theme;
     }
@@ -67,6 +71,10 @@ class PostParseCallable
             @Override
             public boolean isInternal(int postNo) {
                 return internalNos.contains(postNo);
+            }
+
+            public boolean isRemoved(int postNo) {
+                return removedPosts.contains(new PostHide(postBuilder.board.siteId, postBuilder.board.code, postNo));
             }
         });
     }

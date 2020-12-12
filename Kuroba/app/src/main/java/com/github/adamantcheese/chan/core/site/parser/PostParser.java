@@ -28,14 +28,28 @@ public interface PostParser {
     Post parse(@NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback);
 
     interface Callback {
+        /**
+         * Is the post no something the user has posted, or marked as posted.
+         *
+         * @param postNo the post no
+         * @return {@code true} if referring to a saved post, {@code false} otherwise.
+         */
         boolean isSaved(int postNo);
 
         /**
-         * Is the post id from this thread.
+         * Is the post no from this thread.
          *
-         * @param postNo the post id
+         * @param postNo the post no
          * @return {@code true} if referring to a post in the thread, {@code false} otherwise.
          */
         boolean isInternal(int postNo);
+
+        /**
+         * Is the post no something the user has removed.
+         *
+         * @param postNo the post no
+         * @return {@code true} if referring to a removed post, {@code false} otherwise.
+         */
+        boolean isRemoved(int postNo);
     }
 }

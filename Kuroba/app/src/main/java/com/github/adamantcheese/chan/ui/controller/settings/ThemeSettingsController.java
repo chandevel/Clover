@@ -153,6 +153,11 @@ public class ThemeSettingsController
         public boolean isInternal(int postNo) {
             return true;
         }
+
+        @Override
+        public boolean isRemoved(int postNo) {
+            return false;
+        }
     };
 
     private CoordinatorLayout wrapper;

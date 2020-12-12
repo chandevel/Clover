@@ -20,6 +20,9 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ClickableSpan;
+import android.text.style.StrikethroughSpan;
+import android.view.View;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
@@ -27,6 +30,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -46,6 +50,7 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,6 +58,8 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -85,6 +92,28 @@ public class DefaultPostParser
             builder.comment = parseComment(theme, builder, callback);
         } else {
             builder.comment = new SpannableStringBuilder("");
+        }
+
+        // process any removed posts, and remove any linkables/spans attached
+        for (PostLinkable l : builder.linkables) {
+            if (l.type == PostLinkable.Type.QUOTE) {
+                if (callback.isRemoved((int) l.value)) {
+                    builder.repliesToNos.remove((int) l.value);
+                    builder.comment.setSpan(new StrikethroughSpan(),
+                            builder.comment.getSpanStart(l),
+                            builder.comment.getSpanEnd(l),
+                            0
+                    );
+                    builder.comment.setSpan(new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull View widget) {
+                            showToast(getActivityContext(), "This post has been removed");
+                        }
+                    }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), 0);
+                    builder.comment.removeSpan(l);
+                    builder.linkables.remove(l);
+                }
+            }
         }
 
         processPostFilter(filters, builder);
