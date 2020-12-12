@@ -89,12 +89,11 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -184,7 +183,6 @@ public class ThreadPresenter
     public synchronized void bindLoadable(Loadable loadable) {
         if (!loadable.equals(this.loadable)) {
             if (isBound()) {
-                stopSavingThreadIfItIsBeingSaved(this.loadable);
                 unbindLoadable();
             }
 
@@ -211,20 +209,6 @@ public class ThreadPresenter
 
     public void updateDatabaseLoadable() {
         DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
-    }
-
-    private void stopSavingThreadIfItIsBeingSaved(Loadable loadable) {
-        if (ChanSettings.watchEnabled.get() && ChanSettings.watchBackground.get()
-                // Do not stop prev thread saving if background watcher is enabled
-                || loadable == null || loadable.mode != Loadable.Mode.THREAD) // We are in the catalog probably
-        {
-            return;
-        }
-
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) return; // No pin for this loadable
-
-        postToEventBus(new WatchManager.PinMessages.PinChangedMessage(pin));
     }
 
     public boolean isBound() {
