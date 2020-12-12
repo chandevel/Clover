@@ -265,17 +265,7 @@ public class VichanApi
 
         if (builder.op) {
             // Update OP fields later on the main thread
-            Post.Builder op = new Post.Builder();
-            op.op(true);
-            op.no(builder.no);
-            op.closed(builder.closed);
-            op.archived(builder.archived);
-            op.sticky(builder.sticky);
-            op.replies(builder.replies);
-            op.images(builder.imagesCount);
-            op.uniqueIps(builder.uniqueIps);
-            op.lastModified(builder.lastModified);
-            queue.setOp(op);
+            queue.setOp(builder.clone());
         }
 
         Post cached = queue.getCachedPost(builder.no);

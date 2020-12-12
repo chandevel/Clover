@@ -437,7 +437,8 @@ public class Post
     }
 
     @SuppressWarnings("UnusedReturnValue")
-    public static final class Builder {
+    public static final class Builder
+            implements Cloneable {
         public Board board;
         public int no = -1;
         public int opId = -1;
@@ -478,8 +479,8 @@ public class Post
         public CharSequence subjectSpan;
         public CharSequence nameTripcodeIdCapcodeSpan;
 
-        private final Set<PostLinkable> linkables = new CopyOnWriteArraySet<>();
-        private final Set<Integer> repliesToNos = new HashSet<>();
+        public final Set<PostLinkable> linkables = new CopyOnWriteArraySet<>();
+        public final Set<Integer> repliesToNos = new HashSet<>();
 
         public Builder() {
         }
@@ -667,6 +668,44 @@ public class Post
         public Builder repliesTo(Set<Integer> repliesToNos) {
             this.repliesToNos.addAll(repliesToNos);
             return this;
+        }
+
+        @NonNull
+        @Override
+        public Post.Builder clone() {
+            return new Builder().board(board)
+                    .no(no)
+                    .opId(opId)
+                    .op(op)
+                    .replies(replies)
+                    .images(imagesCount)
+                    .uniqueIps(uniqueIps)
+                    .sticky(sticky)
+                    .closed(closed)
+                    .archived(archived)
+                    .lastModified(lastModified)
+                    .subject(subject)
+                    .name(name)
+                    .comment(comment)
+                    .tripcode(tripcode)
+                    .setUnixTimestampSeconds(unixTimestampSeconds)
+                    .images(images)
+                    .posterId(posterId)
+                    .moderatorCapcode(moderatorCapcode)
+                    .setHttpIcons(httpIcons)
+                    .filter(
+                            filterHighlightedColor,
+                            filterStub,
+                            filterRemove,
+                            filterWatch,
+                            filterReplies,
+                            filterOnlyOP,
+                            filterSaved
+                    )
+                    .isSavedReply(isSavedReply)
+                    .spans(subjectSpan, nameTripcodeIdCapcodeSpan)
+                    .linkables(linkables)
+                    .repliesTo(repliesToNos);
         }
 
         public Post build() {
