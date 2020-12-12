@@ -25,7 +25,9 @@ import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -35,7 +37,7 @@ public class PostPopupHelper {
     private final ThreadPresenter presenter;
     private final PostPopupHelperCallback callback;
 
-    private final List<RepliesData> dataQueue = new ArrayList<>();
+    private final Deque<RepliesData> dataDeque = new ArrayDeque<>();
     private PostRepliesController presentingController;
 
     public PostPopupHelper(Context context, ThreadPresenter presenter, PostPopupHelperCallback callback) {
@@ -49,11 +51,10 @@ public class PostPopupHelper {
             showToast(context, "No posts to display! Posts may have been removed.");
             return;
         }
-        RepliesData data = new RepliesData(forPost, posts);
 
-        dataQueue.add(data);
+        dataDeque.offer(new RepliesData(forPost, posts));
 
-        if (dataQueue.size() == 1) {
+        if (dataDeque.size() == 1) {
             if (presentingController == null) {
                 presentingController = new PostRepliesController(context, this, presenter);
                 callback.presentController(presentingController);
@@ -64,27 +65,27 @@ public class PostPopupHelper {
             throw new IllegalStateException("Thread loadable cannot be null");
         }
 
-        presentingController.displayData(presenter.getLoadable(), data);
+        presentingController.displayData(presenter.getLoadable(), dataDeque.peekLast());
     }
 
     public void pop() {
-        if (dataQueue.size() > 0) {
-            dataQueue.remove(dataQueue.size() - 1);
+        if (!dataDeque.isEmpty()) {
+            dataDeque.pollLast();
         }
 
-        if (dataQueue.size() > 0) {
+        if (!dataDeque.isEmpty()) {
             if (presenter.getLoadable() == null) {
                 throw new IllegalStateException("Thread loadable cannot be null");
             }
 
-            presentingController.displayData(presenter.getLoadable(), dataQueue.get(dataQueue.size() - 1));
+            presentingController.displayData(presenter.getLoadable(), dataDeque.pollLast());
         } else {
             dismiss();
         }
     }
 
     public void popAll() {
-        dataQueue.clear();
+        dataDeque.clear();
         dismiss();
     }
 
