@@ -49,9 +49,11 @@ public class RemovedPostsHelper {
             Collections.sort(removedPosts, (o1, o2) -> Integer.compare(o1.no, o2.no));
 
             BackgroundUtils.runOnMainThread(() -> {
-                present();
+                if (controller == null) {
+                    controller = new RemovedPostsController(context, this);
+                    callbacks.presentController(controller);
+                }
 
-                // controller should not be null here, thus no null check
                 controller.showRemovePosts(removedPosts);
             });
 
@@ -83,11 +85,10 @@ public class RemovedPostsHelper {
         dismiss();
     }
 
-    private void present() {
-        if (controller == null) {
-            controller = new RemovedPostsController(context, this);
-            callbacks.presentController(controller);
-        }
+    public void onRestoreClicked(List<Integer> selectedPosts) {
+        presenter.onRestoreRemovedPostsClicked(selectedPosts);
+
+        dismiss();
     }
 
     private void dismiss() {
@@ -95,12 +96,6 @@ public class RemovedPostsHelper {
             controller.stopPresenting();
             controller = null;
         }
-    }
-
-    public void onRestoreClicked(List<Integer> selectedPosts) {
-        presenter.onRestoreRemovedPostsClicked(selectedPosts);
-
-        dismiss();
     }
 
     public interface RemovedPostsCallbacks {
