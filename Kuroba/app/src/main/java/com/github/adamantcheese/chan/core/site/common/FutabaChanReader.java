@@ -90,9 +90,9 @@ public class FutabaChanReader
     public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
         Post.Builder builder = new Post.Builder();
-        builder.board(queue.getLoadable().board);
+        builder.board(queue.loadable.board);
 
-        SiteEndpoints endpoints = queue.getLoadable().site.endpoints();
+        SiteEndpoints endpoints = queue.loadable.site.endpoints();
 
         // File
         String fileId = null;
@@ -236,7 +236,7 @@ public class FutabaChanReader
         if ((fileId != null && fileName != null && fileExt != null) || fileDeleted) {
             // /f/ is a strange case where the actual filename is used for the file on the server
             Map<String, String> args =
-                    makeArgument("tim", "f".equals(queue.getLoadable().boardCode) ? fileName : fileId, "ext", fileExt);
+                    makeArgument("tim", "f".equals(queue.loadable.boardCode) ? fileName : fileId, "ext", fileExt);
             PostImage image = new PostImage.Builder().serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))

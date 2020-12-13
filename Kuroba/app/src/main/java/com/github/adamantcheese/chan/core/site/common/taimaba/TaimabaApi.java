@@ -80,9 +80,9 @@ public class TaimabaApi
     public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
         Post.Builder builder = new Post.Builder();
-        builder.board(queue.getLoadable().board);
+        builder.board(queue.loadable.board);
 
-        SiteEndpoints endpoints = queue.getLoadable().site.endpoints();
+        SiteEndpoints endpoints = queue.loadable.site.endpoints();
 
         // File
         String fileExt = null;

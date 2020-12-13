@@ -79,7 +79,7 @@ public class AyaseArchive
         )
                 throws Exception {
             Post.Builder builder = new Post.Builder();
-            builder.board(queue.getLoadable().board);
+            builder.board(queue.loadable.board);
             throw new NotImplementedError();
             /*reader.nextName(); // "op" or post number; not necessary as it's in the rest of the data so ignore this
             reader.beginObject(); // post object itself

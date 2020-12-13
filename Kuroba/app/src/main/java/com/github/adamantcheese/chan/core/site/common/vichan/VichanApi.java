@@ -58,7 +58,7 @@ public class VichanApi
     @Override
     public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
-        PageRepository.addPages(queue.getLoadable().board, readCatalogWithPages(reader, queue));
+        PageRepository.addPages(queue.loadable.board, readCatalogWithPages(reader, queue));
     }
 
     public ChanPages readCatalogWithPages(JsonReader reader, ChanReaderProcessingQueue queue)
@@ -113,9 +113,9 @@ public class VichanApi
     private Pair<Integer, Long> readPostObjectWithReturn(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
         Post.Builder builder = new Post.Builder();
-        builder.board(queue.getLoadable().board);
+        builder.board(queue.loadable.board);
 
-        SiteEndpoints endpoints = queue.getLoadable().site.endpoints();
+        SiteEndpoints endpoints = queue.loadable.site.endpoints();
 
         // File
         String fileId = null;

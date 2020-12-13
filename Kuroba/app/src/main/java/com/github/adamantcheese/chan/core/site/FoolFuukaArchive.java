@@ -77,7 +77,7 @@ public class FoolFuukaArchive
         )
                 throws Exception {
             Post.Builder builder = new Post.Builder();
-            builder.board(queue.getLoadable().board);
+            builder.board(queue.loadable.board);
             reader.nextName(); // "op" or post number; not necessary as it's in the rest of the data so ignore this
             reader.beginObject(); // post object itself
             while (reader.hasNext()) {
@@ -115,7 +115,7 @@ public class FoolFuukaArchive
                         if (builder.op && reader.peek() != JsonToken.NULL) {
                             String title = reader.nextString();
                             builder.subject(title);
-                            queue.getLoadable().title = title;
+                            queue.loadable.title = title;
                         } else {
                             reader.skipValue();
                         }
@@ -127,10 +127,9 @@ public class FoolFuukaArchive
 
                         if (builder.op && TextUtils.isEmpty(builder.subject)) {
                             if (!TextUtils.isEmpty(comment)) {
-                                queue.getLoadable().title =
-                                        comment.subSequence(0, Math.min(comment.length(), 200)) + "";
+                                queue.loadable.title = comment.subSequence(0, Math.min(comment.length(), 200)) + "";
                             } else {
-                                queue.getLoadable().title = "/" + builder.board.code + "/" + builder.opId;
+                                queue.loadable.title = "/" + builder.board.code + "/" + builder.opId;
                             }
                         }
                         break;
