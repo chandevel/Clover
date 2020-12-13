@@ -23,10 +23,10 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.JavaUtils.in;
 
 public class ExperimentalSettingsController

@@ -105,14 +105,16 @@ public class NavigationItem {
         }
 
         public MenuOverflowBuilder withOverflow() {
-            return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
+            return new MenuOverflowBuilder(this, new ToolbarMenuItem(
+                    ToolbarMenu.OVERFLOW_ID,
                     R.drawable.ic_fluent_more_vertical_24_filled,
                     ToolbarMenuItem::showSubmenu
             ));
         }
 
         public MenuOverflowBuilder withOverflow(ToolbarMenuItem.OverflowMenuCallback threedotMenuCallback) {
-            return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
+            return new MenuOverflowBuilder(this, new ToolbarMenuItem(
+                    ToolbarMenu.OVERFLOW_ID,
                     R.drawable.ic_fluent_more_vertical_24_filled,
                     ToolbarMenuItem::showSubmenu,
                     threedotMenuCallback

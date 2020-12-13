@@ -218,7 +218,8 @@ public class SiteRepository {
             Map<Integer, Integer> ordering = getOrdering();
 
             List<Site> ordered = new ArrayList<>(sites);
-            Collections.sort(ordered,
+            Collections.sort(
+                    ordered,
                     (lhs, rhs) -> lhs == null || rhs == null ? 0 : ordering.get(lhs.id()) - ordering.get(rhs.id())
             );
 

@@ -80,7 +80,8 @@ public class LoginController
         button.setOnClickListener(this);
 
         bottomDescription.setText(HtmlCompat.fromHtml(getString(R.string.setting_pass_bottom_description),
-                HtmlCompat.FROM_HTML_MODE_LEGACY));
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        ));
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
         LoginRequest loginDetails = site.actions().getLoginDetails();

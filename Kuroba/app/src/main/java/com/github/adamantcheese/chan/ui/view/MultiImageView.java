@@ -668,8 +668,7 @@ public class MultiImageView
             String userAgent = Util.getUserAgent(getAppContext(), NetModule.USER_AGENT);
             DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(getContext(), userAgent);
             ProgressiveMediaSource.Factory progressiveFactory = new ProgressiveMediaSource.Factory(dataSourceFactory);
-            MediaSource videoSource =
-                    progressiveFactory.createMediaSource(MediaItem.fromUri(Uri.fromFile(file)));
+            MediaSource videoSource = progressiveFactory.createMediaSource(MediaItem.fromUri(Uri.fromFile(file)));
 
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 

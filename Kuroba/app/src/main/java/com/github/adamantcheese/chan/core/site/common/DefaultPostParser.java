@@ -50,7 +50,6 @@ import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

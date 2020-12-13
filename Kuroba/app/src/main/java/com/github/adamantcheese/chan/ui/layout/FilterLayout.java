@@ -285,8 +285,10 @@ public class FilterLayout
             });
             menu.show();
         } else if (v == help) {
-            SpannableStringBuilder message = (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
-                    HtmlCompat.FROM_HTML_MODE_LEGACY);
+            SpannableStringBuilder message =
+                    (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
+                            HtmlCompat.FROM_HTML_MODE_LEGACY
+                    );
             TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
             for (TypefaceSpan span : typefaceSpans) {
                 if (span.getFamily().equals("monospace")) {

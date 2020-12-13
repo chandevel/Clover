@@ -50,10 +50,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class BrowseController
         extends ThreadController

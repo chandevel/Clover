@@ -632,9 +632,9 @@ public class ReplyLayout
         //      if not viewing catalog, show toast
         // if not new thread
         //      if loadable doesn't match the one passed in, show toast
-        return newThread ? !callback.isViewingCatalog() : !callback.getThread()
-                .getLoadable()
-                .databaseEquals(newLoadable);
+        return newThread
+                ? !callback.isViewingCatalog()
+                : !callback.getThread().getLoadable().databaseEquals(newLoadable);
     }
 
     private void postComplete(boolean newThread, Loadable newLoadable) {

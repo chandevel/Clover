@@ -44,8 +44,8 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public abstract class ThreadController

@@ -26,7 +26,6 @@ import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 

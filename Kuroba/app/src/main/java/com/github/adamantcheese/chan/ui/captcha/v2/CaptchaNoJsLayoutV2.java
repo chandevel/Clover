@@ -49,8 +49,8 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class CaptchaNoJsLayoutV2
         extends FrameLayout

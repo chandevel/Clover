@@ -57,9 +57,11 @@ public class UpdateApiParser
             throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();
         //default body
-        response.body = HtmlCompat.fromHtml("Changelog:\r\nSee the release on Github for details!\r\n"
-                + " Your Android API is too low to properly render the changelog from the site.",
-                HtmlCompat.FROM_HTML_MODE_LEGACY);
+        response.body = HtmlCompat.fromHtml(
+                "Changelog:\r\nSee the release on Github for details!\r\n"
+                        + " Your Android API is too low to properly render the changelog from the site.",
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
 
         reader.beginObject();
         while (reader.hasNext()) {

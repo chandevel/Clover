@@ -68,7 +68,7 @@ public class BooleanSettingView
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
-        if(built) {
+        if (built) {
             view.setEnabled(enabled);
             view.findViewById(R.id.top).setEnabled(enabled);
             View bottom = view.findViewById(R.id.bottom);

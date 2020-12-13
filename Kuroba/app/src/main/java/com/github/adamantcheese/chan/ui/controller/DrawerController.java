@@ -76,10 +76,10 @@ import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.EPOCH_DATE;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerController

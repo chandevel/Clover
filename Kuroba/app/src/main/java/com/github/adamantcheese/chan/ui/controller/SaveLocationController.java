@@ -37,8 +37,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class SaveLocationController

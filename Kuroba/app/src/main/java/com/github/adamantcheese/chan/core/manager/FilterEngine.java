@@ -59,9 +59,9 @@ import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
 import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class FilterEngine {
     public enum FilterAction {

@@ -47,10 +47,10 @@ import io.reactivex.subjects.SingleSubject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class ImageSaveTask
         extends FileCacheListener {

@@ -72,11 +72,11 @@ import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
 import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
 import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static java.util.concurrent.TimeUnit.DAYS;
 
 /**

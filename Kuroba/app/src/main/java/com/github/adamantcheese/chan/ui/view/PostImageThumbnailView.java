@@ -42,8 +42,8 @@ import java.io.File;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 public class PostImageThumbnailView
         extends FixedRatioThumbnailView

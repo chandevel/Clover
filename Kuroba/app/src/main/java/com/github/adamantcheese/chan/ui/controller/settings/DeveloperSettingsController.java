@@ -49,9 +49,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class DeveloperSettingsController
         extends Controller {
@@ -220,18 +220,6 @@ public class DeveloperSettingsController
         threadCrashSwitch.setChecked(ChanSettings.crashOnWrongThread.get());
         threadCrashSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.crashOnWrongThread.toggle());
         wrapper.addView(threadCrashSwitch);
-
-        Button setAppUpdate = new Button(context);
-        setAppUpdate.setOnClickListener(v ->
-                SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.ApkUpdate));
-        setAppUpdate.setText("Post app update notification");
-        wrapper.addView(setAppUpdate);
-
-        Button setReport = new Button(context);
-        setReport.setOnClickListener(v ->
-                SettingsNotificationManager.postNotification(SettingsNotificationManager.SettingNotification.CrashLog));
-        setReport.setText("Post report notification");
-        wrapper.addView(setReport);
 
         ScrollView scrollView = new ScrollView(context);
         scrollView.setPadding(dp(16), dp(16), dp(16), dp(16));
