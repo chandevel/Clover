@@ -230,17 +230,17 @@ public class ChanReaderParser
                 List<Integer> value = entry.getValue();
                 Post subject = postsByNo.get(key);
 
-                // If a post has been removed, remove it from the replies list
-                Iterator<Integer> repliesFrom = value.iterator();
-                while (repliesFrom.hasNext()) {
-                    Integer replyFrom = repliesFrom.next();
-                    if (removedPosts.contains(new PostHide(subject.board.siteId, subject.board.code, replyFrom))) {
-                        repliesFrom.remove();
-                    }
-                }
-
                 // Sometimes a post replies to a ghost, a post that doesn't exist.
                 if (subject != null) {
+                    // If a post has been removed, remove it from the replies list
+                    Iterator<Integer> repliesFrom = value.iterator();
+                    while (repliesFrom.hasNext()) {
+                        Integer replyFrom = repliesFrom.next();
+                        if (removedPosts.contains(new PostHide(subject.board.siteId, subject.board.code, replyFrom))) {
+                            repliesFrom.remove();
+                        }
+                    }
+
                     subject.repliesFrom.clear();
                     subject.repliesFrom.addAll(value);
                 }
