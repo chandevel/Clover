@@ -310,10 +310,6 @@ public class ThreadPresenter
         }
     }
 
-    public void refreshUI() {
-        showPosts();
-    }
-
     public synchronized void showAlbum() {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         int[] pos = threadPresenterCallback.getCurrentPosition();
