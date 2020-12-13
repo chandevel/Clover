@@ -37,10 +37,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="48dp"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:lines="1"
+        android:maxLines="1"
         android:paddingLeft="56dp"
         android:paddingRight="8dp"
-        android:singleLine="true"
         android:textSize="16sp"
         tools:text="Site name" />
 

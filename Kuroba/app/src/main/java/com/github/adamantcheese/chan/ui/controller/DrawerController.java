@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -29,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,7 +56,6 @@ import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.ArrowOrientation;
 
 import org.greenrobot.eventbus.EventBus;
@@ -93,6 +94,10 @@ public class DrawerController
     protected CrossfadeView buttonSearchSwitch;
 
     protected RecyclerView recyclerView;
+
+    private LinearLayout message;
+    private TextView messageText;
+    private TextView messageAction;
 
     private boolean pinMode = true;
     private boolean inViewMode = true;
@@ -263,6 +268,10 @@ public class DrawerController
         });
 
         updateBadge();
+
+        message = view.findViewById(R.id.message);
+        messageText = view.findViewById(R.id.message_text);
+        messageAction = view.findViewById(R.id.message_action);
     }
 
     @Override
@@ -347,11 +356,9 @@ public class DrawerController
     private void onHeaderClickedInternal(boolean all) {
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
-            String text = getQuantityString(R.plurals.bookmark, pins.size(), pins.size());
-            Snackbar snackbar = Snackbar.make(drawerLayout, getString(R.string.drawer_pins_cleared, text), 4000);
-            snackbar.setGestureInsetBottomIgnored(true);
-            snackbar.setAction(R.string.undo, v -> watchManager.addAll(pins));
-            snackbar.show();
+            openMessage(getString(R.string.drawer_pins_cleared,
+                    getQuantityString(R.plurals.bookmark, pins.size(), pins.size())
+            ), v -> watchManager.addAll(pins), getString(R.string.undo));
         } else {
             int text;
             synchronized (watchManager.getAllPins()) {
@@ -359,9 +366,8 @@ public class DrawerController
                         ? R.string.drawer_pins_non_cleared
                         : R.string.drawer_pins_non_cleared_try_all;
             }
-            Snackbar snackbar = Snackbar.make(drawerLayout, text, Snackbar.LENGTH_LONG);
-            snackbar.setGestureInsetBottomIgnored(true);
-            snackbar.show();
+
+            openMessage(getString(text), null, "");
         }
     }
 
@@ -390,15 +396,42 @@ public class DrawerController
     public void onPinRemoved(Pin pin) {
         final Pin undoPin = pin.clone();
         watchManager.deletePin(pin);
-
-        Snackbar snackbar = Snackbar.make(drawerLayout,
-                getString(R.string.drawer_pin_removed, pin.loadable.title),
-                Snackbar.LENGTH_LONG
+        openMessage(getString(R.string.drawer_pin_removed, pin.loadable.title),
+                v -> watchManager.createPin(undoPin),
+                getString(R.string.undo)
         );
+    }
 
-        snackbar.setAction(R.string.undo, v -> watchManager.createPin(undoPin));
-        snackbar.setGestureInsetBottomIgnored(true);
-        snackbar.show();
+    private final Runnable closeMessageRunnable = new Runnable() {
+        @Override
+        public void run() {
+            messageText.setText(R.string.empty);
+            messageAction.setText(R.string.empty);
+            messageAction.setOnClickListener(null);
+            view.findViewById(R.id.action_divider).setVisibility(GONE);
+            message.setVisibility(GONE);
+        }
+    };
+
+    private void openMessage(
+            @NonNull String text, @Nullable View.OnClickListener action, @NonNull String actionText
+    ) {
+        view.removeCallbacks(closeMessageRunnable);
+        messageText.setText(text);
+        messageAction.setVisibility(actionText.isEmpty() ? GONE : VISIBLE);
+        messageAction.setText(actionText.isEmpty() ? "" : actionText);
+        view.findViewById(R.id.action_divider).setVisibility(actionText.isEmpty() ? GONE : VISIBLE);
+        message.findViewById(R.id.message_action).setOnClickListener(v -> {
+            if (action != null) {
+                action.onClick(v);
+            }
+            closeMessageRunnable.run();
+        });
+        message.setVisibility(TextUtils.isEmpty(text) ? GONE : VISIBLE);
+
+        if (!TextUtils.isEmpty(text)) {
+            view.postDelayed(closeMessageRunnable, 5000);
+        }
     }
 
     public void setPinHighlighted(Pin pin) {
