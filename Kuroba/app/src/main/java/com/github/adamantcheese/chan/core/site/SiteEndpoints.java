@@ -55,8 +55,6 @@ public interface SiteEndpoints {
 
     HttpUrl login();
 
-    HttpUrl banned();
-
     static Map<String, String> makeArgument(String key, String value) {
         Map<String, String> map = new ArrayMap<>(1);
         map.put(key, value);

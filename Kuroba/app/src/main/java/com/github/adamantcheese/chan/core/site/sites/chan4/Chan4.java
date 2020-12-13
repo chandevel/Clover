@@ -267,11 +267,6 @@ public class Chan4
         public HttpUrl login() {
             return sys.newBuilder().addPathSegment("auth").build();
         }
-
-        @Override
-        public HttpUrl banned() {
-            return HttpUrl.get("https://www.4chan.org/banned");
-        }
     };
 
     private final CommonCallModifier siteCallModifier = new CommonCallModifier() {

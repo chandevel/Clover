@@ -18,15 +18,19 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.TextUtils;
 import android.text.style.ClickableSpan;
+import android.text.style.StrikethroughSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
@@ -290,30 +294,36 @@ public class ReplyPresenter
             switchPage(Page.AUTHENTICATION);
         } else {
             SpannableStringBuilder errorMessage = new SpannableStringBuilder(getString(R.string.reply_error));
+            int prefixLen = errorMessage.length();
             if (replyResponse.errorMessage != null) {
+                SpannableStringBuilder error =
+                        new SpannableStringBuilder(HtmlCompat.fromHtml(replyResponse.errorMessage,
+                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                        ));
+                // update colors for url spans; unfortunately that means re-making them
+                URLSpan[] spans = error.getSpans(0, error.length(), URLSpan.class);
+                for (URLSpan s : spans) {
+                    String url = s.getURL();
+                    error.setSpan(new ClickableSpan() {
+                        @Override
+                        public void onClick(@NonNull View widget) {
+                            openLinkInBrowser(context, url);
+                        }
+
+                        @Override
+                        public void updateDrawState(@NonNull TextPaint ds) {
+                            ds.setColor(getColor(R.color.md_red_500));
+                            ds.setUnderlineText(true);
+                            ds.setFakeBoldText(true);
+                        }
+                    }, error.getSpanStart(s), error.getSpanEnd(s), 0);
+                    error.removeSpan(s);
+                }
                 errorMessage.clear();
-                errorMessage = errorMessage.append(getString(R.string.reply_error_message, replyResponse.errorMessage));
+                errorMessage = errorMessage.append(getString(R.string.reply_error_message, "")).append(error);
+                prefixLen += 1;
             }
-
-            final String bannedString = "banned";
-            int bannedIndex = TextUtils.indexOf(errorMessage, bannedString);
-            if (bannedIndex >= 0 && replyResponse.originatingLoadable.site.endpoints().banned() != null) {
-                errorMessage.setSpan(new ClickableSpan() {
-                    @Override
-                    public void onClick(@NonNull View widget) {
-                        openLinkInBrowser(context,
-                                replyResponse.originatingLoadable.site.endpoints().banned().toString()
-                        );
-                    }
-
-                    @Override
-                    public void updateDrawState(@NonNull TextPaint ds) {
-                        ds.setColor(getColor(R.color.md_red_500));
-                        ds.setUnderlineText(true);
-                        ds.setFakeBoldText(true);
-                    }
-                }, bannedIndex, bannedIndex + bannedString.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-            }
+            errorMessage.setSpan(new StyleSpan(Typeface.BOLD), 0, prefixLen, 0);
 
             Logger.e(this, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT);

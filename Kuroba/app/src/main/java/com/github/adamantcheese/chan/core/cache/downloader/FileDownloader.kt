@@ -16,10 +16,7 @@ internal abstract class FileDownloader(
     ): Flowable<FileDownloadResult>
 
     protected fun isRequestStoppedOrCanceled(url: HttpUrl): Boolean {
-        BackgroundUtils.ensureBackgroundThread()
-
         val request = activeDownloads.get(url) ?: return true
-
         return !request.cancelableDownload.isRunning()
     }
 

@@ -172,11 +172,6 @@ public class DummySite
             public HttpUrl login() {
                 return dummyUrl;
             }
-
-            @Override
-            public HttpUrl banned() {
-                return dummyUrl;
-            }
         };
     }
 
