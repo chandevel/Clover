@@ -14,8 +14,10 @@ import io.reactivex.FlowableEmitter
 import okhttp3.HttpUrl
 import okhttp3.Response
 import okhttp3.ResponseBody
-import okhttp3.internal.closeQuietly
-import okio.*
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.buffer
+import okio.sink
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicLong
 
@@ -101,7 +103,6 @@ internal class ChunkPersister(
                                 "chunk ${chunk.start}..${chunk.end}")
                     }
                 } catch (error: Throwable) {
-                    deleteChunkFile(chunkCacheFile)
                     throw error
                 }
             } catch (error: Throwable) {
@@ -206,27 +207,26 @@ internal class ChunkPersister(
     ) {
         var downloaded = 0L
         var notifyTotal = 0L
-        val buffer = Buffer()
 
         val notifySize = if (chunkSize <= 0) {
-            FileDownloader.BUFFER_SIZE
+            8192L
         } else {
             chunkSize / 100 // 1% increments
         }
 
         try {
-            while (true) {
+            while (!bufferedSource.exhausted()) {
                 if (isRequestStoppedOrCanceled(url)) {
                     activeDownloads.throwCancellationException(url)
                 }
 
-                val read = bufferedSource.read(buffer, FileDownloader.BUFFER_SIZE)
-                if (read == -1L) {
-                    break
-                }
+                val read: Long = bufferedSource.buffer.size
 
                 downloaded += read
-                bufferedSink.write(buffer, read)
+                if (ChanSettings.verboseLogs.get()) {
+                    Logger.d(this, "{$chunkIndex}, {$downloaded}, {$chunkSize}")
+                }
+                bufferedSink.write(bufferedSource.buffer, bufferedSource.buffer.size)
 
                 val total = totalDownloaded.addAndGet(read)
                 activeDownloads.updateDownloaded(url, chunkIndex, total)
@@ -283,8 +283,6 @@ internal class ChunkPersister(
             } else {
                 throw error
             }
-        } finally {
-            buffer.closeQuietly()
         }
     }
 
@@ -295,11 +293,5 @@ internal class ChunkPersister(
                 ?: return true
 
         return !request.cancelableDownload.isRunning()
-    }
-
-    private fun deleteChunkFile(chunkFile: RawFile) {
-        if (!fileManager.delete(chunkFile)) {
-            Logger.e(this, "Couldn't delete chunk file: ${chunkFile.getFullPath()}")
-        }
     }
 }

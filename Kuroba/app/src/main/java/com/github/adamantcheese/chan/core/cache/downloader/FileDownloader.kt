@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.cache.downloader
 
 import com.github.adamantcheese.chan.core.cache.CacheHandler
-import com.github.adamantcheese.chan.utils.BackgroundUtils
 import io.reactivex.Flowable
 import okhttp3.HttpUrl
 
@@ -18,9 +17,5 @@ internal abstract class FileDownloader(
     protected fun isRequestStoppedOrCanceled(url: HttpUrl): Boolean {
         val request = activeDownloads.get(url) ?: return true
         return !request.cancelableDownload.isRunning()
-    }
-
-    companion object {
-        internal const val BUFFER_SIZE: Long = 8192L
     }
 }

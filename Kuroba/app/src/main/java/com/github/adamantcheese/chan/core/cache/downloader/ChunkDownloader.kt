@@ -100,7 +100,7 @@ internal class ChunkDownloader(
                     val exceptionMessage = e.message ?: "No message"
 
                     if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this,
+                        Logger.d(this@ChunkDownloader,
                                 "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
                                         " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
                         )
@@ -121,7 +121,7 @@ internal class ChunkDownloader(
                 override fun onResponse(call: Call, response: Response) {
                     if (ChanSettings.verboseLogs.get()) {
                         val diff = System.currentTimeMillis() - startTime
-                        Logger.d(this, "Got chunk response in (${maskImageUrl(url)}) " +
+                        Logger.d(this@ChunkDownloader, "Got chunk response in (${maskImageUrl(url)}) " +
                                 "${chunk.start}..${chunk.end} in ${diff}ms")
                     }
 

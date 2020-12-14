@@ -213,9 +213,6 @@ class FileCacheV2(
             return null
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "Downloading a file, url = ${maskImageUrl(url)}")
-        }
         requestQueue.onNext(url)
 
         return cancelableDownload
@@ -329,13 +326,6 @@ class FileCacheV2(
 
             when (result) {
                 is FileDownloadResult.Start -> {
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this, "Download (${request}) has started. " +
-                                "Chunks count = ${result.chunksCount}. " +
-                                "Network class = $networkClass. " +
-                                "Downloads = $activeDownloadsCount")
-                    }
-
                     // Start is not a terminal event so we don't want to remove request from the
                     // activeDownloads
                     resultHandler(url, request, false) {
