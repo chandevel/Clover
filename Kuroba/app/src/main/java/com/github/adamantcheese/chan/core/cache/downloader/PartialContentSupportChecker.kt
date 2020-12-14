@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.core.cache.downloader
 
 import android.util.LruCache
 import androidx.annotation.GuardedBy
-import com.github.adamantcheese.chan.core.cache.FileCacheV2
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
 import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
@@ -34,7 +33,7 @@ internal class PartialContentSupportChecker(
     private val checkedChanHosts = mutableMapOf<String, Boolean>()
 
     fun check(url: HttpUrl): Single<PartialContentCheckResult> {
-        val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+        val fileSize = activeDownloads.get(url)?.fileSize ?: -1L
         if (fileSize > 0) {
             val hostAlreadyChecked = synchronized(checkedChanHosts) {
                 checkedChanHosts.containsKey(url.host)
@@ -251,7 +250,7 @@ internal class PartialContentSupportChecker(
         val length = if (contentLengthValue != null) {
             contentLengthValue.toLongOrNull()
         } else {
-            activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+            activeDownloads.get(url)?.fileSize ?: -1L
         }
 
         if (length == null || length <= 0) {
@@ -292,7 +291,7 @@ internal class PartialContentSupportChecker(
     }
 
     private fun canWeUseFileSizeFromJson(url: HttpUrl): Boolean {
-        val fileSize = activeDownloads.get(url)?.extraInfo?.fileSize ?: -1L
+        val fileSize = activeDownloads.get(url)?.fileSize ?: -1L
         if (fileSize <= 0) {
             return false
         }

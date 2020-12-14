@@ -195,18 +195,11 @@ public interface Site {
          */
         public boolean siteSendsCorrectFileSizeInBytes;
 
-        /**
-         * Some sites (Wired-7) may send incorrect file md5 to us (sometimes) so we have no other way other
-         * than file md5 disabling for such sites
-         */
-        public boolean canFileHashBeTrusted;
-
         public ChunkDownloaderSiteProperties(
-                int maxChunksForSite, boolean siteSendsCorrectFileSizeInBytes, boolean canFileHashBeTrusted
+                int maxChunksForSite, boolean siteSendsCorrectFileSizeInBytes
         ) {
             this.maxChunksForSite = maxChunksForSite;
             this.siteSendsCorrectFileSizeInBytes = siteSendsCorrectFileSizeInBytes;
-            this.canFileHashBeTrusted = canFileHashBeTrusted;
         }
     }
 }

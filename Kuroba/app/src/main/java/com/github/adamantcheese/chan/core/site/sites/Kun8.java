@@ -135,6 +135,6 @@ public class Kun8
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, true, true);
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, true);
     }
 }

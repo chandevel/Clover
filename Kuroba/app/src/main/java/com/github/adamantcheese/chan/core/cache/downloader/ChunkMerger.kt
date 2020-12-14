@@ -80,49 +80,12 @@ internal class ChunkMerger(
                 }
             }
 
-            if (canSiteFileHashBeTrusted(url)) {
-                val expectedFileHash = activeDownloads.get(url)?.extraInfo?.fileHash
-                if (expectedFileHash != null) {
-                    compareFileHashes(url, output, expectedFileHash)
-                }
-            }
-
             // Mark file as downloaded
             markFileAsDownloaded(url)
 
             val requestTime = System.currentTimeMillis() - requestStartTime
             return@fromCallable ChunkDownloadEvent.Success(output, requestTime)
         }
-    }
-
-    /**
-     * Some sites may sometimes send us incorrect file md5 hashes, just skip the hash check for them
-     * */
-    private fun canSiteFileHashBeTrusted(url: HttpUrl): Boolean {
-        return siteResolver.findSiteForUrl(url.host)
-                ?.chunkDownloaderSiteProperties
-                ?.canFileHashBeTrusted
-                ?: false
-    }
-
-    private fun compareFileHashes(url: HttpUrl, output: AbstractFile, expectedFileHash: String) {
-        fileManager.getInputStream(output)?.use { inputStream ->
-            val actualFileHash = inputStreamMD5hash(inputStream)
-
-            if (!expectedFileHash.equals(actualFileHash, ignoreCase = true)) {
-                throw FileCacheException.FileHashesAreDifferent(
-                        url,
-                        fileManager.getName(output),
-                        expectedFileHash,
-                        actualFileHash
-                )
-            }
-        } ?: throw FileCacheException.CouldNotGetInputStreamException(
-                output.getFullPath(),
-                true,
-                fileManager.isFile(output),
-                fileManager.canRead(output)
-        )
     }
 
     private fun markFileAsDownloaded(url: HttpUrl) {

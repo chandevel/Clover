@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -392,10 +391,8 @@ public class ImageViewerPresenter
             };
 
             if (loadChunked) {
-                DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
                 preloadDownload[0] = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
-                        extraInfo,
+                        postImage.size,
                         loadable.site.getChunkDownloaderSiteProperties(),
                         fileCacheListener
                 );

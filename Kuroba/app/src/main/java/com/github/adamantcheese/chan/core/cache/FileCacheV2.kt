@@ -133,13 +133,13 @@ class FileCacheV2(
      */
     fun enqueueChunkedDownloadFileRequest(
             postImage: PostImage,
-            extraInfo: DownloadRequestExtraInfo,
+            fileSize: Long,
             chunkDownloaderSiteProperties: ChunkDownloaderSiteProperties,
             callback: FileCacheListener?
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
                 postImage,
-                extraInfo,
+                fileSize,
                 4.coerceAtMost(chunkDownloaderSiteProperties.maxChunksForSite),
                 callback
         )
@@ -154,7 +154,7 @@ class FileCacheV2(
     ): CancelableDownload? {
         return enqueueDownloadFileRequest(
                 postImage,
-                DownloadRequestExtraInfo(),
+                -1L,
                 1,
                 callback
         )
@@ -163,28 +163,27 @@ class FileCacheV2(
     @SuppressLint("CheckResult")
     private fun enqueueDownloadFileRequest(
             postImage: PostImage,
-            extraInfo: DownloadRequestExtraInfo,
+            fileSize: Long,
             chunksCount: Int,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, extraInfo, callback)
+        return enqueueDownloadFileRequest(postImage.imageUrl, chunksCount, fileSize, callback)
     }
 
     /**
-     * Enqueue a download request for the given HttpUrl with only one chunk and default extra information (no file size, no hash).
+     * Enqueue a download request for the given HttpUrl with only one chunk.
      */
     fun enqueueNormalDownloadFileRequest(
             url: HttpUrl,
             callback: FileCacheListener?
     ): CancelableDownload? {
-        // Normal downloads (not chunked) always have default extra info (no file size, no file hash)
-        return enqueueDownloadFileRequest(url, 1, DownloadRequestExtraInfo(), callback)
+        return enqueueDownloadFileRequest(url, 1, -1L, callback)
     }
 
     private fun enqueueDownloadFileRequest(
             url: HttpUrl,
             chunksCount: Int,
-            extraInfo: DownloadRequestExtraInfo,
+            fileSize: Long,
             callback: FileCacheListener?
     ): CancelableDownload? {
         val file: RawFile? = cacheHandler.getOrCreateCacheFile(url)
@@ -202,7 +201,7 @@ class FileCacheV2(
                 callback,
                 file,
                 chunksCount = chunksCount,
-                extraInfo = extraInfo
+                fileSize = fileSize
         )
 
         if (alreadyActive) {
@@ -252,7 +251,7 @@ class FileCacheV2(
             callback: FileCacheListener?,
             file: RawFile,
             chunksCount: Int,
-            extraInfo: DownloadRequestExtraInfo
+            fileSize: Long
     ): Pair<Boolean, CancelableDownload> {
         return synchronized(activeDownloads) {
             val prevRequest = activeDownloads.get(url)
@@ -284,7 +283,7 @@ class FileCacheV2(
                     AtomicLong(0L),
                     AtomicLong(0L),
                     cancelableDownload,
-                    extraInfo
+                    fileSize
             )
 
             activeDownloads.put(url, request)
@@ -459,7 +458,6 @@ class FileCacheV2(
                             is FileCacheException.FileNotFoundOnTheServerException -> {
                                 onNotFound()
                             }
-                            is FileCacheException.FileHashesAreDifferent,
                             is FileCacheException.CouldNotMarkFileAsDownloaded,
                             is FileCacheException.NoResponseBodyException,
                             is FileCacheException.CouldNotCreateOutputFileException,

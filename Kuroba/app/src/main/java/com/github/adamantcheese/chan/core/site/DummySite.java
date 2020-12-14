@@ -268,6 +268,6 @@ public class DummySite
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false, false);
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false);
     }
 }

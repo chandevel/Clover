@@ -48,7 +48,6 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.MediaSourceCallback;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
-import com.github.adamantcheese.chan.core.cache.downloader.DownloadRequestExtraInfo;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
@@ -358,10 +357,8 @@ public class MultiImageView
             return;
         }
 
-        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
         bigImageRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
-                extraInfo,
+                postImage.size,
                 callback.getLoadable().site.getChunkDownloaderSiteProperties(),
                 new FileCacheListener() {
 
@@ -420,10 +417,8 @@ public class MultiImageView
             return;
         }
 
-        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
         gifRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
-                extraInfo,
+                postImage.size,
                 callback.getLoadable().site.getChunkDownloaderSiteProperties(),
                 new FileCacheListener() {
 
@@ -593,10 +588,8 @@ public class MultiImageView
             return;
         }
 
-        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
         videoRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
-                extraInfo,
+                postImage.size,
                 callback.getLoadable().site.getChunkDownloaderSiteProperties(),
                 new FileCacheListener() {
 
@@ -711,10 +704,8 @@ public class MultiImageView
             return;
         }
 
-        DownloadRequestExtraInfo extraInfo = new DownloadRequestExtraInfo(postImage.size, postImage.fileHash);
-
         otherRequest = fileCacheV2.enqueueChunkedDownloadFileRequest(postImage,
-                extraInfo,
+                postImage.size,
                 callback.getLoadable().site.getChunkDownloaderSiteProperties(),
                 new FileCacheListener() {
 

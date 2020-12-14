@@ -187,9 +187,6 @@ public class Wired7
     @NonNull
     @Override
     public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, true,
-                // Wired-7 sends incorrect file md5 hash sometimes
-                false
-        );
+        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, true);
     }
 }
