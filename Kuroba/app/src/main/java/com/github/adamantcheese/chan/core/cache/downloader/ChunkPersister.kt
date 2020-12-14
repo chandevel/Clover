@@ -67,43 +67,39 @@ internal class ChunkPersister(
                 )
                         ?: throw IOException("Couldn't create chunk cache file")
 
-                try {
-                    chunkResponse.response.useAsResponseBody { responseBody ->
-                        val chunkSize = responseBody.contentLength()
-                        if (totalChunksCount == 1) {
-                            // When downloading the whole file in a single chunk we can only know
-                            // for sure the whole size of the file at this point since we probably
-                            // didn't send the HEAD request
-                            activeDownloads.updateTotalLength(url, chunkSize)
-                        }
-
-                        responseBody.source().use { bufferedSource ->
-                            if (!bufferedSource.isOpen) {
-                                activeDownloads.throwCancellationException(url)
-                            }
-
-                            chunkCacheFile.useAsBufferedSink { bufferedSink ->
-                                readBodyLoop(
-                                        chunkSize,
-                                        url,
-                                        bufferedSource,
-                                        bufferedSink,
-                                        totalDownloaded,
-                                        serializedEmitter,
-                                        chunkIndex,
-                                        chunkCacheFile,
-                                        chunk
-                                )
-                            }
-                        }
+                chunkResponse.response.useAsResponseBody { responseBody ->
+                    val chunkSize = responseBody.contentLength()
+                    if (totalChunksCount == 1) {
+                        // When downloading the whole file in a single chunk we can only know
+                        // for sure the whole size of the file at this point since we probably
+                        // didn't send the HEAD request
+                        activeDownloads.updateTotalLength(url, chunkSize)
                     }
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
-                                "chunk ${chunk.start}..${chunk.end}")
+                    responseBody.source().use { bufferedSource ->
+                        if (!bufferedSource.isOpen) {
+                            activeDownloads.throwCancellationException(url)
+                        }
+
+                        chunkCacheFile.useAsBufferedSink { bufferedSink ->
+                            readBodyLoop(
+                                    chunkSize,
+                                    url,
+                                    bufferedSource,
+                                    bufferedSink,
+                                    totalDownloaded,
+                                    serializedEmitter,
+                                    chunkIndex,
+                                    chunkCacheFile,
+                                    chunk
+                            )
+                        }
                     }
-                } catch (error: Throwable) {
-                    throw error
+                }
+
+                if (ChanSettings.verboseLogs.get()) {
+                    Logger.d(this, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
+                            "chunk ${chunk.start}..${chunk.end}")
                 }
             } catch (error: Throwable) {
                 handleErrors(
