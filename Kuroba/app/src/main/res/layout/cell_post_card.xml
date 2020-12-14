@@ -77,7 +77,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/replies"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:textColor="?android:textColorSecondary"
                 tools:padding="8dp"
                 tools:text="2 replies, 1 image" />

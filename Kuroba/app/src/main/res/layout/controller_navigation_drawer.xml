@@ -68,8 +68,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="match_parent"
                     android:ellipsize="end"
                     android:gravity="center_vertical"
+                    android:maxLines="1"
                     android:paddingHorizontal="8dp"
-                    android:singleLine="true"
                     android:text="@string/drawer_settings"
                     android:textSize="14sp" />
 
@@ -125,8 +125,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:gravity="center_vertical"
+                    android:maxLines="1"
                     android:paddingHorizontal="16dp"
-                    android:singleLine="true"
                     android:text="@string/drawer_pinned"
                     android:textSize="14sp" />
 

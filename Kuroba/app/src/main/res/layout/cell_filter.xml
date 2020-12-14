@@ -38,10 +38,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:maxLines="1"
                 android:paddingLeft="16dp"
                 android:paddingTop="8dp"
                 android:paddingRight="16dp"
-                android:singleLine="true"
                 android:textSize="14sp"
                 tools:text="/filter/" />
 

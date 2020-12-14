@@ -40,8 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/thumbnail_views"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_alignWithParentIfMissing="true"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
             tools:layout_width="@dimen/cell_post_thumbnail_size"
             tools:listitem="@layout/cell_album_download" />
@@ -97,7 +97,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_toRightOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:gravity="bottom"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="?android:textColorSecondary"
             tools:paddingBottom="8dp"
             tools:paddingLeft="8dp"

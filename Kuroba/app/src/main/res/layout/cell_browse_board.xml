@@ -15,14 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="48dp"
-    xmlns:tools="http://schemas.android.com/tools"
     android:background="?android:attr/selectableItemBackground"
     android:ellipsize="end"
     android:gravity="center_vertical"
     android:maxLines="1"
     android:paddingHorizontal="16dp"
-    android:singleLine="true"
     android:textSize="15sp"
     tools:text="/a/ - Anime and Manga" />

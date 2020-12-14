@@ -42,9 +42,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="28dp"
             android:ellipsize="end"
+            android:maxLines="1"
             android:paddingHorizontal="8dp"
             android:paddingTop="8dp"
-            android:singleLine="true"
             android:textSize="14sp"
             tools:text="4chan" />
 

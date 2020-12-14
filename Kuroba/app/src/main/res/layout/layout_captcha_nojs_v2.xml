@@ -11,15 +11,14 @@
     <TextView
         android:id="@+id/captcha_layout_v2_title"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="wrap_content"
         android:background="?backcolor"
-        android:ellipsize="middle"
         android:gravity="center"
+        android:maxLines="2"
         android:padding="4dp"
-        android:singleLine="true"
         android:text=""
         android:textSize="18sp"
-        tools:text="Select all images with something" />
+        tools:text="Select all images with somethin\n this is a second line" />
 
     <!--
         The layout_width and height here don't actually matter because they're programatically set for the orientation of the device
@@ -44,9 +43,9 @@
 
         <Button
             android:id="@+id/captcha_layout_v2_use_old_captcha_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:text="@string/captcha_layout_v2_use_old_captcha"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_reload_button"
@@ -55,9 +54,9 @@
 
         <Button
             android:id="@+id/captcha_layout_v2_reload_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:text="@string/action_reload"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_layout_v2_verify_button"
             app:layout_constraintEnd_toStartOf="@+id/captcha_layout_v2_verify_button"
@@ -66,9 +65,9 @@
 
         <Button
             android:id="@+id/captcha_layout_v2_verify_button"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            style="@style/Widget.AppCompat.Button.Borderless"
             android:enabled="false"
             android:text="@string/captcha_layout_v2_verify_button_text"
             app:layout_constraintBottom_toBottomOf="parent"

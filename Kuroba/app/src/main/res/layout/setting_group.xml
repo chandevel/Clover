@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:maxLines="1"
         android:paddingHorizontal="16dp"
         android:paddingTop="16dp"
-        android:singleLine="true"
         android:textColor="?android:textColorSecondary"
         android:textSize="16sp"
         tools:text="Setting group name" />

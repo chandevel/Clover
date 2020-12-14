@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textSize="15sp"
             tools:text="@string/lorem_ipsum" />
 
@@ -54,7 +54,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
-            android:singleLine="true"
+            android:maxLines="1"
             android:textColor="?android:textColorSecondary"
             android:textSize="11sp"
             tools:text="137R / 54I / 37P / Page 6" />
@@ -67,9 +67,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_marginRight="4dp"
         android:background="@drawable/ripple_item_background"
         android:gravity="center"
+        android:maxLines="1"
         android:minWidth="32dp"
         android:padding="4dp"
-        android:singleLine="true"
         android:textSize="16sp"
         tools:ignore="HardcodedText"
         tools:text="128"
