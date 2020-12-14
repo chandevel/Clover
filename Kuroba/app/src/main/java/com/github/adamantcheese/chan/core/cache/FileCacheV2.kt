@@ -603,8 +603,4 @@ class FileCacheV2(
             Logger.e(this, "Could not delete the file in purgeOutput, output = ${output.getFullPath()}")
         }
     }
-
-    companion object {
-        const val MIN_CHUNK_SIZE = 1024L * 8L // 8 KB
-    }
 }

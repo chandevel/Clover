@@ -39,11 +39,10 @@ internal class ChunkDownloader(
                 .header("Referer", url.toString())
 
         if (!chunk.isWholeFile()) {
-            // If chunk.isWholeFile == true that means that either the file size is too small (
-            // and there is no reason to download it in chunks) (it should be less than
-            // [FileCacheV2.MIN_CHUNK_SIZE]) or that the server does not support Partial Content
-            // or the user turned off chunked file downloading, or we couldn't send HEAD request
-            // (it was timed out) so we should download it normally.
+            // If chunk.isWholeFile == true that means that one of the following is true:
+            // 1) the file size is too small (and there is no reason to download it in chunks)
+            // 2) the server does not support Partial Content
+            // 3) we couldn't send HEAD request (it was timed out) so we should download it normally
             builder.header("Range", "bytes=" + chunk.start + "-" + chunk.end)
         }
 

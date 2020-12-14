@@ -263,9 +263,9 @@ internal class PartialContentSupportChecker(
             return
         }
 
-        if (length < FileCacheV2.MIN_CHUNK_SIZE) {
+        if (length < 8192L) {
             if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "(${maskImageUrl(url)}) download file normally (file length < MIN_CHUNK_SIZE, length = $length)")
+                Logger.d(this, "(${maskImageUrl(url)}) download file normally (file length < 8192L, length = $length)")
             }
             // Download tiny files normally, no need to chunk them
             emitter.onSuccess(cache(url, PartialContentCheckResult(false, length = length)))

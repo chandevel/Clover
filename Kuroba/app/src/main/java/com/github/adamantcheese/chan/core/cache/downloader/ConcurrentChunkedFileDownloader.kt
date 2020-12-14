@@ -57,8 +57,7 @@ internal class ConcurrentChunkedFileDownloader constructor(
         val chunks = if (chunksCount > 1) {
             chunkLong(
                     partialContentCheckResult.length,
-                    chunksCount,
-                    FileCacheV2.MIN_CHUNK_SIZE
+                    chunksCount
             )
         } else {
             // If there is only one chunk then we should download the whole file without using
