@@ -21,14 +21,6 @@ public class JavaUtils {
         return true;
     }
 
-    public static String inputStreamMD5hash(InputStream inputStream) {
-        try {
-            return ByteString.read(inputStream, inputStream.available()).md5().hex();
-        } catch (Throwable t) {
-            return ByteString.encodeUtf8(String.valueOf(Random.Default.nextLong())).md5().hex();
-        }
-    }
-
     public static String stringMD5hash(String inputString) {
         try {
             return ByteString.encodeUtf8(inputString).md5().hex();

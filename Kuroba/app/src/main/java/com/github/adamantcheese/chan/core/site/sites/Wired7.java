@@ -83,7 +83,8 @@ public class Wired7
 
     @Override
     public void setup() {
-        setBoards(Board.fromSiteNameCode(this, "Random", "b"),
+        setBoards(
+                Board.fromSiteNameCode(this, "Random", "b"),
                 Board.fromSiteNameCode(this, "Hentai", "h"),
                 Board.fromSiteNameCode(this, "Humanidad", "hum"),
                 Board.fromSiteNameCode(this, "Internacional/Random", "i"),
