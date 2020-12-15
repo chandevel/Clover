@@ -95,7 +95,6 @@ public class AndroidUtils {
     }
 
     public static void cleanup() {
-        application = null;
         activity = null;
     }
 
