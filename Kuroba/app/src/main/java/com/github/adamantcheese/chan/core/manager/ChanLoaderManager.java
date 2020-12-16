@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader.ChanLoaderCallback;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -54,12 +53,13 @@ public class ChanLoaderManager {
     public static final int THREAD_LOADERS_CACHE_SIZE = 25;
 
     //map between a loadable and a chan loader instance for it, currently in use
-    private final Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
+    private static final Map<Loadable, ChanThreadLoader> threadLoaders = new HashMap<>();
     //chan loader cache for released loadables
-    private final LruCache<Loadable, ChanThreadLoader> threadLoadersCache = new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
+    private static final LruCache<Loadable, ChanThreadLoader> threadLoadersCache =
+            new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
     @NonNull
-    public synchronized ChanThreadLoader obtain(@NonNull Loadable loadable, ChanLoaderCallback listener) {
+    public static synchronized ChanThreadLoader obtain(@NonNull Loadable loadable, ChanLoaderCallback listener) {
         BackgroundUtils.ensureMainThread();
 
         ChanThreadLoader chanLoader;
@@ -86,14 +86,13 @@ public class ChanLoaderManager {
         return chanLoader;
     }
 
-    public synchronized void release(@NonNull ChanThreadLoader chanLoader, ChanLoaderCallback listener) {
+    public static synchronized void release(@NonNull ChanThreadLoader chanLoader, ChanLoaderCallback listener) {
         BackgroundUtils.ensureMainThread();
 
         Loadable loadable = chanLoader.getLoadable();
         if (loadable.isThreadMode()) {
             ChanThreadLoader foundChanLoader = threadLoaders.get(loadable);
             if (foundChanLoader == null) {
-                Logger.wtf(this, "Loader doesn't exist.");
                 throw new IllegalStateException("The released loader does not exist");
             }
 

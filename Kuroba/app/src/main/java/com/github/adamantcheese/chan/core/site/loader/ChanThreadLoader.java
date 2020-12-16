@@ -100,7 +100,6 @@ public class ChanThreadLoader {
      * @param listener the listener to add
      */
     public void addListener(ChanLoaderCallback listener) {
-        BackgroundUtils.ensureMainThread();
         listeners.add(listener);
     }
 
@@ -138,11 +137,6 @@ public class ChanThreadLoader {
     public void requestData() {
         BackgroundUtils.ensureMainThread();
         clearTimer();
-        requestDataInternal();
-    }
-
-    private void requestDataInternal() {
-        BackgroundUtils.ensureMainThread();
 
         if (call != null) {
             call.cancel();
@@ -236,8 +230,6 @@ public class ChanThreadLoader {
      * Get the time in milliseconds until another loadMore is recommended
      */
     public long getTimeUntilLoadMore() {
-        BackgroundUtils.ensureMainThread();
-
         if (call != null) {
             return 0L;
         } else {
@@ -258,7 +250,7 @@ public class ChanThreadLoader {
         return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
             @Override
             public void onFailure(Exception e) {
-                BackgroundUtils.runOnMainThread(() -> onErrorResponse(e));
+                notifyAboutError(new ChanLoaderException(e));
             }
 
             @Override
@@ -294,23 +286,20 @@ public class ChanThreadLoader {
         call = null;
 
         try {
+            if (response == null || response.posts.isEmpty()) {
+                throw new Exception("No posts in thread!");
+            }
+
             onResponseInternal(response);
         } catch (Throwable e) {
             Logger.e(ChanThreadLoader.this, "onResponse error", e);
-            BackgroundUtils.runOnMainThread(() -> notifyAboutError(e instanceof Exception
-                    ? (Exception) e
-                    : new Exception(e)));
+            notifyAboutError(new ChanLoaderException(e instanceof Exception ? (Exception) e : new Exception(e)));
         }
     }
 
-    private void onResponseInternal(ChanLoaderResponse response) {
+    private void onResponseInternal(ChanLoaderResponse response)
+            throws Exception {
         BackgroundUtils.ensureBackgroundThread();
-
-        // Normal thread, not archived/deleted/closed
-        if (response == null || response.posts == null || response.posts.isEmpty()) {
-            BackgroundUtils.runOnMainThread(() -> onErrorResponse(new Exception("Post size is 0")));
-            return;
-        }
 
         synchronized (this) {
             if (thread == null) {
@@ -318,10 +307,6 @@ public class ChanThreadLoader {
             }
 
             thread.setNewPosts(response.posts);
-        }
-
-        if (thread == null) {
-            throw new IllegalStateException("thread is null");
         }
 
         ChanThread localThread = thread;
@@ -377,21 +362,17 @@ public class ChanThreadLoader {
         });
     }
 
-    private void onErrorResponse(Exception error) {
+    private void notifyAboutError(ChanLoaderException exception) {
         call = null;
-        Logger.e(this, "Loading error", error);
-        notifyAboutError(error);
-    }
-
-    private void notifyAboutError(Exception exception) {
-        BackgroundUtils.ensureMainThread();
-
         clearTimer();
-        ChanLoaderException loaderException = new ChanLoaderException(exception);
 
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderError(loaderException);
-        }
+        Logger.e(this, "Loading error", exception);
+
+        BackgroundUtils.runOnMainThread(() -> {
+            for (ChanLoaderCallback l : listeners) {
+                l.onChanLoaderError(exception);
+            }
+        });
     }
 
     private void clearPendingRunnable() {

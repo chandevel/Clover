@@ -114,7 +114,6 @@ public class WatchManager
     private static final long STATE_UPDATE_DEBOUNCE_TIME_MS = 1000L;
 
     private final DatabasePinManager databasePinManager;
-    private final ChanLoaderManager chanLoaderManager;
     private final WakeManager wakeManager;
 
     private IntervalType currentInterval = NONE;
@@ -125,10 +124,9 @@ public class WatchManager
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     public WatchManager(
-            DatabasePinManager databasePinManager, ChanLoaderManager chanLoaderManager, WakeManager wakeManager
+            DatabasePinManager databasePinManager, WakeManager wakeManager
     ) {
         //retain local references to needed managers/factories/pins
-        this.chanLoaderManager = chanLoaderManager;
         this.wakeManager = wakeManager;
 
         stateUpdateDebouncer = new Debouncer(true);
@@ -773,7 +771,7 @@ public class WatchManager
             this.pin = pin;
 
             Logger.d(this, "created for " + pin.loadable.toString());
-            chanLoader = chanLoaderManager.obtain(pin.loadable, this);
+            chanLoader = ChanLoaderManager.obtain(pin.loadable, this);
             PageRepository.addListener(this);
         }
 
@@ -820,7 +818,7 @@ public class WatchManager
                 Logger.d(this,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
-                chanLoaderManager.release(chanLoader, this);
+                ChanLoaderManager.release(chanLoader, this);
                 chanLoader = null;
             }
             PageRepository.removeListener(this);

@@ -145,9 +145,6 @@ public class ThreadPresenter
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     @Inject
-    private ChanLoaderManager chanLoaderManager;
-
-    @Inject
     private FileManager fileManager;
 
     @Inject
@@ -191,7 +188,7 @@ public class ThreadPresenter
             loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
             DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
-            chanLoader = chanLoaderManager.obtain(loadable, this);
+            chanLoader = ChanLoaderManager.obtain(loadable, this);
             threadPresenterCallback.showLoading();
         }
     }
@@ -199,7 +196,7 @@ public class ThreadPresenter
     public synchronized void unbindLoadable() {
         if (isBound()) {
             chanLoader.clearTimer();
-            chanLoaderManager.release(chanLoader, this);
+            ChanLoaderManager.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
 

@@ -51,7 +51,6 @@ public class FilterWatchManager
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
     private final Gson gson;
-    private final ChanLoaderManager chanLoaderManager;
 
     //filterLoaders keeps track of ChanThreadLoaders so they can be cleared correctly each alarm trigger
     //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
@@ -69,15 +68,13 @@ public class FilterWatchManager
             BoardRepository boardRepository,
             FilterEngine filterEngine,
             WatchManager watchManager,
-            Gson gson,
-            ChanLoaderManager chanLoaderManager
+            Gson gson
     ) {
         this.wakeManager = wakeManager;
         this.boardRepository = boardRepository;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
         this.gson = gson;
-        this.chanLoaderManager = chanLoaderManager;
 
         if (!filterEngine.getEnabledWatchFilters().isEmpty()) {
             wakeManager.registerWakeable(this);
@@ -123,7 +120,7 @@ public class FilterWatchManager
 
     private void populateFilterLoaders() {
         for (Map.Entry<ChanThreadLoader, CatalogLoader> entry : filterLoaders.entrySet()) {
-            chanLoaderManager.release(entry.getKey(), entry.getValue());
+            ChanLoaderManager.release(entry.getKey(), entry.getValue());
         }
         filterLoaders.clear();
         //get a set of boards to background load
@@ -141,7 +138,7 @@ public class FilterWatchManager
 
         for (Board b : boards) {
             CatalogLoader backgroundLoader = new CatalogLoader();
-            ChanThreadLoader catalogLoader = chanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
+            ChanThreadLoader catalogLoader = ChanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
             filterLoaders.put(catalogLoader, backgroundLoader);
         }
     }

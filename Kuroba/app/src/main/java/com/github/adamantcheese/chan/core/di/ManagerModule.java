@@ -20,7 +20,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
@@ -58,21 +57,11 @@ public class ManagerModule {
 
     @Provides
     @Singleton
-    public ChanLoaderManager provideChanLoaderFactory() {
-        Logger.d(AppModule.DI_TAG, "Chan loader factory");
-        return new ChanLoaderManager();
-    }
-
-    @Provides
-    @Singleton
     public WatchManager provideWatchManager(
-            DatabasePinManager databasePinManager,
-            ChanLoaderManager chanLoaderManager,
-            WakeManager wakeManager,
-            FileManager fileManager
+            DatabasePinManager databasePinManager, WakeManager wakeManager, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databasePinManager, chanLoaderManager, wakeManager);
+        return new WatchManager(databasePinManager, wakeManager);
     }
 
     @Provides
@@ -89,17 +78,10 @@ public class ManagerModule {
             BoardRepository boardRepository,
             FilterEngine filterEngine,
             WatchManager watchManager,
-            Gson gson,
-            ChanLoaderManager chanLoaderManager
+            Gson gson
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager,
-                boardRepository,
-                filterEngine,
-                watchManager,
-                gson,
-                chanLoaderManager
-        );
+        return new FilterWatchManager(wakeManager, boardRepository, filterEngine, watchManager, gson);
     }
 
     @Provides

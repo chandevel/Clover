@@ -166,7 +166,7 @@ public class ChanReaderParser
     }
 
     private ChanLoaderResponse processPosts(Post.Builder op, List<Post> allPost, List<PostHide> removedPosts) {
-        ChanLoaderResponse response = new ChanLoaderResponse(op, new ArrayList<>(allPost.size()));
+        ChanLoaderResponse response = new ChanLoaderResponse(op);
 
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();

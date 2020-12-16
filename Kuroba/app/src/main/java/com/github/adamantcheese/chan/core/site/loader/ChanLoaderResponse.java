@@ -17,17 +17,15 @@
 package com.github.adamantcheese.chan.core.site.loader;
 
 import com.github.adamantcheese.chan.core.model.Post;
-
-import java.util.List;
+import com.github.adamantcheese.chan.utils.NoDeleteArrayList;
 
 public class ChanLoaderResponse {
     // Op Post that is created new each time.
     // Used to later copy members like image count to the real op on the main thread.
     public final Post.Builder op;
-    public final List<Post> posts;
+    public final NoDeleteArrayList<Post> posts = new NoDeleteArrayList<>();
 
-    public ChanLoaderResponse(Post.Builder op, List<Post> posts) {
+    public ChanLoaderResponse(Post.Builder op) {
         this.op = op;
-        this.posts = posts;
     }
 }
