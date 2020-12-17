@@ -238,6 +238,7 @@ public class ChanSettings {
     // Reply
     public static final BooleanSetting postPinThread;
     public static final StringSetting postDefaultName;
+    public static final BooleanSetting alwaysSetNewFilename;
 
     // Post
     public static final BooleanSetting repliesButtonsBottom;
@@ -398,6 +399,7 @@ public class ChanSettings {
             // Reply
             postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
             postDefaultName = new StringSetting(p, "preference_default_name", "");
+            alwaysSetNewFilename = new BooleanSetting(p, "preference_always_set_new_filename", false);
 
             // Post
             repliesButtonsBottom = new BooleanSetting(p, "preference_buttons_bottom", false);

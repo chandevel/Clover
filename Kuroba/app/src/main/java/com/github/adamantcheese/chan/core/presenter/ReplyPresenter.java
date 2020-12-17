@@ -409,7 +409,6 @@ public class ReplyPresenter
         currentExt = (currentExt == null) ? "" : "." + currentExt;
         draft.fileName = System.currentTimeMillis() + currentExt;
         callback.loadDraftIntoViews(draft);
-        showToast(context, "Filename changed.");
     }
 
     public void quote(Post post, boolean withText) {
@@ -462,6 +461,9 @@ public class ReplyPresenter
         if (draft == null) return;
         draft.file = file;
         draft.fileName = name;
+        if (ChanSettings.alwaysSetNewFilename.get()) {
+            filenameNewClicked();
+        }
         try {
             ExifInterface exif = new ExifInterface(file.getAbsolutePath());
             int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED);
@@ -473,7 +475,7 @@ public class ReplyPresenter
         if (BitmapUtils.getImageFormat(file) == Bitmap.CompressFormat.WEBP) {
             callback.openMessage(getString(R.string.file_type_may_not_be_supported));
         }
-        showPreview(name, file);
+        showPreview(draft.fileName, file);
     }
 
     @Override

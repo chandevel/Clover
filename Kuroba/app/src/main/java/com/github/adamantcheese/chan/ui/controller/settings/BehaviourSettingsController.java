@@ -145,6 +145,13 @@ public class BehaviourSettingsController
                     R.string.empty
             ));
 
+            reply.add(new BooleanSettingView(
+                    this,
+                    ChanSettings.alwaysSetNewFilename,
+                    "Always randomize filename",
+                    "When attaching an image, the filename will be automatically randomized"
+            ));
+
             groups.add(reply);
         }
 

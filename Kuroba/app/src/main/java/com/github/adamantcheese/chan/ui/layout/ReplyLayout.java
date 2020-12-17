@@ -290,7 +290,10 @@ public class ReplyLayout
             return true;
         });
 
-        filenameNew.setOnClickListener(v -> presenter.filenameNewClicked());
+        filenameNew.setOnClickListener(v -> {
+            presenter.filenameNewClicked();
+            showToast(getContext(), "Filename changed.");
+        });
 
         spoiler.setTag(false);
         spoiler.setOnClickListener(v -> {
