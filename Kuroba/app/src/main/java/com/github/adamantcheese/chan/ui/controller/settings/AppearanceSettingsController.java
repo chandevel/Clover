@@ -241,6 +241,12 @@ public class AppearanceSettingsController
                     R.string.setting_enable_emoji_description
             )));
 
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseExtraQuotes,
+                    "Convert non-standard quotes",
+                    "Attempts to parse non-standard quotes as regular quotes, for those posts that try to avoid direct quoting"
+            )));
+
             groups.add(post);
         }
 

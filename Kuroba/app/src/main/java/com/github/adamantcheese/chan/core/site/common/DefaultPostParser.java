@@ -70,6 +70,9 @@ public class DefaultPostParser
     @Inject
     private FilterEngine filterEngine;
 
+    // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
+    private final Pattern extraQuotePattern = Pattern.compile("(?<![/\"l&])[@#$](\\d+)(?!;)");
+
     public DefaultPostParser(CommentParser commentParser) {
         this.commentParser = commentParser;
         inject(this);
@@ -209,6 +212,9 @@ public class DefaultPostParser
 
         try {
             String comment = post.comment.toString().replace("<wbr>", "");
+            if (ChanSettings.parseExtraQuotes.get()) {
+                comment = extraQuotePattern.matcher(comment).replaceAll(commentParser.createQuoteElementString(post));
+            }
             Document document = Jsoup.parseBodyFragment(comment);
 
             for (Node node : document.body().childNodes()) {

@@ -156,6 +156,10 @@ public class CommentParser {
         this.fullQuotePattern = fullQuotePattern;
     }
 
+    public String createQuoteElementString(Post.Builder post) {
+        return "<a href=\"/" + post.board.code + "/thread/" + post.opId + "#p$1\">&gt;&gt;$1</a>";
+    }
+
     public CharSequence handleTag(
             PostParser.Callback callback,
             @NonNull Theme theme,

@@ -212,8 +212,11 @@ public class FoolFuukaArchive
 
     private static class FoolFuukaCommentParser
             extends CommentParser {
+        private final String domain;
+
         public FoolFuukaCommentParser(String domain) {
             super();
+            this.domain = domain;
             addDefaultRules();
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
@@ -244,6 +247,12 @@ public class FoolFuukaArchive
                 );
             }
             return super.handleTag(callback, theme, post, tag, text, element);
+        }
+
+        @Override
+        public String createQuoteElementString(Post.Builder post) {
+            return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code + "/thread/"
+                    + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
         }
     }
 

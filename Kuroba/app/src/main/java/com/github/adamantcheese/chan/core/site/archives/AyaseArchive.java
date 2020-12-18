@@ -251,6 +251,11 @@ public class AyaseArchive
             }
             return super.handleTag(callback, theme, post, tag, text, element);*/
         }
+
+        @Override
+        public String createQuoteElementString(Post.Builder post) {
+            return "$0"; // return the input
+        }
     }
 
     @Override
