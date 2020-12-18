@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.site;
+package com.github.adamantcheese.chan.core.site.archives;
 
 import android.util.JsonReader;
 
@@ -8,6 +8,13 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.SiteActions;
+import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+import com.github.adamantcheese.chan.core.site.SiteIcon;
+import com.github.adamantcheese.chan.core.site.SiteSetting;
+import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
@@ -16,6 +23,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.utils.NoDeleteArrayList;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,17 +33,17 @@ import okhttp3.HttpUrl;
 
 public abstract class ExternalSiteArchive
         implements Site {
-    public String domain;
-    public String name;
-    public List<String> boardCodes;
-    public boolean searchEnabled;
+    public final String domain;
+    public final String name;
+    public final NoDeleteArrayList<String> boardCodes;
+    public final boolean searchEnabled;
 
     public ExternalSiteArchive(
             String domain, String name, List<String> boardCodes, boolean searchEnabled
     ) {
         this.domain = domain;
         this.name = name;
-        this.boardCodes = boardCodes;
+        this.boardCodes = new NoDeleteArrayList<>(boardCodes);
         this.searchEnabled = searchEnabled;
     }
 

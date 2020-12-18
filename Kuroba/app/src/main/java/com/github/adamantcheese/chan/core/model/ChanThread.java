@@ -25,7 +25,7 @@ import android.text.style.UnderlineSpan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
-import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;

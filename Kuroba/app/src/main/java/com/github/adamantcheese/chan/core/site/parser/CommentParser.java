@@ -38,9 +38,9 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.ExternalSiteArchive.ArchiveSiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveSiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -357,7 +357,7 @@ public class CommentParser {
             int postId = postNo == null ? -1 : Integer.parseInt(postNo);
 
             if (board.equals(post.board.code) && callback.isInternal(postId)) {
-                //link to post in same thread with post number (>>post)
+                //link to post in same thread with post number (>>post); usually this is a almost fully qualified link
                 t = Type.QUOTE;
                 value = postId;
             } else {
@@ -373,7 +373,7 @@ public class CommentParser {
         } else {
             Matcher quoteMatcher = quotePattern.matcher(href);
             if (quoteMatcher.matches()) {
-                //link to post backup???
+                //link to post in the same thread with post number (>>post); usually this is a #num href
                 t = Type.QUOTE;
                 value = Integer.parseInt(quoteMatcher.group(1));
             } else {

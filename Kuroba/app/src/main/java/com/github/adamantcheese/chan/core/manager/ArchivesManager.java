@@ -21,9 +21,9 @@ import android.content.res.AssetManager;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.site.AyaseArchive;
-import com.github.adamantcheese.chan.core.site.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.archives.AyaseArchive;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.archives.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.NetUtils;

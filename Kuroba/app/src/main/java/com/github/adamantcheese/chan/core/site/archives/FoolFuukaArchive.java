@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.site;
+package com.github.adamantcheese.chan.core.site.archives;
 
 import android.text.TextUtils;
 import android.util.JsonReader;
