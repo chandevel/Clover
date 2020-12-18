@@ -28,8 +28,6 @@ public class TaimabaCommentParser
     public TaimabaCommentParser() {
         super();
         addDefaultRules();
-        setQuotePattern(Pattern.compile(".*#(\\d+)"));
-        setFullQuotePattern(Pattern.compile("/(\\w+)/thread/(\\d+)#(\\d+)"));
         rule(StyleRule.tagRule("strike").strikeThrough());
         rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
         rule(StyleRule.tagRule("blockquote")

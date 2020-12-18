@@ -77,8 +77,8 @@ public class CommentParser {
     private static final String EXTERN_THREAD_LINK_SUFFIX = " \u2192"; // arrow to the right
     public static final String EXIF_INFO_STRING = "[EXIF data available. Click here to view.]";
 
-    private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p(\\d+)");
-    private Pattern quotePattern = Pattern.compile(".*#p(\\d+)");
+    private Pattern fullQuotePattern = Pattern.compile("/(\\w+)/\\w+/(\\d+)#p?(\\d+)");
+    private Pattern quotePattern = Pattern.compile(".*#p?(\\d+)");
 
     // A pattern matching any board links
     private final Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");

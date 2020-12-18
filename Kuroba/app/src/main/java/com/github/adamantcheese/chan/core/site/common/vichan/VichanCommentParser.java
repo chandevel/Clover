@@ -26,7 +26,6 @@ public class VichanCommentParser
     public VichanCommentParser() {
         super();
         addDefaultRules();
-        setQuotePattern(Pattern.compile(".*#(\\d+)"));
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
         rule(StyleRule.tagRule("p").cssClass("quote").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
     }
