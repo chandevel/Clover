@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -143,7 +144,10 @@ public class BrowseBoardsFloatingMenu
                 @Override
                 public void setup() {
                     setName("App Setup");
-                    setIcon(SiteIcon.fromDrawable(getContext().getDrawable(R.drawable.ic_fluent_settings_24_filled)));
+                    @SuppressLint("UseCompatLoadingForDrawables")
+                    Drawable settingsDrawable = getContext().getDrawable(R.drawable.ic_fluent_settings_24_filled);
+                    settingsDrawable.setTint(getAttrColor(getContext(), android.R.attr.textColorSecondary));
+                    setIcon(SiteIcon.fromDrawable(settingsDrawable));
                 }
             };
             setupSite.setup();
