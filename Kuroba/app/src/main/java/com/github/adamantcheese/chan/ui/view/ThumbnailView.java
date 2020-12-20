@@ -318,8 +318,8 @@ public abstract class ThumbnailView
     }
 
     @Override
-    public void onBitmapFailure(HttpUrl source, Exception e) {
-        if (this.source == null || !this.source.equals(source)) return; // source changed while call occurred, ignore
+    public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+        if (!source.equals(this.source)) return; // source changed while call occurred, ignore
         if (e instanceof NetUtilsClasses.HttpCodeException) {
             errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
         } else {
@@ -333,8 +333,8 @@ public abstract class ThumbnailView
     }
 
     @Override
-    public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-        if (this.source == null || !this.source.equals(source)) return; // source changed while call occurred, ignore
+    public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+        if (!source.equals(this.source)) return; // source changed while call occurred, ignore
         setImageBitmap(bitmap);
         onImageSet(fromCache);
         bitmapCall = null;

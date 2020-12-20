@@ -59,7 +59,7 @@ public class SiteIcon {
         } else if (url != null) {
             NetUtils.makeBitmapRequest(url, new BitmapResult() {
                 @Override
-                public void onBitmapFailure(HttpUrl source, Exception e) {
+                public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                     Logger.e(SiteIcon.this, "Error loading favicon", e);
                     drawable = null;
                     BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(new BitmapDrawable(getRes(),
@@ -68,7 +68,7 @@ public class SiteIcon {
                 }
 
                 @Override
-                public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                     drawable = new BitmapDrawable(getRes(), bitmap);
                     drawable.setFilterBitmap(false);
                     drawable.setDither(false);

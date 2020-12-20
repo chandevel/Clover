@@ -217,11 +217,7 @@ internal class ChunkPersister(
                 }
 
                 val read: Long = bufferedSource.buffer.size
-
                 downloaded += read
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this, "{$chunkIndex}, {$downloaded}, {$chunkSize}")
-                }
                 bufferedSink.write(bufferedSource.buffer, bufferedSource.buffer.size)
 
                 val total = totalDownloaded.addAndGet(read)

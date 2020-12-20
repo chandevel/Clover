@@ -974,13 +974,13 @@ public class PostCell
 
             request = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
                 @Override
-                public void onBitmapFailure(HttpUrl source, Exception e) {
+                public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                     bitmap = BitmapRepository.error;
                     postIcons.invalidate();
                 }
 
                 @Override
-                public void onBitmapSuccess(HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                     PostIconsHttpIcon.this.bitmap = bitmap;
                     postIcons.invalidate();
                 }
