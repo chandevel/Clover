@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -33,7 +34,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardSetupPresenter.BoardSuggestion;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -167,11 +167,8 @@ public class BoardAddLayout
         @Override
         @NonNull
         public SuggestionCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SuggestionCell(LayoutUtils.inflate(parent.getContext(),
-                    R.layout.cell_board_suggestion,
-                    parent,
-                    false
-            ));
+            return new SuggestionCell(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_board_suggestion, parent, false));
         }
 
         @Override

@@ -26,6 +26,7 @@ import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.util.LruCache;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -93,7 +94,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class StartActivity
         extends AppCompatActivity
@@ -287,7 +287,7 @@ public class StartActivity
         switch (layoutMode) {
             case SPLIT:
                 SplitNavigationController split = new SplitNavigationController(this);
-                split.setEmptyView(inflate(this, R.layout.layout_split_empty));
+                split.setEmptyView((ViewGroup) LayoutInflater.from(this).inflate(R.layout.layout_split_empty, null));
 
                 drawerController.setChildController(split);
 
@@ -303,7 +303,8 @@ public class StartActivity
 
         if (layoutMode == SLIDE || layoutMode == PHONE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
-            slideController.setEmptyView(inflate(this, R.layout.layout_split_empty));
+            slideController.setEmptyView((ViewGroup) LayoutInflater.from(this)
+                    .inflate(R.layout.layout_split_empty, null));
             mainNavigationController.pushController(slideController, false);
             slideController.setLeftController(browseController);
         } else {

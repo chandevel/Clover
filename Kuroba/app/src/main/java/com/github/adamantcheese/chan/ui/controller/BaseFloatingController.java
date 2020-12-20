@@ -1,12 +1,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.controller.Controller;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public abstract class BaseFloatingController
         extends Controller {
@@ -21,7 +22,7 @@ public abstract class BaseFloatingController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, getLayoutId());
+        view = (ViewGroup) LayoutInflater.from(context).inflate(getLayoutId(), null);
         view.setBackgroundColor(0x88000000);
 
         statusBarColorPrevious = getWindow(context).getStatusBarColor();

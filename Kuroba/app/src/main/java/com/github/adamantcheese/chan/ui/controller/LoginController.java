@@ -18,7 +18,9 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -37,7 +39,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LoginController
         extends Controller
@@ -62,7 +63,7 @@ public class LoginController
 
         navigation.setTitle(R.string.settings_screen_pass);
 
-        view = inflate(context, R.layout.controller_pass);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_pass, null);
         crossfadeView = view.findViewById(R.id.crossfade);
         errors = view.findViewById(R.id.errors);
         button = view.findViewById(R.id.button);

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -53,7 +54,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public abstract class SettingsController
         extends Controller {
@@ -141,7 +141,7 @@ public abstract class SettingsController
         @NonNull
         @Override
         public SettingsGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View inflatedView = inflate(context, R.layout.setting_group, parent, false);
+            View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.setting_group, parent, false);
             RecyclerView settingViewRecycler = inflatedView.findViewById(R.id.setting_view_recycler);
             settingViewRecycler.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
             return new SettingsGroupViewHolder(inflatedView);
@@ -205,9 +205,10 @@ public abstract class SettingsController
         public SettingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View preferenceView;
             if (viewType == BooleanSettingView.class.getSimpleName().hashCode()) {
-                preferenceView = inflate(context, R.layout.setting_boolean, parent, false);
+                preferenceView =
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.setting_boolean, parent, false);
             } else {
-                preferenceView = inflate(context, R.layout.setting_link, parent, false);
+                preferenceView = LayoutInflater.from(parent.getContext()).inflate(R.layout.setting_link, parent, false);
             }
             return new SettingViewHolder(preferenceView);
         }

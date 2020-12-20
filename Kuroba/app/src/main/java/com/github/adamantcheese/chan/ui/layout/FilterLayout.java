@@ -27,6 +27,7 @@ import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import android.util.AttributeSet;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -50,7 +51,6 @@ import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.view.ColorPickerView;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,7 +196,7 @@ public class FilterLayout
         if (v == typeText) {
             @SuppressWarnings("unchecked")
             final SelectLayout<FilterType> selectLayout =
-                    (SelectLayout<FilterType>) LayoutUtils.inflate(getContext(), R.layout.layout_select, null);
+                    (SelectLayout<FilterType>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
             for (FilterType filterType : FilterType.values()) {
@@ -226,7 +226,7 @@ public class FilterLayout
         } else if (v == boardsSelector) {
             @SuppressWarnings("unchecked")
             final SelectLayout<Board> selectLayout =
-                    (SelectLayout<Board>) LayoutUtils.inflate(getContext(), R.layout.layout_select, null);
+                    (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
 
             List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
 

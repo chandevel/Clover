@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableStringBuilder;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -52,7 +53,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
@@ -76,7 +76,7 @@ public class DrawerPinAdapter
     @NonNull
     @Override
     public PinViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new PinViewHolder(inflate(parent.getContext(), R.layout.cell_pin, parent, false));
+        return new PinViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_pin, parent, false));
     }
 
     @Override

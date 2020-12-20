@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -35,7 +36,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class DrawerHistoryAdapter
@@ -75,7 +75,7 @@ public class DrawerHistoryAdapter
 
     @Override
     public HistoryCell onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new HistoryCell(inflate(parent.getContext(), R.layout.cell_history, parent, false));
+        return new HistoryCell(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_history, parent, false));
     }
 
     @Override

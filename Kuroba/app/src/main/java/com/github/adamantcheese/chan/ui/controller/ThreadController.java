@@ -22,6 +22,7 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -46,7 +47,6 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public abstract class ThreadController
         extends Controller
@@ -67,7 +67,7 @@ public abstract class ThreadController
 
         navigation.handlesToolbarInset = true;
 
-        threadLayout = (ThreadLayout) inflate(context, R.layout.layout_thread, null);
+        threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.create(this);
 
         view = new SwipeRefreshLayout(context) {

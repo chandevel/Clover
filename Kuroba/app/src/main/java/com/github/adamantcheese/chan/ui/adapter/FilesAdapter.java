@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,7 +29,6 @@ import com.github.adamantcheese.chan.core.saver.FileWatcher;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class FilesAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -54,7 +54,7 @@ public class FilesAdapter
 
     @Override
     public FileViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new FileViewHolder(inflate(parent.getContext(), R.layout.cell_file, parent, false));
+        return new FileViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_file, parent, false));
     }
 
     @Override

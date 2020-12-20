@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
@@ -55,7 +56,6 @@ import io.reactivex.disposables.Disposable;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class AlbumDownloadController
         extends Controller
@@ -81,7 +81,7 @@ public class AlbumDownloadController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, R.layout.controller_album_download);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_download, null);
 
         updateTitle();
         navigation.buildMenu()
@@ -275,9 +275,8 @@ public class AlbumDownloadController
 
         @Override
         public AlbumDownloadHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = inflate(parent.getContext(), R.layout.cell_album_download, parent, false);
-
-            return new AlbumDownloadHolder(view);
+            return new AlbumDownloadHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_album_download, parent, false));
         }
 
         @Override

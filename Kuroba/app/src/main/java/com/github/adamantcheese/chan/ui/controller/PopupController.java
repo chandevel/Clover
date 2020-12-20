@@ -17,14 +17,14 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
-
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PopupController
         extends Controller
@@ -39,7 +39,7 @@ public class PopupController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, R.layout.layout_controller_popup);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_controller_popup, null);
         FrameLayout topView = view.findViewById(R.id.top_view);
         topView.setOnClickListener(this);
         container = view.findViewById(R.id.container);

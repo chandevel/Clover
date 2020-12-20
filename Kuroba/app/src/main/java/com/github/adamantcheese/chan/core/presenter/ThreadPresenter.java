@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
@@ -70,7 +71,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.FileManager;
@@ -95,7 +95,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ThreadPresenter
@@ -1016,7 +1015,8 @@ public class ThreadPresenter
     }
 
     public void showArchives(Loadable op, int postNo) {
-        final ArchivesLayout dialogView = (ArchivesLayout) inflate(context, R.layout.layout_archives, null);
+        final ArchivesLayout dialogView =
+                (ArchivesLayout) LayoutInflater.from(context).inflate(R.layout.layout_archives, null);
         boolean hasContents = dialogView.setLoadable(op);
         dialogView.setPostNo(postNo);
         dialogView.setCallback(this);
@@ -1057,7 +1057,7 @@ public class ThreadPresenter
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
-            final View view = LayoutUtils.inflate(context, R.layout.dialog_post_delete, null);
+            final View view = LayoutInflater.from(context).inflate(R.layout.dialog_post_delete, null);
             CheckBox checkBox = view.findViewById(R.id.image_only);
             new AlertDialog.Builder(context).setTitle(R.string.delete_confirm)
                     .setView(view)

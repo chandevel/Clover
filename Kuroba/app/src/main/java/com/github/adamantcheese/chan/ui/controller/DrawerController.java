@@ -22,7 +22,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -81,7 +83,6 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class DrawerController
         extends Controller
@@ -175,11 +176,10 @@ public class DrawerController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context,
-                ChanSettings.reverseDrawer.get()
+        view = (ViewGroup) LayoutInflater.from(context)
+                .inflate(ChanSettings.reverseDrawer.get()
                         ? R.layout.controller_navigation_drawer_reverse
-                        : R.layout.controller_navigation_drawer
-        );
+                        : R.layout.controller_navigation_drawer, null);
         container = view.findViewById(R.id.container);
         drawerLayout = view.findViewById(R.id.drawer_layout);
         drawerLayout.setDrawerShadow(R.drawable.panel_shadow, Gravity.LEFT);
@@ -356,13 +356,9 @@ public class DrawerController
     private void onHeaderClickedInternal(boolean all) {
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
-            openMessage(
-                    getString(R.string.drawer_pins_cleared,
-                            getQuantityString(R.plurals.bookmark, pins.size(), pins.size())
-                    ),
-                    v -> watchManager.addAll(pins),
-                    getString(R.string.undo)
-            );
+            openMessage(getString(R.string.drawer_pins_cleared,
+                    getQuantityString(R.plurals.bookmark, pins.size(), pins.size())
+            ), v -> watchManager.addAll(pins), getString(R.string.undo));
         } else {
             int text;
             synchronized (watchManager.getAllPins()) {

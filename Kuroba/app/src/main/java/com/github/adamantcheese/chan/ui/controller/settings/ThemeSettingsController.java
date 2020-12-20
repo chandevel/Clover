@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -81,7 +82,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -188,7 +188,7 @@ public class ThemeSettingsController
             );
         }
         builder.build();
-        view = inflate(context, R.layout.controller_theme);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_theme, null);
 
         Theme currentTheme = ThemeHelper.getTheme();
         // restore if the user pressed back
@@ -537,7 +537,9 @@ public class ThemeSettingsController
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView textView = (TextView) inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
+            TextView textView = (TextView) (convertView != null
+                    ? convertView
+                    : LayoutInflater.from(parent.getContext()).inflate(R.layout.toolbar_menu_item, parent, false));
             textView.setText(getItem(position));
             textView.setTypeface(ThemeHelper.getTheme().mainFont);
 

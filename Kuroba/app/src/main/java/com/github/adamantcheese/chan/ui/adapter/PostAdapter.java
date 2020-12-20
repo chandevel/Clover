@@ -16,10 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -46,7 +46,6 @@ import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -132,7 +131,6 @@ public class PostAdapter
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Context inflateContext = parent.getContext();
         switch (CellType.values()[viewType]) {
             case TYPE_POST:
                 int layout = 0;
@@ -145,15 +143,16 @@ public class PostAdapter
                         break;
                 }
 
-                PostCellInterface postCell = (PostCellInterface) inflate(inflateContext, layout, parent, false);
+                PostCellInterface postCell =
+                        (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
                 return new PostViewHolder(postCell);
             case TYPE_POST_STUB:
-                PostCellInterface postCellStub =
-                        (PostCellInterface) inflate(inflateContext, R.layout.cell_post_stub, parent, false);
+                PostCellInterface postCellStub = (PostCellInterface) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_post_stub, parent, false);
                 return new PostViewHolder(postCellStub);
             case TYPE_STATUS:
-                ThreadStatusCell statusCell =
-                        (ThreadStatusCell) inflate(inflateContext, R.layout.cell_thread_status, parent, false);
+                ThreadStatusCell statusCell = (ThreadStatusCell) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_thread_status, parent, false);
                 StatusViewHolder statusViewHolder = new StatusViewHolder(statusCell);
                 statusCell.setCallback(statusCellCallback);
                 statusCell.setError(error);

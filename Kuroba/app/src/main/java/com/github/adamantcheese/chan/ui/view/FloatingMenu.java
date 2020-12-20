@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -36,7 +37,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class FloatingMenu<T> {
     private final Context context;
@@ -107,7 +107,7 @@ public class FloatingMenu<T> {
             }
         }
 
-        if(adapter == null) {
+        if (adapter == null) {
             adapter = new FloatingMenuArrayAdapter<>(context,
                     com.github.adamantcheese.chan.R.layout.toolbar_menu_item,
                     items
@@ -219,7 +219,8 @@ public class FloatingMenu<T> {
         @Override
         public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             if (convertView == null) {
-                convertView = inflate(parent.getContext(), R.layout.toolbar_menu_item, parent, false);
+                convertView =
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.toolbar_menu_item, parent, false);
             }
 
             FloatingMenuItem<T> item = getItem(position);

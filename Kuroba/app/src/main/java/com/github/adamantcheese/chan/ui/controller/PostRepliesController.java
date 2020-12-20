@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -40,8 +41,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -109,12 +108,10 @@ public class PostRepliesController
     public void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
 
-        View dataView;
-        if (ChanSettings.repliesButtonsBottom.get()) {
-            dataView = inflate(context, R.layout.layout_post_replies_bottombuttons);
-        } else {
-            dataView = inflate(context, R.layout.layout_post_replies);
-        }
+        View dataView = LayoutInflater.from(context)
+                .inflate(ChanSettings.repliesButtonsBottom.get()
+                        ? R.layout.layout_post_replies_bottombuttons
+                        : R.layout.layout_post_replies, null);
 
         recyclerView = dataView.findViewById(R.id.post_list);
 

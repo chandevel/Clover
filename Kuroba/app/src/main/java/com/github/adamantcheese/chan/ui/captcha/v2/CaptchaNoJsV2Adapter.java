@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.captcha.v2;
 
 import android.graphics.Bitmap;
 import android.view.HapticFeedbackConstants;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -17,7 +18,6 @@ import java.util.List;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class CaptchaNoJsV2Adapter
         extends BaseAdapter {
@@ -57,7 +57,8 @@ public class CaptchaNoJsV2Adapter
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = inflate(parent.getContext(), R.layout.layout_captcha_challenge_image, parent, false);
+            convertView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.layout_captcha_challenge_image, parent, false);
 
             ImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
             ConstraintLayout blueCheckmarkHolder =

@@ -35,6 +35,7 @@ import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -76,7 +77,6 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.skydoves.balloon.ArrowConstraints;
@@ -204,7 +204,7 @@ public class ReplyLayout
         presenter = new ReplyPresenter(getContext(), this);
 
         // Inflate reply input
-        replyInputLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_input, this, false);
+        replyInputLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_input, this, false);
         message = replyInputLayout.findViewById(R.id.message);
         name = replyInputLayout.findViewById(R.id.name);
         subject = replyInputLayout.findViewById(R.id.subject);
@@ -233,7 +233,7 @@ public class ReplyLayout
         filenameNew = replyInputLayout.findViewById(R.id.filename_new);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
 
-        progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_reply_progress, this, false);
+        progressLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_progress, this, false);
         progressBar = progressLayout.findViewById(R.id.progress_bar);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
 
@@ -309,7 +309,8 @@ public class ReplyLayout
         });
 
         // Inflate captcha layout
-        captchaContainer = (FrameLayout) LayoutUtils.inflate(getContext(), R.layout.layout_reply_captcha, this, false);
+        captchaContainer =
+                (FrameLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_captcha, this, false);
         ImageView captchaHardReset = captchaContainer.findViewById(R.id.reset);
 
         // Setup captcha layout views
@@ -405,11 +406,8 @@ public class ReplyLayout
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1:
-                    authenticationLayout = (LegacyCaptchaLayout) LayoutUtils.inflate(getContext(),
-                            R.layout.layout_captcha_legacy,
-                            captchaContainer,
-                            false
-                    );
+                    authenticationLayout = (LegacyCaptchaLayout) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     break;
                 case CAPTCHA2:
                     authenticationLayout = new CaptchaLayout(getContext());

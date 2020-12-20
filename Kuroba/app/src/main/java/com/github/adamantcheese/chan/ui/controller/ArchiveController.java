@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -46,7 +47,6 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ArchiveController
         extends Controller
@@ -74,7 +74,7 @@ public class ArchiveController
         super.onCreate();
 
         // Inflate
-        view = inflate(context, R.layout.controller_archive);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_archive, null);
 
         // Navigation
         navigation.title = getString(R.string.archive_title, BoardHelper.getName(board));

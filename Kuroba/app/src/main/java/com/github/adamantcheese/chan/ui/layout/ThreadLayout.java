@@ -23,6 +23,7 @@ import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
@@ -64,7 +65,6 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
@@ -145,15 +145,16 @@ public class ThreadLayout
 
         // Inflate ThreadListLayout
         threadListLayout =
-                (ThreadListLayout) LayoutUtils.inflate(getContext(), R.layout.layout_thread_list, this, false);
+                (ThreadListLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_list, this, false);
 
         // Inflate error layout
-        errorLayout = (LinearLayout) LayoutUtils.inflate(getContext(), R.layout.layout_thread_error, this, false);
+        errorLayout =
+                (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_error, this, false);
         errorText = errorLayout.findViewById(R.id.text);
         errorRetryButton = errorLayout.findViewById(R.id.button);
 
         // Inflate thread loading layout
-        progressLayout = LayoutUtils.inflate(getContext(), R.layout.layout_thread_progress, this, false);
+        progressLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_thread_progress, this, false);
 
         // View setup
         presenter = new ThreadPresenter(getContext(), this);
@@ -713,7 +714,7 @@ public class ThreadLayout
     }
 
     private View inflateEmptyView() {
-        View view = LayoutUtils.inflate(getContext(), R.layout.layout_empty_setup, null);
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
         TextView tv = view.findViewById(R.id.feature);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

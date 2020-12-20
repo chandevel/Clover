@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -25,7 +27,6 @@ import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainer
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class StyledToolbarNavigationController
         extends ToolbarNavigationController {
@@ -37,7 +38,7 @@ public class StyledToolbarNavigationController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, R.layout.controller_navigation_toolbar);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_navigation_toolbar, null);
         container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);

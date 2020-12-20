@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AndroidRuntimeException;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 
@@ -26,7 +28,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class LicensesController
         extends Controller {
@@ -59,7 +60,7 @@ public class LicensesController
             } else {
                 errmsg = getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
             }
-            view = inflate(context, R.layout.layout_webview_error);
+            view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_webview_error, null);
             ((TextView) view.findViewById(R.id.text)).setText(errmsg);
         }
     }

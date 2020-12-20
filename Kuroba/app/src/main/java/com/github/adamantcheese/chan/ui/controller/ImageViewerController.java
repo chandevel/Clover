@@ -28,6 +28,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -88,7 +89,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ImageViewerController
         extends Controller
@@ -159,7 +159,7 @@ public class ImageViewerController
         // View setup
         getWindow(context).addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        view = inflate(context, R.layout.controller_image_viewer);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_image_viewer, null);
         previewImage = view.findViewById(R.id.preview_image);
         pager = view.findViewById(R.id.pager);
         pager.addOnPageChangeListener(presenter);

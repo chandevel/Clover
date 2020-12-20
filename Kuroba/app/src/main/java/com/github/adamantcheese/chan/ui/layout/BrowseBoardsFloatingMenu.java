@@ -26,6 +26,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,6 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.LayoutUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.Observable;
@@ -341,19 +341,14 @@ public class BrowseBoardsFloatingMenu
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == SEARCH.ordinal()) {
-                return new InputViewHolder(LayoutUtils.inflate(parent.getContext(),
-                        R.layout.cell_browse_input,
-                        parent,
-                        false
-                ));
+                return new InputViewHolder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_browse_input, parent, false));
             } else if (viewType == SITE.ordinal()) {
-                return new SiteViewHolder(LayoutUtils.inflate(parent.getContext(), R.layout.cell_browse_site, parent, false));
+                return new SiteViewHolder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_browse_site, parent, false));
             } else if (viewType == BOARD.ordinal()) {
-                return new BoardViewHolder(LayoutUtils.inflate(parent.getContext(),
-                        R.layout.cell_browse_board,
-                        parent,
-                        false
-                ));
+                return new BoardViewHolder(LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_browse_board, parent, false));
             } else {
                 throw new IllegalArgumentException();
             }

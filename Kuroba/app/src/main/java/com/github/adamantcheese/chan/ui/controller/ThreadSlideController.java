@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -38,7 +39,6 @@ import java.lang.reflect.Field;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class ThreadSlideController
         extends Controller
@@ -65,7 +65,7 @@ public class ThreadSlideController
         navigation.handlesToolbarInset = true;
         navigation.hasDrawer = true;
 
-        view = inflate(context, R.layout.controller_thread_slide);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_thread_slide, null);
 
         slidingPaneLayout = view.findViewById(R.id.sliding_pane_layout);
         slidingPaneLayout.setThreadSlideController(this);

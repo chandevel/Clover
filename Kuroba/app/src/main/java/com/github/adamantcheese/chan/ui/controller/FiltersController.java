@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,7 +62,6 @@ import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FI
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class FiltersController
         extends Controller
@@ -119,7 +119,7 @@ public class FiltersController
     public void onCreate() {
         super.onCreate();
 
-        view = inflate(context, R.layout.controller_filters);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_filters, null);
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
@@ -210,7 +210,7 @@ public class FiltersController
     }
 
     public void showFilterDialog(final Filter filter) {
-        final View filterLayout = inflate(context, R.layout.layout_filter, null);
+        final View filterLayout = LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
         final FilterLayout layout = filterLayout.findViewById(R.id.filter_layout);
 
         final AlertDialog alertDialog =
@@ -286,7 +286,8 @@ public class FiltersController
 
         @Override
         public FilterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new FilterHolder(inflate(parent.getContext(), R.layout.cell_filter, parent, false));
+            return new FilterHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_filter, parent, false));
         }
 
         @Override

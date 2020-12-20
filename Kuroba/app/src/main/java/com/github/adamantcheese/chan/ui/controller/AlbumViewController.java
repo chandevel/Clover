@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -39,7 +40,6 @@ import com.skydoves.balloon.ArrowOrientation;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class AlbumViewController
         extends Controller
@@ -62,7 +62,7 @@ public class AlbumViewController
         super.onCreate();
 
         // View setup
-        view = inflate(context, R.layout.controller_album_view);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_view, null);
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setItemAnimator(null);
 
@@ -183,9 +183,8 @@ public class AlbumViewController
         @NonNull
         @Override
         public AlbumItemCellHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = inflate(parent.getContext(), R.layout.cell_album_view, parent, false);
-
-            return new AlbumItemCellHolder(view);
+            return new AlbumItemCellHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_album_view, parent, false));
         }
 
         @Override

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,7 +53,6 @@ import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class BoardSetupController
         extends Controller
@@ -106,7 +106,7 @@ public class BoardSetupController
         super.onCreate();
 
         // Inflate
-        view = inflate(context, R.layout.controller_board_setup);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_board_setup, null);
 
         // Navigation
         navigation.title = getString(R.string.setup_board_title, site.name());
@@ -153,7 +153,8 @@ public class BoardSetupController
 
     @Override
     public void showAddDialog() {
-        final BoardAddLayout boardAddLayout = (BoardAddLayout) inflate(context, R.layout.layout_board_add, null);
+        final BoardAddLayout boardAddLayout =
+                (BoardAddLayout) LayoutInflater.from(context).inflate(R.layout.layout_board_add, null);
 
         boardAddLayout.setPresenter(presenter);
 
@@ -218,7 +219,8 @@ public class BoardSetupController
 
         @Override
         public SavedBoardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardHolder(inflate(parent.getContext(), R.layout.cell_board, parent, false));
+            return new SavedBoardHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.cell_board, parent, false));
         }
 
         @Override

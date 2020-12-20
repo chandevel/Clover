@@ -18,12 +18,12 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -55,7 +55,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class SitesSetupController
         extends StyledToolbarNavigationController
@@ -98,7 +97,7 @@ public class SitesSetupController
         super.onCreate();
 
         // Inflate
-        view = inflate(context, R.layout.controller_sites_setup);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_sites_setup, null);
 
         // Navigation
         navigation.setTitle(R.string.setup_sites_title);
@@ -199,7 +198,7 @@ public class SitesSetupController
         @NonNull
         @Override
         public SiteHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SiteHolder(inflate(parent.getContext(), R.layout.cell_site, parent, false));
+            return new SiteHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.cell_site, parent, false));
         }
 
         @Override
@@ -324,7 +323,9 @@ public class SitesSetupController
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             Site s = siteRepository.instantiateSiteClass(siteClasses.get(position));
-            LinearLayout previewCell = (LinearLayout) inflate(context, R.layout.layout_site_preview);
+            View previewCell = convertView != null
+                    ? convertView
+                    : LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_site_preview, null);
             ImageView favicon = previewCell.findViewById(R.id.site_icon);
             TextView siteName = previewCell.findViewById(R.id.site_name);
             s.icon().get(favicon::setImageDrawable);

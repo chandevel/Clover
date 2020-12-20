@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -34,7 +35,6 @@ import okhttp3.HttpUrl;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
 
 public class RemovedPostsController
         extends BaseFloatingController
@@ -177,7 +177,8 @@ public class RemovedPostsController
             }
 
             if (convertView == null) {
-                convertView = inflate(getContext(), R.layout.layout_removed_post, parent, false);
+                convertView =
+                        LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_removed_post, parent, false);
             }
 
             LinearLayout viewHolder = convertView.findViewById(R.id.removed_post_view_holder);
