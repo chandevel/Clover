@@ -23,7 +23,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
 import android.provider.OpenableColumns;
 import android.text.TextUtils;
 import android.widget.Toast;
@@ -37,15 +36,11 @@ import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,8 +59,6 @@ public class ImagePickDelegate {
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    @Inject
-    FileManager fileManager;
     @Inject
     FileCacheV2 fileCacheV2;
 
@@ -235,36 +228,17 @@ public class ImagePickDelegate {
     }
 
     private void doFilePicked() {
-        RawFile cacheFile = fileManager.fromRawFile(getPickFile());
-
-        try (ParcelFileDescriptor fileDescriptor = activity.getContentResolver().openFileDescriptor(uri, "r")) {
-            if (fileDescriptor == null) {
-                throw new IOException("Couldn't open file descriptor for uri = " + uri);
-            }
-
-            try (InputStream is = new FileInputStream(fileDescriptor.getFileDescriptor());
-                 OutputStream os = fileManager.getOutputStream(cacheFile)) {
-                if (os == null) {
-                    throw new IOException(
-                            "Could not get OutputStream from the cacheFile, cacheFile = " + cacheFile.getFullPath());
-                }
-
-                success = IOUtils.copy(is, os, MAX_FILE_SIZE);
-            } catch (Exception e) {
-                Logger.e(this, "Error copying file from the file descriptor", e);
-            }
+        try (FileInputStream stream = new FileInputStream(activity.getContentResolver()
+                .openFileDescriptor(uri, "r")
+                .getFileDescriptor())) {
+            IOUtils.writeToFile(stream, getPickFile(), MAX_FILE_SIZE);
+            success = true;
         } catch (Exception ignored) {
-        }
-
-        if (!success) {
-            if (!fileManager.delete(cacheFile)) {
-                Logger.e(this, "Could not delete picked_file after copy fail");
-            }
         }
 
         BackgroundUtils.runOnMainThread(() -> {
             if (success) {
-                callback.onFilePicked(fileName, new File(cacheFile.getFullPath()));
+                callback.onFilePicked(fileName, getPickFile());
             } else {
                 callback.onFilePickError(false);
             }

@@ -42,14 +42,16 @@ public class CaptchaInfo {
     public CaptchaInfo() { }
 
     public enum CaptchaType {
-        UNKNOWN(0), // ?x?
-        CANONICAL(3), // 3x3
-        NO_CANONICAL(2); // 2x4
+        UNKNOWN(0, 0), // ?x?
+        CANONICAL(3, 3), // 3x3
+        NO_CANONICAL(2, 4); // 2x4
 
         int columnCount;
+        int rowCount;
 
-        CaptchaType(int columnCount) {
+        CaptchaType(int columnCount, int rowCount) {
             this.columnCount = columnCount;
+            this.rowCount = rowCount;
         }
 
         public static CaptchaType fromCheckboxesCount(int count) {

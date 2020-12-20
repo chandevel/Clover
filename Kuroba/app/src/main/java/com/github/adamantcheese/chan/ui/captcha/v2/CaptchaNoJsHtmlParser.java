@@ -26,7 +26,6 @@ import android.text.TextUtils;
 import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -34,10 +33,7 @@ import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -191,43 +187,12 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("challengeImageUrl is empty");
         }
 
-        String fullUrl = googleBaseUrl + challengeImageUrl + "&k=" + siteKey;
-        File challengeImageFile = downloadAndStoreImage(fullUrl);
+        downloadAndStoreImage(googleBaseUrl + challengeImageUrl + "&k=" + siteKey);
 
-        Pair<Integer, Integer> columnsAndRows = calculateColumnsAndRows(captchaInfo.captchaType);
-
-        Integer columns = columnsAndRows.first;
-        Integer rows = columnsAndRows.second;
-
-        if (columns == null) {
-            throw new CaptchaNoJsV2ParsingError("Could not calculate columns count");
-        }
-
-        if (rows == null) {
-            throw new CaptchaNoJsV2ParsingError("Could not calculate rows count");
-        }
-
-        captchaInfo.challengeImages = decodeImagesFromFile(challengeImageFile, columns, rows);
-    }
-
-    @NonNull
-    private Pair<Integer, Integer> calculateColumnsAndRows(CaptchaInfo.CaptchaType captchaType)
-            throws CaptchaNoJsV2ParsingError {
-        switch (captchaType) {
-            case CANONICAL: {
-                // 3x3 captcha with square images
-                return new Pair<>(3, 3);
-            }
-
-            case NO_CANONICAL: {
-                // 2x4 captcha with rectangle images (store fronts)
-                return new Pair<>(2, 4);
-            }
-
-            default: {
-                throw new CaptchaNoJsV2ParsingError("Unknown captcha type");
-            }
-        }
+        captchaInfo.challengeImages = decodeImagesFromFile(getChallengeImageFile(),
+                captchaInfo.captchaType.columnCount,
+                captchaInfo.captchaType.rowCount
+        );
     }
 
     private void parseCParameter(String responseHtml, CaptchaInfo captchaInfo)
@@ -296,8 +261,7 @@ public class CaptchaNoJsHtmlParser {
         captchaInfo.checkboxes = new ArrayList<>(checkboxesSet);
     }
 
-    @NonNull
-    private File downloadAndStoreImage(String fullUrl)
+    private void downloadAndStoreImage(String fullUrl)
             throws IOException, CaptchaNoJsV2ParsingError {
         Request request = new Request.Builder().url(fullUrl).build();
 
@@ -307,41 +271,16 @@ public class CaptchaNoJsHtmlParser {
                         "Could not download challenge image, status code = " + response.code());
             }
 
-            if (response.body() == null) {
-                throw new CaptchaNoJsV2ParsingError("Captcha challenge image body is null");
-            }
-
-            try (InputStream is = response.body().byteStream()) {
-                File imageFile = getChallengeImageFile();
-
-                try (OutputStream os = new FileOutputStream(imageFile)) {
-                    IOUtils.copy(is, os);
-                }
-
-                return imageFile;
-            }
+            IOUtils.writeToFile(response.body().byteStream(), getChallengeImageFile(), -1);
         }
     }
 
     private File getChallengeImageFile()
-            throws CaptchaNoJsV2ParsingError, IOException {
+            throws IOException {
         File imageFile = new File(context.getCacheDir(), CHALLENGE_IMAGE_FILE_NAME);
 
-        if (imageFile.exists()) {
-            if (!imageFile.delete()) {
-                throw new CaptchaNoJsV2ParsingError(
-                        "Could not delete old challenge image file \"" + imageFile.getAbsolutePath() + "\"");
-            }
-        }
-
-        if (!imageFile.createNewFile()) {
-            throw new CaptchaNoJsV2ParsingError(
-                    "Could not create challenge image file \"" + imageFile.getAbsolutePath() + "\"");
-        }
-
-        if (!imageFile.canWrite()) {
-            throw new CaptchaNoJsV2ParsingError(
-                    "Cannot write to the challenge image file \"" + imageFile.getAbsolutePath() + "\"");
+        if (!imageFile.exists()) {
+            imageFile.createNewFile();
         }
 
         return imageFile;

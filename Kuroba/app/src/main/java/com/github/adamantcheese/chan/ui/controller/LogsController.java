@@ -17,6 +17,9 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.text.SpannableStringBuilder;
+import android.text.style.TypefaceSpan;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -34,8 +37,8 @@ import java.io.InputStream;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 public class LogsController
@@ -43,7 +46,7 @@ public class LogsController
     private static final String TAG = "LogsController";
     private static final int DEFAULT_LINES_COUNT = 250;
 
-    private String logText;
+    private TextView logTextView;
 
     public LogsController(Context context) {
         super(context);
@@ -57,21 +60,25 @@ public class LogsController
         navigation.buildMenu().withItem(R.drawable.ic_fluent_clipboard_code_24_filled, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
-        container.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
-        TextView logTextView = new TextView(context);
+        container.setPadding(dp(8), dp(8), dp(8), dp(8));
+        container.setBackgroundColor(Color.BLACK);
+        logTextView = new TextView(context);
+        logTextView.setTextColor(Color.WHITE);
+        logTextView.setLineSpacing(dp(1), 1);
         container.addView(logTextView, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         view = container;
 
         String logs = loadLogs();
         if (logs != null) {
-            logText = logs;
+            SpannableStringBuilder logText = new SpannableStringBuilder(logs);
+            logText.setSpan(new TypefaceSpan("monospace"), 0, logText.length(), 0);
             logTextView.setText(logText);
         }
     }
 
     private void copyLogsClicked(ToolbarMenuItem item) {
-        setClipboardContent("Logs", logText);
+        setClipboardContent("Logs", logTextView.getText().toString());
         showToast(context, R.string.settings_logs_copied_to_clipboard);
     }
 
