@@ -97,7 +97,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_toRightOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:gravity="bottom"
-            android:maxLines="1"
             android:textColor="?android:textColorSecondary"
             tools:paddingBottom="8dp"
             tools:paddingLeft="8dp"

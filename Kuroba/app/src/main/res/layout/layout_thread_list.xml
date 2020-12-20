@@ -48,7 +48,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:elevation="4dp"
         android:gravity="center"
         android:padding="8dp"
-        android:maxLines="1"
         android:textColor="?android:textColorSecondary"
         android:visibility="gone"
         tools:ignore="UnusedAttribute" />

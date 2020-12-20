@@ -31,8 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="1"
         android:paddingHorizontal="16dp"
         android:paddingTop="16dp"
         android:textColor="?android:textColorSecondary"

@@ -80,7 +80,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_weight="2"
                         android:hint="@string/reply_name"
                         android:inputType="textCapSentences|textAutoCorrect"
-                        android:maxLines="1"
                         android:textSize="16sp" />
 
                     <EditText
@@ -88,7 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Flag"
+                        android:hint="@string/reply_flag"
                         android:maxLines="1"
                         android:textSize="16sp"
                         android:visibility="gone"
@@ -100,7 +99,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:hint="@string/reply_options"
-                        android:maxLines="1"
                         android:textSize="16sp" />
 
                 </LinearLayout>
@@ -111,7 +109,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:hint="@string/reply_subject"
                     android:inputType="textCapSentences|textAutoCorrect"
-                    android:maxLines="1"
                     android:textSize="16sp"
                     android:visibility="gone"
                     tools:visibility="visible" />
@@ -261,7 +258,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/reply_file_name"
-                    android:maxLines="1"
                     android:textSize="16sp"
                     android:visibility="gone"
                     tools:visibility="visible" />

@@ -311,6 +311,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="post_filter">Filter…</string>
     <string name="post_more">More…</string>
     <string name="reply_name">Name</string>
+    <string name="reply_flag">Flag</string>
     <string name="reply_options">Options</string>
     <string name="reply_subject">Subject</string>
     <string name="reply_comment_thread">Comment reply</string>
