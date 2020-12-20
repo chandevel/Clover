@@ -796,7 +796,9 @@ public class PostCell
             extends RecyclerView.ItemDecoration {
         private final int spacing;
 
-        public DPSpacingItemDecoration(int spacing) { this.spacing = dp(spacing); }
+        public DPSpacingItemDecoration(int spacing) {
+            this.spacing = dp(spacing);
+        }
 
         @Override
         public void getItemOffsets(

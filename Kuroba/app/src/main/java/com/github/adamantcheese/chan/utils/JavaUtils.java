@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.utils;
 
-import java.io.InputStream;
 import java.util.Arrays;
 
 import kotlin.random.Random;

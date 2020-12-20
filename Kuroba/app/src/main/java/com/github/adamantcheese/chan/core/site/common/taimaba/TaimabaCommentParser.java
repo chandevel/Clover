@@ -19,8 +19,6 @@ package com.github.adamantcheese.chan.core.site.common.taimaba;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
-import java.util.regex.Pattern;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class TaimabaCommentParser
