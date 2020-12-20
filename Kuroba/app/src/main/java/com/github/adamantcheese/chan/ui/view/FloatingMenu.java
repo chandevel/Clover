@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListPopupWindow;
 import android.widget.TextView;
@@ -36,7 +37,6 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.LayoutUtils.inflate;
-import static com.github.adamantcheese.chan.utils.LayoutUtils.measureContentWidth;
 
 public class FloatingMenu<T> {
     private final Context context;
@@ -107,17 +107,15 @@ public class FloatingMenu<T> {
             }
         }
 
-        if (adapter != null) {
-            popupWindow.setAdapter(adapter);
-            popupWindow.setWidth(measureContentWidth(context, adapter, dp(3 * 56)));
-        } else {
-            FloatingMenuArrayAdapter<T> arrayAdapter = new FloatingMenuArrayAdapter<>(context,
+        if(adapter == null) {
+            adapter = new FloatingMenuArrayAdapter<>(context,
                     com.github.adamantcheese.chan.R.layout.toolbar_menu_item,
                     items
             );
-            popupWindow.setAdapter(arrayAdapter);
-            popupWindow.setWidth(measureContentWidth(context, arrayAdapter, dp(3 * 56)));
         }
+
+        popupWindow.setAdapter(adapter);
+        popupWindow.setWidth(measureContentWidth(dp(3 * 56)));
 
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
             if (position >= 0 && position < items.size()) {
@@ -165,6 +163,34 @@ public class FloatingMenu<T> {
             popupWindow.dismiss();
             popupWindow = null;
         }
+    }
+
+    private int measureContentWidth(int minimumSizePx) {
+        ViewGroup mMeasureParent = new FrameLayout(context);
+        int maxWidth = 0;
+        View itemView = null;
+        int itemType = 0;
+
+        final int widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        for (int i = 0; i < adapter.getCount(); i++) {
+            final int positionType = adapter.getItemViewType(i);
+            if (positionType != itemType) {
+                itemType = positionType;
+                itemView = null;
+            }
+
+            itemView = adapter.getView(i, itemView, mMeasureParent);
+            itemView.measure(widthMeasureSpec, heightMeasureSpec);
+
+            final int itemWidth = itemView.getMeasuredWidth();
+
+            if (itemWidth > maxWidth) {
+                maxWidth = itemWidth;
+            }
+        }
+
+        return Math.max(maxWidth, minimumSizePx);
     }
 
     public interface FloatingMenuCallback<R> {
