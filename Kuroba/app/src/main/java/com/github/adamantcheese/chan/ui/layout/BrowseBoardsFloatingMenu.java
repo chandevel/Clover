@@ -341,15 +341,15 @@ public class BrowseBoardsFloatingMenu
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == SEARCH.ordinal()) {
-                return new InputViewHolder(LayoutUtils.inflate(getContext(),
+                return new InputViewHolder(LayoutUtils.inflate(parent.getContext(),
                         R.layout.cell_browse_input,
                         parent,
                         false
                 ));
             } else if (viewType == SITE.ordinal()) {
-                return new SiteViewHolder(LayoutUtils.inflate(getContext(), R.layout.cell_browse_site, parent, false));
+                return new SiteViewHolder(LayoutUtils.inflate(parent.getContext(), R.layout.cell_browse_site, parent, false));
             } else if (viewType == BOARD.ordinal()) {
-                return new BoardViewHolder(LayoutUtils.inflate(getContext(),
+                return new BoardViewHolder(LayoutUtils.inflate(parent.getContext(),
                         R.layout.cell_browse_board,
                         parent,
                         false
