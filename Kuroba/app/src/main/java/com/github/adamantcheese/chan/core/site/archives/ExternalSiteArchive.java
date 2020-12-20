@@ -23,7 +23,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.NoDeleteArrayList;
+import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.utils;
+package com.github.adamantcheese.chan.ui.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.core.site.loader;
 
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.utils.NoDeleteArrayList;
+import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 
 public class ChanLoaderResponse {
     // Op Post that is created new each time.

@@ -19,11 +19,11 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.NetUtils;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
-import com.github.adamantcheese.chan.utils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
