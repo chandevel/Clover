@@ -266,13 +266,6 @@ public class ThreadPresenter
         return true;
     }
 
-    public boolean isPinned() {
-        if (!isBound()) return false;
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) return false;
-        return pin.watching;
-    }
-
     public void onSearchVisibilityChanged(boolean visible) {
         searchOpen = visible;
         threadPresenterCallback.showSearch(visible);

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.appcompat.app.AlertDialog;
@@ -34,8 +33,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
@@ -79,7 +78,6 @@ public class ViewThreadController
     @Inject
     FileManager fileManager;
 
-    private boolean pinItemPinned = false;
     private Loadable loadable;
 
     //pairs of the current thread loadable and the thread we're going to's hashcode
@@ -429,27 +427,17 @@ public class ViewThreadController
     }
 
     private void setPinIconState(boolean animated) {
-        ThreadPresenter presenter = threadLayout.getPresenter();
-        if (presenter != null) {
-            setPinIconStateDrawable(presenter.isPinned(), animated);
-        }
-    }
+        if (loadable == null) return;
+        Pin pin = watchManager.findPinByLoadableId(loadable.id);
 
-    private void setPinIconStateDrawable(boolean pinned, boolean animated) {
-        if (pinned == pinItemPinned) {
-            return;
-        }
         ToolbarMenuItem menuItem = navigation.findItem(PIN_ID);
         if (menuItem == null) {
             return;
         }
 
-        pinItemPinned = pinned;
-
-        Drawable outline = context.getDrawable(R.drawable.ic_fluent_bookmark_24_regular);
-        Drawable white = context.getDrawable(R.drawable.ic_fluent_bookmark_24_filled);
-
-        Drawable drawable = pinned ? white : outline;
+        int drawable = pin != null && pin.watching
+                ? R.drawable.ic_fluent_bookmark_24_filled
+                : R.drawable.ic_fluent_bookmark_24_regular;
         menuItem.setImage(drawable, animated);
     }
 

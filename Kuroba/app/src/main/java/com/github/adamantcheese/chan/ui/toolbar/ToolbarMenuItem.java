@@ -130,6 +130,10 @@ public class ToolbarMenuItem {
         setImage(getAppContext().getDrawable(drawable));
     }
 
+    public void setImage(int drawable, boolean animated) {
+        setImage(getAppContext().getDrawable(drawable), animated);
+    }
+
     public void setImage(Drawable drawable) {
         setImage(drawable, false);
     }
