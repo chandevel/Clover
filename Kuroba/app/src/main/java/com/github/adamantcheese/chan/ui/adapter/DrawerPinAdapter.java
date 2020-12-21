@@ -102,9 +102,7 @@ public class DrawerPinAdapter
 
         holder.title.setText(applySearchSpans(pin.loadable.title, searchQuery));
 
-        if (holder.image.getSource() != pin.loadable.thumbnailUrl) {
-            holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
-        }
+        holder.image.setUrl(pin.loadable.thumbnailUrl, dp(48), dp(48));
         holder.image.setGreyscale(!pin.watching);
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);

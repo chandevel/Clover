@@ -99,10 +99,6 @@ public abstract class ThumbnailView
         }
     }
 
-    public HttpUrl getSource() {
-        return source;
-    }
-
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
         error = false;
         setImageBitmap(null);
@@ -289,17 +285,14 @@ public abstract class ThumbnailView
     private void onImageSet(boolean isImmediate) {
         if (isImmediate) {
             setAlpha(1f);
-            onSetAlpha(255);
             animate().cancel();
         } else {
             setAlpha(0f);
-            onSetAlpha(0);
             animate().alpha(1f).setDuration(200).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
                     setAlpha(1f);
-                    onSetAlpha(255);
                 }
             });
         }

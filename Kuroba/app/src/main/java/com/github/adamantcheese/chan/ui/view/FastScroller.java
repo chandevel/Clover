@@ -237,20 +237,6 @@ public class FastScroller
         return ViewCompat.getLayoutDirection(mRecyclerView) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
-    public boolean isDragging() {
-        return mState == STATE_DRAGGING;
-    }
-
-    @VisibleForTesting
-    boolean isVisible() {
-        return mState == STATE_VISIBLE;
-    }
-
-    @VisibleForTesting
-    boolean isHidden() {
-        return mState == STATE_HIDDEN;
-    }
-
     public void show() {
         switch (mAnimationState) {
             case ANIMATION_STATE_FADING_OUT:
@@ -260,7 +246,6 @@ public class FastScroller
                 mAnimationState = ANIMATION_STATE_FADING_IN;
                 mShowHideAnimator.setFloatValues((float) mShowHideAnimator.getAnimatedValue(), 1);
                 mShowHideAnimator.setDuration(SHOW_DURATION_MS);
-                mShowHideAnimator.setStartDelay(0);
                 mShowHideAnimator.start();
                 break;
             case ANIMATION_STATE_FADING_IN:
@@ -596,26 +581,6 @@ public class FastScroller
         return (y >= mRecyclerViewTopPadding + mRecyclerViewHeight - mTargetWidth)
                 && x >= mHorizontalThumbCenterX - mHorizontalThumbWidth / 2.0f - mTargetWidth
                 && x <= mHorizontalThumbCenterX + mHorizontalThumbWidth / 2.0f + mTargetWidth;
-    }
-
-    @VisibleForTesting
-    Drawable getHorizontalTrackDrawable() {
-        return mHorizontalTrackDrawable;
-    }
-
-    @VisibleForTesting
-    Drawable getHorizontalThumbDrawable() {
-        return mHorizontalThumbDrawable;
-    }
-
-    @VisibleForTesting
-    Drawable getVerticalTrackDrawable() {
-        return mVerticalTrackDrawable;
-    }
-
-    @VisibleForTesting
-    Drawable getVerticalThumbDrawable() {
-        return mVerticalThumbDrawable;
     }
 
     /**

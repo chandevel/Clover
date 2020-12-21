@@ -657,7 +657,6 @@ public class ThreadLayout
             replyButton.animate()
                     .setInterpolator(new DecelerateInterpolator(2f))
                     .setStartDelay(show ? 100 : 0)
-                    .setDuration(200)
                     .alpha(show ? 1f : 0f)
                     .scaleX(show ? 1f : 0f)
                     .scaleY(show ? 1f : 0f)

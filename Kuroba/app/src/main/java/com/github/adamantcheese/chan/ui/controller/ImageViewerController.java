@@ -94,7 +94,6 @@ public class ImageViewerController
         extends Controller
         implements ImageViewerPresenter.Callback, ToolbarMenuItem.OverflowMenuCallback,
                    ToolbarNavigationController.ToolbarSearchCallback {
-    private static final int TRANSITION_DURATION = 300;
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
     private static final int VOLUME_ID = 1;
@@ -489,7 +488,6 @@ public class ImageViewerController
         });
 
         startAnimation.play(progress);
-        startAnimation.setDuration(TRANSITION_DURATION);
         startAnimation.setInterpolator(new DecelerateInterpolator(3f));
         startAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -566,7 +564,6 @@ public class ImageViewerController
 
             endAnimation.play(progress);
         }
-        endAnimation.setDuration(TRANSITION_DURATION);
         endAnimation.setInterpolator(new DecelerateInterpolator(3f));
         endAnimation.addListener(new AnimatorListenerAdapter() {
             @Override

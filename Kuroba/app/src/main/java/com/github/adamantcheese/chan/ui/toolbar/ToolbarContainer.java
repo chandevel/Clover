@@ -297,7 +297,6 @@ public class ToolbarContainer
         } else if (animationStyle == ToolbarPresenter.AnimationStyle.FADE) {
             // Previous animation
             ValueAnimator previousAnimation = ObjectAnimator.ofFloat(previousView.view, View.ALPHA, 1f, 0f);
-            previousAnimation.setDuration(300);
             previousAnimation.setInterpolator(new LinearInterpolator());
             previousAnimation.addListener(new AnimatorListenerAdapter() {
                 @Override
@@ -314,7 +313,6 @@ public class ToolbarContainer
             // Current animation + arrow
             view.view.setAlpha(0f);
             ValueAnimator animation = ObjectAnimator.ofFloat(view.view, View.ALPHA, 0f, 1f);
-            animation.setDuration(300);
             animation.setInterpolator(new LinearInterpolator());
             animation.addListener(new AnimatorListenerAdapter() {
                 @Override
@@ -325,7 +323,6 @@ public class ToolbarContainer
             // A different animator for the arrow because that one needs the deceleration
             // interpolator.
             ValueAnimator arrow = ValueAnimator.ofFloat(0f, 1f);
-            arrow.setDuration(300);
             arrow.setInterpolator(new DecelerateInterpolator(2f));
             arrow.addUpdateListener(a -> {
                 float value = (float) a.getAnimatedValue();
@@ -390,7 +387,6 @@ public class ToolbarContainer
 
     private ValueAnimator getShortAnimator() {
         final ValueAnimator animator = ObjectAnimator.ofFloat(0f, 1f);
-        animator.setDuration(300);
         animator.setInterpolator(new DecelerateInterpolator(2f));
         return animator;
     }

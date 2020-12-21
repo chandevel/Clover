@@ -38,7 +38,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
  */
 public class LoadView
         extends FrameLayout {
-    private int fadeDuration = 200;
+    private int fadeDuration = 300;
     private Listener listener;
 
     private AnimatorSet animatorSet = new AnimatorSet();

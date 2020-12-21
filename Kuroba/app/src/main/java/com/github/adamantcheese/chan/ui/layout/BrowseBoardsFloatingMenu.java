@@ -303,12 +303,12 @@ public class BrowseBoardsFloatingMenu
         setAlpha(0f);
         setTranslationY(-dp(25));
         Interpolator slowdown = new DecelerateInterpolator(2f);
-        post(() -> animate().alpha(1f).translationY(0f).setInterpolator(slowdown).setDuration(250).start());
+        post(() -> animate().alpha(1f).translationY(0f).setInterpolator(slowdown).start());
     }
 
     private void animateOut(Runnable done) {
         Interpolator slowdown = new DecelerateInterpolator(2f);
-        animate().alpha(0f).setInterpolator(slowdown).setDuration(250).setListener(new AnimatorListenerAdapter() {
+        animate().alpha(0f).setInterpolator(slowdown).setListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 done.run();

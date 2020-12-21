@@ -65,11 +65,10 @@ public class CrossfadeView
     private void doToggle(boolean animated) {
         inited = true;
         if (animated) {
-            int fadeDuration = 200;
             if (viewOneSelected) {
                 viewOne.setVisibility(VISIBLE);
-                viewOne.animate().alpha(1f).setDuration(fadeDuration).setListener(null);
-                viewTwo.animate().alpha(0f).setDuration(fadeDuration).setListener(new AnimatorListenerAdapter() {
+                viewOne.animate().alpha(1f).setListener(null);
+                viewTwo.animate().alpha(0f).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewOne.setVisibility(VISIBLE);
@@ -78,8 +77,8 @@ public class CrossfadeView
                 });
             } else {
                 viewTwo.setVisibility(VISIBLE);
-                viewTwo.animate().alpha(1f).setDuration(fadeDuration).setListener(null);
-                viewOne.animate().alpha(0f).setDuration(fadeDuration).setListener(new AnimatorListenerAdapter() {
+                viewTwo.animate().alpha(1f).setListener(null);
+                viewOne.animate().alpha(0f).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         viewOne.setVisibility(GONE);

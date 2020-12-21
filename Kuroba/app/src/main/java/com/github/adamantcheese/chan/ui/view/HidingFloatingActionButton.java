@@ -96,7 +96,7 @@ public class HidingFloatingActionButton
             float diff = Math.abs(translation - getTranslationY());
             if (diff >= getHeight()) {
                 Interpolator slowdown = new DecelerateInterpolator(2f);
-                animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(slowdown).start();
+                animate().translationY(translation).setInterpolator(slowdown).start();
             } else {
                 setTranslationY(translation);
             }
@@ -111,7 +111,7 @@ public class HidingFloatingActionButton
         if (translation != currentCollapseTranslation) {
             currentCollapseTranslation = translation;
             Interpolator slowdown = new DecelerateInterpolator(2f);
-            animate().translationY(translation).setDuration(300).setStartDelay(0).setInterpolator(slowdown).start();
+            animate().translationY(translation).setInterpolator(slowdown).start();
         }
     }
 

@@ -30,7 +30,6 @@ public class FadeInTransition
     @Override
     public void perform() {
         Animator toAlpha = ObjectAnimator.ofFloat(to.view, View.ALPHA, 0f, 1f);
-        toAlpha.setDuration(200);
         toAlpha.setInterpolator(new AccelerateDecelerateInterpolator());
 
         toAlpha.addListener(new AnimatorListenerAdapter() {

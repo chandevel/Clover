@@ -170,7 +170,7 @@ public class Toolbar
 
         if (animated) {
             Interpolator slowdown = new DecelerateInterpolator(2f);
-            animate().translationY(-scrollOffset).setDuration(300).setInterpolator(slowdown).start();
+            animate().translationY(-scrollOffset).setInterpolator(slowdown).start();
 
             boolean collapse = scrollOffset > 0;
             for (ToolbarCollapseCallback c : collapseCallbacks) {
