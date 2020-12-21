@@ -203,7 +203,7 @@ public class RemovedPostsController
                     }
 
                     @Override
-                    public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                    public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                         postImage.setImageBitmap(bitmap);
                     }
                 }, postImage.getWidth(), postImage.getHeight());

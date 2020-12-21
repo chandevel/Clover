@@ -330,7 +330,7 @@ public class MultiImageView
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
@@ -559,7 +559,7 @@ public class MultiImageView
                             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {} // use the default drawable
 
                             @Override
-                            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                                 exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                             }
                         });
@@ -680,7 +680,7 @@ public class MultiImageView
                 public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {} // use the default drawable
 
                 @Override
-                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                     exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                 }
             });

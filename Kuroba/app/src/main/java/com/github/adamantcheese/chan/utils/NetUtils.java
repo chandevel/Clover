@@ -129,7 +129,7 @@ public class NetUtils {
         }
         Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
-            performBitmapSuccess(url, cachedBitmap, true);
+            performBitmapSuccess(url, cachedBitmap);
             return null;
         }
         Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
@@ -185,7 +185,7 @@ public class NetUtils {
                         return;
                     }
                     imageCache.put(url, result);
-                    performBitmapSuccess(url, result, false);
+                    performBitmapSuccess(url, result);
                 } catch (Exception e) {
                     performBitmapFailure(url, e);
                 } catch (OutOfMemoryError e) {
@@ -201,13 +201,13 @@ public class NetUtils {
     }
 
     private static synchronized void performBitmapSuccess(
-            @NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache
+            @NonNull final HttpUrl url, @NonNull Bitmap bitmap
     ) {
         final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
         for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap, fromCache));
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap));
         }
     }
 

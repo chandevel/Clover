@@ -401,7 +401,7 @@ public class ImageViewerController
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 previewImage.setBitmap(bitmap);
             }
         }, previewImage.getWidth(), previewImage.getHeight());
@@ -512,7 +512,7 @@ public class ImageViewerController
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 previewImage.setBitmap(bitmap);
                 startAnimation.start();
             }

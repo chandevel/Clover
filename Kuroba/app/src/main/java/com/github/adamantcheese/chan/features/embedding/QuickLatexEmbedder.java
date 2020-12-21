@@ -195,7 +195,7 @@ public class QuickLatexEmbedder
             ) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 // while this does run on the main thread (and shouldn't!), it's too much of a hassle to do this properly
                 // this returns fast enough that the other embed processing time gives this time to complete before invalidate
                 int startIndex = 0;

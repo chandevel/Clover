@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
+import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
@@ -119,7 +120,9 @@ class CancelableDownload(
                     DownloadState.Canceled -> "Cancelling"
                 }
 
-                Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
+                if (ChanSettings.verboseLogs.get()) {
+                    Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
+                }
             }
                     // We use timeout here just in case to not get deadlocked
                     .get(10L, TimeUnit.SECONDS)

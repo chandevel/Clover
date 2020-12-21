@@ -68,7 +68,7 @@ public class SiteIcon {
                 }
 
                 @Override
-                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                     drawable = new BitmapDrawable(getRes(), bitmap);
                     drawable.setFilterBitmap(false);
                     drawable.setDither(false);

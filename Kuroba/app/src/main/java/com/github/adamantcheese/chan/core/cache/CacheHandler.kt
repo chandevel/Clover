@@ -42,6 +42,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit.MINUTES
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
+import kotlin.jvm.Throws
 
 /**
  * CacheHandler has been re-worked a little bit because old implementation was relying on the
@@ -398,7 +399,9 @@ class CacheHandler(
                 size.set(0L)
             }
 
-            Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
+            if (ChanSettings.verboseLogs.get()) {
+                Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
+            }
             return true
         }
 
