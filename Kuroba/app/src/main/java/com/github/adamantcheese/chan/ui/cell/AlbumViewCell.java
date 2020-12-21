@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
@@ -71,6 +72,8 @@ public class AlbumViewCell
                     getReadableFileSize(postImage.size)
             ));
         }
+
+        text.setVisibility(ChanSettings.neverShowAlbumCellInfo.get() ? GONE : VISIBLE);
     }
 
     public PostImage getPostImage() {

@@ -15,10 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:ignore="RtlSymmetry"
     tools:layout_height="90dp">
 
@@ -27,7 +27,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="5dp"
-        app:decode_dimen="100dp"/>
+        app:decode_dimen="100dp" />
+
+    <ImageView
+        android:id="@+id/checkbox2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left|top"
+        android:paddingLeft="7dp"
+        android:paddingTop="7dp"
+        android:src="@drawable/ic_fluent_circle_24_filled"
+        app:tint="@color/white" />
 
     <ImageView
         android:id="@+id/checkbox"
@@ -36,7 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_gravity="left|top"
         android:paddingLeft="7dp"
         android:paddingTop="7dp"
-        app:tint="?attr/themeDrawableColor"
+        app:tint="@color/md_blue_500"
         tools:src="@drawable/ic_fluent_checkmark_circle_24_filled" />
 
 </FrameLayout>

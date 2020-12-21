@@ -219,6 +219,7 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
     public static final BooleanSetting transparencyOn;
     public static final BooleanSetting neverShowWebmControls;
+    public static final BooleanSetting neverShowAlbumCellInfo;
 
     // Set elsewhere in the application
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -380,6 +381,7 @@ public class ChanSettings {
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
             transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
             neverShowWebmControls = new BooleanSetting(p, "never_show_webm_controls", false);
+            neverShowAlbumCellInfo = new BooleanSetting(p, "never_show_album_cell_info", false);
 
             //Elsewhere
             boardViewMode =

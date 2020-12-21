@@ -341,6 +341,6 @@ public class AlbumDownloadController
 
         cell.checkbox.setImageResource(checked
                 ? R.drawable.ic_fluent_checkmark_circle_24_filled
-                : R.drawable.ic_fluent_record_24_filled);
+                : R.drawable.ic_fluent_add_circle_24_filled);
     }
 }

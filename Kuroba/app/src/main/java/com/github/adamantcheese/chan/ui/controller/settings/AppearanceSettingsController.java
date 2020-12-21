@@ -290,6 +290,12 @@ public class AppearanceSettingsController
                     "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."
             ));
 
+            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
+                    ChanSettings.neverShowAlbumCellInfo,
+                    "Never show album cell info",
+                    "Removes the file info from album cells"
+            )));
+
             groups.add(images);
         }
     }
