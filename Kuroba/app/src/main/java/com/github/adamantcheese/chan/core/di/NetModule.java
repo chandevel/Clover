@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.net.DnsSelector;
+import com.github.adamantcheese.chan.core.net.HttpEquivRefreshInterceptor;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -92,7 +93,7 @@ public class NetModule {
     public OkHttpClientWithUtils provideProxiedOkHttpClient() {
         Logger.d(AppModule.DI_TAG, "Proxied OkHTTP client");
         return new OkHttpClientWithUtils(new OkHttpClient.Builder().protocols(getOkHttpProtocols())
-                .dns(getOkHttpDnsSelector()));
+                .dns(getOkHttpDnsSelector()).addInterceptor(new HttpEquivRefreshInterceptor()));
     }
 
     private Dns getOkHttpDnsSelector() {

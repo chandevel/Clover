@@ -174,6 +174,10 @@ public class PostImage {
             return this;
         }
 
+        public boolean hasImageUrl() {
+            return imageUrl != null;
+        }
+
         /**
          * @param filename The filename of the file that was actually uploaded, not the one assigned by the server
          */

@@ -171,9 +171,25 @@ public class FoolFuukaArchive
                                 case "media_hash":
                                     imageBuilder.fileHash(reader.nextString(), true);
                                     break;
+                                case "remote_media_link":
+                                    if (reader.peek() == JsonToken.NULL) {
+                                        reader.nextNull();
+                                    } else {
+                                        String value = reader.nextString();
+                                        try {
+                                            imageBuilder.imageUrl(HttpUrl.get(value));
+                                        } catch (Exception e) {
+                                            // some weird archives use this one
+                                            try {
+                                                imageBuilder.imageUrl(HttpUrl.get("https://" + domain + value));
+                                            } catch (Exception ignored) {}
+                                        }
+                                    }
+                                    break;
                                 case "media_link":
                                     if (reader.peek() == JsonToken.NULL) {
                                         reader.nextNull();
+                                        if (imageBuilder.hasImageUrl()) break;
                                         imageBuilder.imageUrl(HttpUrl.get(
                                                 BuildConfig.RESOURCES_ENDPOINT + "archive_missing.png"));
                                     } else {
