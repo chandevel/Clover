@@ -7,11 +7,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.BufferedSource;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This interceptor follows up http-equiv redirects when applicable.
@@ -26,8 +30,9 @@ public class HttpEquivRefreshInterceptor
         if (initialResponse.isSuccessful() && initialResponse.body() != null) {
             String contentType = initialResponse.header("Content-Type");
             if (contentType != null && contentType.contains("text/html")) {
+                BufferedSource source = initialResponse.body().source().peek();
                 // we're looking for something like <meta http-equiv="refresh" content="0;URL='http://www.example.com/'"/>
-                Document document = Jsoup.parse(initialResponse.body().string());
+                Document document = Jsoup.parse(source.readString(UTF_8));
 
                 Elements metaTags = document.head().getElementsByTag("meta");
 
@@ -48,20 +53,23 @@ public class HttpEquivRefreshInterceptor
                                     // url is surround by quotes maybe?
                                     redirectUrl = HttpUrl.get(url.substring(1, url.length() - 1));
                                 } catch (Exception e2) {
-                                    // the initial response has been consumed, so redo it
-                                    return chain.proceed(chain.request());
+                                    return initialResponse;
                                 }
                             }
+                            initialResponse.close();
                             Request r = chain.request()
                                     .newBuilder()
                                     .url(redirectUrl)
                                     .header("Host", redirectUrl.host())
                                     .header("Referer", redirectUrl.toString())
                                     .build();
-                            return chain.proceed(r);
+                            // double the timeout, since we're basically sending a second request
+                            return chain.withConnectTimeout(chain.connectTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
+                                    .withReadTimeout(chain.readTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
+                                    .withWriteTimeout(chain.writeTimeoutMillis(), TimeUnit.MILLISECONDS)
+                                    .proceed(r);
                         } else {
-                            // the initial response has been consumed, so redo it
-                            return chain.proceed(chain.request());
+                            return initialResponse;
                         }
                     }
                 }
