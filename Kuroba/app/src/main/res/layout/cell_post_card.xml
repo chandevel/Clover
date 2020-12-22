@@ -71,20 +71,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="32dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/replies"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="?android:textColorSecondary"
+                android:layout_toLeftOf="@id/options"
                 tools:padding="8dp"
                 tools:text="2 replies, 1 image" />
 
             <ProgressBar
                 android:id="@+id/embed_spinner"
                 android:layout_width="32dp"
-                android:layout_height="match_parent"
+                android:layout_height="32dp"
                 android:layout_toLeftOf="@id/options"
                 android:indeterminate="true"
                 android:indeterminateTint="?colorAccent"
@@ -96,7 +97,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <ImageView
                 android:id="@+id/options"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="32dp"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/ripple_item_background"
                 android:src="@drawable/ic_fluent_more_vertical_20_filled"
