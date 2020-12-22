@@ -43,8 +43,6 @@ import okhttp3.ResponseBody;
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public class CaptchaNoJsPresenterV2 {
-    private static final String userAgentHeader =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.131 Safari/537.36";
     private static final String acceptHeader =
             "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
     private static final String acceptEncodingHeader = "deflate, br";
@@ -121,7 +119,6 @@ public class CaptchaNoJsPresenterV2 {
                     Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .addHeader("Referer", recaptchaUrl)
-                            .addHeader("User-Agent", userAgentHeader)
                             .addHeader("Accept", acceptHeader)
                             .addHeader("Accept-Encoding", acceptEncodingHeader)
                             .addHeader("Accept-Language", acceptLanguageHeader)
@@ -213,7 +210,6 @@ public class CaptchaNoJsPresenterV2 {
 
         Request request = new Request.Builder().url(recaptchaUrl)
                 .addHeader("Referer", baseUrl)
-                .addHeader("User-Agent", userAgentHeader)
                 .addHeader("Accept", acceptHeader)
                 .addHeader("Accept-Encoding", acceptEncodingHeader)
                 .addHeader("Accept-Language", acceptLanguageHeader)

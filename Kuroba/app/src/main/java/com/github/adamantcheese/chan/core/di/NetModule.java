@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import androidx.annotation.NonNull;
-
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
@@ -35,13 +33,11 @@ import org.codejargon.feather.Provides;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import javax.inject.Singleton;
 
-import okhttp3.Dns;
 import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
+import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
@@ -91,26 +87,20 @@ public class NetModule {
     @Provides
     @Singleton
     public OkHttpClientWithUtils provideProxiedOkHttpClient() {
+        //@formatter:off
         Logger.d(AppModule.DI_TAG, "Proxied OkHTTP client");
-        return new OkHttpClientWithUtils(new OkHttpClient.Builder().protocols(getOkHttpProtocols())
-                .dns(getOkHttpDnsSelector()).addInterceptor(new HttpEquivRefreshInterceptor()));
-    }
-
-    private Dns getOkHttpDnsSelector() {
-        DnsSelector selector = new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY);
-        Logger.d(AppModule.DI_TAG, "Using DnsSelector.Mode." + selector.mode.name());
-        return selector;
-    }
-
-    @NonNull
-    private List<Protocol> getOkHttpProtocols() {
-        if (ChanSettings.okHttpAllowHttp2.get()) {
-            Logger.d(AppModule.DI_TAG, "Using HTTP_2 and HTTP_1_1");
-            return Arrays.asList(HTTP_2, HTTP_1_1);
-        }
-
-        Logger.d(AppModule.DI_TAG, "Using HTTP_1_1");
-        return Collections.singletonList(HTTP_1_1);
+        return new OkHttpClientWithUtils(new OkHttpClient.Builder()
+                .protocols(ChanSettings.okHttpAllowHttp2.get()
+                        ? Arrays.asList(HTTP_2, HTTP_1_1) : Collections.singletonList(HTTP_1_1))
+                .dns(new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY))
+                // interceptor to add the User-Agent for all requests
+                .addNetworkInterceptor(chain -> {
+                    Request originalRequest = chain.request();
+                    Request requestWithUserAgent =
+                            originalRequest.newBuilder().header("User-Agent", USER_AGENT).build();
+                    return chain.proceed(requestWithUserAgent);
+                }));
+        //@formatter:on
     }
 
     // Basically the same as OkHttpClient, but has an extra method for constructing a proxied client for a specific call

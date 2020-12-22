@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import android.util.LruCache
 import androidx.annotation.GuardedBy
 import com.github.adamantcheese.chan.core.cache.downloader.DownloaderUtils.isCancellationError
-import com.github.adamantcheese.chan.core.di.NetModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.site.SiteResolver
 import com.github.adamantcheese.chan.utils.Logger
@@ -88,11 +87,7 @@ internal class PartialContentSupportChecker(
             Logger.d(this, "Sending HEAD request to url (${maskImageUrl(url)})")
         }
 
-        val headRequest = Request.Builder()
-                .head()
-                .addHeader("User-Agent", NetModule.USER_AGENT)
-                .url(url)
-                .build()
+        val headRequest = Request.Builder().head().url(url).build()
 
         val startTime = System.currentTimeMillis()
 

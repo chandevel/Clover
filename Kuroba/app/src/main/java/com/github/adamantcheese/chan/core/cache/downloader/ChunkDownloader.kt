@@ -35,7 +35,6 @@ internal class ChunkDownloader(
 
         val builder = Request.Builder()
                 .url(url)
-                .addHeader("User-Agent", NetModule.USER_AGENT)
                 .addHeader("Referer", url.toString())
 
         if (!chunk.isWholeFile()) {

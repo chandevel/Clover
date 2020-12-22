@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
@@ -73,10 +72,7 @@ public class NetUtils {
             }
         }
 
-        requestBuilder.addHeader("User-Agent", NetModule.USER_AGENT);
-        Request request = requestBuilder.build();
-
-        instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).enqueue(httpCall);
+        instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(requestBuilder.build()).enqueue(httpCall);
     }
 
     public static Call makeBitmapRequest(
@@ -132,8 +128,7 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap);
             return null;
         }
-        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
-                .addHeader("User-Agent", NetModule.USER_AGENT)
+        Call call = instance(OkHttpClientWithUtils.class).getHttpRedirectClient().newCall(new Request.Builder().url(url)
                 .addHeader("Referer", url.toString())
                 .build());
         Callback callback = new Callback() {
@@ -318,8 +313,7 @@ public class NetUtils {
     ) {
         OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
-        Request.Builder builder = new Request.Builder().url(url)
-                .addHeader("User-Agent", NetModule.USER_AGENT);
+        Request.Builder builder = new Request.Builder().url(url);
         Call call = clientBuilder.build().newCall(builder.build());
         Callback callback = new Callback() {
             @Override
@@ -360,10 +354,7 @@ public class NetUtils {
     public static Call makeHeadersRequest(
             @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.ResponseResult<Headers> result
     ) {
-        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
-                .addHeader("User-Agent", NetModule.USER_AGENT)
-                .head()
-                .build());
+        Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url).head().build());
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {

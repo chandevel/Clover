@@ -30,7 +30,6 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -47,8 +46,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -163,11 +160,7 @@ public class CaptchaNojsLayoutV1
     private void loadRecaptchaAndSetWebViewData() {
         final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
 
-        Request request = new Request.Builder().url(recaptchaUrl)
-                .addHeader("User-Agent", getSettings().getUserAgentString())
-                .addHeader("Referer", baseUrl)
-                .build();
-        instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new Callback() {
+        Request request = new Request.Builder().url(recaptchaUrl).addHeader("Referer", baseUrl).build();
         instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new IgnoreFailureCallback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response)

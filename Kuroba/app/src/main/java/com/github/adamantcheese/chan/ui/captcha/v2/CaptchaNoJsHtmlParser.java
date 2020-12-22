@@ -41,7 +41,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -264,8 +263,7 @@ public class CaptchaNoJsHtmlParser {
 
     private void downloadAndStoreImage(String fullUrl)
             throws IOException, CaptchaNoJsV2ParsingError {
-        Request request = new Request.Builder().url(fullUrl).addHeader("Host", HttpUrl.get(fullUrl).host())
-                .addHeader("User-Agent", NetModule.USER_AGENT).build();
+        Request request = new Request.Builder().url(fullUrl).build();
 
         try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
             if (!response.isSuccessful()) {
