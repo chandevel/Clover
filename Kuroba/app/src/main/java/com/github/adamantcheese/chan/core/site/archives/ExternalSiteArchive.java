@@ -29,10 +29,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import kotlin.random.Random;
 import okhttp3.HttpUrl;
 
 public abstract class ExternalSiteArchive
         implements Site {
+    private final int id;
     public final String domain;
     public final String name;
     public final NoDeleteArrayList<String> boardCodes;
@@ -45,6 +47,8 @@ public abstract class ExternalSiteArchive
         this.name = name;
         this.boardCodes = new NoDeleteArrayList<>(boardCodes);
         this.searchEnabled = searchEnabled;
+        
+        id = Random.Default.nextInt(Integer.MIN_VALUE / 2, -1);
     }
 
     public Loadable getArchiveLoadable(Loadable op, int postNo) {
@@ -66,7 +70,7 @@ public abstract class ExternalSiteArchive
 
     @Override
     public int id() {
-        return -1;
+        return id;
     }
 
     @Override
