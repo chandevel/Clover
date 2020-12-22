@@ -179,7 +179,6 @@ public class QuickLatexEmbedder
                 "&remhost=quicklatex.com";
         //@formatter:on
         return new Request.Builder().url("https://www.quicklatex.com/latex3.f")
-                .addHeader("Host", "www.quicklatex.com")
                 .addHeader("User-Agent", NetModule.USER_AGENT)
                 .post(RequestBody.create(postBody, null))
                 .build();

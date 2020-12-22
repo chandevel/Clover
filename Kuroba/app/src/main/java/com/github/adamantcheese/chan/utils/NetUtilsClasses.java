@@ -127,7 +127,7 @@ public class NetUtilsClasses {
             implements Callback {
         public final void onFailure(@NotNull Call call, @NotNull IOException e) {}
 
-        public abstract void onResponse(@NonNull Call call, @NonNull Response response);
+        public abstract void onResponse(@NonNull Call call, @NonNull Response response) throws IOException;
     }
 
     public static class HttpCodeException

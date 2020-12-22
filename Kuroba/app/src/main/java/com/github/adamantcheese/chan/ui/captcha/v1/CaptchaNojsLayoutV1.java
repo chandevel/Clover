@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -163,17 +164,13 @@ public class CaptchaNojsLayoutV1
         final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
 
         Request request = new Request.Builder().url(recaptchaUrl)
-                .addHeader("Host", HttpUrl.get(recaptchaUrl).host())
                 .addHeader("User-Agent", getSettings().getUserAgentString())
                 .addHeader("Referer", baseUrl)
                 .build();
         instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new Callback() {
+        instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new IgnoreFailureCallback() {
             @Override
-            public void onFailure(Call call, IOException e) {
-            }
-
-            @Override
-            public void onResponse(Call call, Response response)
+            public void onResponse(@NonNull Call call, @NonNull Response response)
                     throws IOException {
                 ResponseBody body = response.body();
                 if (body == null) throw new IOException();

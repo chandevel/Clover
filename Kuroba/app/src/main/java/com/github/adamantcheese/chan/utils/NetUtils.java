@@ -133,7 +133,6 @@ public class NetUtils {
             return null;
         }
         Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
-                .addHeader("Host", url.host())
                 .addHeader("User-Agent", NetModule.USER_AGENT)
                 .addHeader("Referer", url.toString())
                 .build());
@@ -320,7 +319,6 @@ public class NetUtils {
         OkHttpClient.Builder clientBuilder = instance(OkHttpClientWithUtils.class).newBuilder();
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
         Request.Builder builder = new Request.Builder().url(url)
-                .addHeader("Host", url.host())
                 .addHeader("User-Agent", NetModule.USER_AGENT);
         Call call = clientBuilder.build().newCall(builder.build());
         Callback callback = new Callback() {
@@ -363,7 +361,6 @@ public class NetUtils {
             @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.ResponseResult<Headers> result
     ) {
         Call call = instance(OkHttpClientWithUtils.class).newCall(new Request.Builder().url(url)
-                .addHeader("Host", url.host())
                 .addHeader("User-Agent", NetModule.USER_AGENT)
                 .head()
                 .build());

@@ -90,7 +90,6 @@ internal class PartialContentSupportChecker(
 
         val headRequest = Request.Builder()
                 .head()
-                .addHeader("Host", url.host)
                 .addHeader("User-Agent", NetModule.USER_AGENT)
                 .url(url)
                 .build()

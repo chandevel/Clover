@@ -75,7 +75,6 @@ public class VichanAntispam {
         Map<String, String> res = new HashMap<>();
 
         Request request = new Request.Builder().url(url)
-                .addHeader("Host", url.host())
                 .addHeader("User-Agent", NetModule.USER_AGENT)
                 .build();
         try {
