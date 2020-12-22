@@ -116,6 +116,13 @@ public class ChanReaderParser
             removedPosts = Collections.emptyList();
         }
 
+        // add in extra removed posts from filters (for cached posts)
+        for (Post post : processing.getToReuse()) {
+            if(post.filterRemove) {
+                removedPosts.add(new PostHide(post.board.siteId, post.boardCode, post.no));
+            }
+        }
+
         List<Post> list = parsePosts(processing, removedPosts);
         return processPosts(processing.getOp(), list, removedPosts);
     }
@@ -204,6 +211,13 @@ public class ChanReaderParser
         List<Post> allPosts = new ArrayList<>(cachedPosts.size() + newPosts.size());
         allPosts.addAll(cachedPosts);
         allPosts.addAll(newPosts);
+
+        // add in removed posts from new posts
+        for (Post post : newPosts) {
+            if(post.filterRemove) {
+                removedPosts.add(new PostHide(post.board.siteId, post.boardCode, post.no));
+            }
+        }
 
         if (loadable.isThreadMode()) {
             Map<Integer, Post> postsByNo = new HashMap<>();
