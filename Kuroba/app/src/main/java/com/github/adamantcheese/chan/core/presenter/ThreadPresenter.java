@@ -716,7 +716,7 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_COPY_CROSS_BOARD_LINK:
                 setClipboardContent("Cross-board link",
-                        String.format(Locale.ENGLISH, ">>>/%s/%d", post.boardId, post.no)
+                        String.format(Locale.ENGLISH, ">>>/%s/%d", post.boardCode, post.no)
                 );
                 showToast(context, R.string.post_cross_board_link_copied);
                 break;

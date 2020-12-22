@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Post
         implements Comparable<Post>, Cloneable {
-    public final String boardId;
+    public final String boardCode;
 
     public final Board board;
 
@@ -131,7 +131,7 @@ public class Post
 
     private Post(Builder builder) {
         board = builder.board;
-        boardId = builder.board.code;
+        boardCode = builder.board.code;
         no = builder.no;
 
         isOP = builder.op;
@@ -327,7 +327,7 @@ public class Post
                 && closed == post.closed
                 && archived == post.archived
                 && lastModified == post.lastModified
-                && Objects.equals(boardId, post.boardId)
+                && Objects.equals(boardCode, post.boardCode)
                 && Objects.equals(board, post.board)
                 && Objects.equals(name, post.name)
                 && Objects.equals(comment, post.comment)
@@ -350,7 +350,7 @@ public class Post
     @Override
     public int hashCode() {
         return Objects.hash(
-                boardId,
+                boardCode,
                 board,
                 no,
                 isOP,

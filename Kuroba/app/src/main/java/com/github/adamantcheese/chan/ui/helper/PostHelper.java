@@ -53,7 +53,7 @@ public class PostHelper {
             } else if (!TextUtils.isEmpty(post.comment)) {
                 return post.comment.subSequence(0, Math.min(post.comment.length(), 200)) + "";
             } else {
-                return "/" + post.boardId + "/" + post.no;
+                return "/" + post.boardCode + "/" + post.no;
             }
         } else if (loadable != null) {
             return "/" + loadable.boardCode + "/" + (loadable.isThreadMode() ? loadable.no : "");
