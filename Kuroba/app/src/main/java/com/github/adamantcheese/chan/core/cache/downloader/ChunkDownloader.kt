@@ -35,15 +35,16 @@ internal class ChunkDownloader(
 
         val builder = Request.Builder()
                 .url(url)
-                .header("User-Agent", NetModule.USER_AGENT)
-                .header("Referer", url.toString())
+                .addHeader("Host", url.host)
+                .addHeader("User-Agent", NetModule.USER_AGENT)
+                .addHeader("Referer", url.toString())
 
         if (!chunk.isWholeFile()) {
             // If chunk.isWholeFile == true that means that one of the following is true:
             // 1) the file size is too small (and there is no reason to download it in chunks)
             // 2) the server does not support Partial Content
             // 3) we couldn't send HEAD request (it was timed out) so we should download it normally
-            builder.header("Range", "bytes=" + chunk.start + "-" + chunk.end)
+            builder.addHeader("Range", "bytes=" + chunk.start + "-" + chunk.end)
         }
 
         val httpRequest = builder.build()

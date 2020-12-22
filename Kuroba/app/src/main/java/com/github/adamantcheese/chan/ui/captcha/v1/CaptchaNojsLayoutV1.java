@@ -30,6 +30,7 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -46,6 +47,7 @@ import javax.inject.Inject;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -70,7 +72,6 @@ public class CaptchaNojsLayoutV1
     private String baseUrl;
     private String siteKey;
 
-    private String webviewUserAgent;
     private boolean isAutoReply = true;
 
     public CaptchaNojsLayoutV1(Context context) {
@@ -101,7 +102,6 @@ public class CaptchaNojsLayoutV1
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
-        webviewUserAgent = settings.getUserAgentString();
 
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -163,8 +163,9 @@ public class CaptchaNojsLayoutV1
         final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
 
         Request request = new Request.Builder().url(recaptchaUrl)
-                .header("User-Agent", webviewUserAgent)
-                .header("Referer", baseUrl)
+                .addHeader("Host", HttpUrl.get(recaptchaUrl).host())
+                .addHeader("User-Agent", getSettings().getUserAgentString())
+                .addHeader("Referer", baseUrl)
                 .build();
         instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new Callback() {
             @Override

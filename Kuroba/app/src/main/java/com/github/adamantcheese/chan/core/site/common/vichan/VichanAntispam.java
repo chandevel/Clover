@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.Chan;
+import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -73,7 +74,10 @@ public class VichanAntispam {
     public Map<String, String> get() {
         Map<String, String> res = new HashMap<>();
 
-        Request request = new Request.Builder().url(url).build();
+        Request request = new Request.Builder().url(url)
+                .addHeader("Host", url.host())
+                .addHeader("User-Agent", NetModule.USER_AGENT)
+                .build();
         try {
             Response response =
                     Chan.instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).execute();

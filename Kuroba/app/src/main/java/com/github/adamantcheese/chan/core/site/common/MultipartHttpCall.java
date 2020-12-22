@@ -72,6 +72,7 @@ public abstract class MultipartHttpCall
             r += ":" + url.port();
         }
         requestBuilder.addHeader("Referer", r);
+        requestBuilder.addHeader("Host", url.host());
         requestBuilder.post(formBuilder.build());
     }
 }

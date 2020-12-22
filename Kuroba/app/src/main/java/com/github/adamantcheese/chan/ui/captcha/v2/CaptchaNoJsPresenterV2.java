@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -119,12 +120,13 @@ public class CaptchaNoJsPresenterV2 {
 
                     Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
-                            .header("Referer", recaptchaUrl)
-                            .header("User-Agent", userAgentHeader)
-                            .header("Accept", acceptHeader)
-                            .header("Accept-Encoding", acceptEncodingHeader)
-                            .header("Accept-Language", acceptLanguageHeader)
-                            .header("Cookie", defaultGoogleCookies)
+                            .addHeader("Host", HttpUrl.get(recaptchaUrl).host())
+                            .addHeader("Referer", recaptchaUrl)
+                            .addHeader("User-Agent", userAgentHeader)
+                            .addHeader("Accept", acceptHeader)
+                            .addHeader("Accept-Encoding", acceptEncodingHeader)
+                            .addHeader("Accept-Language", acceptLanguageHeader)
+                            .addHeader("Cookie", defaultGoogleCookies)
                             .build();
 
                     try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
@@ -211,12 +213,13 @@ public class CaptchaNoJsPresenterV2 {
         String recaptchaUrl = recaptchaUrlBase + siteKey;
 
         Request request = new Request.Builder().url(recaptchaUrl)
-                .header("Referer", baseUrl)
-                .header("User-Agent", userAgentHeader)
-                .header("Accept", acceptHeader)
-                .header("Accept-Encoding", acceptEncodingHeader)
-                .header("Accept-Language", acceptLanguageHeader)
-                .header("Cookie", defaultGoogleCookies)
+                .addHeader("Referer", baseUrl)
+                .addHeader("Host", HttpUrl.get(baseUrl).host())
+                .addHeader("User-Agent", userAgentHeader)
+                .addHeader("Accept", acceptHeader)
+                .addHeader("Accept-Encoding", acceptEncodingHeader)
+                .addHeader("Accept-Language", acceptLanguageHeader)
+                .addHeader("Cookie", defaultGoogleCookies)
                 .build();
 
         try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
