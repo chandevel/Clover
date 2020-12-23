@@ -83,9 +83,7 @@ internal class PartialContentSupportChecker(
             return Single.just(cached)
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "Sending HEAD request to url (${maskImageUrl(url)})")
-        }
+        Logger.vd(this, "Sending HEAD request to url (${maskImageUrl(url)})")
 
         val headRequest = Request.Builder().head().url(url).build()
 
@@ -95,10 +93,8 @@ internal class PartialContentSupportChecker(
             val call = okHttpClient.newCall(headRequest)
 
             val disposeFunc = {
-                if (ChanSettings.verboseLogs.get() && !call.isCanceled()) {
-                    Logger.d(this, "Disposing of HEAD request for url (${maskImageUrl(url)})")
-                    call.cancel()
-                }
+                Logger.vd(this, "Disposing of HEAD request for url (${maskImageUrl(url)})")
+                call.cancel()
             }
 
             val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
@@ -157,28 +153,19 @@ internal class PartialContentSupportChecker(
                 // without using Partial Content
                 .timeout(maxTimeoutMs, TimeUnit.MILLISECONDS)
                 .doOnSuccess {
-                    if (ChanSettings.verboseLogs.get()) {
-                        val diff = System.currentTimeMillis() - startTime
-                        Logger.d(this, "HEAD request to url (${maskImageUrl(url)}) has succeeded, time = ${diff}ms")
-                    }
+                    Logger.vd(this, "HEAD request to url (${maskImageUrl(url)}) has succeeded, time = ${System.currentTimeMillis() - startTime}ms")
                 }
                 .doOnError { error ->
-                    if (ChanSettings.verboseLogs.get()) {
-                        val diff = System.currentTimeMillis() - startTime
-                        Logger.e(this, "HEAD request to url (${maskImageUrl(url)}) has failed " +
-                                "because of \"${error.javaClass.simpleName}\" exception, time = ${diff}ms")
-                    }
+                    Logger.ve(this, "HEAD request to url (${maskImageUrl(url)}) has failed " +
+                            "because of \"${error.javaClass.simpleName}\" exception, time = ${System.currentTimeMillis() - startTime}ms")
                 }
                 .onErrorResumeNext { error ->
                     if (error !is TimeoutException) {
                         return@onErrorResumeNext Single.error(error)
                     }
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        val diff = System.currentTimeMillis() - startTime
-                        Logger.d(this, "HEAD request took for url (${maskImageUrl(url)}) too much time, " +
-                                "canceled by timeout() operator, took = ${diff}ms")
-                    }
+                    Logger.vd(this, "HEAD request took for url (${maskImageUrl(url)}) too much time, " +
+                            "canceled by timeout() operator, took = ${System.currentTimeMillis() - startTime}ms")
 
                     // Do not cache this result because after this request the file should be cached by the
                     // cloudflare, so the next time we open it, it should load way faster
@@ -212,18 +199,14 @@ internal class PartialContentSupportChecker(
 
         val acceptsRangesValue = response.header(ACCEPT_RANGES_HEADER)
         if (acceptsRangesValue == null) {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "(${maskImageUrl(url)}) does not support partial content (ACCEPT_RANGES_HEADER is null")
-            }
+            Logger.vd(this, "(${maskImageUrl(url)}) does not support partial content (ACCEPT_RANGES_HEADER is null")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (!acceptsRangesValue.equals(ACCEPT_RANGES_HEADER_VALUE, true)) {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "(${maskImageUrl(url)}) does not support partial content " +
+            Logger.vd(this, "(${maskImageUrl(url)}) does not support partial content " +
                         "(bad ACCEPT_RANGES_HEADER = ${acceptsRangesValue})")
-            }
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
@@ -234,9 +217,7 @@ internal class PartialContentSupportChecker(
             // in thread.json. So we can try using that.
 
             if (!canWeUseFileSizeFromJson(url)) {
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this, "(${maskImageUrl(url)}) does not support partial content (CONTENT_LENGTH_HEADER is null")
-                }
+                Logger.vd(this, "(${maskImageUrl(url)}) does not support partial content (CONTENT_LENGTH_HEADER is null")
                 emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
                 return
             }
@@ -249,18 +230,14 @@ internal class PartialContentSupportChecker(
         }
 
         if (length == null || length <= 0) {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "(${maskImageUrl(url)}) does not support partial content " +
-                        "(bad CONTENT_LENGTH_HEADER = ${contentLengthValue})")
-            }
+            Logger.vd(this, "(${maskImageUrl(url)}) does not support partial content " +
+                    "(bad CONTENT_LENGTH_HEADER = ${contentLengthValue})")
             emitter.onSuccess(cache(url, PartialContentCheckResult(false)))
             return
         }
 
         if (length < 8192L) {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "(${maskImageUrl(url)}) download file normally (file length < 8192L, length = $length)")
-            }
+            Logger.vd(this, "(${maskImageUrl(url)}) download file normally (file length < 8192L, length = $length)")
             // Download tiny files normally, no need to chunk them
             emitter.onSuccess(cache(url, PartialContentCheckResult(false, length = length)))
             return
@@ -269,10 +246,8 @@ internal class PartialContentSupportChecker(
         val cfCacheStatusHeader = response.header(CF_CACHE_STATUS_HEADER)
         val diff = System.currentTimeMillis() - startTime
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "url = ${maskImageUrl(url)}, fileSize = $length, " +
+        Logger.vd(this, "url = ${maskImageUrl(url)}, fileSize = $length, " +
                     "cfCacheStatusHeader = $cfCacheStatusHeader, took = ${diff}ms")
-        }
 
         synchronized(checkedChanHosts) { checkedChanHosts.put(url.host, true) }
 

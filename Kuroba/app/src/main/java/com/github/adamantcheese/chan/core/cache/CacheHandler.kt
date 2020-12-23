@@ -399,9 +399,7 @@ class CacheHandler(
                 size.set(0L)
             }
 
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
-            }
+            Logger.vd(TAG, "Deleted $cacheFileName and it's meta $cacheMetaFileName")
             return true
         }
 

@@ -25,10 +25,8 @@ internal class ChunkMerger(
             requestStartTime: Long
     ): Flowable<ChunkDownloadEvent> {
         return Flowable.fromCallable {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
-                        "chunks count = ${chunkSuccessEvents.size}")
-            }
+            Logger.vd(this, "mergeChunksIntoCacheFile called (${maskImageUrl(url)}), " +
+                    "chunks count = ${chunkSuccessEvents.size}")
 
             val isRunning = activeDownloads.get(url)?.cancelableDownload?.isRunning() ?: false
             if (!isRunning) {

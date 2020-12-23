@@ -29,9 +29,7 @@ internal class ChunkDownloader(
                     "should be only one but actual = $totalChunksCount")
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
-        }
+        Logger.vd(this, "Start downloading (${maskImageUrl(url)}), chunk ${chunk.start}..${chunk.end}")
 
         val builder = Request.Builder()
                 .url(url)
@@ -57,18 +55,12 @@ internal class ChunkDownloader(
             // This function will be used to cancel a CHUNK (not the whole file) download upon
             // cancellation
             val disposeFunc = {
-                BackgroundUtils.ensureBackgroundThread()
+                Logger.vd(this,
+                        "Disposing OkHttp Call for CHUNKED request $request via " +
+                                "manual canceling (${chunk.start}..${chunk.end})"
+                )
 
-                if (!call.isCanceled()) {
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this,
-                                "Disposing OkHttp Call for CHUNKED request $request via " +
-                                        "manual canceling (${chunk.start}..${chunk.end})"
-                        )
-                    }
-
-                    call.cancel()
-                }
+                call.cancel()
             }
 
             val downloadState = activeDownloads.addDisposeFunc(url, disposeFunc)
@@ -97,12 +89,10 @@ internal class ChunkDownloader(
                     val diff = System.currentTimeMillis() - startTime
                     val exceptionMessage = e.message ?: "No message"
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this@ChunkDownloader,
-                                "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
-                                        " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
-                        )
-                    }
+                    Logger.vd(this@ChunkDownloader,
+                            "Couldn't get chunk response, reason = ${e.javaClass.simpleName} ($exceptionMessage)" +
+                                    " (${maskImageUrl(url)}) ${chunk.start}..${chunk.end}, time = ${diff}ms"
+                    )
 
                     if (!isCancellationError(e)) {
                         serializedEmitter.tryOnError(e)
@@ -117,11 +107,8 @@ internal class ChunkDownloader(
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    if (ChanSettings.verboseLogs.get()) {
-                        val diff = System.currentTimeMillis() - startTime
-                        Logger.d(this@ChunkDownloader, "Got chunk response in (${maskImageUrl(url)}) " +
-                                "${chunk.start}..${chunk.end} in ${diff}ms")
-                    }
+                    Logger.vd(this@ChunkDownloader, "Got chunk response in (${maskImageUrl(url)}) " +
+                            "${chunk.start}..${chunk.end} in ${System.currentTimeMillis() - startTime}ms")
 
                     serializedEmitter.onNext(response)
                     serializedEmitter.onComplete()

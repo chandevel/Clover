@@ -34,7 +34,7 @@ public class CustomScaleImageView
         setOnImageEventListener(new DefaultOnImageEventListener() {
             @Override
             public void onReady() {
-                Logger.d(CustomScaleImageView.this, "onReady");
+                Logger.vd(CustomScaleImageView.this, "onReady");
                 int vPadding = getPaddingBottom() + getPaddingTop();
                 int hPadding = getPaddingLeft() + getPaddingRight();
                 // this scale value is what makes the image fill the view by default
@@ -49,7 +49,7 @@ public class CustomScaleImageView
 
             @Override
             public void onImageLoaded() {
-                Logger.d(CustomScaleImageView.this, "onImageLoaded");
+                Logger.vd(CustomScaleImageView.this, "onImageLoaded");
                 if (callback != null) {
                     callback.onReady();
                 }

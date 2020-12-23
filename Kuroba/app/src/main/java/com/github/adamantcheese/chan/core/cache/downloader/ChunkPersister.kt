@@ -40,12 +40,10 @@ internal class ChunkPersister(
             val chunk = chunkResponse.chunk
 
             try {
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this,
-                            "storeChunkInFile($chunkIndex) (${maskImageUrl(url)}) " +
-                                    "called for chunk ${chunk.start}..${chunk.end}"
-                    )
-                }
+                Logger.vd(this,
+                        "storeChunkInFile($chunkIndex) (${maskImageUrl(url)}) " +
+                                "called for chunk ${chunk.start}..${chunk.end}"
+                )
 
                 if (chunk.isWholeFile() && totalChunksCount > 1) {
                     throw IllegalStateException("storeChunkInFile($chunkIndex) Bad amount of chunks, " +
@@ -97,10 +95,8 @@ internal class ChunkPersister(
                     }
                 }
 
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
-                            "chunk ${chunk.start}..${chunk.end}")
-                }
+                Logger.vd(this, "storeChunkInFile(${chunkIndex}) success, url = ${maskImageUrl(url)}, " +
+                        "chunk ${chunk.start}..${chunk.end}")
             } catch (error: Throwable) {
                 handleErrors(
                         url,
@@ -129,9 +125,7 @@ internal class ChunkPersister(
         // If totalChunksCount == 1 then there is nothing else to stop so we can just emit
         // one error
         if (isStoppedOrCanceled || totalChunksCount > 1 && error !is IOException) {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
-            }
+            Logger.vd(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) cancel for chunk ${chunk.start}..${chunk.end}")
 
             // First emit an error
             if (isStoppedOrCanceled) {
@@ -153,9 +147,7 @@ internal class ChunkPersister(
                 DownloadState.Stopped -> activeDownloads.get(url)?.cancelableDownload?.stop()
             }.exhaustive
         } else {
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
-            }
+            Logger.vd(this, "handleErrors($chunkIndex) (${maskImageUrl(url)}) fail for chunk ${chunk.start}..${chunk.end}")
             serializedEmitter.tryOnError(error)
         }
     }
@@ -254,12 +246,10 @@ internal class ChunkPersister(
                 }
             }
 
-            if (ChanSettings.verboseLogs.get()) {
-                Logger.d(this,
-                        "pipeChunk($chunkIndex) (${maskImageUrl(url)}) SUCCESS for chunk " +
-                                "${chunk.start}..${chunk.end}"
-                )
-            }
+            Logger.vd(this,
+                    "pipeChunk($chunkIndex) (${maskImageUrl(url)}) SUCCESS for chunk " +
+                            "${chunk.start}..${chunk.end}"
+            )
 
             serializedEmitter.onNext(
                     ChunkDownloadEvent.ChunkSuccess(

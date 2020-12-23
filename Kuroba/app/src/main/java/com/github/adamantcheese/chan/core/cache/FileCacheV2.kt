@@ -228,9 +228,7 @@ class FileCacheV2(
             return false
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "File already downloaded, url = ${maskImageUrl(url)}")
-        }
+        Logger.vd(this, "File already downloaded, url = ${maskImageUrl(url)}")
 
         try {
             handleFileImmediatelyAvailable(file, url)
@@ -256,9 +254,7 @@ class FileCacheV2(
         return synchronized(activeDownloads) {
             val prevRequest = activeDownloads.get(url)
             if (prevRequest != null) {
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this, "Request ${maskImageUrl(url)} is already active, re-subscribing to it")
-                }
+                Logger.vd(this, "Request ${maskImageUrl(url)} is already active, re-subscribing to it")
 
                 val prevCancelableDownload = prevRequest.cancelableDownload
                 if (callback != null) {
@@ -350,16 +346,14 @@ class FileCacheV2(
                     val downloadedString = PostUtils.getReadableFileSize(downloaded)
                     val totalString = PostUtils.getReadableFileSize(total)
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this, "Success (" +
-                                "downloaded = $downloadedString ($downloaded B), " +
-                                "total = $totalString ($total B), " +
-                                "took ${result.requestTime}ms, " +
-                                "network class = $networkClass, " +
-                                "downloads = $activeDownloadsCount" +
-                                ") for request $request"
-                        )
-                    }
+                    Logger.vd(this, "Success (" +
+                            "downloaded = $downloadedString ($downloaded B), " +
+                            "total = $totalString ($total B), " +
+                            "took ${result.requestTime}ms, " +
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount" +
+                            ") for request $request"
+                    )
 
                     // Trigger cache trimmer after a file has been successfully downloaded
                     cacheHandler.fileWasAdded(total)
@@ -377,20 +371,16 @@ class FileCacheV2(
                         result.chunkSize
                     }
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        val percents = (result.downloaded.toFloat() / chunkSize.toFloat()) * 100f
-                        val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
-                        val totalString = PostUtils.getReadableFileSize(chunkSize)
+                    val percents = (result.downloaded.toFloat() / chunkSize.toFloat()) * 100f
+                    val downloadedString = PostUtils.getReadableFileSize(result.downloaded)
+                    val totalString = PostUtils.getReadableFileSize(chunkSize)
 
-                        if (ChanSettings.verboseLogs.get()) {
-                            Logger.d(this,
-                                    "Progress " +
-                                            "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
-                                            "(${result.downloaded} B) / $totalString (${chunkSize} B), " +
-                                            "${percents}%) for request $request"
-                            )
-                        }
-                    }
+                    Logger.vd(this,
+                            "Progress " +
+                                    "chunkIndex = ${result.chunkIndex}, downloaded: (${downloadedString}) " +
+                                    "(${result.downloaded} B) / $totalString (${chunkSize} B), " +
+                                    "${percents}%) for request $request"
+                    )
 
                     // Progress is not a terminal event so we don't want to remove request from the
                     // activeDownloads
@@ -426,13 +416,11 @@ class FileCacheV2(
                         "stopped"
                     }
 
-                    if (ChanSettings.verboseLogs.get()) {
-                        Logger.d(this, "Request $request $causeText, " +
-                                "downloaded = $downloaded, " +
-                                "total = $total, " +
-                                "network class = $networkClass, " +
-                                "downloads = $activeDownloadsCount")
-                    }
+                    Logger.vd(this, "Request $request $causeText, " +
+                            "downloaded = $downloaded, " +
+                            "total = $total, " +
+                            "network class = $networkClass, " +
+                            "downloads = $activeDownloadsCount")
 
                     resultHandler(url, request, true) {
                         if (isCanceled) {
@@ -593,9 +581,7 @@ class FileCacheV2(
             return
         }
 
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "Purging ${maskImageUrl(url)}, file = ${output.getFullPath()}")
-        }
+        Logger.vd(this, "Purging ${maskImageUrl(url)}, file = ${output.getFullPath()}")
 
         if (!cacheHandler.deleteCacheFile(output)) {
             Logger.e(this, "Could not delete the file in purgeOutput, output = ${output.getFullPath()}")

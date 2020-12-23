@@ -75,14 +75,10 @@ internal class ConcurrentChunkedFileDownloader constructor(
                     )
                 }
                         .doOnSubscribe {
-                            if (ChanSettings.verboseLogs.get()) {
-                                Logger.d(this, "Starting downloading (${maskImageUrl(url)})")
-                            }
+                            Logger.vd(this, "Starting downloading (${maskImageUrl(url)})")
                         }
                         .doOnComplete {
-                            if (ChanSettings.verboseLogs.get()) {
-                                Logger.d(this, "Completed downloading (${maskImageUrl(url)})")
-                            }
+                            Logger.vd(this, "Completed downloading (${maskImageUrl(url)})")
                             removeChunksFromDisk(url)
                         }
                         .doOnError { error ->
@@ -109,9 +105,7 @@ internal class ConcurrentChunkedFileDownloader constructor(
                     ?: continue
 
             if (fileManager.delete(chunkFile)) {
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(this, "Deleted chunk file ${chunkFile.getFullPath()}")
-                }
+                Logger.vd(this, "Deleted chunk file ${chunkFile.getFullPath()}")
             } else {
                 Logger.e(this, "Couldn't delete chunk file ${chunkFile.getFullPath()}")
             }
@@ -126,9 +120,7 @@ internal class ConcurrentChunkedFileDownloader constructor(
             partialContentCheckResult: PartialContentCheckResult,
             output: RawFile
     ): Flowable<FileDownloadResult> {
-        if (ChanSettings.verboseLogs.get()) {
-            Logger.d(this, "File (${maskImageUrl(url)}) was split into chunks: $chunks")
-        }
+        Logger.vd(this, "File (${maskImageUrl(url)}) was split into chunks: $chunks")
 
         if (!partialContentCheckResult.couldDetermineFileSize() && chunks.size != 1) {
             throw IllegalStateException("The size of the file is unknown but chunks size is not 1, " +

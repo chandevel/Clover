@@ -104,7 +104,7 @@ class CancelableDownload(
                         try {
                             func.invoke()
                         } catch (error: Throwable) {
-                            Logger.e(TAG, "Unhandled error in dispose function, " +
+                            Logger.e(this, "Unhandled error in dispose function, " +
                                     "error = ${error.javaClass.simpleName}")
                         }
                     }
@@ -120,25 +120,19 @@ class CancelableDownload(
                     DownloadState.Canceled -> "Cancelling"
                 }
 
-                if (ChanSettings.verboseLogs.get()) {
-                    Logger.d(TAG, "$action file download request, url = ${maskImageUrl(url)}")
-                }
+                Logger.vd(this, "$action file download request, url = ${maskImageUrl(url)}")
             }
                     // We use timeout here just in case to not get deadlocked
                     .get(10L, TimeUnit.SECONDS)
         } catch (error: Throwable) {
             if (error is TimeoutException) {
-                Logger.e(TAG, "POSSIBLE DEADLOCK in CancelableDownload.dispose() !!!", error)
+                Logger.e(this, "POSSIBLE DEADLOCK in CancelableDownload.dispose() !!!", error)
                 return
             }
 
             // Catch all the exceptions. Otherwise some request info won't be cleared when an error
             // occurs.
-            Logger.e(TAG, "Error while trying to dispose of a request for url = (${maskImageUrl(url)})", error)
+            Logger.e(this, "Error while trying to dispose of a request for url = (${maskImageUrl(url)})", error)
         }
-    }
-
-    companion object {
-        private const val TAG = "CancelableDownload"
     }
 }
