@@ -72,7 +72,7 @@ public class NetModule {
             OkHttpClientWithUtils okHttpClient
     ) {
         Logger.d(AppModule.DI_TAG, "File cache V2");
-        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient);
+        return new FileCacheV2(fileManager, cacheHandler, siteResolver, okHttpClient.getHttpRedirectClient());
     }
 
     @Provides
@@ -114,6 +114,11 @@ public class NetModule {
         //This adds a proxy to the base client
         public OkHttpClient getProxiedClient() {
             return newBuilder().proxy(ChanSettings.getProxy()).build();
+        }
+
+        // This adds an HTTP redirect follower to the base client
+        public OkHttpClient getHttpRedirectClient() {
+            return newBuilder().addInterceptor(new HttpEquivRefreshInterceptor()).build();
         }
     }
 }

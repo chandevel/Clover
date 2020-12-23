@@ -57,12 +57,7 @@ public class HttpEquivRefreshInterceptor
                                 }
                             }
                             initialResponse.close();
-                            Request r = chain.request()
-                                    .newBuilder()
-                                    .url(redirectUrl)
-                                    .header("Host", redirectUrl.host())
-                                    .header("Referer", redirectUrl.toString())
-                                    .build();
+                            Request r = new Request.Builder().url(redirectUrl).build();
                             // double the timeout, since we're basically sending a second request
                             return chain.withConnectTimeout(chain.connectTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
                                     .withReadTimeout(chain.readTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
