@@ -35,22 +35,7 @@ class FileCacheV2(
     private val activeDownloads = ActiveDownloads()
 
     private val requestQueue = PublishProcessor.create<HttpUrl>()
-
-    private val threadsCount = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
-
-    private val normalThreadIndex = AtomicInteger(0)
-    private val workerScheduler = Schedulers.from(
-            Executors.newFixedThreadPool(threadsCount) { runnable ->
-                return@newFixedThreadPool Thread(
-                        runnable,
-                        String.format(
-                                Locale.ENGLISH,
-                                "FileCacheV2Thread-%d",
-                                normalThreadIndex.getAndIncrement()
-                        )
-                )
-            }
-    )
+    private val workerScheduler = Schedulers.from(BackgroundUtils.backgroundService)
 
     private val partialContentSupportChecker = PartialContentSupportChecker(
             okHttpClient,
