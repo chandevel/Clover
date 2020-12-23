@@ -56,7 +56,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.MediaItem;
@@ -94,7 +94,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
-import static com.github.adamantcheese.chan.utils.NetUtilsClasses.BitmapResult;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 
 public class MultiImageView
         extends FrameLayout

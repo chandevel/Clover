@@ -26,8 +26,8 @@ import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentParser;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 
 import java.util.Collections;
 

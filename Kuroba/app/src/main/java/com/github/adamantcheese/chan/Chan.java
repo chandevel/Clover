@@ -42,7 +42,7 @@ import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 
 import org.codejargon.feather.Feather;
 import org.greenrobot.eventbus.EventBus;

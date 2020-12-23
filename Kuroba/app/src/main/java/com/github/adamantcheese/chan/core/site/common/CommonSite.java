@@ -44,7 +44,7 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 
 import java.util.Arrays;
 import java.util.Map;

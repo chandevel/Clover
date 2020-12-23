@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.utils;
+package com.github.adamantcheese.chan.core.net;
 
 import android.graphics.Bitmap;
 
@@ -11,6 +11,11 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
+import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 

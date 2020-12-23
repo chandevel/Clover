@@ -34,9 +34,9 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderParser;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.HttpCodeException;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 
 import java.util.ArrayList;
 import java.util.List;

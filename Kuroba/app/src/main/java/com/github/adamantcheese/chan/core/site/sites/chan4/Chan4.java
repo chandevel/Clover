@@ -51,9 +51,9 @@ import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.HTMLProcessor;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTMLProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

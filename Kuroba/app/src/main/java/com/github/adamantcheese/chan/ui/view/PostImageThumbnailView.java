@@ -34,7 +34,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;

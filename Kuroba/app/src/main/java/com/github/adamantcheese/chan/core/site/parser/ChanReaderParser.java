@@ -32,7 +32,7 @@ import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;

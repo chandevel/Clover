@@ -38,7 +38,7 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.IgnoreFailureCallback;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

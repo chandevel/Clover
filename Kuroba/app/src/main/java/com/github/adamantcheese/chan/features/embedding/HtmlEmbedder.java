@@ -2,7 +2,7 @@ package com.github.adamantcheese.chan.features.embedding;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.utils.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 
 import org.jsoup.nodes.Document;
 

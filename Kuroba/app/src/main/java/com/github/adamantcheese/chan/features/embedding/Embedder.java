@@ -11,8 +11,8 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseConverter;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.ResponseProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseConverter;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseProcessor;
 
 import java.util.List;
 import java.util.regex.Matcher;

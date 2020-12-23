@@ -24,7 +24,7 @@ import android.util.MalformedJsonException;
 import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
-import com.github.adamantcheese.chan.utils.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;

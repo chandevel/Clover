@@ -4,7 +4,7 @@ import android.util.JsonReader;
 
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.utils.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 
 import okhttp3.HttpUrl;
 import okhttp3.ResponseBody;

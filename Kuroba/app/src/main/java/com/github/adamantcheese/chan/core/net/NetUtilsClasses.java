@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.utils;
+package com.github.adamantcheese.chan.core.net;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;
@@ -6,6 +6,8 @@ import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
