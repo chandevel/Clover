@@ -46,6 +46,7 @@ import java.net.Proxy;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
@@ -533,8 +534,7 @@ public class ChanSettings {
     }
 
     public static boolean shouldUseFullSizeImage(PostImage postImage) {
-        return ChanSettings.autoLoadThreadImages.get() && (postImage.type == STATIC || postImage.type == GIF)
-                && !postImage.isInlined;
+        return ChanSettings.autoLoadThreadImages.get() && !postImage.isInlined;
     }
 
     /**

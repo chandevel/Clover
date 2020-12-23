@@ -184,8 +184,7 @@ public class PostAdapter
                         getPostViewMode(),
                         isCompact(),
                         searchQuery,
-                        theme,
-                        recyclerView
+                        theme
                 );
 
                 if (itemViewType == TYPE_POST_STUB.ordinal() && postAdapterCallback != null) {

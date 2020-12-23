@@ -25,8 +25,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -119,8 +117,7 @@ public class PostStubCell
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
             String searchQuery,
-            Theme theme,
-            RecyclerView attachedTo
+            Theme theme
     ) {
         if (this.post != null && bound) {
             bound = false;

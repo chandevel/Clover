@@ -71,7 +71,6 @@ public abstract class ThumbnailView
     private final RectF outputRect = new RectF();
 
     private final Matrix matrix = new Matrix();
-    private BitmapShader bitmapShader;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
     private Drawable foreground;
@@ -225,8 +224,7 @@ public abstract class ThumbnailView
 
             matrix.setRectToRect(bitmapRect, drawRect, Matrix.ScaleToFit.FILL);
 
-            bitmapShader.setLocalMatrix(matrix);
-            paint.setShader(bitmapShader);
+            paint.getShader().setLocalMatrix(matrix);
 
             canvas.save();
             canvas.clipRect(outputRect);
@@ -287,8 +285,8 @@ public abstract class ThumbnailView
 
         // set the bitmap and fields for drawing
         this.bitmap = bitmap;
-        bitmapShader = new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-        paint.setShader(null);
+        paint.setShader(new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+        invalidate();
 
         // if animated, start, otherwise call end to set the alpha to the end value
         if (animate) {

@@ -31,10 +31,10 @@ import com.github.adamantcheese.chan.core.cache.FileCacheListener;
 import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
@@ -88,8 +88,6 @@ public class PostImageThumbnailView
             return;
         }
 
-        setUrl(postImage.getThumbnailUrl(), width, height);
-
         if (ChanSettings.shouldUseFullSizeImage(postImage)) {
             if (fullsizeDownload != null) {
                 fullsizeDownload.cancel();
@@ -99,24 +97,30 @@ public class PostImageThumbnailView
             HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
             Bitmap cached = NetUtils.getCachedBitmap(url);
             if (cached != null) {
-                setImageBitmap(cached, false);
+                setImageBitmap(cached, true);
             } else {
+                setUrl(postImage.getThumbnailUrl(), width, height);
                 fullsizeDownload =
                         Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
                             @Override
                             public void onSuccess(RawFile file, boolean immediate) {
-                                BackgroundUtils.runWithDefaultExecutor(() -> BitmapUtils.decodeFile(new File(file.getFullPath()),
+                                BitmapUtils.decodeFilePreviewImage(new File(file.getFullPath()),
                                         width * 2,
-                                        height * 2
-                                ), result -> {
-                                    if (result != null && PostImageThumbnailView.this.postImage == postImage) {
-                                        NetUtils.storeExternalBitmap(url, result);
-                                        setImageBitmap(result, false);
-                                    }
-                                });
+                                        height * 2,
+                                        bitmap -> {
+                                            if (bitmap != BitmapRepository.error && bitmap != null
+                                                    && PostImageThumbnailView.this.postImage == postImage) {
+                                                NetUtils.storeExternalBitmap(url, bitmap);
+                                                setImageBitmap(bitmap, false);
+                                            }
+                                        },
+                                        false
+                                );
                             }
                         });
             }
+        } else {
+            setUrl(postImage.getThumbnailUrl(), width, height);
         }
     }
 
