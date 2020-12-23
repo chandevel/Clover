@@ -65,13 +65,13 @@ public abstract class ThumbnailView
     // the actual alpha set is in onSetAlpha, which setAlpha calls internally
     private final ValueAnimator fadeIn = ValueAnimator.ofFloat(0f, 1f);
 
-    private Bitmap bitmap = BitmapRepository.empty;
+    private Bitmap bitmap;
     private final RectF bitmapRect = new RectF();
     private final RectF drawRect = new RectF();
     private final RectF outputRect = new RectF();
 
     private final Matrix matrix = new Matrix();
-    BitmapShader bitmapShader = new BitmapShader(BitmapRepository.empty, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+    private BitmapShader bitmapShader;
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
     private Drawable foreground;
@@ -109,6 +109,8 @@ public abstract class ThumbnailView
             setImageBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_gallery),
                     false
             );
+        } else {
+            setImageBitmap(BitmapRepository.empty, false);
         }
     }
 
