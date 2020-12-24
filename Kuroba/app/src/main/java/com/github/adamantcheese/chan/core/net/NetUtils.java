@@ -14,13 +14,13 @@ import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
+import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -133,9 +133,8 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap);
             return null;
         }
-        Call call = instance(OkHttpClientWithUtils.class).getHttpRedirectClient().newCall(new Request.Builder().url(url)
-                .addHeader("Referer", url.toString())
-                .build());
+        Call call = instance(OkHttpClientWithUtils.class).getHttpRedirectClient()
+                .newCall(new Request.Builder().url(url).addHeader("Referer", url.toString()).build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -162,31 +161,26 @@ public class NetUtils {
                         performBitmapFailure(url, new NullPointerException("No response data"));
                         return;
                     }
-                    Bitmap result;
                     String fileExtension = StringUtils.extractFileNameExtension(url.toString());
                     if (fileExtension != null && fileExtension.equalsIgnoreCase("webm")) {
                         File tempFile =
                                 File.createTempFile(UUID.randomUUID().toString(), "tmp", getAppContext().getCacheDir());
-                        try (FileOutputStream output = new FileOutputStream(tempFile)) {
-                            output.write(response.body().bytes());
-                        }
-                        result = BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, null, false);
-                        tempFile.delete();
+                        IOUtils.writeToFile(body.byteStream(), tempFile, -1);
+                        BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
+                            //noinspection ResultOfMethodCallIgnored
+                            tempFile.delete();
+                            checkBitmap(url, bitmap);
+                        }, false);
                     } else {
                         ExceptionCatchingInputStream wrappedStream =
                                 new ExceptionCatchingInputStream(body.byteStream());
-                        result = BitmapUtils.decode(wrappedStream, width, height);
+                        Bitmap result = BitmapUtils.decode(wrappedStream, width, height);
                         if (wrappedStream.getException() != null) {
                             performBitmapFailure(url, wrappedStream.getException());
                             return;
                         }
+                        checkBitmap(url, result);
                     }
-                    if (result == null) {
-                        performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
-                        return;
-                    }
-                    imageCache.put(url, result);
-                    performBitmapSuccess(url, result);
                 } catch (Exception e) {
                     performBitmapFailure(url, e);
                 } catch (OutOfMemoryError e) {
@@ -199,6 +193,15 @@ public class NetUtils {
             call.enqueue(callback);
         }
         return new Pair<>(call, callback);
+    }
+
+    private static void checkBitmap(HttpUrl url, Bitmap result) {
+        if (result == null) {
+            performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
+            return;
+        }
+        imageCache.put(url, result);
+        performBitmapSuccess(url, result);
     }
 
     private static synchronized void performBitmapSuccess(
