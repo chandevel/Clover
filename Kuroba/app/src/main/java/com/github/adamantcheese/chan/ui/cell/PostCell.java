@@ -548,16 +548,15 @@ public class PostCell
     }
 
     private void doShiftPostFormatting() {
-        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() > 1
+        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() != 1
                 || ChanSettings.textOnly.get()) return;
-        int thumbnailHeight = getThumbnailSize() + paddingPx + dp(2);
-        int wrapHeight = title.getHeight() + icons.getHeight();
-        int extraWrapHeight = wrapHeight + comment.getHeight();
-        //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
-        if ((wrapHeight >= 0.8f * thumbnailHeight) || extraWrapHeight >= 1.6f * thumbnailHeight) {
+        float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
+        int wrapHeightActual = title.getHeight() + icons.getHeight();
+        if ((wrapHeightActual >= wrapHeightCheck) || wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck) {
             RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
             commentParams.removeRule(RelativeLayout.RIGHT_OF);
-            if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < thumbnailHeight) {
+            if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0)
+                    < thumbnailViews.getHeight()) {
                 commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
             } else {
                 commentParams.addRule(RelativeLayout.BELOW,
