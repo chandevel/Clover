@@ -94,10 +94,10 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
@@ -512,12 +512,11 @@ public class PostCell
             replies.setVisibility(GONE);
         }
 
+        // in order for proper measurement to occur for shift-post formatting, this cell needs to be not-shifted first
+        clearShiftPostFormatting();
         waitForLayout(this, view -> {
-            if (ChanSettings.shiftPostFormat.get()) {
-                clearShiftPostFormatting();
-                doShiftPostFormatting();
-                postInvalidate();
-            }
+            // we now know the measurements of all the views, so we can shift-format stuff without issue
+            doShiftPostFormatting();
             return true;
         });
 
@@ -529,6 +528,7 @@ public class PostCell
     }
 
     private void clearShiftPostFormatting() {
+        if (!ChanSettings.shiftPostFormat.get()) return;
         RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         commentParams.alignWithParent = true;
         commentParams.addRule(BELOW, R.id.icons);
@@ -548,31 +548,29 @@ public class PostCell
     }
 
     private void doShiftPostFormatting() {
-        if (comment.getVisibility() == VISIBLE && post.images.size() == 1 && !ChanSettings.textOnly.get()) {
-            int thumbnailSize =
-                    getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
-
-            int thumbnailHeight = thumbnailSize + paddingPx + dp(2);
-            int wrapHeight = title.getHeight() + icons.getHeight();
-            int extraWrapHeight = wrapHeight + comment.getHeight();
-            //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
-            if ((wrapHeight >= 0.8f * thumbnailHeight) || extraWrapHeight >= 1.6f * thumbnailHeight) {
-                RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
-                commentParams.removeRule(RelativeLayout.RIGHT_OF);
-                if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < thumbnailHeight) {
-                    commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
-                } else {
-                    commentParams.addRule(RelativeLayout.BELOW,
-                            (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
-                    );
-                }
-                comment.setLayoutParams(commentParams);
-
-                RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
-                replyParams.removeRule(RelativeLayout.RIGHT_OF);
-                replies.setLayoutParams(replyParams);
+        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() > 1
+                || ChanSettings.textOnly.get()) return;
+        int thumbnailHeight = getThumbnailSize() + paddingPx + dp(2);
+        int wrapHeight = title.getHeight() + icons.getHeight();
+        int extraWrapHeight = wrapHeight + comment.getHeight();
+        //wrap if the title+icons height is larger than 0.8x the thumbnail size, or if everything is over 1.6x the thumbnail size
+        if ((wrapHeight >= 0.8f * thumbnailHeight) || extraWrapHeight >= 1.6f * thumbnailHeight) {
+            RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
+            commentParams.removeRule(RelativeLayout.RIGHT_OF);
+            if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0) < thumbnailHeight) {
+                commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
+            } else {
+                commentParams.addRule(RelativeLayout.BELOW,
+                        (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
+                );
             }
+            comment.setLayoutParams(commentParams);
+
+            RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
+            replyParams.removeRule(RelativeLayout.RIGHT_OF);
+            replies.setLayoutParams(replyParams);
         }
+        postInvalidate();
     }
 
     @Override
@@ -733,9 +731,7 @@ public class PostCell
         @Override
         public PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             PostImageThumbnailView thumbnailView = new PostImageThumbnailView(parent.getContext());
-            int thumbSize =
-                    getDimen(getContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
-            thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(thumbSize, thumbSize));
+            thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(), getThumbnailSize()));
             thumbnailView.setRounding(dp(2));
             return new PostImageViewHolder(thumbnailView);
         }

@@ -66,6 +66,7 @@ import java.util.TimeZone;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -762,9 +763,7 @@ public class ThreadListLayout
                         c.drawBitmap(BitmapRepository.santaHat,
                                 left - parent.getPaddingLeft() + dp(10)
                                         // extra to position on the right hand edge correctly
-                                        + (ChanSettings.thumbnailSize.get() / 100f - 1f) * getDimen(getContext(),
-                                        R.dimen.cell_post_thumbnail_size
-                                ),
+                                        + getThumbnailSize() - getDimen(getContext(), R.dimen.cell_post_thumbnail_size),
                                 top - dp(65) - parent.getPaddingTop() + toolbarHeight(),
                                 null
                         );
