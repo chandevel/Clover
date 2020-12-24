@@ -199,23 +199,28 @@ public class BitmapUtils {
      * @return a bitmap, scaled to the max width and height if needed
      */
     public static Bitmap decode(InputStream data, int maxWidth, int maxHeight) {
-        // If we have to resize this image, first get the natural bounds.
         Bitmap tempBitmap = BitmapFactory.decodeStream(data);
         if (tempBitmap == null || options.outWidth == -1 || options.outHeight == -1) return null;
-        int actualWidth = tempBitmap.getWidth();
-        int actualHeight = tempBitmap.getHeight();
 
-        // Then compute the dimensions we would ideally like to decode to.
+        // Scale this image, if necessary
+        return scaleBitmap(tempBitmap, maxWidth, maxHeight);
+    }
+
+    private static Bitmap scaleBitmap(Bitmap input, int maxWidth, int maxHeight) {
+        int actualWidth = input.getWidth();
+        int actualHeight = input.getHeight();
+
+        // Then compute the dimensions we would ideally like.
         int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
         int desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth);
 
         // If necessary, scale down to the maximal acceptable size.
         Bitmap bitmap;
         if (actualWidth > desiredWidth || actualHeight > desiredHeight) {
-            bitmap = Bitmap.createScaledBitmap(tempBitmap, desiredWidth, desiredHeight, true);
-            tempBitmap.recycle();
+            bitmap = Bitmap.createScaledBitmap(input, desiredWidth, desiredHeight, true);
+            input.recycle();
         } else {
-            bitmap = tempBitmap;
+            bitmap = input;
         }
         return bitmap;
     }
@@ -269,31 +274,36 @@ public class BitmapUtils {
     private static Bitmap decodeFilePreviewImage(final File file, int maxWidth, int maxHeight, boolean addAudioIcon) {
         Bitmap result = BitmapRepository.error;
         try {
+            // Decode normally, scaling if necessary
             result = decodeFile(file, maxWidth, maxHeight);
         } catch (Exception ignored) {
         }
         try {
+            // Decode some sort of media file
             MediaMetadataRetriever video = new MediaMetadataRetriever();
             video.setDataSource(file.getAbsolutePath());
-            Bitmap frameBitmap = video.getFrameAtTime();
+            Bitmap frameBitmap = video.getFrameAtTime(0);
+            if (frameBitmap == null) {
+                throw new Exception("No bitmap for media!");
+            }
+            result = scaleBitmap(frameBitmap, maxWidth, maxHeight);
             boolean hasAudio = "yes".equals(video.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO));
-            if (hasAudio && frameBitmap != null && addAudioIcon) {
+            if (hasAudio && addAudioIcon) {
                 Bitmap audioIconBitmap = BitmapFactory.decodeResource(getRes(), R.drawable.ic_fluent_speaker_24_filled);
                 Bitmap audioBitmap = Bitmap.createScaledBitmap(audioIconBitmap,
                         audioIconBitmap.getWidth() * 3,
                         audioIconBitmap.getHeight() * 3,
                         true
                 );
-                result = Bitmap.createBitmap(frameBitmap.getWidth(), frameBitmap.getHeight(), frameBitmap.getConfig());
-                Canvas temp = new Canvas(result);
-                temp.drawBitmap(frameBitmap, new Matrix(), null);
+                Bitmap tempBitmap = Bitmap.createBitmap(result.getWidth(), result.getHeight(), result.getConfig());
+                Canvas temp = new Canvas(tempBitmap);
+                temp.drawBitmap(result, new Matrix(), null);
                 temp.drawBitmap(audioBitmap,
                         frameBitmap.getWidth() - audioBitmap.getWidth(),
                         frameBitmap.getHeight() - audioBitmap.getHeight(),
                         null
                 );
-            } else {
-                result = frameBitmap;
+                result = tempBitmap;
             }
         } catch (Exception ignored) {
         }
