@@ -316,7 +316,7 @@ public class PostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        thumbnailViews.setAdapter(new PostImagesAdapter());
+        thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
             thumbnailViews.setVisibility(GONE);
         } else {
@@ -600,7 +600,6 @@ public class PostCell
 
     private void unbindPost(Post post) {
         bound = false;
-        thumbnailViews.setAdapter(null);
         icons.cancelRequests();
         title.setOnLongClickListener(null);
         title.setLongClickable(false);
@@ -727,6 +726,10 @@ public class PostCell
 
     private class PostImagesAdapter
             extends RecyclerView.Adapter<PostImagesAdapter.PostImageViewHolder> {
+        public PostImagesAdapter() {
+            setHasStableIds(true);
+        }
+
         @NonNull
         @Override
         public PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -755,6 +758,11 @@ public class PostCell
         @Override
         public int getItemCount() {
             return post.images.size();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return post.images.get(position).imageUrl.hashCode();
         }
 
         private class PostImageViewHolder
