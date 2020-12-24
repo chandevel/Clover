@@ -161,7 +161,7 @@ public class BoardSetupPresenter
         }
 
         final String query = userQuery == null ? null : userQuery.replace("/", "").replace("\\", "");
-        suggestionCall = BackgroundUtils.runWithDefaultExecutor(() -> {
+        suggestionCall = BackgroundUtils.runWithExecutor(BackgroundUtils.backgroundService, () -> {
             List<BoardSuggestion> suggestions = new ArrayList<>();
             if (site.boardsType().canList) {
                 Boards siteBoards = boardManager.getSiteBoards(site);

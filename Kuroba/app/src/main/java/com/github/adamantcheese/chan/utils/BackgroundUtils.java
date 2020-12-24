@@ -112,12 +112,6 @@ public class BackgroundUtils {
         }
     }
 
-    public static <T> Cancelable runWithDefaultExecutor(
-            final Callable<T> background, final BackgroundResult<T> result
-    ) {
-        return runWithExecutor(backgroundService, background, result);
-    }
-
     public static <T> Cancelable runWithExecutor(
             Executor executor, final Callable<T> background, final BackgroundResult<T> result
     ) {
