@@ -58,6 +58,7 @@ internal sealed class FileCacheException(message: String) : Exception(message) {
 internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error: Throwable): String {
     return if (error is CompositeException) {
         val sb = StringBuilder()
+        var verboseLog = false
 
         for ((index, exception) in error.exceptions.withIndex()) {
             sb.append(
@@ -65,15 +66,24 @@ internal fun logErrorsAndExtractErrorMessage(tag: String, prefix: String, error:
                             "class = ${exception.javaClass.simpleName}, " +
                             "message = ${exception.message}"
             ).append(";\n")
+            verboseLog = verboseLog || exception is FileCacheException.CancellationException
         }
 
         val result = sb.toString()
-        Logger.e(tag, result)
+        if(!verboseLog) {
+            Logger.e(tag, result)
+        } else {
+            Logger.ve(tag, result)
+        }
 
         result
     } else {
         val msg = "$prefix, class = ${error.javaClass.simpleName}, message = ${error.message}"
-        Logger.e(tag, msg)
+        if(error is FileCacheException.CancellationException) {
+            Logger.ve(tag, msg)
+        } else {
+            Logger.e(tag, msg)
+        }
 
         msg
     }

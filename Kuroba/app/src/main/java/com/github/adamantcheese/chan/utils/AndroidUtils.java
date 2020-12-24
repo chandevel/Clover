@@ -456,7 +456,7 @@ public class AndroidUtils {
                 @Override
                 public boolean onPreDraw() {
                     if (usingViewTreeObserver != view.getViewTreeObserver()) {
-                        Logger.e(
+                        Logger.ve(
                                 TAG,
                                 "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
                         );
@@ -481,7 +481,7 @@ public class AndroidUtils {
                     }
 
                     if (!ret) {
-                        Logger.d(TAG, "waitForLayout requested a re-layout by returning false");
+                        Logger.vd(TAG, "waitForLayout requested a re-layout by returning false");
                     }
 
                     return ret;

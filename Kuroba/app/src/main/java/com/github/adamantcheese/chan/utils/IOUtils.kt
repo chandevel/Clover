@@ -35,6 +35,8 @@ object IOUtils {
 
     /**
      * inputStream must be closed by the caller! Use a try-with-resources block, or a use block if Kotlin
+     *
+     * @param maxBytes -1 if you don't want to check this
      */
     @JvmStatic
     fun writeToFile(inputStream: InputStream, file: File, maxBytes: Long) {
