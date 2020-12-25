@@ -45,8 +45,9 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
 public abstract class ThreadController
         extends Controller
@@ -106,6 +107,21 @@ public abstract class ThreadController
         return threadLayout.getPresenter().getLoadable();
     }
 
+    public void handleShareAndOpenInBrowser(boolean share) {
+        Loadable threadLoadable = threadLayout.getPresenter().getLoadable();
+        if (threadLoadable == null) {
+            return;
+        }
+
+        String link = threadLoadable.desktopUrl();
+
+        if (share) {
+            shareLink(link);
+        } else {
+            openLinkInBrowser(context, link);
+        }
+    }
+
     public void highlightPostNo(int postNo) {
         threadLayout.getPresenter().highlightPostNo(postNo);
     }
@@ -137,11 +153,6 @@ public abstract class ThreadController
 
     @Override
     public NdefMessage createNdefMessage(NfcEvent event) {
-        if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(context, R.string.cannot_send_thread_via_nfc_already_deleted);
-            return null;
-        }
-
         Loadable loadable = getLoadable();
         String url = null;
         NdefMessage message = null;

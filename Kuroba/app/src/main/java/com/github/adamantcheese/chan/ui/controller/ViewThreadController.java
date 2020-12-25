@@ -61,8 +61,6 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
 public class ViewThreadController
         extends ThreadController
@@ -132,8 +130,8 @@ public class ViewThreadController
                 () -> threadLayout.getPresenter().showRemovedPostsDialog()
         )
                 .withSubItem(R.string.view_my_posts, this::showYourPosts)
-                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
-                .withSubItem(R.string.action_share, this::shareClicked)
+                .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
+                .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.scrollTo(0, false))
                 .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.scrollTo(-1, false));
 
@@ -166,26 +164,6 @@ public class ViewThreadController
         } else {
             threadLayout.showPostsPopup(null, yourPosts);
         }
-    }
-
-    private void openBrowserClicked() {
-        if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(context, R.string.cannot_open_in_browser_already_deleted);
-            return;
-        }
-
-        Loadable loadable = threadLayout.getPresenter().getLoadable();
-        openLinkInBrowser(context, loadable.desktopUrl());
-    }
-
-    private void shareClicked() {
-        if (threadLayout.getPresenter().getChanThread() == null) {
-            showToast(context, R.string.cannot_shared_thread_already_deleted);
-            return;
-        }
-
-        Loadable loadable = threadLayout.getPresenter().getLoadable();
-        shareLink(loadable.desktopUrl());
     }
 
     @Override
