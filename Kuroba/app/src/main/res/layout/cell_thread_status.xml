@@ -15,9 +15,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.cell.ThreadStatusCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="88dp"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/ripple_item_background"
     android:orientation="horizontal">
 
     <TextView
@@ -27,6 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:gravity="center"
         android:padding="8dp"
         android:textColor="?android:textColorSecondary"
-        tools:text="Thread cell status will apppear here."/>
+        tools:text="Thread cell status will appear here." />
 
 </com.github.adamantcheese.chan.ui.cell.ThreadStatusCell>

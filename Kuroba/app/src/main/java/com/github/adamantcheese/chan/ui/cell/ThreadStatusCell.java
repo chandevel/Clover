@@ -60,7 +60,6 @@ public class ThreadStatusCell
 
     public ThreadStatusCell(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setBackgroundResource(R.drawable.ripple_item_background);
     }
 
     @Override
