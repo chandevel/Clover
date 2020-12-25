@@ -93,10 +93,6 @@ public class PostRepliesController
         return thumbnail;
     }
 
-    public List<Post> getPostRepliesData() {
-        return displayingData.posts;
-    }
-
     public void scrollTo(int displayPosition) {
         if (displayPosition >= 0) {
             recyclerView.smoothScrollToPosition(displayPosition);

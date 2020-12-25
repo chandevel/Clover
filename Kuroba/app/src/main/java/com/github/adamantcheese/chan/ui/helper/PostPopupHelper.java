@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class PostPopupHelper {
     private final ThreadPresenter presenter;
     private final PostPopupHelperCallback callback;
 
+    // Operating as a stack
     private final Deque<RepliesData> dataDeque = new ArrayDeque<>();
     private PostRepliesController presentingController;
 
@@ -51,7 +53,7 @@ public class PostPopupHelper {
             return;
         }
 
-        dataDeque.offer(new RepliesData(forPost, posts));
+        dataDeque.addFirst(new RepliesData(forPost, posts));
 
         if (dataDeque.size() == 1) {
             if (presentingController == null) {
@@ -64,12 +66,12 @@ public class PostPopupHelper {
             throw new IllegalStateException("Thread loadable cannot be null");
         }
 
-        presentingController.displayData(presenter.getLoadable(), dataDeque.peekLast());
+        presentingController.displayData(presenter.getLoadable(), dataDeque.peekFirst());
     }
 
     public void pop() {
         if (!dataDeque.isEmpty()) {
-            dataDeque.pollLast();
+            dataDeque.removeFirst();
         }
 
         if (!dataDeque.isEmpty()) {
@@ -77,7 +79,7 @@ public class PostPopupHelper {
                 throw new IllegalStateException("Thread loadable cannot be null");
             }
 
-            presentingController.displayData(presenter.getLoadable(), dataDeque.pollLast());
+            presentingController.displayData(presenter.getLoadable(), dataDeque.peekFirst());
         } else {
             dismiss();
         }
@@ -93,7 +95,7 @@ public class PostPopupHelper {
     }
 
     public List<Post> getDisplayingPosts() {
-        return presentingController.getPostRepliesData();
+        return dataDeque.peekFirst() != null ? dataDeque.peekFirst().posts : Collections.emptyList();
     }
 
     public void scrollTo(int displayPosition) {
