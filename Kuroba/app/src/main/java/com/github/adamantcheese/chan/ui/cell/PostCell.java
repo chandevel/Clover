@@ -169,6 +169,7 @@ public class PostCell
             detailsSizePx = sp(textSizeSp - 4);
 
             thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(2));
+            ((RelativeLayout.LayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
 
             title.setTextSize(textSizeSp);
             title.setPadding(paddingPx, paddingPx - dp(2), dp(16), 0);
@@ -742,12 +743,6 @@ public class PostCell
         public void onBindViewHolder(@NonNull PostImageViewHolder holder, int position) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             PostImage image = post.images.get(position);
-            ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) thumbnailView.getLayoutParams();
-            layoutParams.setMargins(paddingPx,
-                    image == post.image() ? paddingPx : 0,
-                    0,
-                    position + 1 == post.images.size() ? paddingPx : 0
-            );
             thumbnailView.setPostImage(image);
             if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
                 thumbnailView.setOnClickListener(v -> callback.onThumbnailClicked(image, thumbnailView));

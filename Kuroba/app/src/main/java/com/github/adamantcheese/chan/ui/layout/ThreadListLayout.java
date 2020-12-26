@@ -484,8 +484,8 @@ public class ThreadListLayout
             openSearch(false);
         }
         showingThread = null;
-        noParty();
-        noSanta();
+        recyclerView.removeItemDecoration(PARTY);
+        recyclerView.removeItemDecoration(SANTA);
     }
 
     public List<Post> getDisplayingPosts() {
@@ -787,14 +787,6 @@ public class ThreadListLayout
         if (calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DAY_OF_MONTH) == 25) {
             recyclerView.addItemDecoration(SANTA);
         }
-    }
-
-    private void noParty() {
-        recyclerView.removeItemDecoration(PARTY);
-    }
-
-    private void noSanta() {
-        recyclerView.removeItemDecoration(SANTA);
     }
 
     public void onImageOptionsApplied() {
