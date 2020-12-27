@@ -105,7 +105,7 @@ public class Chan
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
 
-        AndroidUtils.init(this, null);
+        AndroidUtils.init(this);
         BitmapRepository.initialize(this);
 
         WatchNotification.setupChannel();
@@ -263,7 +263,6 @@ public class Chan
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        AndroidUtils.cleanup();
         BackgroundUtils.cleanup();
         NetUtils.cleanup();
         CancellableToast.cleanup();

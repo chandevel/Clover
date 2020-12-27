@@ -58,7 +58,6 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -109,7 +108,7 @@ public class DefaultPostParser
                     builder.comment.setSpan(new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull View widget) {
-                            showToast(getActivityContext(), "This post has been removed");
+                            showToast(widget.getContext(), "This post has been removed");
                         }
                     }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), 0);
                     builder.comment.removeSpan(l);

@@ -83,19 +83,11 @@ public class AndroidUtils {
 
     @SuppressLint("StaticFieldLeak")
     private static Application application;
-    private static AppCompatActivity activity;
 
-    public static void init(Application application, AppCompatActivity activity) {
+    public static void init(Application application) {
         if (AndroidUtils.application == null) {
             AndroidUtils.application = application;
         }
-        if (AndroidUtils.activity == null) {
-            AndroidUtils.activity = activity;
-        }
-    }
-
-    public static void cleanup() {
-        activity = null;
     }
 
     public static Resources getRes() {
@@ -104,15 +96,6 @@ public class AndroidUtils {
 
     public static Context getAppContext() {
         return application;
-    }
-
-    /**
-     * LIKE SERIOUSLY DON'T USE THIS IF YOU DON'T NEED TO
-     *
-     * @return The activity as a context.
-     */
-    public static Context getActivityContext() {
-        return activity;
     }
 
     public static String getString(int res) {

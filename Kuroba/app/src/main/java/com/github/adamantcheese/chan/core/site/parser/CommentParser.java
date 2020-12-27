@@ -64,7 +64,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getActivityContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -295,7 +294,7 @@ public class CommentParser {
                 new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        AlertDialog dialog = new AlertDialog.Builder(getActivityContext()).setMessage(parts)
+                        AlertDialog dialog = new AlertDialog.Builder(widget.getContext()).setMessage(parts)
                                 .setPositiveButton(R.string.ok, null)
                                 .create();
                         dialog.setCanceledOnTouchOutside(true);

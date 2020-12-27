@@ -133,8 +133,6 @@ public class StartActivity
         currentNightModeBits = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         super.onCreate(savedInstanceState);
 
-        AndroidUtils.init(null, this);
-
         inject(this);
 
         if (intentMismatchWorkaround()) {
