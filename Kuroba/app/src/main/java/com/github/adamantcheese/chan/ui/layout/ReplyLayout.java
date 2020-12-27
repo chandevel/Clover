@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -317,6 +318,8 @@ public class ReplyLayout
         captchaContainer.setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         captchaHardReset.setOnClickListener(v -> {
+            ((AnimatedVectorDrawable) ((ImageView) v).getDrawable()).start();
+
             if (authenticationLayout != null) {
                 authenticationLayout.hardReset();
             }
