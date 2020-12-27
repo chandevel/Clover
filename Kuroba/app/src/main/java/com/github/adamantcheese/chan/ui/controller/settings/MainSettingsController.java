@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
-import com.github.adamantcheese.chan.ui.controller.LicensesController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.controller.crashlogs.ReviewCrashLogsController;
@@ -44,6 +43,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLab
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 
 public class MainSettingsController
         extends SettingsController {
@@ -195,19 +195,15 @@ public class MainSettingsController
         about.add(new LinkSettingView(this,
                 R.string.settings_about_license,
                 R.string.settings_about_license_description,
-                v -> navigationController.pushController(new LicensesController(context,
-                        getString(R.string.settings_about_license),
-                        "file:///android_asset/html/license.html"
-                ))
+                v -> openLinkInBrowser(context, "https://www.gnu.org/licenses/gpl-3.0.en.html")
         ));
 
         about.add(new LinkSettingView(this,
                 R.string.settings_about_licenses,
                 R.string.settings_about_licenses_description,
-                v -> navigationController.pushController(new LicensesController(context,
-                        getString(R.string.settings_about_licenses),
-                        "file:///android_asset/html/licenses.html"
-                ))
+                v -> openLinkInBrowser(context,
+                        "https://htmlpreview.github.io/?" + BuildConfig.RESOURCES_ENDPOINT + "licenses.html"
+                )
         ));
 
         about.add(new LinkSettingView(this,
