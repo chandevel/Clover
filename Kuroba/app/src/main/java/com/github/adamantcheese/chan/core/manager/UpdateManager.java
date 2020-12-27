@@ -73,6 +73,7 @@ import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
 import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -111,7 +112,7 @@ public class UpdateManager {
             // Show dialog because release updates are infrequent so it's fine
             Spanned text = Html.fromHtml("<h3>" + getApplicationLabel() + " was updated to " + VERSION_NAME + ".</h3>");
             final AlertDialog dialog =
-                    new AlertDialog.Builder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
+                    getDefaultAlertBuilder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(true);
             dialog.show();
 
@@ -213,7 +214,7 @@ public class UpdateManager {
                 boolean concat = !response.updateTitle.isEmpty();
                 CharSequence updateMessage =
                         concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
-                AlertDialog dialog = new AlertDialog.Builder(context).setTitle(
+                AlertDialog dialog = getDefaultAlertBuilder(context).setTitle(
                         getApplicationLabel() + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
                         .setNegativeButton(R.string.update_later, null)
@@ -245,7 +246,7 @@ public class UpdateManager {
     private void failedUpdate(boolean manual) {
         Logger.e(this, "Failed to process " + (DEV_BUILD ? "dev" : "stable") + " API call for updating");
         if (manual && BackgroundUtils.isInForeground()) {
-            new AlertDialog.Builder(context).setTitle(R.string.update_check_failed)
+            getDefaultAlertBuilder(context).setTitle(R.string.update_check_failed)
                     .setPositiveButton(R.string.ok, null)
                     .show();
         }
@@ -319,7 +320,7 @@ public class UpdateManager {
                     updateDownloadDialog.dismiss();
                     updateDownloadDialog = null;
                 }
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                getDefaultAlertBuilder(context).setTitle(R.string.update_install_download_failed)
                         .setMessage(description)
                         .setPositiveButton(R.string.ok, null)
                         .show();
@@ -335,7 +336,7 @@ public class UpdateManager {
                     updateDownloadDialog.dismiss();
                     updateDownloadDialog = null;
                 }
-                new AlertDialog.Builder(context).setTitle(R.string.update_install_download_failed)
+                getDefaultAlertBuilder(context).setTitle(R.string.update_install_download_failed)
                         .setPositiveButton(R.string.ok, null)
                         .show();
             }
@@ -348,7 +349,7 @@ public class UpdateManager {
             return;
         }
 
-        AlertDialog alertDialog = new AlertDialog.Builder(context).setTitle(R.string.update_manager_copy_apk_title)
+        AlertDialog alertDialog = getDefaultAlertBuilder(context).setTitle(R.string.update_manager_copy_apk_title)
                 .setMessage(R.string.update_manager_copy_apk)
                 .setNegativeButton(R.string.no, (dialog, which) -> onDone.invoke())
                 .setPositiveButton(R.string.yes,
@@ -410,7 +411,7 @@ public class UpdateManager {
     private void installApk(RawFile apk) {
         if (!BackgroundUtils.isInForeground()) return;
         // First open the dialog that asks to retry and calls this method again.
-        new AlertDialog.Builder(context).setTitle(R.string.update_retry_title)
+        getDefaultAlertBuilder(context).setTitle(R.string.update_retry_title)
                 .setMessage(getString(R.string.update_retry, getApplicationLabel()))
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.update_retry_button, (dialog, which) -> installApk(apk))

@@ -75,6 +75,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -288,7 +289,7 @@ public class ThreadLayout
     @Override
     public void openLink(final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
-            new AlertDialog.Builder(getContext()).setNegativeButton(R.string.cancel, null)
+            getDefaultAlertBuilder(getContext()).setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
@@ -450,7 +451,7 @@ public class ThreadLayout
             callback.openFilterForType(FilterType.IMAGE, post.image().fileHash);
         } else {
             ListView hashList = new ListView(getContext());
-            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle("Select an image to filter.")
+            AlertDialog dialog = getDefaultAlertBuilder(getContext()).setTitle("Select an image to filter.")
                     .setView(hashList)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -502,7 +503,7 @@ public class ThreadLayout
             deletingDialog.dismiss();
             deletingDialog = null;
 
-            new AlertDialog.Builder(getContext()).setMessage(message).setPositiveButton(R.string.ok, null).show();
+            getDefaultAlertBuilder(getContext()).setMessage(message).setPositiveButton(R.string.ok, null).show();
         }
     }
 
@@ -753,7 +754,7 @@ public class ThreadLayout
                 ? getString(R.string.thread_layout_hide_whole_chain_as_well)
                 : getString(R.string.thread_layout_remove_whole_chain_as_well);
 
-        AlertDialog alertDialog = new AlertDialog.Builder(getContext()).setMessage(message)
+        AlertDialog alertDialog = getDefaultAlertBuilder(getContext()).setMessage(message)
                 .setPositiveButton(positiveButtonText,
                         (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
                 )

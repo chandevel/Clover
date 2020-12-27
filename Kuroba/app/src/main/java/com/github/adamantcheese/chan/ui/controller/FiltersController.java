@@ -59,6 +59,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
@@ -214,7 +215,7 @@ public class FiltersController
         final FilterLayout layout = filterLayout.findViewById(R.id.filter_layout);
 
         final AlertDialog alertDialog =
-                new AlertDialog.Builder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
+                getDefaultAlertBuilder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
                     filterEngine.createOrUpdateFilter(layout.getFilter());
                     if (filterEngine.getEnabledFilters().isEmpty()) {
                         enable.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);

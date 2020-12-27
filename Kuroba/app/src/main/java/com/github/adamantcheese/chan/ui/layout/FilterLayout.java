@@ -59,6 +59,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
@@ -208,7 +209,7 @@ public class FilterLayout
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext()).setView(selectLayout)
+            getDefaultAlertBuilder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
                         int flags = 0;
@@ -244,7 +245,7 @@ public class FilterLayout
 
             selectLayout.setItems(items);
 
-            new AlertDialog.Builder(getContext()).setView(selectLayout)
+            getDefaultAlertBuilder(getContext()).setView(selectLayout)
                     .setPositiveButton(R.string.ok, (dialog, which) -> {
                         List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
                         boolean all = selectLayout.areAllChecked();
@@ -307,7 +308,7 @@ public class FilterLayout
                 }
             }
 
-            new AlertDialog.Builder(getContext()).setTitle(R.string.filter_help_title)
+            getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_help_title)
                     .setMessage(message)
                     .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
                     .setPositiveButton(R.string.close, null)
@@ -316,7 +317,7 @@ public class FilterLayout
             final ColorPickerView colorPickerView = new ColorPickerView(getContext());
             colorPickerView.setColor(filter.color);
 
-            AlertDialog dialog = new AlertDialog.Builder(getContext()).setTitle(R.string.filter_color_pick)
+            AlertDialog dialog = getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_color_pick)
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> {

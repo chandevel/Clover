@@ -24,12 +24,12 @@ import android.net.Uri;
 import android.provider.Settings;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.R;
 
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
@@ -82,7 +82,7 @@ public class RuntimePermissionsHelper {
     public void showPermissionRequiredDialog(
             final Context context, String title, String message, final PermissionRequiredDialogCallback callback
     ) {
-        new AlertDialog.Builder(context).setTitle(title)
+        getDefaultAlertBuilder(context).setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
                 .setNeutralButton(R.string.permission_app_settings, (dialog, which) -> {

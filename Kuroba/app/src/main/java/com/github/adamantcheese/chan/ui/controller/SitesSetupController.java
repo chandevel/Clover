@@ -53,6 +53,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -165,7 +166,7 @@ public class SitesSetupController
         }
         dialogView.setAdapter(adapter);
 
-        final AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView).create();
+        final AlertDialog dialog = getDefaultAlertBuilder(context).setView(dialogView).create();
         dialog.show();
         adapter.setDialog(dialog);
     }
@@ -245,7 +246,7 @@ public class SitesSetupController
 
             // Setup views
             itemView.setOnClickListener(v -> presenter.onSiteCellSettingsClicked(site));
-            removeSite.setOnClickListener(v -> new AlertDialog.Builder(context).setTitle(getString(R.string.delete_site_dialog_title))
+            removeSite.setOnClickListener(v -> getDefaultAlertBuilder(v.getContext()).setTitle(getString(R.string.delete_site_dialog_title))
                     .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                     .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
                     .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())

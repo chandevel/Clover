@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -45,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -134,7 +134,7 @@ public class ImportExportSettingsController
         String messagePartOne =
                 getString(R.string.import_or_export_warning_super_long_message_part_one, savedFilesString);
 
-        new AlertDialog.Builder(context).setTitle(getString(R.string.import_or_export_warning))
+        getDefaultAlertBuilder(context).setTitle(getString(R.string.import_or_export_warning))
                 .setMessage(messagePartOne)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     dialog.dismiss();
@@ -154,7 +154,7 @@ public class ImportExportSettingsController
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
-        new AlertDialog.Builder(context).setTitle(R.string.import_or_export_dialog_title)
+        getDefaultAlertBuilder(context).setTitle(R.string.import_or_export_dialog_title)
                 .setPositiveButton(positiveButtonId, (dialog, which) -> overwriteExisting())
                 .setNegativeButton(negativeButtonId, (dialog, which) -> createNew())
                 .create()

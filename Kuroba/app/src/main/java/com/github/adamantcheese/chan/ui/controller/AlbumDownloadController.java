@@ -25,7 +25,6 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -54,6 +53,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -139,7 +139,7 @@ public class AlbumDownloadController
                     }
                 }
 
-                new AlertDialog.Builder(context).setMessage(message)
+                getDefaultAlertBuilder(context).setMessage(message)
                         .setNegativeButton(R.string.cancel, null)
                         .setPositiveButton(R.string.ok, (dialog, which) -> startAlbumDownloadTask(tasks))
                         .show();

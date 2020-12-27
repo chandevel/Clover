@@ -16,21 +16,23 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
-import android.app.AlertDialog;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.JsonReader;
 import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
@@ -38,17 +40,18 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveSiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -64,6 +67,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -89,7 +94,7 @@ public class CommentParser {
     // The list of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
     private final Map<String, List<StyleRule>> rules = new HashMap<>();
 
-    private static final Typeface mona = Typeface.createFromAsset(getAppContext().getAssets(), "font/mona.ttf");
+    private static Typeface submona;
 
     public CommentParser() {
         // Required tags.
@@ -109,7 +114,7 @@ public class CommentParser {
         rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
         rule(tagRule("span").cssClass("abbr").nullify());
         rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
-        rule(tagRule("span").cssClass("sjis").typeface(mona));
+        rule(tagRule("span").cssClass("sjis").action(this::handleSJIS));
 
         rule(tagRule("table").action(this::handleTable));
 
@@ -294,8 +299,37 @@ public class CommentParser {
                 new ClickableSpan() {
                     @Override
                     public void onClick(@NonNull View widget) {
-                        AlertDialog dialog = new AlertDialog.Builder(widget.getContext()).setMessage(parts)
+                        AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setMessage(parts)
                                 .setPositiveButton(R.string.ok, null)
+                                .create();
+                        dialog.setCanceledOnTouchOutside(true);
+                        dialog.show();
+                    }
+                },
+                new ForegroundColorSpanHashed(getAttrColor(theme.resValue, R.attr.post_inline_quote_color)),
+                new AbsoluteSizeSpanHashed(sp(12f))
+        );
+    }
+
+    public CharSequence handleSJIS(
+            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
+    ) {
+        if (submona == null) {
+            submona = Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf");
+        }
+        SpannableStringBuilder sjisArt = new SpannableStringBuilder(text);
+        sjisArt.setSpan(new CustomTypefaceSpan("", submona), 0, sjisArt.length(), 0);
+        return span("[SJIS art available. Click here to view.]",
+                new ClickableSpan() {
+                    @Override
+                    public void onClick(@NonNull View widget) {
+                        TextView sjisView = new TextView(widget.getContext());
+                        sjisView.setMovementMethod(new ScrollingMovementMethod());
+                        sjisView.setHorizontallyScrolling(true);
+                        sjisView.setPadding(dp(16), dp(16), dp(16), dp(16));
+                        sjisView.setText(sjisArt);
+                        AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setView(sjisView)
+                                .setPositiveButton(R.string.close, null)
                                 .create();
                         dialog.setCanceledOnTouchOutside(true);
                         dialog.show();

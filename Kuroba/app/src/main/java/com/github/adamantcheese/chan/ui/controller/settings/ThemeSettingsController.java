@@ -76,6 +76,7 @@ import okhttp3.HttpUrl;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
@@ -252,7 +253,7 @@ public class ThemeSettingsController
     }
 
     private void helpClicked(ToolbarMenuItem item) {
-        final AlertDialog dialog = new AlertDialog.Builder(context).setTitle("Help")
+        final AlertDialog dialog = getDefaultAlertBuilder(context).setTitle("Help")
                 .setMessage(R.string.setting_theme_explanation)
                 .setPositiveButton("Close", null)
                 .show();

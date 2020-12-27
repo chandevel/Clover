@@ -73,7 +73,6 @@ public class StyleRule {
     private boolean monospace;
     private boolean code;
     private boolean trimEndWhitespace;
-    private Typeface typeface;
     private int size = 0;
 
     private PostLinkable.Type link = null;
@@ -157,11 +156,6 @@ public class StyleRule {
         return this;
     }
 
-    public StyleRule typeface(Typeface typeface) {
-        this.typeface = typeface;
-        return this;
-    }
-
     public StyleRule size(int size) {
         this.size = size;
         return this;
@@ -239,10 +233,6 @@ public class StyleRule {
 
         if (code) {
             spansToApply.add(new CodeBackgroundSpan(theme));
-        }
-
-        if (typeface != null) {
-            spansToApply.add(new CustomTypefaceSpan("", typeface));
         }
 
         if (size != 0) {

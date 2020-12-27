@@ -90,6 +90,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
@@ -689,7 +690,7 @@ public class ThreadPresenter
                     }
                 }
 
-                AlertDialog dialog = new AlertDialog.Builder(context).create();
+                AlertDialog dialog = getDefaultAlertBuilder(context).create();
 
                 ListView clickables = new ListView(context);
                 clickables.setAdapter(new ArrayAdapter<>(context, R.layout.simple_list_item, keys));
@@ -1025,7 +1026,7 @@ public class ThreadPresenter
             // skip the archive picker, re-use the same archive we're already in
             openArchive((ExternalSiteArchive) loadable.site, op, postNo);
         } else if (hasContents) {
-            AlertDialog dialog = new AlertDialog.Builder(context).setView(dialogView)
+            AlertDialog dialog = getDefaultAlertBuilder(context).setView(dialogView)
                     .setTitle(R.string.thread_view_external_archive)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -1059,7 +1060,7 @@ public class ThreadPresenter
         if (reply != null) {
             final View view = LayoutInflater.from(context).inflate(R.layout.dialog_post_delete, null);
             CheckBox checkBox = view.findViewById(R.id.image_only);
-            new AlertDialog.Builder(context).setTitle(R.string.delete_confirm)
+            getDefaultAlertBuilder(context).setTitle(R.string.delete_confirm)
                     .setView(view)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.delete,
@@ -1175,8 +1176,7 @@ public class ThreadPresenter
             }
         }
 
-        AlertDialog.Builder alertDialogbuilder = new AlertDialog.Builder(context);
-        AlertDialog dialog = alertDialogbuilder.setMessage(text.toString())
+        AlertDialog dialog = getDefaultAlertBuilder(context).setMessage(text.toString())
                 .setTitle(R.string.post_info)
                 .setPositiveButton(R.string.ok, null)
                 .create();

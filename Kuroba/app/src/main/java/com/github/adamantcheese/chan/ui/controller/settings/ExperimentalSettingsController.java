@@ -6,7 +6,6 @@ import android.os.Build;
 import android.widget.ArrayAdapter;
 
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -24,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
@@ -127,7 +127,7 @@ public class ExperimentalSettingsController
             return;
         }
 
-        new AlertDialog.Builder(context).setTitle(R.string.setting_exclusion_zones_actions_dialog_title)
+        getDefaultAlertBuilder(context).setTitle(R.string.setting_exclusion_zones_actions_dialog_title)
                 .setAdapter(arrayAdapter, (dialog, selectedIndex) -> {
                     onOptionClicked(selectedIndex);
                     dialog.dismiss();
@@ -173,7 +173,7 @@ public class ExperimentalSettingsController
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private void showEditOrRemoveZoneDialog(int orientation, AttachSide attachSide) {
-        new AlertDialog.Builder(context).setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
+        getDefaultAlertBuilder(context).setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
                 .setPositiveButton(R.string.edit, (dialog, which) -> {
                     ExclusionZone skipZone = exclusionZonesHolder.getZoneOrNull(orientation, attachSide);
                     if (skipZone == null) {

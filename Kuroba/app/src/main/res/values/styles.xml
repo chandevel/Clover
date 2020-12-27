@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
         <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="android:listPopupWindowStyle">@style/ListPopupWindowStyle</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
@@ -58,7 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
         <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
-        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="android:listPopupWindowStyle">@style/ListPopupWindowStyle</item>
 
         <item name="colorControlNormal">@color/textColorSecondary</item>

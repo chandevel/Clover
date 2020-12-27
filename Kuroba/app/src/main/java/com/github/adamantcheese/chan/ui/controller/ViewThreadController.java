@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.view.View;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
@@ -60,6 +59,7 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController
@@ -209,7 +209,7 @@ public class ViewThreadController
         if (threadLoadable.site instanceof ExternalSiteArchive && !loadable.site.equals(threadLoadable.site)) {
             showThreadInternal(threadLoadable);
         } else {
-            new AlertDialog.Builder(context).setNegativeButton(R.string.cancel, null)
+            getDefaultAlertBuilder(context).setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> showThreadInternal(threadLoadable))
                     .setTitle(!(threadLoadable.site instanceof ExternalSiteArchive)
                             ? R.string.open_thread_confirmation

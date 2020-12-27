@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -84,7 +85,7 @@ public class StringSettingView
 
         container.addView(editText, MATCH_PARENT, WRAP_CONTENT);
 
-        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+        AlertDialog dialog = getDefaultAlertBuilder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
             setting.set(editText.getText().toString());
             settingsController.onPreferenceChange(StringSettingView.this);
         })

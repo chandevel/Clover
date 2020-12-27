@@ -50,6 +50,7 @@ import javax.inject.Inject;
 import static android.text.TextUtils.isEmpty;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -158,7 +159,7 @@ public class BoardSetupController
 
         boardAddLayout.setPresenter(presenter);
 
-        AlertDialog dialog = new AlertDialog.Builder(context).setView(boardAddLayout)
+        AlertDialog dialog = getDefaultAlertBuilder(context).setView(boardAddLayout)
                 .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
                 .create();

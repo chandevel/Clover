@@ -30,7 +30,6 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
@@ -63,7 +62,6 @@ import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
@@ -90,6 +88,7 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMod
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
@@ -208,7 +207,7 @@ public class StartActivity
                 }
                 return true;
             } else {
-                new AlertDialog.Builder(this).setMessage(getString(R.string.open_link_not_matched,
+                getDefaultAlertBuilder(this).setMessage(getString(R.string.open_link_not_matched,
                         getApplicationLabel()
                 ))
                         .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))

@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -108,7 +109,7 @@ public class IntegerSettingView
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        AlertDialog dialog = new AlertDialog.Builder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
+        AlertDialog dialog = getDefaultAlertBuilder(v.getContext()).setPositiveButton(R.string.ok, (d, which) -> {
             setting.set(convertProgressToRange(rangeSlider.getProgress()));
             settingsController.onPreferenceChange(IntegerSettingView.this);
         }).setNeutralButton(R.string.default_, (d, which) -> {

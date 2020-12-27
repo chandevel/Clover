@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 
-import androidx.appcompat.app.AlertDialog;
-
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -41,6 +39,7 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -224,7 +223,7 @@ public class MainSettingsController
         int crashLogsCount = reportManager.countCrashLogs();
 
         if (crashLogsCount > 0) {
-            new AlertDialog.Builder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
+            getDefaultAlertBuilder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
                     crashLogsCount
             ))
                     .setMessage(R.string.settings_report_suggest_sending_logs)
