@@ -31,6 +31,7 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -38,7 +39,6 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

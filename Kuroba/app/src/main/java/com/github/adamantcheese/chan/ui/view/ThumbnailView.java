@@ -43,9 +43,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;

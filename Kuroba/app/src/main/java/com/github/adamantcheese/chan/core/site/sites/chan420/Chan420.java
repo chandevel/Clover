@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.core.site.sites.chan420;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -26,8 +28,6 @@ import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentParser;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 
 import java.util.Collections;
 

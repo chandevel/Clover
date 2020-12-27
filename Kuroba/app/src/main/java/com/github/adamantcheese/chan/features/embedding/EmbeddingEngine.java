@@ -16,14 +16,14 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;

@@ -169,7 +169,7 @@ public class PostCell
             detailsSizePx = sp(textSizeSp - 4);
 
             thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(2));
-            ((RelativeLayout.LayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
+            ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
 
             title.setTextSize(textSizeSp);
             title.setPadding(paddingPx, paddingPx - dp(2), dp(16), 0);

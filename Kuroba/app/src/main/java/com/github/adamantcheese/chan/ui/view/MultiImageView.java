@@ -53,10 +53,10 @@ import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource;
 import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 import com.google.android.exoplayer2.MediaItem;
@@ -87,6 +87,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
@@ -94,7 +95,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 
 public class MultiImageView
         extends FrameLayout
@@ -556,7 +556,10 @@ public class MultiImageView
                         exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_24_filled));
                         NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                             @Override
-                            public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {} // use the default drawable
+                            public void onBitmapFailure(
+                                    @NonNull HttpUrl source,
+                                    Exception e
+                            ) {} // use the default drawable
 
                             @Override
                             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {

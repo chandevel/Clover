@@ -54,9 +54,7 @@ public abstract class CommonReplyHttpCall
         addParameters(formBuilder, progressListener);
 
         HttpUrl replyUrl = getSite().endpoints().reply(replyResponse.originatingLoadable);
-        requestBuilder.url(replyUrl)
-                .addHeader("Referer", replyUrl.toString())
-                .post(formBuilder.build());
+        requestBuilder.url(replyUrl).addHeader("Referer", replyUrl.toString()).post(formBuilder.build());
     }
 
     @Override

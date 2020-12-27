@@ -47,7 +47,7 @@ public abstract class ExternalSiteArchive
         this.name = name;
         this.boardCodes = new NoDeleteArrayList<>(boardCodes);
         this.searchEnabled = searchEnabled;
-        
+
         id = Random.Default.nextInt(Integer.MIN_VALUE / 2, -1);
     }
 

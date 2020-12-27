@@ -28,11 +28,11 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +118,7 @@ public class ChanReaderParser
 
         // add in extra removed posts from filters (for cached posts)
         for (Post post : processing.getToReuse()) {
-            if(post.filterRemove) {
+            if (post.filterRemove) {
                 removedPosts.add(new PostHide(post.board.siteId, post.boardCode, post.no));
             }
         }
@@ -214,7 +214,7 @@ public class ChanReaderParser
 
         // add in removed posts from new posts
         for (Post post : newPosts) {
-            if(post.filterRemove) {
+            if (post.filterRemove) {
                 removedPosts.add(new PostHide(post.board.siteId, post.boardCode, post.no));
             }
         }

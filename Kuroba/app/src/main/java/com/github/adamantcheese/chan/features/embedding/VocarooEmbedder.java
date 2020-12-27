@@ -10,12 +10,12 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;

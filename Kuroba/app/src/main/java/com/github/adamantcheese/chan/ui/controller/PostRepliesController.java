@@ -40,8 +40,6 @@ import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
-import java.util.List;
-
 public class PostRepliesController
         extends BaseFloatingController {
     private final PostPopupHelper postPopupHelper;

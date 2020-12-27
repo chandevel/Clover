@@ -18,10 +18,10 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 
 import java.util.ArrayList;
 import java.util.List;

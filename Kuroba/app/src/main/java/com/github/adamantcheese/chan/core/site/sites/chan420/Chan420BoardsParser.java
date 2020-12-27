@@ -19,9 +19,9 @@ package com.github.adamantcheese.chan.core.site.sites.chan420;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 
 import java.io.IOException;
 import java.util.HashMap;
