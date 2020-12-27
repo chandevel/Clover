@@ -50,6 +50,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:padding="8dp"
         android:textColor="?android:textColorSecondary"
         android:visibility="gone"
-        tools:ignore="UnusedAttribute" />
+        tools:ignore="UnusedAttribute"
+        tools:text="@string/search_empty"
+        tools:visibility="visible" />
 
 </com.github.adamantcheese.chan.ui.layout.ThreadListLayout>

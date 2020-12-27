@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.repository;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.util.TypedValue;
 
 import com.github.adamantcheese.chan.R;
 
@@ -25,8 +26,8 @@ public class BitmapRepository {
     public static Bitmap error;
     public static Bitmap empty;
 
-    public static Bitmap partyHat;
-    public static Bitmap santaHat;
+    public static ResourceBitmap partyHat;
+    public static ResourceBitmap xmasHat;
 
     public static void initialize(Context c) {
         youtubeIcon = decode(c, R.drawable.youtube_icon);
@@ -46,7 +47,24 @@ public class BitmapRepository {
         error = decode(c, R.drawable.error_icon);
         empty = decode(c, R.drawable.empty);
 
-        partyHat = decode(c, R.drawable.partyhat);
-        santaHat = decode(c, R.drawable.santahat);
+        // images are 160x160 by default, so this is the center on that original image, before scaling
+        partyHat = new ResourceBitmap(c, R.drawable.partyhat, 50, 125);
+        xmasHat = new ResourceBitmap(c, R.drawable.xmashat, 50, 125);
+    }
+
+    public static class ResourceBitmap {
+        public TypedValue bitmapSpecs = new TypedValue();
+        public Bitmap bitmap;
+        // the artificial center of the bitmap
+        public float centerX;
+        public float centerY;
+
+        public ResourceBitmap(Context c, int resId, int centerX, int centerY) {
+            c.getResources().getValue(resId, bitmapSpecs, true);
+            bitmap = decode(c, resId);
+            float scaleRatio = c.getResources().getDisplayMetrics().densityDpi / (float) bitmapSpecs.density;
+            this.centerX = (centerX * scaleRatio) / bitmap.getWidth();
+            this.centerY = (centerY * scaleRatio) / bitmap.getHeight();
+        }
     }
 }
