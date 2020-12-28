@@ -413,7 +413,7 @@ public class ViewThreadController
             return;
         }
 
-        int drawable = pin != null && pin.watching
+        int drawable = pin != null
                 ? R.drawable.ic_fluent_bookmark_24_filled
                 : R.drawable.ic_fluent_bookmark_24_regular;
         menuItem.setImage(drawable, animated);
