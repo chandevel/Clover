@@ -497,9 +497,7 @@ public class ImageViewerController
             }
         });
 
-        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
-                ? postImage.getThumbnailUrl()
-                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
+        NetUtils.makeBitmapRequest(postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                 Logger.e(
@@ -507,7 +505,7 @@ public class ImageViewerController
                         "onBitmapFailure for preview in transition, cannot show correct transition bitmap",
                         e
                 );
-                previewImage.setBitmap(BitmapRepository.error);
+                previewImage.setBitmap(BitmapRepository.empty);
                 startAnimation.start();
             }
 
