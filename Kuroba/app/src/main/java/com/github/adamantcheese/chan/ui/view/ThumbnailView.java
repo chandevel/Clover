@@ -206,7 +206,6 @@ public abstract class ThumbnailView
             float y = height / 2f - tmpTextRect.exactCenterY();
             canvas.drawText(errorText, x + getPaddingLeft(), y + getPaddingTop(), textPaint);
         } else {
-            bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
             float scale = Math.max(width / (float) bitmap.getWidth(), height / (float) bitmap.getHeight());
             float scaledX = bitmap.getWidth() * scale;
             float scaledY = bitmap.getHeight() * scale;
@@ -245,7 +244,7 @@ public abstract class ThumbnailView
     }
 
     @Override
-    protected boolean verifyDrawable(Drawable who) {
+    protected boolean verifyDrawable(@NonNull Drawable who) {
         return super.verifyDrawable(who) || (who == foreground);
     }
 
@@ -285,8 +284,8 @@ public abstract class ThumbnailView
 
         // set the bitmap and fields for drawing
         this.bitmap = bitmap;
+        bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         paint.setShader(new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
-        invalidate();
 
         // if animated, start, otherwise call end to set the alpha to the end value
         if (animate) {

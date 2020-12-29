@@ -25,6 +25,8 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -50,7 +52,7 @@ public class PostImageThumbnailView
     private PostImage postImage;
     private final Drawable playIcon;
     private final Rect bounds = new Rect();
-    private final float decodeSize;
+    private int decodeSize;
 
     private CancelableDownload fullsizeDownload;
 
@@ -70,18 +72,20 @@ public class PostImageThumbnailView
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PostImageThumbnailView);
         try {
-            decodeSize = a.getDimension(R.styleable.PostImageThumbnailView_decode_dimen, -1);
+            decodeSize = (int) a.getDimension(R.styleable.PostImageThumbnailView_decode_dimen, 0);
         } finally {
             a.recycle();
         }
+    }
+
+    public void setDecodeSize(int size) {
+        decodeSize = size;
     }
 
     public void setPostImage(final PostImage postImage) {
         if (this.postImage == postImage) return;
 
         this.postImage = postImage;
-        int width = decodeSize == -1 ? getWidth() : (int) decodeSize;
-        int height = decodeSize == -1 ? getHeight() : (int) decodeSize;
 
         if (postImage == null) {
             setUrl(null, 0, 0);
@@ -99,14 +103,14 @@ public class PostImageThumbnailView
             if (cached != null) {
                 setImageBitmap(cached, true);
             } else {
-                setUrl(postImage.getThumbnailUrl(), width, height);
+                setUrl(postImage.getThumbnailUrl(), decodeSize, decodeSize);
                 fullsizeDownload =
                         Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
                             @Override
                             public void onSuccess(RawFile file, boolean immediate) {
                                 BitmapUtils.decodeFilePreviewImage(new File(file.getFullPath()),
-                                        width * 2,
-                                        height * 2,
+                                        decodeSize,
+                                        decodeSize,
                                         bitmap -> {
                                             if (bitmap != BitmapRepository.error && bitmap != null
                                                     && PostImageThumbnailView.this.postImage == postImage) {
@@ -120,7 +124,7 @@ public class PostImageThumbnailView
                         });
             }
         } else {
-            setUrl(postImage.getThumbnailUrl(), width, height);
+            setUrl(postImage.getThumbnailUrl(), decodeSize, decodeSize);
         }
     }
 

@@ -736,6 +736,7 @@ public class PostCell
             PostImageThumbnailView thumbnailView = new PostImageThumbnailView(parent.getContext());
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(), getThumbnailSize()));
             thumbnailView.setRounding(dp(2));
+            thumbnailView.setDecodeSize(getThumbnailSize());
             return new PostImageViewHolder(thumbnailView);
         }
 
