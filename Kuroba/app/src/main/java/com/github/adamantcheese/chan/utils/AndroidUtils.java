@@ -327,6 +327,9 @@ public class AndroidUtils {
         }
     }
 
+    /**
+     * Specify -1 to leave that padding the same as before.
+     */
     public static void updatePaddings(View view, int left, int right, int top, int bottom) {
         int newLeft = left;
         if (newLeft < 0) {

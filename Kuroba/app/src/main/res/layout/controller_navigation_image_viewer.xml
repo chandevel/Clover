@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <com.github.adamantcheese.chan.ui.view.TouchBlockingFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -23,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/toolbar_height"
-        android:background="#87000000"
-        tools:ignore="UnusedAttribute" />
+        android:background="#87000000" />
 
     <com.github.adamantcheese.chan.controller.ui.NavigationControllerContainerLayout
         android:id="@+id/container"

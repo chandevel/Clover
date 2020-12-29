@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:clipToPadding="false"
         android:descendantFocusability="beforeDescendants"
         android:scrollbars="vertical"
-        tools:itemCount="3"
+        tools:itemCount="5"
         tools:listitem="@layout/cell_post" />
 
     <com.github.adamantcheese.chan.ui.layout.ReplyLayout
@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:background="?backcolor"
         android:elevation="4dp"
         android:visibility="gone"
-        tools:ignore="UnusedAttribute" />
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/search_status"
@@ -50,7 +50,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:padding="8dp"
         android:textColor="?android:textColorSecondary"
         android:visibility="gone"
-        tools:ignore="UnusedAttribute"
         tools:text="@string/search_empty"
         tools:visibility="visible" />
 

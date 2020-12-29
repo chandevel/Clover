@@ -168,19 +168,16 @@ public class ThreadListLayout
 
         attachToolbarScroll(true);
 
-        if (ChanSettings.moveInputToBottom.get()) {
-            reply.setPadding(0, 0, 0, 0);
-        } else {
-            reply.setPadding(0, toolbarHeight(), 0, 0);
-        }
+        updatePaddings(reply, 0, 0, ChanSettings.moveInputToBottom.get() ? 0 : toolbarHeight(), 0);
         updatePaddings(searchStatus, -1, -1, searchStatus.getPaddingTop() + toolbarHeight(), -1);
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (postViewMode != CARD || recyclerView.getLayoutManager() == null) return;
 
-        int gridCountSetting = !isInEditMode() ? ChanSettings.getBoardColumnCount() : 3;
+        int gridCountSetting = isInEditMode() ? 3 : ChanSettings.getBoardColumnCount();
         boolean compactMode;
         if (gridCountSetting > 0) {
             // Set count
@@ -194,56 +191,25 @@ public class ThreadListLayout
             compactMode = false;
         }
 
-        if (postViewMode == CARD) {
-            postAdapter.setCompact(compactMode);
-
-            ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
-        }
+        postAdapter.setCompact(compactMode);
+        ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
     }
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         if (this.postViewMode != postViewMode) {
+            RecyclerView.LayoutManager layoutManager = null;
             switch (postViewMode) {
                 case LIST:
-                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext()) {
-                        @Override
-                        public boolean requestChildRectangleOnScreen(
-                                @NonNull RecyclerView parent,
-                                @NonNull View child,
-                                @NonNull Rect rect,
-                                boolean immediate,
-                                boolean focusedChildVisible
-                        ) {
-                            return false;
-                        }
-                    };
-                    setRecyclerViewPadding();
-                    recyclerView.setLayoutManager(linearLayoutManager);
-
+                    layoutManager = new LinearLayoutManager(getContext());
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
-
                     break;
                 case CARD:
-                    GridLayoutManager gridLayoutManager =
-                            new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
-                                @Override
-                                public boolean requestChildRectangleOnScreen(
-                                        @NonNull RecyclerView parent,
-                                        @NonNull View child,
-                                        @NonNull Rect rect,
-                                        boolean immediate,
-                                        boolean focusedChildVisible
-                                ) {
-                                    return false;
-                                }
-                            };
-                    setRecyclerViewPadding();
-                    recyclerView.setLayoutManager(gridLayoutManager);
-
+                    layoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
-
                     break;
             }
+            setRecyclerViewPadding();
+            recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
             this.postViewMode = postViewMode;
             postAdapter.setPostViewMode(postViewMode);
@@ -455,7 +421,7 @@ public class ThreadListLayout
 
     public ThumbnailView getThumbnail(PostImage postImage) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-
+        if(layoutManager == null) return null;
         for (int i = 0; i < layoutManager.getChildCount(); i++) {
             View view = layoutManager.getChildAt(i);
             if (view instanceof PostCellInterface) {

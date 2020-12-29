@@ -325,9 +325,8 @@ public class ReplyLayout
             }
         });
 
-        setView(replyInputLayout);
-
         setDividerVisibility(false);
+        setView(replyInputLayout, !isInEditMode());
     }
 
     public void setCallback(ReplyLayoutCallback callback) {
@@ -696,6 +695,12 @@ public class ReplyLayout
     }
 
     private void setDividerVisibility(boolean hide) {
+        if(isInEditMode()) {
+            topDivider.setVisibility(GONE);
+            botDivider.setVisibility(VISIBLE);
+            return;
+        }
+
         if (hide) {
             topDivider.setVisibility(GONE);
             botDivider.setVisibility(GONE);
