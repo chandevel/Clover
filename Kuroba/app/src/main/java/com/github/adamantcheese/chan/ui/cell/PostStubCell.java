@@ -46,7 +46,6 @@ public class PostStubCell
         implements PostCellInterface {
     private static final int TITLE_MAX_LENGTH = 100;
 
-    private boolean bound;
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
@@ -119,11 +118,6 @@ public class PostStubCell
             String searchQuery,
             Theme theme
     ) {
-        if (this.post != null && bound) {
-            bound = false;
-            this.post = null;
-        }
-
         this.post = post;
         this.callback = callback;
 
@@ -144,8 +138,6 @@ public class PostStubCell
     }
 
     private void bindPost(Post post, ChanSettings.PostViewMode mode) {
-        bound = true;
-
         if (!TextUtils.isEmpty(post.subjectSpan)) {
             title.setText(post.subjectSpan);
         } else {

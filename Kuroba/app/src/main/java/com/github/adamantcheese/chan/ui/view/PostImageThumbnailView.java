@@ -25,8 +25,6 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import androidx.core.content.ContextCompat;
-
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.cache.FileCacheListener;
@@ -87,17 +85,17 @@ public class PostImageThumbnailView
 
         this.postImage = postImage;
 
+        if (fullsizeDownload != null) {
+            fullsizeDownload.cancel();
+            fullsizeDownload = null;
+        }
+
         if (postImage == null) {
             setUrl(null, 0, 0);
             return;
         }
 
         if (ChanSettings.shouldUseFullSizeImage(postImage)) {
-            if (fullsizeDownload != null) {
-                fullsizeDownload.cancel();
-                fullsizeDownload = null;
-            }
-
             HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
             Bitmap cached = NetUtils.getCachedBitmap(url);
             if (cached != null) {
