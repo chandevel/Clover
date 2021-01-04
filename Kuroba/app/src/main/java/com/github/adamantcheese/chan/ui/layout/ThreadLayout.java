@@ -693,7 +693,6 @@ public class ThreadLayout
             this.visible = visible;
             showReplyButton(false);
             callback.hideSwipeRefreshLayout();
-            callback.setSwipeEnabled(false);
             switch (visible) {
                 case EMPTY:
                     loadView.setView(inflateEmptyView());
@@ -703,7 +702,6 @@ public class ThreadLayout
                     break;
                 case THREAD:
                     loadView.setView(threadListLayout);
-                    callback.setSwipeEnabled(true);
                     if (presenter.isBound() && presenter.getLoadable().site.siteFeature(Site.SiteFeature.POSTING)) {
                         showReplyButton(true);
                     }
@@ -784,8 +782,6 @@ public class ThreadLayout
         void openReportController(Post post);
 
         void hideSwipeRefreshLayout();
-
-        void setSwipeEnabled(boolean enabled);
 
         Toolbar getToolbar();
 

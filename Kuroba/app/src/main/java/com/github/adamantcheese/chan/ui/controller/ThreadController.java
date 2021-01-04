@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
+import com.github.adamantcheese.chan.ui.layout.ThreadLayout.Visible;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -71,7 +72,13 @@ public abstract class ThreadController
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.create(this);
 
-        view = new SwipeRefreshLayout(context);
+        view = new SwipeRefreshLayout(context) {
+            @Override
+            public boolean canChildScrollUp() {
+                // don't allow refreshes in EMPTY, LOADING, or ERROR pages
+                return super.canChildScrollUp() && threadLayout.getVisible() == Visible.THREAD;
+            }
+        };
         view.addView(threadLayout);
         // allows the recycler to have inertia and the drawer to be opened without the recycler taking the event away from
         // the drawer slide-to-open event
@@ -139,11 +146,6 @@ public abstract class ThreadController
     @Subscribe
     public void onEvent(RefreshUIMessage message) {
         onRefresh();
-    }
-
-    @Override
-    public void setSwipeEnabled(boolean enabled) {
-        view.setEnabled(enabled);
     }
 
     @Override
