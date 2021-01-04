@@ -71,7 +71,12 @@ public abstract class ThreadController
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.create(this);
 
-        view = new SwipeRefreshLayout(context);
+        view = new SwipeRefreshLayout(context) {
+            @Override
+            public boolean canChildScrollUp() {
+                return threadLayout.canChildScrollUp();
+            }
+        };
         view.addView(threadLayout);
         // allows the recycler to have inertia and the drawer to be opened without the recycler taking the event away from
         // the drawer slide-to-open event

@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
+import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
@@ -385,6 +386,46 @@ public class ThreadListLayout
         }
 
         setRecyclerViewPadding();
+    }
+
+    public boolean canChildScrollUp() {
+        if (replyOpen) return true;
+
+        if (getTopAdapterPosition() == 0) {
+            View top = recyclerView.getLayoutManager().findViewByPosition(0);
+            if (top == null) return true;
+
+            if (searchOpen) {
+                int searchExtraHeight = findViewById(R.id.search_status).getHeight();
+                if (postViewMode == LIST) {
+                    //dp(1) for divider item decor
+                    return top.getTop() - dp(1) != searchExtraHeight;
+                } else {
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != searchExtraHeight + dp(1);
+                    } else {
+                        return top.getTop()
+                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
+                    }
+                }
+            }
+
+            switch (postViewMode) {
+                case LIST:
+                    //dp(1) for divider item decor
+                    return top.getTop() - dp(1) != toolbarHeight();
+                case CARD:
+                    if (top instanceof PostStubCell) {
+                        // PostStubCell does not have grid_card_margin
+                        return top.getTop() != toolbarHeight() + dp(1);
+                    } else {
+                        return top.getTop()
+                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
+                    }
+            }
+        }
+        return true;
     }
 
     public boolean scrolledToBottom() {
