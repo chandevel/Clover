@@ -83,8 +83,8 @@ class FileCacheV2(
     @SuppressLint("CheckResult")
     private fun initNormalRxWorkerQueue() {
         requestQueue
-                .observeOn(workerScheduler)
                 .onBackpressureBuffer()
+                .observeOn(workerScheduler)
                 .flatMap { url ->
                     return@flatMap Flowable.defer { handleFileDownload(url) }
                             .subscribeOn(workerScheduler)
