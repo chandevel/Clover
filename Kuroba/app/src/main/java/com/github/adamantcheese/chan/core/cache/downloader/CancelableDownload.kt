@@ -3,9 +3,13 @@ package com.github.adamantcheese.chan.core.cache.downloader
 import com.github.adamantcheese.chan.core.cache.FileCacheListener
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingDataSource
 import com.github.adamantcheese.chan.core.cache.stream.WebmStreamingSource
+import com.github.adamantcheese.chan.core.settings.ChanSettings
+import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl
 import okhttp3.HttpUrl
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -93,30 +97,39 @@ class CancelableDownload(
         // bit of time for it to get really canceled.
 
         try {
-            synchronized(this) {
-                // Cancel downloads
-                disposeFuncList.forEach { func ->
-                    try {
-                        func.invoke()
-                    } catch (error: Throwable) {
-                        Logger.e(this,
-                                "Unhandled error in dispose function, " + "error = ${error.javaClass.simpleName}")
+            BackgroundUtils.backgroundService.submit {
+                synchronized(this) {
+                    // Cancel downloads
+                    disposeFuncList.forEach { func ->
+                        try {
+                            func.invoke()
+                        } catch (error: Throwable) {
+                            Logger.e(this, "Unhandled error in dispose function, " +
+                                    "error = ${error.javaClass.simpleName}")
+                        }
                     }
+
+                    disposeFuncList.clear()
                 }
 
-                disposeFuncList.clear()
-            }
-
-            val action = when (state.get()) {
-                DownloadState.Running -> {
-                    throw RuntimeException("Expected Stopped or Canceled but got Running!")
+                val action = when (state.get()) {
+                    DownloadState.Running -> {
+                        throw RuntimeException("Expected Stopped or Canceled but got Running!")
+                    }
+                    DownloadState.Stopped -> "Stopping"
+                    DownloadState.Canceled -> "Cancelling"
                 }
-                DownloadState.Stopped -> "Stopping"
-                DownloadState.Canceled -> "Cancelling"
-            }
 
-            Logger.vd(this, "$action file download request, url = ${maskImageUrl(url)}")
+                Logger.vd(this, "$action file download request, url = ${maskImageUrl(url)}")
+            }
+                    // We use timeout here just in case to not get deadlocked
+                    .get(10L, TimeUnit.SECONDS)
         } catch (error: Throwable) {
+            if (error is TimeoutException) {
+                Logger.e(this, "POSSIBLE DEADLOCK in CancelableDownload.dispose() !!!", error)
+                return
+            }
+
             // Catch all the exceptions. Otherwise some request info won't be cleared when an error
             // occurs.
             Logger.e(this, "Error while trying to dispose of a request for url = (${maskImageUrl(url)})", error)
