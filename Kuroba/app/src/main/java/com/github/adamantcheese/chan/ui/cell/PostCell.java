@@ -517,8 +517,7 @@ public class PostCell
         clearShiftPostFormatting();
         waitForLayout(this, view -> {
             // we now know the measurements of all the views, so we can shift-format stuff without issue
-            doShiftPostFormatting();
-            return true;
+            return doShiftPostFormatting();
         });
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
@@ -548,9 +547,9 @@ public class PostCell
         replies.setGravity(Gravity.BOTTOM);
     }
 
-    private void doShiftPostFormatting() {
+    private boolean doShiftPostFormatting() {
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() != 1
-                || ChanSettings.textOnly.get()) return;
+                || ChanSettings.textOnly.get()) return true;
         float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
         int wrapHeightActual = title.getHeight() + icons.getHeight();
         if ((wrapHeightActual >= wrapHeightCheck) || wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck) {
@@ -570,7 +569,7 @@ public class PostCell
             replyParams.removeRule(RelativeLayout.RIGHT_OF);
             replies.setLayoutParams(replyParams);
         }
-        postInvalidate();
+        return false;
     }
 
     @Override
