@@ -91,7 +91,7 @@ public class ThreadLayout
         implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback,
                    RemovedPostsHelper.RemovedPostsCallbacks, View.OnClickListener,
                    ThreadListLayout.ThreadListLayoutCallback, ImageOptionsController.ImageOptionsControllerCallback {
-    public enum Visible {
+    private enum Visible {
         EMPTY,
         LOADING,
         THREAD,
@@ -192,8 +192,8 @@ public class ThreadLayout
         }
     }
 
-    public Visible getVisible() {
-        return visible;
+    public boolean canChildScrollUp() {
+        return visible != Visible.THREAD || threadListLayout.canChildScrollUp();
     }
 
     public boolean onBack() {
