@@ -201,11 +201,33 @@ public class ThreadListLayout
             RecyclerView.LayoutManager layoutManager = null;
             switch (postViewMode) {
                 case LIST:
-                    layoutManager = new LinearLayoutManager(getContext());
+                    layoutManager = new LinearLayoutManager(getContext()) {
+                        @Override
+                        public boolean requestChildRectangleOnScreen(
+                                @NonNull RecyclerView parent,
+                                @NonNull View child,
+                                @NonNull Rect rect,
+                                boolean immediate,
+                                boolean focusedChildVisible
+                        ) {
+                            return false;
+                        }
+                    };
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
                     break;
                 case CARD:
-                    layoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false);
+                    layoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
+                        @Override
+                        public boolean requestChildRectangleOnScreen(
+                                @NonNull RecyclerView parent,
+                                @NonNull View child,
+                                @NonNull Rect rect,
+                                boolean immediate,
+                                boolean focusedChildVisible
+                        ) {
+                            return false;
+                        }
+                    };
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
                     break;
             }
@@ -462,7 +484,7 @@ public class ThreadListLayout
 
     public ThumbnailView getThumbnail(PostImage postImage) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
-        if(layoutManager == null) return null;
+        if (layoutManager == null) return null;
         for (int i = 0; i < layoutManager.getChildCount(); i++) {
             View view = layoutManager.getChildAt(i);
             if (view instanceof PostCellInterface) {
