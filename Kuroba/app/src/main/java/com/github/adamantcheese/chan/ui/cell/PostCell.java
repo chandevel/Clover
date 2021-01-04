@@ -568,8 +568,9 @@ public class PostCell
             RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
             replyParams.removeRule(RelativeLayout.RIGHT_OF);
             replies.setLayoutParams(replyParams);
+            return false;
         }
-        return false;
+        return true;
     }
 
     @Override
