@@ -80,6 +80,7 @@ public class StringSettingView
         final EditText editText = new EditText(v.getContext());
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);
         editText.setText(setting.get());
+        editText.setHint(setting.getDefault().isEmpty() ? "\" \"" : setting.getDefault());
         editText.setSingleLine(true);
         editText.setSelection(editText.getText().length());
 

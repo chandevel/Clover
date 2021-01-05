@@ -22,6 +22,6 @@ public class StringSetting
         extends Setting<String> {
 
     public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
-        super(settingProvider, key, def);
+        super(settingProvider, key, def == null ? "" : def);
     }
 }
