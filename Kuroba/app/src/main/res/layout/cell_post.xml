@@ -20,8 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    tools:background="?backcolor"
-    tools:ignore="RtlSymmetry,NotSibling">
+    tools:background="?backcolor">
 
     <View
         android:id="@+id/filter_match_color"
@@ -33,8 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:ignore="UnknownIdInLayout">
+        android:layout_height="wrap_content">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/thumbnail_views"

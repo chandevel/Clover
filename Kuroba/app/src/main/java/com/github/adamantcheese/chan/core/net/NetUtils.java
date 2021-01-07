@@ -164,7 +164,7 @@ public class NetUtils {
                     String fileExtension = StringUtils.extractFileNameExtension(url.toString());
                     if (fileExtension != null && fileExtension.equalsIgnoreCase("webm")) {
                         File tempFile =
-                                File.createTempFile(UUID.randomUUID().toString(), "tmp", getAppContext().getCacheDir());
+                                File.createTempFile(UUID.randomUUID().toString(), null, getAppContext().getCacheDir());
                         IOUtils.writeToFile(body.byteStream(), tempFile, -1);
                         BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
                             //noinspection ResultOfMethodCallIgnored
