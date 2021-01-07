@@ -94,7 +94,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvide
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 
 public class MultiImageView
         extends FrameLayout
@@ -180,7 +179,7 @@ public class MultiImageView
     public void setMode(final Mode newMode, boolean center) {
         this.mode = newMode;
         hasContent = false;
-        waitForMeasure(this, view -> {
+        post(() -> {
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(center);
@@ -202,7 +201,6 @@ public class MultiImageView
                     setOther();
                     break;
             }
-            return true;
         });
     }
 
@@ -557,8 +555,7 @@ public class MultiImageView
                         NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                             @Override
                             public void onBitmapFailure(
-                                    @NonNull HttpUrl source,
-                                    Exception e
+                                    @NonNull HttpUrl source, Exception e
                             ) {} // use the default drawable
 
                             @Override

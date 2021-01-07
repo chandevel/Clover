@@ -38,7 +38,6 @@ import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.ActionMode;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -102,7 +101,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
@@ -515,10 +513,8 @@ public class PostCell
 
         // in order for proper measurement to occur for shift-post formatting, this cell needs to be not-shifted first
         clearShiftPostFormatting();
-        waitForLayout(this, view -> {
-            // we now know the measurements of all the views, so we can shift-format stuff without issue
-            return doShiftPostFormatting();
-        });
+        // we now know the measurements of all the views, so we can shift-format stuff without issue
+        post(this::doShiftPostFormatting);
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
@@ -535,7 +531,6 @@ public class PostCell
         commentParams.addRule(ALIGN_PARENT_RIGHT);
         commentParams.addRule(RIGHT_OF, R.id.thumbnail_views);
         comment.setLayoutParams(commentParams);
-        comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
 
         RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
         replyParams.alignWithParent = true;
@@ -543,34 +538,23 @@ public class PostCell
         replyParams.addRule(BELOW, R.id.comment);
         replyParams.addRule(RIGHT_OF, R.id.thumbnail_views);
         replies.setLayoutParams(replyParams);
-        replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
-        replies.setGravity(Gravity.BOTTOM);
     }
 
-    private boolean doShiftPostFormatting() {
+    private void doShiftPostFormatting() {
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() != 1
-                || ChanSettings.textOnly.get()) return true;
+                || ChanSettings.textOnly.get()) return;
         float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
         int wrapHeightActual = title.getHeight() + icons.getHeight();
         if ((wrapHeightActual >= wrapHeightCheck) || wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck) {
             RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
             commentParams.removeRule(RelativeLayout.RIGHT_OF);
-            if (title.getHeight() + (icons.getVisibility() == VISIBLE ? icons.getHeight() : 0)
-                    < thumbnailViews.getHeight()) {
-                commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
-            } else {
-                commentParams.addRule(RelativeLayout.BELOW,
-                        (icons.getVisibility() == VISIBLE ? R.id.icons : R.id.title)
-                );
-            }
+            commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
             comment.setLayoutParams(commentParams);
 
             RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
             replyParams.removeRule(RelativeLayout.RIGHT_OF);
             replies.setLayoutParams(replyParams);
-            return false;
         }
-        return true;
     }
 
     @Override

@@ -53,7 +53,6 @@ import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBu
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForMeasure;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
@@ -204,11 +203,10 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            waitForMeasure(thumbView, view -> {
+            post(() -> {
                 // decode to a square the size of the width, even though the height is smaller it appears better
                 thumbView.setDecodeSize(thumbView.getWidth());
                 thumbView.setPostImage(post.image());
-                return true;
             });
         } else {
             thumbView.setVisibility(GONE);

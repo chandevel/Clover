@@ -24,8 +24,6 @@ import android.view.ViewGroup;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
-
 public class ThreadSlidingPaneLayout
         extends ExtraFunctionSlidingPaneLayout {
     public ViewGroup leftPane;
@@ -59,10 +57,7 @@ public class ThreadSlidingPaneLayout
 
         // Forces a relayout after it has already been laid out, because SlidingPaneLayout sucks and otherwise
         // gives the children too much room until they request a relayout.
-        waitForLayout(this, view -> {
-            requestLayout();
-            return false;
-        });
+        post(this::requestLayout);
     }
 
     public void setThreadSlideController(ThreadSlideController threadSlideController) {

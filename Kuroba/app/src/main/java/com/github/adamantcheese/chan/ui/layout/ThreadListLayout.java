@@ -75,7 +75,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
@@ -514,11 +513,7 @@ public class ThreadListLayout
             } else {
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
-                final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                waitForLayout(recyclerView, view -> {
-                    itemAnimator.endAnimations();
-                    return true;
-                });
+                recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
             }
         } else {
             int difference = Math.abs(displayPosition - getTopAdapterPosition());
@@ -531,11 +526,7 @@ public class ThreadListLayout
             } else {
                 recyclerView.scrollToPosition(displayPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
-                final RecyclerView.ItemAnimator itemAnimator = recyclerView.getItemAnimator();
-                waitForLayout(recyclerView, view -> {
-                    itemAnimator.endAnimations();
-                    return true;
-                });
+                recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
             }
         }
     }
