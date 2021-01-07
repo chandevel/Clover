@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -103,18 +104,26 @@ public abstract class ThumbnailView
             }
         });
 
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ThumbnailView);
+        try {
+            circular = a.getBoolean(R.styleable.ThumbnailView_circular, false);
+        } finally {
+            a.recycle();
+        }
+
         // for Android Studio to display some sort of bitmap in preview windows
         if (isInEditMode()) {
-            setImageBitmap(BitmapFactory.decodeResource(context.getResources(), android.R.drawable.ic_menu_gallery),
-                    false
-            );
+            setImageBitmap(BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_stat_notify), false);
         } else {
             setImageBitmap(BitmapRepository.empty, false);
         }
     }
 
     public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
-        setImageBitmap(BitmapRepository.empty, false);
+        if (url == null) {
+            setImageBitmap(BitmapRepository.empty, false);
+            return;
+        }
 
         bitmapCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
             @Override
@@ -135,10 +144,6 @@ public abstract class ThumbnailView
                 setImageBitmap(bitmap, true);
             }
         }, maxWidth, maxHeight);
-    }
-
-    public void setCircular(boolean circular) {
-        this.circular = circular;
     }
 
     public void setRounding(int rounding) {

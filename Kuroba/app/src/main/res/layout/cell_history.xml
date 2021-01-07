@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:layout_marginLeft="4dp"
         android:padding="4dp"
+        app:circular="true"
         app:ratio="1.0" />
 
     <LinearLayout

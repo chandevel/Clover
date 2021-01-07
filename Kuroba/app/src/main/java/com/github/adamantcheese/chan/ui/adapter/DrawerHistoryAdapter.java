@@ -175,7 +175,6 @@ public class DrawerHistoryAdapter
             super(itemView);
 
             thumbnail = itemView.findViewById(R.id.thumbnail);
-            thumbnail.setCircular(true);
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
 

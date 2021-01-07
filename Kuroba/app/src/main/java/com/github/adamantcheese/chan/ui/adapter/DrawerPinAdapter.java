@@ -209,7 +209,6 @@ public class DrawerPinAdapter
         private PinViewHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.thumb);
-            image.setCircular(true);
             title = itemView.findViewById(R.id.title);
             title.setTypeface(ThemeHelper.getTheme().mainFont);
             threadInfo = itemView.findViewById(R.id.thread_info);
