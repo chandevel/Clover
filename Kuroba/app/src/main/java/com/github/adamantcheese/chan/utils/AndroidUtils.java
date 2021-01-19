@@ -486,9 +486,7 @@ public class AndroidUtils {
     }
 
     public static boolean isConnected(int type) {
-        ConnectivityManager connectivityManager =
-                (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(type);
+        NetworkInfo networkInfo = getConnectivityManager().getNetworkInfo(type);
         return networkInfo != null && networkInfo.isConnected();
     }
 

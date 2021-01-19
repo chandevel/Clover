@@ -124,7 +124,7 @@ public interface Site {
      * <p><b>Note: do not use any managers at this point, because they rely on the sites being initialized.
      * Instead, use {@link #postInitialize()}</b>
      *
-     * @param id           the site id
+     * @param id           the site database id
      * @param userSettings the site user settings
      */
     void initialize(int id, JsonSettings userSettings);

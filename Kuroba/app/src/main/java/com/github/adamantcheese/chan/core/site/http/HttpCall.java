@@ -52,7 +52,7 @@ public abstract class HttpCall
             Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 
-    public abstract void process(Response response, String result);
+    public abstract void process(Response response, String result); // TODO replace with NetUtilsClasses ResponseProcessor
 
     public HttpCall(Site site) {
         this.site = site;

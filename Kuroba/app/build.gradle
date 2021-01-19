@@ -64,10 +64,6 @@ android {
         //you WILL need to change the code in UpdateManager if your endpoint changes or you use a different API structure
         buildConfigField "String", "DEV_GITHUB_ENDPOINT", "\"https://github.com/Adamantcheese/Kuroba-Dev\""
         buildConfigField "String", "DEV_API_ENDPOINT", "\"https://api.github.com/repos/Adamantcheese/Kuroba-Dev/releases/latest\""
-        //this is for checking who's built what in debug logs
-        buildConfigField "String", "SIGNATURE", "\"8952c098\""
-        //this is the default dev signing signature, update it if you change the dev keystore
-        buildConfigField "String", "DEV_SIGNATURE", "\"10d4e433\""
 
         /**
          * ------------------------------------------------------------
