@@ -129,7 +129,6 @@ public class PostCell
     private boolean inPopup;
     private boolean highlighted;
     private int markedNo;
-    private String searchQuery;
 
     private GestureDetector doubleTapComment;
 
@@ -242,7 +241,6 @@ public class PostCell
             int markedNo,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            String searchQuery,
             Theme theme
     ) {
         if (this.post != null && bound) {
@@ -256,7 +254,6 @@ public class PostCell
         this.inPopup = inPopup;
         this.highlighted = highlighted;
         this.markedNo = markedNo;
-        this.searchQuery = searchQuery;
 
         bindPost(theme, post);
 
@@ -325,9 +322,9 @@ public class PostCell
         SpannableStringBuilder titleParts = new SpannableStringBuilder();
 
         if (post.subjectSpan != null) {
-            titleParts.append(applySearchSpans(post.subjectSpan, searchQuery)).append("\n");
+            titleParts.append(applySearchSpans(post.subjectSpan, callback.getSearchQuery())).append("\n");
         }
-        titleParts.append(applySearchSpans(post.nameTripcodeIdCapcodeSpan, searchQuery));
+        titleParts.append(applySearchSpans(post.nameTripcodeIdCapcodeSpan, callback.getSearchQuery()));
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
         SpannableString date = new SpannableString(
@@ -352,8 +349,8 @@ public class PostCell
                 String filename = '\u200E' + (image.spoiler() ? (image.hidden
                         ? getString(R.string.image_hidden_filename)
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
-                SpannableStringBuilder fileInfo =
-                        new SpannableStringBuilder().append("\n").append(applySearchSpans(filename, searchQuery));
+                SpannableStringBuilder fileInfo = new SpannableStringBuilder().append("\n")
+                        .append(applySearchSpans(filename, callback.getSearchQuery()));
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
@@ -412,7 +409,7 @@ public class PostCell
             comment.setVisibility(isEmpty(post.comment) && post.images.isEmpty() ? GONE : VISIBLE);
         }
 
-        comment.setText(applySearchSpans(post.comment, searchQuery));
+        comment.setText(applySearchSpans(post.comment, callback.getSearchQuery()));
 
         if (threadMode) {
             comment.setTextIsSelectable(true);

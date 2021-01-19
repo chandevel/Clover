@@ -39,7 +39,6 @@ public interface PostCellInterface {
             int markedNo,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            String searchQuery,
             Theme theme
     );
 
@@ -49,6 +48,8 @@ public interface PostCellInterface {
 
     interface PostCellCallback {
         Loadable getLoadable();
+
+        String getSearchQuery();
 
         void onPostClicked(Post post);
 

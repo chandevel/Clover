@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 
 import okhttp3.MediaType;
@@ -49,7 +51,7 @@ public class ProgressRequestBody
     }
 
     @Override
-    public void writeTo(BufferedSink sink)
+    public void writeTo(@NonNull BufferedSink sink)
             throws IOException {
 
         progressSink = new ProgressSink(sink);
@@ -69,7 +71,7 @@ public class ProgressRequestBody
         }
 
         @Override
-        public void write(Buffer source, long byteCount)
+        public void write(@NonNull Buffer source, long byteCount)
                 throws IOException {
             super.write(source, byteCount);
 

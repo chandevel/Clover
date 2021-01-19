@@ -65,7 +65,6 @@ public class CardPostCell
     private PostCellInterface.PostCellCallback callback;
     private boolean highlighted = false;
     private boolean compact = false;
-    private String searchQuery;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -154,7 +153,6 @@ public class CardPostCell
             int markedNo,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            String searchQuery,
             Theme theme
     ) {
         if (this.post != null && bound) {
@@ -171,7 +169,6 @@ public class CardPostCell
         this.post = post;
         this.highlighted = highlighted;
         this.callback = callback;
-        this.searchQuery = searchQuery;
 
         bindPost(theme, post);
 
@@ -221,11 +218,11 @@ public class CardPostCell
         }
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
-        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : applySearchSpans(post.subjectSpan, searchQuery));
+        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : applySearchSpans(post.subjectSpan, callback.getSearchQuery()));
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
         comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
-        comment.setText(applySearchSpans(post.comment, searchQuery));
+        comment.setText(applySearchSpans(post.comment, callback.getSearchQuery()));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {

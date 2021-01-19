@@ -327,6 +327,11 @@ public class ThreadPresenter
         return loadable;
     }
 
+    @Override
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
     /*
      * ChanThreadLoader callbacks
      */

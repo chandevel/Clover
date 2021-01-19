@@ -104,6 +104,11 @@ public class ThemeSettingsController
         }
 
         @Override
+        public String getSearchQuery() {
+            return null;
+        }
+
+        @Override
         public void onPostClicked(Post post) {
         }
 

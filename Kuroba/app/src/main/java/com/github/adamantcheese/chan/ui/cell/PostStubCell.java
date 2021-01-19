@@ -21,7 +21,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -68,7 +67,6 @@ public class PostStubCell
         super.onFinishInflate();
 
         title = findViewById(R.id.title);
-        ImageView options = findViewById(R.id.options);
 
         if (!isInEditMode()) {
             int textSizeSp = ChanSettings.fontSize.get();
@@ -78,7 +76,7 @@ public class PostStubCell
             title.setPadding(paddingPx, 0, 0, 0);
         }
 
-        options.setOnClickListener(v -> {
+        findViewById(R.id.options).setOnClickListener(v -> {
             List<FloatingMenuItem<Integer>> items = new ArrayList<>();
             List<FloatingMenuItem<Integer>> extraItems = new ArrayList<>();
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
@@ -115,29 +113,11 @@ public class PostStubCell
             int markedNo,
             ChanSettings.PostViewMode postViewMode,
             boolean compact,
-            String searchQuery,
             Theme theme
     ) {
         this.post = post;
         this.callback = callback;
 
-        bindPost(post, postViewMode);
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public ThumbnailView getThumbnailView(PostImage postImage) {
-        return null;
-    }
-
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
-    }
-
-    private void bindPost(Post post, ChanSettings.PostViewMode mode) {
         if (!TextUtils.isEmpty(post.subjectSpan)) {
             title.setText(post.subjectSpan);
         } else {
@@ -151,7 +131,7 @@ public class PostStubCell
         }
 
         // These onclick listeners are overridden in PostAdapter's onBindViewHolder
-        if (mode == ChanSettings.PostViewMode.CARD) {
+        if (postViewMode == ChanSettings.PostViewMode.CARD) {
             setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
             int dp2 = dp(getContext(), 2);
             ((ViewGroup.MarginLayoutParams) getLayoutParams()).setMargins(dp2, dp2, dp2, dp2);
@@ -167,5 +147,18 @@ public class PostStubCell
             title.setSingleLine(true);
             setOnClickListener(v -> callback.onPostClicked(post));
         }
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public ThumbnailView getThumbnailView(PostImage postImage) {
+        return null;
+    }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
     }
 }

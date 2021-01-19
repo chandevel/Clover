@@ -67,7 +67,6 @@ public class PostAdapter
     private String highlightedId;
     private int highlightedNo = -1;
     private String highlightedTripcode;
-    private String searchQuery;
     private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
 
     private ChanSettings.PostViewMode postViewMode;
@@ -184,7 +183,6 @@ public class PostAdapter
                         getMarkedNo(),
                         getPostViewMode(),
                         isCompact(),
-                        searchQuery,
                         theme
                 );
 
@@ -200,9 +198,9 @@ public class PostAdapter
 
     @Override
     public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
-        //this is a hack to make sure text is selectable
         super.onViewAttachedToWindow(holder);
         try {
+            //this is a hack to make sure text is selectable
             holder.itemView.findViewById(R.id.comment).setEnabled(false);
             holder.itemView.findViewById(R.id.comment).setEnabled(true);
         } catch (Exception ignored) {}
@@ -257,10 +255,6 @@ public class PostAdapter
         BackgroundUtils.ensureMainThread();
 
         this.loadable = thread.getLoadable();
-        boolean queryChanged =
-                this.searchQuery != null && filter != null && !this.searchQuery.equals(filter.getQuery());
-        this.searchQuery = filter == null ? null : filter.getQuery();
-
         showError(null);
 
         List<Post> newList = filter == null ? thread.getPosts() : filter.apply(thread);
@@ -290,8 +284,8 @@ public class PostAdapter
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
                 // if the query's changed, invalidate all items
                 // if the status view is shown and the oldposition/newposition matches the list size, invalidate that as well (index is status cell)
-                if (queryChanged || (showStatusView() && oldItemPosition == displayList.size()) || (showStatusView()
-                        && newItemPosition == newList.size())) {
+                if ((filter != null && filter.getQuery() != null) || (showStatusView() && oldItemPosition == displayList
+                        .size()) || (showStatusView() && newItemPosition == newList.size())) {
                     return false;
                 }
                 return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;
