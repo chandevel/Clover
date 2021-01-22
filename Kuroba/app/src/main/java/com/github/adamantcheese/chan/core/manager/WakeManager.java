@@ -54,7 +54,7 @@ public class WakeManager {
     private final Set<Wakeable> wakeableSet = new HashSet<>();
     public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
     private final PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
-    private long lastBackgroundUpdateTime = System.currentTimeMillis();
+    private long lastBackgroundUpdateTime = 0L; // allow the wake manager to run at construction time
     private boolean alarmRunning;
 
     public WakeManager() {
