@@ -105,7 +105,7 @@ public class EmbeddingEngine {
      */
 
     public List<Call> embed(
-            final Theme theme, @NonNull final Post post, @NonNull final InvalidateFunction invalidateFunction
+            @NonNull final Theme theme, @NonNull final Post post, @NonNull final InvalidateFunction invalidateFunction
     ) {
         if (post.embedComplete.get()) return Collections.emptyList();
         post.embedComplete.set(true); // prevent duplicate calls
@@ -182,8 +182,8 @@ public class EmbeddingEngine {
     }
 
     private void onEmbeddingComplete(
-            Theme theme,
-            Post post,
+            @NonNull final Theme theme,
+            @NonNull final Post post,
             SpannableStringBuilder modifiableCopy,
             List<PostLinkable> generatedLinkables,
             List<PostImage> generatedImages,
@@ -496,7 +496,7 @@ public class EmbeddingEngine {
     }
 
     public interface InvalidateFunction {
-        void invalidateView(Theme theme, Post post);
+        void invalidateView(@NonNull Theme theme, @NonNull Post post);
     }
     //endregion
 }

@@ -119,7 +119,18 @@ public class BrowseBoardsFloatingMenu
 
         ViewGroup rootView = baseView.getRootView().findViewById(android.R.id.content);
 
-        setupChildViews();
+        // View creation
+        recyclerView = new RecyclerView(getContext());
+
+        // View setup
+        recyclerView.setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
+        recyclerView.setElevation(dp(4));
+
+        // View attaching
+        int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
+        LayoutParams params = new LayoutParams(recyclerWidth, WRAP_CONTENT);
+        params.setMargins(dp(5), dp(5), dp(5), dp(5));
+        addView(recyclerView, params);
 
         adapter = new BrowseBoardsAdapter();
 
@@ -212,28 +223,15 @@ public class BrowseBoardsFloatingMenu
 
         hideKeyboard(this);
 
-        anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
+        if (anchor.getViewTreeObserver().isAlive()) {
+            anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
+        }
 
         if (animated) {
             animateOut(() -> removeFromParentView(this));
         } else {
             removeFromParentView(this);
         }
-    }
-
-    private void setupChildViews() {
-        // View creation
-        recyclerView = new RecyclerView(getContext());
-
-        // View setup
-        recyclerView.setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
-        recyclerView.setElevation(dp(4));
-
-        // View attaching
-        int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
-        LayoutParams params = new LayoutParams(recyclerWidth, WRAP_CONTENT);
-        params.setMargins(dp(5), dp(5), dp(5), dp(5));
-        addView(recyclerView, params);
     }
 
     private void watchAnchor() {
