@@ -39,6 +39,9 @@ import static com.github.adamantcheese.chan.Chan.inject;
 
 public abstract class SiteBase
         implements Site {
+    /**
+     * This is the database ID of the site!
+     */
     protected int id;
 
     @Inject

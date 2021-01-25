@@ -80,6 +80,13 @@ public class NetUtils {
         instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(requestBuilder.build()).enqueue(httpCall);
     }
 
+    /**
+     * Request a bitmap without resizing.
+     *
+     * @param url    The request URL.
+     * @param result The callback for this call.
+     * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
+     */
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result
     ) {
@@ -87,10 +94,12 @@ public class NetUtils {
     }
 
     /**
-     * Request a bitmap without resizing.
+     * Request a bitmap with resizing.
      *
      * @param url    The request URL.
      * @param result The callback for this call.
+     * @param width  The explicit width of the result
+     * @param height The explicit height of the result
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(

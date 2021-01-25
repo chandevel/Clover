@@ -88,12 +88,7 @@ public class DefaultPostParser
         }
 
         parseInfoSpans(theme, builder);
-
-        if (builder.comment != null) {
-            builder.comment = parseComment(theme, builder, callback);
-        } else {
-            builder.comment = new SpannableStringBuilder("");
-        }
+        builder.comment = parseComment(theme, builder, callback);
 
         // process any removed posts, and remove any linkables/spans attached
         for (PostLinkable l : builder.linkables) {

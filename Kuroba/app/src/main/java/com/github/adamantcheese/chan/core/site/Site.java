@@ -83,7 +83,7 @@ public interface Site {
         POSTING_SPOILER,
 
         /**
-         * This board support loading the archive, a list of threads that are locked after expiring.
+         * This board supports loading the archive, a list of threads that are locked after expiring.
          */
         ARCHIVE,
     }
