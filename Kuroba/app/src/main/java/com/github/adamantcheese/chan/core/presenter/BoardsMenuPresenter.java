@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,40 +89,51 @@ public class BoardsMenuPresenter
     public static class Items
             extends Observable {
         public List<Item> items = new ArrayList<>();
+        private BackgroundUtils.Cancelable boardsCall;
 
         public Items() {
         }
 
-        public void update(List<BoardRepository.SiteBoards> allBoards, String filter) {
-            items.clear();
-            int itemIdCounter = 1;
+        public void update(final List<BoardRepository.SiteBoards> allBoards, final String filter) {
+            if (boardsCall != null) {
+                boardsCall.cancel();
+            }
+            boardsCall = BackgroundUtils.runWithExecutor(BackgroundUtils.backgroundService, () -> {
+                List<Item> newItems = new ArrayList<>();
+                int itemIdCounter = 1;
 
-            items.add(new Item(0, SEARCH));
+                newItems.add(new Item(0, SEARCH));
 
-            for (BoardRepository.SiteBoards siteAndBoards : allBoards) {
-                Site site = siteAndBoards.site;
-                Boards boards = siteAndBoards.boards;
+                for (BoardRepository.SiteBoards siteAndBoards : allBoards) {
+                    Site site = siteAndBoards.site;
+                    Boards boards = siteAndBoards.boards;
 
-                items.add(new Item(itemIdCounter++, site));
+                    newItems.add(new Item(itemIdCounter++, site));
 
-                if (filter == null || filter.isEmpty()) {
-                    for (Board board : boards) {
-                        if (board.saved) {
-                            items.add(new Item(itemIdCounter++, board));
+                    if (filter == null || filter.isEmpty()) {
+                        for (Board board : boards) {
+                            if (board.saved) {
+                                newItems.add(new Item(itemIdCounter++, board));
+                            }
+                        }
+                    } else {
+                        // cap the amount of outputs to 5 instead of all boards, which could be a lot!
+                        int count = 0;
+                        for (Board b : BoardHelper.search(boards, filter)) {
+                            if (count == 5) break;
+                            newItems.add(new Item(itemIdCounter++, b));
+                            count++;
                         }
                     }
-                } else {
-                    int count = 0;
-                    for (Board b : BoardHelper.search(boards, filter)) {
-                        if (count == 5) break;
-                        items.add(new Item(itemIdCounter++, b));
-                        count++;
-                    }
                 }
-            }
 
-            setChanged();
-            notifyObservers();
+                return newItems;
+            }, result -> {
+                items.clear();
+                items.addAll(result);
+                setChanged();
+                notifyObservers();
+            });
         }
 
         public int getCount() {
