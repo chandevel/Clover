@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import android.util.SparseArray;
-
 import com.github.adamantcheese.chan.core.site.sites.Kun8;
 import com.github.adamantcheese.chan.core.site.sites.Lainchan;
 import com.github.adamantcheese.chan.core.site.sites.Sushichan;
@@ -25,6 +23,8 @@ import com.github.adamantcheese.chan.core.site.sites.Wired7;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.core.site.sites.chan420.Chan420;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class SiteRegistry {
     public static final List<SiteUrlHandler> URL_HANDLERS = new ArrayList<>();
-    public static final SparseArray<Class<? extends Site>> SITE_CLASSES = new SparseArray<>();
+    public static final BiMap<Integer, Class<? extends Site>> SITE_CLASSES = HashBiMap.create();
 
     static {
         URL_HANDLERS.add(Chan4.URL_HANDLER);

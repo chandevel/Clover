@@ -32,7 +32,7 @@ public class DatabaseSiteManager {
         this.helper = helper;
     }
 
-    public Callable<SiteModel> byId(int id) {
+    public Callable<SiteModel> get(int id) {
         return () -> helper.getSiteModelDao().queryForId(id);
     }
 
@@ -74,9 +74,9 @@ public class DatabaseSiteManager {
         return () -> {
             for (int i = 0; i < siteIdsWithCorrectOrder.size(); i++) {
                 Integer id = siteIdsWithCorrectOrder.get(i);
-                SiteModel m = helper.getSiteModelDao().queryForId(id);
+                SiteModel m = get(id).call();
                 m.order = i;
-                helper.getSiteModelDao().update(m);
+                update(m).call();
             }
             return null;
         };

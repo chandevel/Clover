@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.repository;
 
 import android.text.TextUtils;
-import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 
@@ -19,6 +18,8 @@ import com.github.adamantcheese.chan.core.model.orm.SiteModel;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -37,7 +38,11 @@ public class SiteRepository {
     private final Sites sitesObservable = new Sites();
 
     public Site forId(int id) {
-        return sitesObservable.forId(id);
+        Site ret = sitesObservable.forId(id);
+        if (ret == null) {
+            Logger.e(this, "Site is null, id: " + id);
+        }
+        return ret;
     }
 
     public SiteRepository(DatabaseSiteManager databaseSiteManager, Gson gson) {
@@ -49,17 +54,9 @@ public class SiteRepository {
         return sitesObservable;
     }
 
-    public SiteModel byId(int id) {
-        return DatabaseUtils.runTask(databaseSiteManager.byId(id));
-    }
-
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
-        SiteModel siteModel = byId(site.id());
+        SiteModel siteModel = DatabaseUtils.runTask(databaseSiteManager.get(site.id()));
         if (siteModel == null) throw new NullPointerException("siteModel == null");
-        updateSiteUserSettingsAsync(siteModel, jsonSettings);
-    }
-
-    public void updateSiteUserSettingsAsync(SiteModel siteModel, JsonSettings jsonSettings) {
         siteModel.storeUserSettings(gson, jsonSettings);
         DatabaseUtils.runTaskAsync(databaseSiteManager.update(siteModel));
     }
@@ -113,18 +110,14 @@ public class SiteRepository {
         Site site = instantiateSiteClass(siteClass);
 
         JsonSettings settings = new JsonSettings();
-
-        //the index doesn't necessarily match the key value to get the class ID anymore since sites were removed
-        int classId = SITE_CLASSES.keyAt(SITE_CLASSES.indexOfValue(site.getClass()));
+        int classId = SITE_CLASSES.inverse().get(siteClass);
 
         SiteModel model = createFromClass(classId, settings);
-
         site.initialize(model.id, settings);
 
         sitesObservable.add(site);
 
         site.postInitialize();
-
         sitesObservable.notifyObservers();
 
         return site;
@@ -134,9 +127,8 @@ public class SiteRepository {
         SiteModel siteModel = new SiteModel();
         siteModel.classID = classID;
         siteModel.storeUserSettings(gson, userSettings);
-        DatabaseUtils.runTask(databaseSiteManager.add(siteModel));
 
-        return siteModel;
+        return DatabaseUtils.runTask(databaseSiteManager.add(siteModel));
     }
 
     private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
@@ -204,7 +196,7 @@ public class SiteRepository {
     public class Sites
             extends Observable {
         private List<Site> sites = Collections.unmodifiableList(new ArrayList<>());
-        private SparseArray<Site> sitesById = new SparseArray<>();
+        private BiMap<Integer, Site> sitesById = HashBiMap.create();
 
         public Site forId(int id) {
             return sitesById.get(id);
@@ -248,7 +240,7 @@ public class SiteRepository {
 
         private void resetSites(@NonNull List<Site> newSites) {
             sites = Collections.unmodifiableList(newSites);
-            SparseArray<Site> byId = new SparseArray<>(newSites.size());
+            BiMap<Integer, Site> byId = HashBiMap.create(newSites.size());
             for (Site newSite : newSites) {
                 byId.put(newSite.id(), newSite);
             }
