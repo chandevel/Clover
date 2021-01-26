@@ -16,13 +16,20 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
@@ -36,6 +43,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
 import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class BoardsMenuPresenter
         implements Observer {
@@ -51,11 +59,11 @@ public class BoardsMenuPresenter
         allBoards = boardManager.getAllBoardsObservable();
     }
 
-    public void create(Callback callback, Board selectedBoard) {
+    public void create(Callback callback, Board selectedBoard, Context context) {
 
         this.allBoards.addObserver(this);
 
-        items = new Items();
+        items = new Items(context);
 
         updateWithFilter();
 
@@ -90,8 +98,10 @@ public class BoardsMenuPresenter
             extends Observable {
         public List<Item> items = new ArrayList<>();
         private BackgroundUtils.Cancelable boardsCall;
+        private final Context context;
 
-        public Items() {
+        public Items(Context context) {
+            this.context = context;
         }
 
         public void update(final List<BoardRepository.SiteBoards> allBoards, final String filter) {
@@ -125,6 +135,21 @@ public class BoardsMenuPresenter
                             count++;
                         }
                     }
+                }
+
+                if (newItems.size() == 1) {
+                    CommonSite setupSite = new CommonSite() {
+                        @Override
+                        public void setup() {
+                            setName("App Setup");
+                            @SuppressLint("UseCompatLoadingForDrawables")
+                            Drawable settingsDrawable = context.getDrawable(R.drawable.ic_fluent_settings_24_filled);
+                            settingsDrawable.setTint(getAttrColor(context, android.R.attr.textColorSecondary));
+                            setIcon(SiteIcon.fromDrawable(settingsDrawable));
+                        }
+                    };
+                    setupSite.setup();
+                    newItems.add(new Item(1, setupSite));
                 }
 
                 return newItems;

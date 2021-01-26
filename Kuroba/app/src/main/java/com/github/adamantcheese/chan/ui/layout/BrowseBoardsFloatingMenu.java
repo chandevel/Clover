@@ -21,7 +21,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
-import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -48,8 +47,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter;
 import com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
@@ -146,24 +143,9 @@ public class BrowseBoardsFloatingMenu
 
         animateIn();
 
-        presenter.create(this, selectedBoard);
+        presenter.create(this, selectedBoard, getContext());
         items = presenter.items();
         items.addObserver(this);
-
-        if (items.items.size() == 1) {
-            CommonSite setupSite = new CommonSite() {
-                @Override
-                public void setup() {
-                    setName("App Setup");
-                    @SuppressLint("UseCompatLoadingForDrawables")
-                    Drawable settingsDrawable = getContext().getDrawable(R.drawable.ic_fluent_settings_24_filled);
-                    settingsDrawable.setTint(getAttrColor(getContext(), android.R.attr.textColorSecondary));
-                    setIcon(SiteIcon.fromDrawable(settingsDrawable));
-                }
-            };
-            setupSite.setup();
-            items.items.add(new Item(1, setupSite));
-        }
 
         // items should exist before this is added
         recyclerView.addItemDecoration(RecyclerUtils.getDividerDecoration(getContext(),
