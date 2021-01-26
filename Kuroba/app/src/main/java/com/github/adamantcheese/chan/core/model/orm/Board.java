@@ -119,6 +119,9 @@ public class Board
     public boolean mathTags = false;
 
     @DatabaseField
+    public boolean forcedAnon = false;
+
+    @DatabaseField
     @NonNull
     public String description = "";
 

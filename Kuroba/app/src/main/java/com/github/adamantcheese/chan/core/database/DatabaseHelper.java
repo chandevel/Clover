@@ -64,7 +64,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 52;
+    private static final int DATABASE_VERSION = 53;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -554,6 +554,15 @@ public class DatabaseHelper
                 database.execSQL("DROP TABLE saved_thread");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 52");
+            }
+        }
+
+        if (oldVersion < 53) {
+            try {
+                // add forced anon field to board
+                getBoardDao().executeRawNoArgs("ALTER TABLE board ADD COLUMN forcedAnon INTEGER default 0");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 53");
             }
         }
     }

@@ -147,6 +147,9 @@ public class Chan4BoardsRequest
                 case "math_tags":
                     board.mathTags = reader.nextInt() == 1;
                     break;
+                case "forced_anon":
+                    board.forcedAnon = reader.nextInt() == 1;
+                    break;
                 case "meta_description":
                     board.description = reader.nextString();
                     break;

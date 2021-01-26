@@ -86,6 +86,11 @@ public interface Site {
          * This board supports loading the archive, a list of threads that are locked after expiring.
          */
         ARCHIVE,
+
+        /**
+         * This board disables the name field.
+         */
+        FORCED_ANONYMOUS,
     }
 
     /**

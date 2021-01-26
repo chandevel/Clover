@@ -63,6 +63,7 @@ import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.FORCED_ANONYMOUS;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
@@ -109,6 +110,7 @@ public class ReplyPresenter
         callback.setCommentHint(loadable.isThreadMode());
         callback.showCommentCounter(loadable.board.maxCommentChars > 0);
         callback.enableImageAttach(canPostImages());
+        callback.enableName(canPostName());
 
         switchPage(Page.INPUT);
 
@@ -135,6 +137,10 @@ public class ReplyPresenter
 
     public boolean canPostSpoileredImages() {
         return loadable.site.boardFeature(POSTING_SPOILER, loadable.board);
+    }
+
+    public boolean canPostName() {
+        return !loadable.site.boardFeature(FORCED_ANONYMOUS, loadable.board);
     }
 
     public void onOpen(boolean open) {
@@ -679,5 +685,7 @@ public class ReplyPresenter
         void showAuthenticationFailedError(Throwable error);
 
         void enableImageAttach(boolean canAttach);
+
+        void enableName(boolean canName);
     }
 }

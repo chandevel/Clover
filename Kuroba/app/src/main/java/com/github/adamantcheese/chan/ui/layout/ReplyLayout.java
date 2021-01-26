@@ -839,6 +839,12 @@ public class ReplyLayout
     }
 
     @Override
+    public void enableName(boolean canName) {
+        name.setVisibility(canName ? VISIBLE : GONE);
+        name.setEnabled(canName);
+    }
+
+    @Override
     public void highlightPostNo(int no) {
         callback.highlightPostNo(no);
     }

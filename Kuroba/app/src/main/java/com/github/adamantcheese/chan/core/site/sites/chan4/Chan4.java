@@ -531,7 +531,11 @@ public class Chan4
                 // depends if the board supports it.
                 return board.spoilers;
             case ARCHIVE:
+                // only some boards have local archives
                 return board.archive;
+            case FORCED_ANONYMOUS:
+                // some boards (like /b/) disable the name field
+                return board.forcedAnon;
             default:
                 return false;
         }
