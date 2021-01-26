@@ -42,6 +42,8 @@ public interface PostCellInterface {
             Theme theme
     );
 
+    void unsetPost();
+
     Post getPost();
 
     ThumbnailView getThumbnailView(PostImage postImage);

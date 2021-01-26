@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 
 import com.github.adamantcheese.chan.R;
@@ -50,9 +51,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
@@ -60,11 +63,9 @@ public class CardPostCell
         implements PostCellInterface, InvalidateFunction {
     private static final int COMMENT_MAX_LINES = 10;
 
-    private boolean bound;
     private Post post;
     private PostCellInterface.PostCellCallback callback;
     private boolean highlighted = false;
-    private boolean compact = false;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -93,6 +94,16 @@ public class CardPostCell
 
         thumbView = findViewById(R.id.thumbnail);
         thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), (ThumbnailView) view));
+        thumbView.setOnLongClickListener(v -> {
+            if (thumbView.getPostImage() == null || !ChanSettings.enableLongPressURLCopy.get()) {
+                return false;
+            }
+
+            setClipboardContent("Image URL", thumbView.getPostImage().imageUrl.toString());
+            showToast(getContext(), R.string.image_url_copied_to_clipboard);
+
+            return true;
+        });
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
@@ -102,7 +113,7 @@ public class CardPostCell
         setOnClickListener((view) -> callback.onPostClicked(post));
 
         if (!isInEditMode()) {
-            setCompact(compact);
+            setCompact(false);
         }
 
         options.setOnClickListener(v -> {
@@ -155,24 +166,10 @@ public class CardPostCell
             boolean compact,
             Theme theme
     ) {
-        if (this.post != null && bound) {
-            bound = false;
-            thumbView.setPostImage(null);
-            for (Call c : embedCalls) {
-                c.cancel();
-            }
-            embedCalls.clear();
-            findViewById(R.id.embed_spinner).setVisibility(GONE);
-            this.post = null;
-        }
-
-        this.post = post;
         this.highlighted = highlighted;
         this.callback = callback;
 
         bindPost(theme, post);
-
-        this.compact = compact;
         setCompact(compact);
     }
 
@@ -190,7 +187,7 @@ public class CardPostCell
     }
 
     private void bindPost(Theme theme, Post post) {
-        bound = true;
+        this.post = post;
 
         if (highlighted || post.isSavedReply) {
             setBackgroundColor(getAttrColor(getContext(), R.attr.highlight_color));
@@ -200,14 +197,10 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            post(() -> {
-                // decode to a square the size of the width, even though the height is smaller it appears better
-                thumbView.setDecodeSize(thumbView.getWidth());
-                thumbView.setPostImage(post.image());
-            });
+            thumbView.setPostImage(post.image(), -1);
         } else {
             thumbView.setVisibility(GONE);
-            thumbView.setPostImage(null);
+            thumbView.setPostImage(null, 0);
         }
 
         if (post.filterHighlightedColor != 0) {
@@ -242,8 +235,19 @@ public class CardPostCell
     }
 
     @Override
-    public void invalidateView(Theme theme, Post post) {
-        if (!bound || !this.post.equals(post)) return;
+    public void unsetPost() {
+        thumbView.setPostImage(null, 0);
+        for (Call c : embedCalls) {
+            c.cancel();
+        }
+        embedCalls.clear();
+        findViewById(R.id.embed_spinner).setVisibility(GONE);
+        post = null;
+    }
+
+    @Override
+    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
+        if (!post.equals(this.post)) return;
         embedCalls.clear();
         bindPost(theme, post);
     }

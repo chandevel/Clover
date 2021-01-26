@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -392,9 +393,7 @@ public class ImageViewerController
 
     @Override
     public void updatePreviewImage(PostImage postImage) {
-        NetUtils.makeBitmapRequest(ChanSettings.shouldUseFullSizeImage(postImage) ? (postImage.spoiler()
-                ? postImage.getThumbnailUrl()
-                : postImage.imageUrl) : postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
+        NetUtils.makeBitmapRequest(postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                 // the preview image will just remain as the last successful response; good enough
@@ -404,7 +403,7 @@ public class ImageViewerController
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 previewImage.setBitmap(bitmap);
             }
-        }, previewImage.getWidth(), previewImage.getHeight());
+        });
     }
 
     public void saveImage() {
@@ -514,7 +513,7 @@ public class ImageViewerController
                 previewImage.setBitmap(bitmap);
                 startAnimation.start();
             }
-        }, previewImage.getWidth(), previewImage.getHeight());
+        });
     }
 
     public void startPreviewOutTransition(final PostImage postImage) {

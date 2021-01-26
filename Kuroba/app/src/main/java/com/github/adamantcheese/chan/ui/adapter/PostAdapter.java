@@ -206,6 +206,17 @@ public class PostAdapter
         } catch (Exception ignored) {}
     }
 
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        switch (CellType.values()[holder.getItemViewType()]) {
+            case TYPE_POST:
+            case TYPE_POST_STUB:
+                PostViewHolder postViewHolder = (PostViewHolder) holder;
+                ((PostCellInterface) postViewHolder.itemView).unsetPost();
+                break;
+        }
+    }
+
     public boolean isInPopup() {
         return false;
     }

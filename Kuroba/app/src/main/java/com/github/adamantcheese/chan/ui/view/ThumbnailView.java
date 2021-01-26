@@ -40,6 +40,7 @@ import android.graphics.drawable.RippleDrawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 
@@ -54,11 +55,13 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public abstract class ThumbnailView
         extends View {
     private Call bitmapCall;
-    private boolean circular = false;
+    private ViewTreeObserver.OnPreDrawListener drawListener;
+    private final boolean circular;
     private int rounding = 0;
 
     // animate() for ALPHA doesn't call setAlpha but instead some internal function
@@ -119,13 +122,16 @@ public abstract class ThumbnailView
         }
     }
 
-    public void setUrl(HttpUrl url, int maxWidth, int maxHeight) {
-        if (url == null) {
-            setImageBitmap(BitmapRepository.empty, false);
-            return;
-        }
+    /**
+     * Set the URL for this thumbnail view. Since thumbnails are generally square, this only takes one dimension parameter.
+     *
+     * @param url          The image to set
+     * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
+     */
+    public void setUrl(HttpUrl url, int maxDimension) {
+        setImageBitmap(BitmapRepository.empty, false);
 
-        bitmapCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
+        NetUtilsClasses.BitmapResult result = new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                 if (e instanceof NetUtilsClasses.HttpCodeException) {
@@ -143,7 +149,17 @@ public abstract class ThumbnailView
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                 setImageBitmap(bitmap, true);
             }
-        }, maxWidth, maxHeight);
+        };
+
+        if (maxDimension < 0) {
+            drawListener = waitForLayout(this, view -> {
+                int dim = Math.max(getWidth(), getHeight());
+                bitmapCall = NetUtils.makeBitmapRequest(url, result, dim, dim);
+                return true;
+            });
+        } else {
+            bitmapCall = NetUtils.makeBitmapRequest(url, result, maxDimension, maxDimension);
+        }
     }
 
     public void setRounding(int rounding) {
@@ -285,6 +301,13 @@ public abstract class ThumbnailView
         if (bitmapCall != null) { // clear out any calls
             bitmapCall.cancel();
             bitmapCall = null;
+        }
+
+        if (drawListener != null) { // clear out any pending on-draws
+            if (getViewTreeObserver().isAlive()) {
+                getViewTreeObserver().removeOnPreDrawListener(drawListener);
+            }
+            drawListener = null;
         }
 
         // set the bitmap and fields for drawing

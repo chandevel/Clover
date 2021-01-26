@@ -25,8 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView
         android:id="@+id/thumbnail"
-        android:layout_width="52dp"
-        android:layout_height="match_parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginLeft="4dp"
         android:padding="4dp"
         app:circular="true"

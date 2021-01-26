@@ -29,7 +29,9 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class AlbumViewCell
@@ -55,12 +57,23 @@ public class AlbumViewCell
         super.onFinishInflate();
         thumbnailView = findViewById(R.id.thumbnail_view);
         text = findViewById(R.id.text);
+
+        setOnLongClickListener(v -> {
+            if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
+                return false;
+            }
+
+            setClipboardContent("Image URL", postImage.imageUrl.toString());
+            showToast(getContext(), R.string.image_url_copied_to_clipboard);
+
+            return true;
+        });
     }
 
     public void setPostImage(PostImage postImage) {
         this.postImage = postImage;
 
-        thumbnailView.setPostImage(postImage);
+        thumbnailView.setPostImage(postImage, -1);
 
         if (postImage != null) {
             text.setText(String.format(
@@ -88,7 +101,7 @@ public class AlbumViewCell
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
-                || heightMode == MeasureSpec.AT_MOST)) {
+                || heightMode == MeasureSpec.AT_MOST) && !ChanSettings.neverShowAlbumCellInfo.get()) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             int height = width + dp(getContext(), 32);

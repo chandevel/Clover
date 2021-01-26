@@ -282,13 +282,13 @@ public class AlbumDownloadController
         @Override
         public void onBindViewHolder(AlbumDownloadHolder holder, int position) {
             AlbumDownloadItem item = items.get(position);
-            holder.thumbnailView.setPostImage(item.postImage);
+            holder.thumbnailView.setPostImage(item.postImage, -1);
             setItemChecked(holder, item.checked, false);
         }
 
         @Override
         public void onViewRecycled(@NonNull AlbumDownloadHolder holder) {
-            holder.thumbnailView.setPostImage(null);
+            holder.thumbnailView.setPostImage(null, 0);
             setItemChecked(holder, false, false);
         }
 

@@ -95,12 +95,15 @@ import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
@@ -122,7 +125,6 @@ public class PostCell
     private boolean threadMode;
     private boolean ignoreNextOnClick;
 
-    private boolean bound = false;
     private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
@@ -243,13 +245,7 @@ public class PostCell
             boolean compact,
             Theme theme
     ) {
-        if (this.post != null && bound) {
-            unbindPost(this.post);
-            this.post = null;
-        }
-
         this.loadable = loadable;
-        this.post = post;
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
@@ -267,15 +263,9 @@ public class PostCell
     }
 
     public ThumbnailView getThumbnailView(PostImage postImage) {
-        for (PostImage image : post.images) {
-            if (image.equals(postImage)) {
-                return ChanSettings.textOnly.get()
-                        ? null
-                        : (ThumbnailView) thumbnailViews.findViewHolderForLayoutPosition(post.images.indexOf(image)).itemView;
-            }
-        }
-
-        return null;
+        int pos = post.images.indexOf(postImage);
+        RecyclerView.ViewHolder foundView = thumbnailViews.findViewHolderForLayoutPosition(pos);
+        return (ChanSettings.textOnly.get() || foundView == null) ? null : (ThumbnailView) foundView.itemView;
     }
 
     @Override
@@ -284,7 +274,7 @@ public class PostCell
     }
 
     private void bindPost(Theme theme, Post post) {
-        bound = true;
+        this.post = post;
 
         // Assume that we're in thread mode if the loadable is null
         threadMode = callback.getLoadable() == null || callback.getLoadable().isThreadMode();
@@ -312,7 +302,7 @@ public class PostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
+        thumbnailViews.setAdapter(new PostImagesAdapter());
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
             thumbnailViews.setVisibility(GONE);
         } else {
@@ -511,7 +501,7 @@ public class PostCell
         // in order for proper measurement to occur for shift-post formatting, this cell needs to be not-shifted first
         clearShiftPostFormatting();
         // we now know the measurements of all the views, so we can shift-format stuff without issue
-        post(this::doShiftPostFormatting);
+        waitForLayout(this, view -> doShiftPostFormatting());
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
@@ -535,14 +525,16 @@ public class PostCell
         replyParams.addRule(BELOW, R.id.comment);
         replyParams.addRule(RIGHT_OF, R.id.thumbnail_views);
         replies.setLayoutParams(replyParams);
+
+        requestLayout();
     }
 
-    private void doShiftPostFormatting() {
+    private boolean doShiftPostFormatting() {
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() != 1
-                || ChanSettings.textOnly.get()) return;
+                || ChanSettings.textOnly.get()) return true;
         float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
         int wrapHeightActual = title.getHeight() + icons.getHeight();
-        if ((wrapHeightActual >= wrapHeightCheck) || wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck) {
+        if ((wrapHeightActual >= wrapHeightCheck) || (wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck)) {
             RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
             commentParams.removeRule(RelativeLayout.RIGHT_OF);
             commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
@@ -551,12 +543,15 @@ public class PostCell
             RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
             replyParams.removeRule(RelativeLayout.RIGHT_OF);
             replies.setLayoutParams(replyParams);
+
+            return false;
         }
+        return true;
     }
 
     @Override
-    public void invalidateView(Theme theme, Post post) {
-        if (!bound || !this.post.equals(post)) return;
+    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
+        if (!post.equals(this.post)) return;
         embedCalls.clear();
         bindPost(theme, post);
     }
@@ -579,23 +574,25 @@ public class PostCell
         return dubTexts[count - 1];
     }
 
-    private void unbindPost(Post post) {
-        bound = false;
+    @Override
+    public void unsetPost() {
         icons.cancelRequests();
         title.setOnLongClickListener(null);
         title.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         setPostLinkableListener(post, false);
+        thumbnailViews.setAdapter(null);
         for (Call c : embedCalls) {
             c.cancel();
         }
         embedCalls.clear();
         findViewById(R.id.embed_spinner).setVisibility(GONE);
+        post = null;
     }
 
     private void setPostLinkableListener(Post post, boolean bind) {
-        if (post.comment != null) {
+        if (post != null) {
             PostLinkable[] linkables = post.comment.getSpans(0, post.comment.length(), PostLinkable.class);
             for (PostLinkable linkable : linkables) {
                 linkable.setMarkedNo(bind ? markedNo : -1);
@@ -717,7 +714,16 @@ public class PostCell
             PostImageThumbnailView thumbnailView = new PostImageThumbnailView(parent.getContext());
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(), getThumbnailSize()));
             thumbnailView.setRounding(dp(2));
-            thumbnailView.setDecodeSize(getThumbnailSize());
+            thumbnailView.setOnLongClickListener(v -> {
+                if (thumbnailView.getPostImage() == null || !ChanSettings.enableLongPressURLCopy.get()) {
+                    return false;
+                }
+
+                setClipboardContent("Image URL", thumbnailView.getPostImage().imageUrl.toString());
+                showToast(getContext(), R.string.image_url_copied_to_clipboard);
+
+                return true;
+            });
             return new PostImageViewHolder(thumbnailView);
         }
 
@@ -725,10 +731,19 @@ public class PostCell
         public void onBindViewHolder(@NonNull PostImageViewHolder holder, int position) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             PostImage image = post.images.get(position);
-            thumbnailView.setPostImage(image);
+            thumbnailView.setPostImage(image, getThumbnailSize());
             if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
                 thumbnailView.setOnClickListener(v -> callback.onThumbnailClicked(image, thumbnailView));
             }
+        }
+
+        @Override
+        public void onViewRecycled(
+                @NonNull PostImageViewHolder holder
+        ) {
+            PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
+            thumbnailView.setPostImage(null, 0);
+            thumbnailView.setOnClickListener(null);
         }
 
         @Override

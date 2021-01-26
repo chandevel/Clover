@@ -134,7 +134,7 @@ public class LegacyCaptchaLayout
         String html = IOUtils.assetAsString(getContext(), "html/captcha_legacy.html");
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
-        image.setUrl(null, 0, 0);
+        image.setUrl(null, 0);
         input.requestFocus();
     }
 
@@ -145,7 +145,7 @@ public class LegacyCaptchaLayout
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
         this.challenge = challenge;
-        image.setUrl(HttpUrl.get(imageUrl), 0, 0);
+        image.setUrl(HttpUrl.get(imageUrl), 0);
     }
 
     public static class CaptchaInterface {

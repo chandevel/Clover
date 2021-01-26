@@ -664,10 +664,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <declare-styleable name="FixedRatioThumbnailView">
         <attr name="ratio" format="float" />
     </declare-styleable>
-
-    <declare-styleable name="PostImageThumbnailView">
-        <attr name="decode_dimen" format="dimension" />
-    </declare-styleable>
     <!-- endregion -->
 
     <style name="SnackbarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">

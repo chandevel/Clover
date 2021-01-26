@@ -149,6 +149,11 @@ public class PostStubCell
         }
     }
 
+    @Override
+    public void unsetPost() {
+        post = null;
+    }
+
     public Post getPost() {
         return post;
     }

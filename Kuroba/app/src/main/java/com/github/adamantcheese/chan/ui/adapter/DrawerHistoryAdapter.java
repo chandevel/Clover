@@ -94,7 +94,7 @@ public class DrawerHistoryAdapter
                 holder.itemView.getLayoutParams().width = MATCH_PARENT;
                 holder.itemView.getLayoutParams().height = WRAP_CONTENT;
             }
-            holder.thumbnail.setUrl(history.loadable.thumbnailUrl, dp(48), dp(48));
+            holder.thumbnail.setUrl(history.loadable.thumbnailUrl, holder.thumbnail.getLayoutParams().height);
 
             holder.text.setText(applySearchSpans(history.loadable.title, searchQuery));
             holder.subtext.setText(String.format("/%s/ – %s",
@@ -131,7 +131,7 @@ public class DrawerHistoryAdapter
         // since views can be recycled, we need to take care of everything that could've occurred, including the loading screen
         holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         holder.thumbnail.setVisibility(View.VISIBLE);
-        holder.thumbnail.setUrl(null, 0, 0);
+        holder.thumbnail.setUrl(null, 0);
         holder.text.setText("");
         holder.text.setGravity(TOP | START | CENTER);
         holder.text.getLayoutParams().height = WRAP_CONTENT;

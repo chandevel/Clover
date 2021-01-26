@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
@@ -333,7 +334,7 @@ public class MultiImageView
                 callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
             }
-        }, getWidth(), getHeight());
+        });
     }
 
     private void onThumbnailBitmap(Bitmap bitmap) {

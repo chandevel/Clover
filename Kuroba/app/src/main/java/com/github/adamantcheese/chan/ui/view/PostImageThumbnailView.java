@@ -17,13 +17,12 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewTreeObserver;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -38,62 +37,59 @@ import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.repository.DrawableRepository.playIcon;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class PostImageThumbnailView
-        extends FixedRatioThumbnailView
-        implements View.OnLongClickListener {
+        extends FixedRatioThumbnailView {
     private PostImage postImage;
-    private final Drawable playIcon;
     private final Rect bounds = new Rect();
-    private int decodeSize;
 
+    private ViewTreeObserver.OnPreDrawListener drawListener;
     private CancelableDownload fullsizeDownload;
 
     public PostImageThumbnailView(Context context) {
-        this(context, null);
+        super(context);
     }
 
     public PostImageThumbnailView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+        super(context, attrs);
     }
 
-    public PostImageThumbnailView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        this.setOnLongClickListener(this);
-
-        playIcon = context.getDrawable(R.drawable.ic_fluent_play_circle_24_regular);
-
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PostImageThumbnailView);
-        try {
-            decodeSize = (int) a.getDimension(R.styleable.PostImageThumbnailView_decode_dimen, 0);
-        } finally {
-            a.recycle();
-        }
+    public PostImageThumbnailView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
-    public void setDecodeSize(int size) {
-        decodeSize = size;
-    }
-
-    public void setPostImage(final PostImage postImage) {
+    /**
+     * @param postImage    The image to set
+     * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
+     */
+    public void setPostImage(final PostImage postImage, int maxDimension) {
         if (this.postImage == postImage) return;
 
+        AtomicInteger requestedDimension = new AtomicInteger(maxDimension);
         this.postImage = postImage;
 
-        if (fullsizeDownload != null) {
+        if (fullsizeDownload != null) { // clear out any pending calls
             fullsizeDownload.cancel();
             fullsizeDownload = null;
         }
 
-        if (postImage == null) {
-            setUrl(null, 0, 0);
-            return;
+        if (drawListener != null) { // clear out any pending on-draws
+            if (getViewTreeObserver().isAlive()) {
+                getViewTreeObserver().removeOnPreDrawListener(drawListener);
+            }
+            drawListener = null;
         }
+        setUrl(null, 0);
+
+        if (postImage == null) return;
 
         if (ChanSettings.shouldUseFullSizeImage(postImage)) {
             HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
@@ -101,29 +97,45 @@ public class PostImageThumbnailView
             if (cached != null) {
                 setImageBitmap(cached, true);
             } else {
-                setUrl(postImage.getThumbnailUrl(), decodeSize, decodeSize);
-                fullsizeDownload =
-                        Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, new FileCacheListener() {
-                            @Override
-                            public void onSuccess(RawFile file, boolean immediate) {
-                                BitmapUtils.decodeFilePreviewImage(new File(file.getFullPath()),
-                                        decodeSize,
-                                        decodeSize,
-                                        bitmap -> {
-                                            if (bitmap != BitmapRepository.error && bitmap != null
-                                                    && PostImageThumbnailView.this.postImage == postImage) {
-                                                NetUtils.storeExternalBitmap(url, bitmap);
-                                                setImageBitmap(bitmap, false);
-                                            }
-                                        },
-                                        false
-                                );
-                            }
-                        });
+                FileCacheListener listener = new FileCacheListener() {
+                    @Override
+                    public void onSuccess(RawFile file, boolean immediate) {
+                        BitmapUtils.decodeFilePreviewImage(
+                                new File(file.getFullPath()),
+                                requestedDimension.get(),
+                                requestedDimension.get(),
+                                bitmap -> {
+                                    if (bitmap != BitmapRepository.error && bitmap != null
+                                            && PostImageThumbnailView.this.postImage == postImage) {
+                                        NetUtils.storeExternalBitmap(url, bitmap);
+                                        setImageBitmap(bitmap, false);
+                                    }
+                                },
+                                false
+                        );
+                    }
+                };
+
+                if (requestedDimension.get() < 0) {
+                    drawListener = waitForLayout(this, view -> {
+                        requestedDimension.set(Math.max(view.getWidth(), view.getHeight()));
+                        setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
+                        fullsizeDownload =
+                                Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, listener);
+                        return true;
+                    });
+                } else {
+                    setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
+                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, listener);
+                }
             }
         } else {
-            setUrl(postImage.getThumbnailUrl(), decodeSize, decodeSize);
+            setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
         }
+    }
+
+    public PostImage getPostImage() {
+        return postImage;
     }
 
     @Override
@@ -139,17 +151,5 @@ public class PostImageThumbnailView
             playIcon.setBounds(bounds);
             playIcon.draw(canvas);
         }
-    }
-
-    @Override
-    public boolean onLongClick(View v) {
-        if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
-            return false;
-        }
-
-        setClipboardContent("Image URL", postImage.imageUrl.toString());
-        showToast(getContext(), R.string.image_url_copied_to_clipboard);
-
-        return true;
     }
 }

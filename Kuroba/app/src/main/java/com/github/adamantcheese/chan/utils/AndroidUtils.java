@@ -47,6 +47,7 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -368,15 +369,21 @@ public class AndroidUtils {
      * Waits for a measure. Calls callback immediately if the view width and height are more than 0.
      * Otherwise it registers an onpredrawlistener.
      * <b>Warning: the view you give must be attached to the view root!</b>
+     *
+     * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
      */
-    public static void waitForMeasure(final View view, final OnMeasuredCallback callback) {
+    public static OnPreDrawListener waitForMeasure(
+            final View view, final OnMeasuredCallback callback
+    ) {
         if (view.getWindowToken() == null) {
+            OnPreDrawListener createdListener =
+                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, false, callback);
             // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
             view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
-                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
-                    view.removeOnAttachStateChangeListener(this);
+                    v.getViewTreeObserver().addOnPreDrawListener(createdListener);
+                    v.removeOnAttachStateChangeListener(this);
                 }
 
                 @Override
@@ -384,24 +391,28 @@ public class AndroidUtils {
                     view.removeOnAttachStateChangeListener(this);
                 }
             });
-            return;
+            return createdListener;
         }
 
-        waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
+        return waitForLayoutInternal(true, view.getViewTreeObserver(), view, true, callback);
     }
 
     /**
      * Always registers an onpredrawlistener.
      * <b>Warning: the view you give must be attached to the view root!</b>
+     *
+     * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
      */
-    public static void waitForLayout(final View view, final OnMeasuredCallback callback) {
+    public static OnPreDrawListener waitForLayout(final View view, final OnMeasuredCallback callback) {
         if (view.getWindowToken() == null) {
+            OnPreDrawListener createdListener =
+                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, false, callback);
             // See comment above
             view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
-                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, callback);
-                    view.removeOnAttachStateChangeListener(this);
+                    v.getViewTreeObserver().addOnPreDrawListener(createdListener);
+                    v.removeOnAttachStateChangeListener(this);
                 }
 
                 @Override
@@ -409,34 +420,35 @@ public class AndroidUtils {
                     view.removeOnAttachStateChangeListener(this);
                 }
             });
-            return;
+            return createdListener;
         }
 
-        waitForLayoutInternal(false, view.getViewTreeObserver(), view, callback);
+        return waitForLayoutInternal(false, view.getViewTreeObserver(), view, true, callback);
     }
 
     /**
      * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
+     *
+     * @return the {@link OnPreDrawListener} that has been attached
      */
-    public static void waitForLayout(
+    public static OnPreDrawListener waitForLayout(
             final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback
     ) {
-        waitForLayoutInternal(false, viewTreeObserver, view, callback);
+        return waitForLayoutInternal(false, viewTreeObserver, view, true, callback);
     }
 
-    private static void waitForLayoutInternal(
+    private static OnPreDrawListener waitForLayoutInternal(
             boolean returnIfNotZero,
             final ViewTreeObserver viewTreeObserver,
             final View view,
+            boolean addPreDraw,
             final OnMeasuredCallback callback
     ) {
-        int width = view.getWidth();
-        int height = view.getHeight();
-
-        if (returnIfNotZero && width > 0 && height > 0 && view.isLaidOut()) {
+        if (returnIfNotZero && view.getWidth() > 0 && view.getHeight() > 0 && view.isLaidOut()) {
             callback.onMeasured(view);
+            return null;
         } else {
-            viewTreeObserver.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            OnPreDrawListener listener = new OnPreDrawListener() {
                 private ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
 
                 @Override
@@ -472,7 +484,11 @@ public class AndroidUtils {
 
                     return ret;
                 }
-            });
+            };
+            if (addPreDraw) {
+                viewTreeObserver.addOnPreDrawListener(listener);
+            }
+            return listener;
         }
     }
 

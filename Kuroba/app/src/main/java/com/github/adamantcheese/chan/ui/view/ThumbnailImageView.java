@@ -3,33 +3,32 @@ package com.github.adamantcheese.chan.ui.view;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
+
+import static com.github.adamantcheese.chan.core.repository.DrawableRepository.playIcon;
 
 public class ThumbnailImageView
         extends AppCompatImageView {
 
     private PostImage.Type type = PostImage.Type.STATIC;
-    private final Drawable playIcon;
     private final Rect bounds = new Rect();
 
-    public ThumbnailImageView(Context context) {
-        this(context, null);
+    public ThumbnailImageView(@NonNull Context context) {
+        super(context);
     }
 
-    public ThumbnailImageView(Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+    public ThumbnailImageView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
     }
 
-    public ThumbnailImageView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public ThumbnailImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        playIcon = context.getDrawable(R.drawable.ic_fluent_play_circle_24_regular);
     }
 
     public void setType(PostImage.Type type) {

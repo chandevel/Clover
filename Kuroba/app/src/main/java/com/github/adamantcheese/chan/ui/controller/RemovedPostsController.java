@@ -206,7 +206,7 @@ public class RemovedPostsController
                     public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
                         postImage.setImageBitmap(bitmap);
                     }
-                }, postImage.getWidth(), postImage.getHeight());
+                }, postImage.getLayoutParams().width, postImage.getLayoutParams().height);
             } else {
                 postImage.setVisibility(GONE);
             }
