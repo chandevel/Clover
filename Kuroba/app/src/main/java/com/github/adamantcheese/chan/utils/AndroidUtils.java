@@ -367,8 +367,9 @@ public class AndroidUtils {
 
     /**
      * Waits for a measure. Calls callback immediately if the view width and height are more than 0.
-     * Otherwise it registers an onpredrawlistener.
-     * <b>Warning: the view you give must be attached to the view root!</b>
+     * Otherwise it registers an onpredrawlistener.<br>
+     * <b>Warning: the view you give must be attached to the view root!</b><br>
+     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
      *
      * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
      */
@@ -398,8 +399,9 @@ public class AndroidUtils {
     }
 
     /**
-     * Always registers an onpredrawlistener.
-     * <b>Warning: the view you give must be attached to the view root!</b>
+     * Always registers an onpredrawlistener.<br>
+     * <b>Warning: the view you give must be attached to the view root!</b><br>
+     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
      *
      * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
      */
@@ -427,7 +429,8 @@ public class AndroidUtils {
     }
 
     /**
-     * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.
+     * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.<br>
+     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
      *
      * @return the {@link OnPreDrawListener} that has been attached
      */

@@ -43,6 +43,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -136,6 +137,7 @@ public class PostCell
 
     private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
+    private ViewTreeObserver.OnPreDrawListener preDrawListener;
     private final List<Call> embedCalls = new CopyOnWriteArrayList<>();
 
     public PostCell(Context context) {
@@ -497,10 +499,8 @@ public class PostCell
             replies.setVisibility(GONE);
         }
 
-        // in order for proper measurement to occur for shift-post formatting, this cell needs to be not-shifted first
-        clearShiftPostFormatting();
-        // we now know the measurements of all the views, so we can shift-format stuff without issue
-        waitForLayout(this, view -> doShiftPostFormatting());
+        // we need to wait for the measurements of all the views, so we can shift-format stuff without issue
+        preDrawListener = waitForLayout(this, view -> doShiftPostFormatting());
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
@@ -587,6 +587,11 @@ public class PostCell
         }
         embedCalls.clear();
         findViewById(R.id.embed_spinner).setVisibility(GONE);
+        if (this.getViewTreeObserver().isAlive()) {
+            this.getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
+        }
+        preDrawListener = null;
+        clearShiftPostFormatting();
         post = null;
     }
 
