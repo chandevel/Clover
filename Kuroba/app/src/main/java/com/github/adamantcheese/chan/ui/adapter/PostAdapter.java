@@ -163,8 +163,8 @@ public class PostAdapter
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        int itemViewType = getItemViewType(position);
-        switch (CellType.values()[itemViewType]) {
+        CellType cellType = CellType.values()[getItemViewType(position)];
+        switch (cellType) {
             case TYPE_POST:
             case TYPE_POST_STUB:
                 if (loadable == null) {
@@ -184,7 +184,7 @@ public class PostAdapter
                         theme
                 );
 
-                if (itemViewType == TYPE_POST_STUB.ordinal() && postAdapterCallback != null) {
+                if (cellType == TYPE_POST_STUB && postAdapterCallback != null) {
                     holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;

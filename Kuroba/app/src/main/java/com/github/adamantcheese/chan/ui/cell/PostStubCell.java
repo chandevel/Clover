@@ -119,8 +119,6 @@ public class PostStubCell
         } else {
             title.setText(post.comment.toString());
         }
-
-        setOnClickListener(v -> callback.onPostClicked(post));
     }
 
     @Override
