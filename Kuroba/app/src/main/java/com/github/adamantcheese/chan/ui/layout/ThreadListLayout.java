@@ -197,6 +197,10 @@ public class ThreadListLayout
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         if (this.postViewMode != postViewMode) {
+            this.postViewMode = postViewMode;
+            recyclerView.setAdapter(null);
+            postAdapter.setPostViewMode(postViewMode);
+
             RecyclerView.LayoutManager layoutManager = null;
             switch (postViewMode) {
                 case LIST:
@@ -233,8 +237,7 @@ public class ThreadListLayout
             setRecyclerViewPadding();
             recyclerView.setLayoutManager(layoutManager);
             recyclerView.getRecycledViewPool().clear();
-            this.postViewMode = postViewMode;
-            postAdapter.setPostViewMode(postViewMode);
+            recyclerView.setAdapter(postAdapter);
         }
     }
 

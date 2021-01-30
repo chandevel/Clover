@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<com.github.adamantcheese.chan.ui.cell.CardPostStubCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/grid_card_margin"
+    app:cardBackgroundColor="?backcolor"
+    app:cardCornerRadius="@dimen/grid_card_corner_radius"
+    app:cardElevation="2dp">
+
+    <!-- ratio 9/18 -->
+    <com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout
+        android:id="@+id/card_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_item_background"
+        android:orientation="vertical"
+        app:layout_ratio="0.5"
+        tools:layout_ratio="0.0f">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="?android:textColorSecondary"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingRight="8dp"
+            tools:layout_height="wrap_content"
+            tools:layout_weight="0"
+            tools:text="@string/lorem_ipsum" />
+
+        <ImageView
+            android:id="@+id/options"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|right"
+            android:background="@drawable/ripple_item_background"
+            android:src="@drawable/ic_fluent_more_vertical_20_filled"
+            app:tint="?android:textColorSecondary"
+            tools:padding="4dp"
+            tools:paddingLeft="8dp" />
+
+    </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>
+
+</com.github.adamantcheese.chan.ui.cell.CardPostStubCell>

@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -273,7 +274,7 @@ public class FilterEngine {
             if (matcher.find()) {
                 MatchResult result = matcher.toMatchResult();
                 if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
-                    ((Spannable) text).setSpan(new FilterHighlightSpan(),
+                    ((Spannable) text).setSpan(new FilterHighlightSpan(ThemeHelper.getTheme()),
                             result.start(),
                             result.end(),
                             Spanned.SPAN_INCLUSIVE_EXCLUSIVE

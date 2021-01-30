@@ -5,7 +5,7 @@ import android.text.style.CharacterStyle;
 import android.text.style.UpdateAppearance;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
 
@@ -19,10 +19,9 @@ public class ChanHighlightSpan
     private final int foregroundColor;
     private final boolean changeForeground;
 
-    public ChanHighlightSpan(byte alpha, boolean changeForeground) {
-        backgroundColor = ((alpha << 24) | 0x00FFFFFF) & getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
-                R.attr.colorAccent
-        );
+    public ChanHighlightSpan(Theme theme, byte alpha, boolean changeForeground) {
+        backgroundColor =
+                ((alpha << 24) | 0x00FFFFFF) & getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
         foregroundColor = getContrastColor(backgroundColor);
         this.changeForeground = changeForeground;
     }

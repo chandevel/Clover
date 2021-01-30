@@ -241,7 +241,6 @@ public class PostCell
             boolean inPopup,
             boolean highlighted,
             int markedNo,
-            ChanSettings.PostViewMode postViewMode,
             boolean compact,
             Theme theme
     ) {
@@ -312,9 +311,9 @@ public class PostCell
         SpannableStringBuilder titleParts = new SpannableStringBuilder();
 
         if (post.subjectSpan != null) {
-            titleParts.append(applySearchSpans(post.subjectSpan, callback.getSearchQuery())).append("\n");
+            titleParts.append(applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery())).append("\n");
         }
-        titleParts.append(applySearchSpans(post.nameTripcodeIdCapcodeSpan, callback.getSearchQuery()));
+        titleParts.append(applySearchSpans(theme, post.nameTripcodeIdCapcodeSpan, callback.getSearchQuery()));
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
         SpannableString date = new SpannableString(
@@ -340,7 +339,7 @@ public class PostCell
                         ? getString(R.string.image_hidden_filename)
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
                 SpannableStringBuilder fileInfo = new SpannableStringBuilder().append("\n")
-                        .append(applySearchSpans(filename, callback.getSearchQuery()));
+                        .append(applySearchSpans(theme, filename, callback.getSearchQuery()));
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
@@ -399,7 +398,7 @@ public class PostCell
             comment.setVisibility(isEmpty(post.comment) && post.images.isEmpty() ? GONE : VISIBLE);
         }
 
-        comment.setText(applySearchSpans(post.comment, callback.getSearchQuery()));
+        comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
         if (threadMode) {
             comment.setTextIsSelectable(true);

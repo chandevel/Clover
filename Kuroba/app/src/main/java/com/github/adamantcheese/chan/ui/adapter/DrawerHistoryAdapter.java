@@ -16,6 +16,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
@@ -96,7 +97,7 @@ public class DrawerHistoryAdapter
             }
             holder.thumbnail.setUrl(history.loadable.thumbnailUrl, holder.thumbnail.getLayoutParams().height);
 
-            holder.text.setText(applySearchSpans(history.loadable.title, searchQuery));
+            holder.text.setText(applySearchSpans(ThemeHelper.getTheme(), history.loadable.title, searchQuery));
             holder.subtext.setText(String.format("/%s/ – %s",
                     history.loadable.board.code,
                     history.loadable.board.name

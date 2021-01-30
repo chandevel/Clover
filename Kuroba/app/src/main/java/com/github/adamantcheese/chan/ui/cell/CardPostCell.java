@@ -162,7 +162,6 @@ public class CardPostCell
             boolean inPopup,
             boolean highlighted,
             int markedNo,
-            ChanSettings.PostViewMode postViewMode,
             boolean compact,
             Theme theme
     ) {
@@ -211,11 +210,11 @@ public class CardPostCell
         }
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
-        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : applySearchSpans(post.subjectSpan, callback.getSearchQuery()));
+        title.setText(TextUtils.isEmpty(post.subjectSpan) ? null : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
         comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
-        comment.setText(applySearchSpans(post.comment, callback.getSearchQuery()));
+        comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {

@@ -37,7 +37,6 @@ public interface PostCellInterface {
             boolean inPopup,
             boolean highlighted,
             int markedNo,
-            ChanSettings.PostViewMode postViewMode,
             boolean compact,
             Theme theme
     );

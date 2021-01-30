@@ -1,33 +1,22 @@
-/*
- * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -38,23 +27,24 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class PostStubCell
-        extends RelativeLayout
+public class CardPostStubCell
+        extends CardView
         implements PostCellInterface {
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
     private TextView title;
+    private ImageView options;
 
-    public PostStubCell(Context context) {
+    public CardPostStubCell(@NonNull Context context) {
         super(context);
     }
 
-    public PostStubCell(Context context, AttributeSet attrs) {
+    public CardPostStubCell(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public PostStubCell(Context context, AttributeSet attrs, int defStyleAttr) {
+    public CardPostStubCell(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -63,21 +53,23 @@ public class PostStubCell
         super.onFinishInflate();
 
         title = findViewById(R.id.title);
+        options = findViewById(R.id.options);
 
         if (!isInEditMode()) {
-            int textSizeSp = ChanSettings.fontSize.get();
-            title.setTextSize(textSizeSp);
-
-            int paddingPx = dp(textSizeSp - 7);
-            title.setPadding(paddingPx, paddingPx, 0, paddingPx);
+            setCompact(false);
         }
 
-        findViewById(R.id.options).setOnClickListener(v -> {
+        options.setOnClickListener(v -> {
             List<FloatingMenuItem<Integer>> items = new ArrayList<>();
             List<FloatingMenuItem<Integer>> extraItems = new ArrayList<>();
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
+
+        if (!isInEditMode() && ChanSettings.getBoardColumnCount() == 1) {
+            ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
+            invalidate();
+        }
     }
 
     private void showOptions(
@@ -100,10 +92,11 @@ public class PostStubCell
         menu.show();
     }
 
+    @Override
     public void setPost(
             Loadable loadable,
-            final Post post,
-            PostCellInterface.PostCellCallback callback,
+            Post post,
+            PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
             int markedNo,
@@ -120,7 +113,7 @@ public class PostStubCell
             title.setText(post.comment.toString());
         }
 
-        setOnClickListener(v -> callback.onPostClicked(post));
+        setCompact(compact);
     }
 
     @Override
@@ -128,16 +121,23 @@ public class PostStubCell
         post = null;
     }
 
+    @Override
     public Post getPost() {
         return post;
     }
 
+    @Override
     public ThumbnailView getThumbnailView(PostImage postImage) {
         return null;
     }
 
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
+    private void setCompact(boolean compact) {
+        int textSizeSp = ChanSettings.fontSize.get() + (compact ? -2 : 0);
+        title.setTextSize(textSizeSp);
+        int p = compact ? dp(3) : dp(8);
+
+        // Same as the layout.
+        title.setPadding(p, p, p, 0);
+        options.setPadding(p, p / 2, p / 2, p / 2);
     }
 }

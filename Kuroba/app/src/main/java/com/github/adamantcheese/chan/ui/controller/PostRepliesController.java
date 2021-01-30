@@ -141,7 +141,6 @@ public class PostRepliesController
                 return false;
             }
         };
-        adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
         recyclerView.setAdapter(adapter);
         adapter.setThread(new ChanThread(loadable, displayingData.posts),
                 new PostsFilter(PostsFilter.Order.BUMP, null)

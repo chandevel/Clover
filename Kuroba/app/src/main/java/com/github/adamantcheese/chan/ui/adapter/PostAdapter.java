@@ -69,10 +69,11 @@ public class PostAdapter
     private String highlightedTripcode;
     private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
 
-    private ChanSettings.PostViewMode postViewMode;
+    private ChanSettings.PostViewMode postViewMode = ChanSettings.PostViewMode.LIST;
     private boolean compact = false;
     private final Theme theme;
     private final RecyclerView.ItemDecoration divider;
+    private final RecyclerView.ItemDecoration lastSeenDivider;
 
     public PostAdapter(
             RecyclerView recyclerView,
@@ -93,7 +94,7 @@ public class PostAdapter
         lastSeen.setTint(getAttrColor(recyclerView.getContext(), R.attr.colorAccent));
 
         // Last seen decoration
-        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+        lastSeenDivider = new RecyclerView.ItemDecoration() {
             @Override
             public void onDrawOver(
                     @NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state
@@ -125,31 +126,29 @@ public class PostAdapter
                     outRect.top = dp(4);
                 }
             }
-        });
+        };
     }
 
     @Override
     @NonNull
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (CellType.values()[viewType]) {
+        int layout = 0;
+        CellType inflateType = CellType.values()[viewType];
+        switch (inflateType) {
             case TYPE_POST:
-                int layout = 0;
-                switch (getPostViewMode()) {
+            case TYPE_POST_STUB:
+                switch (postViewMode) {
                     case LIST:
-                        layout = R.layout.cell_post;
+                        layout = inflateType == TYPE_POST ? R.layout.cell_post : R.layout.cell_post_stub;
                         break;
                     case CARD:
-                        layout = R.layout.cell_post_card;
+                        layout = inflateType == TYPE_POST ? R.layout.cell_post_card : R.layout.cell_post_stub_card;
                         break;
                 }
 
                 PostCellInterface postCell =
                         (PostCellInterface) LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
                 return new PostViewHolder(postCell);
-            case TYPE_POST_STUB:
-                PostCellInterface postCellStub = (PostCellInterface) LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.cell_post_stub, parent, false);
-                return new PostViewHolder(postCellStub);
             case TYPE_STATUS:
                 ThreadStatusCell statusCell = (ThreadStatusCell) LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.cell_thread_status, parent, false);
@@ -181,7 +180,6 @@ public class PostAdapter
                         isInPopup(),
                         shouldHighlight(post),
                         getMarkedNo(),
-                        getPostViewMode(),
                         isCompact(),
                         theme
                 );
@@ -227,10 +225,6 @@ public class PostAdapter
 
     public int getMarkedNo() {
         return -1;
-    }
-
-    public ChanSettings.PostViewMode getPostViewMode() {
-        return postViewMode;
     }
 
     @Override
@@ -368,11 +362,22 @@ public class PostAdapter
 
     public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
         this.postViewMode = postViewMode;
+    }
 
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        recyclerView.removeItemDecoration(divider);
+        recyclerView.removeItemDecoration(lastSeenDivider);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             recyclerView.addItemDecoration(divider);
+            recyclerView.addItemDecoration(lastSeenDivider);
         } else {
             recyclerView.removeItemDecoration(divider);
+            recyclerView.removeItemDecoration(lastSeenDivider);
         }
     }
 

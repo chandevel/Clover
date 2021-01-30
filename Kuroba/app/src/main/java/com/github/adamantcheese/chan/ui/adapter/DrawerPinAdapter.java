@@ -100,7 +100,7 @@ public class DrawerPinAdapter
             holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         }
 
-        holder.title.setText(applySearchSpans(pin.loadable.title, searchQuery));
+        holder.title.setText(applySearchSpans(ThemeHelper.getTheme(), pin.loadable.title, searchQuery));
 
         holder.image.setUrl(pin.loadable.thumbnailUrl, holder.image.getLayoutParams().height);
         holder.image.setGreyscale(!pin.watching);

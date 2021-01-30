@@ -24,23 +24,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -64,7 +64,6 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.ui.view.ViewPagerAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -73,14 +72,12 @@ import java.util.List;
 
 import okhttp3.HttpUrl;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -105,7 +102,7 @@ public class ThemeSettingsController
 
         @Override
         public String getSearchQuery() {
-            return null;
+            return "search highlighting";
         }
 
         @Override
@@ -167,7 +164,7 @@ public class ThemeSettingsController
     };
 
     private CoordinatorLayout wrapper;
-    private ViewPager pager;
+    private ViewPager2 pager;
     private FloatingActionButton done;
 
     private boolean currentDayNight;
@@ -205,23 +202,23 @@ public class ThemeSettingsController
         done = view.findViewById(R.id.add);
         done.setOnClickListener(v -> saveTheme());
 
-        pager.setAdapter(new Adapter());
-        pager.setPageMargin(dp(6));
-        for (int i = 0; i < ThemeHelper.themes.size(); i++) {
-            Theme theme = ThemeHelper.themes.get(i);
-            if (theme.name.equals(currentTheme.name)) {
-                // Current theme
-                pager.setCurrentItem(i, false);
-                theme.primaryColor = currentTheme.primaryColor;
-                theme.accentColor = currentTheme.accentColor;
-                break;
+        // pager setup
+        pager.setOffscreenPageLimit(1);
+        // display on the sides
+        pager.setPageTransformer((page, position) -> {
+            float offset = position * -(2 * dp(6) + dp(6));
+            if (pager.getOrientation() == ORIENTATION_HORIZONTAL) {
+                if (ViewCompat.getLayoutDirection(pager) == ViewCompat.LAYOUT_DIRECTION_RTL) {
+                    page.setTranslationX(-offset);
+                } else {
+                    page.setTranslationX(offset);
+                }
+            } else {
+                page.setTranslationY(offset);
             }
-        }
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
+        });
+        // update done and background color when a new theme is selected
+        pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 Theme currentTheme = getViewedTheme();
@@ -230,11 +227,9 @@ public class ThemeSettingsController
                 )));
                 wrapper.setBackgroundColor(getAttrColor(currentTheme.resValue, R.attr.backcolor));
             }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
         });
+
+        updateAdapter(currentTheme);
     }
 
     @Override
@@ -279,19 +274,7 @@ public class ThemeSettingsController
         }
         navigationController.getToolbar().updateViewForItem(navigation);
 
-        //update views
-        Theme currentTheme = ThemeHelper.getTheme();
-        pager.setAdapter(new Adapter());
-        for (int i = 0; i < ThemeHelper.themes.size(); i++) {
-            Theme theme = ThemeHelper.themes.get(i);
-            if (theme.name.equals(currentTheme.name)) {
-                // Current theme
-                pager.setCurrentItem(i, false);
-                theme.primaryColor = currentTheme.primaryColor;
-                theme.accentColor = currentTheme.accentColor;
-                break;
-            }
-        }
+        updateAdapter(ThemeHelper.getTheme());
         //update button color manually, in case onPageSelected isn't called
         done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
                 R.attr.colorAccent
@@ -321,16 +304,7 @@ public class ThemeSettingsController
                 done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
-                //force update all the views to have the right accent color
-                pager.setAdapter(new Adapter());
-                for (int i = 0; i < ThemeHelper.themes.size(); i++) {
-                    Theme theme = ThemeHelper.themes.get(i);
-                    if (theme.name.equals(currentTheme.name)) {
-                        // Current theme
-                        pager.setCurrentItem(i, false);
-                        break;
-                    }
-                }
+                updateAdapter(currentTheme);
             }
         });
         menu.setPopupHeight(dp(300));
@@ -350,21 +324,74 @@ public class ThemeSettingsController
         return menu;
     }
 
-    private class Adapter
-            extends ViewPagerAdapter {
-        public Adapter() {
+    private void updateAdapter(Theme currentTheme) {
+        int i;
+        for (i = 0; i < ThemeHelper.themes.size(); i++) {
+            Theme theme = ThemeHelper.themes.get(i);
+            if (theme.name.equals(currentTheme.name)) {
+                theme.primaryColor = currentTheme.primaryColor;
+                theme.accentColor = currentTheme.accentColor;
+                break;
+            }
+        }
+        pager.setAdapter(new ThemePostsAdapter());
+        pager.setCurrentItem(i, false);
+    }
+
+    final List<Filter> filters = Collections.singletonList(new Filter(true,
+            FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
+            "spacer",
+            true,
+            "",
+            FilterEngine.FilterAction.COLOR.id,
+            Color.RED & 0x50FFFFFF,
+            false,
+            0,
+            false,
+            false
+    ));
+    final PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
+
+    private class ThemePostsAdapter
+            extends RecyclerView.Adapter<ThemePostsAdapter.ThemePreviewHolder> {
+        public ThemePostsAdapter() {
+        }
+
+        // NOTE
+        // This adapter is a bit weird because we need to change contexts a lot
+        // So anytime we do something that changes the theme, we need to refresh the whole adapter and set the current item
+        // updateAdapter takes care of that
+        @NonNull
+        @Override
+        public ThemePostsAdapter.ThemePreviewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            final Theme theme = ThemeHelper.themes.get(viewType);
+            Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
+            return new ThemePreviewHolder(theme,
+                    LayoutInflater.from(themeContext).inflate(R.layout.layout_theme_preview, parent, false)
+            );
         }
 
         @Override
-        public View getView(final int position, ViewGroup parent) {
-            final Theme theme = ThemeHelper.themes.get(position);
+        public int getItemCount() {
+            return ThemeHelper.themes.size();
+        }
 
-            Context themeContext = new ContextThemeWrapper(context, createTheme(context, theme));
+        @Override
+        public int getItemViewType(int position) {
+            // in order to index into ThemeHelper's themes in onCreateViewHolder, we just return the position here
+            return position;
+        }
 
-            CommentParser parser = new CommentParser().addDefaultRules();
-            DefaultPostParser postParser = new DefaultPostParser(parser);
+        @Override
+        public void onViewRecycled(
+                @NonNull ThemePreviewHolder holder
+        ) {
+            holder.recyclerView.setAdapter(null);
+        }
 
-            //region POSTS
+        @Override
+        public void onBindViewHolder(@NonNull ThemePostsAdapter.ThemePreviewHolder holder, int position) {
+            //region POST BUILDERS
             Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .no(123456789)
                     .opId(123456789)
@@ -397,7 +424,8 @@ public class ThemeSettingsController
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
                                     + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
                                     + "This post is highlighted.<br>"
-                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>")
+                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>"
+                                    + "This text has search highlighting applied.")
                     .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
                             BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
                             .thumbnailUrl(HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
@@ -406,26 +434,14 @@ public class ThemeSettingsController
                             .build()));
             //endregion
 
-            Filter testFilter = new Filter();
-            testFilter.pattern = "spacer";
-            testFilter.action = FilterEngine.FilterAction.COLOR.id;
-            testFilter.color = Color.RED & 0x50FFFFFF;
-            List<Filter> filters = Collections.singletonList(testFilter);
-
             List<Post> posts = new ArrayList<>();
-            posts.add(postParser.parse(theme, builder1, filters, parserCallback));
-            posts.add(postParser.parse(theme, builder2, filters, parserCallback));
-            posts.add(postParser.parse(theme, builder3, filters, parserCallback));
+            posts.add(postParser.parse(holder.theme, builder1, filters, parserCallback));
+            posts.add(postParser.parse(holder.theme, builder2, filters, parserCallback));
+            posts.add(postParser.parse(holder.theme, builder3, filters, parserCallback));
             posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
+            ChanThread thread = new ChanThread(dummyLoadable, posts);
 
-            LinearLayout linearLayout = new LinearLayout(themeContext);
-            linearLayout.setOrientation(LinearLayout.VERTICAL);
-            linearLayout.setBackgroundColor(getAttrColor(themeContext, R.attr.backcolor));
-
-            RecyclerView postsView = new RecyclerView(themeContext);
-            LinearLayoutManager layoutManager = new LinearLayoutManager(themeContext);
-            postsView.setLayoutManager(layoutManager);
-            PostAdapter adapter = new PostAdapter(postsView, post -> {
+            PostAdapter adapter = new PostAdapter(holder.recyclerView, post -> {
             }, dummyPostCallback, new ThreadStatusCell.Callback() {
                 @Override
                 public long getTimeUntilLoadMore() {
@@ -440,27 +456,24 @@ public class ThemeSettingsController
                 @Nullable
                 @Override
                 public ChanThread getChanThread() {
-                    return null;
+                    return thread;
                 }
 
                 @Override
                 public void onListStatusClicked() {
                     showAccentColorPicker();
                 }
-            }, theme) {
+            }, holder.theme) {
                 @Override
                 public int getMarkedNo() {
                     return 123456789;
                 }
             };
-            adapter.setThread(new ChanThread(dummyLoadable, posts), null);
+            adapter.setThread(thread, null);
             adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
-            adapter.setPostViewMode(ChanSettings.PostViewMode.LIST);
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
-            postsView.setAdapter(adapter);
+            holder.recyclerView.setAdapter(adapter);
 
-            final Toolbar toolbar = new Toolbar(themeContext);
-            toolbar.setMenuDrawable(R.drawable.ic_fluent_paint_brush_20_filled);
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
                 FloatingMenuItem<MaterialColorStyle> selected = null;
@@ -468,29 +481,29 @@ public class ThemeSettingsController
                     FloatingMenuItem<MaterialColorStyle> floatingMenuItem =
                             new FloatingMenuItem<>(color, color.prettyName());
                     items.add(floatingMenuItem);
-                    if (color == theme.primaryColor) {
+                    if (color == holder.theme.primaryColor) {
                         selected = floatingMenuItem;
                     }
                 }
 
-                FloatingMenu<MaterialColorStyle> menu = getColorsMenu(items, selected, toolbar, false);
+                FloatingMenu<MaterialColorStyle> menu = getColorsMenu(items, selected, holder.toolbar, false);
                 menu.setCallback(new FloatingMenu.ClickCallback<MaterialColorStyle>() {
                     @Override
                     public void onFloatingMenuItemClicked(
                             FloatingMenu<MaterialColorStyle> menu, FloatingMenuItem<MaterialColorStyle> item
                     ) {
                         MaterialColorStyle color = item.getId();
-                        theme.primaryColor = color;
-                        toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
+                        holder.theme.primaryColor = color;
+                        holder.toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
                     }
                 });
                 menu.setPopupHeight(dp(300));
                 menu.show();
             };
-            toolbar.setCallback(new Toolbar.ToolbarCallback() {
+            holder.toolbar.setCallback(new Toolbar.ToolbarCallback() {
                 @Override
                 public void onMenuOrBackClicked(boolean isArrow) {
-                    colorClick.onClick(toolbar);
+                    colorClick.onClick(holder.toolbar);
                 }
 
                 @Override
@@ -506,28 +519,25 @@ public class ThemeSettingsController
                 }
             });
             final NavigationItem item = new NavigationItem();
-            item.title = theme.name;
+            item.title = holder.theme.name;
             item.hasBack = false;
-            toolbar.setNavigationItem(false, true, item, theme);
-            toolbar.setOnClickListener(colorClick);
-            toolbar.setTag(theme.name);
-            if (theme.name.equals(getViewedTheme().name)) {
-                toolbar.setBackgroundColor(getAttrColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId,
-                        R.attr.colorPrimary
-                ));
-            }
-
-            linearLayout.addView(toolbar,
-                    new LayoutParams(MATCH_PARENT, getDimen(themeContext, R.dimen.toolbar_height))
-            );
-            linearLayout.addView(postsView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-
-            return linearLayout;
+            holder.toolbar.setNavigationItem(false, true, item, holder.theme);
+            holder.toolbar.setOnClickListener(colorClick);
         }
 
-        @Override
-        public int getCount() {
-            return ThemeHelper.themes.size();
+        private class ThemePreviewHolder
+                extends RecyclerView.ViewHolder {
+            private final Theme theme;
+            private final RecyclerView recyclerView;
+            private final Toolbar toolbar;
+
+            public ThemePreviewHolder(Theme theme, @NonNull View itemView) {
+                super(itemView);
+                this.theme = theme;
+                recyclerView = itemView.findViewById(R.id.posts_recycler);
+                toolbar = itemView.findViewById(R.id.theme_toolbar);
+                toolbar.setMenuDrawable(R.drawable.ic_fluent_paint_brush_20_filled);
+            }
         }
     }
 

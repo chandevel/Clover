@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.text.DateFormat;
@@ -241,7 +242,7 @@ public class StringUtils {
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 
-    public static SpannableStringBuilder applySearchSpans(CharSequence source, String searchQuery) {
+    public static SpannableStringBuilder applySearchSpans(Theme theme, CharSequence source, String searchQuery) {
         SpannableStringBuilder commentCopy = new SpannableStringBuilder(source);
         if (!TextUtils.isEmpty(searchQuery)) {
             Pattern search = Pattern.compile(FilterEngine.escapeRegex(searchQuery), Pattern.CASE_INSENSITIVE);
@@ -249,7 +250,7 @@ public class StringUtils {
             // apply new spans
             while (searchMatch.find()) {
                 commentCopy.setSpan(
-                        new SearchHighlightSpan(),
+                        new SearchHighlightSpan(theme),
                         searchMatch.toMatchResult().start(),
                         searchMatch.toMatchResult().end(),
                         Spanned.SPAN_INCLUSIVE_EXCLUSIVE
