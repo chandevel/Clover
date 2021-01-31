@@ -171,7 +171,7 @@ public class ThreadLayout
             removeFromParentView(replyButton);
         } else {
             replyButton.setOnClickListener(this);
-            replyButton.setToolbar(callback.getToolbar());
+            replyButton.setToolbar(getToolbar());
         }
     }
 
@@ -190,10 +190,6 @@ public class ThreadLayout
         } else if (v == replyButton) {
             threadListLayout.openReply(true);
         }
-    }
-
-    public boolean canChildScrollUp() {
-        return visible != Visible.THREAD || threadListLayout.canChildScrollUp();
     }
 
     public boolean onBack() {
@@ -591,7 +587,7 @@ public class ThreadLayout
 
     @Override
     public void showNewPostsSnackbar(int more) {
-        if (more <= 0 || threadListLayout.scrolledToBottom() || !BackgroundUtils.isInForeground() || (
+        if (more <= 0 || !threadListLayout.canScrollVertically(1) || !BackgroundUtils.isInForeground() || (
                 threadListLayout.isReplyLayoutOpen() && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
                         && ChanSettings.moveInputToBottom.get())) {
             dismissSnackbar();
@@ -692,7 +688,7 @@ public class ThreadLayout
 
             this.visible = visible;
             showReplyButton(false);
-            callback.hideSwipeRefreshLayout();
+            threadListLayout.hideSwipeRefreshLayout();
             switch (visible) {
                 case EMPTY:
                     loadView.setView(inflateEmptyView());
@@ -780,8 +776,6 @@ public class ThreadLayout
         void presentController(Controller controller);
 
         void openReportController(Post post);
-
-        void hideSwipeRefreshLayout();
 
         Toolbar getToolbar();
 

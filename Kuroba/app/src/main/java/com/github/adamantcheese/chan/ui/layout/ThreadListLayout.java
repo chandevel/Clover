@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -50,7 +51,6 @@ import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
-import com.github.adamantcheese.chan.ui.cell.PostStubCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
@@ -81,11 +81,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
  */
 public class ThreadListLayout
         extends FrameLayout
-        implements ReplyLayout.ReplyLayoutCallback {
+        implements ReplyLayout.ReplyLayoutCallback, SwipeRefreshLayout.OnRefreshListener {
     public static final int MAX_SMOOTH_SCROLL_DISTANCE = 20;
 
     private ReplyLayout reply;
     private TextView searchStatus;
+    private SwipeRefreshLayout swipeRefresh;
     private RecyclerView recyclerView;
     private FastScroller fastScroller;
     private PostAdapter postAdapter;
@@ -130,7 +131,15 @@ public class ThreadListLayout
         // View binding
         reply = findViewById(R.id.reply);
         searchStatus = findViewById(R.id.search_status);
+        swipeRefresh = findViewById(R.id.swipe_refresh);
         recyclerView = findViewById(R.id.recycler_view);
+
+        // allows the recycler view to have intertia, but when the drawer is attempted to be swiped open
+        // the recycler scroll stops and passes the event up to the drawer to allow drag-open
+        swipeRefresh.setLegacyRequestDisallowInterceptTouchEventEnabled(true);
+        recyclerView.setNestedScrollingEnabled(false);
+
+        swipeRefresh.setOnRefreshListener(this);
 
         if (!isInEditMode() && ChanSettings.moveInputToBottom.get()) {
             LayoutParams params = (LayoutParams) reply.getLayoutParams();
@@ -412,50 +421,6 @@ public class ThreadListLayout
         setRecyclerViewPadding();
     }
 
-    public boolean canChildScrollUp() {
-        if (replyOpen) return true;
-
-        if (getTopAdapterPosition() == 0) {
-            View top = recyclerView.getLayoutManager().findViewByPosition(0);
-            if (top == null) return true;
-
-            if (searchOpen) {
-                int searchExtraHeight = findViewById(R.id.search_status).getHeight();
-                if (postViewMode == LIST) {
-                    //dp(1) for divider item decor
-                    return top.getTop() - dp(1) != searchExtraHeight;
-                } else {
-                    if (top instanceof PostStubCell) {
-                        // PostStubCell does not have grid_card_margin
-                        return top.getTop() != searchExtraHeight + dp(1);
-                    } else {
-                        return top.getTop()
-                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + searchExtraHeight;
-                    }
-                }
-            }
-
-            switch (postViewMode) {
-                case LIST:
-                    //dp(1) for divider item decor
-                    return top.getTop() - dp(1) != toolbarHeight();
-                case CARD:
-                    if (top instanceof PostStubCell) {
-                        // PostStubCell does not have grid_card_margin
-                        return top.getTop() != toolbarHeight() + dp(1);
-                    } else {
-                        return top.getTop()
-                                != getDimen(getContext(), R.dimen.grid_card_margin) + dp(1) + toolbarHeight();
-                    }
-            }
-        }
-        return true;
-    }
-
-    public boolean scrolledToBottom() {
-        return getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1;
-    }
-
     public void smoothScrollNewPosts(int displayPosition) {
         if (recyclerView.getLayoutManager() instanceof LinearLayoutManager) {
             ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(
@@ -661,6 +626,14 @@ public class ThreadListLayout
         }
         recyclerView.setPadding(defaultPadding, recyclerTop, defaultPadding, recyclerBottom);
 
+        swipeRefresh.setProgressViewOffset(
+                false,
+                // hide the refresh
+                recyclerTop - swipeRefresh.getProgressCircleDiameter(),
+                // 40 pixels away from the top of all the stuff that could add to the padding
+                recyclerTop + dp(40)
+        );
+
         //reply view padding calculations (after measure)
         if (ChanSettings.moveInputToBottom.get()) {
             reply.setPadding(0, 0, 0, 0);
@@ -730,6 +703,15 @@ public class ThreadListLayout
         }
     }
 
+    @Override
+    public void onRefresh() {
+        callback.requestData();
+    }
+
+    public void hideSwipeRefreshLayout() {
+        swipeRefresh.setRefreshing(false);
+    }
+
     /**
      * Positions a hat bitmap over the top-left corner of post cells
      */
@@ -787,6 +769,8 @@ public class ThreadListLayout
 
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
+
+        void requestData();
 
         void requestNewPostLoad();
 

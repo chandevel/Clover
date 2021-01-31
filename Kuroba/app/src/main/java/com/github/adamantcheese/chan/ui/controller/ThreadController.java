@@ -24,8 +24,6 @@ import android.nfc.NfcEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -45,15 +43,14 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
 public abstract class ThreadController
         extends Controller
         implements ThreadLayout.ThreadLayoutCallback, ImageViewerController.ImageViewerCallback,
-                   SwipeRefreshLayout.OnRefreshListener, ToolbarNavigationController.ToolbarSearchCallback,
-                   NfcAdapter.CreateNdefMessageCallback, ThreadSlideController.SlideChangeListener {
+                   ToolbarNavigationController.ToolbarSearchCallback, NfcAdapter.CreateNdefMessageCallback,
+                   ThreadSlideController.SlideChangeListener {
     protected ThreadLayout threadLayout;
 
     public ThreadController(Context context) {
@@ -71,21 +68,7 @@ public abstract class ThreadController
         threadLayout = (ThreadLayout) LayoutInflater.from(context).inflate(R.layout.layout_thread, null);
         threadLayout.create(this);
 
-        view = new SwipeRefreshLayout(context) {
-            @Override
-            public boolean canChildScrollUp() {
-                return threadLayout.canChildScrollUp();
-            }
-        };
-        view.addView(threadLayout);
-        // allows the recycler to have inertia and the drawer to be opened without the recycler taking the event away from
-        // the drawer slide-to-open event
-        ((SwipeRefreshLayout) view).setLegacyRequestDisallowInterceptTouchEventEnabled(true);
-
-        ((SwipeRefreshLayout) view).setOnRefreshListener(this);
-
-        int toolbarHeight = getToolbar().getToolbarHeight();
-        ((SwipeRefreshLayout) view).setProgressViewOffset(false, toolbarHeight - dp(40), toolbarHeight + dp(64 - 40));
+        view = threadLayout;
     }
 
     @Override
@@ -143,11 +126,6 @@ public abstract class ThreadController
 
     @Subscribe
     public void onEvent(RefreshUIMessage message) {
-        onRefresh();
-    }
-
-    @Override
-    public void onRefresh() {
         threadLayout.getPresenter().requestData();
     }
 
@@ -222,11 +200,6 @@ public abstract class ThreadController
 
     @Override
     public void onShowPosts(Loadable loadable) {
-    }
-
-    @Override
-    public void hideSwipeRefreshLayout() {
-        ((SwipeRefreshLayout) view).setRefreshing(false);
     }
 
     @Override
