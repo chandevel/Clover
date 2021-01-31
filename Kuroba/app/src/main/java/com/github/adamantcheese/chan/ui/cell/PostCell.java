@@ -500,7 +500,9 @@ public class PostCell
         }
 
         // we need to wait for the measurements of all the views, so we can shift-format stuff without issue
-        preDrawListener = waitForLayout(this, view -> doShiftPostFormatting());
+        if (post.images.size() == 1) {
+            preDrawListener = waitForLayout(this, view -> doShiftPostFormatting());
+        }
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
         embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
@@ -529,8 +531,8 @@ public class PostCell
     }
 
     private boolean doShiftPostFormatting() {
-        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || post.images.size() != 1
-                || ChanSettings.textOnly.get()) return true;
+        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || ChanSettings.textOnly.get())
+            return true;
         float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
         int wrapHeightActual = title.getHeight() + icons.getHeight();
         if ((wrapHeightActual >= wrapHeightCheck) || (wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck)) {
