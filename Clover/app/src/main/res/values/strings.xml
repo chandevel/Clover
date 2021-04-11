@@ -499,6 +499,10 @@ Crash reports do not collect any personally identifiable information."
     <string name="setting_proxy_address">Proxy server address</string>
     <string name="setting_proxy_port">Proxy server port</string>
 
+    <!-- Behavior DNS over HTTPS group -->
+    <string name="setting_group_dns_over_https">DNS over HTTPS</string>
+    <string name="setting_group_dns_enable">Enable DOH (Cloudflare)</string>
+    <string name="setting_group_dns_enable_description">Requires app restart to take effect</string>
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>
