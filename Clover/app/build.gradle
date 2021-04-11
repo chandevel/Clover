@@ -52,6 +52,7 @@ android {
         // of the format XXYYZZ, where XX is major, YY is minor, ZZ is patch
         // (watch out for octal notation, never start with a 0)
         versionCode 30002
+        multiDexEnabled true
     }
 
     compileOptions {
@@ -151,6 +152,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
@@ -165,7 +167,8 @@ dependencies {
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.11.7'
 
     implementation 'com.android.volley:volley:1.1.1'
-    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.2'
+    implementation 'com.squareup.okhttp3:okhttp-dnsoverhttps:5.0.0-alpha.2'
     //noinspection GradleDependency
     implementation 'com.j256.ormlite:ormlite-core:4.48'
     //noinspection GradleDependency

@@ -186,6 +186,16 @@ public class BehaviourSettingsController extends SettingsController {
 
             groups.add(proxy);
         }
+
+        // DNS Over HTTP Group
+        {
+            SettingsGroup doh = new SettingsGroup(R.string.setting_group_dns_over_https);
+
+            doh.add(new BooleanSettingView(this, ChanSettings.dnsOverHttps,
+                    R.string.setting_group_dns_enable, R.string.setting_group_dns_enable_description));
+
+            groups.add(doh);
+        }
     }
 
     private void setupClearThreadHidesSetting(SettingsGroup post) {

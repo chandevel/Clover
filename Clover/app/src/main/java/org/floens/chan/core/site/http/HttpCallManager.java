@@ -21,6 +21,11 @@ package org.floens.chan.core.site.http;
 import org.floens.chan.core.di.UserAgentProvider;
 import org.floens.chan.core.site.Site;
 import org.floens.chan.core.site.SiteRequestModifier;
+import org.floens.chan.utils.Logger;
+import org.floens.chan.core.settings.ChanSettings;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import java.util.concurrent.TimeUnit;
 
@@ -29,13 +34,15 @@ import javax.inject.Singleton;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-
+import okhttp3.dnsoverhttps.DnsOverHttps;
+import okhttp3.HttpUrl;
 /**
  * Manages the {@link HttpCall} executions.
  */
 @Singleton
 public class HttpCallManager {
     private static final int TIMEOUT = 30000;
+    private static final String TAG = "HttpCallManager";
 
     private UserAgentProvider userAgentProvider;
     private OkHttpClient client;
@@ -48,6 +55,30 @@ public class HttpCallManager {
                 .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
                 .build();
+        if (ChanSettings.dnsOverHttps.get()) {
+            try {
+                client = client.newBuilder()
+                        .dns(new DnsOverHttps.Builder().client(client)
+                                .url(HttpUrl.parse("https://cloudflare-dns.com/dns-query"))
+                                .bootstrapDnsHosts(Arrays.asList(
+                                        InetAddress.getByName("162.159.36.1"),
+                                        InetAddress.getByName("162.159.46.1"),
+                                        InetAddress.getByName("1.1.1.1"),
+                                        InetAddress.getByName("1.0.0.1"),
+                                        InetAddress.getByName("162.159.132.53"),
+                                        InetAddress.getByName("2606:4700:4700::1111"),
+                                        InetAddress.getByName("2606:4700:4700::1001"),
+                                        InetAddress.getByName("2606:4700:4700::0064"),
+                                        InetAddress.getByName("2606:4700:4700::6400")
+                                ))
+                                .build())
+                        .build();
+
+            } catch (UnknownHostException e) {
+                Logger.e(TAG, "Error Dns over https", e);
+                e.printStackTrace();
+            }
+        }
     }
 
     public void makeHttpCall(HttpCall httpCall, HttpCall.HttpCallback<? extends HttpCall> callback) {
