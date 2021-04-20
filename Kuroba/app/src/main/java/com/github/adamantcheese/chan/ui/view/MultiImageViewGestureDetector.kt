@@ -155,7 +155,7 @@ class MultiImageViewGestureDetector(
     }
 
     interface MultiImageViewGestureDetectorCallbacks {
-        fun getActiveView(): View
+        fun getActiveView(): View?
         fun isImageAlreadySaved(): Boolean
         fun setImageAlreadySaved()
         fun onTap()

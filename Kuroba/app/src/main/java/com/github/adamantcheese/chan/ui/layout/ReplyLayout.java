@@ -386,8 +386,10 @@ public class ReplyLayout
 
     private boolean insertTags(String before, String after) {
         int selectionStart = comment.getSelectionStart();
+        int selectLen = comment.getSelectionEnd() - comment.getSelectionStart();
         comment.getText().insert(comment.getSelectionEnd(), after);
         comment.getText().insert(selectionStart, before);
+        comment.setSelection(before.length() + selectionStart + selectLen);
         return true;
     }
 

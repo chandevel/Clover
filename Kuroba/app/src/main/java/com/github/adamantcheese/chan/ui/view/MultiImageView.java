@@ -209,7 +209,6 @@ public class MultiImageView
         return mode;
     }
 
-    @NonNull
     @Override
     public View getActiveView() {
         View ret = null;
@@ -232,7 +231,7 @@ public class MultiImageView
                 ret = findView(WebView.class);
                 break;
         }
-        return ret == null ? new View(getContext()) : ret;
+        return ret;
     }
 
     @Nullable
@@ -823,8 +822,6 @@ public class MultiImageView
 
     @SuppressLint("SetJavaScriptEnabled")
     private void setWebview() {
-        BackgroundUtils.ensureMainThread();
-
         final WebView webView = new WebView(getContext());
         webView.setWebChromeClient(new WebChromeClient() {
             @Override

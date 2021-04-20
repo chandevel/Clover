@@ -33,8 +33,6 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
-import okhttp3.HttpUrl;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ReportController
@@ -55,7 +53,6 @@ public class ReportController
         navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, loadable));
 
         Site site = post.board.site;
-        HttpUrl url = site.endpoints().report(post);
 
         try {
             WebView webView = new WebView(context);
@@ -68,7 +65,7 @@ public class ReportController
             WebSettings settings = webView.getSettings();
             settings.setJavaScriptEnabled(true);
             settings.setDomStorageEnabled(true);
-            webView.loadUrl(url.toString());
+            webView.loadUrl(post.board.site.endpoints().report(post).toString());
             view = webView;
         } catch (Throwable error) {
             String errmsg = "";

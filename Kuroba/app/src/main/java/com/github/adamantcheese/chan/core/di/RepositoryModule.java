@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.google.gson.Gson;
 
 import org.codejargon.feather.Provides;
 
@@ -35,17 +34,17 @@ public class RepositoryModule {
     @Provides
     @Singleton
     public ImportExportRepository provideImportExportRepository(
-            DatabaseHelper databaseHelper, Gson gson, FileManager fileManager
+            DatabaseHelper databaseHelper, FileManager fileManager
     ) {
         Logger.d(AppModule.DI_TAG, "Import export repository");
-        return new ImportExportRepository(databaseHelper, gson, fileManager);
+        return new ImportExportRepository(databaseHelper, fileManager);
     }
 
     @Provides
     @Singleton
-    public SiteRepository provideSiteRepository(DatabaseSiteManager databaseSiteManager, Gson gson) {
+    public SiteRepository provideSiteRepository(DatabaseSiteManager databaseSiteManager) {
         Logger.d(AppModule.DI_TAG, "Site repository");
-        return new SiteRepository(databaseSiteManager, gson);
+        return new SiteRepository(databaseSiteManager);
     }
 
     @Provides
