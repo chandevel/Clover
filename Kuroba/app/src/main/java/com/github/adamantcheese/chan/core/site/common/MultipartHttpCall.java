@@ -18,9 +18,9 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import java.io.File;
 

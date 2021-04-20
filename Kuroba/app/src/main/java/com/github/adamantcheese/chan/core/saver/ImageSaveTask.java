@@ -49,7 +49,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppFileProvider;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
 public class ImageSaveTask
@@ -169,7 +168,7 @@ public class ImageSaveTask
         if (share) {
             try {
                 Uri file = FileProvider.getUriForFile(getAppContext(),
-                        getAppFileProvider(),
+                        BuildConfig.FILE_PROVIDER,
                         new File(destination.getFullPath())
                 );
 

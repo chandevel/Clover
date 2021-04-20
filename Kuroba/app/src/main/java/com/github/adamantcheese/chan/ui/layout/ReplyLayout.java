@@ -695,7 +695,7 @@ public class ReplyLayout
     }
 
     private void setDividerVisibility(boolean hide) {
-        if(isInEditMode()) {
+        if (isInEditMode()) {
             topDivider.setVisibility(GONE);
             botDivider.setVisibility(VISIBLE);
             return;

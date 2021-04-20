@@ -41,6 +41,6 @@ object IOUtils {
     @JvmStatic
     fun writeToFile(inputStream: InputStream, file: File, maxBytes: Long) {
         if (maxBytes > 0 && inputStream.available() > maxBytes) throw Exception("File too large")
-        file.outputStream().use { fileOutputStream -> inputStream.copyTo(fileOutputStream) }
+        file.outputStream().buffered().use { fileOutputStream -> inputStream.buffered().copyTo(fileOutputStream) }
     }
 }

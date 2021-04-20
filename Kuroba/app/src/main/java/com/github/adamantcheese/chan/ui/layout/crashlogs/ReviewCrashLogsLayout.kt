@@ -10,7 +10,6 @@ import com.github.adamantcheese.chan.core.manager.ReportManager
 import com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import com.github.adamantcheese.chan.utils.AndroidUtils.getString
 import com.github.adamantcheese.chan.utils.Logger
-import com.github.adamantcheese.chan.utils.plusAssign
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
@@ -74,7 +73,7 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
             return
         }
 
-        compositeDisposable += reportManager.sendCrashLogs(selectedCrashLogs)
+        compositeDisposable.add(reportManager.sendCrashLogs(selectedCrashLogs)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSubscribe { callbacks?.showProgressDialog() }
                 .subscribe({
@@ -93,7 +92,7 @@ internal class ReviewCrashLogsLayout(context: Context) : FrameLayout(context), C
                     showToast(context, message)
 
                     callbacks?.hideProgressDialog()
-                })
+                }))
     }
 
     fun onCreate(callbacks: ReviewCrashLogsLayoutCallbacks) {

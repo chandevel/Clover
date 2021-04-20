@@ -38,7 +38,6 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 
 public class UpdateApiParser
         extends JSONProcessor<UpdateApiResponse> {
@@ -78,7 +77,7 @@ public class UpdateApiParser
                                     1     * Integer.parseInt(versionMatcher.group(3));
                             response.apkURL =
                                     HttpUrl.get(GITHUB_ENDPOINT + "/releases/download/" +
-                                    response.versionCodeString + "/" + getApplicationLabel() + ".apk");
+                                    response.versionCodeString + "/" + BuildConfig.APP_LABEL + ".apk");
                             //@formatter:on
                             break;
                         } catch (Exception e) {
@@ -127,7 +126,7 @@ public class UpdateApiParser
                                     1     * Integer.parseInt(versionMatcher.group(3));
                             response.apkURL =
                                     HttpUrl.get(DEV_GITHUB_ENDPOINT + "/releases/download/" +
-                                            response.versionCodeString + "/" + getApplicationLabel() + "-" + versionMatcher.group(4) + ".apk");
+                                            response.versionCodeString + "/" + BuildConfig.APP_LABEL + "-" + versionMatcher.group(4) + ".apk");
                             //@formatter:on
                             break;
                         } catch (Exception e) {

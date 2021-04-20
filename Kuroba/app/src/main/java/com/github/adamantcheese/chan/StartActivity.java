@@ -89,7 +89,6 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMod
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -208,7 +207,7 @@ public class StartActivity
                 return true;
             } else {
                 getDefaultAlertBuilder(this).setMessage(getString(R.string.open_link_not_matched,
-                        getApplicationLabel()
+                        BuildConfig.APP_LABEL
                 ))
                         .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();

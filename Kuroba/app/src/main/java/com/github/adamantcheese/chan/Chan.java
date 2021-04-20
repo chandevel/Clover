@@ -178,7 +178,7 @@ public class Chan
             Logger.e("UNCAUGHT", "App Version: " + BuildConfig.VERSION_NAME);
             Logger.e("UNCAUGHT", "Phone Model: " + Build.MANUFACTURER + " " + Build.MODEL);
 
-            if(e instanceof OutOfMemoryError) {
+            if (e instanceof OutOfMemoryError) {
                 Logger.e("UNCAUGHT", "Out of memory! Memory stats:");
                 Runtime runtime = Runtime.getRuntime();
                 long usedMemInMB = (runtime.totalMemory() - runtime.freeMemory()) / 1048576L;

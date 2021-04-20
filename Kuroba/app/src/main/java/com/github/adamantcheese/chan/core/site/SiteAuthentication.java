@@ -59,20 +59,20 @@ public class SiteAuthentication {
 
     public static SiteAuthentication fromUrl(String url, String retryText, String successText) {
         SiteAuthentication a = new SiteAuthentication(GENERIC_WEBVIEW);
-        a.url = url;
+        a.baseUrl = url;
         a.retryText = retryText;
         a.successText = successText;
         return a;
     }
 
+    // All
     public final Type type;
+    public String baseUrl;
 
     // captcha1 & captcha2
     public String siteKey;
-    public String baseUrl;
 
     // generic webview
-    public String url;
     public String retryText;
     public String successText;
 

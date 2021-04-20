@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -37,7 +38,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -157,7 +157,7 @@ public class WakeManager {
             }
 
             wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-                    getApplicationLabel() + ":WakeManagerUpdateLock:" + Object.class.getSimpleName()
+                    BuildConfig.APP_LABEL + ":WakeManagerUpdateLock:" + Object.class.getSimpleName()
             );
             wakeLock.setReferenceCounted(false);
             wakeLock.acquire(MINUTES.toMillis(1));

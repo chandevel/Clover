@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
@@ -38,7 +39,6 @@ import java.io.InputStream;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 public class LogsController
@@ -107,7 +107,7 @@ public class LogsController
         //This filters our log output to just stuff we care about in-app (and if a crash happens, the uncaught handler gets it and this will still allow it through)
         String filtered = "";
         for (String line : IOUtils.readString(outputStream).split("\n")) {
-            if (line.contains(getApplicationLabel())) filtered = filtered.concat(line).concat("\n");
+            if (line.contains(BuildConfig.APP_LABEL)) filtered = filtered.concat(line).concat("\n");
         }
 
         return filtered;

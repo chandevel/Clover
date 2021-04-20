@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -166,7 +165,7 @@ public class MainSettingsController
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
         LinkSettingView updateSettingView = new LinkSettingView(this,
-                getApplicationLabel() + " " + BuildConfig.VERSION_NAME,
+                BuildConfig.APP_LABEL + " " + BuildConfig.VERSION_NAME,
                 "Tap to check for updates",
                 v -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         );
@@ -187,7 +186,7 @@ public class MainSettingsController
                 R.string.settings_collect_crash_logs_description
         ));
         about.add(new LinkSettingView(this,
-                "Find " + getApplicationLabel() + " on GitHub",
+                "Find " + BuildConfig.APP_LABEL + " on GitHub",
                 "View the source code, give feedback, submit bug reports",
                 v -> openLink(BuildConfig.GITHUB_ENDPOINT)
         ));

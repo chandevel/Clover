@@ -40,7 +40,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -117,14 +116,6 @@ public class AndroidUtils {
 
     public static String getQuantityString(int res, int quantity, Object... formatArgs) {
         return getRes().getQuantityString(res, quantity, formatArgs);
-    }
-
-    public static String getApplicationLabel() {
-        return application.getPackageManager().getApplicationLabel(application.getApplicationInfo()).toString();
-    }
-
-    public static String getAppFileProvider() {
-        return application.getPackageName() + ".fileprovider";
     }
 
     public static SharedPreferences getPreferences() {

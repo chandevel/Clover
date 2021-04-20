@@ -23,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
@@ -45,13 +46,12 @@ import javax.inject.Inject;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImportExportSettingsController
         extends SettingsController
         implements ImportExportSettingsPresenter.ImportExportSettingsCallbacks {
-    public static final String EXPORT_FILE_NAME = getApplicationLabel() + "_exported_settings.json";
+    public static final String EXPORT_FILE_NAME = BuildConfig.APP_LABEL + "_exported_settings.json";
 
     @Inject
     FileManager fileManager;

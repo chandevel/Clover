@@ -27,6 +27,7 @@ import android.graphics.Typeface;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -48,7 +49,6 @@ import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.OR
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.RED;
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.TAN;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class ThemeHelper {
@@ -180,7 +180,7 @@ public class ThemeHelper {
         //set the theme to the newly made theme and setup some small extras
         context.getTheme().setTo(createTheme(context, getTheme()));
         Bitmap taskDescriptionBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
-        context.setTaskDescription(new ActivityManager.TaskDescription(getApplicationLabel(), taskDescriptionBitmap));
+        context.setTaskDescription(new ActivityManager.TaskDescription(BuildConfig.APP_LABEL, taskDescriptionBitmap));
     }
 
     public static Resources.Theme createTheme(Context context, Theme theme) {

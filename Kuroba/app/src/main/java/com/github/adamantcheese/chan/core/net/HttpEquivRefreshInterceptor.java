@@ -33,6 +33,7 @@ public class HttpEquivRefreshInterceptor
                 BufferedSource source = initialResponse.body().source().peek();
                 // we're looking for something like <meta http-equiv="refresh" content="0;URL='http://www.example.com/'"/>
                 Document document = Jsoup.parse(source.readString(UTF_8));
+                source.close();
 
                 Elements metaTags = document.head().getElementsByTag("meta");
 

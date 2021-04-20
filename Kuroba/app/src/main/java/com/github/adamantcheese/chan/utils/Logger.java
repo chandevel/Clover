@@ -21,8 +21,6 @@ import android.util.Log;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getApplicationLabel;
-
 @SuppressWarnings("unused")
 public class Logger {
     //region VERBOSE
@@ -182,7 +180,7 @@ public class Logger {
     //endregion TEST
 
     private static String getTag(Object o) {
-        String tagPrefix = getApplicationLabel() + " | ";
+        String tagPrefix = BuildConfig.APP_LABEL + " | ";
         if (o instanceof String) return tagPrefix + o;
         return tagPrefix + o.getClass().getSimpleName();
     }

@@ -85,7 +85,7 @@ public class GenericWebViewAuthenticationLayout
             return;
         }
 
-        loadUrl(authentication.url);
+        loadUrl(authentication.baseUrl);
     }
 
     @Override
