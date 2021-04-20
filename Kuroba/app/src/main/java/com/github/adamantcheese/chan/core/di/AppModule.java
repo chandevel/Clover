@@ -53,6 +53,8 @@ import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAn
 public class AppModule {
     public static final String DI_TAG = "Dependency Injection";
 
+    public static final Gson gson = new Gson();
+
     @Provides
     @Singleton
     public DatabaseHelper provideDatabaseHelper() {
@@ -136,13 +138,6 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public Gson provideGson() {
-        Logger.d(AppModule.DI_TAG, "Gson module");
-        return new Gson();
-    }
-
-    @Provides
-    @Singleton
     public FileManager provideFileManager() {
         DirectoryManager directoryManager = new DirectoryManager(getAppContext());
 
@@ -174,9 +169,9 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public Android10GesturesExclusionZonesHolder provideAndroid10GesturesHolder(Gson gson) {
+    public Android10GesturesExclusionZonesHolder provideAndroid10GesturesHolder() {
         Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
 
-        return new Android10GesturesExclusionZonesHolder(gson, getMinScreenSize(), getMaxScreenSize());
+        return new Android10GesturesExclusionZonesHolder(getMinScreenSize(), getMaxScreenSize());
     }
 }

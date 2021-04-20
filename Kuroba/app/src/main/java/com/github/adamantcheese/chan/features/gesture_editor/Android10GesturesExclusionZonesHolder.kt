@@ -1,14 +1,13 @@
 package com.github.adamantcheese.chan.features.gesture_editor
 
 import android.graphics.Rect
+import com.github.adamantcheese.chan.core.di.AppModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
 import com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10
 import com.github.adamantcheese.chan.utils.Logger
-import com.google.gson.Gson
 
 class Android10GesturesExclusionZonesHolder(
-        private val gson: Gson,
         private val minScreenSize: Int,
         private val maxScreenSize: Int
 ) {
@@ -31,7 +30,7 @@ class Android10GesturesExclusionZonesHolder(
         }
 
         val exclusionZones = try {
-            gson.fromJson<ExclusionZonesJson>(
+            AppModule.gson.fromJson(
                     json,
                     ExclusionZonesJson::class.java
             )
@@ -121,7 +120,7 @@ class Android10GesturesExclusionZonesHolder(
                 }
             }
 
-            val json = gson.toJson(
+            val json = AppModule.gson.toJson(
                     ExclusionZonesJson(minScreenSize, maxScreenSize, newExclusionZones)
             )
             ChanSettings.androidTenGestureZones.set(json)
@@ -160,7 +159,7 @@ class Android10GesturesExclusionZonesHolder(
                 }
             }
 
-            val json = gson.toJson(
+            val json = AppModule.gson.toJson(
                     ExclusionZonesJson(minScreenSize, maxScreenSize, newExclusionZones)
             )
             ChanSettings.androidTenGestureZones.set(json)

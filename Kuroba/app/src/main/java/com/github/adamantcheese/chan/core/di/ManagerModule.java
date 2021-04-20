@@ -77,11 +77,10 @@ public class ManagerModule {
             WakeManager wakeManager,
             BoardRepository boardRepository,
             FilterEngine filterEngine,
-            WatchManager watchManager,
-            Gson gson
+            WatchManager watchManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager, boardRepository, filterEngine, watchManager, gson);
+        return new FilterWatchManager(wakeManager, boardRepository, filterEngine, watchManager);
     }
 
     @Provides

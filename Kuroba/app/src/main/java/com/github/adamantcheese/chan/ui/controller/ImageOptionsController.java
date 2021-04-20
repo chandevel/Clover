@@ -33,13 +33,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.google.gson.Gson;
-
-import javax.inject.Inject;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
@@ -55,8 +53,6 @@ public class ImageOptionsController
         extends BaseFloatingController
         implements View.OnClickListener, ImageReencodingPresenter.ImageReencodingPresenterCallback,
                    RadioGroup.OnCheckedChangeListener {
-    @Inject
-    Gson gson;
 
     private final ImageReencodingPresenter presenter;
     private final ImageOptionsControllerCallback callback;
@@ -115,8 +111,10 @@ public class ImageOptionsController
         super(context);
         this.callback = callback;
         try { //load up the last image options every time this controller is created
-            lastOptions =
-                    gson.fromJson(ChanSettings.lastImageOptions.get(), ImageReencodingPresenter.ImageOptions.class);
+            lastOptions = AppModule.gson.fromJson(
+                    ChanSettings.lastImageOptions.get(),
+                    ImageReencodingPresenter.ImageOptions.class
+            );
         } catch (Exception e) {
             lastOptions = null;
         }

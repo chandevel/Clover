@@ -11,7 +11,6 @@ import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
 import com.github.adamantcheese.chan.utils.BackgroundUtils
 import com.github.adamantcheese.chan.utils.Logger
 import com.github.adamantcheese.chan.utils.StringUtils.getCurrentDateAndTimeUTC
-import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -32,7 +31,6 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class ReportManager(
-        private val gson: Gson,
         private val crashLogsDirPath: File,
         private val client: OkHttpClientWithUtils
 ) {
@@ -353,7 +351,7 @@ class ReportManager(
             BackgroundUtils.ensureBackgroundThread()
 
             val json = try {
-                gson.toJson(reportRequest)
+                AppModule.gson.toJson(reportRequest)
             } catch (error: Throwable) {
                 Logger.e(TAG, "Couldn't convert $reportRequest to json", error)
                 emitter.tryOnError(error)

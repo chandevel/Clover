@@ -16,9 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -49,13 +49,13 @@ public class SiteModel {
 
     public SiteModel() {}
 
-    public void storeUserSettings(Gson gson, JsonSettings userSettings) {
-        this.userSettings = gson.toJson(userSettings);
+    public void storeUserSettings(JsonSettings userSettings) {
+        this.userSettings = AppModule.gson.toJson(userSettings);
         Logger.test("userSettings = " + this.userSettings);
     }
 
-    public JsonSettings loadConfig(Gson gson) {
-        JsonSettings settings = gson.fromJson(this.userSettings, JsonSettings.class);
+    public JsonSettings loadConfig() {
+        JsonSettings settings = AppModule.gson.fromJson(this.userSettings, JsonSettings.class);
         Logger.d(this, "Config: " + configuration + ", Settings: " + userSettings);
 
         return settings;

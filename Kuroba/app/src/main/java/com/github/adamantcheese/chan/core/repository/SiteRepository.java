@@ -20,7 +20,6 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
 public class SiteRepository {
     private boolean initialized = false;
     private final DatabaseSiteManager databaseSiteManager;
-    private final Gson gson;
     private final Sites sitesObservable = new Sites();
 
     public Site forId(int id) {
@@ -45,9 +43,8 @@ public class SiteRepository {
         return ret;
     }
 
-    public SiteRepository(DatabaseSiteManager databaseSiteManager, Gson gson) {
+    public SiteRepository(DatabaseSiteManager databaseSiteManager) {
         this.databaseSiteManager = databaseSiteManager;
-        this.gson = gson;
     }
 
     public Sites all() {
@@ -57,7 +54,7 @@ public class SiteRepository {
     public void updateUserSettings(Site site, JsonSettings jsonSettings) {
         SiteModel siteModel = DatabaseUtils.runTask(databaseSiteManager.get(site.id()));
         if (siteModel == null) throw new NullPointerException("siteModel == null");
-        siteModel.storeUserSettings(gson, jsonSettings);
+        siteModel.storeUserSettings(jsonSettings);
         DatabaseUtils.runTaskAsync(databaseSiteManager.update(siteModel));
     }
 
@@ -126,13 +123,13 @@ public class SiteRepository {
     private SiteModel createFromClass(int classID, JsonSettings userSettings) {
         SiteModel siteModel = new SiteModel();
         siteModel.classID = classID;
-        siteModel.storeUserSettings(gson, userSettings);
+        siteModel.storeUserSettings(userSettings);
 
         return DatabaseUtils.runTask(databaseSiteManager.add(siteModel));
     }
 
     private SiteConfigSettingsHolder instantiateSiteFromModel(SiteModel siteModel) {
-        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig(gson));
+        return new SiteConfigSettingsHolder(instantiateSiteClass(siteModel.classID), siteModel.loadConfig());
     }
 
     @NonNull

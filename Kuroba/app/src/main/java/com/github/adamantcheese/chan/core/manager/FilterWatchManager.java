@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -29,7 +30,6 @@ import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
@@ -50,7 +50,6 @@ public class FilterWatchManager
     private final BoardRepository boardRepository;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
-    private final Gson gson;
 
     //filterLoaders keeps track of ChanThreadLoaders so they can be cleared correctly each alarm trigger
     //ignoredPosts keeps track of threads pinned by the filter manager and ignores them for future alarm triggers
@@ -67,20 +66,18 @@ public class FilterWatchManager
             WakeManager wakeManager,
             BoardRepository boardRepository,
             FilterEngine filterEngine,
-            WatchManager watchManager,
-            Gson gson
+            WatchManager watchManager
     ) {
         this.wakeManager = wakeManager;
         this.boardRepository = boardRepository;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
-        this.gson = gson;
 
         if (!filterEngine.getEnabledWatchFilters().isEmpty()) {
             wakeManager.registerWakeable(this);
         }
 
-        Set<Integer> previousIgnore = gson.fromJson(PersistableChanState.filterWatchIgnored.get(),
+        Set<Integer> previousIgnore = AppModule.gson.fromJson(PersistableChanState.filterWatchIgnored.get(),
                 new TypeToken<Set<Integer>>() {}.getType()
         );
         if (previousIgnore != null) ignoredPosts.addAll(previousIgnore);
@@ -176,7 +173,7 @@ public class FilterWatchManager
                     lastCheckedPostNumbers.add(post.no);
                 }
                 ignoredPosts.retainAll(lastCheckedPostNumbers);
-                PersistableChanState.filterWatchIgnored.setSync(gson.toJson(ignoredPosts));
+                PersistableChanState.filterWatchIgnored.setSync(AppModule.gson.toJson(ignoredPosts));
                 lastCheckedPosts.clear();
                 processing = false;
                 Logger.d(this,

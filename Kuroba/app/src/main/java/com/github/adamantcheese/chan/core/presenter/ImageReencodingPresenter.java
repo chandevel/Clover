@@ -26,16 +26,13 @@ import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.google.gson.Gson;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
@@ -46,15 +43,10 @@ public class ImageReencodingPresenter {
     private final ImageReencodingPresenterCallback callback;
     private final Reply draft;
 
-    @Inject
-    Gson gson;
-
     public ImageReencodingPresenter(Context context, ImageReencodingPresenterCallback callback, Loadable loadable) {
         this.context = context;
         this.draft = loadable.draft;
         this.callback = callback;
-
-        inject(this);
     }
 
     public void loadImagePreview() {
@@ -94,7 +86,7 @@ public class ImageReencodingPresenter {
     }
 
     public void applyImageOptions(ImageOptions options) {
-        ChanSettings.lastImageOptions.set(gson.toJson(options));
+        ChanSettings.lastImageOptions.set(AppModule.gson.toJson(options));
 
         callback.disableOrEnableButtons(false);
         try {

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.repository
 
 import com.github.adamantcheese.chan.core.database.DatabaseHelper
 import com.github.adamantcheese.chan.core.database.DatabaseUtils
+import com.github.adamantcheese.chan.core.di.AppModule
 import com.github.adamantcheese.chan.core.model.export.*
 import com.github.adamantcheese.chan.core.model.orm.*
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository.ImportExport.Export
@@ -29,7 +30,6 @@ import com.github.k1rakishou.fsaf.FileManager
 import com.github.k1rakishou.fsaf.file.AbstractFile
 import com.github.k1rakishou.fsaf.file.ExternalFile
 import com.github.k1rakishou.fsaf.file.FileDescriptorMode
-import com.google.gson.Gson
 import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
@@ -40,7 +40,6 @@ import java.util.regex.Pattern
 class ImportExportRepository
 constructor(
         private val databaseHelper: DatabaseHelper,
-        private val gson: Gson,
         private val fileManager: FileManager
 ) {
 
@@ -53,7 +52,7 @@ constructor(
                     return@runTask
                 }
 
-                val json = gson.toJson(appSettings)
+                val json = AppModule.gson.toJson(appSettings)
 
                 if (!fileManager.exists(settingsFile) || !fileManager.canWrite(settingsFile)) {
                     throw IOException(
@@ -111,7 +110,7 @@ constructor(
                         FileDescriptorMode.Read
                 ) { fileDescriptor ->
                     FileReader(fileDescriptor).use { reader ->
-                        val appSettings = gson.fromJson(reader, ExportedAppSettings::class.java)
+                        val appSettings = AppModule.gson.fromJson(reader, ExportedAppSettings::class.java)
 
                         if (appSettings.isEmpty) {
                             Logger.d(TAG, "There is nothing to import, appSettings is empty")
