@@ -1,18 +1,17 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -28,7 +27,7 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
-import okhttp3.ResponseBody;
+import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
@@ -36,12 +35,13 @@ import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUti
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class YoutubeEmbedder
-        extends JsonEmbedder {
+        implements Embedder {
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
+    private static final Pattern API_PARAMS = Pattern.compile("player_response=(.*?)&");
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
+    public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, Arrays.asList("youtu.be", "youtube"));
     }
 
@@ -98,28 +98,25 @@ public class YoutubeEmbedder
     }
 
     @Override
-    public JsonReader convert(HttpUrl baseURL, @Nullable ResponseBody body)
+    public EmbedResult convert(Response response)
             throws Exception {
-        if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-            Pattern params = Pattern.compile("player_response=(.*?)&");
-            Matcher paramsMatcher = params.matcher(URLDecoder.decode(body.string(), "utf-8"));
-            if (paramsMatcher.find()) {
-                return new JsonReader(new StringReader(paramsMatcher.group(1)));
+        return new NetUtilsClasses.ChainConverter<EmbedResult, JsonReader>(input -> {
+            if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
+                return processNoApiKey(input);
+            } else {
+                return processApiKey(input);
             }
-            return null;
-        } else {
-            return new JsonReader(new InputStreamReader(body.byteStream(), UTF_8));
-        }
-    }
-
-    @Override
-    public EmbedResult process(JsonReader response)
-            throws IOException {
-        if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-            return processNoApiKey(response);
-        } else {
-            return processApiKey(response);
-        }
+        }).chain(input -> {
+            if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
+                Matcher paramsMatcher = API_PARAMS.matcher(URLDecoder.decode(response.body().string(), "utf-8"));
+                if (paramsMatcher.find()) {
+                    return new JsonReader(new StringReader(paramsMatcher.group(1)));
+                }
+                return null;
+            } else {
+                return new JsonReader(new InputStreamReader(response.body().byteStream(), UTF_8));
+            }
+        }).convert(response);
     }
 
     private static EmbedResult processNoApiKey(JsonReader response)

@@ -91,7 +91,7 @@ public class DefaultPostParser
         builder.comment = parseComment(theme, builder, callback);
 
         // process any removed posts, and remove any linkables/spans attached
-        for (PostLinkable l : builder.linkables) {
+        for (PostLinkable l : builder.getLinkables()) {
             if (l.type == PostLinkable.Type.QUOTE) {
                 if (callback.isRemoved((int) l.value)) {
                     builder.repliesToNos.remove((int) l.value);
@@ -107,7 +107,6 @@ public class DefaultPostParser
                         }
                     }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), 0);
                     builder.comment.removeSpan(l);
-                    builder.linkables.remove(l);
                 }
             }
         }

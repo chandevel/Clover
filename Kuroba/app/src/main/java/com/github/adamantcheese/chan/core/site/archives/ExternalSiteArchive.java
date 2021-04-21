@@ -7,17 +7,11 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
+import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
-import com.github.adamantcheese.chan.core.site.common.CommonSite;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
@@ -25,15 +19,17 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import kotlin.random.Random;
 import okhttp3.HttpUrl;
 
+/**
+ * Base class for any external archive site implementation, like FoolFuuka or Ayase.
+ */
 public abstract class ExternalSiteArchive
-        implements Site {
+        extends DummySite {
     private final int id;
     public final String domain;
     public final String name;
@@ -63,12 +59,6 @@ public abstract class ExternalSiteArchive
     }
 
     @Override
-    public void initialize(int id, JsonSettings userSettings) {}
-
-    @Override
-    public void postInitialize() {}
-
-    @Override
     public int id() {
         return id;
     }
@@ -90,11 +80,6 @@ public abstract class ExternalSiteArchive
     }
 
     @Override
-    public BoardsType boardsType() {
-        return BoardsType.STATIC;
-    }
-
-    @Override
     public abstract ArchiveSiteUrlHandler resolvable();
 
     @Override
@@ -103,65 +88,10 @@ public abstract class ExternalSiteArchive
     }
 
     @Override
-    public boolean boardFeature(BoardFeature boardFeature, Board board) {
-        return false;
-    }
-
-    @Override
-    public List<SiteSetting<?>> settings() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public abstract ArchiveEndpoints endpoints();
 
     @Override
-    public CommonSite.CommonCallModifier callModifier() {
-        return null;
-    }
-
-    @Override
     public abstract ExternalArchiveChanReader chanReader();
-
-    @Override
-    public SiteActions actions() {
-        return new SiteActions() {
-            @Override
-            public void boards(BoardsListener boardsListener) {}
-
-            @Override
-            public void pages(Board board, PagesListener pagesListener) {}
-
-            @Override
-            public void post(Loadable loadableWithDraft, PostListener postListener) {}
-
-            @Override
-            public boolean postRequiresAuthentication() { return false; }
-
-            @Override
-            public SiteAuthentication postAuthenticate() {
-                return SiteAuthentication.fromNone();
-            }
-
-            @Override
-            public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {}
-
-            @Override
-            public void archive(Board board, ArchiveListener archiveListener) {}
-
-            @Override
-            public void login(LoginRequest loginRequest, LoginListener loginListener) {}
-
-            @Override
-            public void logout() {}
-
-            @Override
-            public boolean isLoggedIn() { return false; }
-
-            @Override
-            public LoginRequest getLoginDetails() { return new LoginRequest("", ""); }
-        };
-    }
 
     @Override
     public Board board(String code) {

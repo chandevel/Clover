@@ -1,19 +1,17 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -30,17 +28,17 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
-import okhttp3.ResponseBody;
+import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 
 public class SoundcloudEmbedder
-        implements Embedder<Pair<HttpUrl, JsonReader>> {
+        implements Embedder {
     private static final Pattern SOUNDCLOUD_PATTERN =
             Pattern.compile("(https?://(?:\\w+\\.)?soundcloud\\.com/.*?/(?:sets/)?[A-Za-z0-9-_.!~*'()]*)(?:/|\\b)");
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
+    public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, Collections.singletonList("soundcloud"));
     }
 
@@ -73,27 +71,23 @@ public class SoundcloudEmbedder
     private final Pattern JSON_PATTERN = Pattern.compile("var c=(\\[\\{.*\\}\\])");
 
     @Override
-    public Pair<HttpUrl, JsonReader> convert(HttpUrl baseURL, @Nullable ResponseBody body)
+    public EmbedResult convert(Response response)
             throws Exception {
         // we're getting HTML back, but we need to process some JSON from within a script
-        Document document = Jsoup.parse(body.byteStream(), null, baseURL.toString());
+        HttpUrl sourceURL = response.request().url();
+        Document document = Jsoup.parse(response.body().byteStream(), null, sourceURL.toString());
+        JsonReader reader = null;
         for (Element e : document.select("script")) {
             String innerHTML = e.html();
             if (innerHTML.startsWith("webpackJsonp")) {
                 Matcher jsonMatcher = JSON_PATTERN.matcher(innerHTML);
                 if (jsonMatcher.find()) {
-                    return new Pair<>(baseURL, new JsonReader(new StringReader(jsonMatcher.group(1))));
+                    reader = new JsonReader(new StringReader(jsonMatcher.group(1)));
                 }
             }
         }
-        return null;
-    }
 
-    @Override
-    public EmbedResult process(Pair<HttpUrl, JsonReader> response)
-            throws Exception {
-        HttpUrl sourceURL = response.first;
-        JsonReader reader = response.second;
+        // process the JSON
         String artist = "";
         String title = "";
         String duration = null;

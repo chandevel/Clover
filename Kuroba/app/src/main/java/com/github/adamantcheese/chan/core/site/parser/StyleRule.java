@@ -239,9 +239,7 @@ public class StyleRule {
         }
 
         if (link != null) {
-            PostLinkable pl = new PostLinkable(theme, link.name(), result, link);
-            post.addLinkable(pl);
-            spansToApply.add(pl);
+            spansToApply.add(new PostLinkable(theme, link.name(), result, link));
         }
 
         if (!spansToApply.isEmpty()) {

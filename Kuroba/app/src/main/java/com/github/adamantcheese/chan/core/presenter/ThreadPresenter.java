@@ -106,7 +106,6 @@ public class ThreadPresenter
     private static final int POST_OPTION_QUOTE = 0;
     private static final int POST_OPTION_QUOTE_TEXT = 1;
     private static final int POST_OPTION_INFO = 2;
-    private static final int POST_OPTION_LINKS = 3;
     private static final int POST_OPTION_COPY = 4;
     private static final int POST_OPTION_REPORT = 5;
     private static final int POST_OPTION_HIGHLIGHT_ID = 6;
@@ -632,9 +631,6 @@ public class ThreadPresenter
 
         menu.add(new FloatingMenuItem<>(POST_OPTION_EXTRA, R.string.post_more));
 
-        if (post.linkables.size() > 0) {
-            extraMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_show_links));
-        }
         extraMenu.add(new FloatingMenuItem<>(POST_OPTION_OPEN_BROWSER, R.string.action_open_browser));
         extraMenu.add(new FloatingMenuItem<>(POST_OPTION_SHARE, R.string.post_share));
 
@@ -669,49 +665,6 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_INFO:
                 showPostInfo(post);
-                break;
-            case POST_OPTION_LINKS:
-                Set<String> added = new HashSet<>();
-                List<CharSequence> keys = new ArrayList<>();
-                for (PostLinkable linkable : post.linkables) {
-                    //skip SPOILER linkables, they aren't useful to display
-                    if (linkable.type == PostLinkable.Type.SPOILER) continue;
-                    String key = linkable.key.toString();
-                    String value = linkable.value.toString();
-                    //need to trim off starting spaces for certain media links if embedded
-                    String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
-                    boolean speciallyProcessed = false;
-                    for (Embedder<?> e : EmbeddingEngine.getInstance().getEmbedders()) {
-                        if (e.shouldEmbed(value, loadable.board)) {
-                            if (added.contains(trimmedUrl)) continue;
-                            keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
-                            added.add(trimmedUrl);
-                            speciallyProcessed = true;
-                            break;
-                        }
-                    }
-                    if (!speciallyProcessed) {
-                        keys.add(key);
-                    }
-                }
-
-                AlertDialog dialog = getDefaultAlertBuilder(context).create();
-
-                ListView clickables = new ListView(context);
-                clickables.setAdapter(new ArrayAdapter<>(context, R.layout.simple_list_item, keys));
-                clickables.setOnItemClickListener((parent, view, position, id1) -> {
-                    onPostLinkableClicked(post, new ArrayList<>(post.linkables).get(position));
-                    dialog.dismiss();
-                });
-                clickables.setOnItemLongClickListener((parent, view, position, id1) -> {
-                    setClipboardContent("Linkable URL", new ArrayList<>(post.linkables).get(position).value.toString());
-                    showToast(context, R.string.linkable_copied_to_clipboard);
-                    return true;
-                });
-
-                dialog.setView(clickables);
-                dialog.setCanceledOnTouchOutside(true);
-                dialog.show();
                 break;
             case POST_OPTION_COPY:
                 showSubMenuOptions(anchor, post, inPopup, copyMenu);
@@ -1104,7 +1057,15 @@ public class ThreadPresenter
     }
 
     private void showPostInfo(Post post) {
-        StringBuilder text = new StringBuilder();
+        View fullView = LayoutInflater.from(context).inflate(R.layout.dialog_post_info, null);
+        AlertDialog dialog =
+                getDefaultAlertBuilder(context).setView(fullView).setPositiveButton(R.string.ok, null).create();
+        dialog.setCanceledOnTouchOutside(true);
+        TextView infoText = fullView.findViewById(R.id.post_info);
+        LinearLayout linkableGroup = fullView.findViewById(R.id.linkable_group);
+        ListView linkableList = fullView.findViewById(R.id.post_linkable_list);
+
+        SpannableStringBuilder text = new SpannableStringBuilder();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
             text.append("Subject: ").append(post.subject).append("\n");
         }
@@ -1130,7 +1091,7 @@ public class ThreadPresenter
                 }
             } catch (Exception ignored) {
             }
-            text.append("Post count: ").append(count).append("\n");
+            text.append("Post count: ").append(Integer.toString(count)).append("\n");
         }
 
         if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
@@ -1169,7 +1130,10 @@ public class ThreadPresenter
             if (image.isInlined) {
                 text.append("\nLinked file");
             } else {
-                text.append("\nDimensions: ").append(image.imageWidth).append("x").append(image.imageHeight);
+                text.append("\nDimensions: ")
+                        .append(Integer.toString(image.imageWidth))
+                        .append("x")
+                        .append(Integer.toString(image.imageHeight));
             }
 
             if (image.size > 0) {
@@ -1180,16 +1144,48 @@ public class ThreadPresenter
                 text.append("\nSpoilered");
             }
         }
+        infoText.setText(text);
 
-        AlertDialog dialog = getDefaultAlertBuilder(context).setMessage(text.toString())
-                .setTitle(R.string.post_info)
-                .setPositiveButton(R.string.ok, null)
-                .create();
-        dialog.show();
-        View messageView = dialog.findViewById(android.R.id.message);
-        if (messageView instanceof TextView) {
-            ((TextView) messageView).setTextIsSelectable(true);
+        Set<String> added = new HashSet<>();
+        List<CharSequence> keys = new ArrayList<>();
+        List<PostLinkable> linkables = post.getLinkables();
+        for (PostLinkable linkable : linkables) {
+            //skip SPOILER linkables, they aren't useful to display
+            if (linkable.type == PostLinkable.Type.SPOILER) continue;
+            String key = linkable.key.toString();
+            String value = linkable.value.toString();
+            //need to trim off starting spaces for certain media links if embedded
+            String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
+            boolean speciallyProcessed = false;
+            // context doesn't matter here
+            for (Embedder e : EmbeddingEngine.getInstance(getAppContext()).getEmbedders()) {
+                if (e.shouldEmbed(value)) {
+                    if (added.contains(trimmedUrl)) continue;
+                    keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
+                    added.add(trimmedUrl);
+                    speciallyProcessed = true;
+                    break;
+                }
+            }
+            if (!speciallyProcessed) {
+                keys.add(key);
+            }
         }
+
+        linkableList.setAdapter(new ArrayAdapter<>(context, R.layout.simple_list_item_thin, keys));
+        linkableList.setOnItemClickListener((parent, view, position, id1) -> {
+            onPostLinkableClicked(post, linkables.get(position));
+            dialog.dismiss();
+        });
+        linkableList.setOnItemLongClickListener((parent, view, position, id1) -> {
+            setClipboardContent("Linkable URL", linkables.get(position).value.toString());
+            showToast(context, R.string.linkable_copied_to_clipboard);
+            return true;
+        });
+        if (linkables.size() <= 0) {
+            linkableGroup.setVisibility(View.GONE);
+        }
+        dialog.show();
     }
 
     private void showPosts() {
@@ -1285,9 +1281,6 @@ public class ThreadPresenter
             copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_IMG_URL, R.string.post_copy_image_url));
         }
         copyMenu.add(new FloatingMenuItem<>(POST_OPTION_INFO, R.string.post_info));
-        if (post.linkables.size() > 0) {
-            copyMenu.add(new FloatingMenuItem<>(POST_OPTION_LINKS, R.string.post_copy_links));
-        }
         return copyMenu;
     }
 

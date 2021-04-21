@@ -173,7 +173,10 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(context, reason, Toast.LENGTH_LONG);
+                // hack to ignore activity cancel toasts
+                if (!reason.contains("(0)")) {
+                    showToast(context, reason, Toast.LENGTH_LONG);
+                }
             }
         });
     }
@@ -192,7 +195,10 @@ public class ImportExportSettingsController
 
             @Override
             public void onCancel(@NotNull String reason) {
-                showToast(context, reason, Toast.LENGTH_LONG);
+                // hack to ignore activity cancel toasts
+                if (!reason.contains("(0)")) {
+                    showToast(context, reason, Toast.LENGTH_LONG);
+                }
             }
         });
     }

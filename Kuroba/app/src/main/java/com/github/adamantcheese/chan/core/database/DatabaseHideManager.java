@@ -271,7 +271,6 @@ public class DatabaseHideManager {
                 )
                 .isSavedReply(childPost.isSavedReply)
                 .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
-                .linkables(childPost.linkables)
                 .repliesTo(childPost.repliesTo)
                 .build();
     }

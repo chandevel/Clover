@@ -66,8 +66,9 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.features.embedding.Embeddable;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.InvalidateFunction;
+import com.github.adamantcheese.chan.features.embedding.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -505,7 +506,7 @@ public class PostCell
         }
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
-        embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
+        embedCalls.addAll(EmbeddingEngine.getInstance(getContext()).embed(theme, post, this));
         if (!embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
         }
@@ -551,10 +552,10 @@ public class PostCell
     }
 
     @Override
-    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
-        if (!post.equals(this.post)) return;
+    public void invalidateView(@NonNull Theme theme, @NonNull Embeddable embeddable) {
+        if (!embeddable.equals(this.post) || !(embeddable instanceof Post)) return;
         embedCalls.clear();
-        bindPost(theme, post);
+        bindPost(theme, (Post) embeddable);
     }
 
     private final String[] dubTexts =
@@ -599,8 +600,7 @@ public class PostCell
 
     private void setPostLinkableListener(Post post, boolean bind) {
         if (post != null) {
-            PostLinkable[] linkables = post.comment.getSpans(0, post.comment.length(), PostLinkable.class);
-            for (PostLinkable linkable : linkables) {
+            for (PostLinkable linkable : post.getLinkables()) {
                 linkable.setMarkedNo(bind ? markedNo : -1);
             }
 

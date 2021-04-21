@@ -24,7 +24,6 @@ import android.nfc.NdefMessage;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.os.Bundle;
-import android.util.LruCache;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -46,11 +45,8 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
@@ -65,17 +61,14 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Type;
+import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import javax.inject.Inject;
@@ -123,8 +116,6 @@ public class StartActivity
     SiteResolver siteResolver;
     @Inject
     WatchManager watchManager;
-    @Inject
-    Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -500,7 +491,7 @@ public class StartActivity
     @Override
     public void onBackPressed() {
         if (!stack.peek().onBack()) {
-            StartActivity.super.onBackPressed();
+            super.onBackPressed();
         }
     }
 
@@ -586,28 +577,15 @@ public class StartActivity
         startActivityForResult(intent, requestCode);
     }
 
-    private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
-
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        //restore parsed media title stuff
-        Map<String, EmbedResult> titles = gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
-        //reconstruct
-        EmbeddingEngine.videoTitleDurCache = new LruCache<>(500);
-        for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
-            EmbeddingEngine.videoTitleDurCache.put(entry.getKey(), entry.getValue());
-        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         super.onStop();
         EventBus.getDefault().unregister(this);
-        //store parsed media title stuff, extra prevention of unneeded API calls
-        PersistableChanState.videoTitleDurCache.set(gson.toJson(EmbeddingEngine.videoTitleDurCache.snapshot(),
-                lruType
-        ));
     }
 }

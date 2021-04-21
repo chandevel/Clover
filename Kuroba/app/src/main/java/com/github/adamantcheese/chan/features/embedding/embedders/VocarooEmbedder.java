@@ -1,20 +1,18 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -28,17 +26,16 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
 
 public class VocarooEmbedder
-        implements Embedder<Void> {
+        extends VoidEmbedder {
     private static final Pattern VOCAROO_LINK_PATTERN =
             Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})(?:/|\\b)");
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
+    public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, Arrays.asList("vocaroo", "voca.ro"));
     }
 
@@ -99,15 +96,5 @@ public class VocarooEmbedder
         }
 
         return calls;
-    }
-
-    @Override
-    public Void convert(HttpUrl baseURL, @Nullable ResponseBody body) {
-        return null; // not used for this embedder, as everything's in the URL
-    }
-
-    @Override
-    public EmbedResult process(Void response) {
-        return null; // not used for this embedder, as everything's in the URL
     }
 }

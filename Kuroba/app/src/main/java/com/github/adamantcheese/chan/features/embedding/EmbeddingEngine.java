@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -8,23 +9,38 @@ import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.features.embedding.embedders.BandcampEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.ClypEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.PixivEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.QuickLatexEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.SoundcloudEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.StreamableEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.VimeoEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.VocarooEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.YoutubeEmbedder;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
 import org.nibor.autolink.LinkExtractor;
@@ -32,11 +48,13 @@ import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
@@ -51,9 +69,10 @@ import okhttp3.Response;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
-public class EmbeddingEngine {
+public class EmbeddingEngine
+        implements LifecycleObserver {
     private static EmbeddingEngine instance;
-    private final List<Embedder<?>> embedders = new NoDeleteArrayList<>();
+    private final List<Embedder> embedders = new NoDeleteArrayList<>();
 
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
@@ -62,7 +81,7 @@ public class EmbeddingEngine {
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    private EmbeddingEngine() {
+    private EmbeddingEngine(Context context) {
         // Media embedders
         embedders.add(new YoutubeEmbedder());
         embedders.add(new StreamableEmbedder());
@@ -75,16 +94,25 @@ public class EmbeddingEngine {
 
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
+
+        if (context instanceof LifecycleOwner) {
+            ((LifecycleOwner) context).getLifecycle().addObserver(this);
+        }
     }
 
-    public static EmbeddingEngine getInstance() {
+    /**
+     * Get an instance of this engine.
+     *
+     * @param context The context for which data caching should be used; this cannot be changed afterwards!
+     */
+    public static EmbeddingEngine getInstance(Context context) {
         if (instance == null) {
-            instance = new EmbeddingEngine();
+            instance = new EmbeddingEngine(context);
         }
         return instance;
     }
 
-    public List<Embedder<?>> getEmbedders() {
+    public List<Embedder> getEmbedders() {
         return Collections.unmodifiableList(embedders);
     }
 
@@ -99,17 +127,19 @@ public class EmbeddingEngine {
      * <br>
      *
      * @param theme              The theme to style the links with
-     * @param post               The post where the links will be found and replaced
+     * @param embeddable         The embeddable where the links will be found and replaced
      * @param invalidateFunction The entire view to be refreshed after embedding
-     * @return A list of enqueued calls that will embed the given post
+     * @return A list of enqueued calls that will embed the given embeddable
      */
 
     public List<Call> embed(
-            @NonNull final Theme theme, @NonNull final Post post, @NonNull final InvalidateFunction invalidateFunction
+            @NonNull final Theme theme,
+            @NonNull final Embeddable embeddable,
+            @NonNull final InvalidateFunction invalidateFunction
     ) {
-        if (post.embedComplete.get()) return Collections.emptyList();
-        post.embedComplete.set(true); // prevent duplicate calls
-        SpannableStringBuilder modifiableCopy = new SpannableStringBuilder(post.comment);
+        if (embeddable.embedComplete.get()) return Collections.emptyList();
+        embeddable.embedComplete.set(true); // prevent duplicate calls
+        SpannableStringBuilder modifiableCopy = new SpannableStringBuilder(embeddable.getEmbeddableText());
 
         // These count as embedding, so we do them here
         List<PostLinkable> generatedLinkables = new ArrayList<>(generateAutoLinks(theme, modifiableCopy));
@@ -118,8 +148,8 @@ public class EmbeddingEngine {
         // Generate all the calls if embedding is on
         List<Pair<Call, Callback>> generatedCallPairs = new NoDeleteArrayList<>();
         if (ChanSettings.enableEmbedding.get()) {
-            for (Embedder<?> e : embedders) {
-                if (!e.shouldEmbed(modifiableCopy, post.board)) continue;
+            for (Embedder e : embedders) {
+                if (!e.shouldEmbed(modifiableCopy)) continue;
                 generatedCallPairs.addAll(e.generateCallPairs(theme,
                         modifiableCopy,
                         generatedLinkables,
@@ -129,10 +159,9 @@ public class EmbeddingEngine {
         }
 
         if (generatedCallPairs.isEmpty()) { // nothing to embed
-            post.setComment(modifiableCopy);
-            post.linkables.addAll(generatedLinkables);
-            post.addImages(generatedImages);
-            invalidateFunction.invalidateView(theme, post);
+            embeddable.setEmbeddableText(modifiableCopy);
+            embeddable.addImageObjects(generatedImages);
+            invalidateFunction.invalidateView(theme, embeddable);
             return Collections.emptyList();
         }
 
@@ -147,7 +176,7 @@ public class EmbeddingEngine {
                 public void onFailure(@NotNull Call call, @NotNull IOException e) {
                     BackgroundUtils.runOnBackgroundThread(() -> {
                         c.second.onFailure(call, e);
-                        post.embedComplete.set(false); // we've failed embedding and need a redo
+                        embeddable.embedComplete.set(false); // we've failed embedding and need a redo
                         checkInvalidate();
                     });
                 }
@@ -167,7 +196,7 @@ public class EmbeddingEngine {
                 private void checkInvalidate() {
                     if (callCount != processed.incrementAndGet()) return; // still completing calls
                     onEmbeddingComplete(theme,
-                            post,
+                            embeddable,
                             modifiableCopy,
                             generatedLinkables,
                             generatedImages,
@@ -183,28 +212,12 @@ public class EmbeddingEngine {
 
     private void onEmbeddingComplete(
             @NonNull final Theme theme,
-            @NonNull final Post post,
+            @NonNull final Embeddable embeddable,
             SpannableStringBuilder modifiableCopy,
             List<PostLinkable> generatedLinkables,
             List<PostImage> generatedImages,
             InvalidateFunction invalidateFunction
     ) {
-        // clear out existing links, they're going to be overridden
-        List<PostLinkable> toClear = new ArrayList<>();
-        for (PostLinkable p : post.linkables) {
-            if (p.type == PostLinkable.Type.LINK) {
-                for (Embedder<?> e : embedders) {
-                    if (TextUtils.equals(p.key, p.value.toString()) && e.shouldEmbed(p.value.toString(),
-                            Board.getDummyBoard()
-                    )) {
-                        toClear.add(p);
-                        break;
-                    }
-                }
-            }
-        }
-        post.linkables.removeAll(toClear);
-
         // clear out any overlapping embed postlinkables from the generated set
         // split up auto/embed links
         List<PostLinkable> autolinks = new ArrayList<>();
@@ -221,15 +234,14 @@ public class EmbeddingEngine {
         for (PostLinkable autolink : autolinks) {
             for (PostLinkable embed : embedlinks) {
                 if (autolink.value.equals(embed.value)) {
-                    generatedLinkables.remove(autolink);
+                    modifiableCopy.removeSpan(autolink);
                 }
             }
         }
 
-        post.setComment(modifiableCopy);
-        post.linkables.addAll(generatedLinkables);
-        post.addImages(generatedImages);
-        BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(theme, post));
+        embeddable.setEmbeddableText(modifiableCopy);
+        embeddable.addImageObjects(generatedImages);
+        BackgroundUtils.runOnMainThread(() -> invalidateFunction.invalidateView(theme, embeddable));
     }
 
     //region Embedding Helper Functions
@@ -254,8 +266,9 @@ public class EmbeddingEngine {
     }
 
     //region Image Inlining
+    // matches stuff like file.jpg or file?format=jpg&name=orig
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)\\.(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)",
+            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)(?:.*)",
             Pattern.CASE_INSENSITIVE
     );
     private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
@@ -270,8 +283,8 @@ public class EmbeddingEngine {
                 String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";
 
                 HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
-                if (imageUrl == null
-                        || ((String) linkable.value).contains("saucenao")) { // ignore saucenao links, not actual images
+                // ignore saucenao links, not actual images
+                if (imageUrl == null || imageUrl.host().equals("saucenao.com")) {
                     continue;
                 }
 
@@ -305,8 +318,8 @@ public class EmbeddingEngine {
     }
     //endregion
 
-    public static <T> List<Pair<Call, Callback>> addStandardEmbedCalls(
-            Embedder<T> embedder,
+    public static List<Pair<Call, Callback>> addStandardEmbedCalls(
+            Embedder embedder,
             Theme theme,
             SpannableStringBuilder commentCopy,
             List<PostLinkable> generatedLinkables,
@@ -329,20 +342,28 @@ public class EmbeddingEngine {
                 ));
             } else {
                 // we haven't cached this embed, or we need additional information
-                calls.add(NetUtils.makeCall(urlPair.second, embedder, embedder, getStandardResponseResult(theme,
-                        commentCopy,
-                        generatedLinkables,
-                        generatedImages,
-                        urlPair.first,
-                        embedder.getIconBitmap()
-                ), 2500, false));
+                calls.add(NetUtils.makeCall(NetUtils.applicationClient,
+                        urlPair.second,
+                        embedder,
+                        getStandardResponseResult(theme,
+                                commentCopy,
+                                generatedLinkables,
+                                generatedImages,
+                                urlPair.first,
+                                embedder.getIconBitmap()
+                        ),
+                        null,
+                        NetUtilsClasses.ONE_DAY_CACHE,
+                        2500,
+                        false
+                ));
             }
         }
         return calls;
     }
 
-    private static <T> Set<Pair<String, HttpUrl>> generateReplacements(
-            Embedder<T> embedder, SpannableStringBuilder comment
+    private static Set<Pair<String, HttpUrl>> generateReplacements(
+            Embedder embedder, SpannableStringBuilder comment
     ) {
         Set<Pair<String, HttpUrl>> result = new HashSet<>();
         Matcher linkMatcher = embedder.getEmbedReplacePattern().matcher(comment);
@@ -467,36 +488,27 @@ public class EmbeddingEngine {
             }
         }
     }
+    //endregion
 
-    public static class EmbedResult {
-        /**
-         * The title for this embed result. While this can't be null, also don't make this an empty string either.
-         */
-        public String title;
+    private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
 
-        /**
-         * An optional duration for this embed. If null and duration parsing is enabled, then another request will be sent to get a duration.
-         * If you don't want/have any duration data, set this to an empty string.
-         */
-        public String duration;
-
-        /**
-         * An optional post image that is generated by an embedder, if image hotlinking is enabled. Makes some embeds more easily viewable in-app quickly.
-         */
-        public PostImage extraImage;
-
-        @SuppressWarnings("unused")
-        private EmbedResult() {} // for gson, don't use otherwise
-
-        public EmbedResult(@NonNull String title, @Nullable String duration, @Nullable PostImage extraImage) {
-            this.title = title;
-            this.duration = duration;
-            this.extraImage = extraImage;
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    public void onStart() {
+        //restore parsed media title stuff
+        Map<String, EmbedResult> titles =
+                AppModule.gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
+        //reconstruct
+        EmbeddingEngine.videoTitleDurCache = new LruCache<>(500);
+        for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
+            EmbeddingEngine.videoTitleDurCache.put(entry.getKey(), entry.getValue());
         }
     }
 
-    public interface InvalidateFunction {
-        void invalidateView(@NonNull Theme theme, @NonNull Post post);
+    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+    public void onStop() {
+        //store parsed media title stuff, extra prevention of unneeded API calls
+        PersistableChanState.videoTitleDurCache.set(AppModule.gson.toJson(EmbeddingEngine.videoTitleDurCache.snapshot(),
+                lruType
+        ));
     }
-    //endregion
 }

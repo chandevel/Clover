@@ -246,7 +246,6 @@ public class CommentParser {
         SpannableString res = new SpannableString(handlerLink.key);
         PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
         res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-        post.addLinkable(pl);
 
         spannableStringBuilder.append(res);
     }
@@ -367,7 +366,6 @@ public class CommentParser {
                         Type.ARCHIVE
                 );
                 text = span(text, newLinkable);
-                builder.addLinkable(newLinkable);
             }
         } catch (Exception ignored) {
         }

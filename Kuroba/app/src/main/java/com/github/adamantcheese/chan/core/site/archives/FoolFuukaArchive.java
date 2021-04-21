@@ -4,6 +4,8 @@ import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -25,6 +27,9 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+/**
+ * A site that uses FoolFuuka as the backend.
+ */
 public class FoolFuukaArchive
         extends ExternalSiteArchive {
 
@@ -246,7 +251,7 @@ public class FoolFuukaArchive
         @Override
         public CharSequence handleTag(
                 PostParser.Callback callback,
-                Theme theme,
+                @NonNull Theme theme,
                 Post.Builder post,
                 String tag,
                 CharSequence text,

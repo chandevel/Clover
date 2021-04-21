@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
@@ -9,9 +9,9 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -33,7 +33,7 @@ public class ClypEmbedder
     private static final Pattern CLYP_LINK_PATTERN = Pattern.compile("https?://clyp.it/(\\w{8})(?:/|\\b)");
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
+    public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, Collections.singletonList("clyp.it"));
     }
 
@@ -81,48 +81,49 @@ public class ClypEmbedder
     }
 
     @Override
-    public EmbedResult process(JsonReader response)
-            throws Exception {
-        String title = "titleMissing" + Random.Default.nextDouble();
-        double duration = Double.NaN;
+    public NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter() {
+        return input -> {
+            String title = "titleMissing" + Random.Default.nextDouble();
+            double duration = Double.NaN;
 
-        HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
-        String fileId = "";
+            HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
+            String fileId = "";
 
-        response.beginObject();
-        while (response.hasNext()) {
-            String name = response.nextName();
-            switch (name) {
-                case "Title":
-                    title = response.nextString();
-                    break;
-                case "Duration":
-                    duration = response.nextDouble();
-                    break;
-                case "AudioFileId":
-                    fileId = response.nextString();
-                    break;
-                case "Mp3Url":
-                    mp3Url = HttpUrl.get(response.nextString());
-                    break;
-                default:
-                    response.skipValue();
-                    break;
+            input.beginObject();
+            while (input.hasNext()) {
+                String name = input.nextName();
+                switch (name) {
+                    case "Title":
+                        title = input.nextString();
+                        break;
+                    case "Duration":
+                        duration = input.nextDouble();
+                        break;
+                    case "AudioFileId":
+                        fileId = input.nextString();
+                        break;
+                    case "Mp3Url":
+                        mp3Url = HttpUrl.get(input.nextString());
+                        break;
+                    default:
+                        input.skipValue();
+                        break;
+                }
             }
-        }
-        response.endObject();
+            input.endObject();
 
-        return new EmbedResult(
-                title,
-                prettyPrintDateUtilsElapsedTime(duration),
-                new PostImage.Builder().serverFilename(fileId)
-                        .thumbnailUrl(HttpUrl.get(
-                                "https://static.clyp.it/site/images/favicons/apple-touch-icon-precomposed.png"))
-                        .imageUrl(mp3Url)
-                        .filename(title)
-                        .extension("mp3")
-                        .isInlined()
-                        .build()
-        );
+            return new EmbedResult(
+                    title,
+                    prettyPrintDateUtilsElapsedTime(duration),
+                    new PostImage.Builder().serverFilename(fileId)
+                            .thumbnailUrl(HttpUrl.get(
+                                    "https://static.clyp.it/site/images/favicons/apple-touch-icon-precomposed.png"))
+                            .imageUrl(mp3Url)
+                            .filename(title)
+                            .extension("mp3")
+                            .isInlined()
+                            .build()
+            );
+        };
     }
 }

@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
@@ -8,16 +8,14 @@ import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -40,16 +38,15 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
-import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.STRING_CONVERTER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 
 public class QuickLatexEmbedder
-        implements Embedder<String> {
+        extends VoidEmbedder {
     private final Pattern MATH_EQN_PATTERN = Pattern.compile("\\[(math|eqn)].*?\\[/\\1]", Pattern.DOTALL);
     private final Pattern QUICK_LATEX_RESPONSE =
             Pattern.compile(".*?\r\n(\\S+)\\s.*?\\s\\d+\\s\\d+(?:\r\n([\\s\\S]+))?");
@@ -58,8 +55,8 @@ public class QuickLatexEmbedder
     public static LruCache<String, HttpUrl> mathCache = new LruCache<>(100);
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
-        return board.mathTags && StringUtils.containsAny(comment, Arrays.asList("[math]", "[eqn]"));
+    public boolean shouldEmbed(CharSequence comment) {
+        return StringUtils.containsAny(comment, Arrays.asList("[math]", "[eqn]"));
     }
 
     @Override
@@ -120,7 +117,7 @@ public class QuickLatexEmbedder
             } else {
                 // need to request an image URL
                 ret.add(new Pair<>(
-                        instance(NetModule.OkHttpClientWithUtils.class).newCall(setupMathImageUrlRequest(math.second)),
+                        NetUtils.applicationClient.newCall(setupMathImageUrlRequest(math.second)),
                         new NetUtilsClasses.IgnoreFailureCallback() {
                             @Override
                             public void onResponse(@NotNull Call call, @NotNull Response response) {
@@ -130,7 +127,7 @@ public class QuickLatexEmbedder
                                 }
 
                                 try {
-                                    String responseString = convert(null, response.body());
+                                    String responseString = STRING_CONVERTER.convert(response);
                                     Matcher matcher = QUICK_LATEX_RESPONSE.matcher(responseString);
                                     if (matcher.matches()) {
                                         HttpUrl url = HttpUrl.get(matcher.group(1));
@@ -153,17 +150,6 @@ public class QuickLatexEmbedder
             }
         }
         return ret;
-    }
-
-    @Override
-    public String convert(HttpUrl baseURL, @Nullable ResponseBody body)
-            throws Exception {
-        return body == null ? null : body.string();
-    }
-
-    @Override
-    public EmbeddingEngine.EmbedResult process(String response) {
-        return null; // not used, this embedder is rather specialized
     }
 
     private Request setupMathImageUrlRequest(String formula) {

@@ -284,7 +284,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>
     <string name="post_info">Post info</string>
-    <string name="post_show_links">Show links</string>
+    <string name="post_links">Post links</string>
     <string name="post_share">Share</string>
 
     <string name="post_copy_menu">Copy…</string>
@@ -293,7 +293,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="post_copy_cross_board_link">Cross-board link</string>
     <string name="post_copy_image_url">Image URL</string>
     <string name="post_copy_post_url">Post URL</string>
-    <string name="post_copy_links">Links in post</string>
 
     <string name="post_link_copied">Link copied to clipboard</string>
     <string name="post_cross_board_link_copied">Cross-board link copied to clipboard</string>
@@ -687,6 +686,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_image_viewer_gestures_description">Adds ability to use gestures to close (swipe-up) and save (swipe-bottom) an image/gif/webm when viewing them in gallery</string>
 
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string name="lorem_ipsum_short">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
     <string name="report_controller_report_an_error_problem">Report an error/crash/other problem</string>
     <string name="report_controller_i_have_a_problem_with">I have a problem with:</string>
     <string name="report_controller_problem_description">Problem description:</string>

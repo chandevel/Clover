@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding;
+package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
@@ -7,8 +7,9 @@ import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -33,7 +34,7 @@ public class PixivEmbedder
             Pattern.compile("https?://(?:www\\.)?pixiv\\.net/(?:en/)?artworks/(\\d+)(?:/|\\b)");
 
     @Override
-    public boolean shouldEmbed(CharSequence comment, Board board) {
+    public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, Collections.singletonList("pixiv"));
     }
 
@@ -63,21 +64,23 @@ public class PixivEmbedder
     }
 
     @Override
-    public EmbeddingEngine.EmbedResult process(Document response) {
-        String generatedURL = response.select("p>img").get(0).attr("src");
-        String fullsizeUrl = generatedURL.replaceAll("/c/\\d+x\\d+/", "/");
-        String serverName = generatedURL.substring(generatedURL.lastIndexOf('/') + 1);
+    public NetUtilsClasses.Converter<EmbedResult, Document> getInternalConverter() {
+        return input -> {
+            String generatedURL = input.select("p>img").get(0).attr("src");
+            String fullsizeUrl = generatedURL.replaceAll("/c/\\d+x\\d+/", "/");
+            String serverName = generatedURL.substring(generatedURL.lastIndexOf('/') + 1);
 
-        return new EmbeddingEngine.EmbedResult(
-                response.select("p>img").get(0).attr("alt"),
-                "",
-                new PostImage.Builder().serverFilename(serverName)
-                        .thumbnailUrl(HttpUrl.get(generatedURL))
-                        .imageUrl(HttpUrl.get(fullsizeUrl)) // this isn't the "source" as it's always a JPG, but it's good enough
-                        .filename(Parser.unescapeEntities(response.select("a>h1").get(0).html(), false))
-                        .extension(StringUtils.extractFileNameExtension(fullsizeUrl))
-                        .isInlined()
-                        .build()
-        );
+            return new EmbedResult(
+                    input.select("p>img").get(0).attr("alt"),
+                    "",
+                    new PostImage.Builder().serverFilename(serverName)
+                            .thumbnailUrl(HttpUrl.get(generatedURL))
+                            .imageUrl(HttpUrl.get(fullsizeUrl)) // this isn't the "source" as it's always a JPG, but it's good enough
+                            .filename(Parser.unescapeEntities(input.select("a>h1").get(0).html(), false))
+                            .extension(StringUtils.extractFileNameExtension(fullsizeUrl))
+                            .isInlined()
+                            .build()
+            );
+        };
     }
 }

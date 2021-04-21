@@ -31,6 +31,9 @@ import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
+/**
+ * A dummy site, generally used internally and should not show up as user selectable in the site setup area.
+ */
 public class DummySite
         implements Site {
 
