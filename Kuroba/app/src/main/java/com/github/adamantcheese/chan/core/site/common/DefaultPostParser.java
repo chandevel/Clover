@@ -69,8 +69,13 @@ public class DefaultPostParser
     @Inject
     private FilterEngine filterEngine;
 
+    // All of these have one matching group associated with the text they need to work
     // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
     private final Pattern extraQuotePattern = Pattern.compile("(?<![/\"l&])[@#$](\\d+)(?!;)");
+    private final Pattern boldPattern = Pattern.compile("\\*\\*(.+)\\*\\*");
+    private final Pattern italicPattern = Pattern.compile("\\*(.+)\\*");
+    private final Pattern codePattern = Pattern.compile("`(.+)`");
+    private final Pattern strikePattern = Pattern.compile("~~(.+)~~");
 
     public DefaultPostParser(CommentParser commentParser) {
         this.commentParser = commentParser;
@@ -207,6 +212,12 @@ public class DefaultPostParser
             String comment = post.comment.toString().replace("<wbr>", "");
             if (ChanSettings.parseExtraQuotes.get()) {
                 comment = extraQuotePattern.matcher(comment).replaceAll(commentParser.createQuoteElementString(post));
+            }
+            if (ChanSettings.mildMarkdown.get()) {
+                comment = boldPattern.matcher(comment).replaceAll("<b>$1</b>");
+                comment = italicPattern.matcher(comment).replaceAll("<i>$1</i>");
+                comment = codePattern.matcher(comment).replaceAll("<pre class=\"prettyprint\">$1</pre>");
+                comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
             }
             Document document = Jsoup.parseBodyFragment(comment);
 

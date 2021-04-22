@@ -211,6 +211,7 @@ public class ChanSettings {
     public static final BooleanSetting enableEmbedding;
     public static final BooleanSetting enableEmoji;
     public static final BooleanSetting parseExtraQuotes;
+    public static final BooleanSetting mildMarkdown;
 
     // Images
     public static final BooleanSetting hideImages;
@@ -370,6 +371,7 @@ public class ChanSettings {
             enableEmbedding = new BooleanSetting(p, "parse_media_titles", true);
             enableEmoji = new BooleanSetting(p, "enable_emoji", false);
             parseExtraQuotes = new BooleanSetting(p, "parse_extra_quotes", false);
+            mildMarkdown = new BooleanSetting(p, "parse_markdown_subset", false);
 
             // Images
             hideImages = new BooleanSetting(p, "preference_hide_images", false);

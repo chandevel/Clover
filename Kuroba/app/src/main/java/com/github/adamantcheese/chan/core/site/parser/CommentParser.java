@@ -126,6 +126,7 @@ public class CommentParser {
         rule(tagRule("p-font-size:15px-font-weight:bold").bold());
 
         rule(tagRule("b").bold());
+        rule(tagRule("strike").strikeThrough());
 
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());

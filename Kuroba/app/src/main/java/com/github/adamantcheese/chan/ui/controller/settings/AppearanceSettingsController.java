@@ -247,6 +247,12 @@ public class AppearanceSettingsController
                     "Attempts to parse non-standard quotes as regular quotes, for those posts that try to avoid direct quoting"
             )));
 
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.mildMarkdown,
+                    "Parse Markdown subset",
+                    "Adds additional comment parsing for Markdown bold, italics, strikethrough, and code elements"
+            )));
+
             groups.add(post);
         }
 
