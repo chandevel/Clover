@@ -62,8 +62,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.FORCED_ANONYMOUS;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
@@ -248,7 +248,7 @@ public class ReplyPresenter
     // Do NOT use the loadable from ReplyPresenter in this method, as it is not guaranteed to match the loadable associated with the reply object
     // Instead use the response's reply to get the loadable or generate a fresh loadable for a new thread
     @Override
-    public void onPostComplete(ReplyResponse replyResponse) {
+    public void onSuccess(ReplyResponse replyResponse) {
         if (replyResponse.posted) {
             LastReplyRepository.putLastReply(replyResponse.originatingLoadable);
             Loadable originatingLoadable = replyResponse.originatingLoadable;
@@ -336,13 +336,13 @@ public class ReplyPresenter
     }
 
     @Override
-    public void onUploadingProgress(int percent) {
+    public void onUploadProgress(int percent) {
         //called on a background thread!
         BackgroundUtils.runOnMainThread(() -> callback.onUploadingProgress(percent));
     }
 
     @Override
-    public void onPostError(Exception exception) {
+    public void onFailure(Exception exception) {
         Logger.e(this, "onPostError", exception);
 
         switchPage(Page.INPUT);

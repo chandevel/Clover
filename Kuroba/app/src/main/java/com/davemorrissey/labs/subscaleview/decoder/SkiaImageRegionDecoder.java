@@ -16,6 +16,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.InputStream;
@@ -43,10 +44,6 @@ public class SkiaImageRegionDecoder
     private BitmapRegionDecoder decoder;
     private final ReadWriteLock decoderLock = new ReentrantReadWriteLock(true);
 
-    private static final String FILE_PREFIX = "file://";
-    private static final String ASSET_PREFIX = FILE_PREFIX + "/android_asset/";
-    private static final String RESOURCE_PREFIX = ContentResolver.SCHEME_ANDROID_RESOURCE + "://";
-
     private final Bitmap.Config bitmapConfig;
 
     @Keep
@@ -69,12 +66,13 @@ public class SkiaImageRegionDecoder
 
     @Override
     @NonNull
-    public Point init(Context context, @NonNull Uri uri)
+    public Point init(Context context, @NonNull ImageSource source)
             throws Exception {
-        String uriString = uri.toString();
-        if (uriString.startsWith(RESOURCE_PREFIX)) {
+        Uri sourceUri = source.getUri();
+        String uriString = sourceUri != null ? sourceUri.toString() : "";
+        if (uriString.startsWith(ImageSource.RESOURCE_PREFIX)) {
             Resources res;
-            String packageName = uri.getAuthority();
+            String packageName = sourceUri.getAuthority();
             if (context.getPackageName().equals(packageName)) {
                 res = context.getResources();
             } else {
@@ -83,7 +81,7 @@ public class SkiaImageRegionDecoder
             }
 
             int id = 0;
-            List<String> segments = uri.getPathSegments();
+            List<String> segments = sourceUri.getPathSegments();
             int size = segments.size();
             if (size == 2 && segments.get(0).equals("drawable")) {
                 String resName = segments.get(1);
@@ -96,16 +94,16 @@ public class SkiaImageRegionDecoder
             }
 
             decoder = BitmapRegionDecoder.newInstance(context.getResources().openRawResource(id), false);
-        } else if (uriString.startsWith(ASSET_PREFIX)) {
-            String assetName = uriString.substring(ASSET_PREFIX.length());
+        } else if (uriString.startsWith(ImageSource.ASSET_PREFIX)) {
+            String assetName = uriString.substring(ImageSource.ASSET_PREFIX.length());
             decoder = BitmapRegionDecoder.newInstance(context.getAssets().open(assetName, ACCESS_RANDOM), false);
-        } else if (uriString.startsWith(FILE_PREFIX)) {
-            decoder = BitmapRegionDecoder.newInstance(uriString.substring(FILE_PREFIX.length()), false);
-        } else {
+        } else if (uriString.startsWith(ImageSource.FILE_PREFIX)) {
+            decoder = BitmapRegionDecoder.newInstance(uriString.substring(ImageSource.FILE_PREFIX.length()), false);
+        } else if (sourceUri != null) {
             InputStream inputStream = null;
             try {
                 ContentResolver contentResolver = context.getContentResolver();
-                inputStream = contentResolver.openInputStream(uri);
+                inputStream = contentResolver.openInputStream(sourceUri);
                 if (inputStream == null) {
                     throw new Exception("Content resolver returned null stream. Unable to initialise with uri.");
                 }
@@ -115,6 +113,10 @@ public class SkiaImageRegionDecoder
                     try { inputStream.close(); } catch (Exception e) { /* Ignore */ }
                 }
             }
+        } else if (source.getBufferStream() != null) {
+            try {
+                decoder = BitmapRegionDecoder.newInstance(source.getBufferStream(), false);
+            } catch (Exception ignored) {}
         }
         return new Point(decoder.getWidth(), decoder.getHeight());
     }

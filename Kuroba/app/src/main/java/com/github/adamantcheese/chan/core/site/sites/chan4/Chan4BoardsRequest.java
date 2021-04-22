@@ -19,14 +19,14 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import java.io.IOException;
 
 public class Chan4BoardsRequest
-        extends JSONProcessor<Boards> {
+        implements NetUtilsClasses.Converter<Boards, JsonReader> {
     private final Site site;
 
     public Chan4BoardsRequest(Site site) {
@@ -34,7 +34,7 @@ public class Chan4BoardsRequest
     }
 
     @Override
-    public Boards process(JsonReader reader)
+    public Boards convert(JsonReader reader)
             throws Exception {
         Boards list = new Boards();
 

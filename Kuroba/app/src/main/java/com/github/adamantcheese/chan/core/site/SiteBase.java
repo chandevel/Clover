@@ -16,11 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResult;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.settings.provider.JsonSettingsProvider;
@@ -75,7 +75,9 @@ public abstract class SiteBase
         initializeSettings();
 
         if (boardsType().canList) {
-            actions().boards(boards -> boardManager.updateAvailableBoardsForSite(this, boards));
+            actions().boards((NoFailResponseResult<Boards>) result -> boardManager.updateAvailableBoardsForSite(SiteBase.this,
+                    result
+            ));
         }
     }
 
@@ -95,13 +97,6 @@ public abstract class SiteBase
     }
 
     public void initializeSettings() {
-    }
-
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        // by default, assume everything is bad
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false);
     }
 
     @Override

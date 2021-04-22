@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Chan4PagesParser
-        extends JSONProcessor<ChanPages> {
+        implements NetUtilsClasses.Converter<ChanPages, JsonReader> {
     @Override
-    public ChanPages process(JsonReader reader)
+    public ChanPages convert(JsonReader reader)
             throws Exception {
         ChanPages pages = new ChanPages();
 

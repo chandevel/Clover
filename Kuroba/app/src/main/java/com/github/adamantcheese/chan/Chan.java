@@ -23,10 +23,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.cache.downloader.FileCacheException;
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.di.ManagerModule;
-import com.github.adamantcheese.chan.core.di.NetModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
@@ -114,7 +112,7 @@ public class Chan
         SavingNotification.setupChannel();
         LastPageNotification.setupChannel();
 
-        feather = Feather.with(new AppModule(), new NetModule(), new RepositoryModule(), new ManagerModule());
+        feather = Feather.with(new AppModule(), new RepositoryModule(), new ManagerModule());
         feather.injectFields(this);
 
         siteRepository.initialize();
@@ -140,11 +138,6 @@ public class Chan
             if (e instanceof RuntimeException && e.getCause() instanceof InterruptedException) {
                 // fine, DB synchronous call (via runTask) was interrupted when a reactive stream
                 // was disposed of.
-                return;
-            }
-            if (e instanceof FileCacheException.CancellationException
-                    || e instanceof FileCacheException.FileNotFoundOnTheServerException) {
-                // fine, sometimes they get through all the checks but it doesn't really matter
                 return;
             }
             if ((e instanceof NullPointerException) || (e instanceof IllegalArgumentException)) {

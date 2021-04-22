@@ -29,8 +29,8 @@ import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
@@ -42,7 +42,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LoginController
         extends Controller
-        implements View.OnClickListener, SiteActions.LoginListener {
+        implements View.OnClickListener, NetUtilsClasses.ResponseResult<LoginResponse> {
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;
@@ -122,7 +122,7 @@ public class LoginController
     }
 
     @Override
-    public void onLoginComplete(LoginResponse loginResponse) {
+    public void onSuccess(LoginResponse loginResponse) {
         if (loginResponse.success) {
             crossfadeView.toggle(false, true);
             button.setText(R.string.setting_pass_logout);
@@ -135,7 +135,7 @@ public class LoginController
     }
 
     @Override
-    public void onLoginError(Exception e) {
+    public void onFailure(Exception e) {
         authFail(null);
         authAfter();
     }

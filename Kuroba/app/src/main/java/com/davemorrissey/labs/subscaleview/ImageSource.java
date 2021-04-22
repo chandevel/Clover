@@ -1,14 +1,21 @@
 package com.davemorrissey.labs.subscaleview;
 
+import android.content.ContentResolver;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.File;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+
+import okio.Buffer;
 
 /**
  * Helper class used to set the source and additional attributes from a variety of sources. Supports
@@ -20,12 +27,14 @@ import java.net.URLDecoder;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public final class ImageSource {
 
-    static final String FILE_SCHEME = "file:///";
-    static final String ASSET_SCHEME = "file:///android_asset/";
+    public static final String FILE_PREFIX = "file://";
+    public static final String ASSET_PREFIX = FILE_PREFIX + "/android_asset/";
+    public static final String RESOURCE_PREFIX = ContentResolver.SCHEME_ANDROID_RESOURCE + "://";
 
     private final Uri uri;
     private final Bitmap bitmap;
-    private final Integer resource;
+    private final Buffer buffer;
+
     private boolean tile;
     private int sWidth;
     private int sHeight;
@@ -35,7 +44,7 @@ public final class ImageSource {
     private ImageSource(Bitmap bitmap, boolean cached) {
         this.bitmap = bitmap;
         this.uri = null;
-        this.resource = null;
+        this.buffer = null;
         this.tile = false;
         this.sWidth = bitmap.getWidth();
         this.sHeight = bitmap.getHeight();
@@ -45,8 +54,8 @@ public final class ImageSource {
     private ImageSource(@NonNull Uri uri) {
         // #114 If file doesn't exist, attempt to url decode the URI and try again
         String uriString = uri.toString();
-        if (uriString.startsWith(FILE_SCHEME)) {
-            File uriFile = new File(uriString.substring(FILE_SCHEME.length() - 1));
+        if (uriString.startsWith(FILE_PREFIX)) {
+            File uriFile = new File(uriString.substring(FILE_PREFIX.length() - 1));
             if (!uriFile.exists()) {
                 try {
                     uri = Uri.parse(URLDecoder.decode(uriString, "UTF-8"));
@@ -57,14 +66,22 @@ public final class ImageSource {
         }
         this.bitmap = null;
         this.uri = uri;
-        this.resource = null;
+        this.buffer = null;
         this.tile = true;
     }
 
-    private ImageSource(int resource) {
+    private ImageSource(Context context, int resource) {
+        this.bitmap = null;
+        this.uri =
+                Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + resource);
+        this.buffer = null;
+        this.tile = true;
+    }
+
+    private ImageSource(Buffer buffer) {
         this.bitmap = null;
         this.uri = null;
-        this.resource = resource;
+        this.buffer = buffer;
         this.tile = true;
     }
 
@@ -75,8 +92,8 @@ public final class ImageSource {
      * @return an {@link ImageSource} instance.
      */
     @NonNull
-    public static ImageSource resource(int resId) {
-        return new ImageSource(resId);
+    public static ImageSource resource(Context context, int resId) {
+        return new ImageSource(context, resId);
     }
 
     /**
@@ -90,7 +107,7 @@ public final class ImageSource {
         if (assetName == null) {
             throw new NullPointerException("Asset name must not be null");
         }
-        return uri(ASSET_SCHEME + assetName);
+        return uri(ASSET_PREFIX + assetName);
     }
 
     /**
@@ -109,7 +126,7 @@ public final class ImageSource {
             if (uri.startsWith("/")) {
                 uri = uri.substring(1);
             }
-            uri = FILE_SCHEME + uri;
+            uri = FILE_PREFIX + uri;
         }
         return new ImageSource(Uri.parse(uri));
     }
@@ -156,6 +173,20 @@ public final class ImageSource {
             throw new NullPointerException("Bitmap must not be null");
         }
         return new ImageSource(bitmap, true);
+    }
+
+    /**
+     * Create an instance from a byte buffer
+     *
+     * @param buffer Byte buffer
+     * @return an {@link ImageSource} instance.
+     */
+    @NonNull
+    public static ImageSource buffer(@NonNull Buffer buffer) {
+        if (buffer == null) {
+            throw new NullPointerException("Buffer cannot be null");
+        }
+        return new ImageSource(buffer);
     }
 
     /**
@@ -234,35 +265,45 @@ public final class ImageSource {
         }
     }
 
-    protected final Uri getUri() {
+    public final Uri getUri() {
         return uri;
     }
 
-    protected final Bitmap getBitmap() {
+    public final Bitmap getBitmap() {
         return bitmap;
     }
 
-    protected final Integer getResource() {
-        return resource;
+    public final @Nullable InputStream getBufferStream() {
+        if (buffer != null) {
+            return buffer.peek().inputStream();
+        } else {
+            return null;
+        }
     }
 
-    protected final boolean getTile() {
+    public final void clearBuffer() {
+        if (buffer != null) {
+            buffer.close();
+        }
+    }
+
+    public final boolean getTile() {
         return tile;
     }
 
-    protected final int getSWidth() {
+    public final int getSWidth() {
         return sWidth;
     }
 
-    protected final int getSHeight() {
+    public final int getSHeight() {
         return sHeight;
     }
 
-    protected final Rect getSRegion() {
+    public final Rect getSRegion() {
         return sRegion;
     }
 
-    protected final boolean isCached() {
+    public final boolean isCached() {
         return cached;
     }
 }

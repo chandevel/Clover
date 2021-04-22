@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;
@@ -30,29 +30,29 @@ import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Http calls are an abstraction over a normal OkHttp call.
  * <p>These HttpCalls are used for emulating &lt;form&gt; elements used for posting, reporting, deleting, etc.
- * <p>Implement {@link #setup(Request.Builder, ProgressRequestBody.ProgressRequestListener)} and {@link #process(Response, String)}.
+ * <p>Implement {@link #setup(Request.Builder, ProgressRequestBody.ProgressRequestListener)} and {@link #convert(Response)}.
  * {@code setup()} is called on the main thread, set up up the request builder here. {@code execute()} is
  * called on a worker thread after the response was executed, do something with the response here.
  */
 @SuppressWarnings("unchecked")
 public abstract class HttpCall
-        implements Callback {
+        implements Callback, NetUtilsClasses.Converter<Void, Response> {
     private final Site site;
 
     @SuppressWarnings("rawtypes")
-    private HttpCallback callback;
+    private NetUtilsClasses.ResponseResult callback;
     private Exception exception;
 
     public abstract void setup(
             Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 
-    public abstract void process(Response response, String result); // TODO replace with NetUtilsClasses ResponseProcessor
+    public abstract Void convert(Response response)
+            throws IOException;
 
     public HttpCall(Site site) {
         this.site = site;
@@ -64,37 +64,29 @@ public abstract class HttpCall
 
     @Override
     public void onResponse(@NonNull Call call, @NonNull Response response) {
-        try (ResponseBody body = response.body()) {
-            if (body != null) {
-                process(response, body.string());
-            } else {
-                exception = new NetUtilsClasses.HttpCodeException(response.code());
-            }
+        try {
+            convert(response);
+            response.close();
         } catch (Exception e) {
             exception = new IOException("Error processing response", e);
         }
 
         if (exception != null) {
             Logger.e(this, "onResponse", exception);
-            BackgroundUtils.runOnMainThread(() -> callback.onHttpFail(HttpCall.this, exception));
+            callback.onFailure(exception);
         } else {
-            BackgroundUtils.runOnMainThread(() -> callback.onHttpSuccess(HttpCall.this));
+            callback.onSuccess(HttpCall.this);
         }
     }
 
     @Override
     public void onFailure(@NonNull Call call, @NonNull IOException e) {
         Logger.e(this, "onFailure", e);
-        BackgroundUtils.runOnMainThread(() -> callback.onHttpFail(HttpCall.this, e));
+        callback.onFailure(e);
     }
 
-    public void setCallback(HttpCallback<? extends HttpCall> callback) {
-        this.callback = callback;
-    }
-
-    public interface HttpCallback<T extends HttpCall> {
-        void onHttpSuccess(T httpCall);
-
-        void onHttpFail(T httpCall, Exception e);
+    public HttpCall setCallback(NetUtilsClasses.ResponseResult<? extends HttpCall> callback) {
+        this.callback = new NetUtilsClasses.MainThreadResponseResult(callback);
+        return this;
     }
 }

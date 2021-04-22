@@ -18,13 +18,15 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
 import org.jsoup.Jsoup;
+
+import java.io.IOException;
 
 import okhttp3.FormBody;
 import okhttp3.Request;
@@ -57,11 +59,14 @@ public class Chan4DeleteHttpCall
     }
 
     @Override
-    public void process(Response response, String result) {
-        if (result.contains("errmsg")) {
-            deleteResponse.errorMessage = Jsoup.parse(result).select("#errmsg").html();
+    public Void convert(Response response)
+            throws IOException {
+        String responseString = response.body().string();
+        if (responseString.contains("errmsg")) {
+            deleteResponse.errorMessage = Jsoup.parse(responseString).select("#errmsg").html();
         } else {
             deleteResponse.deleted = true;
         }
+        return null;
     }
 }

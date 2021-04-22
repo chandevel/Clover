@@ -16,8 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
@@ -73,10 +73,9 @@ public class VichanAntispam {
     public Map<String, String> get() {
         Map<String, String> res = new HashMap<>();
 
-        Request request = new Request.Builder().url(url).build();
+        Request request = new Request.Builder().url(url).cacheControl(NetUtilsClasses.NO_CACHE).build();
         try {
-            Response response =
-                    Chan.instance(OkHttpClientWithUtils.class).getProxiedClient().newCall(request).execute();
+            Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());

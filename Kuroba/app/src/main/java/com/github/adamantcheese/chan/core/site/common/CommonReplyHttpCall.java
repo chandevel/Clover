@@ -20,11 +20,12 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +59,9 @@ public abstract class CommonReplyHttpCall
     }
 
     @Override
-    public void process(Response response, String result) {
+    public Void convert(Response response)
+            throws IOException {
+        String responseString = response.body().string();
         /*
         FOR A REGULAR REPLY
         <!-- thread:3255892,no:3259817 -->
@@ -72,10 +75,10 @@ public abstract class CommonReplyHttpCall
 
         First parameter is always parsed as threadNo, second always as postNo
         */
-        if (result.contains("errmsg")) {
-            replyResponse.errorMessage = Jsoup.parse(result).select("#errmsg").first().html();
+        if (responseString.contains("errmsg")) {
+            replyResponse.errorMessage = Jsoup.parse(responseString).select("#errmsg").first().html();
         } else {
-            Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(result);
+            Matcher threadNoMatcher = THREAD_NO_PATTERN.matcher(responseString);
             if (threadNoMatcher.find()) {
                 try {
                     replyResponse.threadNo = Integer.parseInt(threadNoMatcher.group(1));
@@ -89,6 +92,7 @@ public abstract class CommonReplyHttpCall
                 }
             }
         }
+        return null;
     }
 
     public abstract void addParameters(

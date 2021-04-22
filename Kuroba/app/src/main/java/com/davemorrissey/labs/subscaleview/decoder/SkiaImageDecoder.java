@@ -13,6 +13,7 @@ import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.InputStream;
@@ -26,10 +27,6 @@ import java.util.List;
  */
 public class SkiaImageDecoder
         implements ImageDecoder {
-
-    private static final String FILE_PREFIX = "file://";
-    private static final String ASSET_PREFIX = FILE_PREFIX + "/android_asset/";
-    private static final String RESOURCE_PREFIX = ContentResolver.SCHEME_ANDROID_RESOURCE + "://";
 
     private final Bitmap.Config bitmapConfig;
 
@@ -53,15 +50,16 @@ public class SkiaImageDecoder
 
     @Override
     @NonNull
-    public Bitmap decode(Context context, @NonNull Uri uri)
+    public Bitmap decode(Context context, @NonNull ImageSource source)
             throws Exception {
-        String uriString = uri.toString();
+        Uri sourceUri = source.getUri();
+        String uriString = sourceUri != null ? sourceUri.toString() : "";
         BitmapFactory.Options options = new BitmapFactory.Options();
-        Bitmap bitmap;
+        Bitmap bitmap = null;
         options.inPreferredConfig = bitmapConfig;
-        if (uriString.startsWith(RESOURCE_PREFIX)) {
+        if (uriString.startsWith(ImageSource.RESOURCE_PREFIX)) {
             Resources res;
-            String packageName = uri.getAuthority();
+            String packageName = sourceUri.getAuthority();
             if (context.getPackageName().equals(packageName)) {
                 res = context.getResources();
             } else {
@@ -70,7 +68,7 @@ public class SkiaImageDecoder
             }
 
             int id = 0;
-            List<String> segments = uri.getPathSegments();
+            List<String> segments = sourceUri.getPathSegments();
             int size = segments.size();
             if (size == 2 && segments.get(0).equals("drawable")) {
                 String resName = segments.get(1);
@@ -83,22 +81,26 @@ public class SkiaImageDecoder
             }
 
             bitmap = BitmapFactory.decodeResource(context.getResources(), id, options);
-        } else if (uriString.startsWith(ASSET_PREFIX)) {
-            String assetName = uriString.substring(ASSET_PREFIX.length());
+        } else if (uriString.startsWith(ImageSource.ASSET_PREFIX)) {
+            String assetName = uriString.substring(ImageSource.ASSET_PREFIX.length());
             bitmap = BitmapFactory.decodeStream(context.getAssets().open(assetName), null, options);
-        } else if (uriString.startsWith(FILE_PREFIX)) {
-            bitmap = BitmapFactory.decodeFile(uriString.substring(FILE_PREFIX.length()), options);
-        } else {
+        } else if (uriString.startsWith(ImageSource.FILE_PREFIX)) {
+            bitmap = BitmapFactory.decodeFile(uriString.substring(ImageSource.FILE_PREFIX.length()), options);
+        } else if (sourceUri != null) {
             InputStream inputStream = null;
             try {
                 ContentResolver contentResolver = context.getContentResolver();
-                inputStream = contentResolver.openInputStream(uri);
+                inputStream = contentResolver.openInputStream(sourceUri);
                 bitmap = BitmapFactory.decodeStream(inputStream, null, options);
             } finally {
                 if (inputStream != null) {
                     try { inputStream.close(); } catch (Exception e) { /* Ignore */ }
                 }
             }
+        } else if (source.getBufferStream() != null) {
+            try {
+                bitmap = BitmapFactory.decodeStream(source.getBufferStream(), null, options);
+            } catch (Exception ignored) {}
         }
         if (bitmap == null) {
             throw new RuntimeException(

@@ -16,12 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import android.util.JsonReader;
-
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
@@ -36,6 +34,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -98,12 +97,14 @@ public class VichanActions
     }
 
     @Override
-    public void handlePost(ReplyResponse replyResponse, Response response, String result) {
-        Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(result);
-        Matcher err = errorPattern().matcher(result);
+    public void handlePost(ReplyResponse replyResponse, Response response)
+            throws IOException {
+        String responseString = response.body().string();
+        Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(responseString);
+        Matcher err = errorPattern().matcher(responseString);
         if (auth.find()) {
             replyResponse.requireAuthentication = true;
-            replyResponse.errorMessage = result;
+            replyResponse.errorMessage = responseString;
         } else if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
@@ -142,8 +143,9 @@ public class VichanActions
     }
 
     @Override
-    public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
-        Matcher err = errorPattern().matcher(responseBody);
+    public void handleDelete(DeleteResponse response, Response httpResponse)
+            throws IOException {
+        Matcher err = errorPattern().matcher(httpResponse.body().string());
         if (err.find()) {
             response.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
@@ -161,27 +163,26 @@ public class VichanActions
     }
 
     @Override
-    public void pages(Board board, PagesListener pagesListener) {
+    public void pages(Board board, ResponseResult<ChanPages> pagesListener) {
         // Vichan keeps the pages and the catalog as one JSON unit, so parse those here
-        NetUtils.makeJsonRequest(site.endpoints().catalog(board), new ResponseResult<ChanPages>() {
-            @Override
-            public void onFailure(Exception e) {
-                Logger.e(site, "Failed to get pages for board " + board.code, e);
-                pagesListener.onPagesReceived(board, new ChanPages());
-            }
+        NetUtils.makeJsonRequest(
+                site.endpoints().catalog(board),
+                new ResponseResult<ChanPages>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Logger.e(site, "Failed to get pages for board " + board.code, e);
+                        pagesListener.onSuccess(new ChanPages());
+                    }
 
-            @Override
-            public void onSuccess(ChanPages result) {
-                pagesListener.onPagesReceived(board, result);
-            }
-        }, new JSONProcessor<ChanPages>() {
-            @Override
-            public ChanPages process(JsonReader response)
-                    throws Exception {
-                return ((VichanApi) site.chanReader()).readCatalogWithPages(response,
+                    @Override
+                    public void onSuccess(ChanPages result) {
+                        pagesListener.onSuccess(result);
+                    }
+                },
+                response -> ((VichanApi) site.chanReader()).readCatalogWithPages(response,
                         new ChanReaderProcessingQueue(new ArrayList<>(), Loadable.forCatalog(board))
-                );
-            }
-        });
+                ),
+                NetUtilsClasses.NO_CACHE
+        );
     }
 }

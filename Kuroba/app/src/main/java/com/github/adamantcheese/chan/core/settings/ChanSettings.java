@@ -252,7 +252,6 @@ public class ChanSettings {
     public static final StringSetting parseYoutubeAPIKey;
     public static final BooleanSetting fullUserRotationEnable;
     public static final BooleanSetting allowFilePickChooser;
-    public static final BooleanSetting showCopyApkUpdateDialog;
 
     // Proxy
     public static final BooleanSetting proxyEnabled;
@@ -273,8 +272,6 @@ public class ChanSettings {
     public static final BooleanSetting videoAutoLoop;
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting headsetDefaultMuted;
-    public static final BooleanSetting videoOpenExternal;
-    public static final BooleanSetting videoStream;
 
     // Media loading
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
@@ -418,7 +415,6 @@ public class ChanSettings {
             parseYoutubeAPIKey = new StringSetting(p, "parse_youtube_API_key", "");
             fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
-            showCopyApkUpdateDialog = new BooleanSetting(p, "show_copy_apk_update_dialog", true);
 
             // Proxy
             proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
@@ -443,8 +439,6 @@ public class ChanSettings {
             videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
             videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
             headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
-            videoOpenExternal = new BooleanSetting(p, "preference_video_external", false);
-            videoStream = new BooleanSetting(p, "preference_video_stream", false);
 
             // Media loading
             imageAutoLoadNetwork = new OptionsSetting<>(p,

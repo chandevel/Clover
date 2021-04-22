@@ -2,9 +2,10 @@ package com.davemorrissey.labs.subscaleview.decoder;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
+
+import com.davemorrissey.labs.subscaleview.ImageSource;
 
 /**
  * Interface for image decoding classes, allowing the default {@link android.graphics.BitmapFactory}
@@ -13,7 +14,7 @@ import androidx.annotation.NonNull;
 public interface ImageDecoder {
 
     /**
-     * Decode an image. The URI can be in one of the following formats:
+     * Decode an image. The URI of the image source can be in one of the following formats:
      * <br>
      * File: <code>file:///scard/picture.jpg</code>
      * <br>
@@ -22,12 +23,12 @@ public interface ImageDecoder {
      * Resource: <code>android.resource://com.example.app/drawable/picture</code>
      *
      * @param context Application context
-     * @param uri     URI of the image
+     * @param source  Image source of the image
      * @return the decoded bitmap
      *
      * @throws Exception if decoding fails.
      */
     @NonNull
-    Bitmap decode(Context context, @NonNull Uri uri)
+    Bitmap decode(Context context, @NonNull ImageSource source)
             throws Exception;
 }

@@ -159,14 +159,14 @@ public class Chan4
         }
     };
 
-    private final SiteEndpoints endpoints = new SiteEndpoints() {
-        private final HttpUrl a = new HttpUrl.Builder().scheme("https").host("a.4cdn.org").build();
-        private final HttpUrl i = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
-        private final HttpUrl t = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
-        private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
-        private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
-        private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
+    private final HttpUrl a = new HttpUrl.Builder().scheme("https").host("a.4cdn.org").build();
+    private final HttpUrl i = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
+    private final HttpUrl t = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
+    private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
+    private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
+    private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
 
+    private final SiteEndpoints endpoints = new SiteEndpoints() {
         @Override
         public HttpUrl catalog(Board board) {
             return a.newBuilder().addPathSegment(board.code).addPathSegment("catalog.json").build();
@@ -562,16 +562,5 @@ public class Chan4
     @Override
     public SiteActions actions() {
         return actions;
-    }
-
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        // For preloading in ImageViewerPresenter, a max of 3 images are set to preload
-        // https://developers.cloudflare.com/workers/platform/limits#simultaneous-open-connections seems to be true for any
-        // Cloudflare connection; it prevents more than 6 concurrent connections to its resources, so we shouldn't connect more than that
-        // Or at least minimize that count; fast downloads will reduce the count, but this is just insurance
-        // 3 * chunks <= 6 then, so 2 max chunks per download
-        return new ChunkDownloaderSiteProperties(2, true);
     }
 }

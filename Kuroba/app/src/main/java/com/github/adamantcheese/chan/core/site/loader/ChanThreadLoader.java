@@ -47,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
 
+import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -247,18 +248,25 @@ public class ChanThreadLoader {
             }
         }
 
-        return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
-            @Override
-            public void onFailure(Exception e) {
-                notifyAboutError(new ChanLoaderException(e));
-            }
+        return NetUtils.makeJsonRequest(
+                getChanUrl(loadable),
+                new ResponseResult<ChanLoaderResponse>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        notifyAboutError(new ChanLoaderException(e));
+                    }
 
-            @Override
-            public void onSuccess(ChanLoaderResponse result) {
-                clearTimer();
-                BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
-            }
-        }, new ChanReaderParser(loadable, cachedClones, null));
+                    @Override
+                    public void onSuccess(ChanLoaderResponse result) {
+                        clearTimer();
+                        BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
+                    }
+                },
+                new ChanReaderParser(loadable, cachedClones, null),
+                // cache this for the amount of time of the current timeout, minus a second to ensure it is purged upon the next request
+                new CacheControl.Builder().maxAge(WATCH_TIMEOUTS[Math.max(0, currentTimeout)] - 1, TimeUnit.SECONDS)
+                        .build()
+        );
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {

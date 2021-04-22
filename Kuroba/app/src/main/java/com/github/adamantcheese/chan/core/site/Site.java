@@ -16,11 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import androidx.annotation.NonNull;
-
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -42,7 +41,7 @@ public interface Site {
         /**
          * This site supports deleting posts.
          *
-         * @see SiteActions#delete(DeleteRequest, SiteActions.DeleteListener)
+         * @see SiteActions#delete(DeleteRequest, ResponseResult)
          * @see SiteEndpoints#delete(Post)
          */
         POST_DELETE,
@@ -57,7 +56,7 @@ public interface Site {
         /**
          * This site supports some sort of authentication (like 4pass).
          *
-         * @see SiteActions#login(LoginRequest, SiteActions.LoginListener)
+         * @see SiteActions#login(LoginRequest, ResponseResult)
          * @see SiteEndpoints#login()
          */
         LOGIN,
@@ -114,7 +113,7 @@ public interface Site {
 
         /**
          * Can the boards be listed, in other words, can
-         * {@link SiteActions#boards(SiteActions.BoardsListener)} be used, and is
+         * {@link SiteActions#boards(ResponseResult)} be used, and is
          * {@link #board(String)} available.
          */
         public boolean canList;
@@ -186,25 +185,4 @@ public interface Site {
      * @return the created board.
      */
     Board createBoard(String name, String code);
-
-    @NonNull
-    ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties();
-
-    class ChunkDownloaderSiteProperties {
-        public int maxChunksForSite;
-        /**
-         * Whether the site send file size info  in bytes or not. Some sites may send it in KB which
-         * breaks ChunkedFileDownloader. To figure out whether a site sends us bytes or kilobytes
-         * (or something else) you will have to look into the thread json of a concrete site.
-         * If a site uses Vichan or Futaba chan engine then they most likely send file size in bytes.
-         */
-        public boolean siteSendsCorrectFileSizeInBytes;
-
-        public ChunkDownloaderSiteProperties(
-                int maxChunksForSite, boolean siteSendsCorrectFileSizeInBytes
-        ) {
-            this.maxChunksForSite = maxChunksForSite;
-            this.siteSendsCorrectFileSizeInBytes = siteSendsCorrectFileSizeInBytes;
-        }
-    }
 }

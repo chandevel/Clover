@@ -28,7 +28,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -56,7 +56,7 @@ import static com.github.adamantcheese.chan.Chan.inject;
  * changed on the main thread.
  */
 public class ChanReaderParser
-        extends JSONProcessor<ChanLoaderResponse> {
+        implements NetUtilsClasses.Converter<ChanLoaderResponse, JsonReader> {
 
     @Inject
     FilterEngine filterEngine;
@@ -97,7 +97,7 @@ public class ChanReaderParser
     }
 
     @Override
-    public ChanLoaderResponse process(JsonReader reader)
+    public ChanLoaderResponse convert(JsonReader reader)
             throws Exception {
         ChanReaderProcessingQueue processing = new ChanReaderProcessingQueue(cached, loadable);
 

@@ -41,17 +41,17 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveEndpoints;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveSiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -489,19 +489,22 @@ public class CommentParser {
         }
 
         public void resolve(@NonNull ResolveCallback callback, @NonNull ResolveParser parser) {
-            NetUtils.makeJsonRequest(((ExternalSiteArchive.ArchiveEndpoints) board.site.endpoints()).resolvePost(board.code,
-                    postId
-            ), new ResponseResult<ThreadLink>() {
-                @Override
-                public void onFailure(Exception e) {
-                    BackgroundUtils.runOnMainThread(() -> callback.onProcessed(null));
-                }
+            NetUtils.makeJsonRequest(((ArchiveEndpoints) board.site.endpoints()).resolvePost(board.code, postId),
+                    new NetUtilsClasses.MainThreadResponseResult<>(new ResponseResult<ThreadLink>() {
+                        @Override
+                        public void onFailure(Exception e) {
+                            callback.onProcessed(null);
+                        }
 
-                @Override
-                public void onSuccess(ThreadLink result) {
-                    BackgroundUtils.runOnMainThread(() -> callback.onProcessed(result));
-                }
-            }, parser, 5000);
+                        @Override
+                        public void onSuccess(ThreadLink result) {
+                            callback.onProcessed(result);
+                        }
+                    }),
+                    parser,
+                    NetUtilsClasses.NO_CACHE,
+                    5000
+            );
         }
 
         public interface ResolveCallback {
@@ -509,7 +512,7 @@ public class CommentParser {
         }
 
         public static class ResolveParser
-                extends JSONProcessor<ThreadLink> {
+                implements NetUtilsClasses.Converter<ThreadLink, JsonReader> {
             private final ResolveLink sourceLink;
 
             public ResolveParser(ResolveLink source) {
@@ -517,7 +520,7 @@ public class CommentParser {
             }
 
             @Override
-            public ThreadLink process(JsonReader reader) {
+            public ThreadLink convert(JsonReader reader) {
                 return ((ArchiveSiteUrlHandler) sourceLink.board.site.resolvable()).resolveToThreadLink(sourceLink,
                         reader
                 );

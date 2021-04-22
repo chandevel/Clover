@@ -157,14 +157,11 @@ public class AppModule {
     }
 
     public static File getCacheDir() {
-        //TODO maybe it's best to just return the internal cache dir
-
-        // See also res/xml/filepaths.xml for the fileprovider.
-        if (getAppContext().getExternalCacheDir() != null) {
-            return getAppContext().getExternalCacheDir();
-        } else {
-            return getAppContext().getCacheDir();
+        File cacheDir = getAppContext().getCacheDir();
+        if (!cacheDir.exists() && !cacheDir.mkdirs()) {
+            Logger.e("AppModule", "cache dir creation failed, this may fail catastrophically!");
         }
+        return cacheDir;
     }
 
     @Provides

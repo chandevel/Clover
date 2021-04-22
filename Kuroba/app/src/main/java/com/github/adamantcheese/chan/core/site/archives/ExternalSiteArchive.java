@@ -103,12 +103,6 @@ public abstract class ExternalSiteArchive
         return Board.fromSiteNameCode(this, code, code);
     }
 
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false);
-    }
-
     public abstract static class ArchiveEndpoints
             implements SiteEndpoints {
 

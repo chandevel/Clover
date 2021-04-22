@@ -156,17 +156,17 @@ public class Dvach
 
             @Override
             public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(loadableWithDraft), new HttpCallback<CommonReplyHttpCall>() {
+                NetUtils.makeHttpCall(new DvachReplyCall(loadableWithDraft).setCallback(new ResponseResult<CommonReplyHttpCall>() {
                     @Override
-                    public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onPostComplete(httpPost.replyResponse);
+                    public void onSuccess(CommonReplyHttpCall httpPost) {
+                        postListener.onSuccess(httpPost.replyResponse);
                     }
 
                     @Override
-                    public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                        postListener.onPostError(e);
+                    public void onFailure(Exception e) {
+                        postListener.onFailure(e);
                     }
-                }, postListener::onUploadingProgress);
+                }), postListener);
             }
 
             @Override
@@ -195,12 +195,12 @@ public class Dvach
             }
 
             @Override
-            public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
+            public void delete(DeleteRequest deleteRequest, ResponseResult<DeleteResponse> deleteListener) {
                 super.delete(deleteRequest, deleteListener);
             }
 
             @Override
-            public void boards(final BoardsListener listener) {
+            public void boards(final ResponseResult<Boards> listener) {
                 NetUtils.makeJsonRequest(endpoints().boards(), new ResponseResult<Boards>() {
                     @Override
                     public void onFailure(Exception e) {
@@ -216,14 +216,14 @@ public class Dvach
                                 "po"
                         ));
                         Collections.shuffle(list);
-                        listener.onBoardsReceived(list);
+                        listener.onSuccess(list);
                     }
 
                     @Override
                     public void onSuccess(Boards result) {
-                        listener.onBoardsReceived(result);
+                        listener.onSuccess(result);
                     }
-                }, new DvachBoardsParser(Dvach.this));
+                }, new DvachBoardsParser(Dvach.this), NetUtilsClasses.ONE_DAY_CACHE);
             }
         });
 

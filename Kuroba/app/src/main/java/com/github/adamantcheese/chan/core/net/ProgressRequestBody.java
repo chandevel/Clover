@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.http;
+package com.github.adamantcheese.chan.core.net;
 
 import androidx.annotation.NonNull;
 
@@ -28,6 +28,9 @@ import okio.ForwardingSink;
 import okio.Okio;
 import okio.Sink;
 
+/**
+ * Used for getting the progress of a body when writing it to the network.
+ */
 public class ProgressRequestBody
         extends RequestBody {
     protected RequestBody delegate;
@@ -77,7 +80,7 @@ public class ProgressRequestBody
 
             if (bytesWritten == 0) {
                 // so we can know that the uploading has just started
-                listener.onRequestProgress(0);
+                listener.onUploadProgress(0);
             }
 
             bytesWritten += byteCount;
@@ -86,13 +89,13 @@ public class ProgressRequestBody
 
                 if (percent - lastPercent >= 1) { // 1% increments
                     lastPercent = percent;
-                    listener.onRequestProgress(percent);
+                    listener.onUploadProgress(percent);
                 }
             }
         }
     }
 
     public interface ProgressRequestListener {
-        void onRequestProgress(int percent);
+        void onUploadProgress(int percent);
     }
 }

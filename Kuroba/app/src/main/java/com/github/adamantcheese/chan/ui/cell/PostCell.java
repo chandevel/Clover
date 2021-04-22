@@ -53,7 +53,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -94,7 +93,6 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -738,9 +736,12 @@ public class PostCell
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             PostImage image = post.images.get(position);
             thumbnailView.setPostImage(image, getThumbnailSize());
-            if (!post.deleted.get() || instance(CacheHandler.class).exists(image.imageUrl)) {
-                thumbnailView.setOnClickListener(v -> callback.onThumbnailClicked(image, thumbnailView));
-            }
+
+            thumbnailView.setOnClickListener(v -> {
+                if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+                    callback.onThumbnailClicked(image, thumbnailView);
+                }
+            });
         }
 
         @Override

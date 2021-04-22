@@ -23,17 +23,15 @@ import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
-import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.cache.FileCacheListener;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.RawFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,6 +41,7 @@ import javax.inject.Inject;
 import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.subjects.SingleSubject;
+import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
@@ -51,14 +50,9 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
-public class ImageSaveTask
-        extends FileCacheListener {
-    @Inject
-    FileCacheV2 fileCacheV2;
+public class ImageSaveTask {
     @Inject
     FileManager fileManager;
-    @Inject
-    CacheHandler cacheHandler;
 
     private final PostImage postImage;
     private AbstractFile destination;
@@ -113,11 +107,44 @@ public class ImageSaveTask
                     onEnd();
                 });
             } else {
-                CancelableDownload cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(postImage, this);
+                Call download = NetUtils.makeFileRequest(postImage.imageUrl,
+                        postImage.filename,
+                        postImage.extension,
+                        new NetUtilsClasses.ResponseResult<File>() {
+                            @Override
+                            public void onFailure(Exception e) {
+                                BackgroundUtils.ensureMainThread();
+                                imageSaveTaskAsyncResult.onError(e);
+
+                                onEnd();
+                            }
+
+                            @Override
+                            public void onSuccess(File response) {
+                                BackgroundUtils.ensureMainThread();
+
+                                if (copyToDestination(response)) {
+                                    onDestination();
+                                } else {
+                                    if (fileManager.exists(destination)) {
+                                        if (!fileManager.delete(destination)) {
+                                            Logger.e(this, "Could not delete destination file after error");
+                                        }
+                                    }
+                                }
+
+                                if (!share && !response.delete()) {
+                                    Logger.e(this, "Could not delete cached file");
+                                }
+                                onEnd();
+                            }
+                        },
+                        null
+                );
 
                 onDisposeFunc = () -> {
-                    if (cancelableDownload != null) {
-                        cancelableDownload.stop();
+                    if (download != null) {
+                        download.cancel();
                     }
                 };
             }
@@ -132,35 +159,9 @@ public class ImageSaveTask
         return imageSaveTaskAsyncResult;
     }
 
-    @Override
-    public void onSuccess(RawFile file, boolean immediate) {
-        BackgroundUtils.ensureMainThread();
-
-        if (copyToDestination(file)) {
-            onDestination();
-        } else {
-            deleteDestination();
-        }
-    }
-
-    @Override
-    public void onFail(Exception exception) {
-        BackgroundUtils.ensureMainThread();
-        imageSaveTaskAsyncResult.onError(exception);
-    }
-
-    @Override
-    public void onEnd() {
+    private void onEnd() {
         BackgroundUtils.ensureMainThread();
         imageSaveTaskAsyncResult.onSuccess(success ? Success : Failure);
-    }
-
-    private void deleteDestination() {
-        if (fileManager.exists(destination)) {
-            if (!fileManager.delete(destination)) {
-                Logger.e(this, "Could not delete destination after an interrupt");
-            }
-        }
     }
 
     private void onDestination() {
@@ -189,13 +190,10 @@ public class ImageSaveTask
         } catch (Exception ignored) {}
     }
 
-    private boolean copyToDestination(RawFile source) {
+    private boolean copyToDestination(File source) {
         try {
             if (share) {
-                destination = cacheHandler.duplicateCacheFile(source,
-                        StringUtils.fileNameRemoveBadCharacters(postImage.filename),
-                        postImage.extension
-                );
+                destination = fileManager.fromRawFile(source);
             } else {
                 AbstractFile createdDestinationFile = fileManager.create(destination);
                 if (createdDestinationFile == null) {
@@ -206,7 +204,7 @@ public class ImageSaveTask
                     throw new IOException("Destination file is already a directory");
                 }
 
-                if (!fileManager.copyFileContents(source, createdDestinationFile)) {
+                if (!fileManager.copyFileContents(fileManager.fromRawFile(source), createdDestinationFile)) {
                     throw new IOException("Could not copy source file into destination");
                 }
             }

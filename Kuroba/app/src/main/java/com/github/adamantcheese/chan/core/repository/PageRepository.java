@@ -21,6 +21,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
@@ -93,10 +94,10 @@ public class PageRepository {
         }
     }
 
-    private static synchronized void requestBoard(Board b) {
+    private static synchronized void requestBoard(final Board b) {
         if (!requestedBoards.contains(b)) {
             requestedBoards.add(b);
-            b.site.actions().pages(b, PageRepository::onPagesReceived);
+            b.site.actions().pages(b, (NetUtilsClasses.NoFailResponseResult<ChanPages>) result -> addPages(b, result));
         }
     }
 

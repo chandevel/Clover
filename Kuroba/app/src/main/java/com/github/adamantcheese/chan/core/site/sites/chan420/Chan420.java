@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site.sites.chan420;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
@@ -92,7 +93,7 @@ public class Chan420
         setEndpoints(new TaimabaEndpoints(this, "https://api.420chan.org", "https://boards.420chan.org"));
         setActions(new TaimabaActions(this) {
             @Override
-            public void boards(final BoardsListener listener) {
+            public void boards(final ResponseResult<Boards> listener) {
                 NetUtils.makeJsonRequest(endpoints().boards(), new ResponseResult<Boards>() {
                     @Override
                     public void onFailure(Exception e) {
@@ -103,14 +104,14 @@ public class Chan420
                         list.add(Board.fromSiteNameCode(Chan420.this, "Dream Discussion", "dr"));
                         list.add(Board.fromSiteNameCode(Chan420.this, "Detoxing & Rehabilitation", "detox"));
                         Collections.shuffle(list);
-                        listener.onBoardsReceived(list);
+                        listener.onSuccess(list);
                     }
 
                     @Override
                     public void onSuccess(Boards result) {
-                        listener.onBoardsReceived(result);
+                        listener.onSuccess(result);
                     }
-                }, new Chan420BoardsParser(Chan420.this));
+                }, new Chan420BoardsParser(Chan420.this), NetUtilsClasses.ONE_DAY_CACHE);
             }
         });
         setApi(new TaimabaApi(this));

@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-
-    <!-- Corresponds to the file path chosen in the AppModule.getCacheDir method -->
+    <!-- These file paths are used to resolve FileProvider.getUriForFile calls -->
+    <!-- Basically anything you want to access externally needs to be noted here -->
+    <!-- "requested" is any files that are downloaded via NetUtils.makeFileRequest -->
+    <!-- at time of writing, that's updates, shared files, and clipboard downloaded files -->
     <cache-path
-        name="fc"
-        path="filecache/" />
-    <external-cache-path
-        name="exfc"
-        path="filecache/" />
+        name="rq"
+        path="requested/" />
 
 </paths>

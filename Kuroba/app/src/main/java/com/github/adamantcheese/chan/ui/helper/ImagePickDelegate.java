@@ -30,25 +30,22 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCacheListener;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
-import com.github.k1rakishou.fsaf.file.RawFile;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
@@ -59,9 +56,6 @@ public class ImagePickDelegate {
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    @Inject
-    FileCacheV2 fileCacheV2;
-
     private final Activity activity;
     private ImagePickCallback callback;
     private Uri uri;
@@ -69,11 +63,10 @@ public class ImagePickDelegate {
     private boolean success = false;
 
     @Nullable
-    private CancelableDownload cancelableDownload;
+    private Call cancelableDownload;
 
     public ImagePickDelegate(Activity activity) {
         this.activity = activity;
-        inject(this);
     }
 
     public void pick(ImagePickCallback callback, boolean longPressed) {
@@ -132,7 +125,6 @@ public class ImagePickDelegate {
         showToast(activity, R.string.image_url_get_attempt);
         HttpUrl clipboardURL;
         try {
-            //this is converted to a string again later, but this is an easy way of catching if the clipboard item is a URL
             clipboardURL = HttpUrl.get(getClipboardContent().toString());
         } catch (Exception exception) {
             showToast(activity, getString(R.string.image_url_get_failed, exception.getMessage()));
@@ -142,36 +134,32 @@ public class ImagePickDelegate {
             return;
         }
 
-        HttpUrl finalClipboardURL = clipboardURL;
         if (cancelableDownload != null) {
             cancelableDownload.cancel();
             cancelableDownload = null;
         }
 
-        cancelableDownload = fileCacheV2.enqueueNormalDownloadFileRequest(clipboardURL, new FileCacheListener() {
-            @Override
-            public void onSuccess(RawFile file, boolean immediate) {
-                showToast(activity, R.string.image_url_get_success);
-                Uri imageURL = Uri.parse(finalClipboardURL.toString());
-                callback.onFilePicked(imageURL.getLastPathSegment(), new File(file.getFullPath()));
-            }
+        String urlFileName = clipboardURL.pathSegments().get(clipboardURL.pathSize() - 1);
+        cancelableDownload = NetUtils.makeFileRequest(clipboardURL,
+                "clipboard_url",
+                StringUtils.extractFileNameExtension(urlFileName),
+                new NetUtilsClasses.ResponseResult<File>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        showToast(activity, getString(R.string.image_url_get_failed, e.getMessage()));
+                        callback.onFilePickError(true);
+                        reset();
+                    }
 
-            @Override
-            public void onNotFound() {
-                onFail(new IOException("Not found"));
-            }
-
-            @Override
-            public void onFail(Exception exception) {
-                showToast(activity, getString(R.string.image_url_get_failed, exception.getMessage()));
-                callback.onFilePickError(true);
-            }
-
-            @Override
-            public void onEnd() {
-                reset();
-            }
-        });
+                    @Override
+                    public void onSuccess(File result) {
+                        showToast(activity, R.string.image_url_get_success);
+                        callback.onFilePicked(urlFileName, result);
+                        reset();
+                    }
+                },
+                null
+        );
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -247,7 +235,7 @@ public class ImagePickDelegate {
     }
 
     public File getPickFile() {
-        File cacheFile = new File(getAppContext().getCacheDir(), "picked_file");
+        File cacheFile = new File(getCacheDir(), "picked_file");
         try {
             if (!cacheFile.exists()) cacheFile.createNewFile(); //ensure the file exists for writing to
         } catch (Exception ignored) {
@@ -260,14 +248,6 @@ public class ImagePickDelegate {
         success = false;
         fileName = "";
         uri = null;
-    }
-
-    public void onDestroy() {
-        if (cancelableDownload != null) {
-            cancelableDownload.cancel();
-            cancelableDownload = null;
-        }
-        reset();
     }
 
     public interface ImagePickCallback {

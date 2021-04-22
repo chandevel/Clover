@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,8 +73,10 @@ public class TaimabaActions
     }
 
     @Override
-    public void handlePost(ReplyResponse replyResponse, Response response, String result) {
-        Matcher err = errorPattern().matcher(result);
+    public void handlePost(ReplyResponse replyResponse, Response response)
+            throws IOException {
+        String responseString = response.body().string();
+        Matcher err = errorPattern().matcher(responseString);
         if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {

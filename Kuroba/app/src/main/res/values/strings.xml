@@ -102,14 +102,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_downloading">Downloading update…</string>
     <string name="update_install_download_failed">Download failed</string>
     <string name="update_install_download_failed_description">Reason: %1$s</string>
-    <string name="update_retry_title">Retry update</string>
-    <string name="update_retry">%1$s was not updated yet. Tap \"retry\" to retry the install.</string>
-    <string name="update_retry_button">Retry</string>
-    <string name="update_storage_permission_required_title">Storage permission required</string>
-    <string name="update_storage_permission_required">
-"Permission to access storage is required for installing the update.
-
-Re-enable this permission in the app settings if you permanently disabled it."</string>
 
     <string name="minutes">%d minutes</string>
     <string name="card_stats">%1$dR %2$dI</string>
@@ -492,13 +484,9 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_save_server_filename">Save server filename</string>
     <string name="setting_save_server_filename_description">Save the image with the filename the site assigned. If disabled, save the image with the filename the uploader assigned.</string>
     <string name="setting_video_default_muted">Start videos muted</string>
-    <string name="setting_video_stream">Stream videos</string>
-    <string name="setting_video_stream_description">Attempt to stream videos, instead of downloading them completely. (Works really bad with 4chan servers)</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
     <string name="setting_headset_default_muted">Mute headset videos</string>
     <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
-    <string name="setting_video_open_external">Play videos with external player</string>
-    <string name="setting_video_open_external_description">Play videos in an external media player app</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_remove_image_spoilers">Remove image spoilers</string>
@@ -727,15 +715,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="site_uses_dynamic_boards">"Unable to go to board (site likely has dynamic boards). Add the board using the boards menu first."</string>
     <string name="could_not_start_saving_no_permissions">Could not start downloading images, no WRITE_ACCESS permission was granted</string>
-    <string name="update_manager_copy_apk_title">Copy apk?</string>
-    <string name="update_manager_copy_apk">Would you like to store this apk?</string>
-    <string name="update_manager_could_not_convert_uri">Couldn\'t convert uri (%1$s) into an ExternalFile</string>
-    <string name="update_manager_input_file_does_not_exist">Input apk file (%1$s) does not exist</string>
-    <string name="update_manager_output_file_does_not_exist">Output file (%1$s) does not exist</string>
-    <string name="update_manager_could_not_copy_apk">Couldn\'t copy file contents from file (%1$s) into (%2$s)</string>
-    <string name="update_manager_apk_copied">Apk successfully copied</string>
-    <string name="settings_show_copy_apk_dialog_title">Show copy apk dialog when downloading an update</string>
-    <string name="settings_show_copy_apk_dialog">Every time you download a new update a dialog with suggestion to copy that apk to some other directory will be shown</string>
 
     <string name="could_not_initialized_captcha">Couldn\'t initialize captcha, reason: %1$s</string>
     <string name="fail_reason_webview_is_not_installed">WebView is not installed</string>

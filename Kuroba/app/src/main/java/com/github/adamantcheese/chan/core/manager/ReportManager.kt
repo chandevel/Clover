@@ -3,8 +3,9 @@ package com.github.adamantcheese.chan.core.manager
 import android.annotation.SuppressLint
 import android.os.Build
 import com.github.adamantcheese.chan.BuildConfig
-import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils
+import com.github.adamantcheese.chan.core.di.AppModule
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification
+import com.github.adamantcheese.chan.core.net.NetUtils
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.ui.controller.LogsController
 import com.github.adamantcheese.chan.ui.layout.crashlogs.CrashLog
@@ -31,8 +32,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 class ReportManager(
-        private val crashLogsDirPath: File,
-        private val client: OkHttpClientWithUtils
+        private val crashLogsDirPath: File
 ) {
     private val crashLogSenderQueue = PublishProcessor.create<ReportRequestWithFile>()
 
@@ -281,7 +281,6 @@ class ReportManager(
         return buildString {
             appendLine("Prefetching enabled: ${ChanSettings.autoLoadThreadImages.get()}")
             appendLine("Embedding enabled: ${ChanSettings.enableEmbedding.get()}")
-            appendLine("WEBM streaming enabled: ${ChanSettings.videoStream.get()}")
             appendLine("Saved files base dir info: ${getFilesLocationInfo()}")
             appendLine("Phone layout mode: ${ChanSettings.layoutMode.get().name}")
             appendLine("OkHttp IPv6 support enabled: ${ChanSettings.okHttpAllowIpv6.get()}")
@@ -364,7 +363,7 @@ class ReportManager(
                     .post(requestBody)
                     .build()
 
-            client.proxiedClient.newCall(request).enqueue(object : Callback {
+            NetUtils.applicationClient.proxiedClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.tryOnError(e)
                 }

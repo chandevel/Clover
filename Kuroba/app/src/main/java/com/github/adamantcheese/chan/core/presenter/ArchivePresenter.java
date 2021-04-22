@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.presenter;
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.SiteActions;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.Locale;
 import static android.text.TextUtils.isEmpty;
 
 public class ArchivePresenter
-        implements SiteActions.ArchiveListener {
+        implements NetUtilsClasses.ResponseResult<InternalSiteArchive> {
 
     private final Callback callback;
     private final Board board;
@@ -71,7 +71,7 @@ public class ArchivePresenter
     }
 
     @Override
-    public void onArchive(InternalSiteArchive internalSiteArchive) {
+    public void onSuccess(InternalSiteArchive internalSiteArchive) {
         inRequest = false;
         callback.hideRefreshing();
         callback.showList();
@@ -80,7 +80,7 @@ public class ArchivePresenter
     }
 
     @Override
-    public void onArchiveError() {
+    public void onFailure(Exception e) {
         inRequest = false;
         callback.hideRefreshing();
         callback.showError(true);

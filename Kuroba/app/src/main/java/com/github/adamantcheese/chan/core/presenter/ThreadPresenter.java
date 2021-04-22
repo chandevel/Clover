@@ -144,12 +144,6 @@ public class ThreadPresenter
     private DatabaseSavedReplyManager databaseSavedReplyManager;
 
     @Inject
-    private FileManager fileManager;
-
-    @Inject
-    private CacheHandler cacheHandler;
-
-    @Inject
     private BoardManager boardManager;
 
     @Inject
@@ -553,9 +547,9 @@ public class ThreadPresenter
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
-        for (Post item : posts) {
-            for (PostImage image : item.images) {
-                if (!item.deleted.get() || cacheHandler.exists(image.imageUrl)) {
+        for (Post post : posts) {
+            for (PostImage image : post.images) {
+                if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(image);
                     if (image.equals(postImage)) {
@@ -1033,10 +1027,10 @@ public class ThreadPresenter
 
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
-            post.board.site.actions()
-                    .delete(new DeleteRequest(post, reply, onlyImageDelete), new SiteActions.DeleteListener() {
+            post.board.site.actions().delete(new DeleteRequest(post, reply, onlyImageDelete),
+                    new NetUtilsClasses.ResponseResult<DeleteResponse>() {
                         @Override
-                        public void onDeleteComplete(DeleteResponse deleteResponse) {
+                        public void onSuccess(DeleteResponse deleteResponse) {
                             String message;
                             if (deleteResponse.deleted) {
                                 message = getString(R.string.delete_success);
@@ -1049,10 +1043,11 @@ public class ThreadPresenter
                         }
 
                         @Override
-                        public void onDeleteError(Exception e) {
+                        public void onFailure(Exception e) {
                             threadPresenterCallback.hideDeleting(getString(R.string.delete_error));
                         }
-                    });
+                    }
+            );
         }
     }
 
@@ -1110,22 +1105,37 @@ public class ThreadPresenter
 
         for (PostImage image : post.images) {
             text.append("\n\nFilename: ").append(image.filename).append(".").append(image.extension);
-            if ("webm".equals(image.extension.toLowerCase()) && cacheHandler.exists(image.imageUrl)) {
-                RawFile file = cacheHandler.getOrCreateCacheFile(image.imageUrl);
-                try (InputStream stream = new FileInputStream(file.getFullPath())) {
-                    byte[] bytes = new byte[1024];
-                    stream.read(bytes);
-                    for (int i = 0; i < bytes.length - 1; i++) {
-                        if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
-                            text.append("\nMetadata title: ");
-                            byte len = (byte) (bytes[i + 2] ^ 0x80);
-                            for (byte j = 0; j < len; j++) {
-                                text.append((char) bytes[i + 2 + j + 1]);
+            if ("webm".equals(image.extension.toLowerCase())) {
+                // check webms for extra titles, async
+                // this is a super simple example of what the embedding engine does, basically
+                String checking = "\nChecking for metadata titles…";
+                text.append(checking);
+                Call call = NetUtils.applicationClient.newCall(new Request.Builder().url(image.imageUrl).build());
+                call.enqueue(new NetUtilsClasses.IgnoreFailureCallback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response)
+                            throws IOException {
+                        int index = text.toString().indexOf(checking);
+
+                        byte[] bytes = new byte[2048];
+                        response.body().source().read(bytes);
+                        response.close();
+                        for (int i = 0; i < bytes.length - 1; i++) {
+                            if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
+                                byte len = (byte) (bytes[i + 2] ^ 0x80);
+                                // i is the position of the length bytes, which are 2 bytes
+                                // 1 after that is the actual string start
+                                text.replace(index,
+                                        index + checking.length(),
+                                        "\nMetadata title: " + new String(bytes, i + 2 + 1, len)
+                                );
+                                BackgroundUtils.runOnMainThread(() -> infoText.setText(text)); // update on main thread
+                                break;
                             }
-                            break;
                         }
                     }
-                } catch (Exception ignored) {}
+                });
+                dialog.setOnDismissListener(dialog1 -> call.cancel());
             }
             if (image.isInlined) {
                 text.append("\nLinked file");

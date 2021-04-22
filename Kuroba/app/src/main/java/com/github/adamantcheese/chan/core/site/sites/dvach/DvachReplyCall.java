@@ -21,12 +21,13 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
-import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 
 import org.jsoup.Jsoup;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -103,17 +104,19 @@ public class DvachReplyCall
     }
 
     @Override
-    public void process(Response response, String result) {
-        Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(result);
+    public Void convert(Response response)
+            throws IOException {
+        String responseString = response.body().string();
+        Matcher errorMessageMatcher = ERROR_MESSAGE.matcher(responseString);
         if (errorMessageMatcher.find()) {
             replyResponse.errorMessage = Jsoup.parse(errorMessageMatcher.group(1)).body().text();
         } else {
             replyResponse.posted = true;
-            Matcher postMessageMatcher = POST_MESSAGE.matcher(result);
+            Matcher postMessageMatcher = POST_MESSAGE.matcher(responseString);
             if (postMessageMatcher.find()) {
                 replyResponse.postNo = Integer.parseInt(postMessageMatcher.group(1));
             } else {
-                Matcher threadMessageMatcher = THREAD_MESSAGE.matcher(result);
+                Matcher threadMessageMatcher = THREAD_MESSAGE.matcher(responseString);
                 if (threadMessageMatcher.find()) {
                     int threadNo = Integer.parseInt(threadMessageMatcher.group(1));
                     replyResponse.threadNo = threadNo;
@@ -121,5 +124,6 @@ public class DvachReplyCall
                 }
             }
         }
+        return null;
     }
 }

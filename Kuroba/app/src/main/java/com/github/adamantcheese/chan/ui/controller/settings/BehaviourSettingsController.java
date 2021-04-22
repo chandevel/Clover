@@ -208,12 +208,6 @@ public class BehaviourSettingsController
                     "If you'd prefer to use a different file chooser, turn this on"
             ));
 
-            other.add(new BooleanSettingView(this,
-                    ChanSettings.showCopyApkUpdateDialog,
-                    R.string.settings_show_copy_apk_dialog_title,
-                    R.string.settings_show_copy_apk_dialog
-            ));
-
             groups.add(other);
         }
 

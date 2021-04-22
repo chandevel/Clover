@@ -31,7 +31,7 @@ import kotlin.random.Random;
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
 import static android.graphics.Bitmap.CompressFormat.WEBP;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class BitmapUtils {
@@ -100,10 +100,9 @@ public class BitmapUtils {
         File tempFile = null;
 
         try {
-            File outputDir = getAppContext().getCacheDir();
-            deleteOldTempFiles(outputDir.listFiles());
+            deleteOldTempFiles(getCacheDir().listFiles());
 
-            tempFile = File.createTempFile("temp_file_name", null, outputDir);
+            tempFile = File.createTempFile("temp_file_name", null, getCacheDir());
 
             try (FileOutputStream output = new FileOutputStream(tempFile)) {
                 newBitmap.compress(newFormat, imageOptions.reencodeQuality, output);

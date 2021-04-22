@@ -267,10 +267,4 @@ public class DummySite
     public Board createBoard(String name, String code) {
         return Board.getDummyBoard();
     }
-
-    @NonNull
-    @Override
-    public ChunkDownloaderSiteProperties getChunkDownloaderSiteProperties() {
-        return new ChunkDownloaderSiteProperties(Integer.MAX_VALUE, false);
-    }
 }

@@ -4,9 +4,10 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
+
+import com.davemorrissey.labs.subscaleview.ImageSource;
 
 /**
  * Interface for image decoding classes, allowing the default {@link android.graphics.BitmapRegionDecoder}
@@ -16,7 +17,7 @@ public interface ImageRegionDecoder {
 
     /**
      * Initialise the decoder. When possible, perform initial setup work once in this method. The
-     * dimensions of the image must be returned. The URI can be in one of the following formats:
+     * dimensions of the image must be returned. The URI in the image source can be in one of the following formats:
      * <br>
      * File: <code>file:///scard/picture.jpg</code>
      * <br>
@@ -25,13 +26,13 @@ public interface ImageRegionDecoder {
      * Resource: <code>android.resource://com.example.app/drawable/picture</code>
      *
      * @param context Application context. A reference may be held, but must be cleared on recycle.
-     * @param uri     URI of the image.
+     * @param source  Image source of the image.
      * @return Dimensions of the image.
      *
      * @throws Exception if initialisation fails.
      */
     @NonNull
-    Point init(Context context, @NonNull Uri uri)
+    Point init(Context context, @NonNull ImageSource source)
             throws Exception;
 
     /**
@@ -43,8 +44,7 @@ public interface ImageRegionDecoder {
      * is the simplest way to achieve this, but bear in mind the {@link #recycle()} method can be
      * called concurrently.
      * </p><p>
-     * See {@link SkiaImageRegionDecoder} and {@link SkiaPooledImageRegionDecoder} for examples of
-     * internal locking and synchronization.
+     * See {@link SkiaImageRegionDecoder} for an example of internal locking and synchronization.
      * </p>
      *
      * @param sRect      Source image rectangle to decode.

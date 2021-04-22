@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -85,6 +86,7 @@ import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefa
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static java.util.concurrent.TimeUnit.HOURS;
 
 public class StartActivity
         extends AppCompatActivity
@@ -356,7 +358,7 @@ public class StartActivity
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         Loadable board = browseController.getLoadable();
@@ -475,7 +477,7 @@ public class StartActivity
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
         if (isAndroid10() && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits
@@ -512,8 +514,6 @@ public class StartActivity
             return;
         }
 
-        updateManager.onDestroy();
-        imagePickDelegate.onDestroy();
         fileChooser.removeCallbacks();
 
         while (!stack.isEmpty()) {
@@ -522,6 +522,8 @@ public class StartActivity
             controller.onHide();
             controller.onDestroy();
         }
+
+        NetUtils.applicationClient.dispatcher().cancelAll();
     }
 
     @Override
@@ -569,6 +571,12 @@ public class StartActivity
     public void onEvent(Chan.ForegroundChangedMessage message) {
         if (!message.inForeground) {
             DatabaseUtils.runTaskAsync(databaseLoadableManager.purgeOld());
+            File requestedFiles = new File(getCacheDir(), "requested");
+            for (File f : requestedFiles.listFiles()) {
+                if (System.currentTimeMillis() > f.lastModified() + HOURS.toMillis(1)) {
+                    f.delete();
+                }
+            }
         }
     }
 

@@ -150,7 +150,6 @@ public class ImageViewerController
         overflowBuilder.withSubItem(R.string.action_transparency_toggle,
                 () -> ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage())
         );
-        overflowBuilder.withSubItem(R.string.action_reload, this::forceReload);
 
         overflowBuilder.build().build();
 
@@ -244,13 +243,6 @@ public class ImageViewerController
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(presenter.getLoadable(), all);
         navigationController.pushController(albumDownloadController);
-    }
-
-    private void forceReload() {
-        ToolbarMenuItem menuItem = navigation.findItem(SAVE_ID);
-        if (menuItem != null && presenter.forceReload()) {
-            menuItem.setEnabled(false);
-        }
     }
 
     @Override
@@ -424,7 +416,7 @@ public class ImageViewerController
         loadingBar.setVisibility(show ? VISIBLE : GONE);
     }
 
-    public void onLoadProgress(Float[] progress) {
+    public void onLoadProgress(float progress) {
         loadingBar.setProgress(progress);
     }
 

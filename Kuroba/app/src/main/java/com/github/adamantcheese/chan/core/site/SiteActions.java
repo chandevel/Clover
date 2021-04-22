@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.core.site;
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -28,27 +30,14 @@ import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 public interface SiteActions {
-    void boards(BoardsListener boardsListener);
+    void boards(NetUtilsClasses.ResponseResult<Boards> boardsListener);
 
-    void pages(Board board, PagesListener pagesListener);
-
-    interface BoardsListener {
-        void onBoardsReceived(Boards boards);
-    }
-
-    interface PagesListener {
-        void onPagesReceived(Board b, ChanPages pages);
-    }
+    void pages(Board board, NetUtilsClasses.ResponseResult<ChanPages> pagesListener);
 
     void post(Loadable loadableWithDraft, PostListener postListener);
 
-    interface PostListener {
-        void onPostComplete(ReplyResponse replyResponse);
-
-        void onUploadingProgress(int percent);
-
-        void onPostError(Exception exception);
-    }
+    interface PostListener
+            extends NetUtilsClasses.ResponseResult<ReplyResponse>, ProgressRequestBody.ProgressRequestListener {}
 
     boolean postRequiresAuthentication();
 
@@ -64,33 +53,15 @@ public interface SiteActions {
      */
     SiteAuthentication postAuthenticate();
 
-    void delete(DeleteRequest deleteRequest, DeleteListener deleteListener);
+    void delete(DeleteRequest deleteRequest, NetUtilsClasses.ResponseResult<DeleteResponse> deleteListener);
 
-    interface DeleteListener {
-        void onDeleteComplete(DeleteResponse deleteResponse);
+    void archive(Board board, NetUtilsClasses.ResponseResult<InternalSiteArchive> archiveListener);
 
-        void onDeleteError(Exception e);
-    }
-
-    void archive(Board board, ArchiveListener archiveListener);
-
-    interface ArchiveListener {
-        void onArchive(InternalSiteArchive internalSiteArchive);
-
-        void onArchiveError();
-    }
-
-    void login(LoginRequest loginRequest, LoginListener loginListener);
+    void login(LoginRequest loginRequest, NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
     void logout();
 
     boolean isLoggedIn();
 
     LoginRequest getLoginDetails();
-
-    interface LoginListener {
-        void onLoginComplete(LoginResponse loginResponse);
-
-        void onLoginError(Exception e);
-    }
 }

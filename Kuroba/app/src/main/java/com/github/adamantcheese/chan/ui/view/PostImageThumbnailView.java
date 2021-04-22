@@ -17,42 +17,21 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.View;
-import android.view.ViewTreeObserver;
 
-import com.github.adamantcheese.chan.Chan;
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.cache.FileCacheListener;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
-import com.github.adamantcheese.chan.core.cache.downloader.CancelableDownload;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.k1rakishou.fsaf.file.RawFile;
-
-import java.io.File;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.repository.DrawableRepository.playIcon;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class PostImageThumbnailView
         extends FixedRatioThumbnailView {
     private PostImage postImage;
     private final Rect bounds = new Rect();
-
-    private ViewTreeObserver.OnPreDrawListener drawListener;
-    private CancelableDownload fullsizeDownload;
 
     public PostImageThumbnailView(Context context) {
         super(context);
@@ -73,64 +52,16 @@ public class PostImageThumbnailView
     public void setPostImage(final PostImage postImage, int maxDimension) {
         if (this.postImage == postImage) return;
 
-        AtomicInteger requestedDimension = new AtomicInteger(maxDimension);
         this.postImage = postImage;
 
-        if (fullsizeDownload != null) { // clear out any pending calls
-            fullsizeDownload.cancel();
-            fullsizeDownload = null;
-        }
-
-        if (drawListener != null) { // clear out any pending on-draws
-            if (getViewTreeObserver().isAlive()) {
-                getViewTreeObserver().removeOnPreDrawListener(drawListener);
-            }
-            drawListener = null;
-        }
         setUrl(null, 0);
-
         if (postImage == null) return;
 
         if (ChanSettings.shouldUseFullSizeImage(postImage)) {
             HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
-            Bitmap cached = NetUtils.getCachedBitmap(url);
-            if (cached != null) {
-                setImageBitmap(cached, true);
-            } else {
-                FileCacheListener listener = new FileCacheListener() {
-                    @Override
-                    public void onSuccess(RawFile file, boolean immediate) {
-                        BitmapUtils.decodeFilePreviewImage(
-                                new File(file.getFullPath()),
-                                requestedDimension.get(),
-                                requestedDimension.get(),
-                                bitmap -> {
-                                    if (bitmap != BitmapRepository.error && bitmap != null
-                                            && PostImageThumbnailView.this.postImage == postImage) {
-                                        NetUtils.storeExternalBitmap(url, bitmap);
-                                        setImageBitmap(bitmap, false);
-                                    }
-                                },
-                                false
-                        );
-                    }
-                };
-
-                if (requestedDimension.get() < 0) {
-                    drawListener = waitForLayout(this, view -> {
-                        requestedDimension.set(Math.max(view.getWidth(), view.getHeight()));
-                        setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
-                        fullsizeDownload =
-                                Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, listener);
-                        return true;
-                    });
-                } else {
-                    setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
-                    fullsizeDownload = Chan.instance(FileCacheV2.class).enqueueNormalDownloadFileRequest(url, listener);
-                }
-            }
+            setUrl(url, maxDimension);
         } else {
-            setUrl(postImage.getThumbnailUrl(), requestedDimension.get());
+            setUrl(postImage.getThumbnailUrl(), maxDimension);
         }
     }
 

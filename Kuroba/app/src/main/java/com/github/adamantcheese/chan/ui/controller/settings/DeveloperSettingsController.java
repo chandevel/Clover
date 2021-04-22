@@ -27,8 +27,6 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.cache.CacheHandler;
-import com.github.adamantcheese.chan.core.cache.FileCacheV2;
 import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
@@ -54,10 +52,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class DeveloperSettingsController
         extends Controller {
-    @Inject
-    FileCacheV2 fileCacheV2;
-    @Inject
-    CacheHandler cacheHandler;
     @Inject
     FilterWatchManager filterWatchManager;
     @Inject
@@ -108,16 +102,6 @@ public class DeveloperSettingsController
         });
         crashButton.setText("Crash the app");
         wrapper.addView(crashButton);
-
-        //CLEAR CACHE
-        Button clearCacheButton = new Button(context);
-        clearCacheButton.setOnClickListener(v -> {
-            fileCacheV2.clearCache();
-            showToast(context, "Cleared image cache");
-            clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
-        });
-        clearCacheButton.setText("Clear image cache (currently " + cacheHandler.getSize() / 1024 / 1024 + "MB)");
-        wrapper.addView(clearCacheButton);
 
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);

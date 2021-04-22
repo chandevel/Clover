@@ -23,7 +23,6 @@ import android.util.MalformedJsonException;
 
 import androidx.core.text.HtmlCompat;
 
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSONProcessor;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -35,49 +34,48 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.BuildConfig.APP_LABEL;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
 
 public class UpdateApiParser
-        extends JSONProcessor<UpdateApiResponse> {
+        implements NetUtilsClasses.Converter<UpdateApiResponse, JsonReader> {
     private final String versionPatternString = "v(\\d+?)\\.(\\d{1,2})\\.(\\d{1,2})";
     private final Pattern RELEASE_PATTERN = Pattern.compile(versionPatternString);
     private final Pattern DEV_PATTERN = Pattern.compile(versionPatternString + "-(.*)");
 
     @Override
-    public UpdateApiResponse process(JsonReader reader)
+    public UpdateApiResponse convert(JsonReader reader)
             throws Exception {
-        return DEV_BUILD ? parseDev(reader) : parseRelease(reader);
-    }
-
-    @SuppressWarnings("PointlessArithmeticExpression")
-    public UpdateApiResponse parseRelease(JsonReader reader)
-            throws IOException {
         UpdateApiResponse response = new UpdateApiResponse();
-        //default body
-        response.body = HtmlCompat.fromHtml(
-                "Changelog:\r\nSee the release on Github for details!\r\n"
-                        + " Your Android API is too low to properly render the changelog from the site.",
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-        );
+        if (DEV_BUILD) {
+            response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+        } else {
+            response.body = HtmlCompat.fromHtml(
+                    "Changelog:\r\nSee the release on Github for details!\r\n"
+                            + " Your Android API is too low to properly render the changelog from the site.",
+                    HtmlCompat.FROM_HTML_MODE_LEGACY
+            );
+        }
 
         reader.beginObject();
         while (reader.hasNext()) {
             switch (reader.nextName()) {
                 case "tag_name":
                     response.versionCodeString = reader.nextString();
-                    Matcher versionMatcher = RELEASE_PATTERN.matcher(response.versionCodeString);
+                    Matcher versionMatcher =
+                            (DEV_BUILD ? DEV_PATTERN : RELEASE_PATTERN).matcher(response.versionCodeString);
                     if (versionMatcher.matches()) {
                         try {
                             //@formatter:off
                             response.versionCode =
                                     10000 * Integer.parseInt(versionMatcher.group(1)) +
-                                    100   * Integer.parseInt(versionMatcher.group(2)) +
-                                    1     * Integer.parseInt(versionMatcher.group(3));
+                                            100   * Integer.parseInt(versionMatcher.group(2)) +
+                                            1     * Integer.parseInt(versionMatcher.group(3));
                             response.apkURL =
-                                    HttpUrl.get(GITHUB_ENDPOINT + "/releases/download/" +
-                                    response.versionCodeString + "/" + BuildConfig.APP_LABEL + ".apk");
+                                    HttpUrl.get((DEV_BUILD ? DEV_GITHUB_ENDPOINT : GITHUB_ENDPOINT) + "/releases/download/" +
+                                            response.versionCodeString + "/" + APP_LABEL + (DEV_BUILD ? "-" + versionMatcher.group(4) : "") + ".apk");
                             //@formatter:on
                             break;
                         } catch (Exception e) {
@@ -87,56 +85,22 @@ public class UpdateApiParser
                         throw new MalformedJsonException("Error processing tag_name; version code string is not valid.");
                     }
                 case "name":
-                    response.updateTitle = reader.nextString();
-                    break;
-                case "body":
-                    Node updateLog = Parser.builder().build().parse(reader.nextString());
-                    response.body = HtmlCompat.fromHtml(
-                            "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
-                            HtmlCompat.FROM_HTML_MODE_LEGACY
-                    );
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
-            }
-        }
-        reader.endObject();
-        return response;
-    }
-
-    @SuppressWarnings("PointlessArithmeticExpression")
-    public UpdateApiResponse parseDev(JsonReader reader)
-            throws IOException {
-        UpdateApiResponse response = new UpdateApiResponse();
-        response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
-
-        reader.beginObject();
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "tag_name":
-                    response.versionCodeString = reader.nextString();
-                    Matcher versionMatcher = DEV_PATTERN.matcher(response.versionCodeString);
-                    if (versionMatcher.matches()) {
-                        try {
-                            //@formatter:off
-                            response.versionCode =
-                                    10000 * Integer.parseInt(versionMatcher.group(1)) +
-                                    100   * Integer.parseInt(versionMatcher.group(2)) +
-                                    1     * Integer.parseInt(versionMatcher.group(3));
-                            response.apkURL =
-                                    HttpUrl.get(DEV_GITHUB_ENDPOINT + "/releases/download/" +
-                                            response.versionCodeString + "/" + BuildConfig.APP_LABEL + "-" + versionMatcher.group(4) + ".apk");
-                            //@formatter:on
-                            break;
-                        } catch (Exception e) {
-                            throw new IOException("Error processing tag_name; apkUrl likely failed to be valid", e);
-                        }
+                    if (!DEV_BUILD) {
+                        response.updateTitle = reader.nextString();
                     } else {
-                        throw new MalformedJsonException("Error processing tag_name; version code string is not valid.");
+                        reader.skipValue();
                     }
+                    break;
                 case "body":
-                    response.commitHash = reader.nextString().trim();
+                    if (DEV_BUILD) {
+                        response.commitHash = reader.nextString().trim();
+                    } else {
+                        Node updateLog = Parser.builder().build().parse(reader.nextString());
+                        response.body = HtmlCompat.fromHtml(
+                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
+                                HtmlCompat.FROM_HTML_MODE_LEGACY
+                        );
+                    }
                     break;
                 default:
                     reader.skipValue();
