@@ -58,16 +58,6 @@ public class NetUtilsClasses {
     public static final CacheControl NO_CACHE = new CacheControl.Builder().noStore().build();
     public static final CacheControl ONE_DAY_CACHE = new CacheControl.Builder().maxAge(1, TimeUnit.DAYS).build();
 
-    /* Usual flow for these classes:
-     *  to a type we can process
-     *  to the type we want to return as a result
-     * ResponseConverter -> ResponseProcessor -> ResponseResult
-     *
-     * You can add in as many (even zero) ResponseProcessor classes as you want before the ResponseResult
-     * If the Converter directly processes it, use PassthroughResponseProcessor, which just passes the converted response
-     * along, without any additional processing
-     */
-
     /**
      * A wrapper sidestepping an OkHttp callback that only returns what we care about.
      *
@@ -134,6 +124,15 @@ public class NetUtilsClasses {
     }
 
     /**
+     * A response wrapper for Bitmaps
+     */
+    public interface BitmapResult {
+        void onBitmapFailure(@NonNull HttpUrl source, Exception e);
+
+        void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap);
+    }
+
+    /**
      * Converts input I into output O
      *
      * @param <I> the response's type that will be processed, usually converted first with a ResponseConverter
@@ -172,14 +171,9 @@ public class NetUtilsClasses {
     }
 
     /**
-     * A response wrapper for Bitmaps
+     * A bunch of common converters, which all process an OkHttp response to some other useful object. These can be chained
+     * with the use of ChainConverter above.
      */
-    public interface BitmapResult {
-        void onBitmapFailure(@NonNull HttpUrl source, Exception e);
-
-        void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap);
-    }
-
     public static final Converter<Buffer, Response> BUFFER_CONVERTER = response -> {
         Buffer b = new Buffer();
         b.writeAll(response.body().source());
@@ -257,14 +251,7 @@ public class NetUtilsClasses {
             executed = true;
             BackgroundUtils.runOnBackgroundThread(() -> { // to emulate an actual call coming from a background thread
                 try {
-                    callback.onResponse(
-                            this,
-                            new Response.Builder().code(200)
-                                    .request(request)
-                                    .protocol(Protocol.HTTP_1_1)
-                                    .message("OK")
-                                    .build()
-                    );
+                    callback.onResponse(this, execute());
                 } catch (IOException e) {
                     callback.onFailure(this, e);
                 }
@@ -275,7 +262,7 @@ public class NetUtilsClasses {
         @Override
         public Response execute() {
             executed = true;
-            return new Response.Builder().code(200).message("OK").build();
+            return new Response.Builder().code(200).request(request).protocol(Protocol.HTTP_1_1).message("OK").build();
         }
 
         @Override

@@ -68,6 +68,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.features.embedding.Embeddable;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.features.embedding.InvalidateFunction;
+import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -198,8 +199,8 @@ public class PostCell
         replies.setOnClickListener(repliesClickListener);
 
         options.setOnClickListener(v -> {
-            List<FloatingMenuItem<Integer>> items = new ArrayList<>();
-            List<FloatingMenuItem<Integer>> extraItems = new ArrayList<>();
+            List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
+            List<FloatingMenuItem<PostOptions>> extraItems = new ArrayList<>();
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
@@ -217,14 +218,14 @@ public class PostCell
 
     private void showOptions(
             View anchor,
-            List<FloatingMenuItem<Integer>> items,
-            List<FloatingMenuItem<Integer>> extraItems,
+            List<FloatingMenuItem<PostOptions>> items,
+            List<FloatingMenuItem<PostOptions>> extraItems,
             Object extraOption
     ) {
-        FloatingMenu<Integer> menu = new FloatingMenu<>(getContext(), anchor, items);
-        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
+        FloatingMenu<PostOptions> menu = new FloatingMenu<>(getContext(), anchor, items);
+        menu.setCallback(new FloatingMenu.ClickCallback<PostOptions>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<PostOptions> menu, FloatingMenuItem<PostOptions> item) {
                 if (item.getId() == extraOption) {
                     showOptions(anchor, extraItems, null, null);
                 }

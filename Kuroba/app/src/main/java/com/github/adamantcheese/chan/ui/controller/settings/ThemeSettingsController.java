@@ -123,14 +123,14 @@ public class ThemeSettingsController
 
         @Override
         public Object onPopulatePostOptions(
-                Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+                Post post, List<FloatingMenuItem<PostOptions>> menu, List<FloatingMenuItem<PostOptions>> extraMenu
         ) {
-            menu.add(new FloatingMenuItem<>(1, "Option"));
+            menu.add(new FloatingMenuItem<>(PostOptions.POST_OPTION_INFO, "Option"));
             return 0;
         }
 
         @Override
-        public void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup) {
+        public void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup) {
         }
 
         @Override

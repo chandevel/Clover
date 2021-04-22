@@ -17,20 +17,22 @@
 package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.cache.CacheHandler;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -47,10 +49,11 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
@@ -58,8 +61,8 @@ import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.SearchLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
-import com.github.adamantcheese.chan.features.embedding.Embedder;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
+import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -73,11 +76,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
-import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.file.RawFile;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -88,9 +88,44 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import okhttp3.Call;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_CROSS_BOARD_LINK;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_IMG_URL;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_LINK;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_TEXT;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_URL;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_DELETE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_EXTRA;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_COMMENT;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_COUNTRY_CODE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_FILENAME;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_ID;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_IMAGE_HASH;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_NAME;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_SUBJECT;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_TRIPCODE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIDE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIGHLIGHT_ID;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIGHLIGHT_TRIPCODE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_INFO;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_OPEN_BROWSER;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_PIN;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_QUOTE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_QUOTE_TEXT;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_REMOVE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_REPORT;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_SAVE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_SHARE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_UNSAVE;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
@@ -103,37 +138,6 @@ public class ThreadPresenter
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
     //region Private Variables
-    private static final int POST_OPTION_QUOTE = 0;
-    private static final int POST_OPTION_QUOTE_TEXT = 1;
-    private static final int POST_OPTION_INFO = 2;
-    private static final int POST_OPTION_COPY = 4;
-    private static final int POST_OPTION_REPORT = 5;
-    private static final int POST_OPTION_HIGHLIGHT_ID = 6;
-    private static final int POST_OPTION_DELETE = 7;
-    private static final int POST_OPTION_SAVE = 8;
-    private static final int POST_OPTION_UNSAVE = 9;
-    private static final int POST_OPTION_PIN = 10;
-    private static final int POST_OPTION_SHARE = 11;
-    private static final int POST_OPTION_HIGHLIGHT_TRIPCODE = 12;
-    private static final int POST_OPTION_HIDE = 13;
-    private static final int POST_OPTION_OPEN_BROWSER = 14;
-    private static final int POST_OPTION_FILTER = 15;
-    private static final int POST_OPTION_FILTER_TRIPCODE = 16;
-    private static final int POST_OPTION_FILTER_IMAGE_HASH = 17;
-    private static final int POST_OPTION_FILTER_SUBJECT = 18;
-    private static final int POST_OPTION_FILTER_COMMENT = 19;
-    private static final int POST_OPTION_FILTER_NAME = 20;
-    private static final int POST_OPTION_FILTER_ID = 21;
-    private static final int POST_OPTION_FILTER_FILENAME = 22;
-    private static final int POST_OPTION_FILTER_COUNTRY_CODE = 23;
-    private static final int POST_OPTION_EXTRA = 24;
-    private static final int POST_OPTION_REMOVE = 25;
-    private static final int POST_OPTION_COPY_POST_LINK = 26;
-    private static final int POST_OPTION_COPY_CROSS_BOARD_LINK = 27;
-    private static final int POST_OPTION_COPY_POST_TEXT = 28;
-    private static final int POST_OPTION_COPY_IMG_URL = 29;
-    private static final int POST_OPTION_COPY_POST_URL = 30;
-
     @Inject
     private WatchManager watchManager;
 
@@ -156,8 +160,8 @@ public class ThreadPresenter
     private String searchQuery;
     private PostsFilter.Order order = PostsFilter.Order.BUMP;
     private final Context context;
-    private List<FloatingMenuItem<Integer>> filterMenu;
-    private List<FloatingMenuItem<Integer>> copyMenu;
+    private List<FloatingMenuItem<PostOptions>> filterMenu;
+    private List<FloatingMenuItem<PostOptions>> copyMenu;
     //endregion
 
     public ThreadPresenter(Context context, ThreadPresenterCallback callback) {
@@ -566,7 +570,7 @@ public class ThreadPresenter
 
     @Override
     public Object onPopulatePostOptions(
-            Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+            Post post, List<FloatingMenuItem<PostOptions>> menu, List<FloatingMenuItem<PostOptions>> extraMenu
     ) {
         if (!isBound()) return null;
 
@@ -634,7 +638,7 @@ public class ThreadPresenter
         if (filterMenu.size() > 1) {
             extraMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
         } else if (filterMenu.size() == 1) {
-            FloatingMenuItem<Integer> menuItem = filterMenu.remove(0);
+            FloatingMenuItem<PostOptions> menuItem = filterMenu.remove(0);
             extraMenu.add(new FloatingMenuItem<>(menuItem.getId(), "Filter " + menuItem.getText().toLowerCase()));
         }
 
@@ -647,8 +651,8 @@ public class ThreadPresenter
         return POST_OPTION_EXTRA;
     }
 
-    public void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup) {
-        switch ((Integer) id) {
+    public void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup) {
+        switch (id) {
             case POST_OPTION_QUOTE:
                 threadPresenterCallback.hidePostsPopup();
                 threadPresenterCallback.quote(post, false);
@@ -783,7 +787,7 @@ public class ThreadPresenter
                     break;
                 }
 
-                boolean hide = ((Integer) id) == POST_OPTION_HIDE;
+                boolean hide = id == POST_OPTION_HIDE;
 
                 if (chanLoader.getThread().getLoadable().mode == Loadable.Mode.CATALOG) {
                     threadPresenterCallback.hideThread(post, post.no, hide);
@@ -819,11 +823,13 @@ public class ThreadPresenter
         return matching;
     }
 
-    private void showSubMenuOptions(View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<Integer>> options) {
-        FloatingMenu<Integer> menu = new FloatingMenu<>(context, anchor, options);
-        menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
+    private void showSubMenuOptions(
+            View anchor, Post post, Boolean inPopup, List<FloatingMenuItem<PostOptions>> options
+    ) {
+        FloatingMenu<PostOptions> menu = new FloatingMenu<>(context, anchor, options);
+        menu.setCallback(new FloatingMenu.ClickCallback<PostOptions>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
+            public void onFloatingMenuItemClicked(FloatingMenu<PostOptions> menu, FloatingMenuItem<PostOptions> item) {
                 onPostOptionClicked(anchor, post, item.getId(), inPopup);
             }
         });
@@ -1250,8 +1256,8 @@ public class ThreadPresenter
         }
     }
 
-    private List<FloatingMenuItem<Integer>> populateFilterMenuOptions(Post post) {
-        List<FloatingMenuItem<Integer>> filterMenu = new ArrayList<>();
+    private List<FloatingMenuItem<PostOptions>> populateFilterMenuOptions(Post post) {
+        List<FloatingMenuItem<PostOptions>> filterMenu = new ArrayList<>();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
             filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
         }
@@ -1279,8 +1285,8 @@ public class ThreadPresenter
         return filterMenu;
     }
 
-    private List<FloatingMenuItem<Integer>> populateCopyMenuOptions(Post post) {
-        List<FloatingMenuItem<Integer>> copyMenu = new ArrayList<>();
+    private List<FloatingMenuItem<PostOptions>> populateCopyMenuOptions(Post post) {
+        List<FloatingMenuItem<PostOptions>> copyMenu = new ArrayList<>();
         if (!TextUtils.isEmpty(post.comment)) {
             copyMenu.add(new FloatingMenuItem<>(POST_OPTION_COPY_POST_TEXT, R.string.post_copy_text));
         }

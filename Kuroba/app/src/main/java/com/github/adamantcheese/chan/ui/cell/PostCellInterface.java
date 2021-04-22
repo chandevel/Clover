@@ -59,12 +59,49 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
+        enum PostOptions {
+            POST_OPTION_QUOTE,
+            POST_OPTION_QUOTE_TEXT,
+            POST_OPTION_INFO,
+            POST_OPTION_COPY,
+            POST_OPTION_REPORT,
+            POST_OPTION_HIGHLIGHT_ID,
+            POST_OPTION_DELETE,
+            POST_OPTION_SAVE,
+            POST_OPTION_UNSAVE,
+            POST_OPTION_PIN,
+            POST_OPTION_SHARE,
+            POST_OPTION_HIGHLIGHT_TRIPCODE,
+            POST_OPTION_HIDE,
+            POST_OPTION_OPEN_BROWSER,
+            POST_OPTION_FILTER,
+            POST_OPTION_FILTER_TRIPCODE,
+            POST_OPTION_FILTER_IMAGE_HASH,
+            POST_OPTION_FILTER_SUBJECT,
+            POST_OPTION_FILTER_COMMENT,
+            POST_OPTION_FILTER_NAME,
+            POST_OPTION_FILTER_ID,
+            POST_OPTION_FILTER_FILENAME,
+            POST_OPTION_FILTER_COUNTRY_CODE,
+            POST_OPTION_EXTRA,
+            POST_OPTION_REMOVE,
+            POST_OPTION_COPY_POST_LINK,
+            POST_OPTION_COPY_CROSS_BOARD_LINK,
+            POST_OPTION_COPY_POST_TEXT,
+            POST_OPTION_COPY_IMG_URL,
+            POST_OPTION_COPY_POST_URL;
+
+            public static PostOptions valueOf(int i) {
+                return PostOptions.values()[i];
+            }
+        }
+
         // These floating menu items have type Integer because it is expected that post option IDs are integers
         Object onPopulatePostOptions(
-                Post post, List<FloatingMenuItem<Integer>> menu, List<FloatingMenuItem<Integer>> extraMenu
+                Post post, List<FloatingMenuItem<PostOptions>> menu, List<FloatingMenuItem<PostOptions>> extraMenu
         );
 
-        void onPostOptionClicked(View anchor, Post post, Object id, boolean inPopup);
+        void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup);
 
         void onPostLinkableClicked(Post post, PostLinkable linkable);
 
