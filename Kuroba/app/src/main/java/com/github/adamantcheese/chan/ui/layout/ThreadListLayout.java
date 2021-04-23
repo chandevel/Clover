@@ -309,6 +309,9 @@ public class ThreadListLayout
 
     public void gainedFocus() {
         showToolbarIfNeeded();
+        if (replyOpen) {
+            reply.focusComment();
+        }
     }
 
     public void openReply(boolean open) {

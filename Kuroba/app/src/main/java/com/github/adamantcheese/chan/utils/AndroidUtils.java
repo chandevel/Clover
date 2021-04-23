@@ -58,6 +58,7 @@ import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.preference.PreferenceManager;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
 import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.EventBus;
@@ -317,6 +318,16 @@ public class AndroidUtils {
         if (view.requestFocus()) {
             getInputManager().showSoftInput(view, SHOW_IMPLICIT);
         }
+    }
+
+    public static void clearAnyKeyboards(Context context) {
+        try {
+            View currentFocus = ((StartActivity) context).getContentView().getFocusedChild();
+            if (currentFocus != null) {
+                hideKeyboard(currentFocus);
+                currentFocus.clearFocus();
+            }
+        } catch (Exception ignored) {}
     }
 
     /**

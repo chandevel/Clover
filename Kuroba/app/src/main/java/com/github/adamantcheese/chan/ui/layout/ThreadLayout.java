@@ -37,7 +37,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -76,9 +75,9 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnyKeyboards;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
@@ -324,11 +323,7 @@ public class ThreadLayout
     }
 
     public void showPostsPopup(Post forPost, List<Post> posts) {
-        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
-        if (currentFocus != null) {
-            hideKeyboard(currentFocus);
-            currentFocus.clearFocus();
-        }
+        clearAnyKeyboards(getContext());
         postPopupHelper.showPosts(forPost, posts);
     }
 
@@ -353,11 +348,7 @@ public class ThreadLayout
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
-        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
-        if (currentFocus != null) {
-            hideKeyboard(currentFocus);
-            currentFocus.clearFocus();
-        }
+        clearAnyKeyboards(getContext());
         callback.showImages(images, index, loadable, thumbnail);
     }
 
@@ -623,11 +614,7 @@ public class ThreadLayout
 
     @Override
     public void showImageReencodingWindow() {
-        View currentFocus = ((StartActivity) getContext()).getContentView().getFocusedChild();
-        if (currentFocus != null) {
-            hideKeyboard(currentFocus);
-            currentFocus.clearFocus();
-        }
+        clearAnyKeyboards(getContext());
         try {
             presentController(new ImageOptionsController(getContext(), presenter.getLoadable(), this));
         } catch (Exception e) {
