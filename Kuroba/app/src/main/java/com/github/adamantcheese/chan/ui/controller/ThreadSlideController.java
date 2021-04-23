@@ -37,7 +37,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.lang.reflect.Field;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnyKeyboards;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
@@ -314,7 +314,7 @@ public class ThreadSlideController
 
     private void slideStateChanged() {
         setParentNavigationItem(leftOpen);
-        clearAnyKeyboards(context);
+        clearAnySelectionsAndKeyboards(context);
         notifySlideChanged(leftOpen ? leftController : rightController);
     }
 

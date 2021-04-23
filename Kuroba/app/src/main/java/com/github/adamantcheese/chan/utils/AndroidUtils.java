@@ -320,7 +320,8 @@ public class AndroidUtils {
         }
     }
 
-    public static void clearAnyKeyboards(Context context) {
+    // Clears selection popups and soft keyboards from whatever they'e currently on
+    public static void clearAnySelectionsAndKeyboards(Context context) {
         try {
             View currentFocus = ((StartActivity) context).getContentView().getFocusedChild();
             if (currentFocus != null) {

@@ -75,7 +75,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnyKeyboards;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -323,7 +323,7 @@ public class ThreadLayout
     }
 
     public void showPostsPopup(Post forPost, List<Post> posts) {
-        clearAnyKeyboards(getContext());
+        clearAnySelectionsAndKeyboards(getContext());
         postPopupHelper.showPosts(forPost, posts);
     }
 
@@ -348,7 +348,7 @@ public class ThreadLayout
 
     @Override
     public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
-        clearAnyKeyboards(getContext());
+        clearAnySelectionsAndKeyboards(getContext());
         callback.showImages(images, index, loadable, thumbnail);
     }
 
@@ -614,7 +614,7 @@ public class ThreadLayout
 
     @Override
     public void showImageReencodingWindow() {
-        clearAnyKeyboards(getContext());
+        clearAnySelectionsAndKeyboards(getContext());
         try {
             presentController(new ImageOptionsController(getContext(), presenter.getLoadable(), this));
         } catch (Exception e) {

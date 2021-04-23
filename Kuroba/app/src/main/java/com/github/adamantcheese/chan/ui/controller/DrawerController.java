@@ -80,6 +80,7 @@ import static com.github.adamantcheese.chan.core.database.DatabaseLoadableManage
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
 import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -189,6 +190,7 @@ public class DrawerController
 
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
+                clearAnySelectionsAndKeyboards(context);
                 AndroidUtils.getBaseToolTip(context)
                         .setPreferenceName("DrawerPinHistoryHint")
                         .setArrowOrientation(ArrowOrientation.TOP)
