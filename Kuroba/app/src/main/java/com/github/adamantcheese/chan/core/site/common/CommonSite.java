@@ -16,15 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
-import android.webkit.WebView;
-
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -38,21 +38,21 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
+import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-import okhttp3.Request;
 import okhttp3.Response;
 
 import static android.text.TextUtils.isEmpty;
@@ -72,7 +72,6 @@ public abstract class CommonSite
     private CommonEndpoints endpoints;
     private CommonActions actions;
     private CommonApi api;
-    private final CommonCallModifier callModifier = new CommonCallModifier() {};
 
     public PostParser postParser;
 
@@ -218,11 +217,6 @@ public abstract class CommonSite
     @Override
     public SiteActions actions() {
         return actions;
-    }
-
-    @Override
-    public CommonCallModifier callModifier() {
-        return callModifier;
     }
 
     @Override
@@ -450,8 +444,10 @@ public abstract class CommonSite
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
-                public void process(Response response, String result) {
-                    handlePost(replyResponse, response, result);
+                public Void convert(Response response)
+                        throws IOException {
+                    handlePost(replyResponse, response);
+                    return null;
                 }
             };
 
@@ -474,7 +470,8 @@ public abstract class CommonSite
         public void setupPost(Loadable loadable, MultipartHttpCall call) {
         }
 
-        public void handlePost(ReplyResponse response, Response httpResponse, String responseBody) {
+        public void handlePost(ReplyResponse response, Response httpResponse)
+                throws IOException {
         }
 
         @Override
@@ -488,17 +485,17 @@ public abstract class CommonSite
         }
 
         private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
-            NetUtils.makeHttpCall(call, new HttpCallback<HttpCall>() {
+            NetUtils.makeHttpCall(call.setCallback(new ResponseResult<HttpCall>() {
                 @Override
-                public void onHttpSuccess(HttpCall httpCall) {
-                    postListener.onPostComplete(replyResponse);
+                public void onFailure(Exception e) {
+                    postListener.onFailure(e);
                 }
 
                 @Override
-                public void onHttpFail(HttpCall httpCall, Exception e) {
-                    postListener.onPostError(e);
+                public void onSuccess(HttpCall result) {
+                    postListener.onSuccess(replyResponse);
                 }
-            });
+            }));
         }
 
         public boolean requirePrepare() {
@@ -509,53 +506,56 @@ public abstract class CommonSite
         }
 
         @Override
-        public void delete(DeleteRequest deleteRequest, DeleteListener deleteListener) {
+        public void delete(DeleteRequest deleteRequest, ResponseResult<DeleteResponse> deleteListener) {
             DeleteResponse deleteResponse = new DeleteResponse();
 
             MultipartHttpCall call = new MultipartHttpCall(site) {
                 @Override
-                public void process(Response response, String result) {
-                    handleDelete(deleteResponse, response, result);
+                public Void convert(Response response)
+                        throws IOException {
+                    handleDelete(deleteResponse, response);
+                    return null;
                 }
             };
 
             call.url(site.endpoints().delete(deleteRequest.post));
             setupDelete(deleteRequest, call);
-            NetUtils.makeHttpCall(call, new HttpCallback<HttpCall>() {
+            NetUtils.makeHttpCall(call.setCallback(new ResponseResult<HttpCall>() {
                 @Override
-                public void onHttpSuccess(HttpCall httpCall) {
-                    deleteListener.onDeleteComplete(deleteResponse);
+                public void onSuccess(HttpCall httpCall) {
+                    deleteListener.onSuccess(deleteResponse);
                 }
 
                 @Override
-                public void onHttpFail(HttpCall httpCall, Exception e) {
-                    deleteListener.onDeleteError(e);
+                public void onFailure(Exception e) {
+                    deleteListener.onFailure(e);
                 }
-            });
+            }));
         }
 
         public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
         }
 
-        public void handleDelete(DeleteResponse response, Response httpResponse, String responseBody) {
+        public void handleDelete(DeleteResponse response, Response httpResponse)
+                throws IOException {
         }
 
         @Override
-        public void boards(BoardsListener boardsListener) {
-            boardsListener.onBoardsReceived(new Boards(site.staticBoards));
+        public void boards(ResponseResult<Boards> boardsListener) {
+            boardsListener.onSuccess(new Boards(site.staticBoards));
         }
 
         @Override
-        public void pages(Board board, PagesListener pagesListener) {
-            pagesListener.onPagesReceived(board, new ChanPages());
+        public void pages(Board board, ResponseResult<ChanPages> pagesListener) {
+            pagesListener.onSuccess(new ChanPages());
         }
 
         @Override
-        public void archive(Board board, ArchiveListener archiveListener) {
+        public void archive(Board board, ResponseResult<InternalSiteArchive> archiveListener) {
         }
 
         @Override
-        public void login(LoginRequest loginRequest, LoginListener loginListener) {
+        public void login(LoginRequest loginRequest, ResponseResult<LoginResponse> loginListener) {
         }
 
         @Override
@@ -584,14 +584,6 @@ public abstract class CommonSite
         @Override
         public PostParser getParser() {
             return site.postParser;
-        }
-    }
-
-    public abstract static class CommonCallModifier {
-        public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
-        }
-
-        public void modifyWebView(WebView webView) {
         }
     }
 }

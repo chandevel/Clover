@@ -4,6 +4,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
@@ -17,7 +18,7 @@ import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.HttpCall.HttpCallback;
+import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
+import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
 
@@ -92,6 +94,10 @@ public class Dvach
     public Dvach() {
         setName("2ch.hk");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
+        // request the NID cookie from google; if an NID is already in the cookie jar, it won't be updated unless it expires
+        // NID cookies expire 6 months after they're retrieved
+        NetUtils.applicationClient.newCall(new Request.Builder().url(HttpUrl.get("https://www.google.com")).build())
+                .enqueue(new NetUtilsClasses.IgnoreAllCallback());
     }
 
     @Override

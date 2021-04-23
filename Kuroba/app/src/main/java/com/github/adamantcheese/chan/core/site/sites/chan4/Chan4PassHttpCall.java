@@ -18,14 +18,13 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.core.site.http.ProgressRequestBody;
 
-import java.net.HttpCookie;
-import java.util.List;
+import java.io.IOException;
 
 import okhttp3.FormBody;
 import okhttp3.Request;
@@ -57,46 +56,26 @@ public class Chan4PassHttpCall
     }
 
     @Override
-    public void process(Response response, String result) {
-        boolean authSuccess = false;
-        if (result.contains("Success! Your device is now authorized")) {
-            authSuccess = true;
+    public Void convert(Response response)
+            throws IOException {
+        String responseString = response.body().string();
+        if (responseString.contains("Success! Your device is now authorized")) {
+            // cookies are stored in the OkHttp client's CookieJar
+            loginResponse.message = "Success! Your device is now authorized.";
+            loginResponse.success = true;
         } else {
             String message;
-            if (result.contains("Your Token must be exactly 10 characters")) {
-                message = "Incorrect token";
-            } else if (result.contains("You have left one or more fields blank")) {
+            if (responseString.contains("Your Token must be exactly 10 characters")) {
+                message = "Your Token must be exactly 10 characters";
+            } else if (responseString.contains("You have left one or more fields blank")) {
                 message = "You have left one or more fields blank";
-            } else if (result.contains("Incorrect Token or PIN")) {
+            } else if (responseString.contains("Incorrect Token or PIN")) {
                 message = "Incorrect Token or PIN";
             } else {
                 message = "Unknown error";
             }
             loginResponse.message = message;
         }
-
-        if (authSuccess) {
-            List<String> cookies = response.headers("Set-Cookie");
-            String passId = null;
-            for (String cookie : cookies) {
-                try {
-                    List<HttpCookie> parsedList = HttpCookie.parse(cookie);
-                    for (HttpCookie parsed : parsedList) {
-                        if (parsed.getName().equals("pass_id") && !parsed.getValue().equals("0")) {
-                            passId = parsed.getValue();
-                        }
-                    }
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
-
-            if (passId != null) {
-                loginResponse.token = passId;
-                loginResponse.message = "Success! Your device is now authorized.";
-                loginResponse.success = true;
-            } else {
-                loginResponse.message = "Could not get pass id";
-            }
-        }
+        return null;
     }
 }

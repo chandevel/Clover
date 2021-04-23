@@ -16,68 +16,52 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.AndroidRuntimeException;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.webkit.WebSettings;
+import android.webkit.ConsoleMessage;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
-import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ReportController
-        extends Controller {
-    private final Post post;
-    private final Loadable loadable;
+        extends WebViewController {
 
     public ReportController(Context context, Post post, Loadable loadable) {
-        super(context);
-        this.post = post;
-        this.loadable = loadable;
+        super(
+                context,
+                getString(R.string.report_screen, PostHelper.getTitle(post, loadable)),
+                post.board.site.endpoints().report(post).toString()
+        );
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate() {
         super.onCreate();
-        navigation.title = getString(R.string.report_screen, PostHelper.getTitle(post, loadable));
-
-        Site site = post.board.site;
-
-        try {
-            WebView webView = new WebView(context);
-
-            CommonSite.CommonCallModifier siteCallModifier = site.callModifier();
-            if (siteCallModifier != null) {
-                siteCallModifier.modifyWebView(webView);
+        ((WebView) view).getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
+        ((WebView) view).setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onCloseWindow(WebView window) {
+                super.onCloseWindow(window);
+                // some window.close events are routed into here, pop the controller if so
+                navigationController.popController(true);
             }
 
-            WebSettings settings = webView.getSettings();
-            settings.setJavaScriptEnabled(true);
-            settings.setDomStorageEnabled(true);
-            webView.loadUrl(post.board.site.endpoints().report(post).toString());
-            view = webView;
-        } catch (Throwable error) {
-            String errmsg = "";
-            if (error instanceof AndroidRuntimeException && error.getMessage() != null) {
-                if (error.getMessage().contains("MissingWebViewPackageException")) {
-                    errmsg = getString(R.string.fail_reason_webview_is_not_installed);
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                // cheap hack to capture a JS window close error message
+                // when that error occurs for this controller/webview, pop the controllers
+                if (consoleMessage.message().contains("close")) {
+                    navigationController.popController(true);
+                    return true;
+                } else {
+                    return super.onConsoleMessage(consoleMessage);
                 }
-            } else {
-                errmsg = getString(R.string.fail_reason_some_part_of_webview_not_initialized, error.getMessage());
             }
-            view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_webview_error, null);
-            ((TextView) view.findViewById(R.id.text)).setText(errmsg);
-        }
+        });
     }
 }

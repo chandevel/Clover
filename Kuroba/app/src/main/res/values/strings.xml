@@ -687,16 +687,6 @@ Don't have a 4chan Pass?<br>
     <string name="report_controller_report_sent">Sent report!</string>
     <string name="report_controller_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
 
-    <string name="hsid_cookie_text">HSID</string>
-    <string name="ssid_cookie_text">SSID</string>
-    <string name="sid_cookie_text">SID</string>
-    <string name="nid_cookie_text">NID</string>
-    <string name="js_captcha_cookies_editor_format_hint">Do not prepend values with \"HSID=…\", \"SSID=…\" etc.</string>
-    <string name="settings_js_captcha_cookies_title">JS captcha cookies</string>
-    <string name="settings_js_captcha_cookies_description">By inputting your desktop browser captcha cookies, captcha solving may become easier</string>
-    <string name="cookies_editor_bad_cookie">%1$s cookie is not set!</string>
-    <string name="cookies_editor_failed_parse">Failed to parse cookies, re-enter them correctly!</string>
-
     <string name="settings_report">Report</string>
     <string name="settings_report_description">Report a problem/crash</string>
     <string name="settings_collect_crash_logs">Collect crash logs</string>

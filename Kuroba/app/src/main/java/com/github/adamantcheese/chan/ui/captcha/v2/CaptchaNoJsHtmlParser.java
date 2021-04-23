@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
@@ -27,7 +26,7 @@ import android.text.style.StyleSpan;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -44,6 +43,7 @@ import java.util.regex.Pattern;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
 
 public class CaptchaNoJsHtmlParser {
@@ -64,13 +64,7 @@ public class CaptchaNoJsHtmlParser {
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
 
-    private final NetModule.OkHttpClientWithUtils okHttpClient;
-    private final Context context;
-
-    public CaptchaNoJsHtmlParser(Context context, NetModule.OkHttpClientWithUtils okHttpClient) {
-        this.context = context;
-        this.okHttpClient = okHttpClient;
-    }
+    public CaptchaNoJsHtmlParser() {}
 
     @NonNull
     public CaptchaInfo parseHtml(String responseHtml, String siteKey)
@@ -265,7 +259,7 @@ public class CaptchaNoJsHtmlParser {
             throws IOException, CaptchaNoJsV2ParsingError {
         Request request = new Request.Builder().url(fullUrl).build();
 
-        try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
+        try (Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new CaptchaNoJsV2ParsingError(
                         "Could not download challenge image, status code = " + response.code());
@@ -277,7 +271,7 @@ public class CaptchaNoJsHtmlParser {
 
     private File getChallengeImageFile()
             throws IOException {
-        File imageFile = new File(context.getCacheDir(), CHALLENGE_IMAGE_FILE_NAME);
+        File imageFile = new File(getCacheDir(), CHALLENGE_IMAGE_FILE_NAME);
 
         if (!imageFile.exists()) {
             imageFile.createNewFile();

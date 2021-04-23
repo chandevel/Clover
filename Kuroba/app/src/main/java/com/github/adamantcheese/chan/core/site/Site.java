@@ -21,7 +21,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
-import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
@@ -158,8 +157,6 @@ public interface Site {
     List<SiteSetting<?>> settings();
 
     SiteEndpoints endpoints();
-
-    CommonCallModifier callModifier();
 
     ChanReader chanReader();
 

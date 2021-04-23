@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
-import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesEditorController;
+import com.github.adamantcheese.chan.ui.controller.WebViewController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -113,9 +113,12 @@ public class BehaviourSettingsController
                     v -> navigationController.pushController(new SitesSetupController(context))
             ));
             general.add(new LinkSettingView(this,
-                    R.string.settings_js_captcha_cookies_title,
-                    R.string.settings_js_captcha_cookies_description,
-                    v -> navigationController.pushController(new JsCaptchaCookiesEditorController(context))
+                    "Google Login",
+                    "Sign into Google to grab your Google cookies, for Captcha ease.",
+                    v -> navigationController.pushController(new WebViewController(context,
+                            "Google Login",
+                            "https://accounts.google.com"
+                    ))
             ));
 
             general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, R.string.empty, v -> {

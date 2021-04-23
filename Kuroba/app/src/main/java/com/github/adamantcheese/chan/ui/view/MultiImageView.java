@@ -579,6 +579,7 @@ public class MultiImageView
             }
         });
         webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setUserAgentString(NetUtils.USER_AGENT);
         webView.loadUrl(postImage.imageUrl.toString());
         webView.setBackgroundColor(Color.TRANSPARENT);
         if (!hasContent || mode == Mode.WEBVIEW) {

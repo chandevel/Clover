@@ -32,10 +32,8 @@ import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
-import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.google.gson.Gson;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -236,7 +234,6 @@ public class ChanSettings {
     public static final BooleanSetting imageViewerGestures;
     public static final BooleanSetting alwaysOpenDrawer;
     public static final BooleanSetting applyImageFilterToPost;
-    public static final StringSetting jsCaptchaCookies;
 
     // Reply
     public static final BooleanSetting postPinThread;
@@ -397,7 +394,6 @@ public class ChanSettings {
             imageViewerGestures = new BooleanSetting(p, "image_viewer_gestures", true);
             alwaysOpenDrawer = new BooleanSetting(p, "drawer_auto_open_always", false);
             applyImageFilterToPost = new BooleanSetting(p, "apply_image_filtering_to_post", false);
-            jsCaptchaCookies = new StringSetting(p, "js_captcha_cookies", EMPTY_JSON);
 
             // Reply
             postPinThread = new BooleanSetting(p, "preference_pin_on_post", false);
@@ -487,15 +483,6 @@ public class ChanSettings {
             // stacktrace. Otherwise we won't because of Feather.
             Logger.e("ChanSettings", "Error while initializing the settings", error);
             throw error;
-        }
-    }
-
-    public static JsCaptchaCookiesJar getJsCaptchaCookieJar(Gson gson) {
-        try {
-            return gson.fromJson(ChanSettings.jsCaptchaCookies.get(), JsCaptchaCookiesJar.class);
-        } catch (Throwable error) {
-            Logger.e("ChanSettings", "Error while trying to deserialize JsCaptchaCookiesJar", error);
-            return JsCaptchaCookiesJar.empty();
         }
     }
 

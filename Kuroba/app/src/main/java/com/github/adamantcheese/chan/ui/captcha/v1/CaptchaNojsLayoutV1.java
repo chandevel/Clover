@@ -30,8 +30,7 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.di.NetModule.OkHttpClientWithUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
@@ -40,23 +39,17 @@ import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import okhttp3.Call;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 /**
- * It directly loads the captcha2 fallback url into a webview, and on each requests it executes
- * some javascript that will tell the callback if the token is there.
+ * Loads a Captcha2 fallback url in a webview; not the same as a regular captcha2 in CaptchaLayout.
  */
 public class CaptchaNojsLayoutV1
         extends WebView
@@ -82,6 +75,7 @@ public class CaptchaNojsLayoutV1
 
     public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        getSettings().setUserAgentString(NetUtils.USER_AGENT);
         inject(this);
     }
 
@@ -154,24 +148,9 @@ public class CaptchaNojsLayoutV1
 
     @Override
     public void hardReset() {
-        loadRecaptchaAndSetWebViewData();
-    }
-
-    private void loadRecaptchaAndSetWebViewData() {
-        final String recaptchaUrl = "https://www.google.com/recaptcha/api/fallback?k=" + siteKey;
-
-        Request request = new Request.Builder().url(recaptchaUrl).addHeader("Referer", baseUrl).build();
-        instance(OkHttpClientWithUtils.class).newCall(request).enqueue(new IgnoreFailureCallback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response)
-                    throws IOException {
-                ResponseBody body = response.body();
-                if (body == null) throw new IOException();
-                String responseHtml = body.string();
-
-                post(() -> loadDataWithBaseURL(recaptchaUrl, responseHtml, "text/html", "UTF-8", null));
-            }
-        });
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Referer", baseUrl);
+        loadUrl("https://www.google.com/recaptcha/api/fallback?k=" + siteKey, headers);
     }
 
     private void onCaptchaEntered(String response) {

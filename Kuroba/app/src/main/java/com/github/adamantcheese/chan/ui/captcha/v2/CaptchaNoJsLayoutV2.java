@@ -82,7 +82,7 @@ public class CaptchaNoJsLayoutV2
         super(context, attrs, defStyleAttr);
         inject(this);
 
-        this.presenter = new CaptchaNoJsPresenterV2(this, context);
+        this.presenter = new CaptchaNoJsPresenterV2(this);
         this.adapter = new CaptchaNoJsV2Adapter();
 
         View view = inflate(context, R.layout.layout_captcha_nojs_v2, this);

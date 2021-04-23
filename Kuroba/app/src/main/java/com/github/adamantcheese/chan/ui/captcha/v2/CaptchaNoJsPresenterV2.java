@@ -16,11 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2;
 
-import android.content.Context;
-
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.core.di.NetModule;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -30,8 +29,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.inject.Inject;
-
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.Request;
@@ -40,25 +37,10 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class CaptchaNoJsPresenterV2 {
-    private static final String acceptHeader =
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3";
-    private static final String acceptEncodingHeader = "deflate, br";
-    private static final String acceptLanguageHeader = "en-US";
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
-    private static final String encoding = "UTF-8";
-    private static final String mediaType = "application/x-www-form-urlencoded";
-    private static final String recaptchaChallengeString = "reCAPTCHA challenge";
-    private static final String verificationTokenString = "fbc-verification-token";
-    private static final long CAPTCHA_REQUEST_THROTTLE_MS = 3000L;
-
-    // this cookie is taken from dashchan
-    private static final String defaultGoogleCookies =
-            "NID=87=gkOAkg09AKnvJosKq82kgnDnHj8Om2pLskKhdna02msog8HkdHDlasDf";
-
-    @Inject
-    NetModule.OkHttpClientWithUtils okHttpClient;
 
     private final CaptchaNoJsHtmlParser parser;
 
@@ -73,10 +55,10 @@ public class CaptchaNoJsPresenterV2 {
     private String baseUrl;
     private long lastTimeCaptchaRequest = 0L;
 
-    public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks, Context context) {
+    public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks) {
         inject(this);
         this.callbacks = callbacks;
-        this.parser = new CaptchaNoJsHtmlParser(context, okHttpClient);
+        this.parser = new CaptchaNoJsHtmlParser();
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -111,20 +93,16 @@ public class CaptchaNoJsPresenterV2 {
             BackgroundUtils.runOnBackgroundThread(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
-                    RequestBody body = createResponseBody(prevCaptchaInfo, selectedIds);
+                    RequestBody body = createRequestBody(prevCaptchaInfo, selectedIds);
 
                     Logger.d(CaptchaNoJsPresenterV2.this, "Verify called");
 
                     Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
                             .addHeader("Referer", recaptchaUrl)
-                            .addHeader("Accept", acceptHeader)
-                            .addHeader("Accept-Encoding", acceptEncodingHeader)
-                            .addHeader("Accept-Language", acceptLanguageHeader)
-                            .addHeader("Cookie", defaultGoogleCookies)
                             .build();
 
-                    try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
+                    try (Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -159,7 +137,7 @@ public class CaptchaNoJsPresenterV2 {
 
         try {
             // recaptcha may become very angry at you if your are fetching it too fast
-            if (System.currentTimeMillis() - lastTimeCaptchaRequest < CAPTCHA_REQUEST_THROTTLE_MS) {
+            if (System.currentTimeMillis() - lastTimeCaptchaRequest < SECONDS.toMillis(3)) {
                 captchaRequestInProgress.set(false);
                 Logger.d(this, "Requesting captcha info too fast");
                 return RequestCaptchaInfoError.HOLD_YOUR_HORSES;
@@ -205,46 +183,42 @@ public class CaptchaNoJsPresenterV2 {
             throws IOException {
         BackgroundUtils.ensureBackgroundThread();
 
-        String recaptchaUrl = recaptchaUrlBase + siteKey;
-
-        Request request = new Request.Builder().url(recaptchaUrl)
+        Request request = new Request.Builder().url(recaptchaUrlBase + siteKey)
+                .cacheControl(NetUtilsClasses.NO_CACHE)
                 .addHeader("Referer", baseUrl)
-                .addHeader("Accept", acceptHeader)
-                .addHeader("Accept-Encoding", acceptEncodingHeader)
-                .addHeader("Accept-Language", acceptLanguageHeader)
-                .addHeader("Cookie", defaultGoogleCookies)
                 .build();
 
-        try (Response response = okHttpClient.getProxiedClient().newCall(request).execute()) {
+        try (Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }
 
-    private RequestBody createResponseBody(CaptchaInfo prevCaptchaInfo, List<Integer> selectedIds)
+    private RequestBody createRequestBody(CaptchaInfo prevCaptchaInfo, List<Integer> selectedIds)
             throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(URLEncoder.encode("c", encoding));
+        sb.append(URLEncoder.encode("c", "utf-8"));
         sb.append("=");
-        sb.append(URLEncoder.encode(prevCaptchaInfo.cParameter, encoding));
+        sb.append(URLEncoder.encode(prevCaptchaInfo.cParameter, "utf-8"));
         sb.append("&");
 
         for (Integer selectedImageId : selectedIds) {
-            sb.append(URLEncoder.encode("response", encoding));
+            sb.append(URLEncoder.encode("response", "utf-8"));
             sb.append("=");
-            sb.append(URLEncoder.encode(String.valueOf(selectedImageId), encoding));
+            sb.append(URLEncoder.encode(String.valueOf(selectedImageId), "utf-8"));
             sb.append("&");
         }
 
         String resultBody;
 
         if (selectedIds.size() > 0) {
+            // trim trailing &
             resultBody = sb.deleteCharAt(sb.length() - 1).toString();
         } else {
             resultBody = sb.toString();
         }
 
-        return MultipartBody.create(resultBody, MediaType.parse(mediaType));
+        return MultipartBody.create(resultBody, MediaType.parse("application/x-www-form-urlencoded"));
     }
 
     @Nullable
@@ -269,11 +243,11 @@ public class CaptchaNoJsPresenterV2 {
             }
 
             String bodyString = body.string();
-            if (!bodyString.contains(recaptchaChallengeString)) {
+            if (!bodyString.contains("reCAPTCHA challenge")) {
                 throw new IllegalStateException("Response body does not contain \"reCAPTCHA challenge\" string");
             }
 
-            if (bodyString.contains(verificationTokenString)) {
+            if (bodyString.contains("fbc-verification-token")) {
                 // got the token
                 String verificationToken = parser.parseVerificationToken(bodyString);
                 Logger.d(this, "Got the verification token");

@@ -16,9 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
-import android.webkit.CookieManager;
-import android.webkit.WebView;
-
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -27,7 +24,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTMLProcessor;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
@@ -45,17 +42,14 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
-import com.github.adamantcheese.chan.core.site.common.CommonSite.CommonCallModifier;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -66,6 +60,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import kotlin.random.Random;
+import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 
@@ -269,111 +264,68 @@ public class Chan4
         }
     };
 
-    private final CommonCallModifier siteCallModifier = new CommonCallModifier() {
-        @Override
-        public void modifyHttpCall(HttpCall httpCall, Request.Builder requestBuilder) {
-            if (actions.isLoggedIn()) {
-                requestBuilder.addHeader("Cookie", "pass_id=" + passToken.get());
-            }
-        }
-
-        @Override
-        public void modifyWebView(WebView webView) {
-            final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
-
-            CookieManager cookieManager = CookieManager.getInstance();
-            cookieManager.removeAllCookies(null);
-            if (actions.isLoggedIn()) {
-                String[] passCookies = {"pass_enabled=1;", "pass_id=" + passToken.get() + ";"};
-                String domain = sys.scheme() + "://" + sys.host() + "/";
-                for (String cookie : passCookies) {
-                    cookieManager.setCookie(domain, cookie);
-                }
-            }
-        }
-    };
-
     private final SiteActions actions = new SiteActions() {
         @Override
-        public void boards(final BoardsListener listener) {
-            NetUtils.makeJsonRequest(endpoints.boards(), new ResponseResult<Boards>() {
-                @Override
-                public void onFailure(Exception e) {
-                    Logger.e(Chan4.this, "Failed to get boards from server", e);
-                    listener.onBoardsReceived(new Boards());
-                }
-
-                @Override
-                public void onSuccess(Boards result) {
-                    listener.onBoardsReceived(result);
-                }
-            }, new Chan4BoardsRequest(Chan4.this));
+        public void boards(final ResponseResult<Boards> listener) {
+            NetUtils.makeJsonRequest(endpoints.boards(),
+                    listener,
+                    new Chan4BoardsRequest(Chan4.this),
+                    NetUtilsClasses.ONE_DAY_CACHE
+            );
         }
 
         @Override
-        public void pages(Board board, PagesListener listener) {
+        public void pages(Board board, ResponseResult<ChanPages> listener) {
             NetUtils.makeJsonRequest(endpoints().pages(board), new ResponseResult<ChanPages>() {
                 @Override
                 public void onFailure(Exception e) {
                     Logger.e(Chan4.this, "Failed to get pages for board " + board.code, e);
-                    listener.onPagesReceived(board, new ChanPages());
+                    listener.onSuccess(new ChanPages());
                 }
 
                 @Override
                 public void onSuccess(ChanPages result) {
-                    listener.onPagesReceived(board, result);
+                    listener.onSuccess(result);
                 }
-            }, new Chan4PagesParser());
+            }, new Chan4PagesParser(), NetUtilsClasses.NO_CACHE);
         }
 
         @Override
-        public void archive(Board board, ArchiveListener archiveListener) {
-            NetUtils.makeHTMLRequest(endpoints().archive(board), new ResponseResult<InternalSiteArchive>() {
-                @Override
-                public void onFailure(Exception e) {
-                    BackgroundUtils.runOnMainThread(archiveListener::onArchiveError);
-                }
+        public void archive(Board board, ResponseResult<InternalSiteArchive> archiveListener) {
+            NetUtils.makeHTMLRequest(endpoints().archive(board),
+                    new NetUtilsClasses.MainThreadResponseResult<>(archiveListener),
+                    response -> {
+                        List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
-                @Override
-                public void onSuccess(InternalSiteArchive result) {
-                    BackgroundUtils.runOnMainThread(() -> archiveListener.onArchive(result));
-                }
-            }, new HTMLProcessor<InternalSiteArchive>() {
-                @Override
-                public InternalSiteArchive process(Document response) {
-                    List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
+                        Element table = response.getElementById("arc-list");
+                        Element tableBody = table.getElementsByTag("tbody").first();
+                        Elements trs = tableBody.getElementsByTag("tr");
+                        for (Element tr : trs) {
+                            Elements dataElements = tr.getElementsByTag("td");
+                            String description = dataElements.get(1).text();
+                            int id = Integer.parseInt(dataElements.get(0).text());
+                            items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
+                        }
 
-                    Element table = response.getElementById("arc-list");
-                    Element tableBody = table.getElementsByTag("tbody").first();
-                    Elements trs = tableBody.getElementsByTag("tr");
-                    for (Element tr : trs) {
-                        Elements dataElements = tr.getElementsByTag("td");
-                        String description = dataElements.get(1).text();
-                        int id = Integer.parseInt(dataElements.get(0).text());
-                        items.add(InternalSiteArchive.ArchiveItem.fromDescriptionId(description, id));
-                    }
-
-                    return InternalSiteArchive.fromItems(items);
-                }
-            });
+                        return InternalSiteArchive.fromItems(items);
+                    },
+                    NetUtilsClasses.NO_CACHE
+            );
         }
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(loadableWithDraft),
-                    new HttpCall.HttpCallback<CommonReplyHttpCall>() {
-                        @Override
-                        public void onHttpSuccess(CommonReplyHttpCall httpPost) {
-                            postListener.onPostComplete(httpPost.replyResponse);
-                        }
+            NetUtils.makeHttpCall(new Chan4ReplyCall(loadableWithDraft).setCallback(new ResponseResult<CommonReplyHttpCall>() {
+                @Override
+                public void onSuccess(CommonReplyHttpCall httpPost) {
+                    postListener.onSuccess(httpPost.replyResponse);
+                }
 
-                        @Override
-                        public void onHttpFail(CommonReplyHttpCall httpPost, Exception e) {
-                            postListener.onPostError(e);
-                        }
-                    },
-                    postListener::onUploadingProgress
-            );
+                @Override
+                public void onFailure(Exception e) {
+                    postListener.onFailure(e);
+                }
+            }), postListener);
         }
 
         @Override
@@ -399,54 +351,67 @@ public class Chan4
         }
 
         @Override
-        public void delete(DeleteRequest deleteRequest, final DeleteListener deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this, deleteRequest),
-                    new HttpCall.HttpCallback<Chan4DeleteHttpCall>() {
-                        @Override
-                        public void onHttpSuccess(Chan4DeleteHttpCall httpPost) {
-                            deleteListener.onDeleteComplete(httpPost.deleteResponse);
-                        }
+        public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this,
+                    deleteRequest
+            ).setCallback(new ResponseResult<Chan4DeleteHttpCall>() {
+                @Override
+                public void onSuccess(Chan4DeleteHttpCall httpPost) {
+                    deleteListener.onSuccess(httpPost.deleteResponse);
+                }
 
-                        @Override
-                        public void onHttpFail(Chan4DeleteHttpCall httpPost, Exception e) {
-                            deleteListener.onDeleteError(e);
-                        }
-                    }
-            );
+                @Override
+                public void onFailure(Exception e) {
+                    deleteListener.onFailure(e);
+                }
+            }));
         }
 
         @Override
-        public void login(LoginRequest loginRequest, final LoginListener loginListener) {
+        public void login(LoginRequest loginRequest, final ResponseResult<LoginResponse> loginListener) {
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(Chan4.this, loginRequest),
-                    new HttpCall.HttpCallback<Chan4PassHttpCall>() {
-                        @Override
-                        public void onHttpSuccess(Chan4PassHttpCall httpCall) {
-                            LoginResponse loginResponse = httpCall.loginResponse;
-                            if (loginResponse.success) {
-                                passToken.set(loginResponse.token);
-                            }
-                            loginListener.onLoginComplete(loginResponse);
-                        }
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(Chan4.this,
+                    loginRequest
+            ).setCallback(new ResponseResult<Chan4PassHttpCall>() {
+                @Override
+                public void onSuccess(Chan4PassHttpCall httpCall) {
+                    loginListener.onSuccess(httpCall.loginResponse);
+                }
 
-                        @Override
-                        public void onHttpFail(Chan4PassHttpCall httpCall, Exception e) {
-                            loginListener.onLoginError(e);
-                        }
-                    }
-            );
+                @Override
+                public void onFailure(Exception e) {
+                    loginListener.onFailure(e);
+                }
+            }));
         }
 
         @Override
         public void logout() {
-            passToken.set("");
+            List<Cookie> currentCookies = NetUtils.applicationClient.cookieJar().loadForRequest(sys);
+            List<Cookie> expireCookies = new ArrayList<>();
+            for (Cookie c : currentCookies) {
+                if (c.name().startsWith("pass")) {
+                    expireCookies.add(new Cookie.Builder().domain(c.domain())
+                            .name(c.name())
+                            .value(c.value())
+                            .path(c.path())
+                            .expiresAt(0)
+                            .build());
+                }
+            }
+            NetUtils.applicationClient.cookieJar().saveFromResponse(sys, expireCookies);
         }
 
         @Override
         public boolean isLoggedIn() {
-            return !passToken.get().isEmpty();
+            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sys)) {
+                if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @Override
@@ -458,7 +423,6 @@ public class Chan4
     // Legacy settings that were global before
     private final StringSetting passUser;
     private final StringSetting passPass;
-    private final StringSetting passToken;
 
     private OptionsSetting<CaptchaType> captchaType;
     public static StringSetting flagType;
@@ -468,10 +432,11 @@ public class Chan4
         SettingProvider<Object> p = new SharedPreferencesSettingProvider(getPreferences());
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
-        // token was renamed, before it meant the username, now it means the token returned
-        // from the server that the cookie is set to.
-        passToken = new StringSetting(p, "preference_pass_id", "");
         icon().get(icon -> {});
+        // request the NID cookie from google; if an NID is already in the cookie jar, it won't be updated unless it expires
+        // NID cookies expire 6 months after they're retrieved
+        NetUtils.applicationClient.newCall(new Request.Builder().url(HttpUrl.get("https://www.google.com")).build())
+                .enqueue(new NetUtilsClasses.IgnoreAllCallback());
     }
 
     @Override
@@ -544,11 +509,6 @@ public class Chan4
     @Override
     public SiteEndpoints endpoints() {
         return endpoints;
-    }
-
-    @Override
-    public CommonCallModifier callModifier() {
-        return siteCallModifier;
     }
 
     @Override

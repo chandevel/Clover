@@ -207,7 +207,9 @@ public class NetUtilsClasses {
     public static class IgnoreAllCallback
             extends IgnoreFailureCallback {
         @Override
-        public void onResponse(@NonNull Call call, @NonNull Response response) {}
+        public void onResponse(@NonNull Call call, @NonNull Response response) {
+            response.close();
+        }
     }
 
     public static class HttpCodeException

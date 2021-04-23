@@ -19,7 +19,4 @@ package com.github.adamantcheese.chan.core.site.http;
 public class LoginResponse {
     public boolean success;
     public String message;
-
-    // TODO(multi-site) make this a cookie abstraction
-    public String token;
 }

@@ -25,7 +25,6 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -34,14 +33,13 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.ui.controller.settings.captcha.JsCaptchaCookiesJar;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.google.gson.Gson;
 
 import java.util.concurrent.TimeUnit;
 
@@ -56,12 +54,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
+/**
+ * Loads a Captcha2 in a custom webview.
+ */
 public class CaptchaLayout
         extends WebView
         implements AuthenticationLayoutInterface {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
-
-    private static final String COOKIE_DOMAIN = "google.com";
 
     private AuthenticationLayoutCallback callback;
     private boolean loaded = false;
@@ -72,21 +71,18 @@ public class CaptchaLayout
 
     @Inject
     CaptchaHolder captchaHolder;
-    @Inject
-    Gson gson;
 
     public CaptchaLayout(Context context) {
-        super(context);
-        inject(this);
+        this(context, null);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        inject(this);
+        this(context, attrs, 0);
     }
 
     public CaptchaLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        getSettings().setUserAgentString(NetUtils.USER_AGENT);
         inject(this);
     }
 
@@ -104,11 +100,6 @@ public class CaptchaLayout
         requestDisallowInterceptTouchEvent(true);
         hideKeyboard(this);
         getSettings().setJavaScriptEnabled(true);
-
-        JsCaptchaCookiesJar jsCaptchaCookiesJar = ChanSettings.getJsCaptchaCookieJar(gson);
-        if (jsCaptchaCookiesJar.isValid()) {
-            setUpJsCaptchaCookies(jsCaptchaCookiesJar);
-        }
 
         setWebChromeClient(new WebChromeClient() {
             @Override
@@ -135,17 +126,6 @@ public class CaptchaLayout
         setBackgroundColor(0x00000000);
 
         addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
-    }
-
-    private void setUpJsCaptchaCookies(JsCaptchaCookiesJar jsCaptchaCookiesJar) {
-        CookieManager cookieManager = CookieManager.getInstance();
-        cookieManager.setAcceptCookie(true);
-        cookieManager.setAcceptThirdPartyCookies(this, true);
-        cookieManager.removeAllCookies(null);
-
-        for (String c : jsCaptchaCookiesJar.getCookies()) {
-            cookieManager.setCookie(COOKIE_DOMAIN, c);
-        }
     }
 
     public void reset() {
@@ -198,7 +178,7 @@ public class CaptchaLayout
         loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
 
-    private void onCaptchaEntered(String challenge, String response) {
+    private void onCaptchaEntered(String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
@@ -212,7 +192,7 @@ public class CaptchaLayout
                 token = response;
             }
 
-            callback.onAuthenticationComplete(this, challenge, token, isAutoReply);
+            callback.onAuthenticationComplete(this, null, token, isAutoReply);
         }
     }
 
@@ -234,12 +214,7 @@ public class CaptchaLayout
 
         @JavascriptInterface
         public void onCaptchaEntered(final String response) {
-            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(null, response));
-        }
-
-        @JavascriptInterface
-        public void onCaptchaEnteredv1(final String challenge, final String response) {
-            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(challenge, response));
+            BackgroundUtils.runOnMainThread(() -> layout.onCaptchaEntered(response));
         }
     }
 }

@@ -24,6 +24,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -61,7 +62,7 @@ public class GenericWebViewAuthenticationLayout
 
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
+        getSettings().setUserAgentString(NetUtils.USER_AGENT);
         inject(this);
         setFocusableInTouchMode(true);
     }

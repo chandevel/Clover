@@ -31,6 +31,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
@@ -99,6 +100,7 @@ public class LegacyCaptchaLayout
         if (!isInEditMode()) {
             WebSettings settings = internalWebView.getSettings();
             settings.setJavaScriptEnabled(true);
+            settings.setUserAgentString(NetUtils.USER_AGENT);
         }
 
         internalWebView.addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
