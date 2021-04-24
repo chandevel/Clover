@@ -50,7 +50,7 @@ import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
 import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.VOID_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.EMPTY_CONVERTER;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
@@ -349,15 +349,15 @@ public class ImageViewerPresenter
 
             preloadDownload[0] = NetUtils.makeRequest(NetUtils.applicationClient.getHttpRedirectClient(),
                     postImage.imageUrl,
-                    VOID_CONVERTER,
-                    new NetUtilsClasses.ResponseResult<Void>() {
+                    EMPTY_CONVERTER,
+                    new NetUtilsClasses.ResponseResult<Object>() {
                         @Override
                         public void onFailure(Exception e) {
                             updatePreload();
                         }
 
                         @Override
-                        public void onSuccess(Void result) {
+                        public void onSuccess(Object result) {
                             updatePreload();
                         }
 

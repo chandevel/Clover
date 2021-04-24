@@ -25,6 +25,7 @@ import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.Buffer;
+import okio.Okio;
 import okio.Timeout;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -188,7 +189,10 @@ public class NetUtilsClasses {
 
     public static final Converter<String, Response> STRING_CONVERTER = response -> response.body().string();
 
-    public static final Converter<Void, Response> VOID_CONVERTER = response -> null;
+    public static final Converter<Object, Response> EMPTY_CONVERTER = response -> {
+        response.body().source().readAll(Okio.blackhole());
+        return new Object();
+    };
 
     /**
      * A wrapper over a regular callback that ignores onFailure calls
