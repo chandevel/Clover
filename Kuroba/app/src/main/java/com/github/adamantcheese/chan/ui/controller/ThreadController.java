@@ -155,6 +155,8 @@ public abstract class ThreadController
     @Override
     public void openReportController(final Post post) {
         navigationController.pushController(new ReportController(context, post, getLoadable()));
+        // todo setting here?
+        // threadLayout.getPresenter().hideOrRemovePosts(true, false, post, post.opId);
     }
 
     public void selectPostImage(PostImage postImage) {
