@@ -96,7 +96,6 @@ import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -501,7 +500,11 @@ public class PostCell
 
         // we need to wait for the measurements of all the views, so we can shift-format stuff without issue
         if (post.images.size() == 1) {
-            preDrawListener = waitForLayout(this, view -> doShiftPostFormatting());
+            preDrawListener = waitForLayout(this, view -> {
+                doShiftPostFormatting();
+                // always return true; this returning false will otherwise lock up the app in certain circumstances
+                return true;
+            });
         }
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
@@ -530,9 +533,9 @@ public class PostCell
         requestLayout();
     }
 
-    private boolean doShiftPostFormatting() {
+    private void doShiftPostFormatting() {
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || ChanSettings.textOnly.get())
-            return true;
+            return;
         float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
         int wrapHeightActual = title.getHeight() + icons.getHeight();
         if ((wrapHeightActual >= wrapHeightCheck) || (wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck)) {
@@ -544,10 +547,7 @@ public class PostCell
             RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
             replyParams.removeRule(RelativeLayout.RIGHT_OF);
             replies.setLayoutParams(replyParams);
-
-            return false;
         }
-        return true;
     }
 
     @Override
