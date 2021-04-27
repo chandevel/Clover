@@ -70,10 +70,19 @@ public class Kun8
         });
 
         setEndpoints(new VichanEndpoints(this, "https://8kun.top", "https://sys.8kun.top") {
+
+            //8kun changed directory structures after this date (8/25/2016), so we need to switch off that to make it work
+            private final long IMAGE_CHANGE_DATE = 1472083200L;
+
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return HttpUrl.parse(
-                        "https://media.8kun.top/" + "file_store/" + (arg.get("tim") + "." + arg.get("ext")));
+                if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
+                    return HttpUrl.parse(
+                            "https://media.8kun.top/" + "file_store/" + arg.get("tim") + "." + arg.get("ext"));
+                } else {
+                    return HttpUrl.parse("https://media.8kun.top/" + post.board.code + "/src/" + arg.get("tim") + "."
+                            + arg.get("ext"));
+                }
             }
 
             @Override
@@ -91,8 +100,15 @@ public class Kun8
                         break;
                 }
 
-                return HttpUrl.parse(
-                        "https://media.8kun.top/" + "file_store/" + "thumb/" + (arg.get("tim") + "." + ext));
+                if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
+                    return HttpUrl.parse(
+                            "https://media.8kun.top/" + "file_store/" + "thumb/" + arg.get("tim") + "." + ext);
+                } else {
+                    // this is imperfect, for some reason some thumbnails are png and others are jpg randomly
+                    // kinda mucks up the image viewing as well
+                    return HttpUrl.parse(
+                            "https://media.8kun.top/" + post.board.code + "/thumb/" + arg.get("tim") + "." + ext);
+                }
             }
         });
 
