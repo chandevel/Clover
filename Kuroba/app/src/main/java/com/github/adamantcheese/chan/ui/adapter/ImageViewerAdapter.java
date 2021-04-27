@@ -107,7 +107,7 @@ public class ImageViewerAdapter
 
         Balloon.Builder hintBuilder = AndroidUtils.getBaseToolTip(view.getContext())
                 .setPreferenceName(mode.name() + "HINT")
-                .setArrowVisible(false);
+                .setIsVisibleArrow(false);
         switch (mode) {
             case VIDEO:
                 hintBuilder.setText("Single tap for controls\nDouble tap to pause/play").build().show(view);

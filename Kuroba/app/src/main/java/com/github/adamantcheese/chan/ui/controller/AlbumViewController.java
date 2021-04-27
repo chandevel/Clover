@@ -34,8 +34,8 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.skydoves.balloon.ArrowConstraints;
 import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.ArrowPositionRules;
 
 import java.util.List;
 
@@ -162,7 +162,7 @@ public class AlbumViewController
     @Override
     public void onNavItemSet() {
         AndroidUtils.getBaseToolTip(context)
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("DownloadAlbumHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.album_download_hint)

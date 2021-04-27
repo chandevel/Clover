@@ -80,8 +80,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
-import com.skydoves.balloon.ArrowConstraints;
 import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
 import com.vdurmont.emoji.EmojiParser;
 
@@ -799,8 +799,7 @@ public class ReplyLayout
                     preview.setImageBitmap(bitmap);
                     previewHolder.setVisibility(VISIBLE);
                     callback.updatePadding();
-
-                    showReencodeImageHint();
+                    showImageOptionHints();
                 } else {
                     openPreviewMessage(true, getString(R.string.reply_no_preview));
                 }
@@ -809,7 +808,6 @@ public class ReplyLayout
             spacer.setVisibility(VISIBLE);
             filenameNew.setVisibility(VISIBLE);
             spoiler.setVisibility(presenter.canPostSpoileredImages() ? VISIBLE : GONE);
-            showImageOptionHints();
             attach.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         } else {
             fileName.setVisibility(GONE);
@@ -1047,17 +1045,13 @@ public class ReplyLayout
         attach.setClickable(true); // reencode window gone, allow the file to be removed
     }
 
-    private void showReencodeImageHint() {
-        AndroidUtils.getBaseToolTip(getContext())
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+    private void showImageOptionHints() {
+        Balloon reencodeHint = AndroidUtils.getBaseToolTip(getContext())
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ReencodeHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.tap_image_for_extra_options)
-                .build()
-                .showAlignBottom(preview);
-    }
-
-    private void showImageOptionHints() {
+                .build();
         Balloon filenameHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReplyFilenameRefreshHint")
                 .setArrowOrientation(ArrowOrientation.RIGHT)
@@ -1068,10 +1062,14 @@ public class ReplyLayout
                 .setArrowOrientation(ArrowOrientation.RIGHT)
                 .setTextResource(R.string.reply_spoiler_hint)
                 .build();
+
         if (presenter.canPostSpoileredImages()) {
+            spoilerHint.relayShowAlignLeft(filenameHint, filenameNew).relayShowAlignBottom(reencodeHint, preview);
             spoilerHint.showAlignLeft(spoiler);
+        } else {
+            filenameHint.relayShowAlignBottom(reencodeHint, preview);
+            filenameHint.showAlignLeft(filenameNew);
         }
-        filenameHint.showAlignLeft(filenameNew);
     }
 
     @Override

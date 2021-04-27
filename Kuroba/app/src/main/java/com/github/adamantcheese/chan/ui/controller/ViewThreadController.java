@@ -44,8 +44,8 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.skydoves.balloon.ArrowConstraints;
 import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -311,19 +311,19 @@ public class ViewThreadController
 
     private void showHints() {
         Balloon pinHint = AndroidUtils.getBaseToolTip(context)
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadPinHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.thread_pin_hint)
                 .build();
         Balloon albumHint = AndroidUtils.getBaseToolTip(context)
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadAlbumHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.thread_album_hint)
                 .build();
         Balloon scrollHint = AndroidUtils.getBaseToolTip(context)
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadUpDownHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.thread_up_down_hint)
@@ -413,9 +413,7 @@ public class ViewThreadController
             return;
         }
 
-        int drawable = pin != null
-                ? R.drawable.ic_fluent_bookmark_24_filled
-                : R.drawable.ic_fluent_bookmark_24_regular;
+        int drawable = pin != null ? R.drawable.ic_fluent_bookmark_24_filled : R.drawable.ic_fluent_bookmark_24_regular;
         menuItem.setImage(drawable, animated);
     }
 

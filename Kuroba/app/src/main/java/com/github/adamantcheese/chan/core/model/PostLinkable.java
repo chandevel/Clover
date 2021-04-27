@@ -75,7 +75,7 @@ public class PostLinkable
     }
 
     @Override
-    public void onClick(View widget) {
+    public void onClick(@NonNull View widget) {
         spoilerVisible = !spoilerVisible;
     }
 

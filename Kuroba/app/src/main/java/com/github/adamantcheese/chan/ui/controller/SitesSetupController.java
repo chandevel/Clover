@@ -42,8 +42,8 @@ import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.skydoves.balloon.ArrowConstraints;
 import com.skydoves.balloon.ArrowOrientation;
+import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
 
 import java.util.ArrayList;
@@ -147,7 +147,7 @@ public class SitesSetupController
     @Override
     public void showHint() {
         AndroidUtils.getBaseToolTip(context)
-                .setArrowConstraints(ArrowConstraints.ALIGN_ANCHOR)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setArrowOrientation(ArrowOrientation.BOTTOM)
                 .setTextResource(R.string.setup_sites_add_hint)
                 .setPreferenceName("AddSite")
