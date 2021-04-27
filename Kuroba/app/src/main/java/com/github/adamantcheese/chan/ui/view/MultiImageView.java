@@ -65,6 +65,7 @@ import java.util.Locale;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
+import okhttp3.internal.http2.StreamResetException;
 import okio.Buffer;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
@@ -343,7 +344,7 @@ public class MultiImageView
             request = null;
         }
 
-        if ("Canceled".equals(e.getMessage())) {
+        if ("Canceled".equals(e.getMessage()) || e instanceof StreamResetException) {
             return;
         }
 

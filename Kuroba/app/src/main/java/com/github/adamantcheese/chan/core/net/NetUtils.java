@@ -46,6 +46,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okhttp3.internal.http2.StreamResetException;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
@@ -236,7 +237,7 @@ public class NetUtils {
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
-                if (!"Canceled".equals(e.getMessage())) {
+                if (!("Canceled".equals(e.getMessage()) || e instanceof StreamResetException)) {
                     Logger.e("NetUtils", "Error loading bitmap from " + url.toString());
                     performBitmapFailure(url, e);
                     return;
