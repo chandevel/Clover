@@ -224,8 +224,8 @@ public class ImageViewerPresenter
         // If it has audio, we'll know after it is loaded.
         callback.showVolumeMenuItem(postImage.type == MOVIE, muted);
 
-        //Reset the save icon
-        callback.showDownloadMenuItem(false);
+        //Reset the save icon, don't allow deleted saves
+        callback.showDownloadMenuItem(!postImage.deleted);
 
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
@@ -470,13 +470,6 @@ public class ImageViewerPresenter
     @Override
     public void onSwipeToSaveImage() {
         callback.saveImage();
-    }
-
-    @Override
-    public void onDownloaded(PostImage postImage) {
-        if (getCurrentPostImage().equals(postImage) && !postImage.deleted) { // don't allow saving the "deleted" image
-            callback.showDownloadMenuItem(true);
-        }
     }
 
     @Override

@@ -190,12 +190,7 @@ public class ImageViewerController
     public void onSearchVisibilityChanged(boolean visible) {}
 
     @Override
-    public void onNavItemSet() {
-        ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
-        if (saveMenuItem != null) {
-            saveMenuItem.setEnabled(false);
-        }
-    }
+    public void onNavItemSet() {}
 
     private void goPostClicked(ToolbarMenuItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
@@ -398,11 +393,7 @@ public class ImageViewerController
     }
 
     public void saveImage() {
-        ToolbarMenuItem saveMenuItem = navigation.findItem(SAVE_ID);
-        if (saveMenuItem != null) {
-            saveMenuItem.setEnabled(false);
-        }
-
+        showDownloadMenuItem(false);
         saveShare(false);
     }
 
@@ -431,11 +422,9 @@ public class ImageViewerController
     @Override
     public void showDownloadMenuItem(boolean show) {
         ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
-        if (saveItem == null) {
-            return;
+        if (saveItem != null) {
+            saveItem.setEnabled(show);
         }
-
-        saveItem.setEnabled(show);
     }
 
     @Override

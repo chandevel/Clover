@@ -374,8 +374,6 @@ public class MultiImageView
                     public void onSuccess(Buffer result) {
                         request = null;
                         setBitImageFileInternal(result, true);
-
-                        callback.onDownloaded(postImage);
                     }
                 }),
                 this,
@@ -404,8 +402,6 @@ public class MultiImageView
                         if (!hasContent || mode == Mode.GIFIMAGE) {
                             setGifFile(result);
                         }
-
-                        callback.onDownloaded(postImage);
                     }
                 }),
                 this,
@@ -493,7 +489,6 @@ public class MultiImageView
             setVolume(getDefaultMuteState());
             exoPlayer.play();
             onModeLoaded(Mode.VIDEO, exoVideoView);
-            callback.onDownloaded(postImage);
         }
     }
 
@@ -507,7 +502,6 @@ public class MultiImageView
             openLink(postImage.imageUrl.toString());
             onModeLoaded(Mode.OTHER, null);
         }
-        callback.onDownloaded(postImage);
     }
 
     public void toggleTransparency() {
@@ -685,8 +679,6 @@ public class MultiImageView
         void onSwipeToSaveImage();
 
         void onProgress(MultiImageView multiImageView, long current, long total);
-
-        void onDownloaded(PostImage postImage);
 
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
 
