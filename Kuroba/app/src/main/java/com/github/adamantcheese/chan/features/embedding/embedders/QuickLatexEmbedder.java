@@ -15,7 +15,6 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -181,7 +180,7 @@ public class QuickLatexEmbedder
             ) {} // don't do any replacements with failed bitmaps, leave it as-is so it's somewhat still readable
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 // while this does run on the main thread (and shouldn't!), it's too much of a hassle to do this properly
                 // this returns fast enough that the other embed processing time gives this time to complete before invalidate
                 int startIndex = 0;

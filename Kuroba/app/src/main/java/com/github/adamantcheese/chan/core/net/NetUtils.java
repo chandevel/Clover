@@ -228,7 +228,7 @@ public class NetUtils {
         }
         Bitmap cachedBitmap = imageCache.get(url);
         if (cachedBitmap != null) {
-            performBitmapSuccess(url, cachedBitmap);
+            performBitmapSuccess(url, cachedBitmap, true);
             return null;
         }
         Call call = applicationClient.getHttpRedirectClient()
@@ -270,7 +270,7 @@ public class NetUtils {
                         BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
-                            checkBitmap(url, bitmap);
+                            checkBitmap(url, bitmap, false);
                         }, false);
                     } else {
                         ExceptionCatchingInputStream wrappedStream =
@@ -280,7 +280,7 @@ public class NetUtils {
                             performBitmapFailure(url, wrappedStream.getException());
                             return;
                         }
-                        checkBitmap(url, result);
+                        checkBitmap(url, result, false);
                     }
                 } catch (Exception e) {
                     performBitmapFailure(url, e);
@@ -296,23 +296,23 @@ public class NetUtils {
         return new Pair<>(call, callback);
     }
 
-    private static void checkBitmap(HttpUrl url, Bitmap result) {
+    private static void checkBitmap(HttpUrl url, Bitmap result, boolean fromCache) {
         if (result == null) {
             performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
             return;
         }
         imageCache.put(url, result);
-        performBitmapSuccess(url, result);
+        performBitmapSuccess(url, result, fromCache);
     }
 
     private static synchronized void performBitmapSuccess(
-            @NonNull final HttpUrl url, @NonNull Bitmap bitmap
+            @NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache
     ) {
         final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
         for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap));
+            BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap, fromCache));
         }
     }
 

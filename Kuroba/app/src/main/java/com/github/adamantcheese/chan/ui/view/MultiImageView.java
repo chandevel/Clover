@@ -317,7 +317,7 @@ public class MultiImageView
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 request = null;
                 callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
@@ -486,7 +486,7 @@ public class MultiImageView
                 ) {} // use the default drawable
 
                 @Override
-                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                     exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                 }
             });

@@ -130,7 +130,7 @@ public class NetUtilsClasses {
     public interface BitmapResult {
         void onBitmapFailure(@NonNull HttpUrl source, Exception e);
 
-        void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap);
+        void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache);
     }
 
     /**

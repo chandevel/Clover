@@ -59,6 +59,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public abstract class ThumbnailView
         extends View {
+    private HttpUrl source;
     private Call bitmapCall;
     private ViewTreeObserver.OnPreDrawListener drawListener;
     private final boolean circular;
@@ -129,6 +130,9 @@ public abstract class ThumbnailView
      * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
      */
     public void setUrl(HttpUrl url, int maxDimension) {
+        if (source != null && source.equals(url)) return; // no-op if already set
+        source = url;
+
         setImageBitmap(BitmapRepository.empty, false);
 
         NetUtilsClasses.BitmapResult result = new NetUtilsClasses.BitmapResult() {
@@ -146,8 +150,8 @@ public abstract class ThumbnailView
             }
 
             @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap) {
-                setImageBitmap(bitmap, true);
+            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                setImageBitmap(bitmap, !fromCache);
             }
         };
 
