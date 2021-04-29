@@ -36,7 +36,7 @@ public abstract class Setting<T> {
     }
 
     public T get() {
-        if (cached != null) {
+        if (cached == null) {
             //noinspection unchecked
             cached = (T) settingProvider.getValue(key, def);
         }

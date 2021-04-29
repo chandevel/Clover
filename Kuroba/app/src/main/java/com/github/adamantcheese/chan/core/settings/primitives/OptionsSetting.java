@@ -34,7 +34,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
 
     @Override
     public T get() {
-        if (!hasCached) {
+        if (cached == null) {
             String itemName = (String) settingProvider.getValue(key, def.getKey());
             T selectedItem = null;
             for (T item : items) {
@@ -47,7 +47,6 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
             }
 
             cached = selectedItem;
-            hasCached = true;
         }
         return cached;
     }
@@ -68,5 +67,12 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
             cached = value;
             onValueChanged();
         }
+    }
+
+    @Override
+    public void remove() {
+        settingProvider.removeSync(key);
+        cached = null;
+        onValueChanged();
     }
 }
