@@ -45,11 +45,6 @@ public class NetUtilsClasses {
             super(builder);
         }
 
-        //This adds a proxy to the base client
-        public OkHttpClient getProxiedClient() {
-            return newBuilder().proxy(ChanSettings.getProxy()).build();
-        }
-
         // This adds an HTTP redirect follower to the base client
         public OkHttpClient getHttpRedirectClient() {
             return newBuilder().addInterceptor(new HttpEquivRefreshInterceptor()).build();

@@ -86,11 +86,11 @@ public abstract class Setting<T> {
     }
 
     public void addCallback(SettingCallback<T> callback) {
-        this.callbacks.add(callback);
+        callbacks.add(callback);
     }
 
     public void removeCallback(SettingCallback<T> callback) {
-        this.callbacks.remove(callback);
+        callbacks.remove(callback);
     }
 
     protected final void onValueChanged() {

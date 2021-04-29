@@ -363,7 +363,7 @@ class ReportManager(
                     .post(requestBody)
                     .build()
 
-            NetUtils.applicationClient.proxiedClient.newCall(request).enqueue(object : Callback {
+            NetUtils.applicationClient.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     emitter.tryOnError(e)
                 }

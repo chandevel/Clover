@@ -102,7 +102,7 @@ public class CaptchaNoJsPresenterV2 {
                             .addHeader("Referer", recaptchaUrl)
                             .build();
 
-                    try (Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute()) {
+                    try (Response response = NetUtils.applicationClient.newCall(request).execute()) {
                         prevCaptchaInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
@@ -188,7 +188,7 @@ public class CaptchaNoJsPresenterV2 {
                 .addHeader("Referer", baseUrl)
                 .build();
 
-        try (Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute()) {
+        try (Response response = NetUtils.applicationClient.newCall(request).execute()) {
             return handleGetRecaptchaResponse(response);
         }
     }

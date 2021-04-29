@@ -73,6 +73,7 @@ public class NetUtils {
                             ? Arrays.asList(HTTP_2, HTTP_1_1)
                             : Collections.singletonList(HTTP_1_1))
                     .dns(new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY))
+                    .proxy(ChanSettings.proxy)
                     .cookieJar(new WebviewSyncCookieManager(new PersistentCookieJar(new SetCookieCache(),
                             new SharedPrefsCookiePersistor(getAppContext())
                     )))
@@ -107,7 +108,7 @@ public class NetUtils {
     ) {
         Request.Builder requestBuilder = new Request.Builder();
         httpCall.setup(requestBuilder, progressListener);
-        applicationClient.getProxiedClient().newCall(requestBuilder.build()).enqueue(httpCall);
+        applicationClient.newCall(requestBuilder.build()).enqueue(httpCall);
     }
 
     /**

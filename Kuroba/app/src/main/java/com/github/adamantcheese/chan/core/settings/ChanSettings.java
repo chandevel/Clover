@@ -155,7 +155,7 @@ public class ChanSettings {
     }
     //endregion
 
-    private static Proxy proxy;
+    public static Proxy proxy;
     private static final String sharedPrefsFile = "shared_prefs/" + BuildConfig.APPLICATION_ID + "_preferences.xml";
 
     //region Declarations
@@ -307,13 +307,12 @@ public class ChanSettings {
 
             //region THREAD WATCHER
             watchEnabled = new BooleanSetting(p, "preference_watch_enabled", false);
-            watchEnabled.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchEnabled)));
+            watchEnabled.addCallback(new EventBusCallback<>(watchEnabled));
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
-            watchBackground.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(watchBackground)));
+            watchBackground.addCallback(new EventBusCallback<>(watchBackground));
             watchBackgroundInterval =
                     new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
-            watchBackgroundInterval.addCallback((setting, value) -> postToEventBus(new SettingChanged<>(
-                    watchBackgroundInterval)));
+            watchBackgroundInterval.addCallback(new EventBusCallback<>(watchBackgroundInterval));
             removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
             watchNotifyMode = new OptionsSetting<>(p,
@@ -418,10 +417,16 @@ public class ChanSettings {
             proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
             proxyAddress = new StringSetting(p, "preference_proxy_address", "");
             proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
-            proxyEnabled.addCallback((setting, value) -> loadProxy());
-            proxyAddress.addCallback((setting, value) -> loadProxy());
-            proxyPort.addCallback((setting, value) -> loadProxy());
-            loadProxy();
+            try {
+                proxy = proxyEnabled.get()
+                        ? new Proxy(Proxy.Type.HTTP,
+                        InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get())
+                )
+                        : Proxy.NO_PROXY;
+            } catch (Exception e) {
+                Logger.e("ChanSettings Proxy", "Failed to set up proxy! Defaulting to no proxy.", e);
+                proxy = Proxy.NO_PROXY;
+            }
             //endregion
 
             //region MEDIA
@@ -483,23 +488,6 @@ public class ChanSettings {
             // stacktrace. Otherwise we won't because of Feather.
             Logger.e("ChanSettings", "Error while initializing the settings", error);
             throw error;
-        }
-    }
-
-    /**
-     * Returns a {@link Proxy} if a proxy is enabled, <tt>null</tt> otherwise.
-     *
-     * @return a proxy or null
-     */
-    public static Proxy getProxy() {
-        return proxy;
-    }
-
-    private static void loadProxy() {
-        if (proxyEnabled.get()) {
-            proxy = new Proxy(Proxy.Type.HTTP, InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get()));
-        } else {
-            proxy = null;
         }
     }
 
@@ -614,6 +602,20 @@ public class ChanSettings {
 
         public SettingChanged(Setting<T> setting) {
             this.setting = setting;
+        }
+    }
+
+    public static class EventBusCallback<T>
+            extends SettingChanged<T>
+            implements Setting.SettingCallback<T> {
+
+        public EventBusCallback(Setting<T> setting) {
+            super(setting);
+        }
+
+        @Override
+        public void onValueChange(Setting<T> setting, T value) {
+            postToEventBus(new SettingChanged<>(setting));
         }
     }
 }

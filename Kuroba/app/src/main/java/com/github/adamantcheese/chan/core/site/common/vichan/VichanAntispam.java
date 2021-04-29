@@ -75,7 +75,7 @@ public class VichanAntispam {
 
         Request request = new Request.Builder().url(url).cacheControl(NetUtilsClasses.NO_CACHE).build();
         try {
-            Response response = NetUtils.applicationClient.getProxiedClient().newCall(request).execute();
+            Response response = NetUtils.applicationClient.newCall(request).execute();
             ResponseBody body = response.body();
             if (body != null) {
                 Document document = Jsoup.parse(body.string());
