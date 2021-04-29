@@ -422,10 +422,10 @@ public class ChanSettings {
                         ? new Proxy(Proxy.Type.HTTP,
                         InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get())
                 )
-                        : Proxy.NO_PROXY;
+                        : null;
             } catch (Exception e) {
-                Logger.e("ChanSettings Proxy", "Failed to set up proxy! Defaulting to no proxy.", e);
-                proxy = Proxy.NO_PROXY;
+                Logger.e("ChanSettings Proxy", "Failed to set up proxy! Using to OkHttp's default.", e);
+                proxy = null;
             }
             //endregion
 
