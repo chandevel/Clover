@@ -266,6 +266,7 @@ public class ViewThreadController
         if (!loadable.equals(presenter.getLoadable())) {
             loadThreadInternal(loadable);
         }
+        updateDrawerHighlighting(loadable);
     }
 
     private void loadThreadInternal(Loadable loadable) {
@@ -298,7 +299,6 @@ public class ViewThreadController
 
         setPinIconState(false);
 
-        updateDrawerHighlighting(loadable);
         updateLeftPaneHighlighting(loadable);
         presenter.requestInitialData();
     }

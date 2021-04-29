@@ -385,7 +385,11 @@ public class DrawerController
             toggleView.setImageResource(R.drawable.ic_fluent_bookmark_24_filled);
             ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
             handler.removeCallbacksAndMessages(null);
-
+            synchronized (watchManager.getAllPins()) {
+                for (Pin p : watchManager.getAllPins()) {
+                    p.drawerHighlight = false; // clear all highlights
+                }
+            }
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));
         } else {
             // swap to pin mode
