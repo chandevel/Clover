@@ -28,18 +28,24 @@ public class SharedPreferencesSettingProvider
 
     @Override
     public Object getValue(String key, Object def) {
+        Object ret;
         try {
             if (def instanceof Integer) {
-                return prefs.getInt(key, (Integer) def);
+                ret = prefs.getInt(key, (Integer) def);
             } else if (def instanceof Long) {
-                return prefs.getLong(key, (Long) def);
+                ret = prefs.getLong(key, (Long) def);
             } else if (def instanceof Boolean) {
-                return prefs.getBoolean(key, (Boolean) def);
+                ret = prefs.getBoolean(key, (Boolean) def);
             } else if (def instanceof String) {
-                return prefs.getString(key, (String) def);
+                ret = prefs.getString(key, (String) def);
             } else {
                 throw new UnsupportedOperationException("Needs a handler for type " + def.getClass().getSimpleName());
             }
+            if (!prefs.contains(key)) {
+                // if a preference doesn't exist, put it first before returning the default so it does exist
+                putValueSync(key, def);
+            }
+            return ret;
         } catch (ClassCastException e) {
             return def;
         }

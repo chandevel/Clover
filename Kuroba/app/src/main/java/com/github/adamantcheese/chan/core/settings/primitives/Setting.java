@@ -27,7 +27,6 @@ public abstract class Setting<T> {
     protected final T def;
     private final List<SettingCallback<T>> callbacks = new ArrayList<>();
 
-    protected boolean hasCached = false;
     protected T cached;
 
     public Setting(SettingProvider<Object> settingProvider, String key, T def) {
@@ -37,10 +36,9 @@ public abstract class Setting<T> {
     }
 
     public T get() {
-        if (!hasCached) {
+        if (cached != null) {
             //noinspection unchecked
             cached = (T) settingProvider.getValue(key, def);
-            hasCached = true;
         }
         return cached;
     }
@@ -69,7 +67,6 @@ public abstract class Setting<T> {
 
     public void remove() {
         settingProvider.removeSync(key);
-        hasCached = false;
         cached = null;
     }
 
