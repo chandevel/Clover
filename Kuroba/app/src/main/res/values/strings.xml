@@ -564,7 +564,7 @@ Don't have a 4chan Pass?<br>
     <string name="reencode_image_re_encode_image_text">Re-encode %s image as</string>
     <string name="reencode_image_as_jpeg">JPEG</string>
     <string name="reencode_image_as_png">PNG</string>
-    <string name="tap_image_for_extra_options">Tap image for extra options</string>
+    <string name="reencode_button_hint">Tap to resize/reencode image</string>
 
     <string name="settings_import_export">Import/Export</string>
     <string name="settings_import_export_description">Import/export settings/pins, etc.</string>

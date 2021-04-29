@@ -81,7 +81,6 @@ import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.skydoves.balloon.ArrowOrientation;
-import com.skydoves.balloon.ArrowPositionRules;
 import com.skydoves.balloon.Balloon;
 import com.vdurmont.emoji.EmojiParser;
 
@@ -147,6 +146,7 @@ public class ReplyLayout
     private ImageView more;
     private ImageView attach;
     private Space spacer;
+    private ImageView reencodeImage;
     private ImageView filenameNew;
     // the tag on this is the spoiler state; that is, getTag -> true means image will be spoilered
     private ImageView spoiler;
@@ -231,6 +231,7 @@ public class ReplyLayout
         attach = replyInputLayout.findViewById(R.id.attach);
         ConstraintLayout submit = replyInputLayout.findViewById(R.id.submit);
         spacer = replyInputLayout.findViewById(R.id.spacer);
+        reencodeImage = replyInputLayout.findViewById(R.id.reencode);
         filenameNew = replyInputLayout.findViewById(R.id.filename_new);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
 
@@ -265,15 +266,6 @@ public class ReplyLayout
 
         setupOptionsContextMenu();
 
-        previewHolder.setOnClickListener(v -> {
-            if (presenter.isAttachedFileSupportedForReencoding()) {
-                attach.setClickable(false); // prevent immediately removing the file
-                callback.showImageReencodingWindow();
-            } else {
-                showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
-            }
-        });
-
         if (!isInEditMode()) {
             more.setRotation(ChanSettings.moveInputToBottom.get() ? 180f : 0f);
         }
@@ -289,6 +281,15 @@ public class ReplyLayout
         submit.setOnLongClickListener(v -> {
             presenter.onSubmitClicked(true);
             return true;
+        });
+
+        reencodeImage.setOnClickListener(v -> {
+            if (presenter.isAttachedFileSupportedForReencoding()) {
+                attach.setClickable(false); // prevent immediately removing the file
+                callback.showImageReencodingWindow();
+            } else {
+                showToast(getContext(), R.string.file_cannot_be_reencoded, Toast.LENGTH_LONG);
+            }
         });
 
         filenameNew.setOnClickListener(v -> {
@@ -686,7 +687,7 @@ public class ReplyLayout
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
         comment.setMaxLines(expanded ? 500 : 6);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(150) : dp(100)));
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(300) : dp(200)));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
 
         setDividerVisibility(expanded);
@@ -792,7 +793,6 @@ public class ReplyLayout
 
     @Override
     public void openPreview(boolean show, File previewFile) {
-        previewHolder.setClickable(false);
         if (show) {
             BitmapUtils.decodeFilePreviewImage(previewFile, dp(400), dp(300), bitmap -> {
                 if (bitmap != null) {
@@ -806,12 +806,14 @@ public class ReplyLayout
             }, true);
             fileName.setVisibility(presenter.isExpanded() ? VISIBLE : GONE);
             spacer.setVisibility(VISIBLE);
+            reencodeImage.setVisibility(VISIBLE);
             filenameNew.setVisibility(VISIBLE);
             spoiler.setVisibility(presenter.canPostSpoileredImages() ? VISIBLE : GONE);
             attach.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
         } else {
             fileName.setVisibility(GONE);
             spacer.setVisibility(GONE);
+            reencodeImage.setVisibility(GONE);
             filenameNew.setVisibility(GONE);
             spoiler.setVisibility(GONE);
             spoiler.setTag(previewFile == null ? false : spoiler.getTag());
@@ -821,9 +823,6 @@ public class ReplyLayout
             callback.updatePadding();
             attach.setImageResource(R.drawable.ic_fluent_image_add_24_filled);
         }
-        // the delay is taken from LayoutTransition, as this class is set to automatically animate layout changes
-        // only allow the preview to be clicked if it is fully visible
-        postDelayed(() -> previewHolder.setClickable(true), 300);
     }
 
     @Override
@@ -1047,10 +1046,9 @@ public class ReplyLayout
 
     private void showImageOptionHints() {
         Balloon reencodeHint = AndroidUtils.getBaseToolTip(getContext())
-                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ReencodeHint")
-                .setArrowOrientation(ArrowOrientation.TOP)
-                .setTextResource(R.string.tap_image_for_extra_options)
+                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setTextResource(R.string.reencode_button_hint)
                 .build();
         Balloon filenameHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReplyFilenameRefreshHint")
@@ -1064,10 +1062,10 @@ public class ReplyLayout
                 .build();
 
         if (presenter.canPostSpoileredImages()) {
-            spoilerHint.relayShowAlignLeft(filenameHint, filenameNew).relayShowAlignBottom(reencodeHint, preview);
+            spoilerHint.relayShowAlignLeft(filenameHint, filenameNew).relayShowAlignLeft(reencodeHint, reencodeImage);
             spoilerHint.showAlignLeft(spoiler);
         } else {
-            filenameHint.relayShowAlignBottom(reencodeHint, preview);
+            filenameHint.relayShowAlignLeft(reencodeHint, reencodeImage);
             filenameHint.showAlignLeft(filenameNew);
         }
     }

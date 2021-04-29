@@ -218,10 +218,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 </LinearLayout>
 
+                <EditText
+                    android:id="@+id/file_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/reply_file_name"
+                    android:textSize="16sp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/preview_message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
                 <LinearLayout
                     android:id="@+id/preview_holder"
                     android:layout_width="match_parent"
-                    android:layout_height="150dp"
+                    android:layout_height="200dp"
                     android:orientation="horizontal"
                     android:visibility="gone"
                     tools:visibility="visible">
@@ -245,22 +261,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_weight="1" />
 
                 </LinearLayout>
-
-                <TextView
-                    android:id="@+id/preview_message"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:visibility="gone" />
-
-                <EditText
-                    android:id="@+id/file_name"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/reply_file_name"
-                    android:textSize="16sp"
-                    android:visibility="gone"
-                    tools:visibility="visible" />
 
             </LinearLayout>
 
@@ -324,6 +324,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_width="36dp"
                     android:layout_height="36dp"
                     android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/reencode"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/ripple_item_background"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_fluent_image_edit_24_filled"
+                    android:visibility="gone"
+                    app:tint="?attr/themeDrawableColor"
                     tools:visibility="visible" />
 
                 <ImageView
