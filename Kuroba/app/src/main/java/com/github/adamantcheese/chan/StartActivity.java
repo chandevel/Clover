@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.controller.BrowseController;
 import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
 import com.github.adamantcheese.chan.ui.controller.DrawerController;
@@ -129,6 +130,8 @@ public class StartActivity
         if (intentMismatchWorkaround()) {
             return;
         }
+
+        EmbeddingEngine.initEngine(this);
 
         ThemeHelper.init();
         ThemeHelper.setupContext(this);

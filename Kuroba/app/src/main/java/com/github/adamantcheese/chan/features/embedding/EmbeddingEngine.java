@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.features.embedding;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -9,6 +8,7 @@ import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ComponentActivity;
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -81,7 +81,7 @@ public class EmbeddingEngine
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
-    private EmbeddingEngine(Context context) {
+    private EmbeddingEngine(@NonNull ComponentActivity context) {
         // Media embedders
         embedders.add(new YoutubeEmbedder());
         embedders.add(new StreamableEmbedder());
@@ -95,20 +95,26 @@ public class EmbeddingEngine
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
 
-        if (context instanceof LifecycleOwner) {
-            ((LifecycleOwner) context).getLifecycle().addObserver(this);
-        }
+        ((LifecycleOwner) context).getLifecycle().addObserver(this);
     }
 
     /**
-     * Get an instance of this engine.
+     * Initialize the engine.
      *
-     * @param context The context for which data caching should be used; this cannot be changed afterwards!
+     * @param context The context to use for cache saving; this should be an Activity instance
      */
-    public static EmbeddingEngine getInstance(Context context) {
-        if (instance == null) {
-            instance = new EmbeddingEngine(context);
-        }
+    public static void initEngine(@NonNull ComponentActivity context) {
+        if (BuildConfig.DEBUG && instance != null)
+            throw new UnsupportedOperationException("EmbeddingEngine must be initialized only once!");
+        instance = new EmbeddingEngine(context);
+    }
+
+    /**
+     * @return The instance of the engine, once initialized.
+     */
+    public static EmbeddingEngine getInstance() {
+        if (BuildConfig.DEBUG && instance == null)
+            throw new UnsupportedOperationException("EmbeddingEngine must be initialized before use!");
         return instance;
     }
 
@@ -132,10 +138,10 @@ public class EmbeddingEngine
      * @return A list of enqueued calls that will embed the given embeddable
      */
 
-    public List<Call> embed(
+    public <T extends Embeddable> List<Call> embed(
             @NonNull final Theme theme,
-            @NonNull final Embeddable embeddable,
-            @NonNull final InvalidateFunction invalidateFunction
+            @NonNull final T embeddable,
+            @NonNull final InvalidateFunction<T> invalidateFunction
     ) {
         if (embeddable.embedComplete.get()) return Collections.emptyList();
         embeddable.embedComplete.set(true); // prevent duplicate calls
@@ -210,13 +216,13 @@ public class EmbeddingEngine
         return calls;
     }
 
-    private void onEmbeddingComplete(
+    private <T extends Embeddable> void onEmbeddingComplete(
             @NonNull final Theme theme,
-            @NonNull final Embeddable embeddable,
+            @NonNull final T embeddable,
             SpannableStringBuilder modifiableCopy,
             List<PostLinkable> generatedLinkables,
             List<PostImage> generatedImages,
-            InvalidateFunction invalidateFunction
+            InvalidateFunction<T> invalidateFunction
     ) {
         // clear out any overlapping embed postlinkables from the generated set
         // split up auto/embed links

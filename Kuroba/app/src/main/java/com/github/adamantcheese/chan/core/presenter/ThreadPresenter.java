@@ -1174,7 +1174,7 @@ public class ThreadPresenter
             String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
             boolean speciallyProcessed = false;
             // context doesn't matter here
-            for (Embedder e : EmbeddingEngine.getInstance(getAppContext()).getEmbedders()) {
+            for (Embedder e : EmbeddingEngine.getInstance().getEmbedders()) {
                 if (e.shouldEmbed(value)) {
                     if (added.contains(trimmedUrl)) continue;
                     keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));

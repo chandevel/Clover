@@ -65,7 +65,6 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.features.embedding.Embeddable;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.features.embedding.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
@@ -110,7 +109,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class PostCell
         extends LinearLayout
-        implements PostCellInterface, InvalidateFunction {
+        implements PostCellInterface, InvalidateFunction<Post> {
     private static final int COMMENT_MAX_LINES_BOARD = 25;
 
     private RecyclerView thumbnailViews;
@@ -504,7 +503,7 @@ public class PostCell
         }
 
         findViewById(R.id.embed_spinner).setVisibility(GONE);
-        embedCalls.addAll(EmbeddingEngine.getInstance(getContext()).embed(theme, post, this));
+        embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
         if (!embedCalls.isEmpty()) {
             findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
         }
@@ -547,10 +546,10 @@ public class PostCell
     }
 
     @Override
-    public void invalidateView(@NonNull Theme theme, @NonNull Embeddable embeddable) {
-        if (!embeddable.equals(this.post) || !(embeddable instanceof Post)) return;
+    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
+        if (!post.equals(this.post)) return;
         embedCalls.clear();
-        bindPost(theme, (Post) embeddable);
+        bindPost(theme, post);
     }
 
     private final String[] dubTexts =

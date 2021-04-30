@@ -4,6 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-public interface InvalidateFunction {
-    void invalidateView(@NonNull Theme theme, @NonNull Embeddable embeddable);
+public interface InvalidateFunction<T extends Embeddable> {
+    void invalidateView(@NonNull Theme theme, @NonNull T embeddable);
 }
