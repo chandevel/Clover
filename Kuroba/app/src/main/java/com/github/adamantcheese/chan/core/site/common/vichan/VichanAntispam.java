@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +53,8 @@ public class VichanAntispam {
     }
 
     public void addDefaultIgnoreFields() {
-        fieldsToIgnore.addAll(Arrays.asList(
+        Collections.addAll(
+                fieldsToIgnore,
                 "board",
                 "thread",
                 "name",
@@ -67,7 +68,7 @@ public class VichanAntispam {
                 "file_url1",
                 "file_url2",
                 "file_url3"
-        ));
+        );
     }
 
     public Map<String, String> get() {

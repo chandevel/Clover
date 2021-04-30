@@ -31,7 +31,6 @@ import com.vdurmont.emoji.EmojiParser;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -274,7 +273,9 @@ public class Post
     @MainThread
     public List<PostLinkable> getLinkables() {
         synchronized (comment) {
-            return Arrays.asList(comment.getSpans(0, comment.length(), PostLinkable.class));
+            List<PostLinkable> linkables = new ArrayList<>();
+            Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
+            return linkables;
         }
     }
 
@@ -659,7 +660,9 @@ public class Post
         }
 
         public List<PostLinkable> getLinkables() {
-            return Arrays.asList(comment.getSpans(0, comment.length(), PostLinkable.class));
+            List<PostLinkable> linkables = new ArrayList<>();
+            Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
+            return linkables;
         }
 
         @NonNull

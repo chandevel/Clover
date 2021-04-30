@@ -89,6 +89,7 @@ public class PostLinkable
             ds.setColor(type == LINK ? ds.linkColor : quoteColor);
             ds.setUnderlineText(true);
             ds.setFakeBoldText(false);
+            ds.setTextScaleX(1.0f);
             if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
                 float[] HSV = new float[3];
                 Color.colorToHSV(quoteColor, HSV);
@@ -97,11 +98,13 @@ public class PostLinkable
                 int ARGB = Color.HSVToColor(Color.alpha(quoteColor), HSV);
                 ds.setColor(ARGB);
                 ds.setFakeBoldText(true);
+                ds.setTextScaleX(1.1f);
             }
         } else {
             ds.bgColor = spoilerColor;
             ds.setUnderlineText(false);
             ds.setFakeBoldText(false);
+            ds.setTextScaleX(1.0f);
             if (!spoilerVisible) {
                 ds.setColor(spoilerColor);
             } else {

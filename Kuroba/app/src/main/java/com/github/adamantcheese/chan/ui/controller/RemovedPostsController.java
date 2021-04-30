@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -231,7 +231,7 @@ public class RemovedPostsController
 
         public void setRemovedPosts(RemovedPost[] removedPostsArray) {
             removedPostsCopy.clear();
-            removedPostsCopy.addAll(Arrays.asList(removedPostsArray));
+            Collections.addAll(removedPostsCopy, removedPostsArray);
 
             clear();
             addAll(removedPostsCopy);

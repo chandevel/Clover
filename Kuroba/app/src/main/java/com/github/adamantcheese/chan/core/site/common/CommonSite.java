@@ -47,7 +47,7 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,7 +148,7 @@ public abstract class CommonSite
 
     public void setBoards(Board... boards) {
         boardsType = BoardsType.STATIC;
-        staticBoards.addAll(Arrays.asList(boards));
+        Collections.addAll(staticBoards, boards);
     }
 
     public void setConfig(CommonConfig config) {
