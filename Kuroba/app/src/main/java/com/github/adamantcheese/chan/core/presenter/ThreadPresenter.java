@@ -125,7 +125,6 @@ import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCa
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_UNSAVE;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
@@ -1122,6 +1121,7 @@ public class ThreadPresenter
                     public void onResponse(@NonNull Call call, @NonNull Response response)
                             throws IOException {
                         int index = text.toString().indexOf(checking);
+                        String replaceText = ""; // clears out text if nothing found
 
                         byte[] bytes = new byte[2048];
                         response.body().source().read(bytes);
@@ -1131,14 +1131,13 @@ public class ThreadPresenter
                                 byte len = (byte) (bytes[i + 2] ^ 0x80);
                                 // i is the position of the length bytes, which are 2 bytes
                                 // 1 after that is the actual string start
-                                text.replace(index,
-                                        index + checking.length(),
-                                        "\nMetadata title: " + new String(bytes, i + 2 + 1, len)
-                                );
-                                BackgroundUtils.runOnMainThread(() -> infoText.setText(text)); // update on main thread
+                                replaceText = "\nMetadata title: " + new String(bytes, i + 2 + 1, len);
                                 break;
                             }
                         }
+                        text.replace(index, index + checking.length(), replaceText);
+                        // update on main thread, this is an OkHttp thread
+                        BackgroundUtils.runOnMainThread(() -> infoText.setText(text));
                     }
                 });
                 dialog.setOnDismissListener(dialog1 -> call.cancel());
