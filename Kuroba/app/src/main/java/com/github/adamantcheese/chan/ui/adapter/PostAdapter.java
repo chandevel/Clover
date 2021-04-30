@@ -173,13 +173,11 @@ public class PostAdapter
 
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 Post post = displayList.get(position);
-                ((PostCellInterface) postViewHolder.itemView).setPost(
-                        loadable,
+                ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
                         post,
                         postCellCallback,
                         isInPopup(),
                         shouldHighlight(post),
-                        getMarkedNo(),
                         isCompact(),
                         theme
                 );
@@ -221,10 +219,6 @@ public class PostAdapter
 
     public boolean shouldHighlight(Post post) {
         return post.id.equals(highlightedId) || post.no == highlightedNo || post.tripcode.equals(highlightedTripcode);
-    }
-
-    public int getMarkedNo() {
-        return -1;
     }
 
     @Override

@@ -35,7 +35,6 @@ public interface PostCellInterface {
             PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
-            int markedNo,
             boolean compact,
             Theme theme
     );

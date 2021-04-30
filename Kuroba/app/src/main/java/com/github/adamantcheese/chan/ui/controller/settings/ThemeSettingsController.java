@@ -441,6 +441,12 @@ public class ThemeSettingsController
             posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
             ChanThread thread = new ChanThread(dummyLoadable, posts);
 
+            for (Post p : thread.getPosts()) {
+                for (PostLinkable linkable : p.getLinkables()) {
+                    linkable.setMarkedNo(123456789);
+                }
+            }
+
             PostAdapter adapter = new PostAdapter(holder.recyclerView, post -> {
             }, dummyPostCallback, new ThreadStatusCell.Callback() {
                 @Override
@@ -463,12 +469,7 @@ public class ThemeSettingsController
                 public void onListStatusClicked() {
                     showAccentColorPicker();
                 }
-            }, holder.theme) {
-                @Override
-                public int getMarkedNo() {
-                    return 123456789;
-                }
-            };
+            }, holder.theme);
             adapter.setThread(thread, null);
             adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
             adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));

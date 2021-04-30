@@ -99,9 +99,7 @@ public class CardPostStubCell
             Post post,
             PostCellCallback callback,
             boolean inPopup,
-            boolean highlighted,
-            int markedNo,
-            boolean compact,
+            boolean highlighted, boolean compact,
             Theme theme
     ) {
         this.post = post;

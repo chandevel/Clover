@@ -131,7 +131,6 @@ public class PostCell
     private PostCellCallback callback;
     private boolean inPopup;
     private boolean highlighted;
-    private int markedNo;
 
     private GestureDetector doubleTapComment;
 
@@ -239,10 +238,9 @@ public class PostCell
     public void setPost(
             Loadable loadable,
             final Post post,
-            PostCellInterface.PostCellCallback callback,
+            PostCellCallback callback,
             boolean inPopup,
             boolean highlighted,
-            int markedNo,
             boolean compact,
             Theme theme
     ) {
@@ -250,7 +248,6 @@ public class PostCell
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
-        this.markedNo = markedNo;
 
         bindPost(theme, post);
 
@@ -279,8 +276,6 @@ public class PostCell
 
         // Assume that we're in thread mode if the loadable is null
         threadMode = callback.getLoadable() == null || callback.getLoadable().isThreadMode();
-
-        setPostLinkableListener(post, true);
 
         replies.setClickable(threadMode);
 
@@ -583,7 +578,7 @@ public class PostCell
         title.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
-        setPostLinkableListener(post, false);
+        post.comment.removeSpan(BACKGROUND_SPAN);
         thumbnailViews.setAdapter(null);
         for (Call c : embedCalls) {
             c.cancel();
@@ -596,18 +591,6 @@ public class PostCell
         preDrawListener = null;
         clearShiftPostFormatting();
         post = null;
-    }
-
-    private void setPostLinkableListener(Post post, boolean bind) {
-        if (post != null) {
-            for (PostLinkable linkable : post.getLinkables()) {
-                linkable.setMarkedNo(bind ? markedNo : -1);
-            }
-
-            if (!bind) {
-                post.comment.removeSpan(BACKGROUND_SPAN);
-            }
-        }
     }
 
     private static final BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);

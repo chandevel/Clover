@@ -162,11 +162,9 @@ public class CardPostCell
     public void setPost(
             Loadable loadable,
             final Post post,
-            PostCellInterface.PostCellCallback callback,
+            PostCellCallback callback,
             boolean inPopup,
-            boolean highlighted,
-            int markedNo,
-            boolean compact,
+            boolean highlighted, boolean compact,
             Theme theme
     ) {
         this.highlighted = highlighted;

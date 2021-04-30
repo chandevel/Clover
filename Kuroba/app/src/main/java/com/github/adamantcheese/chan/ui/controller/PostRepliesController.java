@@ -127,11 +127,6 @@ public class PostRepliesController
             }
 
             @Override
-            public int getMarkedNo() {
-                return displayingData.forPostNo;
-            }
-
-            @Override
             public boolean isCompact() {
                 return false;
             }

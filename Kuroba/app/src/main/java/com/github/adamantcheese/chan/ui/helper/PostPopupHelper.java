@@ -21,6 +21,7 @@ import android.content.Context;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
@@ -64,12 +65,14 @@ public class PostPopupHelper {
             throw new IllegalStateException("Thread loadable cannot be null");
         }
 
+        updateLinkableMarkedNos(postDataStack.peek(), true);
+
         presentingController.displayData(presenter.getLoadable(), postDataStack.peek());
     }
 
     public void pop() {
         if (!postDataStack.isEmpty()) {
-            postDataStack.pop();
+            updateLinkableMarkedNos(postDataStack.pop(), !postDataStack.isEmpty());
         }
 
         if (!postDataStack.isEmpty()) {
@@ -84,8 +87,18 @@ public class PostPopupHelper {
     }
 
     public void popAll() {
-        postDataStack.clear();
+        while (!postDataStack.empty()) {
+            updateLinkableMarkedNos(postDataStack.pop(), false);
+        }
         dismiss();
+    }
+
+    private void updateLinkableMarkedNos(RepliesData data, boolean bind) {
+        for (Post p : data.posts) {
+            for (PostLinkable linkable : p.getLinkables()) {
+                linkable.setMarkedNo(bind ? data.forPostNo : -1);
+            }
+        }
     }
 
     public boolean isOpen() {
