@@ -36,11 +36,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -126,8 +126,8 @@ public class MultiImageView
 
         setOnClickListener(null);
 
-        if (context instanceof StartActivity) {
-            ((StartActivity) context).getLifecycle().addObserver(this);
+        if (context instanceof LifecycleOwner) {
+            ((LifecycleOwner) context).getLifecycle().addObserver(this);
         }
     }
 
@@ -277,8 +277,8 @@ public class MultiImageView
         super.onDetachedFromWindow();
         cancelLoad();
 
-        if (getContext() instanceof StartActivity) {
-            ((StartActivity) getContext()).getLifecycle().removeObserver(this);
+        if (getContext() instanceof LifecycleOwner) {
+            ((LifecycleOwner) getContext()).getLifecycle().removeObserver(this);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -12,7 +13,6 @@ import androidx.core.app.ComponentActivity;
 import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -72,15 +72,16 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class EmbeddingEngine
         implements LifecycleObserver {
     private static EmbeddingEngine instance;
-    private final List<Embedder> embedders = new NoDeleteArrayList<>();
+    private static final List<Embedder> embedders = new NoDeleteArrayList<>();
 
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
-    public static LruCache<String, EmbedResult> videoTitleDurCache = new LruCache<>(500);
+    private static LruCache<String, EmbedResult> videoTitleDurCache = new LruCache<>(500);
 
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
 
+    @SuppressLint("RestrictedApi")
     private EmbeddingEngine(@NonNull ComponentActivity context) {
         // Media embedders
         embedders.add(new YoutubeEmbedder());
@@ -95,17 +96,15 @@ public class EmbeddingEngine
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
 
-        ((LifecycleOwner) context).getLifecycle().addObserver(this);
+        context.getLifecycle().addObserver(this);
     }
 
     /**
-     * Initialize the engine.
+     * Initialize the engine. This can be called multiple times and the instance will be replaced as necessary
      *
      * @param context The context to use for cache saving; this should be an Activity instance
      */
     public static void initEngine(@NonNull ComponentActivity context) {
-        if (BuildConfig.DEBUG && instance != null)
-            throw new UnsupportedOperationException("EmbeddingEngine must be initialized only once!");
         instance = new EmbeddingEngine(context);
     }
 
@@ -496,6 +495,10 @@ public class EmbeddingEngine
     }
     //endregion
 
+    public void clearCache() {
+        videoTitleDurCache.evictAll();
+    }
+
     private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -504,17 +507,15 @@ public class EmbeddingEngine
         Map<String, EmbedResult> titles =
                 AppModule.gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
         //reconstruct
-        EmbeddingEngine.videoTitleDurCache = new LruCache<>(500);
+        videoTitleDurCache = new LruCache<>(500);
         for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
-            EmbeddingEngine.videoTitleDurCache.put(entry.getKey(), entry.getValue());
+            videoTitleDurCache.put(entry.getKey(), entry.getValue());
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         //store parsed media title stuff, extra prevention of unneeded API calls
-        PersistableChanState.videoTitleDurCache.set(AppModule.gson.toJson(EmbeddingEngine.videoTitleDurCache.snapshot(),
-                lruType
-        ));
+        PersistableChanState.videoTitleDurCache.set(AppModule.gson.toJson(videoTitleDurCache.snapshot(), lruType));
     }
 }
