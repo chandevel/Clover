@@ -110,10 +110,11 @@ public class ImageViewerAdapter
                 .setIsVisibleArrow(false);
         switch (mode) {
             case VIDEO:
-                hintBuilder.setText("Single tap for controls\nDouble tap to pause/play").build().show(view);
+                hintBuilder.setText("Single tap for controls" + "\nDouble tap to pause/play").build().show(view);
                 break;
             case BIGIMAGE:
-                hintBuilder.setText("Two finger tap to rotate").build().show(view);
+                hintBuilder.setText("Two finger tap to rotate" + "\nSecond finger left of first rotates clockwise"
+                        + "\nSecond finger right of first rotates counter-clockwise").build().show(view);
                 break;
             case GIFIMAGE:
                 hintBuilder.setText("Double tap to pause/play").build().show(view);

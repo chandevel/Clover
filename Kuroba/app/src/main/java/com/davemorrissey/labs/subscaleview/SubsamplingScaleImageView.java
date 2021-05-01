@@ -67,7 +67,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <a href="https://github.com/davemorrissey/subsampling-scale-image-view">View project on GitHub</a>
  * </p><p>
  * This code has been modified from the original source to include a single finger hold/second finger tap event to rotate the image by 90
- * degrees clockwise per tap event. Additionally, the preferred bitmap config is defaulted to ARGB_8888. And also the
+ * degrees per tap event. Additionally, the preferred bitmap config is defaulted to ARGB_8888. And also the
  * Logger logging resource class has been used in place of Android's Log.
  * </p>
  */
@@ -407,11 +407,19 @@ public class SubsamplingScaleImageView
      * Sets the image orientation. It's best to call this before setting the image file or asset, because it may waste
      * loading of tiles. However, this can be freely called at any time.
      *
-     * @param orientation orientation to be set. See ORIENTATION_ static fields for valid values.
+     * @param orientation orientation to be set. See ORIENTATION_ static fields for valid values. This function allows for any 90 degree increment however.
      */
     public final void setOrientation(int orientation) {
-        if (!VALID_ORIENTATIONS.contains(orientation)) {
+        if (orientation % 90 != 0 && orientation != ORIENTATION_USE_EXIF)
             throw new IllegalArgumentException("Invalid orientation: " + orientation);
+        // adjust to within bounds
+        if (orientation != ORIENTATION_USE_EXIF) {
+            while (orientation < 0) {
+                orientation = 360 + orientation;
+            }
+            while (orientation >= 360) {
+                orientation = orientation - 360;
+            }
         }
         this.orientation = orientation;
         reset(false);
@@ -974,11 +982,13 @@ public class SubsamplingScaleImageView
                     return true;
                 }
                 if (touchCount == 2 && !isPanning) {
-                    // Perform rotate 90 degree clockwise action; set scale back to default and center
+                    // Perform rotate 90 degree action; set scale back to default and center
+                    // Direction is based on where the first and second fingers are positioned relative to each other
+                    // Tap left side of the first tap to rotate clockwise, right to rotate counterclockwise
                     float scaleX = getWidth() / (float) getSWidth();
                     float scaleY = getHeight() / (float) getSHeight();
                     setScaleAndCenter(getAppliedOrientation() % 180 == 0 ? scaleY : scaleX, getCenter());
-                    setOrientation((getAppliedOrientation() + 90) % 360);
+                    setOrientation((getAppliedOrientation() + (event.getX(0) > event.getX(1) ? 90 : -90)) % 360);
                 }
                 if (touchCount == 1) {
                     isZooming = false;
