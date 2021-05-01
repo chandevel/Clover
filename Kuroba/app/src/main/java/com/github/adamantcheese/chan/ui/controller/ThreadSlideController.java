@@ -313,8 +313,8 @@ public class ThreadSlideController
     }
 
     private void slideStateChanged() {
-        setParentNavigationItem(leftOpen);
         clearAnySelectionsAndKeyboards(context);
+        setParentNavigationItem(leftOpen);
         notifySlideChanged(leftOpen ? leftController : rightController);
     }
 
