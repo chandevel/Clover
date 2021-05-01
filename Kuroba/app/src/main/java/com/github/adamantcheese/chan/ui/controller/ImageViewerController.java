@@ -553,7 +553,6 @@ public class ImageViewerController
 
     private void previewOutAnimationEnded() {
         setBackgroundAlpha(0f);
-        showDownloadMenuItem(true);
         navigationController.stopPresenting(false);
     }
 

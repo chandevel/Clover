@@ -101,7 +101,9 @@ public class ImageViewerPresenter
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(images, selectedPosition);
-        callback.setImageMode(images.get(selectedPosition), LOWRES, true);
+        PostImage initialImage = images.get(selectedPosition);
+        callback.setImageMode(initialImage, LOWRES, true);
+        callback.showDownloadMenuItem(!initialImage.deleted && initialImage.type != IFRAME);
     }
 
     public boolean isTransitioning() {
@@ -225,7 +227,7 @@ public class ImageViewerPresenter
         callback.showVolumeMenuItem(postImage.type == MOVIE, muted);
 
         //Reset the save icon, don't allow deleted saves
-        callback.showDownloadMenuItem(!postImage.deleted);
+        callback.showDownloadMenuItem(!postImage.deleted && postImage.type != IFRAME);
 
         setTitle(postImage, position);
         callback.scrollToImage(postImage);
