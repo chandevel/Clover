@@ -25,7 +25,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 
 import com.github.adamantcheese.chan.R;
@@ -35,8 +34,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.features.embedding.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -47,9 +44,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -61,7 +55,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
         extends CardView
-        implements PostCellInterface, InvalidateFunction<Post> {
+        implements PostCellInterface {
     private static final int COMMENT_MAX_LINES = 10;
 
     private Post post;
@@ -74,8 +68,6 @@ public class CardPostCell
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;
-
-    private final List<Call> embedCalls = new CopyOnWriteArrayList<>();
 
     public CardPostCell(Context context) {
         super(context);
@@ -229,30 +221,12 @@ public class CardPostCell
         }
 
         replies.setText(status);
-
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
-        embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
-        if (!embedCalls.isEmpty()) {
-            findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
-        }
     }
 
     @Override
     public void unsetPost() {
         thumbView.setPostImage(null, 0);
-        for (Call c : embedCalls) {
-            c.cancel();
-        }
-        embedCalls.clear();
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
         post = null;
-    }
-
-    @Override
-    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
-        if (!post.equals(this.post)) return;
-        embedCalls.clear();
-        bindPost(theme, post);
     }
 
     private void setCompact(boolean compact) {

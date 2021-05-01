@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <!-- Toggle the tools visibility to see changes here -->
     <com.github.adamantcheese.chan.ui.layout.ReplyLayout
         android:id="@+id/reply"
         android:layout_width="match_parent"

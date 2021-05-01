@@ -110,9 +110,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:indeterminate="true"
             android:indeterminateTint="?colorAccent"
             android:indeterminateTintMode="src_atop"
-            android:padding="4dp"
-            android:visibility="gone"
-            tools:visibility="visible" />
+            android:padding="4dp" />
 
         <ImageView
             android:id="@+id/options"

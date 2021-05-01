@@ -843,7 +843,7 @@ public class ThreadPresenter
             if (linked != null) {
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
             }
-        } else if (linkable.type == PostLinkable.Type.LINK) {
+        } else if (linkable.type == PostLinkable.Type.LINK || linkable.type == PostLinkable.Type.EMBED) {
             threadPresenterCallback.openLink((String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             ThreadLink link = (ThreadLink) linkable.value;

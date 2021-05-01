@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 
@@ -68,6 +69,19 @@ public class PostsFilter {
     public PostsFilter(Order order, String query) {
         this.order = order;
         this.query = query;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PostsFilter that = (PostsFilter) o;
+        return order == that.order && Objects.equals(query, that.query);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(order, query);
     }
 
     /**

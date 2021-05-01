@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -40,7 +41,9 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+import static android.view.View.GONE;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
@@ -68,6 +71,7 @@ public class PostAdapter
     private int highlightedNo = -1;
     private String highlightedTripcode;
     private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
+    private PostsFilter previousFilter;
 
     private ChanSettings.PostViewMode postViewMode = ChanSettings.PostViewMode.LIST;
     private boolean compact = false;
@@ -82,6 +86,7 @@ public class PostAdapter
             ThreadStatusCell.Callback statusCellCallback,
             Theme theme
     ) {
+        recyclerView.setItemAnimator(null);
         this.recyclerView = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
         this.postCellCallback = postCellCallback;
@@ -181,6 +186,12 @@ public class PostAdapter
                         isCompact(),
                         theme
                 );
+                boolean embedInProgress = EmbeddingEngine.getInstance()
+                        .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position)));
+                if (cellType == TYPE_POST && !embedInProgress) {
+                    // nothing to embed, remove the spinner
+                    holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
+                }
 
                 if (cellType == TYPE_POST_STUB && postAdapterCallback != null) {
                     holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
@@ -206,6 +217,11 @@ public class PostAdapter
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         switch (CellType.values()[holder.getItemViewType()]) {
             case TYPE_POST:
+                PostViewHolder viewHolder = (PostViewHolder) holder;
+                ((PostCellInterface) viewHolder.itemView).getPost().stopEmbedding(); // before the post is cleared out
+                ((PostCellInterface) viewHolder.itemView).unsetPost();
+                holder.itemView.findViewById(R.id.embed_spinner).setVisibility(View.VISIBLE);
+                break;
             case TYPE_POST_STUB:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 ((PostCellInterface) postViewHolder.itemView).unsetPost();
@@ -257,6 +273,8 @@ public class PostAdapter
         showError(null);
 
         List<Post> newList = filter == null ? thread.getPosts() : filter.apply(thread);
+        boolean filterChanged = !Objects.equals(previousFilter, filter);
+        previousFilter = filter;
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
@@ -281,10 +299,10 @@ public class PostAdapter
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                // if the query's changed, invalidate all items
+                // if the filter has changed, invalidate all items
                 // if the status view is shown and the oldposition/newposition matches the list size, invalidate that as well (index is status cell)
-                if ((filter != null && filter.getQuery() != null) || (showStatusView() && oldItemPosition == displayList
-                        .size()) || (showStatusView() && newItemPosition == newList.size())) {
+                if (filterChanged || (showStatusView() && oldItemPosition == displayList.size()) || (showStatusView()
+                        && newItemPosition == newList.size())) {
                     return false;
                 }
                 return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;

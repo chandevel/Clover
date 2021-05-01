@@ -65,8 +65,6 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.features.embedding.InvalidateFunction;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
@@ -80,7 +78,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -109,7 +106,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class PostCell
         extends LinearLayout
-        implements PostCellInterface, InvalidateFunction<Post> {
+        implements PostCellInterface {
     private static final int COMMENT_MAX_LINES_BOARD = 25;
 
     private RecyclerView thumbnailViews;
@@ -136,7 +133,6 @@ public class PostCell
     private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
     private ViewTreeObserver.OnPreDrawListener preDrawListener;
-    private final List<Call> embedCalls = new CopyOnWriteArrayList<>();
 
     public PostCell(Context context) {
         super(context);
@@ -167,6 +163,7 @@ public class PostCell
             paddingPx = dp(textSizeSp - 7);
             detailsSizePx = sp(textSizeSp - 4);
 
+            thumbnailViews.setItemAnimator(null);
             thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(2));
             ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
 
@@ -297,7 +294,7 @@ public class PostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        thumbnailViews.setAdapter(new PostImagesAdapter());
+        thumbnailViews.swapAdapter(new PostImagesAdapter(), true);
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
             thumbnailViews.setVisibility(GONE);
         } else {
@@ -501,12 +498,6 @@ public class PostCell
                 return true;
             });
         }
-
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
-        embedCalls.addAll(EmbeddingEngine.getInstance().embed(theme, post, this));
-        if (!embedCalls.isEmpty()) {
-            findViewById(R.id.embed_spinner).setVisibility(VISIBLE);
-        }
     }
 
     private void clearShiftPostFormatting() {
@@ -545,13 +536,6 @@ public class PostCell
         }
     }
 
-    @Override
-    public void invalidateView(@NonNull Theme theme, @NonNull Post post) {
-        if (!post.equals(this.post)) return;
-        embedCalls.clear();
-        bindPost(theme, post);
-    }
-
     private final String[] dubTexts =
             {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
 
@@ -578,12 +562,6 @@ public class PostCell
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post.comment.removeSpan(BACKGROUND_SPAN);
-        thumbnailViews.setAdapter(null);
-        for (Call c : embedCalls) {
-            c.cancel();
-        }
-        embedCalls.clear();
-        findViewById(R.id.embed_spinner).setVisibility(GONE);
         if (this.getViewTreeObserver().isAlive()) {
             this.getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
         }
