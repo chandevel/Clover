@@ -37,6 +37,7 @@ import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.manager.base_directory.DirectoryManager;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import org.codejargon.feather.Provides;
 
@@ -53,7 +54,7 @@ import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAn
 public class AppModule {
     public static final String DI_TAG = "Dependency Injection";
 
-    public static final Gson gson = new Gson();
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Provides
     @Singleton

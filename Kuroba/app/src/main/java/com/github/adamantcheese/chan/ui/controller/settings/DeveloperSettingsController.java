@@ -159,7 +159,6 @@ public class DeveloperSettingsController
         Button clearVideoTitleCache = new Button(context);
         clearVideoTitleCache.setOnClickListener(v -> {
             EmbeddingEngine.getInstance().clearCache();
-            PersistableChanState.videoTitleDurCache.setSync(PersistableChanState.videoTitleDurCache.getDefault());
             showToast(context, "Cleared video title cache");
         });
         clearVideoTitleCache.setText("Clear video title cache");

@@ -25,7 +25,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallb
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.features.embedding.embedders.BandcampEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.ClypEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
@@ -47,6 +46,9 @@ import org.nibor.autolink.LinkExtractor;
 import org.nibor.autolink.LinkSpan;
 import org.nibor.autolink.LinkType;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -66,6 +68,7 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
@@ -74,9 +77,10 @@ public class EmbeddingEngine
     private static EmbeddingEngine instance;
     private static final List<Embedder> embedders = new NoDeleteArrayList<>();
 
+    private static final int CACHE_SIZE = 1500;
     // a cache for titles and durations to prevent extra api calls if not necessary
     // maps a URL to a title and duration string; if durations are disabled, the second argument is an empty string
-    private static LruCache<String, EmbedResult> videoTitleDurCache = new LruCache<>(500);
+    private static LruCache<String, EmbedResult> videoTitleDurCache = new LruCache<>(CACHE_SIZE);
 
     private static final LinkExtractor LINK_EXTRACTOR =
             LinkExtractor.builder().linkTypes(EnumSet.of(LinkType.URL)).build();
@@ -497,25 +501,34 @@ public class EmbeddingEngine
 
     public void clearCache() {
         videoTitleDurCache.evictAll();
+        cacheFile.delete();
     }
 
     private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
+    private static final File cacheFile = new File(getCacheDir(), "video_title_cache.json");
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
-        //restore parsed media title stuff
-        Map<String, EmbedResult> titles =
-                AppModule.gson.fromJson(PersistableChanState.videoTitleDurCache.get(), lruType);
-        //reconstruct
-        videoTitleDurCache = new LruCache<>(500);
-        for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
-            videoTitleDurCache.put(entry.getKey(), entry.getValue());
+        try (FileReader reader = new FileReader(cacheFile)) {
+            //restore parsed media title stuff
+            Map<String, EmbedResult> titles = AppModule.gson.fromJson(reader, lruType);
+            //reconstruct
+            videoTitleDurCache = new LruCache<>(CACHE_SIZE);
+            for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
+                videoTitleDurCache.put(entry.getKey(), entry.getValue());
+            }
+        } catch (Exception e) {
+            cacheFile.delete(); // bad file probably
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         //store parsed media title stuff, extra prevention of unneeded API calls
-        PersistableChanState.videoTitleDurCache.set(AppModule.gson.toJson(videoTitleDurCache.snapshot(), lruType));
+        try (FileWriter writer = new FileWriter(cacheFile)) {
+            AppModule.gson.toJson(videoTitleDurCache.snapshot(), lruType, writer);
+        } catch (Exception e) {
+            cacheFile.delete();
+        }
     }
 }
