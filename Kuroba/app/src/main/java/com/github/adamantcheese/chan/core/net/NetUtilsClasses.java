@@ -5,7 +5,6 @@ import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import org.jetbrains.annotations.NotNull;

@@ -2092,7 +2092,6 @@ public class SubsamplingScaleImageView
     /**
      * Get source width taking rotation into account.
      */
-    @SuppressWarnings("SuspiciousNameCombination")
     public int sWidth() {
         if (source == null) return 0;
         int rotation = getRequiredRotation();
@@ -2106,7 +2105,6 @@ public class SubsamplingScaleImageView
     /**
      * Get source height taking rotation into account.
      */
-    @SuppressWarnings("SuspiciousNameCombination")
     public int sHeight() {
         if (source == null) return 0;
         int rotation = getRequiredRotation();
@@ -2239,7 +2237,6 @@ public class SubsamplingScaleImageView
      * @param vxy view X/Y coordinate.
      * @return a coordinate representing the corresponding source coordinate.
      */
-    @Nullable
     public final PointF viewToSourceCoord(PointF vxy) {
         return viewToSourceCoord(vxy.x, vxy.y, new PointF());
     }
@@ -2251,7 +2248,6 @@ public class SubsamplingScaleImageView
      * @param vy view Y coordinate.
      * @return a coordinate representing the corresponding source coordinate.
      */
-    @Nullable
     public final PointF viewToSourceCoord(float vx, float vy) {
         return viewToSourceCoord(vx, vy, new PointF());
     }
@@ -2263,7 +2259,6 @@ public class SubsamplingScaleImageView
      * @param sTarget target object for result. The same instance is also returned.
      * @return source coordinates. This is the same instance passed to the sTarget param.
      */
-    @Nullable
     public final PointF viewToSourceCoord(PointF vxy, @NonNull PointF sTarget) {
         return viewToSourceCoord(vxy.x, vxy.y, sTarget);
     }
@@ -2276,11 +2271,7 @@ public class SubsamplingScaleImageView
      * @param sTarget target object for result. The same instance is also returned.
      * @return source coordinates. This is the same instance passed to the sTarget param.
      */
-    @Nullable
     public final PointF viewToSourceCoord(float vx, float vy, @NonNull PointF sTarget) {
-        if (vTranslate == null) {
-            return null;
-        }
         sTarget.set(viewToSourceX(vx), viewToSourceY(vy));
         return sTarget;
     }
@@ -2307,7 +2298,6 @@ public class SubsamplingScaleImageView
      * @param sxy source coordinates to convert.
      * @return view coordinates.
      */
-    @Nullable
     public final PointF sourceToViewCoord(PointF sxy) {
         return sourceToViewCoord(sxy.x, sxy.y, new PointF());
     }
@@ -2319,7 +2309,6 @@ public class SubsamplingScaleImageView
      * @param sy source Y coordinate.
      * @return view coordinates.
      */
-    @Nullable
     public final PointF sourceToViewCoord(float sx, float sy) {
         return sourceToViewCoord(sx, sy, new PointF());
     }
@@ -2332,7 +2321,6 @@ public class SubsamplingScaleImageView
      * @return view coordinates. This is the same instance passed to the vTarget param.
      */
     @SuppressWarnings("UnusedReturnValue")
-    @Nullable
     public final PointF sourceToViewCoord(PointF sxy, @NonNull PointF vTarget) {
         return sourceToViewCoord(sxy.x, sxy.y, vTarget);
     }
@@ -2345,11 +2333,7 @@ public class SubsamplingScaleImageView
      * @param vTarget target object for result. The same instance is also returned.
      * @return view coordinates. This is the same instance passed to the vTarget param.
      */
-    @Nullable
     public final PointF sourceToViewCoord(float sx, float sy, @NonNull PointF vTarget) {
-        if (vTranslate == null) {
-            return null;
-        }
         vTarget.set(sourceToViewX(sx), sourceToViewY(sy));
         return vTarget;
     }
@@ -2693,7 +2677,6 @@ public class SubsamplingScaleImageView
      *
      * @return the source coordinates current at the center of the view.
      */
-    @Nullable
     public final PointF getCenter() {
         int mX = getWidth() / 2;
         int mY = getHeight() / 2;

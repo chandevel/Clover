@@ -21,8 +21,8 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
+import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 
 import okhttp3.MediaType;

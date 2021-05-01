@@ -364,6 +364,7 @@ public class Post
                 + "]";
     }
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @NonNull
     @Override
     public Post clone() {
@@ -665,6 +666,7 @@ public class Post
             return linkables;
         }
 
+        @SuppressWarnings("MethodDoesntCallSuperMethod")
         @NonNull
         @Override
         public Post.Builder clone() {
