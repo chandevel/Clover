@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.captcha.v2;
+package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import android.graphics.Bitmap;
 import android.text.SpannableString;
@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
+import static com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsInfo.CaptchaType.UNKNOWN;
 
-public class CaptchaInfo {
+public class CaptchaV2NoJsInfo {
     CaptchaType captchaType = UNKNOWN;
     @NonNull
     List<Integer> checkboxes = new ArrayList<>();
@@ -39,7 +39,7 @@ public class CaptchaInfo {
     @Nullable
     SpannableString captchaTitle = null;
 
-    public CaptchaInfo() { }
+    public CaptchaV2NoJsInfo() { }
 
     public enum CaptchaType {
         UNKNOWN(0, 0), // ?x?

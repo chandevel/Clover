@@ -14,66 +14,76 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.captcha.v1;
+package com.github.adamantcheese.chan.ui.captcha.v2.js;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Point;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.View;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import static android.view.View.MeasureSpec.AT_MOST;
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 /**
- * Loads a Captcha2 fallback url in a webview; not the same as a regular captcha2 in CaptchaLayout.
+ * Loads a Captcha2 in a custom webview.
  */
-public class CaptchaNojsLayoutV1
+public class CaptchaV2JsLayout
         extends WebView
         implements AuthenticationLayoutInterface {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
-    @Inject
-    CaptchaHolder captchaHolder;
-
     private AuthenticationLayoutCallback callback;
+    private boolean loaded = false;
     private String baseUrl;
     private String siteKey;
 
     private boolean isAutoReply = true;
 
-    public CaptchaNojsLayoutV1(Context context) {
+    @Inject
+    CaptchaTokenHolder captchaTokenHolder;
+
+    public CaptchaV2JsLayout(Context context) {
         this(context, null);
     }
 
-    public CaptchaNojsLayoutV1(Context context, AttributeSet attrs) {
+    public CaptchaV2JsLayout(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CaptchaNojsLayoutV1(Context context, AttributeSet attrs, int defStyle) {
+    public CaptchaV2JsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getSettings().setUserAgentString(NetUtils.USER_AGENT);
         inject(this);
@@ -91,15 +101,14 @@ public class CaptchaNojsLayoutV1
         this.baseUrl = authentication.baseUrl;
 
         requestDisallowInterceptTouchEvent(true);
-
-        WebSettings settings = getSettings();
-        settings.setJavaScriptEnabled(true);
+        hideKeyboard(this);
+        getSettings().setJavaScriptEnabled(true);
 
         setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(@NonNull ConsoleMessage consoleMessage) {
                 Logger.i(
-                        CaptchaNojsLayoutV1.this,
+                        CaptchaV2JsLayout.this,
                         consoleMessage.lineNumber() + ":" + consoleMessage.message() + " " + consoleMessage.sourceId()
                 );
                 return true;
@@ -108,23 +117,8 @@ public class CaptchaNojsLayoutV1
 
         setWebViewClient(new WebViewClient() {
             @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-
-                // Fails if there is no token yet, which is ok.
-                final String setResponseJavascript = "CaptchaCallback.onCaptchaEntered("
-                        + "document.querySelector('.fbc-verification-token textarea').value);";
-                view.loadUrl("javascript:" + setResponseJavascript);
-            }
-
-            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                String host = Uri.parse(url).getHost();
-                if (host == null) {
-                    return false;
-                }
-
-                if (host.equals(Uri.parse(CaptchaNojsLayoutV1.this.baseUrl).getHost())) {
+                if (Uri.parse(url).getHost().equals(Uri.parse(CaptchaV2JsLayout.this.baseUrl).getHost())) {
                     return false;
                 } else {
                     openLink(url);
@@ -138,31 +132,65 @@ public class CaptchaNojsLayoutV1
     }
 
     public void reset() {
-        if (captchaHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
-            return;
-        }
+        if (loaded) {
+            loadUrl("javascript:grecaptcha.reset()");
+        } else {
+            if (captchaTokenHolder.hasToken() && isAutoReply) {
+                callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
+                return;
+            }
 
-        hardReset();
+            hardReset();
+        }
     }
 
     @Override
     public void hardReset() {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Referer", baseUrl);
-        loadUrl("https://www.google.com/recaptcha/api/fallback?k=" + siteKey, headers);
+        int[] attr = {R.attr.isLightTheme};
+        boolean isLightTheme = getContext().getTheme().obtainStyledAttributes(attr).getBoolean(0, true);
+        String html = IOUtils.assetAsString(getContext(), "html/captcha2.html");
+        html = html.replace("__site_key__", siteKey);
+        html = html.replace("__theme__", isLightTheme ? "light" : "dark");
+
+        Point displaySize = getDisplaySize();
+        boolean isSplitMode =
+                ChanSettings.layoutMode.get() == SPLIT || (ChanSettings.layoutMode.get() == AUTO && isTablet());
+
+        measure(
+                //0.35 is from SplitNavigationControllerLayout for the smaller side; measure for the larger of the two sides to find left/right
+                MeasureSpec.makeMeasureSpec(isSplitMode ? (int) (displaySize.x * 0.65) : displaySize.x, AT_MOST),
+                MeasureSpec.makeMeasureSpec(displaySize.y, AT_MOST)
+        );
+        //for a 2560 wide screen, partitions in split layout are 896(equal) / 2(divider) / 1662 (devicewidth*0.65 - 2(divider))
+        //for some reason, the measurement of THIS view's width is larger than the parent view's width; makes no sense
+        //but once onDraw is called, the parent has the correct width, so we use that
+        int containerWidth = ((View) getParent()).getMeasuredWidth();
+
+        //if split, smaller side has captcha on the left, larger right; otherwise always on the left
+        html = html.replace(
+                "__positioning_horizontal__",
+                //equal is left, greater is right
+                isSplitMode ? (containerWidth == displaySize.x * 0.35 ? "left" : "right") : "left"
+        );
+        html = html.replace(
+                "__positioning_vertical__",
+                //split mode should always be on the bottom
+                isSplitMode ? "bottom" : (ChanSettings.captchaOnBottom.get() ? "bottom" : "top")
+        );
+
+        loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
     }
 
     private void onCaptchaEntered(String response) {
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            captchaHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+            captchaTokenHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaHolder.getToken();
+                token = captchaTokenHolder.getToken();
             } else {
                 token = response;
             }
@@ -171,10 +199,19 @@ public class CaptchaNojsLayoutV1
         }
     }
 
-    public static class CaptchaInterface {
-        private final CaptchaNojsLayoutV1 layout;
+    @Override
+    protected void onDraw(Canvas canvas) {
+        if (!loaded) {
+            loaded = true;
+            hardReset();
+        }
+        super.onDraw(canvas);
+    }
 
-        public CaptchaInterface(CaptchaNojsLayoutV1 layout) {
+    public static class CaptchaInterface {
+        private final CaptchaV2JsLayout layout;
+
+        public CaptchaInterface(CaptchaV2JsLayout layout) {
             this.layout = layout;
         }
 

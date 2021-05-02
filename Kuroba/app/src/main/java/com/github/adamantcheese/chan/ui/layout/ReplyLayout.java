@@ -66,12 +66,12 @@ import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaLayout;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
 import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
-import com.github.adamantcheese.chan.ui.captcha.v1.CaptchaNojsLayoutV1;
-import com.github.adamantcheese.chan.ui.captcha.v2.CaptchaNoJsLayoutV2;
+import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsFallbackLayout;
+import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsLayout;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.view.LoadView;
@@ -104,11 +104,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKey
 public class ReplyLayout
         extends LoadView
         implements ReplyPresenter.ReplyPresenterCallback, TextWatcher,
-                   SelectionListeningEditText.SelectionChangedListener, CaptchaHolder.CaptchaValidationListener {
+                   SelectionListeningEditText.SelectionChangedListener, CaptchaTokenHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
     @Inject
-    CaptchaHolder captchaHolder;
+    CaptchaTokenHolder captchaTokenHolder;
 
     private ReplyLayoutCallback callback;
 
@@ -183,7 +183,7 @@ public class ReplyLayout
         if (isInEditMode()) return;
 
         EventBus.getDefault().register(this);
-        captchaHolder.addListener(this);
+        captchaTokenHolder.addListener(this);
     }
 
     @Override
@@ -192,7 +192,7 @@ public class ReplyLayout
         if (isInEditMode()) return;
 
         EventBus.getDefault().unregister(this);
-        captchaHolder.removeListener(this);
+        captchaTokenHolder.removeListener(this);
     }
 
     @Override
@@ -415,15 +415,15 @@ public class ReplyLayout
                             .inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     break;
                 case CAPTCHA2:
-                    authenticationLayout = new CaptchaLayout(getContext());
+                    authenticationLayout = new CaptchaV2JsLayout(getContext());
                     break;
                 case CAPTCHA2_NOJS:
                     if (useV2NoJsCaptcha) {
                         // new captcha window without webview
-                        authenticationLayout = new CaptchaNoJsLayoutV2(getContext());
+                        authenticationLayout = new CaptchaV2NoJsLayout(getContext());
                     } else {
                         // default webview-based captcha view
-                        authenticationLayout = new CaptchaNojsLayoutV1(getContext());
+                        authenticationLayout = new CaptchaV2NoJsFallbackLayout(getContext());
                     }
 
                     ImageView resetButton = captchaContainer.findViewById(R.id.reset);
@@ -494,8 +494,8 @@ public class ReplyLayout
         }
 
         // cleanup resources when switching from the new to the old captcha view
-        if (authenticationLayout instanceof CaptchaNoJsLayoutV2) {
-            ((CaptchaNoJsLayoutV2) authenticationLayout).onDestroy();
+        if (authenticationLayout instanceof CaptchaV2NoJsLayout) {
+            ((CaptchaV2NoJsLayout) authenticationLayout).onDestroy();
         }
 
         captchaContainer.removeView((View) authenticationLayout);

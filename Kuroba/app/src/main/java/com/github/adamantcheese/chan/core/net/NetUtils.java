@@ -12,7 +12,10 @@ import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.OkHttpClientWithUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -51,6 +54,13 @@ import okhttp3.internal.http2.StreamResetException;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BackgroundThreadResponseResult;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ChainConverter;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.lang.Runtime.getRuntime;
 import static okhttp3.Protocol.HTTP_1_1;
@@ -93,7 +103,7 @@ public class NetUtils {
                 }
             };
 
-    private static final Map<HttpUrl, List<NetUtilsClasses.BitmapResult>> resultListeners = new HashMap<>();
+    private static final Map<HttpUrl, List<BitmapResult>> resultListeners = new HashMap<>();
 
     public synchronized static void cleanup() {
         resultListeners.clear();
@@ -137,7 +147,7 @@ public class NetUtils {
             @NonNull final HttpUrl url,
             @NonNull final String filename,
             @NonNull final String fileExt,
-            @NonNull final NetUtilsClasses.ResponseResult<File> result,
+            @NonNull final ResponseResult<File> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener
     ) {
         return makeRequest(applicationClient.getHttpRedirectClient(), url, (response) -> {
@@ -154,7 +164,7 @@ public class NetUtils {
             }
 
             return tempFile;
-        }, new NetUtilsClasses.MainThreadResponseResult<>(new NetUtilsClasses.ResponseResult<File>() {
+        }, new MainThreadResponseResult<>(new ResponseResult<File>() {
             @Override
             public void onFailure(Exception e) {
                 result.onFailure(e);
@@ -168,7 +178,7 @@ public class NetUtils {
                     result.onFailure(new NullPointerException("File returned was null!"));
                 }
             }
-        }), progressListener, NetUtilsClasses.ONE_DAY_CACHE, 0);
+        }), progressListener, ONE_DAY_CACHE, 0);
     }
 
     /**
@@ -179,7 +189,7 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(
-            final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result
+            final HttpUrl url, @NonNull final BitmapResult result
     ) {
         return makeBitmapRequest(url, result, 0, 0);
     }
@@ -194,7 +204,7 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(
-            final HttpUrl url, @NonNull final NetUtilsClasses.BitmapResult result, final int width, final int height
+            final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
         Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true);
         return ret == null ? null : ret.first;
@@ -210,20 +220,16 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Pair<Call, Callback> makeBitmapRequest(
-            final HttpUrl url,
-            @NonNull final NetUtilsClasses.BitmapResult result,
-            final int width,
-            final int height,
-            boolean enqueue
+            final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height, boolean enqueue
     ) {
         if (url == null) return null;
         synchronized (NetUtils.class) {
-            List<NetUtilsClasses.BitmapResult> results = resultListeners.get(url);
+            List<BitmapResult> results = resultListeners.get(url);
             if (results != null) {
                 results.add(result);
                 return null;
             } else {
-                List<NetUtilsClasses.BitmapResult> listeners = new ArrayList<>();
+                List<BitmapResult> listeners = new ArrayList<>();
                 listeners.add(result);
                 resultListeners.put(url, listeners);
             }
@@ -251,7 +257,7 @@ public class NetUtils {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    performBitmapFailure(url, new NetUtilsClasses.HttpCodeException(response));
+                    performBitmapFailure(url, new HttpCodeException(response));
                     response.close();
                     return;
                 }
@@ -310,18 +316,18 @@ public class NetUtils {
     private static synchronized void performBitmapSuccess(
             @NonNull final HttpUrl url, @NonNull Bitmap bitmap, boolean fromCache
     ) {
-        final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
+        final List<BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
-        for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
+        for (final BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
             BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap, fromCache));
         }
     }
 
     private static synchronized void performBitmapFailure(@NonNull final HttpUrl url, Exception e) {
-        final List<NetUtilsClasses.BitmapResult> results = resultListeners.remove(url);
+        final List<BitmapResult> results = resultListeners.remove(url);
         if (results == null) return;
-        for (final NetUtilsClasses.BitmapResult bitmapResult : results) {
+        for (final BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
             BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(url, e));
         }
@@ -338,8 +344,8 @@ public class NetUtils {
      */
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.Converter<T, JsonReader> reader,
+            @NonNull final ResponseResult<T> result,
+            @NonNull final Converter<T, JsonReader> reader,
             @Nullable final CacheControl cacheControl
     ) {
         return makeJsonRequest(url, result, reader, cacheControl, 0);
@@ -357,14 +363,14 @@ public class NetUtils {
      */
     public static <T> Call makeJsonRequest(
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.Converter<T, JsonReader> reader,
+            @NonNull final ResponseResult<T> result,
+            @NonNull final Converter<T, JsonReader> reader,
             @Nullable final CacheControl cacheControl,
             int timeoutMs
     ) {
         return makeRequest(applicationClient,
                 url,
-                new NetUtilsClasses.ChainConverter<>(reader).chain(NetUtilsClasses.JSON_CONVERTER),
+                new ChainConverter<>(reader).chain(JSON_CONVERTER),
                 result,
                 null,
                 cacheControl,
@@ -385,13 +391,13 @@ public class NetUtils {
     @SuppressWarnings("UnusedReturnValue")
     public static <T> Call makeHTMLRequest(
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
-            @NonNull final NetUtilsClasses.Converter<T, Document> reader,
+            @NonNull final ResponseResult<T> result,
+            @NonNull final Converter<T, Document> reader,
             @Nullable final CacheControl cacheControl
     ) {
         return makeRequest(applicationClient,
                 url,
-                new NetUtilsClasses.ChainConverter<>(reader).chain(NetUtilsClasses.HTML_CONVERTER),
+                new ChainConverter<>(reader).chain(HTML_CONVERTER),
                 result,
                 null,
                 cacheControl,
@@ -412,8 +418,8 @@ public class NetUtils {
     public static <T> Call makeRequest(
             @NonNull final OkHttpClient client,
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.Converter<T, Response> converter,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final Converter<T, Response> converter,
+            @NonNull final ResponseResult<T> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener,
             @Nullable final CacheControl cacheControl
     ) {
@@ -434,8 +440,8 @@ public class NetUtils {
     private static <T> Call makeRequest(
             @NonNull final OkHttpClient client,
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.Converter<T, Response> converter,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final Converter<T, Response> converter,
+            @NonNull final ResponseResult<T> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener,
             @Nullable final CacheControl cacheControl,
             int timeoutMs
@@ -460,8 +466,8 @@ public class NetUtils {
     public static <T> Pair<Call, Callback> makeCall(
             @NonNull OkHttpClient client,
             @NonNull final HttpUrl url,
-            @NonNull final NetUtilsClasses.Converter<T, Response> converter,
-            @NonNull final NetUtilsClasses.ResponseResult<T> result,
+            @NonNull final Converter<T, Response> converter,
+            @NonNull final ResponseResult<T> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener,
             @Nullable final CacheControl cacheControl,
             int timeoutMs,
@@ -489,7 +495,7 @@ public class NetUtils {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    result.onFailure(new NetUtilsClasses.HttpCodeException(response));
+                    result.onFailure(new HttpCodeException(response));
                     response.close();
                     return;
                 }
@@ -517,11 +523,10 @@ public class NetUtils {
      * @return An enqueued headers call. WILL RUN RESULT ON BACKGROUND THREAD!
      */
     public static Call makeHeadersRequest(
-            @NonNull final HttpUrl url, @NonNull final NetUtilsClasses.ResponseResult<Headers> result
+            @NonNull final HttpUrl url, @NonNull final ResponseResult<Headers> result
     ) {
         Call call = applicationClient.newCall(new Request.Builder().url(url).head().build());
-        NetUtilsClasses.BackgroundThreadResponseResult<Headers> wrap =
-                new NetUtilsClasses.BackgroundThreadResponseResult<>(result);
+        BackgroundThreadResponseResult<Headers> wrap = new BackgroundThreadResponseResult<>(result);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -531,7 +536,7 @@ public class NetUtils {
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 if (!response.isSuccessful()) {
-                    wrap.onFailure(new NetUtilsClasses.HttpCodeException(response));
+                    wrap.onFailure(new HttpCodeException(response));
                 } else {
                     wrap.onSuccess(response.headers());
                 }

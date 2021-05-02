@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.ui.captcha.v2;
+package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import android.graphics.Bitmap;
 import android.view.HapticFeedbackConstants;
@@ -19,7 +19,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
 
-public class CaptchaNoJsV2Adapter
+public class CaptchaV2NoJsAdapter
         extends BaseAdapter {
     private static final int ANIMATION_DURATION = 50;
 
@@ -27,7 +27,7 @@ public class CaptchaNoJsV2Adapter
 
     private final List<ImageChallengeInfo> imageList = new ArrayList<>();
 
-    public CaptchaNoJsV2Adapter() { }
+    public CaptchaV2NoJsAdapter() { }
 
     public void setImages(List<Bitmap> imageList) {
         cleanUpImages();

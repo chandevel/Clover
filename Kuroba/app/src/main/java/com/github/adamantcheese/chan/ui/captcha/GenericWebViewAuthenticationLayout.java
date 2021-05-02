@@ -50,7 +50,7 @@ public class GenericWebViewAuthenticationLayout
     private final boolean isAutoReply = true;
 
     @Inject
-    CaptchaHolder captchaHolder;
+    CaptchaTokenHolder captchaTokenHolder;
 
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);
@@ -81,8 +81,8 @@ public class GenericWebViewAuthenticationLayout
 
     @Override
     public void reset() {
-        if (captchaHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+        if (captchaTokenHolder.hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
             return;
         }
 
@@ -110,12 +110,12 @@ public class GenericWebViewAuthenticationLayout
                 }, 1000);
             }
         } else if (success) {
-            captchaHolder.addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
+            captchaTokenHolder.addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaHolder.getToken();
+                token = captchaTokenHolder.getToken();
             } else {
                 token = text;
             }

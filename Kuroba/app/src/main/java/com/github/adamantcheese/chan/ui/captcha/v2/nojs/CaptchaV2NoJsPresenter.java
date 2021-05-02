@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.captcha.v2;
+package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import androidx.annotation.Nullable;
 
@@ -39,15 +39,15 @@ import okhttp3.ResponseBody;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class CaptchaNoJsPresenterV2 {
+public class CaptchaV2NoJsPresenter {
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
 
-    private final CaptchaNoJsHtmlParser parser;
+    private final CaptchaV2NoJsHtmlParser parser;
 
     @Nullable
     private AuthenticationCallbacks callbacks;
     @Nullable
-    private CaptchaInfo prevCaptchaInfo = null;
+    private CaptchaV2NoJsInfo prevCaptchaV2NoJsInfo = null;
 
     private final AtomicBoolean verificationInProgress = new AtomicBoolean(false);
     private final AtomicBoolean captchaRequestInProgress = new AtomicBoolean(false);
@@ -55,10 +55,10 @@ public class CaptchaNoJsPresenterV2 {
     private String baseUrl;
     private long lastTimeCaptchaRequest = 0L;
 
-    public CaptchaNoJsPresenterV2(@Nullable AuthenticationCallbacks callbacks) {
+    public CaptchaV2NoJsPresenter(@Nullable AuthenticationCallbacks callbacks) {
         inject(this);
         this.callbacks = callbacks;
-        this.parser = new CaptchaNoJsHtmlParser();
+        this.parser = new CaptchaV2NoJsHtmlParser();
     }
 
     public void init(String siteKey, String baseUrl) {
@@ -82,20 +82,20 @@ public class CaptchaNoJsPresenterV2 {
                 return VerifyError.NO_IMAGES_SELECTED;
             }
 
-            if (prevCaptchaInfo == null) {
+            if (prevCaptchaV2NoJsInfo == null) {
                 throw new CaptchaNoJsV2Error("prevCaptchaInfo is null");
             }
 
-            if (prevCaptchaInfo.cParameter == null) {
+            if (prevCaptchaV2NoJsInfo.cParameter == null) {
                 throw new CaptchaNoJsV2Error("C parameter is null");
             }
 
             BackgroundUtils.runOnBackgroundThread(() -> {
                 try {
                     String recaptchaUrl = recaptchaUrlBase + siteKey;
-                    RequestBody body = createRequestBody(prevCaptchaInfo, selectedIds);
+                    RequestBody body = createRequestBody(prevCaptchaV2NoJsInfo, selectedIds);
 
-                    Logger.d(CaptchaNoJsPresenterV2.this, "Verify called");
+                    Logger.d(CaptchaV2NoJsPresenter.this, "Verify called");
 
                     Request request = new Request.Builder().url(recaptchaUrl)
                             .post(body)
@@ -103,14 +103,14 @@ public class CaptchaNoJsPresenterV2 {
                             .build();
 
                     try (Response response = NetUtils.applicationClient.newCall(request).execute()) {
-                        prevCaptchaInfo = handleGetRecaptchaResponse(response);
+                        prevCaptchaV2NoJsInfo = handleGetRecaptchaResponse(response);
                     } finally {
                         verificationInProgress.set(false);
                     }
                 } catch (Throwable error) {
                     if (callbacks != null) {
                         try {
-                            prevCaptchaInfo = null;
+                            prevCaptchaV2NoJsInfo = null;
                             callbacks.onCaptchaInfoParseError(error);
                         } finally {
                             verificationInProgress.set(false);
@@ -148,7 +148,7 @@ public class CaptchaNoJsPresenterV2 {
             BackgroundUtils.runOnBackgroundThread(() -> {
                 try {
                     try {
-                        prevCaptchaInfo = getCaptchaInfo();
+                        prevCaptchaV2NoJsInfo = getCaptchaInfo();
                     } catch (Throwable error) {
                         if (callbacks != null) {
                             callbacks.onCaptchaInfoParseError(error);
@@ -157,9 +157,9 @@ public class CaptchaNoJsPresenterV2 {
                         throw error;
                     }
                 } catch (Throwable error) {
-                    Logger.e(CaptchaNoJsPresenterV2.this, "Error while executing captcha requests", error);
+                    Logger.e(CaptchaV2NoJsPresenter.this, "Error while executing captcha requests", error);
 
-                    prevCaptchaInfo = null;
+                    prevCaptchaV2NoJsInfo = null;
                 } finally {
                     captchaRequestInProgress.set(false);
                 }
@@ -179,7 +179,7 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     @Nullable
-    private CaptchaInfo getCaptchaInfo()
+    private CaptchaV2NoJsInfo getCaptchaInfo()
             throws IOException {
         BackgroundUtils.ensureBackgroundThread();
 
@@ -193,13 +193,13 @@ public class CaptchaNoJsPresenterV2 {
         }
     }
 
-    private RequestBody createRequestBody(CaptchaInfo prevCaptchaInfo, List<Integer> selectedIds)
+    private RequestBody createRequestBody(CaptchaV2NoJsInfo prevCaptchaV2NoJsInfo, List<Integer> selectedIds)
             throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
         sb.append(URLEncoder.encode("c", "utf-8"));
         sb.append("=");
-        sb.append(URLEncoder.encode(prevCaptchaInfo.cParameter, "utf-8"));
+        sb.append(URLEncoder.encode(prevCaptchaV2NoJsInfo.cParameter, "utf-8"));
         sb.append("&");
 
         for (Integer selectedImageId : selectedIds) {
@@ -222,7 +222,7 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     @Nullable
-    private CaptchaInfo handleGetRecaptchaResponse(Response response) {
+    private CaptchaV2NoJsInfo handleGetRecaptchaResponse(Response response) {
         try {
             if (!response.isSuccessful()) {
                 if (callbacks != null) {
@@ -259,18 +259,18 @@ public class CaptchaNoJsPresenterV2 {
                 return null;
             } else {
                 // got the challenge
-                CaptchaInfo captchaInfo = parser.parseHtml(bodyString, siteKey);
+                CaptchaV2NoJsInfo captchaV2NoJsInfo = parser.parseHtml(bodyString, siteKey);
                 Logger.d(this, "Got new challenge");
 
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParsed(captchaInfo);
+                    callbacks.onCaptchaInfoParsed(captchaV2NoJsInfo);
                 } else {
                     // Return null when callbacks are null to reset prevCaptchaInfo so that we won't
                     // get stuck without captchaInfo and disabled buttons forever
                     return null;
                 }
 
-                return captchaInfo;
+                return captchaV2NoJsInfo;
             }
         } catch (Throwable e) {
             Logger.e(this, "Error while trying to parse captcha html data", e);
@@ -285,7 +285,7 @@ public class CaptchaNoJsPresenterV2 {
 
     public void onDestroy() {
         this.callbacks = null;
-        this.prevCaptchaInfo = null;
+        this.prevCaptchaV2NoJsInfo = null;
         this.verificationInProgress.set(false);
         this.captchaRequestInProgress.set(false);
     }
@@ -303,7 +303,7 @@ public class CaptchaNoJsPresenterV2 {
     }
 
     public interface AuthenticationCallbacks {
-        void onCaptchaInfoParsed(CaptchaInfo captchaInfo);
+        void onCaptchaInfoParsed(CaptchaV2NoJsInfo captchaV2NoJsInfo);
 
         void onCaptchaInfoParseError(Throwable error);
 

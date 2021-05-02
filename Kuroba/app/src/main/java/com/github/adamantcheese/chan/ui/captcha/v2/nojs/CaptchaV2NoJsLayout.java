@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.captcha.v2;
+package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -38,7 +38,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaHolder;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -52,38 +52,38 @@ import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CA
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
-public class CaptchaNoJsLayoutV2
+public class CaptchaV2NoJsLayout
         extends FrameLayout
-        implements AuthenticationLayoutInterface, CaptchaNoJsPresenterV2.AuthenticationCallbacks {
+        implements AuthenticationLayoutInterface, CaptchaV2NoJsPresenter.AuthenticationCallbacks {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
 
     private final TextView captchaChallengeTitle;
     private final GridView captchaImagesGrid;
     private final Button captchaVerifyButton;
 
-    private final CaptchaNoJsV2Adapter adapter;
-    private final CaptchaNoJsPresenterV2 presenter;
+    private final CaptchaV2NoJsAdapter adapter;
+    private final CaptchaV2NoJsPresenter presenter;
     private AuthenticationLayoutCallback callback;
 
     private boolean isAutoReply = true;
 
     @Inject
-    CaptchaHolder captchaHolder;
+    CaptchaTokenHolder captchaTokenHolder;
 
-    public CaptchaNoJsLayoutV2(@NonNull Context context) {
+    public CaptchaV2NoJsLayout(@NonNull Context context) {
         this(context, null, 0);
     }
 
-    public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public CaptchaV2NoJsLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public CaptchaNoJsLayoutV2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CaptchaV2NoJsLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         inject(this);
 
-        this.presenter = new CaptchaNoJsPresenterV2(this);
-        this.adapter = new CaptchaNoJsV2Adapter();
+        this.presenter = new CaptchaV2NoJsPresenter(this);
+        this.adapter = new CaptchaV2NoJsAdapter();
 
         View view = inflate(context, R.layout.layout_captcha_nojs_v2, this);
 
@@ -125,8 +125,8 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void reset() {
-        if (captchaHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaHolder.getToken(), true);
+        if (captchaTokenHolder.hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
             return;
         }
 
@@ -135,7 +135,7 @@ public class CaptchaNoJsLayoutV2
 
     @Override
     public void hardReset() {
-        CaptchaNoJsPresenterV2.RequestCaptchaInfoError captchaInfoError = presenter.requestCaptchaInfo();
+        CaptchaV2NoJsPresenter.RequestCaptchaInfoError captchaInfoError = presenter.requestCaptchaInfo();
 
         switch (captchaInfoError) {
             case OK:
@@ -158,22 +158,22 @@ public class CaptchaNoJsLayoutV2
     }
 
     @Override
-    public void onCaptchaInfoParsed(CaptchaInfo captchaInfo) {
+    public void onCaptchaInfoParsed(CaptchaV2NoJsInfo captchaV2NoJsInfo) {
         BackgroundUtils.runOnMainThread(() -> {
             captchaVerifyButton.setEnabled(true);
-            renderCaptchaWindow(captchaInfo);
+            renderCaptchaWindow(captchaV2NoJsInfo);
         });
     }
 
     @Override
     public void onVerificationDone(String verificationToken) {
         BackgroundUtils.runOnMainThread(() -> {
-            captchaHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
+            captchaTokenHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaHolder.getToken();
+                token = captchaTokenHolder.getToken();
             } else {
                 token = verificationToken;
             }
@@ -187,19 +187,19 @@ public class CaptchaNoJsLayoutV2
     @Override
     public void onCaptchaInfoParseError(Throwable error) {
         BackgroundUtils.runOnMainThread(() -> {
-            Logger.e(CaptchaNoJsLayoutV2.this, "CaptchaV2 error", error);
+            Logger.e(CaptchaV2NoJsLayout.this, "CaptchaV2 error", error);
             showToast(getContext(), error.getMessage(), Toast.LENGTH_LONG);
             captchaVerifyButton.setEnabled(true);
             callback.onFallbackToV1CaptchaView(isAutoReply);
         });
     }
 
-    private void renderCaptchaWindow(CaptchaInfo captchaInfo) {
+    private void renderCaptchaWindow(CaptchaV2NoJsInfo captchaV2NoJsInfo) {
         try {
-            setCaptchaTitle(captchaInfo);
+            setCaptchaTitle(captchaV2NoJsInfo);
 
             captchaImagesGrid.setAdapter(adapter);
-            int columnsCount = captchaInfo.captchaType.columnCount;
+            int columnsCount = captchaV2NoJsInfo.captchaType.columnCount;
             int imageSize = Math.min(getWidth(), getHeight() - dp(104));
             //40 + 64dp from layout xml; width for left-right full span, height minus for top-bottom full span inc buttons and titlebar
             ViewGroup.LayoutParams layoutParams = captchaImagesGrid.getLayoutParams();
@@ -211,7 +211,7 @@ public class CaptchaNoJsLayoutV2
             captchaImagesGrid.setNumColumns(columnsCount);
 
             adapter.setImageSize(imageSize);
-            adapter.setImages(captchaInfo.challengeImages);
+            adapter.setImages(captchaV2NoJsInfo.challengeImages);
 
             captchaImagesGrid.postInvalidate();
 
@@ -223,15 +223,15 @@ public class CaptchaNoJsLayoutV2
         }
     }
 
-    private void setCaptchaTitle(CaptchaInfo captchaInfo) {
-        captchaChallengeTitle.setText(captchaInfo.captchaTitle);
+    private void setCaptchaTitle(CaptchaV2NoJsInfo captchaV2NoJsInfo) {
+        captchaChallengeTitle.setText(captchaV2NoJsInfo.captchaTitle);
     }
 
     private void sendVerificationResponse() {
         List<Integer> selectedIds = adapter.getCheckedImageIds();
 
         try {
-            CaptchaNoJsPresenterV2.VerifyError verifyError = presenter.verify(selectedIds);
+            CaptchaV2NoJsPresenter.VerifyError verifyError = presenter.verify(selectedIds);
             switch (verifyError) {
                 case OK:
                     captchaVerifyButton.setEnabled(false);

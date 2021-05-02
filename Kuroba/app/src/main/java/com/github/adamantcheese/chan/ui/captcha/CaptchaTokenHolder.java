@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 
-public class CaptchaHolder {
+public class CaptchaTokenHolder {
     private static final long INTERVAL = 5000;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -31,7 +31,7 @@ public class CaptchaHolder {
 
     // this Deque operates as a queue, where the first added captcha token is the first removed, as it would be the first to expire
     @GuardedBy("itself")
-    private final Deque<CaptchaInfo> captchaQueue = new ArrayDeque<>();
+    private final Deque<CaptchaToken> captchaQueue = new ArrayDeque<>();
 
     public void addListener(CaptchaValidationListener listener) {
         captchaValidationListeners.add(listener);
@@ -45,7 +45,7 @@ public class CaptchaHolder {
         removeNotValidTokens();
 
         synchronized (captchaQueue) {
-            captchaQueue.addLast(new CaptchaInfo(token, tokenLifetime + System.currentTimeMillis()));
+            captchaQueue.addLast(new CaptchaToken(token, tokenLifetime + System.currentTimeMillis()));
             Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + captchaQueue.peek());
         }
 
@@ -76,7 +76,7 @@ public class CaptchaHolder {
                 return null;
             }
 
-            CaptchaInfo token = captchaQueue.removeFirst();
+            CaptchaToken token = captchaQueue.removeFirst();
             Logger.d(this, "Got token " + token);
 
             notifyListeners();
@@ -107,14 +107,14 @@ public class CaptchaHolder {
         boolean captchasCountDecreased = false;
 
         synchronized (captchaQueue) {
-            Iterator<CaptchaInfo> it = captchaQueue.iterator();
+            Iterator<CaptchaToken> it = captchaQueue.iterator();
             while (it.hasNext()) {
-                CaptchaInfo captchaInfo = it.next();
-                if (now > captchaInfo.validUntil) {
+                CaptchaToken captchaToken = it.next();
+                if (now > captchaToken.validUntil) {
                     captchasCountDecreased = true;
                     it.remove();
 
-                    Logger.d(this, "Captcha token expired, now = " + sdf.format(now) + ", token " + captchaInfo);
+                    Logger.d(this, "Captcha token expired, now = " + sdf.format(now) + ", token " + captchaToken);
                 }
             }
 
@@ -140,7 +140,7 @@ public class CaptchaHolder {
             extends TimerTask {
         @Override
         public void run() {
-            BackgroundUtils.runOnMainThread(CaptchaHolder.this::removeNotValidTokens);
+            BackgroundUtils.runOnMainThread(CaptchaTokenHolder.this::removeNotValidTokens);
         }
     }
 
@@ -148,11 +148,11 @@ public class CaptchaHolder {
         void onCaptchaCountChanged(int validCaptchaCount);
     }
 
-    private static class CaptchaInfo {
+    private static class CaptchaToken {
         public String token;
         public long validUntil;
 
-        public CaptchaInfo(String token, long validUntil) {
+        public CaptchaToken(String token, long validUntil) {
             this.token = token;
             this.validUntil = validUntil;
         }
@@ -165,9 +165,9 @@ public class CaptchaHolder {
 
         @Override
         public boolean equals(@Nullable Object other) {
-            if (!(other instanceof CaptchaInfo)) return false;
-            CaptchaInfo otherCaptchaInfo = (CaptchaInfo) other;
-            return token.equals(otherCaptchaInfo.token) && validUntil == otherCaptchaInfo.validUntil;
+            if (!(other instanceof CaptchaToken)) return false;
+            CaptchaToken otherCaptchaToken = (CaptchaToken) other;
+            return token.equals(otherCaptchaToken.token) && validUntil == otherCaptchaToken.validUntil;
         }
 
         @NonNull

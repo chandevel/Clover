@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.ui.captcha.v2;
+package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,9 +44,9 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.ui.captcha.v2.CaptchaInfo.CaptchaType.UNKNOWN;
+import static com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsInfo.CaptchaType.UNKNOWN;
 
-public class CaptchaNoJsHtmlParser {
+public class CaptchaV2NoJsHtmlParser {
     private static final String googleBaseUrl = "https://www.google.com";
     private static final Pattern checkboxesPattern = Pattern.compile(
             "<input class=\"fbc-imageselect-checkbox-\\d+\" type=\"checkbox\" name=\"response\" value=\"(\\d+)\">");
@@ -64,28 +64,28 @@ public class CaptchaNoJsHtmlParser {
             "<div class=\"fbc-verification-token\"><textarea dir=\"ltr\" readonly>(.*?)</textarea></div>");
     private static final String CHALLENGE_IMAGE_FILE_NAME = "challenge_image_file";
 
-    public CaptchaNoJsHtmlParser() {}
+    public CaptchaV2NoJsHtmlParser() {}
 
     @NonNull
-    public CaptchaInfo parseHtml(String responseHtml, String siteKey)
+    public CaptchaV2NoJsInfo parseHtml(String responseHtml, String siteKey)
             throws CaptchaNoJsV2ParsingError, IOException {
         BackgroundUtils.ensureBackgroundThread();
 
-        CaptchaInfo captchaInfo = new CaptchaInfo();
+        CaptchaV2NoJsInfo captchaV2NoJsInfo = new CaptchaV2NoJsInfo();
 
         // parse challenge checkboxes' ids
-        parseCheckboxes(responseHtml, captchaInfo);
+        parseCheckboxes(responseHtml, captchaV2NoJsInfo);
 
         // parse captcha random key
-        parseCParameter(responseHtml, captchaInfo);
+        parseCParameter(responseHtml, captchaV2NoJsInfo);
 
         // parse title
-        parseChallengeTitle(responseHtml, captchaInfo);
+        parseChallengeTitle(responseHtml, captchaV2NoJsInfo);
 
         // parse image url, download image and split it into list of separate images
-        parseAndDownloadChallengeImage(responseHtml, captchaInfo, siteKey);
+        parseAndDownloadChallengeImage(responseHtml, captchaV2NoJsInfo, siteKey);
 
-        return captchaInfo;
+        return captchaV2NoJsInfo;
     }
 
     @NonNull
@@ -114,7 +114,7 @@ public class CaptchaNoJsHtmlParser {
         return token;
     }
 
-    private void parseChallengeTitle(String responseHtml, CaptchaInfo captchaInfo)
+    private void parseChallengeTitle(String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo)
             throws CaptchaNoJsV2ParsingError {
         Matcher matcher = challengeTitlePattern.matcher(responseHtml);
         if (!matcher.find()) {
@@ -154,10 +154,10 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("challengeTitle is null or empty");
         }
 
-        captchaInfo.captchaTitle = captchaTitle;
+        captchaV2NoJsInfo.captchaTitle = captchaTitle;
     }
 
-    private void parseAndDownloadChallengeImage(String responseHtml, CaptchaInfo captchaInfo, String siteKey)
+    private void parseAndDownloadChallengeImage(String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo, String siteKey)
             throws CaptchaNoJsV2ParsingError, IOException {
         Matcher matcher = challengeImageUrlPattern.matcher(responseHtml);
         if (!matcher.find()) {
@@ -183,13 +183,13 @@ public class CaptchaNoJsHtmlParser {
 
         downloadAndStoreImage(googleBaseUrl + challengeImageUrl + "&k=" + siteKey);
 
-        captchaInfo.challengeImages = decodeImagesFromFile(getChallengeImageFile(),
-                captchaInfo.captchaType.columnCount,
-                captchaInfo.captchaType.rowCount
+        captchaV2NoJsInfo.challengeImages = decodeImagesFromFile(getChallengeImageFile(),
+                captchaV2NoJsInfo.captchaType.columnCount,
+                captchaV2NoJsInfo.captchaType.rowCount
         );
     }
 
-    private void parseCParameter(String responseHtml, CaptchaInfo captchaInfo)
+    private void parseCParameter(String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo)
             throws CaptchaNoJsV2ParsingError {
         Matcher matcher = cParameterPattern.matcher(responseHtml);
         if (!matcher.find()) {
@@ -213,10 +213,10 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("cParameter is empty");
         }
 
-        captchaInfo.cParameter = cParameter;
+        captchaV2NoJsInfo.cParameter = cParameter;
     }
 
-    private void parseCheckboxes(String responseHtml, CaptchaInfo captchaInfo)
+    private void parseCheckboxes(String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo)
             throws CaptchaNoJsV2ParsingError {
         Matcher matcher = checkboxesPattern.matcher(responseHtml);
         Set<Integer> checkboxesSet = new HashSet<>(matcher.groupCount());
@@ -238,10 +238,10 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("Could not parse any checkboxes!");
         }
 
-        CaptchaInfo.CaptchaType captchaType;
+        CaptchaV2NoJsInfo.CaptchaType captchaType;
 
         try {
-            captchaType = CaptchaInfo.CaptchaType.fromCheckboxesCount(checkboxesSet.size());
+            captchaType = CaptchaV2NoJsInfo.CaptchaType.fromCheckboxesCount(checkboxesSet.size());
         } catch (Throwable error) {
             Logger.e(this, "Error while trying to parse captcha type", error);
             throw error;
@@ -251,8 +251,8 @@ public class CaptchaNoJsHtmlParser {
             throw new CaptchaNoJsV2ParsingError("Unknown captcha type");
         }
 
-        captchaInfo.captchaType = captchaType;
-        captchaInfo.checkboxes = new ArrayList<>(checkboxesSet);
+        captchaV2NoJsInfo.captchaType = captchaType;
+        captchaV2NoJsInfo.checkboxes = new ArrayList<>(checkboxesSet);
     }
 
     private void downloadAndStoreImage(String fullUrl)
