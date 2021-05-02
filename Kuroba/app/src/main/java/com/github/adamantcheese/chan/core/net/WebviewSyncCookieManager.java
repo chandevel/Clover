@@ -37,7 +37,7 @@ public class WebviewSyncCookieManager
 
     /**
      * Returns a list of cookies from both the webkit cookie manager and the okhttp cookie jar.
-     * Note that webview cookies come after okhttp cookies; okhttp cookies override webview cookies.
+     * Note that webview cookies come after okhttp cookies; okhttp cookies overrule webview cookies.
      */
     @NonNull
     @Override
@@ -68,6 +68,8 @@ public class WebviewSyncCookieManager
         for (CustomHashCookie c : toReturn) {
             ret.add(c.cookie);
         }
+
+        actualCookieJar.saveFromResponse(url, ret);
 
         return ret;
     }

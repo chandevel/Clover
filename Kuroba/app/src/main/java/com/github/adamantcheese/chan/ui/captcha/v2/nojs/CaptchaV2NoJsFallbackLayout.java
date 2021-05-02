@@ -18,10 +18,12 @@ package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -44,6 +46,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import okhttp3.Cookie;
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -84,6 +89,9 @@ public class CaptchaV2NoJsFallbackLayout
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
         this.isAutoReply = autoReply;
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptThirdPartyCookies(this, true);
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 

@@ -21,6 +21,9 @@ import android.content.Context;
 import android.util.AndroidRuntimeException;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -30,14 +33,16 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class WebViewController
         extends Controller {
     private final String navTitle;
-    private final String initialUrl;
+    private final HttpUrl initialUrl;
 
-    public WebViewController(Context context, String title, String url) {
+    public WebViewController(Context context, String title, HttpUrl url) {
         super(context);
         navTitle = title;
         initialUrl = url;
@@ -53,10 +58,33 @@ public class WebViewController
             WebView webView = new WebView(context);
             webView.setWebViewClient(new WebViewClient());
             WebSettings settings = webView.getSettings();
+            settings.setJavaScriptCanOpenWindowsAutomatically(true);
             settings.setJavaScriptEnabled(true);
             settings.setDomStorageEnabled(true);
             settings.setUserAgentString(NetUtils.USER_AGENT);
-            webView.loadUrl(initialUrl);
+            webView.setWebChromeClient(new WebChromeClient() {
+                @Override
+                public void onCloseWindow(WebView window) {
+                    super.onCloseWindow(window);
+                    // some window.close events are routed into here, pop the controller if so
+                    navigationController.popController(true);
+                }
+
+                @Override
+                public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                    // cheap hack to capture a JS window close error message
+                    // when that error occurs for this controller/webview, pop the controllers
+                    if (consoleMessage.message().contains("close")) {
+                        navigationController.popController(true);
+                        return true;
+                    } else {
+                        return super.onConsoleMessage(consoleMessage);
+                    }
+                }
+            });
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.setAcceptThirdPartyCookies(webView, true);
+            webView.loadUrl(initialUrl.toString());
             view = webView;
         } catch (Throwable error) {
             String errmsg = "";
@@ -70,5 +98,12 @@ public class WebViewController
             view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_webview_error, null);
             ((TextView) view.findViewById(R.id.text)).setText(errmsg);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // with WebViewSyncCookieManager, this puts webview cookies into OkHttp's cookie jar
+        NetUtils.applicationClient.cookieJar().loadForRequest(initialUrl);
     }
 }

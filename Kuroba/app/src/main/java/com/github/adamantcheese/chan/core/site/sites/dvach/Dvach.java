@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
-import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
 
@@ -94,10 +93,6 @@ public class Dvach
     public Dvach() {
         setName("2ch.hk");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
-        // request the NID cookie from google; if an NID is already in the cookie jar, it won't be updated unless it expires
-        // NID cookies expire 6 months after they're retrieved
-        NetUtils.applicationClient.newCall(new Request.Builder().url(HttpUrl.get("https://www.google.com")).build())
-                .enqueue(new NetUtilsClasses.IgnoreAllCallback());
     }
 
     @Override

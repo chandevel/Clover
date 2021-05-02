@@ -341,9 +341,9 @@ public class Chan4
             } else {
                 switch (captchaType.get()) {
                     case V2JS:
-                        return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, "https://boards.4chan.org");
+                        return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, b.toString());
                     case V2NOJS:
-                        return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, "https://boards.4chan.org");
+                        return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, b.toString());
                     default:
                         throw new IllegalArgumentException();
                 }
@@ -433,10 +433,6 @@ public class Chan4
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         icon().get(icon -> {});
-        // request the NID cookie from google; if an NID is already in the cookie jar, it won't be updated unless it expires
-        // NID cookies expire 6 months after they're retrieved
-        NetUtils.applicationClient.newCall(new Request.Builder().url(HttpUrl.get("https://www.google.com")).build())
-                .enqueue(new NetUtilsClasses.IgnoreAllCallback());
     }
 
     @Override

@@ -36,6 +36,8 @@ import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.THREAD_HIDES_CLEARED;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
@@ -114,10 +116,10 @@ public class BehaviourSettingsController
             ));
             general.add(new LinkSettingView(this,
                     "Google Login",
-                    "Sign into Google to grab your Google cookies, for Captcha ease.",
+                    "Sign into Google to grab your cookies, for Captcha ease.",
                     v -> navigationController.pushController(new WebViewController(context,
                             "Google Login",
-                            "https://accounts.google.com"
+                            HttpUrl.get("https://accounts.google.com")
                     ))
             ));
 

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -71,6 +72,9 @@ public class GenericWebViewAuthenticationLayout
     @Override
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptThirdPartyCookies(this, true);
 
         authentication = site.actions().postAuthenticate();
 

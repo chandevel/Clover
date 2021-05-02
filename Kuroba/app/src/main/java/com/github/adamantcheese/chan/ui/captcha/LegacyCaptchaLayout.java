@@ -21,6 +21,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -102,6 +103,9 @@ public class LegacyCaptchaLayout
             settings.setJavaScriptEnabled(true);
             settings.setUserAgentString(NetUtils.USER_AGENT);
         }
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptThirdPartyCookies(internalWebView, true);
 
         internalWebView.addJavascriptInterface(new CaptchaInterface(this), "CaptchaCallback");
     }

@@ -25,6 +25,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -94,6 +95,9 @@ public class CaptchaV2JsLayout
     public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
         this.isAutoReply = autoReply;
+
+        CookieManager cookieManager = CookieManager.getInstance();
+        cookieManager.setAcceptThirdPartyCookies(this, true);
 
         SiteAuthentication authentication = site.actions().postAuthenticate();
 

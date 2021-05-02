@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
@@ -43,6 +44,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
@@ -154,7 +156,11 @@ public abstract class ThreadController
 
     @Override
     public void openReportController(final Post post) {
-        navigationController.pushController(new ReportController(context, post, getLoadable()));
+        navigationController.pushController(new WebViewController(
+                context,
+                getString(R.string.report_screen, PostHelper.getTitle(post, getLoadable())),
+                post.board.site.endpoints().report(post)
+        ));
         // todo setting here?
         // threadLayout.getPresenter().hideOrRemovePosts(true, false, post, post.opId);
     }
