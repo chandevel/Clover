@@ -62,7 +62,6 @@ import java.util.Map;
 import kotlin.random.Random;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
-import okhttp3.Request;
 
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
@@ -202,20 +201,20 @@ public class Chan4
         }
 
         @Override
-        public HttpUrl icon(String icon, Map<String, String> arg) {
+        public HttpUrl icon(ICON_TYPE icon, Map<String, String> arg) {
             HttpUrl.Builder b = s.newBuilder().addPathSegment("image");
 
             switch (icon) {
-                case "country":
+                case COUNTRY_FLAG:
                     b.addPathSegment("country");
                     b.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".gif");
                     break;
-                case "troll_country":
-                    b.addPathSegment("country");
-                    b.addPathSegment("troll");
-                    b.addPathSegment(arg.get("troll_country_code").toLowerCase(Locale.ENGLISH) + ".gif");
+                case BOARD_FLAG:
+                    b.addPathSegment("flags");
+                    b.addPathSegment(arg.get("board_code"));
+                    b.addPathSegment("flags.png");
                     break;
-                case "since4pass":
+                case SINCE4PASS:
                     b.addPathSegment("minileaf.gif");
                     break;
             }
@@ -425,7 +424,6 @@ public class Chan4
     private final StringSetting passPass;
 
     private OptionsSetting<CaptchaType> captchaType;
-    public static StringSetting flagType;
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
@@ -441,7 +439,6 @@ public class Chan4
 
         captchaType =
                 new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2NOJS);
-        flagType = new StringSetting(settingsProvider, "preference_flag_chan4", "0");
     }
 
     @Override
@@ -450,7 +447,6 @@ public class Chan4
         SiteSetting<?> captchaSetting =
                 new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
         settings.add(captchaSetting);
-        settings.add(new SiteSetting<>("Country flag code", flagType, null));
         return settings;
     }
 

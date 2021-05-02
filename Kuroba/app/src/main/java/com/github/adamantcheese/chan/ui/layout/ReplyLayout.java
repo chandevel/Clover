@@ -42,6 +42,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -67,13 +69,16 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
-import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
 import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
+import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsFallbackLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsLayout;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.ui.view.FloatingMenu;
+import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -88,6 +93,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -126,7 +134,7 @@ public class ReplyLayout
     private TextView message;
     private EditText name;
     private EditText subject;
-    private EditText flag;
+    private Button flag;
     private EditText options;
     private EditText fileName;
     private LinearLayout postOptions;
@@ -209,7 +217,7 @@ public class ReplyLayout
         message = replyInputLayout.findViewById(R.id.message);
         name = replyInputLayout.findViewById(R.id.name);
         subject = replyInputLayout.findViewById(R.id.subject);
-        flag = replyInputLayout.findViewById(R.id.flag);
+        flag = replyInputLayout.findViewById(R.id.flag_button);
         options = replyInputLayout.findViewById(R.id.options);
         fileName = replyInputLayout.findViewById(R.id.file_name);
         filenameNew = replyInputLayout.findViewById(R.id.filename_new);
@@ -253,6 +261,60 @@ public class ReplyLayout
 
         name.addTextChangedListener(this);
         flag.addTextChangedListener(this);
+        flag.setOnClickListener(v -> {
+            List<FloatingMenuItem<String>> items = new ArrayList<>();
+            items.add(new FloatingMenuItem<>(null, "No Flag"));
+            Map<String, String> boardFlags = presenter.getBoardFlags();
+            FloatingMenuItem<String> selected = null;
+            for (String key : boardFlags.keySet()) {
+                FloatingMenuItem<String> flagItem = new FloatingMenuItem<>(key, boardFlags.get(key));
+                if (key.contentEquals(flag.getText())) {
+                    selected = flagItem;
+                }
+                items.add(flagItem);
+            }
+            if (items.isEmpty()) return;
+            FloatingMenu<String> menu = new FloatingMenu<>(getContext(), flag, items);
+            menu.setAnchorGravity(Gravity.CENTER, 0, 0);
+            menu.setAdapter(new BaseAdapter() {
+                @Override
+                public int getCount() {
+                    return items.size();
+                }
+
+                @Override
+                public String getItem(int position) {
+                    return items.get(position).getText();
+                }
+
+                @Override
+                public long getItemId(int position) {
+                    return position;
+                }
+
+                @Override
+                public View getView(int position, View convertView, ViewGroup parent) {
+                    TextView textView = (TextView) (convertView != null
+                            ? convertView
+                            : LayoutInflater.from(parent.getContext())
+                                    .inflate(R.layout.toolbar_menu_item, parent, false));
+                    textView.setText(getItem(position));
+                    textView.setTypeface(ThemeHelper.getTheme().mainFont);
+                    return textView;
+                }
+            });
+            menu.setSelectedItem(selected);
+            menu.setCallback(new FloatingMenu.ClickCallback<String>() {
+                @Override
+                public void onFloatingMenuItemClicked(
+                        FloatingMenu<String> menu, FloatingMenuItem<String> item
+                ) {
+                    flag.setText(item.getId());
+                }
+            });
+            menu.setPopupHeight(dp(300));
+            menu.show();
+        });
         options.addTextChangedListener(this);
         subject.addTextChangedListener(this);
         comment.addTextChangedListener(this);

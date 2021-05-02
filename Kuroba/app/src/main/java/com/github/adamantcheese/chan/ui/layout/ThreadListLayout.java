@@ -484,7 +484,9 @@ public class ThreadListLayout
             } else {
                 recyclerView.scrollToPosition(bottom);
                 // No animation means no animation, wait for the layout to finish and skip all animations
-                recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
+                if (recyclerView.getItemAnimator() != null) {
+                    recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
+                }
             }
         } else {
             int difference = Math.abs(displayPosition - getTopAdapterPosition());
@@ -497,7 +499,9 @@ public class ThreadListLayout
             } else {
                 recyclerView.scrollToPosition(displayPosition);
                 // No animation means no animation, wait for the layout to finish and skip all animations
-                recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
+                if (recyclerView.getItemAnimator() != null) {
+                    recyclerView.post(recyclerView.getItemAnimator()::endAnimations);
+                }
             }
         }
     }

@@ -8,8 +8,10 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
@@ -131,8 +133,7 @@ public class VichanApi
 
         // Country flag
         String countryCode = null;
-        String trollCountryCode = null;
-        String countryName = null;
+        String countryDescription = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -178,11 +179,8 @@ public class VichanApi
                 case "country":
                     countryCode = reader.nextString();
                     break;
-                case "troll_country":
-                    trollCountryCode = reader.nextString();
-                    break;
                 case "country_name":
-                    countryName = reader.nextString();
+                    countryDescription = reader.nextString();
                     break;
                 case "spoiler":
                     fileSpoiler = reader.nextInt() == 1;
@@ -275,14 +273,15 @@ public class VichanApi
             return new Pair<>(builder.no, builder.lastModified); // this return is only used for pages!
         }
 
-        if (countryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("country", makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
-        }
-
-        if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("troll_country", makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
+        if (countryCode != null && countryDescription != null) {
+            HttpUrl countryUrl = endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(
+                    ICON_TYPE.COUNTRY_FLAG,
+                    countryUrl,
+                    new NetUtilsClasses.PassthroughBitmapResult(),
+                    countryCode,
+                    countryDescription
+            ));
         }
 
         queue.addForParse(builder);

@@ -103,7 +103,7 @@ import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCa
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_EXTRA;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_COMMENT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_COUNTRY_CODE;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_FLAG_CODE;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_FILENAME;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_ID;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_IMAGE_HASH;
@@ -715,8 +715,8 @@ public class ThreadPresenter
             case POST_OPTION_FILTER_FILENAME:
                 threadPresenterCallback.filterPostFilename(post);
                 break;
-            case POST_OPTION_FILTER_COUNTRY_CODE:
-                threadPresenterCallback.filterPostCountryCode(post);
+            case POST_OPTION_FILTER_FLAG_CODE:
+                threadPresenterCallback.filterPostFlagCode(post);
                 break;
             case POST_OPTION_FILTER_ID:
                 threadPresenterCallback.filterPostID(post.id);
@@ -1096,13 +1096,7 @@ public class ThreadPresenter
 
         if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
             for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.url.toString().contains("troll")) {
-                    text.append("Troll Country: ").append(icon.name).append("\n");
-                } else if (icon.url.toString().contains("country")) {
-                    text.append("Country: ").append(icon.name).append("\n");
-                } else if (icon.url.toString().contains("minileaf")) {
-                    text.append("4chan Pass Year: ").append(icon.name).append("\n");
-                }
+                text.append("Icon ").append(icon.code).append(" description: ").append(icon.description).append("\n");
             }
         }
 
@@ -1272,8 +1266,8 @@ public class ThreadPresenter
         if (!TextUtils.isEmpty(post.tripcode)) {
             filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
         }
-        if (loadable.board.countryFlags) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COUNTRY_CODE, R.string.filter_country_code));
+        if (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty()) {
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FLAG_CODE, R.string.filter_flag_code));
         }
         if (!post.images.isEmpty()) {
             filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
@@ -1350,7 +1344,7 @@ public class ThreadPresenter
 
         void filterPostID(String ID);
 
-        void filterPostCountryCode(Post post);
+        void filterPostFlagCode(Post post);
 
         void filterPostFilename(Post post);
 

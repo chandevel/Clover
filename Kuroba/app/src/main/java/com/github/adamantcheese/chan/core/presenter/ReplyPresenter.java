@@ -58,6 +58,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -143,6 +144,10 @@ public class ReplyPresenter
         return !loadable.site.boardFeature(FORCED_ANONYMOUS, loadable.board);
     }
 
+    public Map<String, String> getBoardFlags() {
+        return loadable.board.boardFlags;
+    }
+
     public void onOpen(boolean open) {
         if (open) {
             callback.focusComment();
@@ -172,22 +177,21 @@ public class ReplyPresenter
         if (previewOpen) {
             callback.openPreview(draft.file != null, draft.file);
         }
-        boolean is4chan = loadable.site instanceof Chan4;
         callback.openCommentQuoteButton(moreOpen);
         if (loadable.board.spoilers) {
             callback.openCommentSpoilerButton(moreOpen);
         }
-        if (is4chan && loadable.boardCode.equals("g")) {
+        if (loadable.board.codeTags) {
             callback.openCommentCodeButton(moreOpen);
         }
-        if (is4chan && loadable.boardCode.equals("sci")) {
+        if (loadable.board.mathTags) {
             callback.openCommentEqnButton(moreOpen);
             callback.openCommentMathButton(moreOpen);
         }
-        if (is4chan && (loadable.boardCode.equals("jp") || loadable.boardCode.equals("vip"))) {
+        if (loadable.site instanceof Chan4 && (loadable.boardCode.equals("jp") || loadable.boardCode.equals("vip"))) {
             callback.openCommentSJISButton(moreOpen);
         }
-        if (is4chan && loadable.boardCode.equals("pol")) {
+        if (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty()) {
             callback.openFlag(moreOpen);
         }
     }

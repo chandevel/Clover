@@ -2,10 +2,15 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import android.util.JsonReader;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -17,8 +22,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
@@ -109,8 +118,11 @@ public class FutabaChanReader
 
         // Country flag
         String countryCode = null;
-        String trollCountryCode = null;
-        String countryName = null;
+        String countryDescription = null;
+
+        // Board flag
+        String boardFlagCode = null;
+        String boardFlagDescription = null;
 
         // 4chan pass leaf
         int since4pass = 0;
@@ -162,11 +174,14 @@ public class FutabaChanReader
                 case "country":
                     countryCode = reader.nextString();
                     break;
-                case "troll_country":
-                    trollCountryCode = reader.nextString();
-                    break;
                 case "country_name":
-                    countryName = reader.nextString();
+                    countryDescription = reader.nextString();
+                    break;
+                case "board_flag":
+                    boardFlagCode = reader.nextString();
+                    break;
+                case "flag_name":
+                    boardFlagDescription = reader.nextString();
                     break;
                 case "spoiler":
                     fileSpoiler = reader.nextInt() == 1;
@@ -268,19 +283,57 @@ public class FutabaChanReader
             return;
         }
 
-        if (countryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("country", makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/" + countryCode));
+        if (countryCode != null && countryDescription != null) {
+            HttpUrl countryUrl = endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.COUNTRY_FLAG,
+                    countryUrl,
+                    new NetUtilsClasses.PassthroughBitmapResult(),
+                    countryCode,
+                    countryDescription
+            ));
         }
 
-        if (trollCountryCode != null && countryName != null) {
-            HttpUrl countryUrl = endpoints.icon("troll_country", makeArgument("troll_country_code", trollCountryCode));
-            builder.addHttpIcon(new PostHttpIcon(countryUrl, countryName + "/t_" + trollCountryCode));
+        if (boardFlagCode != null && boardFlagDescription != null) {
+            HttpUrl flagUrl = endpoints.icon(ICON_TYPE.BOARD_FLAG, makeArgument("board_code", builder.board.code));
+            // note: this is bad, but once this is cached it never makes a network request and is fine afterwards
+            Response flagAlignments = NetUtils.applicationClient.newCall(new Request.Builder().url(
+                    "https://s.4cdn.org/image/flags/" + builder.board.code + "/flags.1.css").build()).execute();
+            String alignmentsString = flagAlignments.body().string();
+            Pattern dimsPattern = Pattern.compile("\\.bfl\\{.*width:(\\d+)px;height:(\\d+)px;.*\\}");
+            Matcher dimMatcher = dimsPattern.matcher(alignmentsString);
+            dimMatcher.find();
+
+            Pair<Integer, Integer> dims = new Pair<>(Math.abs(Integer.parseInt(dimMatcher.group(1))),
+                    Math.abs(Integer.parseInt(dimMatcher.group(2)))
+            );
+
+            Pattern flagPattern = Pattern.compile(
+                    "\\.bfl-" + boardFlagCode + "\\{background-position:-?(\\d+)(?:px)? -?(\\d+)(?:px)?\\}",
+                    Pattern.CASE_INSENSITIVE
+            );
+            Matcher flagMatcher = flagPattern.matcher(alignmentsString);
+            flagMatcher.find();
+
+            Pair<Integer, Integer> origin = new Pair<>(Math.abs(Integer.parseInt(flagMatcher.group(1))),
+                    Math.abs(Integer.parseInt(flagMatcher.group(2)))
+            );
+
+            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.BOARD_FLAG,
+                    flagUrl,
+                    new NetUtilsClasses.CroppingBitmapResult(origin, dims),
+                    boardFlagCode,
+                    boardFlagDescription
+            ));
         }
 
         if (since4pass != 0) {
-            HttpUrl iconUrl = endpoints.icon("since4pass", null);
-            builder.addHttpIcon(new PostHttpIcon(iconUrl, String.valueOf(since4pass)));
+            HttpUrl iconUrl = endpoints.icon(ICON_TYPE.SINCE4PASS, null);
+            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.SINCE4PASS,
+                    iconUrl,
+                    new NetUtilsClasses.PassthroughBitmapResult(),
+                    "since4pass",
+                    String.valueOf(since4pass)
+            ));
         }
 
         queue.addForParse(builder);

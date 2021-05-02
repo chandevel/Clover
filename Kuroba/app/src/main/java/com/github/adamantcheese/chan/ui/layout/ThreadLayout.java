@@ -407,17 +407,14 @@ public class ThreadLayout
     }
 
     @Override
-    public void filterPostCountryCode(Post post) {
-        String countryCode = "";
+    public void filterPostFlagCode(Post post) {
+        StringBuilder flagCodes = new StringBuilder();
         if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
             for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.url.toString().contains("troll") || icon.url.toString().contains("country")) {
-                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
-                    break;
-                }
+                flagCodes.append(icon.code).append("|");
             }
         }
-        callback.openFilterForType(FilterType.COUNTRY_CODE, countryCode);
+        callback.openFilterForType(FilterType.FLAG_CODE, flagCodes.toString().replaceAll("\\|$", ""));
     }
 
     @Override

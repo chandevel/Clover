@@ -365,7 +365,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public HttpUrl icon(String icon, Map<String, String> arg) {
+        public HttpUrl icon(ICON_TYPE icon, Map<String, String> arg) {
             return null;
         }
 

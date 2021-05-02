@@ -182,6 +182,7 @@ constructor(
                     exportedBoard.isCodeTags,
                     exportedBoard.isPreuploadCaptcha,
                     exportedBoard.isCountryFlags,
+                    exportedBoard.boardFlags,
                     exportedBoard.isMathTags,
                     exportedBoard.description ?: "",
                     exportedBoard.isArchive
@@ -406,6 +407,7 @@ constructor(
                     it.codeTags,
                     it.preuploadCaptcha,
                     it.countryFlags,
+                    it.boardFlags,
                     it.mathTags,
                     it.description,
                     it.archive

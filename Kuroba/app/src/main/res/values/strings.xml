@@ -227,7 +227,6 @@ If the pattern matches, then the post can be hidden, removed, highlighted, or au
     3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
     You can use Regex101 for more comprehensive explanations of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br>
 </p>
-For country code filtering, troll country codes should be prepended with <tt>t_</tt>. A country code filter automatically implies the case insensitive flag for regex.<br>
 <br>
 Actions do the following:<br>
 <b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>
@@ -246,7 +245,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     6) Comment<br>
     7) ID<br>
     8) Subject<br>
-    9) Country Code<br>
+    9) Flag Code<br>
     10) Filename<br>
 </p>
 ]]>
@@ -257,7 +256,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="filter_id">ID</string>
     <string name="filter_subject">Subject</string>
     <string name="filter_filename">Filename</string>
-    <string name="filter_country_code">Country code</string>
+    <string name="filter_flag_code">Flag code</string>
     <string name="filter_image_hash">Image hash</string>
 
     <string name="drawer_history">Historical threads</string>

@@ -22,9 +22,11 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -115,6 +117,9 @@ public class Board
     @DatabaseField
     public boolean countryFlags = false;
 
+    @DatabaseField(dataType = DataType.SERIALIZABLE, canBeNull = false)
+    public HashMap<String, String> boardFlags = new HashMap<>();
+
     @DatabaseField
     public boolean mathTags = false;
 
@@ -157,6 +162,7 @@ public class Board
             boolean codeTags,
             boolean preuploadCaptcha,
             boolean countryFlags,
+            HashMap<String, String> boardFlags,
             boolean mathTags,
             @NonNull String description,
             boolean archive
@@ -183,6 +189,7 @@ public class Board
         this.codeTags = codeTags;
         this.preuploadCaptcha = preuploadCaptcha;
         this.countryFlags = countryFlags;
+        this.boardFlags = boardFlags;
         this.mathTags = mathTags;
         this.description = description;
         this.archive = archive;
@@ -245,6 +252,7 @@ public class Board
         codeTags = o.codeTags;
         preuploadCaptcha = o.preuploadCaptcha;
         countryFlags = o.countryFlags;
+        boardFlags = o.boardFlags;
         mathTags = o.mathTags;
         description = o.description;
         archive = o.archive;
@@ -281,6 +289,7 @@ public class Board
         b.codeTags = codeTags;
         b.preuploadCaptcha = preuploadCaptcha;
         b.countryFlags = countryFlags;
+        b.boardFlags = boardFlags;
         b.mathTags = mathTags;
         b.description = description;
         b.archive = archive;

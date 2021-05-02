@@ -16,14 +16,30 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints;
+
 import okhttp3.HttpUrl;
 
 public class PostHttpIcon {
+    public final SiteEndpoints.ICON_TYPE type;
     public final HttpUrl url;
-    public final String name;
+    public final PassthroughBitmapResult bitmapResult;
+    public final String code;
+    public final String description;
 
-    public PostHttpIcon(HttpUrl url, String name) {
+    public PostHttpIcon(
+            SiteEndpoints.ICON_TYPE type,
+            HttpUrl url,
+            NetUtilsClasses.PassthroughBitmapResult result,
+            String code,
+            String description
+    ) {
+        this.type = type;
         this.url = url;
-        this.name = name;
+        this.bitmapResult = result;
+        this.code = code;
+        this.description = description;
     }
 }

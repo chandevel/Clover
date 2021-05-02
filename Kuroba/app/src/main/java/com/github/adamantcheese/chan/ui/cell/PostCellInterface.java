@@ -81,7 +81,7 @@ public interface PostCellInterface {
             POST_OPTION_FILTER_NAME,
             POST_OPTION_FILTER_ID,
             POST_OPTION_FILTER_FILENAME,
-            POST_OPTION_FILTER_COUNTRY_CODE,
+            POST_OPTION_FILTER_FLAG_CODE,
             POST_OPTION_EXTRA,
             POST_OPTION_REMOVE,
             POST_OPTION_COPY_POST_LINK,

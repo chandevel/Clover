@@ -50,12 +50,12 @@ public class Reply {
         reset(false);
     }
 
-    public void reset(boolean keepName) {
+    public void reset(boolean keepNameAndFlag) {
         file = null;
         fileName = "";
-        name = keepName ? name : ChanSettings.postDefaultName.get();
+        name = keepNameAndFlag ? name : ChanSettings.postDefaultName.get();
         options = "";
-        flag = "";
+        flag = keepNameAndFlag ? flag : "";
         subject = "";
         comment = "";
         spoilerImage = false;

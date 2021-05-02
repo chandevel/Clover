@@ -18,6 +18,8 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import android.util.JsonReader;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.Site;
@@ -140,9 +142,15 @@ public class Chan4BoardsRequest
                 case "preupload_captcha":
                     board.preuploadCaptcha = reader.nextInt() == 1;
                     break;
-                case "troll_flags":
                 case "country_flags":
                     board.countryFlags = reader.nextInt() == 1;
+                    break;
+                case "board_flags":
+                    reader.beginObject();
+                    while (reader.hasNext()) {
+                        board.boardFlags.put(reader.nextName(), reader.nextString());
+                    }
+                    reader.endObject();
                     break;
                 case "math_tags":
                     board.mathTags = reader.nextInt() == 1;

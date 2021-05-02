@@ -36,6 +36,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
@@ -53,7 +54,7 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.COUNTRY_CODE;
+import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
 import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
 import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
@@ -220,17 +221,21 @@ public class FilterEngine {
             }
         }
 
-        //figure out if the post has a country code, if so check the filter
-        String countryCode = "";
+        //figure out if the post has a flag code, if so check the filter
+        String flagCode = "";
         if (post.httpIcons != null) {
             for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.name.indexOf('/') != -1) {
-                    countryCode = icon.name.substring(icon.name.indexOf('/') + 1);
+                if (icon.type == SiteEndpoints.ICON_TYPE.COUNTRY_FLAG) {
+                    flagCode = icon.code;
+                    break;
+                }
+                if (icon.type == SiteEndpoints.ICON_TYPE.BOARD_FLAG) {
+                    flagCode = icon.code;
                     break;
                 }
             }
         }
-        if (!countryCode.isEmpty() && matches(filter, COUNTRY_CODE, countryCode, false)) {
+        if (!flagCode.isEmpty() && matches(filter, FLAG_CODE, flagCode, false)) {
             return true;
         }
 
@@ -259,7 +264,7 @@ public class FilterEngine {
         }
 
         if (pattern == null) {
-            int extraFlags = type == COUNTRY_CODE ? Pattern.CASE_INSENSITIVE : 0;
+            int extraFlags = type == FLAG_CODE ? Pattern.CASE_INSENSITIVE : 0;
             pattern = compile(filter.pattern, extraFlags);
             if (pattern != null) {
                 synchronized (patternCache) {
@@ -274,7 +279,8 @@ public class FilterEngine {
             if (matcher.find()) {
                 MatchResult result = matcher.toMatchResult();
                 if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
-                    ((Spannable) text).setSpan(new FilterHighlightSpan(ThemeHelper.getTheme()),
+                    ((Spannable) text).setSpan(
+                            new FilterHighlightSpan(ThemeHelper.getTheme()),
                             result.start(),
                             result.end(),
                             Spanned.SPAN_INCLUSIVE_EXCLUSIVE

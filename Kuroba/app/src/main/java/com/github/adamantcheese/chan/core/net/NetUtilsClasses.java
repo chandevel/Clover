@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
@@ -125,6 +126,57 @@ public class NetUtilsClasses {
         void onBitmapFailure(@NonNull HttpUrl source, Exception e);
 
         void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache);
+    }
+
+    /**
+     * Passes through a bitmap result to a delegate that can be set at a later time.
+     */
+    public static class PassthroughBitmapResult
+            implements BitmapResult {
+        protected BitmapResult passthrough;
+
+        public void setPassthrough(BitmapResult passthrough) {
+            this.passthrough = passthrough;
+        }
+
+        @Override
+        public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+            passthrough.onBitmapFailure(source, e);
+        }
+
+        @Override
+        public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            passthrough.onBitmapSuccess(source, bitmap, fromCache);
+        }
+    }
+
+    /**
+     * A passthrough that crops the bitmap to a specified location (useful for sprite maps)
+     */
+    public static class CroppingBitmapResult
+            extends PassthroughBitmapResult {
+
+        private final Pair<Integer, Integer> originCropCoords;
+        private final Pair<Integer, Integer> dims;
+
+        public CroppingBitmapResult(
+                Pair<Integer, Integer> originCropCoords, Pair<Integer, Integer> dims
+        ) {
+            this.originCropCoords = originCropCoords;
+            this.dims = dims;
+        }
+
+        @SuppressWarnings("ConstantConditions") // all of the pairs will be non-null
+        @Override
+        public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+            Bitmap cropped = Bitmap.createBitmap(bitmap,
+                    originCropCoords.first,
+                    originCropCoords.second,
+                    dims.first,
+                    dims.second
+            );
+            passthrough.onBitmapSuccess(source, cropped, fromCache);
+        }
     }
 
     /**

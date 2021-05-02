@@ -39,7 +39,14 @@ public interface SiteEndpoints {
 
     HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg);
 
-    HttpUrl icon(String icon, Map<String, String> arg);
+    enum ICON_TYPE {
+        COUNTRY_FLAG,
+        BOARD_FLAG,
+        SINCE4PASS,
+        OTHER
+    }
+
+    HttpUrl icon(ICON_TYPE icon, Map<String, String> arg);
 
     HttpUrl boards();
 

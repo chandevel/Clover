@@ -21,6 +21,8 @@ import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.HashMap;
+
 public class ExportedBoard {
     @SerializedName("site_id")
     private final int siteId;
@@ -68,6 +70,8 @@ public class ExportedBoard {
     private final boolean preuploadCaptcha;
     @SerializedName("country_flags")
     private final boolean countryFlags;
+    @SerializedName("board_flags")
+    private final HashMap<String, String> boardFlags;
     @SerializedName("math_tags")
     private final boolean mathTags;
     @SerializedName("description")
@@ -99,6 +103,7 @@ public class ExportedBoard {
             boolean codeTags,
             boolean preuploadCaptcha,
             boolean countryFlags,
+            HashMap<String, String> boardFlags,
             boolean mathTags,
             @NonNull String description,
             boolean archive
@@ -125,6 +130,7 @@ public class ExportedBoard {
         this.codeTags = codeTags;
         this.preuploadCaptcha = preuploadCaptcha;
         this.countryFlags = countryFlags;
+        this.boardFlags = boardFlags;
         this.mathTags = mathTags;
         this.description = description;
         this.archive = archive;
@@ -222,6 +228,10 @@ public class ExportedBoard {
 
     public boolean isCountryFlags() {
         return countryFlags;
+    }
+
+    public HashMap<String, String> getBoardFlags() {
+        return boardFlags;
     }
 
     public boolean isMathTags() {

@@ -820,10 +820,7 @@ public class PostCell
             httpIconTextSize = size;
             httpIcons = new ArrayList<>(icons.size());
             for (PostHttpIcon icon : icons) {
-                int codeIndex = icon.name.indexOf('/'); //this is for country codes
-                String name = icon.name.substring(0, codeIndex != -1 ? codeIndex : icon.name.length());
-                PostIconsHttpIcon j = new PostIconsHttpIcon(this, name, icon.url);
-                httpIcons.add(j);
+                httpIcons.add(new PostIconsHttpIcon(this, icon));
             }
         }
 
@@ -910,10 +907,10 @@ public class PostCell
         private Call request;
         private Bitmap bitmap;
 
-        private PostIconsHttpIcon(final PostIcons postIcons, String name, HttpUrl url) {
-            this.name = name;
+        private PostIconsHttpIcon(final PostIcons postIcons, PostHttpIcon icon) {
+            name = icon.description;
 
-            request = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
+            icon.bitmapResult.setPassthrough(new NetUtilsClasses.BitmapResult() {
                 @Override
                 public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                     bitmap = BitmapRepository.error;
@@ -926,6 +923,9 @@ public class PostCell
                     postIcons.invalidate();
                 }
             });
+
+            // don't cache stuff in memory for icons since they could be sprite-mapped (ie 4chan)
+            request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult, false);
         }
 
         private void cancel() {
