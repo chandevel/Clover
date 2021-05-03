@@ -195,19 +195,6 @@ public class NetUtils {
     }
 
     /**
-     * Request a bitmap without resizing.
-     *
-     * @param url      The request URL.
-     * @param result   The callback for this call.
-     * @param memCache Should this result be cached in memory.
-     * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
-     */
-    public static Call makeBitmapRequest(final HttpUrl url, @NonNull final BitmapResult result, boolean memCache) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, 0, 0, true, memCache);
-        return ret == null ? null : ret.first;
-    }
-
-    /**
      * Request a bitmap with resizing.
      *
      * @param url    The request URL.
@@ -219,28 +206,22 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true, true);
+        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true);
         return ret == null ? null : ret.first;
     }
 
     /**
      * Request a bitmap with resizing.
      *
-     * @param url      The request URL.
-     * @param result   The callback for this call.
-     * @param width    The requested width of the result
-     * @param height   The requested height of the result
-     * @param enqueue  Should this be enqueued or not
-     * @param memCache Should the result of this request be cached in memory
+     * @param url     The request URL.
+     * @param result  The callback for this call.
+     * @param width   The requested width of the result
+     * @param height  The requested height of the result
+     * @param enqueue Should this be enqueued or not
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Pair<Call, Callback> makeBitmapRequest(
-            final HttpUrl url,
-            @NonNull final BitmapResult result,
-            final int width,
-            final int height,
-            boolean enqueue,
-            boolean memCache
+            final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height, boolean enqueue
     ) {
         if (url == null) return null;
         synchronized (NetUtils.class) {
@@ -254,12 +235,10 @@ public class NetUtils {
                 resultListeners.put(url, listeners);
             }
         }
-        if (memCache) {
-            Bitmap cachedBitmap = imageCache.get(url);
-            if (cachedBitmap != null) {
-                performBitmapSuccess(url, cachedBitmap, true);
-                return null;
-            }
+        Bitmap cachedBitmap = imageCache.get(url);
+        if (cachedBitmap != null) {
+            performBitmapSuccess(url, cachedBitmap, true);
+            return null;
         }
         Call call = applicationClient.getHttpRedirectClient()
                 .newCall(new Request.Builder().url(url).addHeader("Referer", url.toString()).build());
@@ -300,7 +279,7 @@ public class NetUtils {
                         BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
-                            checkBitmap(url, bitmap, memCache);
+                            checkBitmap(url, bitmap);
                         }, false);
                     } else {
                         ExceptionCatchingInputStream wrappedStream =
@@ -310,7 +289,7 @@ public class NetUtils {
                             performBitmapFailure(url, wrappedStream.getException());
                             return;
                         }
-                        checkBitmap(url, result, memCache);
+                        checkBitmap(url, result);
                     }
                 } catch (Exception e) {
                     performBitmapFailure(url, e);
@@ -326,14 +305,12 @@ public class NetUtils {
         return new Pair<>(call, callback);
     }
 
-    private static void checkBitmap(HttpUrl url, Bitmap result, boolean cacheThisImage) {
+    private static void checkBitmap(HttpUrl url, Bitmap result) {
         if (result == null) {
             performBitmapFailure(url, new NullPointerException("Bitmap returned is null"));
             return;
         }
-        if (cacheThisImage) {
-            imageCache.put(url, result);
-        }
+        imageCache.put(url, result);
         performBitmapSuccess(url, result, false);
     }
 

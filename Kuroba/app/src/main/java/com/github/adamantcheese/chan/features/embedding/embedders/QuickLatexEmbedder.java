@@ -206,6 +206,6 @@ public class QuickLatexEmbedder
                     }
                 }
             }
-        }, 0, 0, false, true);
+        }, 0, 0, false);
     }
 }

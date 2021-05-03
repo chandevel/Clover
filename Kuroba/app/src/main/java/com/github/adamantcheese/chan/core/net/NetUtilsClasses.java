@@ -169,13 +169,18 @@ public class NetUtilsClasses {
         @SuppressWarnings("ConstantConditions") // all of the pairs will be non-null
         @Override
         public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-            Bitmap cropped = Bitmap.createBitmap(bitmap,
-                    originCropCoords.first,
-                    originCropCoords.second,
-                    dims.first,
-                    dims.second
-            );
-            passthrough.onBitmapSuccess(source, cropped, fromCache);
+            try {
+                Bitmap cropped = Bitmap.createBitmap(bitmap,
+                        originCropCoords.first,
+                        originCropCoords.second,
+                        dims.first,
+                        dims.second
+                );
+                passthrough.onBitmapSuccess(source, cropped, fromCache);
+            } catch (Exception e) {
+                // any exception pass through the original bitmap
+                passthrough.onBitmapSuccess(source, bitmap, fromCache);
+            }
         }
     }
 
@@ -249,17 +254,6 @@ public class NetUtilsClasses {
 
         public abstract void onResponse(@NonNull Call call, @NonNull Response response)
                 throws IOException;
-    }
-
-    /**
-     * A wrapper over a regular callback that ignores everything. Useful for caching stuff or getting cookies.
-     */
-    public static class IgnoreAllCallback
-            extends IgnoreFailureCallback {
-        @Override
-        public void onResponse(@NonNull Call call, @NonNull Response response) {
-            response.close();
-        }
     }
 
     public static class HttpCodeException

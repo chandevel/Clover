@@ -772,7 +772,7 @@ public class PostCell
             });
 
             // don't cache stuff in memory for icons since they could be sprite-mapped (ie 4chan)
-            request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult, false);
+            request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult);
         }
 
         void cancel() {

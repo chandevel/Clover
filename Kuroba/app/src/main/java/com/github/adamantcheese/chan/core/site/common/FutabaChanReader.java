@@ -319,7 +319,7 @@ public class FutabaChanReader
             );
 
             builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.BOARD_FLAG,
-                    flagUrl,
+                    flagUrl.newBuilder().encodedFragment(flagMatcher.group()).build(),
                     new NetUtilsClasses.CroppingBitmapResult(origin, dims),
                     boardFlagCode,
                     boardFlagDescription
