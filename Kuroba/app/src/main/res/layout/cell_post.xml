@@ -53,7 +53,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
-            android:includeFontPadding="false"
             tools:paddingLeft="8dp"
             tools:paddingRight="16dp"
             tools:paddingTop="8dp"
@@ -61,9 +60,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             tools:textColor="?post_details_color"
             tools:textSize="10sp" />
 
-        <view
+        <com.github.adamantcheese.chan.ui.cell.PostIcons
             android:id="@+id/icons"
-            class="com.github.adamantcheese.chan.ui.cell.PostCell$PostIcons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"

@@ -133,7 +133,10 @@ public abstract class ThumbnailView
         if (source != null && source.equals(url)) return; // no-op if already set
         source = url;
 
-        setImageBitmap(BitmapRepository.empty, false);
+        if (source == null) {
+            setImageBitmap(BitmapRepository.empty, false);
+            return;
+        }
 
         NetUtilsClasses.BitmapResult result = new NetUtilsClasses.BitmapResult() {
             @Override

@@ -54,8 +54,10 @@ public class PostImageThumbnailView
 
         this.postImage = postImage;
 
-        setUrl(null, 0);
-        if (postImage == null) return;
+        if (postImage == null) {
+            setUrl(null, 0);
+            return;
+        }
 
         if (ChanSettings.shouldUseFullSizeImage(postImage)) {
             HttpUrl url = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;

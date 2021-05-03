@@ -36,10 +36,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/post_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:layout_height="340dp"
+            tools:itemCount="2"
             tools:listitem="@layout/cell_post" />
 
         <LinearLayout
