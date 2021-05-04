@@ -60,7 +60,6 @@ public class CardPostCell
 
     private Post post;
     private PostCellInterface.PostCellCallback callback;
-    private boolean highlighted = false;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -159,10 +158,9 @@ public class CardPostCell
             boolean compact,
             Theme theme
     ) {
-        this.highlighted = highlighted;
         this.callback = callback;
 
-        bindPost(theme, post);
+        bindPost(theme, post, highlighted);
         setCompact(compact);
     }
 
@@ -179,7 +177,7 @@ public class CardPostCell
         return false;
     }
 
-    private void bindPost(Theme theme, Post post) {
+    private void bindPost(Theme theme, Post post, boolean highlighted) {
         this.post = post;
 
         if (highlighted || post.isSavedReply) {

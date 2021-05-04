@@ -673,14 +673,14 @@ public class PostCell
     }
 
     private class PostImagesAdapter
-            extends RecyclerView.Adapter<PostImagesAdapter.PostImageViewHolder> {
+            extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public PostImagesAdapter() {
             setHasStableIds(true);
         }
 
         @NonNull
         @Override
-        public PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             Context c = parent.getContext();
             PostImageThumbnailView thumbnailView = new PostImageThumbnailView(c);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
@@ -695,11 +695,11 @@ public class PostCell
 
                 return true;
             });
-            return new PostImageViewHolder(thumbnailView);
+            return new RecyclerView.ViewHolder(thumbnailView) {};
         }
 
         @Override
-        public void onBindViewHolder(@NonNull PostImageViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             PostImage image = post.images.get(position);
             thumbnailView.setPostImage(image, getThumbnailSize(holder.itemView.getContext()));
@@ -713,7 +713,7 @@ public class PostCell
 
         @Override
         public void onViewRecycled(
-                @NonNull PostImageViewHolder holder
+                @NonNull RecyclerView.ViewHolder holder
         ) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             thumbnailView.setPostImage(null, 0);
@@ -728,13 +728,6 @@ public class PostCell
         @Override
         public long getItemId(int position) {
             return post.images.get(position).imageUrl.hashCode();
-        }
-
-        private class PostImageViewHolder
-                extends RecyclerView.ViewHolder {
-            public PostImageViewHolder(@NonNull View itemView) {
-                super(itemView);
-            }
         }
     }
 

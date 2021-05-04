@@ -106,7 +106,8 @@ public class PostStubCell
             final Post post,
             PostCellCallback callback,
             boolean inPopup,
-            boolean highlighted, boolean compact,
+            boolean highlighted,
+            boolean compact,
             Theme theme
     ) {
         this.post = post;

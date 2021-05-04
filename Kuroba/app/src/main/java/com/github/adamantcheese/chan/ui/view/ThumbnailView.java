@@ -80,8 +80,7 @@ public abstract class ThumbnailView
 
     private Drawable foreground;
 
-    protected boolean error = false;
-    private String errorText;
+    protected String errorText = null;
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect tmpTextRect = new Rect();
 
@@ -133,6 +132,18 @@ public abstract class ThumbnailView
         if (source != null && source.equals(url)) return; // no-op if already set
         source = url;
 
+        if (bitmapCall != null) {
+            bitmapCall.cancel();
+            bitmapCall = null;
+        }
+
+        if (drawListener != null) {
+            if (getViewTreeObserver().isAlive()) {
+                getViewTreeObserver().removeOnPreDrawListener(drawListener);
+            }
+            drawListener = null;
+        }
+
         if (source == null) {
             setImageBitmap(BitmapRepository.empty, false);
             return;
@@ -146,9 +157,6 @@ public abstract class ThumbnailView
                 } else {
                     errorText = getString(R.string.thumbnail_load_failed_network);
                 }
-                error = true;
-                bitmapCall = null;
-
                 fadeIn.end();
             }
 
@@ -206,7 +214,7 @@ public abstract class ThumbnailView
 
     @Override
     protected boolean onSetAlpha(int alpha) {
-        if (error) {
+        if (errorText != null) {
             textPaint.setAlpha(alpha);
         } else {
             paint.setAlpha(alpha);
@@ -228,7 +236,7 @@ public abstract class ThumbnailView
         int width = getWidth() - getPaddingLeft() - getPaddingRight();
         int height = getHeight() - getPaddingTop() - getPaddingBottom();
 
-        if (error) {
+        if (errorText != null) {
             textPaint.getTextBounds(errorText, 0, errorText.length(), tmpTextRect);
             float x = width / 2f - tmpTextRect.exactCenterX();
             float y = height / 2f - tmpTextRect.exactCenterY();
@@ -303,26 +311,12 @@ public abstract class ThumbnailView
     }
 
     protected void setImageBitmap(Bitmap bitmap, boolean animate) {
-        error = false;
+        errorText = null;
 
-        if (bitmapCall != null) { // clear out any calls
-            bitmapCall.cancel();
-            bitmapCall = null;
-        }
-
-        if (drawListener != null) { // clear out any pending on-draws
-            if (getViewTreeObserver().isAlive()) {
-                getViewTreeObserver().removeOnPreDrawListener(drawListener);
-            }
-            drawListener = null;
-        }
-
-        // set the bitmap and fields for drawing
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
         paint.setShader(new BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
 
-        // if animated, start, otherwise call end to set the alpha to the end value
         if (animate) {
             fadeIn.start();
         } else {

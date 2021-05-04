@@ -50,8 +50,7 @@ public class PostImageThumbnailView
      * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
      */
     public void setPostImage(final PostImage postImage, int maxDimension) {
-        if (this.postImage == postImage) return;
-
+        if (this.postImage != null && this.postImage.equals(postImage)) return;
         this.postImage = postImage;
 
         if (postImage == null) {
@@ -67,16 +66,12 @@ public class PostImageThumbnailView
         }
     }
 
-    public PostImage getPostImage() {
-        return postImage;
-    }
-
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
         if (postImage != null && (postImage.type == PostImage.Type.MOVIE || postImage.type == PostImage.Type.IFRAME)
-                && !error) {
+                && errorText != null) {
             int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * 0.5);
             int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * 0.5);
 

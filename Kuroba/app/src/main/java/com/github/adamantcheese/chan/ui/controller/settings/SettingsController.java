@@ -133,22 +133,22 @@ public abstract class SettingsController
     }
 
     private class SettingsGroupAdapter
-            extends RecyclerView.Adapter<SettingsGroupAdapter.SettingsGroupViewHolder> {
+            extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public SettingsGroupAdapter() {
             setHasStableIds(true);
         }
 
         @NonNull
         @Override
-        public SettingsGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View inflatedView = LayoutInflater.from(parent.getContext()).inflate(R.layout.setting_group, parent, false);
             RecyclerView settingViewRecycler = inflatedView.findViewById(R.id.setting_view_recycler);
             settingViewRecycler.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
-            return new SettingsGroupViewHolder(inflatedView);
+            return new RecyclerView.ViewHolder(inflatedView) {};
         }
 
         @Override
-        public void onBindViewHolder(@NonNull SettingsGroupViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             SettingsGroup group = groups.get(position);
             ((TextView) holder.itemView.findViewById(R.id.header)).setText(group.name);
             if (position == 0) {
@@ -169,7 +169,7 @@ public abstract class SettingsController
         }
 
         @Override
-        public void onViewRecycled(@NonNull SettingsGroupViewHolder holder) {
+        public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
             ((RecyclerView) holder.itemView.findViewById(R.id.setting_view_recycler)).setAdapter(null); // unbinds all attached settings
         }
 
@@ -181,13 +181,6 @@ public abstract class SettingsController
         @Override
         public int getItemViewType(int position) {
             return groups.get(position).name.hashCode();
-        }
-
-        private class SettingsGroupViewHolder
-                extends RecyclerView.ViewHolder {
-            public SettingsGroupViewHolder(@NonNull View itemView) {
-                super(itemView);
-            }
         }
     }
 
