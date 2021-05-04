@@ -165,8 +165,8 @@ public class PostCell
         title.setTextSize(textSizeSp);
         title.setPadding(paddingPx, paddingPx, dp(getContext(), 24), paddingPx / 2);
 
-        iconSizePx = sp(getContext(), textSizeSp - 3);
-        icons.setHeight(sp(getContext(), textSizeSp));
+        iconSizePx = sp(getContext(), textSizeSp);
+        icons.setHeight(iconSizePx);
         icons.setSpacing(dp(getContext(), 4));
         icons.setPadding(paddingPx, 0, dp(getContext(), 24), 0);
 
@@ -363,7 +363,7 @@ public class PostCell
         icons.set(PostIcons.CLOSED_FLAG, post.isClosed());
         icons.set(PostIcons.DELETED_FLAG, post.deleted.get());
         icons.set(PostIcons.ARCHIVED_FLAG, post.isArchived());
-        icons.set(PostIcons.HTTP_ICONS_FLAG, post.httpIcons != null);
+        icons.set(PostIcons.HTTP_ICONS_FLAG_TEXT, post.httpIcons != null);
         icons.setHttpIcons(post.httpIcons, iconSizePx);
         icons.apply();
 
@@ -685,23 +685,13 @@ public class PostCell
             PostImageThumbnailView thumbnailView = new PostImageThumbnailView(c);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
             thumbnailView.setRounding(dp(2));
-            thumbnailView.setOnLongClickListener(v -> {
-                if (thumbnailView.getPostImage() == null || !ChanSettings.enableLongPressURLCopy.get()) {
-                    return false;
-                }
-
-                setClipboardContent("Image URL", thumbnailView.getPostImage().imageUrl.toString());
-                showToast(getContext(), R.string.image_url_copied_to_clipboard);
-
-                return true;
-            });
             return new RecyclerView.ViewHolder(thumbnailView) {};
         }
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
-            PostImage image = post.images.get(position);
+            final PostImage image = post.images.get(position);
             thumbnailView.setPostImage(image, getThumbnailSize(holder.itemView.getContext()));
 
             thumbnailView.setOnClickListener(v -> {
@@ -709,6 +699,14 @@ public class PostCell
                     callback.onThumbnailClicked(image, thumbnailView);
                 }
             });
+
+            if (ChanSettings.enableLongPressURLCopy.get()) {
+                thumbnailView.setOnLongClickListener(v -> {
+                    setClipboardContent("Image URL", image.imageUrl.toString());
+                    showToast(getContext(), R.string.image_url_copied_to_clipboard);
+                    return true;
+                });
+            }
         }
 
         @Override
@@ -718,6 +716,7 @@ public class PostCell
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             thumbnailView.setPostImage(null, 0);
             thumbnailView.setOnClickListener(null);
+            thumbnailView.setOnLongClickListener(null);
         }
 
         @Override

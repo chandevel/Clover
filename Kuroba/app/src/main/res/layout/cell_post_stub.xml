@@ -28,32 +28,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_toLeftOf="@id/options"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:padding="8dp"
-        android:textColor="?android:textColorSecondary"
-        android:layout_centerVertical="true"
-        tools:text="@string/lorem_ipsum"
-        tools:textsize="8sp" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/options"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="?android:textColorSecondary"
+            tools:text="@string/lorem_ipsum" />
 
-    <ImageView
-        android:id="@+id/options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/ripple_item_background"
-        android:paddingLeft="10dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="4dp"
-        android:src="@drawable/ic_fluent_more_vertical_24_filled"
-        app:tint="?android:textColorSecondary"
-        tools:ignore="ContentDescription" />
+        <ImageView
+            android:id="@+id/options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/ripple_item_background"
+            android:paddingLeft="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"
+            android:src="@drawable/ic_fluent_more_vertical_24_filled"
+            app:tint="?android:textColorSecondary"
+            tools:ignore="ContentDescription" />
     </RelativeLayout>
 
 </com.github.adamantcheese.chan.ui.cell.PostStubCell>

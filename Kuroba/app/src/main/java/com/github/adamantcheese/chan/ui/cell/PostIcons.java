@@ -27,7 +27,8 @@ public class PostIcons
     protected static final int CLOSED_FLAG = 0x2;
     protected static final int DELETED_FLAG = 0x4;
     protected static final int ARCHIVED_FLAG = 0x8;
-    protected static final int HTTP_ICONS_FLAG = 0x10;
+    protected static final int HTTP_ICONS_FLAG_TEXT = 0x10;
+    protected static final int HTTP_ICONS_FLAG_NO_TEXT = 0x20;
 
     private int height;
     private int spacing;
@@ -144,17 +145,19 @@ public class PostIcons
                 offset += drawBitmap(canvas, BitmapRepository.archivedIcon, offset);
             }
 
-            if (get(HTTP_ICONS_FLAG)) {
+            if (get(HTTP_ICONS_FLAG_TEXT) || get(HTTP_ICONS_FLAG_NO_TEXT)) {
                 for (PostIconsHttpIcon httpIcon : httpIcons) {
                     if (httpIcon.bitmap != null) {
                         offset += drawBitmap(canvas, httpIcon.bitmap, offset);
 
-                        textPaint.setColor(httpIconTextColor);
-                        textPaint.setTextSize(httpIconTextSize);
-                        textPaint.getTextBounds(httpIcon.name, 0, httpIcon.name.length(), textRect);
-                        float y = height / 2f - textRect.exactCenterY();
-                        canvas.drawText(httpIcon.name, offset, y, textPaint);
-                        offset += textRect.width() + spacing;
+                        if (!get(HTTP_ICONS_FLAG_NO_TEXT)) {
+                            textPaint.setColor(httpIconTextColor);
+                            textPaint.setTextSize(httpIconTextSize);
+                            textPaint.getTextBounds(httpIcon.name, 0, httpIcon.name.length(), textRect);
+                            float y = height / 2f - textRect.exactCenterY();
+                            canvas.drawText(httpIcon.name, offset, y, textPaint);
+                            offset += textRect.width() + spacing;
+                        }
                     }
                 }
             }

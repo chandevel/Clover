@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
@@ -51,6 +52,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
@@ -61,12 +63,16 @@ public class CardPostCell
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
+    private int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
+    private int iconSizePx;
+
     private PostImageThumbnailView thumbView;
     private TextView title;
     private TextView comment;
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;
+    private PostIcons icons;
 
     public CardPostCell(Context context) {
         super(context);
@@ -85,28 +91,26 @@ public class CardPostCell
         super.onFinishInflate();
 
         thumbView = findViewById(R.id.thumbnail);
-        thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), (ThumbnailView) view));
-        thumbView.setOnLongClickListener(v -> {
-            if (thumbView.getPostImage() == null || !ChanSettings.enableLongPressURLCopy.get()) {
-                return false;
-            }
-
-            setClipboardContent("Image URL", thumbView.getPostImage().imageUrl.toString());
-            showToast(getContext(), R.string.image_url_copied_to_clipboard);
-
-            return true;
-        });
         title = findViewById(R.id.title);
         comment = findViewById(R.id.comment);
         replies = findViewById(R.id.replies);
         options = findViewById(R.id.options);
         filterMatchColor = findViewById(R.id.filter_match_color);
+        icons = findViewById(R.id.icons);
+
+        setCompact(false);
+
+        if (isInEditMode()) {
+            BitmapRepository.initialize(getContext());
+            icons.edit();
+            icons.set(PostIcons.STICKY_FLAG, true);
+            icons.set(PostIcons.CLOSED_FLAG, true);
+            icons.set(PostIcons.DELETED_FLAG, true);
+            icons.set(PostIcons.ARCHIVED_FLAG, true);
+            icons.apply();
+        }
 
         setOnClickListener((view) -> callback.onPostClicked(post));
-
-        if (!isInEditMode()) {
-            setCompact(false);
-        }
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
@@ -194,12 +198,33 @@ public class CardPostCell
             thumbView.setPostImage(null, 0);
         }
 
+        thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), thumbView));
+        if (ChanSettings.enableLongPressURLCopy.get()) {
+            thumbView.setOnLongClickListener(v -> {
+                if (post.image() != null) {
+                    setClipboardContent("Image URL", post.image().imageUrl.toString());
+                    showToast(getContext(), R.string.image_url_copied_to_clipboard);
+                    return true;
+                }
+                return false;
+            });
+        }
+
         if (post.filterHighlightedColor != 0) {
             filterMatchColor.setVisibility(VISIBLE);
             filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
         } else {
             filterMatchColor.setVisibility(GONE);
         }
+
+        icons.edit();
+        icons.set(PostIcons.STICKY_FLAG, post.isSticky());
+        icons.set(PostIcons.CLOSED_FLAG, post.isClosed());
+        icons.set(PostIcons.DELETED_FLAG, post.deleted.get());
+        icons.set(PostIcons.ARCHIVED_FLAG, post.isArchived());
+        icons.set(PostIcons.HTTP_ICONS_FLAG_NO_TEXT, post.httpIcons != null);
+        icons.setHttpIcons(post.httpIcons, iconSizePx);
+        icons.apply();
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
         title.setText(TextUtils.isEmpty(post.subjectSpan)
@@ -223,22 +248,29 @@ public class CardPostCell
 
     @Override
     public void unsetPost() {
+        icons.cancelRequests();
         thumbView.setPostImage(null, 0);
+        thumbView.setOnClickListener(null);
+        thumbView.setOnLongClickListener(null);
         post = null;
     }
 
     private void setCompact(boolean compact) {
-        int textSizeSp = ChanSettings.fontSize.get() + (compact ? -2 : 0);
-        title.setTextSize(textSizeSp);
-        comment.setTextSize(textSizeSp);
-        replies.setTextSize(textSizeSp);
+        int compactSize = textSizeSp + (compact ? -2 : 0);
+        iconSizePx = sp(getContext(), compactSize);
+        title.setTextSize(compactSize);
+        icons.setHeight(iconSizePx);
+        comment.setTextSize(compactSize);
+        replies.setTextSize(compactSize);
 
-        int p = compact ? dp(3) : dp(8);
+        icons.setSpacing(dp(getContext(), 4));
+
+        int p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
         // Same as the layout.
         title.setPadding(p, p, p, 0);
         comment.setPadding(p, p, p, 0);
-        replies.setPadding(p, p / 2, p, p);
+        replies.setPadding(p, p, p / 2, p);
         options.setPadding(p, p / 2, p / 2, p / 2);
     }
 }

@@ -65,13 +65,11 @@ public class PostStubCell
 
         title = findViewById(R.id.title);
 
-        if (!isInEditMode()) {
-            int textSizeSp = ChanSettings.fontSize.get();
-            title.setTextSize(textSizeSp);
+        int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
+        title.setTextSize(textSizeSp);
 
-            int paddingPx = dp(textSizeSp - 7);
-            title.setPadding(paddingPx, paddingPx, 0, paddingPx);
-        }
+        int paddingPx = dp(getContext(), textSizeSp - 7);
+        title.setPadding(paddingPx, paddingPx, 0, paddingPx);
 
         findViewById(R.id.options).setOnClickListener(v -> {
             List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();

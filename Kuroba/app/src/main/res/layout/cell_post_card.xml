@@ -31,8 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:background="@drawable/ripple_item_background"
         android:orientation="vertical"
-        app:layout_ratio="0.5"
-        tools:layout_ratio="0.0f">
+        app:layout_ratio="0.5">
 
         <!-- ratio 16/13 -->
         <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
@@ -46,8 +45,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="10dp"
             android:visibility="gone"
-            tools:visibility="visible"
-            tools:background="@color/red"/>
+            tools:background="@color/red"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/title"
@@ -55,21 +54,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:paddingRight="8dp"
-            tools:text="Title goes here"/>
+            tools:text="Title goes here" />
 
         <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:paddingLeft="8dp"
-            android:paddingTop="8dp"
-            android:paddingRight="8dp"
-            tools:layout_height="wrap_content"
-            tools:layout_weight="0"
             tools:text="@string/lorem_ipsum" />
 
         <RelativeLayout
@@ -78,12 +69,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <TextView
                 android:id="@+id/replies"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:textColor="?android:textColorSecondary"
+                tools:text="2 replies, 1 image" />
+
+            <com.github.adamantcheese.chan.ui.cell.PostIcons
+                android:id="@+id/icons"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="?android:textColorSecondary"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_centerVertical="true"
                 android:layout_toLeftOf="@id/options"
-                tools:padding="8dp"
-                tools:text="2 replies, 1 image" />
+                android:layout_toRightOf="@id/replies" />
 
             <ProgressBar
                 android:id="@+id/embed_spinner"
@@ -102,10 +101,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_alignParentRight="true"
                 android:background="@drawable/ripple_item_background"
                 android:src="@drawable/ic_fluent_more_vertical_20_filled"
-                app:tint="?android:textColorSecondary"
-                tools:ignore="ContentDescription"
-                tools:padding="4dp"
-                tools:paddingLeft="8dp" />
+                app:tint="?android:textColorSecondary" />
         </RelativeLayout>
 
     </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>
