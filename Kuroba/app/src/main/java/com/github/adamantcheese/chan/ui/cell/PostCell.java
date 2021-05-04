@@ -161,7 +161,6 @@ public class PostCell
             paddingPx = dp(textSizeSp - 7);
             detailsSizePx = sp(textSizeSp - 4);
 
-            thumbnailViews.setItemAnimator(null);
             thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(2));
             ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
 
@@ -681,8 +680,9 @@ public class PostCell
         @NonNull
         @Override
         public PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            PostImageThumbnailView thumbnailView = new PostImageThumbnailView(parent.getContext());
-            thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(), getThumbnailSize()));
+            Context c = parent.getContext();
+            PostImageThumbnailView thumbnailView = new PostImageThumbnailView(c);
+            thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
             thumbnailView.setRounding(dp(2));
             thumbnailView.setOnLongClickListener(v -> {
                 if (thumbnailView.getPostImage() == null || !ChanSettings.enableLongPressURLCopy.get()) {
@@ -701,7 +701,7 @@ public class PostCell
         public void onBindViewHolder(@NonNull PostImageViewHolder holder, int position) {
             PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
             PostImage image = post.images.get(position);
-            thumbnailView.setPostImage(image, getThumbnailSize());
+            thumbnailView.setPostImage(image, getThumbnailSize(holder.itemView.getContext()));
 
             thumbnailView.setOnClickListener(v -> {
                 if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {

@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
+import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 
@@ -43,7 +44,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
@@ -351,6 +351,7 @@ public class ChanSettings {
 
             // Post
             thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
+            thumbnailSize.addCallback((s, v) -> resetThumbnailCacheSize());
             fontSize = new IntegerSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? 16 : 14);
             fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
@@ -503,8 +504,18 @@ public class ChanSettings {
                 : ChanSettings.albumGridSpanCountLandscape).get();
     }
 
-    public static int getThumbnailSize() {
-        return getDimen(getAppContext(), R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
+    private static int thumbnailSizeCached = -1;
+
+    public static int getThumbnailSize(Context c) {
+        if (thumbnailSizeCached == -1) {
+            thumbnailSizeCached =
+                    getDimen(c, R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
+        }
+        return thumbnailSizeCached;
+    }
+
+    private static void resetThumbnailCacheSize() {
+        thumbnailSizeCached = -1;
     }
 
     public static boolean shouldUseFullSizeImage(PostImage postImage) {
