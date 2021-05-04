@@ -217,7 +217,6 @@ public class PostAdapter
 
     @Override
     public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
         if (holder.getItemViewType() == TYPE_POST.ordinal()) {
             //this is a hack to make sure text is selectable
             holder.itemView.findViewById(R.id.comment).setEnabled(false);

@@ -54,8 +54,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
+import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
 import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
 import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
