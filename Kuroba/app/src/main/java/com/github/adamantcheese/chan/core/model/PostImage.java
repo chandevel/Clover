@@ -70,7 +70,7 @@ public class PostImage {
         this.extension = builder.extension;
         this.imageWidth = builder.imageWidth;
         this.imageHeight = builder.imageHeight;
-        this.spoiler = builder.spoiler;
+        this.spoiler = builder.spoiler && !builder.deleted;
         this.isInlined = builder.isInlined;
         this.size = builder.size;
         this.fileHash = builder.fileHash;
