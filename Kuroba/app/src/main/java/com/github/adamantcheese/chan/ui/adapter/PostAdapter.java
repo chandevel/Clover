@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
+import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static android.view.View.GONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
@@ -73,7 +75,7 @@ public class PostAdapter
     private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
     private PostsFilter previousFilter;
 
-    private ChanSettings.PostViewMode postViewMode = ChanSettings.PostViewMode.LIST;
+    private ChanSettings.PostViewMode postViewMode = LIST;
     private boolean compact = false;
     private final Theme theme;
     private final RecyclerView.ItemDecoration divider;
@@ -187,7 +189,7 @@ public class PostAdapter
                         theme
                 );
                 boolean embedInProgress = EmbeddingEngine.getInstance()
-                        .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position)));
+                        .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position, new Object())));
                 if (cellType == TYPE_POST && !embedInProgress) {
                     // nothing to embed, remove the spinner
                     holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
@@ -201,6 +203,16 @@ public class PostAdapter
                 ((ThreadStatusCell) holder.itemView).update();
                 break;
         }
+    }
+
+    @Override
+    public void onBindViewHolder(
+            @NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads
+    ) {
+        if (CellType.values()[getItemViewType(position)] == TYPE_POST && postViewMode == LIST) {
+            ((PostCell) holder.itemView).clearShiftStatus();
+        }
+        super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
@@ -384,7 +396,7 @@ public class PostAdapter
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
-        if (postViewMode == ChanSettings.PostViewMode.LIST) {
+        if (postViewMode == LIST) {
             recyclerView.addItemDecoration(divider);
             recyclerView.addItemDecoration(lastSeenDivider);
         } else {

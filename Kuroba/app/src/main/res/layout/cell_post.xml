@@ -32,72 +32,83 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/thumbnail_views"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
             tools:layout_width="@dimen/cell_post_thumbnail_size"
             tools:listitem="@layout/cell_album_download" />
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
+        <RelativeLayout
+            android:id="@+id/header_wrapper"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_views"
-            android:background="@drawable/ripple_item_background"
-            tools:paddingLeft="8dp"
-            tools:paddingRight="16dp"
-            tools:paddingTop="8dp"
-            tools:text="Title for the thread"
-            tools:textColor="?post_details_color"
-            tools:textSize="10sp" />
+            android:layout_toRightOf="@+id/thumbnail_views">
 
-        <com.github.adamantcheese.chan.ui.cell.PostIcons
-            android:id="@+id/icons"
-            android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/ripple_item_background"
+                tools:paddingLeft="8dp"
+                tools:paddingRight="16dp"
+                tools:paddingTop="8dp"
+                tools:text="Title for the thread"
+                tools:textColor="?post_details_color"
+                tools:textSize="10sp" />
+
+
+            <com.github.adamantcheese.chan.ui.cell.PostIcons
+                android:id="@+id/icons"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/title"
+                tools:paddingHorizontal="8dp"
+                tools:paddingTop="4dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/body_wrapper"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_below="@id/title"
+            android:layout_below="@id/header_wrapper"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_views"
-            tools:paddingHorizontal="8dp"
-            tools:paddingTop="4dp" />
-
-        <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
-            android:id="@+id/comment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_below="@id/icons"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_views"
-            tools:paddingHorizontal="8dp"
-            tools:paddingTop="8dp"
-            tools:text="@string/lorem_ipsum" />
-
-        <TextView
-            android:id="@+id/replies"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignWithParentIfMissing="true"
-            android:layout_below="@id/comment"
             android:layout_alignParentBottom="true"
-            android:layout_toRightOf="@+id/thumbnail_views"
-            android:background="@drawable/ripple_item_background"
-            android:gravity="bottom"
-            android:textColor="?android:textColorSecondary"
-            tools:paddingBottom="8dp"
-            tools:paddingLeft="8dp"
-            tools:paddingRight="16dp"
-            tools:text="2 replies" />
+            android:layout_toRightOf="@+id/thumbnail_views">
+
+            <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
+                android:id="@+id/comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:paddingHorizontal="8dp"
+                tools:paddingTop="8dp"
+                tools:text="@string/lorem_ipsum" />
+
+            <TextView
+                android:id="@+id/replies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_below="@id/comment"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/ripple_item_background"
+                android:gravity="bottom"
+                android:textColor="?android:textColorSecondary"
+                tools:paddingBottom="8dp"
+                tools:paddingLeft="8dp"
+                tools:paddingRight="16dp"
+                tools:text="2 replies" />
+        </RelativeLayout>
 
         <ProgressBar
             android:id="@+id/embed_spinner"

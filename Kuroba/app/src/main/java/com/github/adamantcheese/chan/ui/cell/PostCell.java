@@ -40,7 +40,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -80,7 +79,6 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
 import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
@@ -96,7 +94,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
@@ -111,6 +108,10 @@ public class PostCell
     private TextView comment;
     private TextView replies;
     private View filterMatchColor;
+
+    private RelativeLayout headerWrapper;
+    private RelativeLayout bodyWrapper;
+    private boolean shifted = !ChanSettings.shiftPostFormat.get();
 
     private int detailsSizePx;
     private int iconSizePx;
@@ -127,8 +128,6 @@ public class PostCell
     private GestureDetector doubleTapComment;
 
     private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
-
-    private ViewTreeObserver.OnPreDrawListener preDrawListener;
 
     public PostCell(Context context) {
         super(context);
@@ -153,6 +152,9 @@ public class PostCell
         replies = findViewById(R.id.replies);
         ImageView options = findViewById(R.id.options);
         filterMatchColor = findViewById(R.id.filter_match_color);
+
+        headerWrapper = findViewById(R.id.header_wrapper);
+        bodyWrapper = findViewById(R.id.body_wrapper);
 
         if (!isInEditMode()) {
             int textSizeSp = ChanSettings.fontSize.get();
@@ -290,10 +292,11 @@ public class PostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        thumbnailViews.swapAdapter(new PostImagesAdapter(), true);
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
+            thumbnailViews.setAdapter(null);
             thumbnailViews.setVisibility(GONE);
         } else {
+            thumbnailViews.setAdapter(new PostImagesAdapter());
             thumbnailViews.setVisibility(VISIBLE);
         }
 
@@ -485,50 +488,59 @@ public class PostCell
         } else {
             replies.setVisibility(GONE);
         }
+    }
 
-        // we need to wait for the measurements of all the views, so we can shift-format stuff without issue
-        if (post.images.size() == 1) {
-            preDrawListener = waitForLayout(this, view -> {
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        if (!shifted) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            if (getMeasuredHeight() > 0) {
                 doShiftPostFormatting();
-                // always return true; this returning false will otherwise lock up the app in certain circumstances
-                return true;
-            });
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            }
+        } else {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
     }
 
-    private void clearShiftPostFormatting() {
-        if (!ChanSettings.shiftPostFormat.get()) return;
-        RelativeLayout.LayoutParams commentParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-        commentParams.alignWithParent = true;
-        commentParams.addRule(BELOW, R.id.icons);
-        commentParams.addRule(ALIGN_PARENT_RIGHT);
-        commentParams.addRule(RIGHT_OF, R.id.thumbnail_views);
-        comment.setLayoutParams(commentParams);
+    private static final RelativeLayout.LayoutParams DEFAULT_BODY_PARAMS =
+            new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+    private static final RelativeLayout.LayoutParams SHIFT_LEFT_PARAMS;
+    private static final RelativeLayout.LayoutParams SHIFT_BELOW_PARAMS;
 
-        RelativeLayout.LayoutParams replyParams = new RelativeLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-        replyParams.alignWithParent = true;
-        replyParams.addRule(ALIGN_PARENT_BOTTOM);
-        replyParams.addRule(BELOW, R.id.comment);
-        replyParams.addRule(RIGHT_OF, R.id.thumbnail_views);
-        replies.setLayoutParams(replyParams);
+    static {
+        DEFAULT_BODY_PARAMS.alignWithParent = true;
+        DEFAULT_BODY_PARAMS.addRule(ALIGN_PARENT_RIGHT);
+        DEFAULT_BODY_PARAMS.addRule(ALIGN_PARENT_BOTTOM);
+        DEFAULT_BODY_PARAMS.addRule(BELOW, R.id.header_wrapper);
+        DEFAULT_BODY_PARAMS.addRule(RIGHT_OF, R.id.thumbnail_views);
 
-        requestLayout();
+        SHIFT_LEFT_PARAMS = new RelativeLayout.LayoutParams(DEFAULT_BODY_PARAMS);
+        SHIFT_LEFT_PARAMS.removeRule(RIGHT_OF);
+
+        SHIFT_BELOW_PARAMS = new RelativeLayout.LayoutParams(SHIFT_LEFT_PARAMS);
+        SHIFT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
+    }
+
+    public void clearShiftStatus() {
+        shifted = false;
     }
 
     private void doShiftPostFormatting() {
-        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE || ChanSettings.textOnly.get())
-            return;
-        float wrapHeightCheck = 0.8f * thumbnailViews.getHeight();
-        int wrapHeightActual = title.getHeight() + icons.getHeight();
-        if ((wrapHeightActual >= wrapHeightCheck) || (wrapHeightActual + comment.getHeight() >= 2f * wrapHeightCheck)) {
-            RelativeLayout.LayoutParams commentParams = (RelativeLayout.LayoutParams) comment.getLayoutParams();
-            commentParams.removeRule(RelativeLayout.RIGHT_OF);
-            commentParams.addRule(RelativeLayout.BELOW, R.id.thumbnail_views);
-            comment.setLayoutParams(commentParams);
-
-            RelativeLayout.LayoutParams replyParams = (RelativeLayout.LayoutParams) replies.getLayoutParams();
-            replyParams.removeRule(RelativeLayout.RIGHT_OF);
-            replies.setLayoutParams(replyParams);
+        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE) return;
+        shifted = true;
+        int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getMeasuredHeight() : 0;
+        int headerHeight = headerWrapper.getMeasuredHeight();
+        int wrapHeight = headerHeight + comment.getMeasuredHeight();
+        boolean shiftLeftThumb = headerHeight > thumbnailViewsHeight;
+        boolean shiftBelowThumb = wrapHeight > 2 * thumbnailViewsHeight;
+        boolean shift = post != null && post.images.size() == 1;
+        if (shift && !shiftLeftThumb && shiftBelowThumb) {
+            bodyWrapper.setLayoutParams(SHIFT_BELOW_PARAMS);
+        } else if (shift && shiftLeftThumb) {
+            bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
+        } else {
+            bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
         }
     }
 
@@ -552,17 +564,13 @@ public class PostCell
 
     @Override
     public void unsetPost() {
+        clearShiftStatus();
         icons.cancelRequests();
         title.setOnLongClickListener(null);
         title.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post.comment.removeSpan(BACKGROUND_SPAN);
-        if (this.getViewTreeObserver().isAlive()) {
-            this.getViewTreeObserver().removeOnPreDrawListener(preDrawListener);
-        }
-        preDrawListener = null;
-        clearShiftPostFormatting();
         post = null;
     }
 
