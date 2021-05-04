@@ -84,6 +84,7 @@ public class PostIcons
     }
 
     public void setHttpIcons(List<PostHttpIcon> icons, int size) {
+        if (icons == null) return;
         httpIconTextColor = getAttrColor(getContext(), R.attr.post_details_color);
         httpIconTextSize = size;
         httpIcons = new ArrayList<>(icons.size());

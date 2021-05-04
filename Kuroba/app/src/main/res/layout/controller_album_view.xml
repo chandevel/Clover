@@ -27,6 +27,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:scrollbars="vertical"
     app:spanWidth="100dp"
     tools:itemCount="10"
-    tools:listitem="@layout/cell_album_view">
-
-</com.github.adamantcheese.chan.ui.layout.AlbumLayout>
+    tools:listitem="@layout/cell_album_view" />

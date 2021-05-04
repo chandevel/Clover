@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="0dp"
     tools:ignore="RtlSymmetry"
-    tools:layout_height="90dp">
+    tools:layout_height="@dimen/cell_post_thumbnail_size"
+    tools:layout_width="@dimen/cell_post_thumbnail_size">
 
     <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
         android:id="@+id/thumbnail_view"

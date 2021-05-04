@@ -101,7 +101,8 @@ public class AlbumViewCell
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.EXACTLY && (heightMode == MeasureSpec.UNSPECIFIED
-                || heightMode == MeasureSpec.AT_MOST) && !ChanSettings.neverShowAlbumCellInfo.get()) {
+                || heightMode == MeasureSpec.AT_MOST) && (isInEditMode()
+                || !ChanSettings.neverShowAlbumCellInfo.get())) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
             int height = width + dp(getContext(), 32);

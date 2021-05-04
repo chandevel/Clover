@@ -111,11 +111,10 @@ public class PostCell
 
     private RelativeLayout headerWrapper;
     private RelativeLayout bodyWrapper;
-    private boolean shifted = !ChanSettings.shiftPostFormat.get();
+    private boolean shifted = !isInEditMode() && !ChanSettings.shiftPostFormat.get();
 
     private int detailsSizePx;
     private int iconSizePx;
-    private int paddingPx;
     private boolean threadMode;
     private boolean ignoreNextOnClick;
 
@@ -156,28 +155,36 @@ public class PostCell
         headerWrapper = findViewById(R.id.header_wrapper);
         bodyWrapper = findViewById(R.id.body_wrapper);
 
-        if (!isInEditMode()) {
-            int textSizeSp = ChanSettings.fontSize.get();
-            paddingPx = dp(textSizeSp - 7);
-            detailsSizePx = sp(textSizeSp - 4);
+        int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
+        int paddingPx = dp(getContext(), textSizeSp - 7);
+        detailsSizePx = sp(getContext(), textSizeSp - 4);
 
-            thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(2));
-            ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
+        thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(getContext(), 2));
+        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
 
-            title.setTextSize(textSizeSp);
-            title.setPadding(paddingPx, paddingPx - dp(2), dp(16), 0);
+        title.setTextSize(textSizeSp);
+        title.setPadding(paddingPx, paddingPx, dp(getContext(), 24), paddingPx / 2);
 
-            iconSizePx = sp(textSizeSp - 3);
-            icons.setHeight(sp(textSizeSp));
-            icons.setSpacing(dp(4));
-            icons.setPadding(paddingPx, dp(4), paddingPx, 0);
+        iconSizePx = sp(getContext(), textSizeSp - 3);
+        icons.setHeight(sp(getContext(), textSizeSp));
+        icons.setSpacing(dp(getContext(), 4));
+        icons.setPadding(paddingPx, 0, dp(getContext(), 24), 0);
 
-            comment.setTextSize(textSizeSp);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
-
-            replies.setTextSize(textSizeSp);
-            replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+        if (isInEditMode()) {
+            BitmapRepository.initialize(getContext());
+            icons.edit();
+            icons.set(PostIcons.STICKY_FLAG, true);
+            icons.set(PostIcons.CLOSED_FLAG, true);
+            icons.set(PostIcons.DELETED_FLAG, true);
+            icons.set(PostIcons.ARCHIVED_FLAG, true);
+            icons.apply();
         }
+
+        comment.setTextSize(textSizeSp);
+        comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
+
+        replies.setTextSize(textSizeSp);
+        replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
 
         OnClickListener repliesClickListener = v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
@@ -357,14 +364,7 @@ public class PostCell
         icons.set(PostIcons.DELETED_FLAG, post.deleted.get());
         icons.set(PostIcons.ARCHIVED_FLAG, post.isArchived());
         icons.set(PostIcons.HTTP_ICONS_FLAG, post.httpIcons != null);
-
-        if (post.httpIcons != null) {
-            icons.setHttpIcons(post.httpIcons, iconSizePx);
-            comment.setPadding(paddingPx, paddingPx, paddingPx, paddingPx);
-        } else {
-            comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
-        }
-
+        icons.setHttpIcons(post.httpIcons, iconSizePx);
         icons.apply();
 
         if (!threadMode) {
@@ -450,7 +450,7 @@ public class PostCell
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
 
             if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
-                title.setOnLongClickListener(v -> {
+                headerWrapper.setOnLongClickListener(v -> {
                     callback.onPostNoClicked(post);
                     return true;
                 });
@@ -462,8 +462,8 @@ public class PostCell
             // Sets focusable to auto, clickable and longclickable to false.
             comment.setMovementMethod(null);
 
-            title.setBackgroundResource(0);
-            title.setLongClickable(false);
+            headerWrapper.setBackgroundResource(0);
+            headerWrapper.setLongClickable(false);
         }
 
         if ((!threadMode && post.getReplies() > 0) || (post.repliesFrom.size() > 0)) {
@@ -526,6 +526,7 @@ public class PostCell
     }
 
     private void doShiftPostFormatting() {
+        if (isInEditMode()) return;
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE) return;
         shifted = true;
         int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getMeasuredHeight() : 0;
@@ -565,8 +566,8 @@ public class PostCell
     public void unsetPost() {
         clearShiftStatus();
         icons.cancelRequests();
-        title.setOnLongClickListener(null);
-        title.setLongClickable(false);
+        headerWrapper.setOnLongClickListener(null);
+        headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post.comment.removeSpan(BACKGROUND_SPAN);
@@ -741,8 +742,8 @@ public class PostCell
             extends RecyclerView.ItemDecoration {
         private final int spacing;
 
-        public DPSpacingItemDecoration(int spacing) {
-            this.spacing = dp(spacing);
+        public DPSpacingItemDecoration(Context context, int spacing) {
+            this.spacing = dp(context, spacing);
         }
 
         @Override

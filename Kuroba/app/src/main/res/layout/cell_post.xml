@@ -42,7 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignParentTop="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
-            tools:layout_width="@dimen/cell_post_thumbnail_size"
             tools:listitem="@layout/cell_album_download" />
 
         <RelativeLayout
@@ -52,19 +51,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_alignWithParentIfMissing="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_views">
+            android:layout_toRightOf="@+id/thumbnail_views"
+            android:background="@drawable/ripple_item_background">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/ripple_item_background"
-                tools:paddingLeft="8dp"
-                tools:paddingRight="16dp"
-                tools:paddingTop="8dp"
                 tools:text="Title for the thread"
-                tools:textColor="?post_details_color"
-                tools:textSize="10sp" />
+                tools:textColor="?post_details_color" />
 
 
             <com.github.adamantcheese.chan.ui.cell.PostIcons
@@ -72,9 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/title"
-                tools:paddingHorizontal="8dp"
-                tools:paddingTop="4dp" />
+                android:layout_below="@id/title" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -90,8 +83,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:paddingHorizontal="8dp"
-                tools:paddingTop="8dp"
                 tools:text="@string/lorem_ipsum" />
 
             <TextView
@@ -104,9 +95,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:background="@drawable/ripple_item_background"
                 android:gravity="bottom"
                 android:textColor="?android:textColorSecondary"
-                tools:paddingBottom="8dp"
-                tools:paddingLeft="8dp"
-                tools:paddingRight="16dp"
                 tools:text="2 replies" />
         </RelativeLayout>
 
@@ -123,14 +111,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <ImageView
             android:id="@+id/options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:background="@drawable/ripple_item_background"
+            android:paddingVertical="8dp"
             android:paddingLeft="10dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="4dp"
             android:src="@drawable/ic_fluent_more_vertical_24_filled"
             app:tint="?android:textColorSecondary"
             tools:ignore="ContentDescription" />
