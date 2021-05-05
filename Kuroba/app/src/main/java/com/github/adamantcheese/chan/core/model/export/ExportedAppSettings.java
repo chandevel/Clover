@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExportedAppSettings {
+    @SerializedName("app_settings_version")
+    private int version;
     @SerializedName("exported_sites")
     private List<ExportedSite> exportedSites;
     //there aren't any exported pins here because the pins are stored inside each exported site
@@ -43,12 +45,14 @@ public class ExportedAppSettings {
     private final String settings;
 
     public ExportedAppSettings(
+            int version,
             List<ExportedSite> exportedSites,
             List<ExportedBoard> exportedBoards,
             List<ExportedFilter> exportedFilters,
             List<ExportedPostHide> exportedPostHides,
             @NonNull String settings
     ) {
+        this.version = version;
         this.exportedSites = exportedSites;
         this.exportedBoards = exportedBoards;
         this.exportedFilters = exportedFilters;
@@ -57,7 +61,14 @@ public class ExportedAppSettings {
     }
 
     public static ExportedAppSettings empty() {
-        return new ExportedAppSettings(new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), "");
+        return new ExportedAppSettings(
+                ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION,
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                new ArrayList<>(),
+                ""
+        );
     }
 
     /**
@@ -85,7 +96,11 @@ public class ExportedAppSettings {
     }
 
     public int getVersion() {
-        return ImportExportRepository.CURRENT_EXPORT_SETTINGS_VERSION;
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     @Nullable

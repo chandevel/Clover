@@ -71,7 +71,7 @@ public class ExportedBoard {
     @SerializedName("country_flags")
     private final boolean countryFlags;
     @SerializedName("board_flags")
-    private final HashMap<String, String> boardFlags;
+    private HashMap<String, String> boardFlags;
     @SerializedName("math_tags")
     private final boolean mathTags;
     @SerializedName("description")
@@ -103,7 +103,7 @@ public class ExportedBoard {
             boolean codeTags,
             boolean preuploadCaptcha,
             boolean countryFlags,
-            HashMap<String, String> boardFlags,
+            @NonNull HashMap<String, String> boardFlags,
             boolean mathTags,
             @NonNull String description,
             boolean archive
@@ -232,6 +232,10 @@ public class ExportedBoard {
 
     public HashMap<String, String> getBoardFlags() {
         return boardFlags;
+    }
+
+    public void setBoardFlags(@NonNull HashMap<String, String> hashMap) {
+        this.boardFlags = hashMap;
     }
 
     public boolean isMathTags() {

@@ -44,17 +44,22 @@ import com.j256.ormlite.stmt.Where;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okio.ByteString;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
@@ -568,8 +573,15 @@ public class DatabaseHelper
 
         if (oldVersion < 54) {
             try {
-                getPostHideDao().executeRawNoArgs("ALTER TABLE board ADD COLUMN boardFlags BLOB NOT NULL");
-            } catch (SQLException e) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                ObjectOutputStream stream1 = new ObjectOutputStream(stream);
+                stream1.writeObject(new HashMap<String, String>());
+                stream1.close();
+                ByteString out = ByteString.of(stream.toByteArray());
+                stream.close();
+                getBoardDao().executeRawNoArgs(
+                        "ALTER TABLE board ADD COLUMN boardFlags BLOB NOT NULL default x'" + out.hex() + "'");
+            } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 54", e);
             }
         }

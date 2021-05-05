@@ -313,6 +313,12 @@ constructor(
                 }
             }
         }
+
+        if (version < 6) {
+            for (board in appSettings.exportedBoards) {
+                board.boardFlags = HashMap()
+            }
+        }
         return appSettings
     }
 
@@ -444,7 +450,7 @@ constructor(
 
         val settings = ChanSettings.serializeToString()
 
-        return ExportedAppSettings(
+        return ExportedAppSettings(CURRENT_EXPORT_SETTINGS_VERSION,
                 exportedSites,
                 exportedBoards,
                 exportedFilters,
@@ -540,6 +546,6 @@ constructor(
 
         // Don't forget to change this when changing any of the Export models.
         // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-        const val CURRENT_EXPORT_SETTINGS_VERSION = 5
+        const val CURRENT_EXPORT_SETTINGS_VERSION = 6
     }
 }
