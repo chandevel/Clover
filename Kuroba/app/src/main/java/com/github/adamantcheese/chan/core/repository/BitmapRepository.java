@@ -14,7 +14,6 @@ public class BitmapRepository {
     public static Bitmap clypIcon;
     public static Bitmap bandcampIcon;
     public static Bitmap soundcloudIcon;
-    public static Bitmap shadertoyIcon;
     public static Bitmap vocarooIcon;
     public static Bitmap vimeoIcon;
     public static Bitmap pixivIcon;
@@ -35,7 +34,6 @@ public class BitmapRepository {
         clypIcon = decode(c, R.drawable.clyp_icon);
         bandcampIcon = decode(c, R.drawable.bandcamp_icon);
         soundcloudIcon = decode(c, R.drawable.soundcloud_icon);
-        shadertoyIcon = decode(c, R.drawable.shadertoy_icon);
         vocarooIcon = decode(c, R.drawable.vocaroo_icon);
         vimeoIcon = decode(c, R.drawable.vimeo_icon);
         pixivIcon = decode(c, R.drawable.pixiv_icon);

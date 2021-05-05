@@ -19,8 +19,13 @@ package com.github.adamantcheese.chan.ui.view;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.viewpager.widget.ViewPager;
+
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 
 public class OptionalSwipeViewPager
         extends ViewPager {
@@ -32,21 +37,22 @@ public class OptionalSwipeViewPager
 
     public OptionalSwipeViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        /*if (isInEditMode()) {
-            setAdapter(new PagerAdapter() {
+        if (isInEditMode()) {
+            setAdapter(new ViewPagerAdapter() {
                 @Override
                 public int getCount() {
                     return 1;
                 }
 
                 @Override
-                public boolean isViewFromObject(
-                        @NonNull View view, @NonNull Object object
-                ) {
-                    return false;
+                public View getView(int position, ViewGroup parent) {
+                    BitmapRepository.initialize(parent.getContext());
+                    ImageView test = new ImageView(parent.getContext());
+                    test.setImageBitmap(BitmapRepository.partyHat.bitmap);
+                    return test;
                 }
             });
-        }*/ //TODO
+        }
     }
 
     @Override

@@ -29,7 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        tools:visibility="visible" />
 
     <com.github.adamantcheese.chan.ui.view.LoadingBar
         android:id="@+id/loading_bar"
