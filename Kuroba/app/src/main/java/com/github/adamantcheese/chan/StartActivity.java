@@ -575,7 +575,9 @@ public class StartActivity
         if (!message.inForeground) {
             DatabaseUtils.runTaskAsync(databaseLoadableManager.purgeOld());
             File requestedFiles = new File(getCacheDir(), "requested");
-            for (File f : requestedFiles.listFiles()) {
+            File[] files = requestedFiles.listFiles();
+            if (files == null) return;
+            for (File f : files) {
                 if (System.currentTimeMillis() > f.lastModified() + HOURS.toMillis(1)) {
                     f.delete();
                 }
