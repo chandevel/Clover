@@ -53,6 +53,7 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
@@ -550,13 +551,27 @@ public class ThreadPresenter
         List<PostImage> images = new ArrayList<>();
         int index = -1;
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
+        PostViewMode viewMode = threadPresenterCallback.getPostViewMode();
         for (Post post : posts) {
-            for (PostImage image : post.images) {
-                if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+            // for card mode, only add the displayed image
+            // otherwise add all images
+            if (viewMode == PostViewMode.CARD) {
+                if (!post.deleted.get() || (post.image() != null && post.image().isInlined) || (post.image() != null
+                        && NetUtils.isCached(post.image().imageUrl))) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
-                    images.add(image);
-                    if (image.equals(postImage)) {
+                    images.add(post.image());
+                    if (post.image().equals(postImage)) {
                         index = images.size() - 1;
+                    }
+                }
+            } else {
+                for (PostImage image : post.images) {
+                    if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+                        //deleted posts always have 404'd images, but let it through if the file exists in cache
+                        images.add(image);
+                        if (image.equals(postImage)) {
+                            index = images.size() - 1;
+                        }
                     }
                 }
             }
@@ -1319,6 +1334,8 @@ public class ThreadPresenter
         void hidePostsPopup();
 
         List<Post> getDisplayingPosts();
+
+        PostViewMode getPostViewMode();
 
         int[] getCurrentPosition();
 

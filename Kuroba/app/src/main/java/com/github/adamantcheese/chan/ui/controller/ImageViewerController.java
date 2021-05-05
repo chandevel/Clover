@@ -37,6 +37,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.view.OneShotPreDrawListener;
 
 import com.davemorrissey.labs.subscaleview.ImageViewState;
 import com.github.adamantcheese.chan.R;
@@ -88,7 +89,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public class ImageViewerController
         extends Controller
@@ -170,7 +170,7 @@ public class ImageViewerController
             throw new IllegalArgumentException("parentController.view not attached");
         }
 
-        waitForLayout(parentController.view.getViewTreeObserver(), view, view1 -> {
+        OneShotPreDrawListener.add(parentController.view, () -> {
             // Pager is measured, but still invisible
             PostImage postImage = presenter.getCurrentPostImage();
             startPreviewInTransition(postImage);
@@ -179,7 +179,6 @@ public class ImageViewerController
                     presenter.getAllPostImages().size(),
                     postImage.spoiler()
             );
-            return true;
         });
     }
 
@@ -199,11 +198,10 @@ public class ImageViewerController
             // hax: we need to wait for the recyclerview to do a layout before we know
             // where the new thumbnails are to get the bounds from to animate to
             this.imageViewerCallback = imageViewerCallback;
-            waitForLayout(view, view -> {
+            OneShotPreDrawListener.add(view, () -> {
                 showSystemUI();
                 handler.removeCallbacksAndMessages(null);
                 presenter.onExit();
-                return false;
             });
         } else {
             showSystemUI();
@@ -501,10 +499,6 @@ public class ImageViewerController
             return;
         }
 
-        doPreviewOutAnimation(postImage);
-    }
-
-    private void doPreviewOutAnimation(PostImage postImage) {
         // Find translation and scale if the current displayed image was a bigimage
         MultiImageView multiImageView = ((ImageViewerAdapter) pager.getAdapter()).find(postImage);
         View activeView = multiImageView.getActiveView();

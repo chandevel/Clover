@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository.ResourceBitmap;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
@@ -94,7 +95,7 @@ public class ThreadListLayout
     private ThreadListLayoutPresenterCallback callback;
     private ThreadListLayoutCallback threadListLayoutCallback;
     private boolean replyOpen;
-    private ChanSettings.PostViewMode postViewMode;
+    private PostViewMode postViewMode;
     private int spanCount = 2;
     private boolean searchOpen;
 
@@ -204,7 +205,7 @@ public class ThreadListLayout
         ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
     }
 
-    public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
+    public void setPostViewMode(PostViewMode postViewMode) {
         if (this.postViewMode != postViewMode) {
             this.postViewMode = postViewMode;
             recyclerView.setAdapter(null);
@@ -450,6 +451,10 @@ public class ThreadListLayout
 
     public List<Post> getDisplayingPosts() {
         return postAdapter.getDisplayList();
+    }
+
+    public PostViewMode getPostViewMode() {
+        return postViewMode;
     }
 
     public ThumbnailView getThumbnail(PostImage postImage) {

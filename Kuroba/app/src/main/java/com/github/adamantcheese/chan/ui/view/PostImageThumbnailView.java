@@ -26,11 +26,13 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
 import static com.github.adamantcheese.chan.core.repository.DrawableRepository.playIcon;
 
 public class PostImageThumbnailView
         extends FixedRatioThumbnailView {
-    private PostImage postImage;
+    boolean drawPlayIcon = false;
     private final Rect bounds = new Rect();
 
     public PostImageThumbnailView(Context context) {
@@ -50,8 +52,7 @@ public class PostImageThumbnailView
      * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
      */
     public void setPostImage(final PostImage postImage, int maxDimension) {
-        if (this.postImage != null && this.postImage.equals(postImage)) return;
-        this.postImage = postImage;
+        drawPlayIcon = postImage != null && errorText == null && (postImage.type == MOVIE || postImage.type == IFRAME);
 
         if (postImage == null) {
             setUrl(null, 0);
@@ -70,10 +71,9 @@ public class PostImageThumbnailView
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if (postImage != null && (postImage.type == PostImage.Type.MOVIE || postImage.type == PostImage.Type.IFRAME)
-                && errorText != null) {
-            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * 0.5);
-            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * 0.5);
+        if (drawPlayIcon) {
+            int x = (int) (getWidth() * 0.5 - playIcon.getIntrinsicWidth() * 0.5);
+            int y = (int) (getHeight() * 0.5 - playIcon.getIntrinsicHeight() * 0.5);
 
             bounds.set(x, y, x + playIcon.getIntrinsicWidth(), y + playIcon.getIntrinsicHeight());
             playIcon.setBounds(bounds);

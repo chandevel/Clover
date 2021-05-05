@@ -63,7 +63,6 @@ public class CardPostCell
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
-    private int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
     private int iconSizePx;
 
     private PostImageThumbnailView thumbView;
@@ -232,7 +231,6 @@ public class CardPostCell
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
         comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
-        comment.setEllipsize(ChanSettings.getBoardColumnCount() != 1 ? TextUtils.TruncateAt.END : null);
         comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
@@ -256,6 +254,7 @@ public class CardPostCell
     }
 
     private void setCompact(boolean compact) {
+        int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
         int compactSize = textSizeSp + (compact ? -2 : 0);
         iconSizePx = sp(getContext(), compactSize);
         title.setTextSize(compactSize);

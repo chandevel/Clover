@@ -50,6 +50,7 @@ import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -209,7 +210,7 @@ public class ThreadLayout
         }
     }
 
-    public void setPostViewMode(ChanSettings.PostViewMode postViewMode) {
+    public void setPostViewMode(PostViewMode postViewMode) {
         threadListLayout.setPostViewMode(postViewMode);
     }
 
@@ -339,6 +340,10 @@ public class ThreadLayout
         } else {
             return threadListLayout.getDisplayingPosts();
         }
+    }
+
+    public PostViewMode getPostViewMode() {
+        return threadListLayout.getPostViewMode();
     }
 
     @Override

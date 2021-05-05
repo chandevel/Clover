@@ -42,8 +42,8 @@ public class ThumbnailImageView
         if (type == PostImage.Type.MOVIE || type == PostImage.Type.IFRAME) {
             int iconScale = 2;
             double scalar = (Math.pow(2.0, iconScale) - 1) / Math.pow(2.0, iconScale);
-            int x = (int) (getWidth() / 2.0 - playIcon.getIntrinsicWidth() * scalar);
-            int y = (int) (getHeight() / 2.0 - playIcon.getIntrinsicHeight() * scalar);
+            int x = (int) (getWidth() * 0.5 - playIcon.getIntrinsicWidth() * scalar);
+            int y = (int) (getHeight() * 0.5 - playIcon.getIntrinsicHeight() * scalar);
 
             bounds.set(x,
                     y,

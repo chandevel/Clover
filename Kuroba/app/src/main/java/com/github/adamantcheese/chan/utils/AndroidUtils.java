@@ -45,8 +45,6 @@ import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -79,7 +77,6 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class AndroidUtils {
-    private static final String TAG = "AndroidUtils";
     private static final String CHAN_STATE_PREFS_NAME = "chan_state";
 
     @SuppressLint("StaticFieldLeak")
@@ -356,146 +353,6 @@ public class AndroidUtils {
         }
 
         view.setPadding(newLeft, newTop, newRight, newBottom);
-    }
-
-    public interface OnMeasuredCallback {
-        /**
-         * Called when the layout is done.
-         *
-         * @param view same view as the argument.
-         * @return true to continue with rendering, false to cancel and redo the layout.
-         */
-        boolean onMeasured(View view);
-    }
-
-    /**
-     * Waits for a measure. Calls callback immediately if the view width and height are more than 0.
-     * Otherwise it registers an onpredrawlistener.<br>
-     * <b>Warning: the view you give must be attached to the view root!</b><br>
-     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
-     *
-     * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
-     */
-    public static OnPreDrawListener waitForMeasure(
-            final View view, final OnMeasuredCallback callback
-    ) {
-        if (view.getWindowToken() == null) {
-            OnPreDrawListener createdListener =
-                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, false, callback);
-            // If you call getViewTreeObserver on a view when it's not attached to a window will result in the creation of a temporarily viewtreeobserver.
-            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(View v) {
-                    v.getViewTreeObserver().addOnPreDrawListener(createdListener);
-                    v.removeOnAttachStateChangeListener(this);
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(View v) {
-                    view.removeOnAttachStateChangeListener(this);
-                }
-            });
-            return createdListener;
-        }
-
-        return waitForLayoutInternal(true, view.getViewTreeObserver(), view, true, callback);
-    }
-
-    /**
-     * Always registers an onpredrawlistener.<br>
-     * <b>Warning: the view you give must be attached to the view root!</b><br>
-     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
-     *
-     * @return the {@link OnPreDrawListener} that has been attached (or will be when the view is next attached to a window)
-     */
-    public static OnPreDrawListener waitForLayout(final View view, final OnMeasuredCallback callback) {
-        if (view.getWindowToken() == null) {
-            OnPreDrawListener createdListener =
-                    waitForLayoutInternal(true, view.getViewTreeObserver(), view, false, callback);
-            // See comment above
-            view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(View v) {
-                    v.getViewTreeObserver().addOnPreDrawListener(createdListener);
-                    v.removeOnAttachStateChangeListener(this);
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(View v) {
-                    view.removeOnAttachStateChangeListener(this);
-                }
-            });
-            return createdListener;
-        }
-
-        return waitForLayoutInternal(false, view.getViewTreeObserver(), view, true, callback);
-    }
-
-    /**
-     * Always registers an onpredrawlistener. The given ViewTreeObserver will be used.<br>
-     * <b><i>WARNING: If you are using this in a recyclable view, you should manually remove the listener when the view is recycled!</i></b>
-     *
-     * @return the {@link OnPreDrawListener} that has been attached
-     */
-    public static OnPreDrawListener waitForLayout(
-            final ViewTreeObserver viewTreeObserver, final View view, final OnMeasuredCallback callback
-    ) {
-        return waitForLayoutInternal(false, viewTreeObserver, view, true, callback);
-    }
-
-    private static OnPreDrawListener waitForLayoutInternal(
-            boolean returnIfNotZero,
-            final ViewTreeObserver viewTreeObserver,
-            final View view,
-            boolean addPreDraw,
-            final OnMeasuredCallback callback
-    ) {
-        if (returnIfNotZero && view.getWidth() > 0 && view.getHeight() > 0 && view.isLaidOut()) {
-            callback.onMeasured(view);
-            return null;
-        } else {
-            OnPreDrawListener listener = new OnPreDrawListener() {
-                private ViewTreeObserver usingViewTreeObserver = viewTreeObserver;
-
-                @Override
-                public boolean onPreDraw() {
-                    if (usingViewTreeObserver != view.getViewTreeObserver()) {
-                        Logger.ve(
-                                TAG,
-                                "view.getViewTreeObserver() is another viewtreeobserver! replacing with the new one"
-                        );
-                        usingViewTreeObserver = view.getViewTreeObserver();
-                    }
-
-                    if (usingViewTreeObserver.isAlive()) {
-                        usingViewTreeObserver.removeOnPreDrawListener(this);
-                    } else {
-                        Logger.e(
-                                TAG,
-                                "ViewTreeObserver not alive, could not remove onPreDrawListener! This will probably not end well"
-                        );
-                    }
-
-                    boolean ret;
-                    try {
-                        ret = callback.onMeasured(view);
-                    } catch (Exception e) {
-                        Logger.e(TAG, "Exception in onMeasured", e);
-                        throw e;
-                    }
-
-                    if (!ret) {
-                        Logger.vd(TAG, "waitForLayout requested a re-layout by returning false");
-                    }
-
-                    return ret;
-                }
-            };
-            if (addPreDraw) {
-                viewTreeObserver.addOnPreDrawListener(listener);
-            }
-            return listener;
-        }
     }
 
     public static boolean removeFromParentView(View view) {

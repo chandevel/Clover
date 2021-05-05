@@ -74,6 +74,7 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -726,7 +727,8 @@ public class PostCell
 
         @Override
         public long getItemId(int position) {
-            return post.images.get(position).imageUrl.hashCode();
+            PostImage image = post.images.get(position);
+            return Objects.hash(image.imageUrl, image.thumbnailUrl);
         }
     }
 

@@ -228,14 +228,11 @@ public class PostAdapter
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         switch (CellType.values()[holder.getItemViewType()]) {
             case TYPE_POST:
-                PostViewHolder viewHolder = (PostViewHolder) holder;
-                ((PostCellInterface) viewHolder.itemView).getPost().stopEmbedding(); // before the post is cleared out
-                ((PostCellInterface) viewHolder.itemView).unsetPost();
                 holder.itemView.findViewById(R.id.embed_spinner).setVisibility(View.VISIBLE);
-                break;
+                ((PostCellInterface) holder.itemView).getPost().stopEmbedding(); // before the post is cleared out
+                //noinspection fallthrough
             case TYPE_POST_STUB:
-                PostViewHolder postViewHolder = (PostViewHolder) holder;
-                ((PostCellInterface) postViewHolder.itemView).unsetPost();
+                ((PostCellInterface) holder.itemView).unsetPost();
                 break;
         }
     }

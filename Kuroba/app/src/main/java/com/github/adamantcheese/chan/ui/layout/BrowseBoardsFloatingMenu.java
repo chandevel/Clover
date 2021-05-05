@@ -29,7 +29,6 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.EditText;
@@ -38,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -91,7 +91,7 @@ public class BrowseBoardsFloatingMenu
     private BrowseBoardsAdapter adapter;
 
     private ClickCallback clickCallback;
-    private final ViewTreeObserver.OnGlobalLayoutListener layoutListener = this::repositionToAnchor;
+    private OneShotPreDrawListener repositionListener;
 
     public BrowseBoardsFloatingMenu(Context context) {
         this(context, null);
@@ -205,8 +205,9 @@ public class BrowseBoardsFloatingMenu
 
         hideKeyboard(this);
 
-        if (anchor.getViewTreeObserver().isAlive()) {
-            anchor.getViewTreeObserver().removeOnGlobalLayoutListener(layoutListener);
+        if (repositionListener != null) {
+            repositionListener.removeListener();
+            repositionListener = null;
         }
 
         if (animated) {
@@ -218,7 +219,7 @@ public class BrowseBoardsFloatingMenu
 
     private void watchAnchor() {
         repositionToAnchor();
-        anchor.getViewTreeObserver().addOnGlobalLayoutListener(layoutListener);
+        repositionListener = OneShotPreDrawListener.add(anchor, this::repositionToAnchor);
     }
 
     private void repositionToAnchor() {

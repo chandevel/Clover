@@ -21,7 +21,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
@@ -29,10 +28,10 @@ import android.widget.ListPopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.List;
 
@@ -48,8 +47,6 @@ public class FloatingMenu<T> {
     private final List<FloatingMenuItem<T>> items;
     private FloatingMenuItem<T> selectedItem;
     private ListAdapter adapter;
-    private ViewTreeObserver.OnGlobalLayoutListener globalLayoutListener;
-    private ViewTreeObserver viewTreeObserver;
 
     private ListPopupWindow popupWindow;
     private FloatingMenuCallback<T> callback;
@@ -127,25 +124,15 @@ public class FloatingMenu<T> {
             }
         });
 
-        globalLayoutListener = () -> {
-            if (popupWindow == null) {
-                Logger.d(FloatingMenu.this, "popupWindow null in layout listener");
-            } else {
-                if (popupWindow.isShowing()) {
-                    // Recalculate anchor position
-                    popupWindow.show();
-                }
+        final OneShotPreDrawListener popupListener = OneShotPreDrawListener.add(anchor, () -> {
+            if (popupWindow != null && popupWindow.isShowing()) {
+                // Recalculate anchor position
+                popupWindow.show();
             }
-        };
-        viewTreeObserver = anchor.getViewTreeObserver();
-        viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener);
+        });
 
         popupWindow.setOnDismissListener(() -> {
-            if (viewTreeObserver.isAlive()) {
-                viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutListener);
-                viewTreeObserver = null;
-            }
-            globalLayoutListener = null;
+            popupListener.removeListener();
             popupWindow = null;
             callback.onFloatingMenuDismissed(FloatingMenu.this);
         });

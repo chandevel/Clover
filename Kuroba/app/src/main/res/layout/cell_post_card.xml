@@ -56,12 +56,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:maxLines="3"
             tools:text="Title goes here" />
 
-        <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
-            android:id="@+id/comment"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            tools:text="@string/lorem_ipsum" />
+            android:layout_weight="1">
+
+            <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
+                android:id="@+id/comment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ellipsize="end"
+                tools:text="@string/lorem_ipsum" />
+
+            <ProgressBar
+                android:id="@+id/embed_spinner"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:indeterminate="true"
+                android:indeterminateTint="?colorAccent"
+                android:indeterminateTintMode="src_atop"
+                android:padding="5dp" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -83,16 +100,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_centerVertical="true"
                 android:layout_toLeftOf="@id/options"
                 android:layout_toRightOf="@id/replies" />
-
-            <ProgressBar
-                android:id="@+id/embed_spinner"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_toLeftOf="@id/options"
-                android:indeterminate="true"
-                android:indeterminateTint="?colorAccent"
-                android:indeterminateTintMode="src_atop"
-                android:padding="5dp" />
 
             <ImageView
                 android:id="@+id/options"

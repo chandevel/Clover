@@ -40,9 +40,9 @@ import android.graphics.drawable.RippleDrawable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -55,13 +55,13 @@ import okhttp3.HttpUrl;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.waitForLayout;
 
 public abstract class ThumbnailView
-        extends View {
-    private HttpUrl source;
+        extends View
+        implements NetUtilsClasses.BitmapResult {
+    private HttpUrl url;
     private Call bitmapCall;
-    private ViewTreeObserver.OnPreDrawListener drawListener;
+    private OneShotPreDrawListener drawListener;
     private final boolean circular;
     private int rounding = 0;
 
@@ -78,7 +78,8 @@ public abstract class ThumbnailView
     private final Matrix matrix = new Matrix();
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
-    private Drawable foreground;
+    private boolean useRipple;
+    private Drawable foregroundRipple;
 
     protected String errorText = null;
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -120,6 +121,13 @@ public abstract class ThumbnailView
         } else {
             setImageBitmap(BitmapRepository.empty, false);
         }
+
+        TypedValue rippleAttrForThemeValue = new TypedValue();
+        getContext().getTheme().resolveAttribute(R.attr.colorControlHighlight, rippleAttrForThemeValue, true);
+        foregroundRipple = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data),
+                null,
+                new ColorDrawable(Color.WHITE)
+        );
     }
 
     /**
@@ -128,52 +136,57 @@ public abstract class ThumbnailView
      * @param url          The image to set
      * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
      */
-    public void setUrl(HttpUrl url, int maxDimension) {
-        if (source != null && source.equals(url)) return; // no-op if already set
-        source = url;
+    public void setUrl(final HttpUrl url, int maxDimension) {
+        this.url = url;
+        if (this.url == null) {
+            setImageBitmap(BitmapRepository.empty, false);
+            return;
+        }
 
+        if (maxDimension < 0) {
+            drawListener = OneShotPreDrawListener.add(this, () -> {
+                // consistency check for the predraw, this may have changed
+                // don't even start a call if the currently set URL not longer equals the one that called this function
+                if (this.url != null && this.url.equals(url)) {
+                    int dim = Math.max(getWidth(), getHeight());
+                    bitmapCall = NetUtils.makeBitmapRequest(this.url, this, dim, dim);
+                } else {
+                    clearCalls();
+                }
+            });
+        } else {
+            bitmapCall = NetUtils.makeBitmapRequest(url, this, maxDimension, maxDimension);
+        }
+    }
+
+    @Override
+    public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+        if (e instanceof NetUtilsClasses.HttpCodeException) {
+            errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
+        } else {
+            errorText = getString(R.string.thumbnail_load_failed_network);
+        }
+        fadeIn.end();
+    }
+
+    @Override
+    public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+        // consistency check for the call, this may have changed
+        // don't set a bitmap that doesn't match the URL we currently have set
+        if (source.equals(url)) {
+            setImageBitmap(bitmap, !fromCache);
+        }
+    }
+
+    private void clearCalls() {
         if (bitmapCall != null) {
             bitmapCall.cancel();
             bitmapCall = null;
         }
 
         if (drawListener != null) {
-            if (getViewTreeObserver().isAlive()) {
-                getViewTreeObserver().removeOnPreDrawListener(drawListener);
-            }
+            drawListener.removeListener();
             drawListener = null;
-        }
-
-        if (source == null) {
-            setImageBitmap(BitmapRepository.empty, false);
-            return;
-        }
-
-        NetUtilsClasses.BitmapResult result = new NetUtilsClasses.BitmapResult() {
-            @Override
-            public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                if (e instanceof NetUtilsClasses.HttpCodeException) {
-                    errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
-                } else {
-                    errorText = getString(R.string.thumbnail_load_failed_network);
-                }
-                fadeIn.end();
-            }
-
-            @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                setImageBitmap(bitmap, !fromCache);
-            }
-        };
-
-        if (maxDimension < 0) {
-            drawListener = waitForLayout(this, view -> {
-                int dim = Math.max(getWidth(), getHeight());
-                bitmapCall = NetUtils.makeBitmapRequest(url, result, dim, dim);
-                return true;
-            });
-        } else {
-            bitmapCall = NetUtils.makeBitmapRequest(url, result, maxDimension, maxDimension);
         }
     }
 
@@ -187,19 +200,15 @@ public abstract class ThumbnailView
             super.setClickable(clickable);
 
             if (clickable) {
-                TypedValue rippleAttrForThemeValue = new TypedValue();
-                getContext().getTheme().resolveAttribute(R.attr.colorControlHighlight, rippleAttrForThemeValue, true);
-                foreground = new RippleDrawable(ColorStateList.valueOf(rippleAttrForThemeValue.data),
-                        null,
-                        new ColorDrawable(Color.WHITE)
-                );
-                foreground.setCallback(this);
-                if (foreground.isStateful()) {
-                    foreground.setState(getDrawableState());
+                useRipple = true;
+                foregroundRipple.setCallback(this);
+                if (foregroundRipple.isStateful()) {
+                    foregroundRipple.setState(getDrawableState());
                 }
             } else {
-                unscheduleDrawable(foreground);
-                foreground = null;
+                unscheduleDrawable(foregroundRipple);
+                useRipple = false;
+                foregroundRipple.setCallback(null);
             }
             requestLayout();
             invalidate();
@@ -272,32 +281,32 @@ public abstract class ThumbnailView
 
             canvas.restore();
 
-            if (foreground != null) {
-                foreground.setBounds(0, 0, getRight(), getBottom());
-                foreground.draw(canvas);
+            if (useRipple) {
+                foregroundRipple.setBounds(0, 0, getRight(), getBottom());
+                foregroundRipple.draw(canvas);
             }
         }
     }
 
     @Override
     protected boolean verifyDrawable(@NonNull Drawable who) {
-        return super.verifyDrawable(who) || (who == foreground);
+        return super.verifyDrawable(who) || (useRipple && who == foregroundRipple);
     }
 
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
 
-        if (foreground != null) {
-            foreground.jumpToCurrentState();
+        if (useRipple) {
+            foregroundRipple.jumpToCurrentState();
         }
     }
 
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
-        if (foreground != null && foreground.isStateful()) {
-            foreground.setState(getDrawableState());
+        if (useRipple && foregroundRipple.isStateful()) {
+            foregroundRipple.setState(getDrawableState());
         }
     }
 
@@ -305,13 +314,15 @@ public abstract class ThumbnailView
     public void drawableHotspotChanged(float x, float y) {
         super.drawableHotspotChanged(x, y);
 
-        if (foreground != null) {
-            foreground.setHotspot(x, y);
+        if (useRipple) {
+            foregroundRipple.setHotspot(x, y);
         }
     }
 
     protected void setImageBitmap(Bitmap bitmap, boolean animate) {
         errorText = null;
+
+        clearCalls();
 
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
