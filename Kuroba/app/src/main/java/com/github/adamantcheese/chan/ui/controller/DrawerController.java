@@ -300,7 +300,7 @@ public class DrawerController
     @Override
     public boolean onBack() {
         if (!inViewMode) {
-            inViewMode = !inViewMode;
+            inViewMode = true;
             buttonSearchSwitch.toggle(inViewMode, true);
             return true;
         } else if (drawerLayout.isDrawerOpen(drawer)) {
