@@ -90,7 +90,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:itemCount="2"
+            tools:itemCount="5"
             tools:listitem="@layout/cell_post" />
 
     </com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout>
