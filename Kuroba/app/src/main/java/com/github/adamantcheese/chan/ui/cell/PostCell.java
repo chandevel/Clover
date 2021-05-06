@@ -46,6 +46,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -113,7 +114,7 @@ public class PostCell
 
     private RelativeLayout headerWrapper;
     private RelativeLayout bodyWrapper;
-    private boolean shifted = !isInEditMode() && !ChanSettings.shiftPostFormat.get();
+    private OneShotPreDrawListener shifter;
 
     private int detailsSizePx;
     private int iconSizePx;
@@ -506,19 +507,8 @@ public class PostCell
         } else {
             replies.setVisibility(GONE);
         }
-    }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (!shifted) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            if (getMeasuredHeight() > 0) {
-                doShiftPostFormatting();
-                super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            }
-        } else {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
+        shifter = OneShotPreDrawListener.add(this, this::doShiftPostFormatting);
     }
 
     private static final RelativeLayout.LayoutParams DEFAULT_BODY_PARAMS =
@@ -540,17 +530,12 @@ public class PostCell
         SHIFT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
     }
 
-    public void clearShiftStatus() {
-        shifted = false;
-    }
-
     private void doShiftPostFormatting() {
         if (isInEditMode()) return;
         if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE) return;
-        shifted = true;
-        int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getMeasuredHeight() : 0;
-        int headerHeight = headerWrapper.getMeasuredHeight();
-        int wrapHeight = headerHeight + comment.getMeasuredHeight();
+        int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getHeight() : 0;
+        int headerHeight = headerWrapper.getHeight();
+        int wrapHeight = headerHeight + comment.getHeight();
         boolean shiftLeftThumb = headerHeight > thumbnailViewsHeight;
         boolean shiftBelowThumb = wrapHeight > 2 * thumbnailViewsHeight;
         boolean shift = post != null && post.images.size() == 1;
@@ -583,7 +568,8 @@ public class PostCell
 
     @Override
     public void unsetPost() {
-        clearShiftStatus();
+        shifter.removeListener();
+        shifter = null;
         icons.cancelRequests();
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);

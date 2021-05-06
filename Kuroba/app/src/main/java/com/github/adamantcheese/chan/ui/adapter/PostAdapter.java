@@ -189,7 +189,7 @@ public class PostAdapter
                         theme
                 );
                 boolean embedInProgress = EmbeddingEngine.getInstance()
-                        .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position, new Object())));
+                        .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position)));
                 if (cellType == TYPE_POST && !embedInProgress) {
                     // nothing to embed, remove the spinner
                     holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
@@ -203,16 +203,6 @@ public class PostAdapter
                 ((ThreadStatusCell) holder.itemView).update();
                 break;
         }
-    }
-
-    @Override
-    public void onBindViewHolder(
-            @NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads
-    ) {
-        if (CellType.values()[getItemViewType(position)] == TYPE_POST && postViewMode == LIST) {
-            ((PostCell) holder.itemView).clearShiftStatus();
-        }
-        super.onBindViewHolder(holder, position, payloads);
     }
 
     @Override
