@@ -112,7 +112,7 @@ public class DrawerController
     private final ItemTouchHelper.Callback drawerItemTouchHelperCallback = new ItemTouchHelper.Callback() {
         @Override
         public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-            return makeMovementFlags(UP | DOWN, RIGHT | LEFT);
+            return makeMovementFlags(pinMode ? (UP | DOWN) : 0, LEFT | RIGHT);
         }
 
         @Override

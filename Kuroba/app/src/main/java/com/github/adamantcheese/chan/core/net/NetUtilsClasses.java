@@ -9,6 +9,7 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -20,11 +21,14 @@ import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okio.Buffer;
+import okio.BufferedSource;
 import okio.Okio;
 import okio.Timeout;
 
@@ -308,7 +312,12 @@ public class NetUtilsClasses {
         @Override
         public Response execute() {
             executed = true;
-            return new Response.Builder().code(200).request(request).protocol(Protocol.HTTP_1_1).message("OK").build();
+            return new Response.Builder().code(200)
+                    .request(request)
+                    .body(new EmptyResponseBody())
+                    .protocol(Protocol.HTTP_1_1)
+                    .message("OK")
+                    .build();
         }
 
         @Override
@@ -331,6 +340,25 @@ public class NetUtilsClasses {
         @Override
         public Timeout timeout() {
             return Timeout.NONE;
+        }
+    }
+
+    public static class EmptyResponseBody
+            extends ResponseBody {
+
+        @Override
+        public long contentLength() {
+            return 0;
+        }
+
+        @Override
+        public @Nullable MediaType contentType() {
+            return null;
+        }
+
+        @Override
+        public @NotNull BufferedSource source() {
+            return new Buffer();
         }
     }
 }

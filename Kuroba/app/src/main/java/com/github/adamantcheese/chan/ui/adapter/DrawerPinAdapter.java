@@ -171,7 +171,7 @@ public class DrawerPinAdapter
     @Override
     public long getItemId(int position) {
         synchronized (watchManager.getAllPins()) {
-            return watchManager.getAllPins().get(position).id + 10;
+            return watchManager.getAllPins().get(position).loadable.no;
         }
     }
 

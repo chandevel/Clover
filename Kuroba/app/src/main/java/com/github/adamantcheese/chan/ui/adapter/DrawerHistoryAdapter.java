@@ -151,7 +151,7 @@ public class DrawerHistoryAdapter
     public long getItemId(int position) {
         return historyList.get(position) == null
                 ? NO_ID
-                : (historyList.get(position).loadable == null ? NO_ID : historyList.get(position).loadable.id);
+                : (historyList.get(position).loadable == null ? NO_ID : historyList.get(position).loadable.no);
     }
 
     @Override
