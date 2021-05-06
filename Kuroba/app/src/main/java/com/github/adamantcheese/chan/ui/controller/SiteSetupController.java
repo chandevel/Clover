@@ -20,14 +20,17 @@ import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
+import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
+import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
@@ -88,6 +91,8 @@ public class SiteSetupController
         SettingsGroup group = new SettingsGroup("Additional settings");
 
         for (SiteSetting<?> setting : settings) {
+            SettingView generated;
+
             switch (setting.type) {
                 case OPTIONS:
                     // Turn the SiteSetting for a list of options into a proper setting with a
@@ -103,21 +108,25 @@ public class SiteSetupController
                     }
 
                     //noinspection unchecked
-                    ListSettingView<?> v = new ListSettingView<>(this, optionsSetting, setting.name, items);
-
-                    group.add(v);
+                    generated = new ListSettingView<>(this, optionsSetting, setting.name, items);
                     break;
                 case STRING:
                     // Turn the SiteSetting for a string setting into a proper setting with a name and input
-                    StringSetting stringSetting = (StringSetting) setting.setting;
-                    StringSettingView view =
-                            new StringSettingView(this, stringSetting, setting.name, setting.name, null);
-
-                    group.add(view);
+                    generated = new StringSettingView(this,
+                            (StringSetting) setting.setting,
+                            setting.name,
+                            setting.name,
+                            null
+                    );
+                    break;
+                case BOOLEAN:
+                    generated = new BooleanSettingView(this, (BooleanSetting) setting.setting, setting.name, null);
                     break;
                 default:
                     throw new UnsupportedOperationException("Not implemented yet for this setting type!");
             }
+
+            group.add(generated);
         }
 
         groups.add(group);

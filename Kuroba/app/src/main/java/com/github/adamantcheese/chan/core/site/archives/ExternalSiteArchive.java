@@ -3,10 +3,12 @@ package com.github.adamantcheese.chan.core.site.archives;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
@@ -125,7 +127,7 @@ public abstract class ExternalSiteArchive
         }
 
         @Override
-        public HttpUrl icon(ICON_TYPE icon, Map<String, String> arg) {
+        public Pair<HttpUrl, PassthroughBitmapResult> icon(ICON_TYPE icon, Map<String, String> arg) {
             return null;
         }
 

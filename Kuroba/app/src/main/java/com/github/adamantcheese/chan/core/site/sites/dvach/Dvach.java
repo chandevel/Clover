@@ -30,6 +30,7 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
 
 public class Dvach
@@ -80,7 +81,7 @@ public class Dvach
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
         SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
+                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript"));
         settings.add(captchaSetting);
         return settings;
     }

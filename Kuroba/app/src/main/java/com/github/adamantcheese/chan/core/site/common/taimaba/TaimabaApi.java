@@ -2,10 +2,13 @@ package com.github.adamantcheese.chan.core.site.common.taimaba;
 
 import android.util.JsonReader;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -256,10 +259,9 @@ public class TaimabaApi
         }
 
         if (countryCode != null && countryDescription != null) {
-            HttpUrl countryUrl = endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
             builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.COUNTRY_FLAG,
-                    countryUrl,
-                    new NetUtilsClasses.PassthroughBitmapResult(),
+                    resultPair.first, resultPair.second,
                     countryCode,
                     countryDescription
             ));

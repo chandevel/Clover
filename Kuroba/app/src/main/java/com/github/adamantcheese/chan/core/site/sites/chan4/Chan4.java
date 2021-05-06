@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
@@ -25,7 +26,9 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
@@ -55,14 +58,21 @@ import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import kotlin.random.Random;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2NOJS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
@@ -201,25 +211,70 @@ public class Chan4
         }
 
         @Override
-        public HttpUrl icon(ICON_TYPE icon, Map<String, String> arg) {
-            HttpUrl.Builder b = s.newBuilder().addPathSegment("image");
+        public Pair<HttpUrl, PassthroughBitmapResult> icon(ICON_TYPE icon, Map<String, String> arg) {
+            HttpUrl.Builder iconBuilder = s.newBuilder().addPathSegment("image");
 
             switch (icon) {
                 case COUNTRY_FLAG:
-                    b.addPathSegment("country");
-                    b.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".gif");
+                    iconBuilder.addPathSegment("country");
+                    iconBuilder.addPathSegment(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".gif");
                     break;
                 case BOARD_FLAG:
-                    b.addPathSegment("flags");
-                    b.addPathSegment(arg.get("board_code"));
-                    b.addPathSegment("flags.png");
-                    break;
+                    String boardCode = arg.get("board_code").toLowerCase(Locale.ENGLISH);
+                    String boardFlagCode = arg.get("board_flag_code").toLowerCase(Locale.ENGLISH);
+
+                    iconBuilder.addPathSegment("flags");
+                    iconBuilder.addPathSegment(boardCode);
+
+                    if (spriteSetting.get()) {
+                        // note: this is bad, but once this is cached it never makes a network request and is fine afterwards
+                        try {
+                            Response flagAlignments = NetUtils.applicationClient.newCall(new Request.Builder().url(
+                                    "https://s.4cdn.org/image/flags/" + boardCode + "/flags.css").build()).execute();
+
+                            String alignmentsString;
+                            try {
+                                alignmentsString = flagAlignments.body().string();
+                            } catch (Exception e) {
+                                alignmentsString = "";
+                            }
+                            Pattern dimsPattern = Pattern.compile("\\.bfl\\{.*width:(\\d+)px;height:(\\d+)px;.*\\}");
+                            Matcher dimMatcher = dimsPattern.matcher(alignmentsString);
+                            dimMatcher.find();
+
+                            Pair<Integer, Integer> dims = new Pair<>(Math.abs(Integer.parseInt(dimMatcher.group(1))),
+                                    Math.abs(Integer.parseInt(dimMatcher.group(2)))
+                            );
+
+                            Pattern flagPattern = Pattern.compile("\\.bfl-" + boardFlagCode
+                                            + "\\{background-position:-?(\\d+)(?:px)? -?(\\d+)(?:px)?\\}",
+                                    Pattern.CASE_INSENSITIVE
+                            );
+                            Matcher flagMatcher = flagPattern.matcher(alignmentsString);
+                            flagMatcher.find();
+
+                            Pair<Integer, Integer> origin = new Pair<>(Math.abs(Integer.parseInt(flagMatcher.group(1))),
+                                    Math.abs(Integer.parseInt(flagMatcher.group(2)))
+                            );
+                            return new Pair<>(iconBuilder.addPathSegment("flags.png")
+                                    .encodedFragment(flagMatcher.group())
+                                    .build(), new NetUtilsClasses.CroppingBitmapResult(origin, dims));
+                        } catch (Exception e) {
+                            return new Pair<>(iconBuilder.addPathSegment(boardFlagCode).addPathSegment(".gif").build(),
+                                    new PassthroughBitmapResult()
+                            );
+                        }
+                    } else {
+                        return new Pair<>(iconBuilder.addPathSegment(boardFlagCode + ".gif").build(),
+                                new PassthroughBitmapResult()
+                        );
+                    }
                 case SINCE4PASS:
-                    b.addPathSegment("minileaf.gif");
+                    iconBuilder.addPathSegment("minileaf.gif");
                     break;
             }
 
-            return b.build();
+            return new Pair<>(iconBuilder.build(), new PassthroughBitmapResult());
         }
 
         @Override
@@ -424,6 +479,7 @@ public class Chan4
     private final StringSetting passPass;
 
     private OptionsSetting<CaptchaType> captchaType;
+    private BooleanSetting spriteSetting;
 
     public Chan4() {
         // we used these before multisite, and lets keep using them.
@@ -439,14 +495,18 @@ public class Chan4
 
         captchaType =
                 new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2NOJS);
+        spriteSetting = new BooleanSetting(settingsProvider, "preference_sprite_map_chan4", false);
     }
 
     @Override
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
         SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", captchaType, Arrays.asList("Javascript", "Noscript"));
+                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript"));
+        SiteSetting<?> spriteMapSetting =
+                new SiteSetting<>("Use sprite maps for board flags", BOOLEAN, spriteSetting, Collections.emptyList());
         settings.add(captchaSetting);
+        settings.add(spriteMapSetting);
         return settings;
     }
 
