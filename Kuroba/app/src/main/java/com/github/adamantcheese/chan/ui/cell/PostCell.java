@@ -86,6 +86,7 @@ import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE.OTHER;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -178,6 +179,23 @@ public class PostCell
             icons.set(PostIcons.CLOSED_FLAG, true);
             icons.set(PostIcons.DELETED_FLAG, true);
             icons.set(PostIcons.ARCHIVED_FLAG, true);
+            icons.set(PostIcons.HTTP_ICONS_FLAG_NO_TEXT, true);
+            icons.setHttpIcons(Collections.singletonList(new PostHttpIcon(
+                    OTHER,
+                    null,
+                    new NetUtilsClasses.PassthroughBitmapResult() {
+                        @Override
+                        public void onBitmapSuccess(
+                                @NonNull HttpUrl source,
+                                @NonNull Bitmap bitmap,
+                                boolean fromCache
+                        ) {
+                            super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
+                        }
+                    },
+                    "yt",
+                    "yt"
+            )), iconSizePx);
             icons.apply();
         }
 
@@ -775,7 +793,11 @@ public class PostCell
             });
 
             // don't cache stuff in memory for icons since they could be sprite-mapped (ie 4chan)
-            request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult);
+            if (icon.url != null) {
+                request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult);
+            } else {
+                icon.bitmapResult.onBitmapSuccess(null, bitmap, true);
+            }
         }
 
         void cancel() {
