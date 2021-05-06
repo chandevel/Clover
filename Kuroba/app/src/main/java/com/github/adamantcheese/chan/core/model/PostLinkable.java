@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
 
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.JAVASCRIPT;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
@@ -53,7 +54,8 @@ public class PostLinkable
         THREAD, //key: the thread link text, value: ThreadLink, matching the board, opNo, and postNo
         BOARD, //key: the board link text, value: String, the board code
         SEARCH, //key: the search link text, value: SearchLink, matchinng the board and search query text
-        ARCHIVE //key: the deadlink text or the `href` for the html tag, value: ThreadLink OR ResolveLink, matching the board, opNo, and postNo or board and postNo, respectively
+        ARCHIVE, //key: the deadlink text or the `href` for the html tag, value: ThreadLink OR ResolveLink, matching the board, opNo, and postNo or board and postNo, respectively
+        JAVASCRIPT //key: the link text, like "View" or something, value: the javascript that needs to be run on the source webpage
     }
 
     private final float blendRatio;
@@ -87,7 +89,7 @@ public class PostLinkable
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
         if (type != SPOILER) {
-            ds.setColor(type == LINK ? ds.linkColor : quoteColor);
+            ds.setColor(type == LINK || type == JAVASCRIPT ? ds.linkColor : quoteColor);
             ds.setUnderlineText(true);
             ds.setFakeBoldText(false);
             ds.setTextScaleX(1.0f);

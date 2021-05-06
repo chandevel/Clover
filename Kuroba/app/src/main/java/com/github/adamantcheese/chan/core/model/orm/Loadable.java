@@ -240,6 +240,10 @@ public class Loadable
         return site.resolvable().desktopUrl(this, no);
     }
 
+    public String desktopUrl(Post post) {
+        return site.resolvable().desktopUrl(this, post.no);
+    }
+
     public static Loadable readFromParcel(Parcel parcel) {
         Loadable loadable = new Loadable();
         loadable.siteId = parcel.readInt();

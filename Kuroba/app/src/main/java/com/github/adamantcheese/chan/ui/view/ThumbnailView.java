@@ -71,17 +71,17 @@ public abstract class ThumbnailView
     private final ValueAnimator fadeIn = ValueAnimator.ofFloat(0f, 1f);
 
     private Bitmap bitmap;
+    protected String errorText = null;
+
     private final RectF bitmapRect = new RectF();
     private final RectF drawRect = new RectF();
     private final RectF outputRect = new RectF();
-
     private final Matrix matrix = new Matrix();
     private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
 
     private boolean useRipple;
-    private Drawable foregroundRipple;
+    private final Drawable foregroundRipple;
 
-    protected String errorText = null;
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect tmpTextRect = new Rect();
 

@@ -44,6 +44,8 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.List;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
@@ -163,6 +165,13 @@ public abstract class ThreadController
         ));
         // todo setting here?
         // threadLayout.getPresenter().hideOrRemovePosts(true, false, post, post.opId);
+    }
+
+    @Override
+    public void openWebViewController(String baseUrl, String javascript) {
+        WebViewController javascriptController = new WebViewController(context, "Javascript link", HttpUrl.get(baseUrl));
+        javascriptController.setOptionalJavascriptAfterLoad(javascript);
+        navigationController.pushController(javascriptController);
     }
 
     public void selectPostImage(PostImage postImage) {

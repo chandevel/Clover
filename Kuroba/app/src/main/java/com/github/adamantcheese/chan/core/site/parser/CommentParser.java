@@ -432,8 +432,13 @@ public class CommentParser {
                     t = Type.SEARCH;
                     value = new SearchLink(board, search);
                 } else {
-                    //normal link
-                    t = Type.LINK;
+                    if (href.startsWith("javascript:")) {
+                        //this link would run javascript on the source webpage, open this in a webview
+                        t = Type.JAVASCRIPT;
+                    } else {
+                        //normal link
+                        t = Type.LINK;
+                    }
                     value = href;
                 }
             }

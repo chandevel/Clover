@@ -692,7 +692,7 @@ public class ThreadPresenter
                 showToast(context, R.string.post_cross_board_link_copied);
                 break;
             case POST_OPTION_COPY_POST_URL:
-                setClipboardContent("Post URL", loadable.site.resolvable().desktopUrl(loadable, post.no));
+                setClipboardContent("Post URL", loadable.desktopUrl(post));
                 showToast(context, R.string.post_url_copied);
                 break;
             case POST_OPTION_COPY_IMG_URL:
@@ -787,12 +787,12 @@ public class ThreadPresenter
                 break;
             case POST_OPTION_OPEN_BROWSER:
                 if (isBound()) {
-                    openLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                    openLink(loadable.desktopUrl(post));
                 }
                 break;
             case POST_OPTION_SHARE:
                 if (isBound()) {
-                    shareLink(loadable.site.resolvable().desktopUrl(loadable, post.no));
+                    shareLink(loadable.desktopUrl(post));
                 }
                 break;
             case POST_OPTION_REMOVE:
@@ -859,7 +859,7 @@ public class ThreadPresenter
                 threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
             }
         } else if (linkable.type == PostLinkable.Type.LINK || linkable.type == PostLinkable.Type.EMBED) {
-            threadPresenterCallback.openLink((String) linkable.value);
+            threadPresenterCallback.openLink(linkable, (String) linkable.value);
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             ThreadLink link = (ThreadLink) linkable.value;
 
@@ -921,6 +921,8 @@ public class ThreadPresenter
                     showArchives(constructed, toResolve.postId);
                 }
             }
+        } else if (linkable.type == PostLinkable.Type.JAVASCRIPT) {
+            threadPresenterCallback.openLink(linkable, loadable.desktopUrl(post));
         }
     }
 
@@ -1325,7 +1327,7 @@ public class ThreadPresenter
 
         void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
-        void openLink(String link);
+        void openLink(PostLinkable linkable, String link);
 
         void openReportView(Post post);
 

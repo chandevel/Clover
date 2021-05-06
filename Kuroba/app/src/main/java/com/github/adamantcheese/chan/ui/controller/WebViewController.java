@@ -41,6 +41,7 @@ public class WebViewController
         extends Controller {
     private final String navTitle;
     private final HttpUrl initialUrl;
+    private String optionalJavascriptAfterLoad = "";
 
     public WebViewController(Context context, String title, HttpUrl url) {
         super(context);
@@ -56,7 +57,12 @@ public class WebViewController
 
         try {
             WebView webView = new WebView(context);
-            webView.setWebViewClient(new WebViewClient());
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    webView.loadUrl(optionalJavascriptAfterLoad);
+                }
+            });
             WebSettings settings = webView.getSettings();
             settings.setJavaScriptCanOpenWindowsAutomatically(true);
             settings.setJavaScriptEnabled(true);
@@ -105,5 +111,9 @@ public class WebViewController
         super.onDestroy();
         // with WebViewSyncCookieManager, this puts webview cookies into OkHttp's cookie jar
         NetUtils.applicationClient.cookieJar().loadForRequest(initialUrl);
+    }
+
+    public void setOptionalJavascriptAfterLoad(String javascript) {
+        optionalJavascriptAfterLoad = javascript;
     }
 }

@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
@@ -283,23 +284,27 @@ public class ThreadLayout
     }
 
     @Override
-    public void openLink(final String link) {
+    public void openLink(PostLinkable linkable, final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
             getDefaultAlertBuilder(getContext()).setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(link))
+                    .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(linkable, link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
                     .show();
         } else {
-            openLinkConfirmed(link);
+            openLinkConfirmed(linkable, link);
         }
     }
 
-    public void openLinkConfirmed(final String link) {
-        if (ChanSettings.openLinkBrowser.get()) {
-            AndroidUtils.openLink(link);
+    public void openLinkConfirmed(final PostLinkable linkable, final String link) {
+        if(linkable.type != PostLinkable.Type.JAVASCRIPT) {
+            if (ChanSettings.openLinkBrowser.get()) {
+                AndroidUtils.openLink(link);
+            } else {
+                openLinkInBrowser(getContext(), link);
+            }
         } else {
-            openLinkInBrowser(getContext(), link);
+            callback.openWebViewController(link, (String) linkable.value);
         }
     }
 
@@ -765,6 +770,8 @@ public class ThreadLayout
         void presentController(Controller controller);
 
         void openReportController(Post post);
+
+        void openWebViewController(String baseUrl, String javascript);
 
         Toolbar getToolbar();
 
