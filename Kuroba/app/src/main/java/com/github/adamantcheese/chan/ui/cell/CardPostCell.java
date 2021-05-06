@@ -271,5 +271,9 @@ public class CardPostCell
         comment.setPadding(p, p, p, 0);
         replies.setPadding(p, p, p / 2, p);
         options.setPadding(p, p / 2, p / 2, p / 2);
+
+        ViewGroup.LayoutParams params = options.getLayoutParams();
+        params.height = dp(getContext(), 32) - (compact ? 2 * p : 0);
+        options.setLayoutParams(params);
     }
 }
