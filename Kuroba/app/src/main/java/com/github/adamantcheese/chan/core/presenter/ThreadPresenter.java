@@ -601,7 +601,7 @@ public class ThreadPresenter
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         }
 
-        if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+        if (loadable.site.siteFeature(Site.SiteFeature.POSTING) && !loadable.isCatalogMode()) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE, R.string.post_quote));
             menu.add(new FloatingMenuItem<>(POST_OPTION_QUOTE_TEXT, R.string.post_quote_text));
         }
