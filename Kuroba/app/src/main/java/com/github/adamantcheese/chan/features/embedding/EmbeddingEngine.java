@@ -367,7 +367,7 @@ public class EmbeddingEngine
                                 generatedLinkables,
                                 generatedImages,
                                 urlPair.first,
-                                embedder.getIconBitmap()
+                                embedder
                         ),
                         null,
                         NetUtilsClasses.ONE_DAY_CACHE,
@@ -398,7 +398,7 @@ public class EmbeddingEngine
             List<PostLinkable> generatedLinkables,
             List<PostImage> generatedImages,
             String URL,
-            Bitmap iconBitmap
+            Embedder embedder
     ) {
         return new ResponseResult<EmbedResult>() {
             @Override
@@ -407,14 +407,15 @@ public class EmbeddingEngine
             @Override
             public void onSuccess(EmbedResult result) {
                 //got a result, replace with the result and also cache the result
-                videoTitleDurCache.put(URL, result);
+                if(embedder.shouldCacheResults()) {
+                    videoTitleDurCache.put(URL, result);
+                }
                 performStandardEmbedding(theme,
                         commentCopy,
                         generatedLinkables,
                         generatedImages,
                         result,
-                        URL,
-                        iconBitmap
+                        URL, embedder.getIconBitmap()
                 );
             }
         };

@@ -134,9 +134,9 @@ public class NetUtils {
 
     /**
      * Get a raw, cached response.
-     * You are responsible for clearing up the file resource!
+     * Files will be deleted after an hour, when the application goes into the background!
      *
-     * @param url              the url to get the resposne from
+     * @param url              the url to download as a file
      * @param filename         the name of the cached file you want to make
      * @param fileExt          the extension for the cached file
      * @param result           the result callback
@@ -184,7 +184,7 @@ public class NetUtils {
     /**
      * Request a bitmap without resizing.
      *
-     * @param url    The request URL.
+     * @param url    The request URL. If null, null will be returned.
      * @param result The callback for this call.
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
@@ -197,7 +197,7 @@ public class NetUtils {
     /**
      * Request a bitmap with resizing.
      *
-     * @param url    The request URL.
+     * @param url    The request URL. If null, null will be returned.
      * @param result The callback for this call.
      * @param width  The explicit width of the result
      * @param height The explicit height of the result
@@ -213,7 +213,7 @@ public class NetUtils {
     /**
      * Request a bitmap with resizing.
      *
-     * @param url     The request URL.
+     * @param url     The request URL. If null, null will be returned.
      * @param result  The callback for this call.
      * @param width   The requested width of the result
      * @param height  The requested height of the result

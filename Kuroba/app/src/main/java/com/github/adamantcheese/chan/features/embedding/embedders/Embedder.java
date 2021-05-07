@@ -29,6 +29,10 @@ public interface Embedder
      */
     boolean shouldEmbed(CharSequence comment);
 
+    default boolean shouldCacheResults() {
+        return true;
+    }
+
     /**
      * This is used for the helper calls in EmbeddingEngine for a "standard" embed of icon-title-duration.
      *
