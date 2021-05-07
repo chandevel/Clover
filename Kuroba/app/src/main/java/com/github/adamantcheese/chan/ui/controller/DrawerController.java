@@ -38,6 +38,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -262,7 +263,7 @@ public class DrawerController
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(false);
             if (pinMode) {
-                wakeManager.onBroadcastReceived(true);
+                wakeManager.onBroadcastReceived(!BuildConfig.DEBUG);
             } else {
                 if (recyclerView.getAdapter() == null) return;
                 ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();

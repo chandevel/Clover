@@ -46,7 +46,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -114,7 +113,6 @@ public class PostCell
 
     private RelativeLayout headerWrapper;
     private RelativeLayout bodyWrapper;
-    private OneShotPreDrawListener shifter;
 
     private int detailsSizePx;
     private int iconSizePx;
@@ -181,15 +179,12 @@ public class PostCell
             icons.set(PostIcons.DELETED_FLAG, true);
             icons.set(PostIcons.ARCHIVED_FLAG, true);
             icons.set(PostIcons.HTTP_ICONS_FLAG_NO_TEXT, true);
-            icons.setHttpIcons(Collections.singletonList(new PostHttpIcon(
-                    OTHER,
+            icons.setHttpIcons(Collections.singletonList(new PostHttpIcon(OTHER,
                     null,
                     new NetUtilsClasses.PassthroughBitmapResult() {
                         @Override
                         public void onBitmapSuccess(
-                                @NonNull HttpUrl source,
-                                @NonNull Bitmap bitmap,
-                                boolean fromCache
+                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
                         ) {
                             super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
                         }
@@ -322,7 +317,7 @@ public class PostCell
             thumbnailViews.setAdapter(null);
             thumbnailViews.setVisibility(GONE);
         } else {
-            thumbnailViews.setAdapter(new PostImagesAdapter());
+            thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
             thumbnailViews.setVisibility(VISIBLE);
         }
 
@@ -507,8 +502,6 @@ public class PostCell
         } else {
             replies.setVisibility(GONE);
         }
-
-        shifter = OneShotPreDrawListener.add(this, this::doShiftPostFormatting);
     }
 
     private static final RelativeLayout.LayoutParams DEFAULT_BODY_PARAMS =
@@ -530,15 +523,15 @@ public class PostCell
         SHIFT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
     }
 
-    private void doShiftPostFormatting() {
-        if (isInEditMode()) return;
-        if (!ChanSettings.shiftPostFormat.get() || comment.getVisibility() != VISIBLE) return;
+    public void doShiftPostFormatting() {
+        if (isInEditMode() || comment.getVisibility() != VISIBLE) return;
         int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getHeight() : 0;
         int headerHeight = headerWrapper.getHeight();
         int wrapHeight = headerHeight + comment.getHeight();
         boolean shiftLeftThumb = headerHeight > thumbnailViewsHeight;
         boolean shiftBelowThumb = wrapHeight > 2 * thumbnailViewsHeight;
-        boolean shift = post != null && post.images.size() == 1;
+        boolean shift = post != null && (post.images.size() == 1 || (post.images.size() > 1
+                && headerHeight > thumbnailViewsHeight / 2));
         if (shift && !shiftLeftThumb && shiftBelowThumb) {
             bodyWrapper.setLayoutParams(SHIFT_BELOW_PARAMS);
         } else if (shift && shiftLeftThumb) {
@@ -546,6 +539,7 @@ public class PostCell
         } else {
             bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
         }
+        requestLayout();
     }
 
     private final String[] dubTexts =
@@ -568,14 +562,13 @@ public class PostCell
 
     @Override
     public void unsetPost() {
-        shifter.removeListener();
-        shifter = null;
         icons.cancelRequests();
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post.comment.removeSpan(BACKGROUND_SPAN);
+        bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
         post = null;
     }
 
