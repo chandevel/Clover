@@ -14,7 +14,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:src="@drawable/partyhat"/>
+        tools:src="@drawable/partyhat" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/captcha_challenge_blue_checkmark_holder"
@@ -28,14 +28,25 @@
         tools:visibility="visible">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_fluent_checkmark_circle_24_filled"
-            app:tint="@color/md_blue_500"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/ic_fluent_circle_24_filled"
             app:layout_constraintBottom_toBottomOf="@+id/captcha_challenge_blue_checkmark_holder"
             app:layout_constraintEnd_toEndOf="@+id/captcha_challenge_blue_checkmark_holder"
             app:layout_constraintStart_toStartOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintTop_toTopOf="@+id/captcha_challenge_blue_checkmark_holder" />
+            app:layout_constraintTop_toTopOf="@+id/captcha_challenge_blue_checkmark_holder"
+            app:tint="@color/white" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_fluent_checkmark_circle_24_filled"
+            app:layout_constraintBottom_toBottomOf="@+id/captcha_challenge_blue_checkmark_holder"
+            app:layout_constraintEnd_toEndOf="@+id/captcha_challenge_blue_checkmark_holder"
+            app:layout_constraintStart_toStartOf="@+id/captcha_challenge_blue_checkmark_holder"
+            app:layout_constraintTop_toTopOf="@+id/captcha_challenge_blue_checkmark_holder"
+            app:tint="@color/md_blue_500" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
