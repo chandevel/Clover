@@ -140,7 +140,7 @@ public class PostRepliesController
         adapter.setThread(new ChanThread(loadable, displayingData.posts),
                 new PostsFilter(PostsFilter.Order.BUMP, null)
         );
-        adapter.setLastSeenIndicatorPosition(-1); //disable last seen indicator inside of reply popups
+        adapter.lastSeenIndicatorPosition = Integer.MIN_VALUE; //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         layoutManager.scrollToPositionWithOffset(data.listViewIndex, data.listViewTop);
 

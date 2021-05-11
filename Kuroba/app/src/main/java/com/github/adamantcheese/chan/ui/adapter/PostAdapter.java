@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.adapter;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,7 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -69,17 +71,16 @@ public class PostAdapter
     private final List<Post> displayList = new ArrayList<>();
 
     private Loadable loadable = null;
-    private String error = null;
     private String highlightedId;
     private int highlightedNo = -1;
     private String highlightedTripcode;
-    private int lastSeenIndicatorPosition = Integer.MIN_VALUE;
-    private PostsFilter previousFilter;
+    public int lastSeenIndicatorPosition = Integer.MIN_VALUE;
+    private PostsFilter currentFilter = new PostsFilter(PostsFilter.Order.BUMP, null);
 
     private ChanSettings.PostViewMode postViewMode = LIST;
     private boolean compact = false;
     private final Theme theme;
-    private final RecyclerView.ItemDecoration divider;
+    private final RecyclerView.ItemDecoration cellDivider;
     private final RecyclerView.ItemDecoration lastSeenDivider;
 
     public PostAdapter(
@@ -97,7 +98,7 @@ public class PostAdapter
         this.theme = theme;
         setHasStableIds(true);
 
-        divider = RecyclerUtils.getBottomDividerDecoration(recyclerView.getContext());
+        cellDivider = RecyclerUtils.getBottomDividerDecoration(recyclerView.getContext());
         final ShapeDrawable lastSeen = new ShapeDrawable();
         lastSeen.setTint(getAttrColor(recyclerView.getContext(), R.attr.colorAccent));
 
@@ -162,7 +163,6 @@ public class PostAdapter
                         .inflate(R.layout.cell_thread_status, parent, false);
                 StatusViewHolder statusViewHolder = new StatusViewHolder(statusCell);
                 statusCell.setCallback(statusCellCallback);
-                statusCell.setError(error);
                 return statusViewHolder;
             default:
                 throw new IllegalStateException("Unknown view holder");
@@ -197,8 +197,9 @@ public class PostAdapter
                     holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
                 }
                 // PostCell with shift on and no embedding and not yet shifted gets a predraw listener to shift stuff (this will occur after embedding, if any)
-                if (cellType == TYPE_POST && postViewMode == LIST && ChanSettings.shiftPostFormat.get() && !embedInProgress && !postViewHolder.shifted) {
-                    if(postViewHolder.shifter != null) {
+                if (cellType == TYPE_POST && postViewMode == LIST && ChanSettings.shiftPostFormat.get()
+                        && !embedInProgress && !postViewHolder.shifted) {
+                    if (postViewHolder.shifter != null) {
                         postViewHolder.shifter.removeListener();
                     }
                     postViewHolder.shifter = OneShotPreDrawListener.add(postViewHolder.itemView, () -> {
@@ -220,6 +221,23 @@ public class PostAdapter
     }
 
     @Override
+    public void onBindViewHolder(
+            @NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads
+    ) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads);
+            return;
+        }
+        CellType cellType = CellType.values()[getItemViewType(position)];
+        if (cellType == TYPE_STATUS) {
+            String error = payloads.get(0) == null ? null : (String) payloads.get(0);
+            ((ThreadStatusCell) holder.itemView).setError(error);
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
+    }
+
+    @Override
     public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
         if (holder.getItemViewType() == TYPE_POST.ordinal()) {
             //this is a hack to make sure text is selectable
@@ -233,7 +251,7 @@ public class PostAdapter
         switch (CellType.values()[holder.getItemViewType()]) {
             case TYPE_POST:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
-                if(postViewHolder.shifter != null) {
+                if (postViewHolder.shifter != null) {
                     postViewHolder.shifter.removeListener();
                     postViewHolder.shifter = null;
                 }
@@ -284,15 +302,14 @@ public class PostAdapter
         }
     }
 
-    public void setThread(ChanThread thread, PostsFilter filter) {
+    public void setThread(ChanThread thread, PostsFilter newFilter) {
         BackgroundUtils.ensureMainThread();
 
         this.loadable = thread.getLoadable();
-        showError(null);
 
-        List<Post> newList = filter == null ? thread.getPosts() : filter.apply(thread);
-        boolean filterChanged = !Objects.equals(previousFilter, filter);
-        previousFilter = filter;
+        List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
+        boolean filterChanged = !Objects.equals(currentFilter, newFilter);
+        currentFilter = newFilter;
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
@@ -317,19 +334,44 @@ public class PostAdapter
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                // if the filter has changed, invalidate all items
-                // if the status view is shown and the oldposition/newposition matches the list size, invalidate that as well (index is status cell)
-                if (filterChanged || (showStatusView() && oldItemPosition == displayList.size()) || (showStatusView()
-                        && newItemPosition == newList.size())) {
+                if (showStatusView() && oldItemPosition == displayList.size() && newItemPosition == newList.size()) {
+                    // thread status cell locations match up, these are the same
+                    return true;
+                } else if (showStatusView() && oldItemPosition == displayList.size()
+                        && oldItemPosition != newList.size()) {
+                    // thread status cell locations don't match up, new cell is later than old cell
                     return false;
+                } else if (showStatusView() && newItemPosition != displayList.size()
+                        && newItemPosition == newList.size()) {
+                    // thread status cell locations don't match up, new cell is before old cell
+                    return false;
+                } else {
+                    // check getItemId returns for both lists, effectively
+                    return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;
                 }
-                return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                // uses Post.equals() to compare
-                return displayList.get(oldItemPosition).equals(newList.get(newItemPosition));
+                if (showStatusView() && oldItemPosition == displayList.size() && newItemPosition == newList.size()) {
+                    // thread status cell locations match up, these are the same
+                    return true;
+                }
+
+                // if the filter has changed, all other locations have new contents
+                if (filterChanged) return false;
+
+                if (showStatusView() && oldItemPosition == displayList.size() && oldItemPosition != newList.size()) {
+                    // thread status cell locations don't match up, new cell is later than old cell
+                    return false;
+                } else if (showStatusView() && newItemPosition != displayList.size()
+                        && newItemPosition == newList.size()) {
+                    // thread status cell locations don't match up, new cell is before old cell
+                    return false;
+                } else {
+                    // check equality of posts to see if they have changed
+                    return displayList.get(oldItemPosition).equals(newList.get(newItemPosition));
+                }
             }
         });
 
@@ -337,11 +379,6 @@ public class PostAdapter
         displayList.addAll(newList);
 
         result.dispatchUpdatesTo(this); // better than notifyDataSetChanged for small UI updates, but can also act as a full refresh if needed
-    }
-
-    public void setLastSeenIndicatorPosition(int position) {
-        lastSeenIndicatorPosition = position;
-        notifyDataSetChanged();
     }
 
     public List<Post> getDisplayList() {
@@ -353,20 +390,6 @@ public class PostAdapter
         highlightedNo = -1;
         highlightedTripcode = null;
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
-        error = null;
-    }
-
-    public void showError(String error) {
-        this.error = error;
-        if (showStatusView()) {
-            final int childCount = recyclerView.getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View child = recyclerView.getChildAt(i);
-                if (child instanceof ThreadStatusCell) {
-                    ((ThreadStatusCell) child).setError(error);
-                }
-            }
-        }
     }
 
     public void highlightPostId(String id) {
@@ -396,25 +419,23 @@ public class PostAdapter
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.removeItemDecoration(divider);
+        recyclerView.removeItemDecoration(cellDivider);
         recyclerView.removeItemDecoration(lastSeenDivider);
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         if (postViewMode == LIST) {
-            recyclerView.addItemDecoration(divider);
+            recyclerView.addItemDecoration(cellDivider);
             recyclerView.addItemDecoration(lastSeenDivider);
         } else {
-            recyclerView.removeItemDecoration(divider);
+            recyclerView.removeItemDecoration(cellDivider);
             recyclerView.removeItemDecoration(lastSeenDivider);
         }
     }
 
     public void setCompact(boolean compact) {
-        if (this.compact != compact) {
-            this.compact = compact;
-        }
+        this.compact = compact;
     }
 
     public boolean isCompact() {
@@ -422,14 +443,15 @@ public class PostAdapter
     }
 
     public boolean showStatusView() {
-        if (postAdapterCallback == null) return false;
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
-        return loadable != null && loadable.isThreadMode();
+        // also don't show the status view if there's a search query going
+        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.getQuery()) && loadable != null && loadable.isThreadMode();
     }
 
     public static class PostViewHolder
             extends RecyclerView.ViewHolder {
+        // used for shift-post formatting, only for PostCell instances of postView
         public OneShotPreDrawListener shifter = null;
         public boolean shifted = false;
 

@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginHorizontal="12dp"
@@ -31,6 +32,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/posts_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:itemCount="2"
+        tools:listitem="@layout/cell_post" />
+
+    <TextView
+        android:id="@+id/text_accent"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:background="@drawable/ripple_item_background"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="@string/setting_theme_accent"
+        android:textColor="?android:textColorSecondary" />
 
 </LinearLayout>

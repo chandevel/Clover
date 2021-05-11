@@ -53,6 +53,7 @@ import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -466,14 +467,17 @@ public class ThemeSettingsController
                 }
 
                 @Override
-                public void onListStatusClicked() {
-                    showAccentColorPicker();
+                public void onListStatusClicked() {}
+            }, holder.theme) {
+                @Override
+                public boolean showStatusView() {
+                    return false;
                 }
-            }, holder.theme);
-            adapter.setThread(thread, null);
+            };
+            adapter.setThread(thread, new PostsFilter(PostsFilter.Order.BUMP, null));
             adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
-            adapter.showError(ThreadStatusCell.SPECIAL + getString(R.string.setting_theme_accent));
             holder.recyclerView.setAdapter(adapter);
+            holder.accentText.setOnClickListener((v) -> showAccentColorPicker());
 
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
@@ -530,12 +534,14 @@ public class ThemeSettingsController
                 extends RecyclerView.ViewHolder {
             private final Theme theme;
             private final RecyclerView recyclerView;
+            private final TextView accentText;
             private final Toolbar toolbar;
 
             public ThemePreviewHolder(Theme theme, @NonNull View itemView) {
                 super(itemView);
                 this.theme = theme;
                 recyclerView = itemView.findViewById(R.id.posts_recycler);
+                accentText = itemView.findViewById(R.id.text_accent);
                 toolbar = itemView.findViewById(R.id.theme_toolbar);
                 toolbar.setMenuDrawable(R.drawable.ic_fluent_paint_brush_20_filled);
             }

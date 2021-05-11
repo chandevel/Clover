@@ -108,10 +108,10 @@ public class ThreadListLayout
                 showingThread.getLoadable().listViewIndex = indexTop[0];
                 showingThread.getLoadable().listViewTop = indexTop[1];
 
-                if (getCompleteBottomAdapterPosition() == postAdapter.getItemCount() - 1) {
+                if(!recyclerView.canScrollVertically(1)){
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
                     // while in a layout pass. Postpone to the next frame.
-                    BackgroundUtils.runOnMainThread(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
+                    recyclerView.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
 
                 if (!(showingThread.getLoadable().site instanceof ExternalSiteArchive)) {
@@ -246,7 +246,6 @@ public class ThreadListLayout
             }
             setRecyclerViewPadding();
             recyclerView.setLayoutManager(layoutManager);
-            recyclerView.getRecycledViewPool().clear();
             recyclerView.setAdapter(postAdapter);
         }
     }
@@ -258,7 +257,6 @@ public class ThreadListLayout
             RecyclerView.LayoutManager prevManager = recyclerView.getLayoutManager();
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(prevManager);
-            recyclerView.getRecycledViewPool().clear();
 
             int index = thread.getLoadable().listViewIndex;
             int top = thread.getLoadable().listViewTop;
@@ -278,6 +276,7 @@ public class ThreadListLayout
 
         setFastScroll(true);
 
+        showError(null);
         postAdapter.setThread(thread, filter);
     }
 
@@ -361,7 +360,9 @@ public class ThreadListLayout
     }
 
     public void showError(String error) {
-        postAdapter.showError(error);
+        if (postAdapter.showStatusView()) {
+            postAdapter.notifyItemChanged(postAdapter.getItemCount() - 1, error);
+        }
     }
 
     public void openSearch(boolean open) {
@@ -680,16 +681,6 @@ public class ThreadListLayout
                 return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             case CARD:
                 return ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-        }
-        return -1;
-    }
-
-    private int getCompleteBottomAdapterPosition() {
-        switch (postViewMode) {
-            case LIST:
-                return ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
-            case CARD:
-                return ((GridLayoutManager) recyclerView.getLayoutManager()).findLastCompletelyVisibleItemPosition();
         }
         return -1;
     }

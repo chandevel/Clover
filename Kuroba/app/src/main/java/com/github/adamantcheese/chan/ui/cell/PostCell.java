@@ -199,7 +199,7 @@ public class PostCell
         comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
 
         replies.setTextSize(textSizeSp);
-        replies.setPadding(paddingPx, 0, paddingPx, paddingPx);
+        replies.setPadding(paddingPx, paddingPx/2, paddingPx, paddingPx);
 
         OnClickListener repliesClickListener = v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
