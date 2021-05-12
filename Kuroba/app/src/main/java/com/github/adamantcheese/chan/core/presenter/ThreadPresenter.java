@@ -556,8 +556,8 @@ public class ThreadPresenter
             // for card mode, only add the displayed image
             // otherwise add all images
             if (viewMode == PostViewMode.CARD) {
-                if (!post.deleted.get() || (post.image() != null && post.image().isInlined) || (post.image() != null
-                        && NetUtils.isCached(post.image().imageUrl))) {
+                if (post.image() == null) continue;
+                if (!post.deleted.get() || post.image().isInlined || NetUtils.isCached(post.image().imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(post.image());
                     if (post.image().equals(postImage)) {
