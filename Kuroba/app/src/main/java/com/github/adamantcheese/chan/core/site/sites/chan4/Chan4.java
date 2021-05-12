@@ -238,7 +238,9 @@ public class Chan4
                             } catch (Exception e) {
                                 alignmentsString = "";
                             }
-                            Pattern dimsPattern = Pattern.compile("\\.bfl\\{.*width:(\\d+)px;height:(\\d+)px;.*\\}");
+                            // for some reason, sometimes the css is returned with line separators; this deals with that weirdness
+                            Pattern dimsPattern = Pattern.compile(
+                                    "\\.bfl[\\s\\S ]*?\\{[\\s\\S ]*?width:.*?(\\d+)px;[\\s\\S ]*?height:.*?(\\d+)px;[\\s\\S ]*?\\}");
                             Matcher dimMatcher = dimsPattern.matcher(alignmentsString);
                             dimMatcher.find();
 
@@ -246,8 +248,9 @@ public class Chan4
                                     Math.abs(Integer.parseInt(dimMatcher.group(2)))
                             );
 
-                            Pattern flagPattern = Pattern.compile("\\.bfl-" + boardFlagCode
-                                            + "\\{background-position:-?(\\d+)(?:px)? -?(\\d+)(?:px)?\\}",
+                            Pattern flagPattern = Pattern.compile(
+                                    "\\.bfl-" + boardFlagCode
+                                            + "[\\s\\S ]*?\\{[\\s\\S ]*?background-position:.*?(\\d+)(?:px)? .*?(\\d+)(?:px)?[\\s\\S ]*?\\}",
                                     Pattern.CASE_INSENSITIVE
                             );
                             Matcher flagMatcher = flagPattern.matcher(alignmentsString);
@@ -260,7 +263,7 @@ public class Chan4
                                     .encodedFragment(flagMatcher.group())
                                     .build(), new NetUtilsClasses.CroppingBitmapResult(origin, dims));
                         } catch (Exception e) {
-                            return new Pair<>(iconBuilder.addPathSegment(boardFlagCode).addPathSegment(".gif").build(),
+                            return new Pair<>(iconBuilder.addPathSegment(boardFlagCode + ".gif").build(),
                                     new PassthroughBitmapResult()
                             );
                         }
