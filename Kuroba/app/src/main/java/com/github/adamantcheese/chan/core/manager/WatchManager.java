@@ -519,7 +519,7 @@ public class WatchManager
     private void updateStateInternal(boolean watchEnabled, boolean backgroundEnabled) {
         BackgroundUtils.ensureMainThread();
 
-        Logger.d(this,
+        Logger.vd(this,
                 "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
                         + isInForeground()
         );
@@ -672,7 +672,7 @@ public class WatchManager
 
     // Update the watching pins
     private void update(boolean fromBackground) {
-        Logger.d(this, "update() from " + (fromBackground ? "background" : "foreground"));
+        Logger.vd(this, "update from " + (fromBackground ? "background" : "foreground"));
 
         if (currentInterval == FOREGROUND) {
             // reschedule handler message
@@ -918,8 +918,7 @@ public class WatchManager
                 }
             }
 
-            if (BuildConfig.DEBUG) {
-                Logger.d(this, String.format(
+                Logger.vd(this, String.format(
                         Locale.ENGLISH,
                         "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
                         pin.watchLastCount,
@@ -930,7 +929,6 @@ public class WatchManager
                         wereNewQuotes,
                         chanLoader.getTimeUntilLoadMore() / 1000
                 ));
-            }
 
             if (thread.isArchived() || thread.isClosed()) {
                 pin.archived = true;
