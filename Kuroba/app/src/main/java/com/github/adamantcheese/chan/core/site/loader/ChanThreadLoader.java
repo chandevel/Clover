@@ -263,6 +263,7 @@ public class ChanThreadLoader {
                     }
                 },
                 new ChanReaderParser(loadable, cachedClones, null),
+                // todo change this so that If-Modified-Since takes care of stuff
                 // cache this for the amount of time of the current timeout, minus a second to ensure it is purged upon the next request
                 new CacheControl.Builder().maxAge(WATCH_TIMEOUTS[Math.max(0, currentTimeout)] - 1, TimeUnit.SECONDS)
                         .build()

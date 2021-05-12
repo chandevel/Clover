@@ -232,6 +232,9 @@ public class EmbeddingEngine
             List<PostImage> generatedImages,
             InvalidateFunction invalidateFunction
     ) {
+        // check if we need to do any processing to invalidate, as a shortcut
+        if (generatedImages.isEmpty() && generatedLinkables.isEmpty()) return;
+
         // clear out any overlapping embed postlinkables from the generated set
         // split up auto/embed links
         List<PostLinkable> autolinks = new ArrayList<>();
@@ -407,7 +410,7 @@ public class EmbeddingEngine
             @Override
             public void onSuccess(EmbedResult result) {
                 //got a result, replace with the result and also cache the result
-                if(embedder.shouldCacheResults()) {
+                if (embedder.shouldCacheResults()) {
                     videoTitleDurCache.put(URL, result);
                 }
                 performStandardEmbedding(theme,
@@ -415,7 +418,8 @@ public class EmbeddingEngine
                         generatedLinkables,
                         generatedImages,
                         result,
-                        URL, embedder.getIconBitmap()
+                        URL,
+                        embedder.getIconBitmap()
                 );
             }
         };

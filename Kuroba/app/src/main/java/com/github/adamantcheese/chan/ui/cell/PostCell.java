@@ -74,7 +74,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -199,7 +198,7 @@ public class PostCell
         comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
 
         replies.setTextSize(textSizeSp);
-        replies.setPadding(paddingPx, paddingPx/2, paddingPx, paddingPx);
+        replies.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
 
         OnClickListener repliesClickListener = v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
@@ -692,8 +691,9 @@ public class PostCell
             final PostImage image = post.images.get(position);
             thumbnailView.setPostImage(image, getThumbnailSize(holder.itemView.getContext()));
 
+            final Post internalPost = post;
             thumbnailView.setOnClickListener(v -> {
-                if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+                if (!internalPost.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
                     callback.onThumbnailClicked(image, thumbnailView);
                 }
             });
@@ -724,8 +724,7 @@ public class PostCell
 
         @Override
         public long getItemId(int position) {
-            PostImage image = post.images.get(position);
-            return Objects.hash(image.imageUrl, image.thumbnailUrl);
+            return post.images.get(position).hashCode();
         }
     }
 
