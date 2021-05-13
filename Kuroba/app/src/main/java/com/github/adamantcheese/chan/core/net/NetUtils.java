@@ -156,11 +156,12 @@ public class NetUtils {
                     StringUtils.fileNameRemoveBadCharacters(filename) + "." + fileExt
             );
             tempFile.getParentFile().mkdirs();
+            long contentLength = response.body().contentLength();
             try (InputStream is = response.body().byteStream()) {
                 IOUtils.writeToFile(is, tempFile, -1);
             } catch (Exception ignored) {}
 
-            if (response.body().contentLength() != tempFile.length()) {
+            if (contentLength != tempFile.length()) {
                 throw new IOException(
                         "File sizes don't match! Expected:" + response.body().contentLength() + ", Actual: "
                                 + tempFile.length());
