@@ -59,7 +59,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public abstract class ThumbnailView
         extends View
         implements NetUtilsClasses.BitmapResult {
-    private HttpUrl url;
+    private HttpUrl bitmapUrl;
     private Call bitmapCall;
     private OneShotPreDrawListener drawListener;
     private final boolean circular;
@@ -137,22 +137,19 @@ public abstract class ThumbnailView
      * @param maxDimension <0 for this view's width, 0 for exact bitmap dimension, >0 for scaled dimension
      */
     public void setUrl(final HttpUrl url, int maxDimension) {
-        this.url = url;
-        if (this.url == null) {
+        bitmapUrl = url;
+
+        clearCalls();
+
+        if (url == null) {
             setImageBitmap(BitmapRepository.empty, false);
             return;
         }
 
         if (maxDimension < 0) {
             drawListener = OneShotPreDrawListener.add(this, () -> {
-                // consistency check for the predraw, this may have changed
-                // don't even start a call if the currently set URL not longer equals the one that called this function
-                if (this.url != null && this.url.equals(url)) {
-                    int dim = Math.max(getWidth(), getHeight());
-                    bitmapCall = NetUtils.makeBitmapRequest(this.url, this, dim, dim);
-                } else {
-                    clearCalls();
-                }
+                int dim = Math.max(getWidth(), getHeight());
+                bitmapCall = NetUtils.makeBitmapRequest(bitmapUrl, this, dim, dim);
             });
         } else {
             bitmapCall = NetUtils.makeBitmapRequest(url, this, maxDimension, maxDimension);
@@ -161,24 +158,30 @@ public abstract class ThumbnailView
 
     @Override
     public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-        if (e instanceof NetUtilsClasses.HttpCodeException) {
-            errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
-        } else {
-            errorText = getString(R.string.thumbnail_load_failed_network);
+        // consistency check for the call, this may have changed
+        // don't set an error that doesn't match the URL we currently have set
+        if (source.equals(bitmapUrl)) {
+            if (e instanceof NetUtilsClasses.HttpCodeException) {
+                errorText = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
+            } else {
+                errorText = getString(R.string.thumbnail_load_failed_network);
+            }
+            clearCalls();
         }
-        fadeIn.end();
     }
 
     @Override
     public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
         // consistency check for the call, this may have changed
         // don't set a bitmap that doesn't match the URL we currently have set
-        if (source.equals(url)) {
+        if (source.equals(bitmapUrl)) {
             setImageBitmap(bitmap, !fromCache);
         }
     }
 
     private void clearCalls() {
+        fadeIn.end();
+
         if (bitmapCall != null) {
             bitmapCall.cancel();
             bitmapCall = null;

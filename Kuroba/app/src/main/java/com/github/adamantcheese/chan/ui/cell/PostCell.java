@@ -313,10 +313,9 @@ public class PostCell
         }
 
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
-            thumbnailViews.setAdapter(null);
             thumbnailViews.setVisibility(GONE);
         } else {
-            thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
+            thumbnailViews.setAdapter(new PostImagesAdapter());
             thumbnailViews.setVisibility(VISIBLE);
         }
 
@@ -531,14 +530,14 @@ public class PostCell
         boolean shiftBelowThumb = wrapHeight > 2 * thumbnailViewsHeight;
         boolean shift = post != null && (post.images.size() == 1 || (post.images.size() > 1
                 && headerHeight > thumbnailViewsHeight / 2));
-        if (shift && !shiftLeftThumb && shiftBelowThumb) {
-            bodyWrapper.setLayoutParams(SHIFT_BELOW_PARAMS);
-        } else if (shift && shiftLeftThumb) {
-            bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
-        } else {
-            bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
+        if (shift) {
+            if (!shiftLeftThumb && shiftBelowThumb) {
+                bodyWrapper.setLayoutParams(SHIFT_BELOW_PARAMS);
+            } else if (shiftLeftThumb) {
+                bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
+            }
+            requestLayout();
         }
-        requestLayout();
     }
 
     private final String[] dubTexts =
@@ -562,6 +561,7 @@ public class PostCell
     @Override
     public void unsetPost() {
         icons.cancelRequests();
+        thumbnailViews.setAdapter(null);
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);

@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -171,16 +170,15 @@ public class PostAdapter
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (loadable == null) {
+            throw new IllegalStateException("Loadable cannot be null");
+        }
+        Post post = position == displayList.size() ? null : displayList.get(position);
         CellType cellType = CellType.values()[getItemViewType(position)];
         switch (cellType) {
             case TYPE_POST:
-            case TYPE_POST_STUB:
-                if (loadable == null) {
-                    throw new IllegalStateException("Loadable cannot be null");
-                }
-
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
-                Post post = displayList.get(position);
+
                 ((PostCellInterface) postViewHolder.itemView).setPost(loadable,
                         post,
                         postCellCallback,
@@ -193,12 +191,12 @@ public class PostAdapter
                 boolean embedInProgress = EmbeddingEngine.getInstance()
                         .embed(theme, post, () -> recyclerView.post(() -> notifyItemChanged(position)));
                 // no embeds
-                if (cellType == TYPE_POST && !embedInProgress) {
+                if (!embedInProgress) {
                     holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
                 }
                 // PostCell with shift on and no embedding and not yet shifted gets a predraw listener to shift stuff (this will occur after embedding, if any)
-                if (cellType == TYPE_POST && postViewMode == LIST && ChanSettings.shiftPostFormat.get()
-                        && !embedInProgress && !postViewHolder.shifted) {
+                if (postViewMode == LIST && ChanSettings.shiftPostFormat.get() && !embedInProgress
+                        && !postViewHolder.shifted) {
                     if (postViewHolder.shifter != null) {
                         postViewHolder.shifter.removeListener();
                     }
@@ -206,11 +204,22 @@ public class PostAdapter
                         postViewHolder.shifted = true;
                         PostCell cell = (PostCell) postViewHolder.itemView;
                         cell.doShiftPostFormatting();
-                        recyclerView.post(() -> notifyItemChanged(position));
                     });
                 }
 
-                if (cellType == TYPE_POST_STUB && postAdapterCallback != null) {
+                break;
+            case TYPE_POST_STUB:
+                PostViewHolder postStubViewHolder = (PostViewHolder) holder;
+                ((PostCellInterface) postStubViewHolder.itemView).setPost(loadable,
+                        post,
+                        postCellCallback,
+                        isInPopup(),
+                        shouldHighlight(post),
+                        isCompact(),
+                        theme
+                );
+
+                if (postAdapterCallback != null) {
                     holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                 }
                 break;
@@ -446,7 +455,8 @@ public class PostAdapter
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         // also don't show the status view if there's a search query going
-        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.getQuery()) && loadable != null && loadable.isThreadMode();
+        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.getQuery()) && loadable != null
+                && loadable.isThreadMode();
     }
 
     public static class PostViewHolder
