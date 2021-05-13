@@ -150,7 +150,7 @@ public class PostIcons
                     if (httpIcon.bitmap != null) {
                         offset += drawBitmap(canvas, httpIcon.bitmap, offset);
 
-                        if (!get(HTTP_ICONS_FLAG_NO_TEXT)) {
+                        if (get(HTTP_ICONS_FLAG_TEXT)) {
                             textPaint.setColor(httpIconTextColor);
                             textPaint.setTextSize(httpIconTextSize);
                             textPaint.getTextBounds(httpIcon.name, 0, httpIcon.name.length(), textRect);
@@ -167,9 +167,13 @@ public class PostIcons
     }
 
     private int drawBitmap(Canvas canvas, Bitmap bitmap, int offset) {
-        int width = (int) (((float) height / bitmap.getHeight()) * bitmap.getWidth());
+        int width = getScaledWidth(bitmap);
         drawRect.set(offset, 0f, offset + width, height);
         canvas.drawBitmap(bitmap, null, drawRect, null);
         return width + spacing;
+    }
+
+    private int getScaledWidth(Bitmap bitmap) {
+        return (int) (((float) height / bitmap.getHeight()) * bitmap.getWidth());
     }
 }

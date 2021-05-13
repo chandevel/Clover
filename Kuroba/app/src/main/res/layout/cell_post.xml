@@ -61,7 +61,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 tools:text="Title for the thread"
                 tools:textColor="?post_details_color" />
 
-
             <com.github.adamantcheese.chan.ui.cell.PostIcons
                 android:id="@+id/icons"
                 android:layout_width="match_parent"

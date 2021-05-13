@@ -88,8 +88,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/replies"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="?android:textColorSecondary"
                 tools:text="2 replies, 1 image" />
 
