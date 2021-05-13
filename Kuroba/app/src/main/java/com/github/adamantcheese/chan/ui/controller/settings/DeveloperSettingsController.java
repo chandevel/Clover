@@ -79,17 +79,9 @@ public class DeveloperSettingsController
         logsButton.setText(R.string.settings_open_logs);
         wrapper.addView(logsButton);
 
-        // Debug filters (highlights matches in comments)
-        Switch debugFiltersSwitch = new Switch(context);
-        debugFiltersSwitch.setText("Highlight filters; tap highlight to see matched filter");
-        debugFiltersSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
-        debugFiltersSwitch.setChecked(ChanSettings.debugFilters.get());
-        debugFiltersSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.debugFilters.toggle());
-        wrapper.addView(debugFiltersSwitch);
-
         // Enable/Disable verbose logs
         Switch verboseLogsSwitch = new Switch(context);
-        verboseLogsSwitch.setText("Verbose downloader logs");
+        verboseLogsSwitch.setText("Verbose logging");
         verboseLogsSwitch.setTextColor(getAttrColor(context, android.R.attr.textColor));
         verboseLogsSwitch.setChecked(ChanSettings.verboseLogs.get());
         verboseLogsSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.verboseLogs.toggle());

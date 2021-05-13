@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
@@ -59,6 +60,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -124,7 +126,22 @@ public class FiltersController
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
-        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked).build();
+        navigation.buildMenu()
+                .withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked)
+                .withItem(ChanSettings.debugFilters.get()
+                        ? R.drawable.ic_fluent_highlight_24_filled
+                        : R.drawable.ic_fluent_highlight_24_regular, (item) -> {
+                    ChanSettings.debugFilters.toggle();
+                    item.setImage(ChanSettings.debugFilters.get()
+                            ? R.drawable.ic_fluent_highlight_24_filled
+                            : R.drawable.ic_fluent_highlight_24_regular);
+                    showToast(context,
+                            "Filter debugging turned " + (ChanSettings.debugFilters.get()
+                                    ? "on; tap highlighted text to see matched filter."
+                                    : "off.")
+                    );
+                })
+                .build();
 
         adapter = new FilterAdapter();
 
