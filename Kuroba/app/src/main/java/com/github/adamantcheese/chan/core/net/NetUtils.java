@@ -30,6 +30,7 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -155,7 +156,9 @@ public class NetUtils {
                     StringUtils.fileNameRemoveBadCharacters(filename) + "." + fileExt
             );
             tempFile.getParentFile().mkdirs();
-            IOUtils.writeToFile(response.body().byteStream(), tempFile, -1);
+            try (InputStream is = response.body().byteStream()) {
+                IOUtils.writeToFile(is, tempFile, -1);
+            } catch (Exception ignored) {}
 
             if (response.body().contentLength() != tempFile.length()) {
                 throw new IOException(
