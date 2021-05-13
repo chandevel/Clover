@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
 
+import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.EMBED;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.JAVASCRIPT;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
 import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
@@ -89,7 +90,7 @@ public class PostLinkable
     @Override
     public void updateDrawState(@NonNull TextPaint ds) {
         if (type != SPOILER) {
-            ds.setColor(type == LINK || type == JAVASCRIPT ? ds.linkColor : quoteColor);
+            ds.setColor(type == LINK || type == EMBED || type == JAVASCRIPT ? ds.linkColor : quoteColor);
             ds.setUnderlineText(true);
             ds.setFakeBoldText(false);
             ds.setTextScaleX(1.0f);
