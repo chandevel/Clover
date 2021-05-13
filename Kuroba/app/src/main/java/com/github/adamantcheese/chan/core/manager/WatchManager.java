@@ -690,8 +690,6 @@ public class WatchManager
         for (Pin pin : watchingPins) {
             PinWatcher pinWatcher = getPinWatcher(pin);
             if (pinWatcher != null && pinWatcher.update(fromBackground)) {
-                postToEventBus(new PinMessages.PinChangedMessage(pin));
-
                 if (fromBackground) {
                     waitingForPinWatchersForBackgroundUpdate.add(pinWatcher);
                 }
