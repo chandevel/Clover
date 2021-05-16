@@ -79,7 +79,6 @@ import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefa
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -87,7 +86,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ThemeSettingsController
         extends Controller {
 
-    private static final int TOGGLE_ID = 1;
     private final Loadable dummyLoadable = Loadable.emptyLoadable();
 
     {
@@ -184,12 +182,9 @@ public class ThemeSettingsController
         NavigationItem.MenuBuilder builder =
                 navigation.buildMenu().withItem(R.drawable.ic_fluent_question_circle_24_regular, this::helpClicked);
         if (isAndroid10()) {
-            builder.withItem(TOGGLE_ID,
-                    ThemeHelper.isNightTheme
-                            ? R.drawable.ic_fluent_weather_moon_24_filled
-                            : R.drawable.ic_fluent_weather_sunny_24_filled,
-                    this::dayNightToggle
-            );
+            builder.withItem(ThemeHelper.isNightTheme
+                    ? R.drawable.ic_fluent_weather_moon_24_filled
+                    : R.drawable.ic_fluent_weather_sunny_24_filled, this::dayNightToggle);
         }
         builder.build();
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_theme, null);
@@ -267,10 +262,10 @@ public class ThemeSettingsController
 
         //toggle toolbar item
         if (ThemeHelper.isNightTheme) {
-            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_fluent_weather_sunny_24_filled);
+            item.setImage(R.drawable.ic_fluent_weather_sunny_24_filled);
             ThemeHelper.isNightTheme = false;
         } else {
-            navigation.findItem(TOGGLE_ID).setImage(R.drawable.ic_fluent_weather_moon_24_filled);
+            item.setImage(R.drawable.ic_fluent_weather_moon_24_filled);
             ThemeHelper.isNightTheme = true;
         }
         navigationController.getToolbar().updateViewForItem(navigation);

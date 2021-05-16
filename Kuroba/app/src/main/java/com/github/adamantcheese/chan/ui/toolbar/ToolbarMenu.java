@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ToolbarMenu {
-    public static final int OVERFLOW_ID = 1000;
+    public static final int OVERFLOW_ID = Integer.MAX_VALUE;
 
     public final List<ToolbarMenuItem> items = new ArrayList<>();
 
@@ -37,8 +37,12 @@ public class ToolbarMenu {
         return null;
     }
 
+    public ToolbarMenuItem findOverflow() {
+        return findItem(OVERFLOW_ID);
+    }
+
     public ToolbarMenuSubItem findSubItem(int id) {
-        ToolbarMenuItem overflow = findItem(OVERFLOW_ID);
+        ToolbarMenuItem overflow = findOverflow();
         if (overflow != null) {
             for (ToolbarMenuSubItem subItem : overflow.subItems) {
                 if (subItem.id == id) {

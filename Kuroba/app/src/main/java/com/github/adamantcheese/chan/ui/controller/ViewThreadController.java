@@ -65,11 +65,17 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 public class ViewThreadController
         extends ThreadController
         implements ThreadLayout.ThreadLayoutCallback, ArchivesLayout.Callback, ToolbarMenuItem.OverflowMenuCallback {
-    private static final int ALBUM_ID = 1;
-    private static final int PIN_ID = 2;
-    private static final int REPLY_ID = 3;
-    private static final int ARCHIVE_ID = 4;
-    private static final int REMOVED_ID = 5;
+
+    private enum MenuId {
+        ALBUM,
+        PIN
+    }
+
+    private enum OverflowMenuId {
+        REPLY,
+        VIEW_ARCHIVE,
+        VIEW_REMOVED
+    }
 
     @Inject
     WatchManager watchManager;
@@ -105,14 +111,14 @@ public class ViewThreadController
         NavigationItem.MenuBuilder menuBuilder = navigation.buildMenu();
 
         if (!ChanSettings.textOnly.get()) {
-            menuBuilder.withItem(ALBUM_ID, R.drawable.ic_fluent_image_24_filled, this::albumClicked);
+            menuBuilder.withItem(MenuId.ALBUM, R.drawable.ic_fluent_image_24_filled, this::albumClicked);
         }
-        menuBuilder.withItem(PIN_ID, R.drawable.ic_fluent_bookmark_24_regular, this::pinClicked);
+        menuBuilder.withItem(MenuId.PIN, R.drawable.ic_fluent_bookmark_24_regular, this::pinClicked);
 
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
         if (!ChanSettings.enableReplyFab.get()) {
-            menuOverflowBuilder.withSubItem(REPLY_ID, R.string.action_reply, () -> threadLayout.openReply(true));
+            menuOverflowBuilder.withSubItem(OverflowMenuId.REPLY, R.string.action_reply, () -> threadLayout.openReply(true));
         }
 
         menuOverflowBuilder.withSubItem(R.string.action_search,
@@ -120,12 +126,12 @@ public class ViewThreadController
         )
                 .withSubItem(R.string.action_reload, () -> threadLayout.getPresenter().requestData());
         if (loadable.site instanceof Chan4) { //archives are 4chan only
-            menuOverflowBuilder.withSubItem(ARCHIVE_ID,
+            menuOverflowBuilder.withSubItem(OverflowMenuId.VIEW_ARCHIVE,
                     R.string.thread_view_external_archive,
                     () -> threadLayout.getPresenter().showArchives(loadable, loadable.no)
             );
         }
-        menuOverflowBuilder.withSubItem(REMOVED_ID,
+        menuOverflowBuilder.withSubItem(OverflowMenuId.VIEW_REMOVED,
                 R.string.view_removed_posts,
                 () -> threadLayout.getPresenter().showRemovedPostsDialog()
         )
@@ -278,22 +284,22 @@ public class ViewThreadController
         navigation.title = loadable.title;
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
 
-        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ID);
+        ToolbarMenuSubItem reply = navigation.findSubItem(OverflowMenuId.REPLY);
         if (reply != null) {
             reply.enabled = loadable.site.siteFeature(Site.SiteFeature.POSTING);
         }
 
-        ToolbarMenuSubItem archives = navigation.findSubItem(ARCHIVE_ID);
+        ToolbarMenuSubItem archives = navigation.findSubItem(OverflowMenuId.VIEW_ARCHIVE);
         if (archives != null) {
             archives.enabled = loadable.site instanceof Chan4;
         }
 
-        ToolbarMenuSubItem removed = navigation.findSubItem(REMOVED_ID);
+        ToolbarMenuSubItem removed = navigation.findSubItem(OverflowMenuId.VIEW_REMOVED);
         if (removed != null) {
             removed.enabled = !(loadable.site instanceof ExternalSiteArchive);
         }
 
-        ToolbarMenuItem item = navigation.findItem(PIN_ID);
+        ToolbarMenuItem item = navigation.findItem(MenuId.PIN);
         item.setVisible(!(loadable.site instanceof ExternalSiteArchive));
         ((ToolbarNavigationController) navigationController).toolbar.invalidate();
 
@@ -346,12 +352,12 @@ public class ViewThreadController
                 .setText("Swipe right to access bookmarks and settings")
                 .build();
 
-        Balloon chain1 = drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(PIN_ID).getView());
+        Balloon chain1 = drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(MenuId.PIN).getView());
         Balloon chain2 = chain1;
         if (!ChanSettings.textOnly.get()) {
-            chain2 = chain1.relayShowAlignBottom(albumHint, navigation.findItem(ALBUM_ID).getView());
+            chain2 = chain1.relayShowAlignBottom(albumHint, navigation.findItem(MenuId.ALBUM).getView());
         }
-        chain2.relayShowAlignBottom(scrollHint, navigation.findItem(OVERFLOW_ID).getView());
+        chain2.relayShowAlignBottom(scrollHint, navigation.findOverflow().getView());
         drawerHint.showAlignRight(drawer);
     }
 
@@ -408,7 +414,7 @@ public class ViewThreadController
         if (loadable == null) return;
         Pin pin = watchManager.findPinByLoadableId(loadable.id);
 
-        ToolbarMenuItem menuItem = navigation.findItem(PIN_ID);
+        ToolbarMenuItem menuItem = navigation.findItem(MenuId.PIN);
         if (menuItem == null) {
             return;
         }

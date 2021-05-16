@@ -102,7 +102,7 @@ public class MultiImageView
     private SimpleExoPlayer exoPlayer;
 
     private boolean hasContent = false;
-    private boolean transparentBackground = ChanSettings.transparencyOn.get();
+    private boolean requestedBackgroundOpacity = ChanSettings.useOpaqueBackgrounds.get();
     private boolean imageAlreadySaved = false;
     private final GestureDetector gestureDetector;
     private final View exoClickHandler;
@@ -155,7 +155,7 @@ public class MultiImageView
             switch (newMode) {
                 case LOWRES:
                     setThumbnail(center);
-                    transparentBackground = ChanSettings.transparencyOn.get();
+                    requestedBackgroundOpacity = ChanSettings.useOpaqueBackgrounds.get();
                     break;
                 case BIGIMAGE:
                     setBigImage();
@@ -443,7 +443,6 @@ public class MultiImageView
         view.setOnClickListener(null);
         view.setOnTouchListener((view1, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
         onModeLoaded(Mode.GIFIMAGE, view);
-        toggleTransparency();
     }
 
     private static final ProgressiveMediaSource.Factory okHttpFactory =
@@ -505,26 +504,33 @@ public class MultiImageView
         }
     }
 
-    public void toggleTransparency() {
-        transparentBackground = !transparentBackground;
-        // these colors are specific to 4chan for the time being
-        final int BACKGROUND_COLOR_SFW = Color.argb(255, 214, 218, 240);
-        final int BACKGROUND_COLOR_SFW_OP = Color.argb(255, 238, 242, 255);
-        final int BACKGROUND_COLOR_NSFW = Color.argb(255, 240, 224, 214);
-        final int BACKGROUND_COLOR_NSFW_OP = Color.argb(255, 255, 255, 238);
+    // these colors are specific to 4chan for the time being
+    private static final int BACKGROUND_COLOR_SFW = Color.argb(255, 214, 218, 240);
+    private static final int BACKGROUND_COLOR_SFW_OP = Color.argb(255, 238, 242, 255);
+    private static final int BACKGROUND_COLOR_NSFW = Color.argb(255, 240, 224, 214);
+    private static final int BACKGROUND_COLOR_NSFW_OP = Color.argb(255, 255, 255, 238);
+
+    public void toggleOpacity() {
+        View activeView = getActiveView();
+        if (!(activeView instanceof CustomScaleImageView || activeView instanceof GifImageView)) {
+            callback.onOpacityChanged(this, false, requestedBackgroundOpacity);
+            return;
+        }
+
         int boardColor = callback.getLoadable().board.workSafe
                 ? (op ? BACKGROUND_COLOR_SFW_OP : BACKGROUND_COLOR_SFW)
                 : (op ? BACKGROUND_COLOR_NSFW_OP : BACKGROUND_COLOR_NSFW);
-        View activeView = getActiveView();
-        if (!(activeView instanceof CustomScaleImageView || activeView instanceof GifImageView)) return;
-        boolean isImage = activeView instanceof CustomScaleImageView;
-        int backgroundColor = !transparentBackground ? Color.TRANSPARENT : boardColor;
-        if (isImage) {
-            ((CustomScaleImageView) activeView).setTileBackgroundColor(backgroundColor);
+        int newBackgroundColor = requestedBackgroundOpacity ? boardColor : Color.TRANSPARENT;
+
+        if (activeView instanceof CustomScaleImageView) {
+            ((CustomScaleImageView) activeView).setTileBackgroundColor(newBackgroundColor);
         } else {
             ((GifImageView) activeView).getDrawable()
-                    .setColorFilter(new PorterDuffColorFilter(backgroundColor, PorterDuff.Mode.DST_OVER));
+                    .setColorFilter(new PorterDuffColorFilter(newBackgroundColor, PorterDuff.Mode.DST_OVER));
         }
+
+        callback.onOpacityChanged(this, true, requestedBackgroundOpacity);
+        requestedBackgroundOpacity = !requestedBackgroundOpacity;
     }
 
     private void setBitImageFileInternal(Buffer buffer, boolean tiling) {
@@ -539,7 +545,6 @@ public class MultiImageView
                 if (!hasContent || mode == Mode.BIGIMAGE) {
                     callback.hideProgress(MultiImageView.this);
                     onModeLoaded(Mode.BIGIMAGE, image);
-                    toggleTransparency();
                 }
             }
 
@@ -652,6 +657,7 @@ public class MultiImageView
 
         hasContent = true;
         callback.onModeLoaded(this, mode);
+        toggleOpacity();
     }
 
     @Override
@@ -684,6 +690,8 @@ public class MultiImageView
         void onModeLoaded(MultiImageView multiImageView, Mode mode);
 
         void onAudioLoaded(MultiImageView multiImageView);
+
+        void onOpacityChanged(MultiImageView multiImageView, boolean hasOpacity, boolean opaque);
 
         void hideProgress(MultiImageView multiImageView);
 

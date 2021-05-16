@@ -285,9 +285,16 @@ public class AppearanceSettingsController
             )));
 
             images.add(new BooleanSettingView(this,
-                    ChanSettings.transparencyOn,
-                    "Image opacity",
-                    "Default state for image transparency in the viewer"
+                    ChanSettings.useOpaqueBackgrounds,
+                    "Image opacity default state",
+                    "Set image backgrounds to be opaque rather than transparent by default"
+            ));
+
+            images.add(new BooleanSettingView(
+                    this,
+                    ChanSettings.opacityMenuItem,
+                    "Opacity menu item",
+                    "Move the transparency toggle for images into the toolbar"
             ));
 
             images.add(new BooleanSettingView(this,

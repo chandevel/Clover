@@ -36,6 +36,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.OneShotPreDrawListener;
 
@@ -96,8 +97,11 @@ public class ImageViewerController
                    ToolbarNavigationController.ToolbarSearchCallback {
     private static final float TRANSITION_FINAL_ALPHA = 0.85f;
 
-    private static final int VOLUME_ID = 1;
-    private static final int SAVE_ID = 2;
+    private enum MenuId {
+        VOLUME,
+        OPACITY,
+        SAVE
+    }
 
     @Inject
     ImageSaver imageSaver;
@@ -138,17 +142,27 @@ public class ImageViewerController
             menuBuilder.withItem(R.drawable.ic_fluent_arrow_reply_down_20_filled, this::goPostClicked);
         }
 
-        menuBuilder.withItem(VOLUME_ID, R.drawable.ic_fluent_speaker_off_24_filled, this::volumeClicked);
-        menuBuilder.withItem(SAVE_ID, R.drawable.ic_fluent_arrow_download_24_filled, this::saveClicked);
+        NavigationItem.MenuBuilder builder =
+                menuBuilder.withItem(MenuId.VOLUME, R.drawable.ic_fluent_speaker_off_24_filled, this::volumeClicked);
+        if (ChanSettings.opacityMenuItem.get()) {
+            builder.withItem(MenuId.OPACITY,
+                    ChanSettings.useOpaqueBackgrounds.get()
+                            ? R.drawable.ic_fluent_drop_24_filled
+                            : R.drawable.ic_fluent_drop_24_regular,
+                    this::opacityClicked
+            );
+        }
+        builder.withItem(MenuId.SAVE, R.drawable.ic_fluent_arrow_download_24_filled, this::saveClicked);
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this);
-        overflowBuilder.withSubItem(R.string.action_open_browser, this::openBrowserClicked);
-        overflowBuilder.withSubItem(R.string.action_share, () -> saveShare(true));
-        overflowBuilder.withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation));
-        overflowBuilder.withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
-        overflowBuilder.withSubItem(R.string.action_transparency_toggle,
-                () -> ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage())
-        );
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this)
+                .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
+                .withSubItem(R.string.action_share, () -> saveShare(true))
+                .withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation))
+                .withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
+
+        if (!ChanSettings.opacityMenuItem.get()) {
+            overflowBuilder.withSubItem(R.string.action_transparency_toggle, () -> this.opacityClicked(null));
+        }
 
         overflowBuilder.build().build();
 
@@ -210,11 +224,15 @@ public class ImageViewerController
         }
     }
 
-    private void volumeClicked(ToolbarMenuItem item) {
+    private void volumeClicked(@Nullable ToolbarMenuItem item) {
         presenter.onVolumeClicked();
     }
 
-    private void saveClicked(ToolbarMenuItem item) {
+    private void opacityClicked(@Nullable ToolbarMenuItem item) {
+        ((ImageViewerAdapter) pager.getAdapter()).toggleTransparency(presenter.getCurrentPostImage());
+    }
+
+    private void saveClicked(@NonNull ToolbarMenuItem item) {
         item.setEnabled(false);
         saveShare(false);
 
@@ -410,16 +428,27 @@ public class ImageViewerController
 
     @Override
     public void showVolumeMenuItem(boolean show, boolean muted) {
-        ToolbarMenuItem volumeMenuItem = navigation.findItem(VOLUME_ID);
+        ToolbarMenuItem volumeMenuItem = navigation.findItem(MenuId.VOLUME);
         volumeMenuItem.setVisible(show);
         volumeMenuItem.setImage(muted
                 ? R.drawable.ic_fluent_speaker_off_24_filled
-                : R.drawable.ic_fluent_speaker_24_filled);
+                : R.drawable.ic_fluent_speaker_2_24_filled);
+    }
+
+    @Override
+    public void showOpacityMenuItem(boolean show, boolean opaque) {
+        ToolbarMenuItem opacityMenuItem = navigation.findItem(MenuId.OPACITY);
+        if (opacityMenuItem != null) {
+            opacityMenuItem.setVisible(show);
+            opacityMenuItem.setImage(opaque
+                    ? R.drawable.ic_fluent_drop_24_filled
+                    : R.drawable.ic_fluent_drop_24_regular);
+        }
     }
 
     @Override
     public void showDownloadMenuItem(boolean show) {
-        ToolbarMenuItem saveItem = navigation.findItem(SAVE_ID);
+        ToolbarMenuItem saveItem = navigation.findItem(MenuId.SAVE);
         if (saveItem != null) {
             saveItem.setEnabled(show);
         }

@@ -55,9 +55,11 @@ public class BrowseController
         extends ThreadController
         implements ThreadLayout.ThreadLayoutCallback, BrowsePresenter.Callback, BrowseBoardsFloatingMenu.ClickCallback,
                    ThreadSlideController.SlideChangeListener {
-    private static final int VIEW_MODE_ID = 1;
-    private static final int ARCHIVE_ID = 2;
-    private static final int REPLY_ITEM_ID = 3;
+    private enum OverflowMenuId {
+        VIEW_MODE,
+        ARCHIVE,
+        REPLY
+    }
 
     @Inject
     BrowsePresenter presenter;
@@ -122,11 +124,11 @@ public class BrowseController
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
-            overflowBuilder.withSubItem(REPLY_ITEM_ID, R.string.action_reply, () -> threadLayout.openReply(true));
+            overflowBuilder.withSubItem(OverflowMenuId.REPLY, R.string.action_reply, () -> threadLayout.openReply(true));
         }
 
         overflowBuilder.withSubItem(
-                VIEW_MODE_ID,
+                OverflowMenuId.VIEW_MODE,
                 ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
@@ -137,7 +139,7 @@ public class BrowseController
             overflowBuilder.withSubItem(R.string.action_sort, () -> handleSorting(null));
         }
 
-        overflowBuilder.withSubItem(ARCHIVE_ID, R.string.thread_view_local_archive, this::openArchive)
+        overflowBuilder.withSubItem(OverflowMenuId.ARCHIVE, R.string.thread_view_local_archive, this::openArchive)
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.getPresenter().scrollTo(0, false))
@@ -225,7 +227,7 @@ public class BrowseController
         int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST
                 ? R.string.action_switch_catalog
                 : R.string.action_switch_board;
-        navigation.findSubItem(VIEW_MODE_ID).text = getString(viewModeText);
+        navigation.findSubItem(OverflowMenuId.VIEW_MODE).text = getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
     }
@@ -266,7 +268,7 @@ public class BrowseController
 
             items.add(new FloatingMenuItem<>(order, name));
         }
-        ToolbarMenuItem overflow = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
+        ToolbarMenuItem overflow = navigation.findOverflow();
         View anchor = (item != null ? item : overflow).getView();
         FloatingMenu<Order> menu;
         if (anchor != null) {
@@ -298,9 +300,9 @@ public class BrowseController
         presenter.requestData();
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
-        ToolbarMenuSubItem archive = navigation.findSubItem(ARCHIVE_ID);
+        ToolbarMenuSubItem archive = navigation.findSubItem(OverflowMenuId.ARCHIVE);
         archive.enabled = loadable.board.site.boardFeature(Site.BoardFeature.ARCHIVE, loadable.board);
-        ToolbarMenuSubItem reply = navigation.findSubItem(REPLY_ITEM_ID);
+        ToolbarMenuSubItem reply = navigation.findSubItem(OverflowMenuId.REPLY);
         if (reply != null) {
             reply.enabled = loadable.board.site.siteFeature(Site.SiteFeature.POSTING);
         }

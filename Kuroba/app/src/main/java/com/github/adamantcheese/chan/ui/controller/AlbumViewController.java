@@ -45,7 +45,9 @@ public class AlbumViewController
         extends Controller
         implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback,
                    ToolbarNavigationController.ToolbarSearchCallback {
-    private final int DOWNLOAD_ALBUM_ID = 1;
+    private enum MenuId {
+        DOWNLOAD_ALBUM
+    }
     private GridRecyclerView recyclerView;
 
     private List<PostImage> postImages;
@@ -77,7 +79,7 @@ public class AlbumViewController
         this.postImages = postImages;
 
         navigation.buildMenu()
-                .withItem(DOWNLOAD_ALBUM_ID, R.drawable.ic_fluent_table_move_below_24_filled, this::downloadAlbumClicked)
+                .withItem(MenuId.DOWNLOAD_ALBUM, R.drawable.ic_fluent_table_move_below_24_filled, this::downloadAlbumClicked)
                 .build();
 
         navigation.title = title;
@@ -167,7 +169,7 @@ public class AlbumViewController
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.album_download_hint)
                 .build()
-                .showAlignBottom(navigation.findItem(DOWNLOAD_ALBUM_ID).getView());
+                .showAlignBottom(navigation.findItem(MenuId.DOWNLOAD_ALBUM).getView());
     }
 
     private class AlbumAdapter

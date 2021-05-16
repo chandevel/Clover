@@ -150,7 +150,7 @@ public class ImageViewerAdapter
     public void toggleTransparency(PostImage postImage) {
         MultiImageView view = find(postImage);
         if (view != null) {
-            view.toggleTransparency();
+            view.toggleOpacity();
         }
     }
 

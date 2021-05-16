@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
@@ -69,12 +68,16 @@ public class NavigationItem {
         rightView = view;
     }
 
-    public ToolbarMenuItem findItem(int id) {
-        return menu == null ? null : menu.findItem(id);
+    public ToolbarMenuItem findItem(Enum<?> id) {
+        return menu == null ? null : menu.findItem(id.ordinal());
     }
 
-    public ToolbarMenuSubItem findSubItem(int id) {
-        return menu == null ? null : menu.findSubItem(id);
+    public ToolbarMenuSubItem findSubItem(Enum<?> id) {
+        return menu == null ? null : menu.findSubItem(id.ordinal());
+    }
+
+    public ToolbarMenuItem findOverflow() {
+        return menu == null ? null : menu.findOverflow();
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -91,16 +94,12 @@ public class NavigationItem {
             return withItem(-1, drawable, clicked);
         }
 
-        public MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
-            return withItem(new ToolbarMenuItem(id, drawable, clicked));
+        public MenuBuilder withItem(Enum<?> item, int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
+            return withItem(item.ordinal(), drawable, clicked);
         }
 
-        public MenuBuilder withItem(int id, Drawable drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
-            return withItem(new ToolbarMenuItem(id, drawable, clicked));
-        }
-
-        public MenuBuilder withItem(ToolbarMenuItem menuItem) {
-            menu.addItem(menuItem);
+        private MenuBuilder withItem(int id, int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
+            menu.addItem(new ToolbarMenuItem(id, drawable, clicked));
             return this;
         }
 
@@ -138,33 +137,21 @@ public class NavigationItem {
         }
 
         public MenuOverflowBuilder withSubItem(int text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(-1, getString(text), true, clicked);
+            return withSubItem(-1, text, clicked);
         }
 
-        public MenuOverflowBuilder withSubItem(String text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(-1, text, true, clicked);
+        public MenuOverflowBuilder withSubItem(Enum<?> id, int text, ToolbarMenuSubItem.ClickCallback clicked) {
+            return withSubItem(id.ordinal(), text, clicked);
         }
 
         public MenuOverflowBuilder withSubItem(int id, int text, ToolbarMenuSubItem.ClickCallback clicked) {
-            return withSubItem(id, getString(text), true, clicked);
-        }
-
-        public MenuOverflowBuilder withSubItem(
-                int id, int text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked
-        ) {
-            return withSubItem(id, getString(text), enabled, clicked);
-        }
-
-        public MenuOverflowBuilder withSubItem(
-                int id, String text, boolean enabled, ToolbarMenuSubItem.ClickCallback clicked
-        ) {
-            menuItem.addSubItem(new ToolbarMenuSubItem(id, text, enabled, clicked));
-
+            menuItem.addSubItem(new ToolbarMenuSubItem(id, getString(text), clicked));
             return this;
         }
 
         public MenuBuilder build() {
-            return menuBuilder.withItem(menuItem);
+            menuBuilder.menu.addItem(menuItem);
+            return menuBuilder;
         }
     }
 }

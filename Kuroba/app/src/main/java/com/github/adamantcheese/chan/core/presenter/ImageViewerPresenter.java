@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ImageSearch;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -101,7 +100,7 @@ public class ImageViewerPresenter
 
         // Do this before the view is measured, to avoid it to always loading the first two pages
         callback.setPagerItems(images, selectedPosition);
-        PostImage initialImage = images.get(selectedPosition);
+        PostImage initialImage = getCurrentPostImage();
         callback.setImageMode(initialImage, LOWRES, true);
         callback.showDownloadMenuItem(!initialImage.deleted && initialImage.type != IFRAME);
     }
@@ -123,7 +122,7 @@ public class ImageViewerPresenter
         if (entering || exiting) return;
         exiting = true;
 
-        PostImage postImage = images.get(selectedPosition);
+        PostImage postImage = getCurrentPostImage();
         if (postImage.type == MOVIE || postImage.type == IFRAME) {
             callback.setImageMode(postImage, LOWRES, true);
         }
@@ -209,19 +208,20 @@ public class ImageViewerPresenter
                 }
                 onLowResInCenter();
             } else {
-                if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+                if (multiImageView.getPostImage() == getCurrentPostImage()) {
                     onLowResInCenter();
                 }
             }
         } else {
-            if (multiImageView.getPostImage() == images.get(selectedPosition)) {
-                setTitle(images.get(selectedPosition), selectedPosition);
+            PostImage currentImage = getCurrentPostImage();
+            if (multiImageView.getPostImage() == currentImage) {
+                setTitle(currentImage, selectedPosition);
             }
         }
     }
 
     private void onPageSwipedTo(int position) {
-        PostImage postImage = images.get(selectedPosition);
+        PostImage postImage = getCurrentPostImage();
         // Reset volume icon.
         // If it has audio, we'll know after it is loaded.
         callback.showVolumeMenuItem(postImage.type == MOVIE, muted);
@@ -255,7 +255,7 @@ public class ImageViewerPresenter
     // Called from either a page swipe caused a lowres image to be in the center or an
     // onModeLoaded when a unloaded image was swiped to the center earlier
     private void onLowResInCenter() {
-        PostImage postImage = images.get(selectedPosition);
+        PostImage postImage = getCurrentPostImage();
 
         if (imageAutoLoad(postImage) && (!postImage.spoiler() || ChanSettings.revealimageSpoilers.get())) {
             if (postImage.type == STATIC) {
@@ -423,7 +423,7 @@ public class ImageViewerPresenter
     public void onTap() {
         // Don't mistake a swipe when the pager is disabled as a tap
         if (viewPagerVisible) {
-            PostImage postImage = images.get(selectedPosition);
+            PostImage postImage = getCurrentPostImage();
             if (imageAutoLoad(postImage) && !postImage.spoiler()) {
                 if (postImage.type == MOVIE && callback.getImageMode(postImage) != VIDEO) {
                     callback.setImageMode(postImage, VIDEO, true);
@@ -481,7 +481,7 @@ public class ImageViewerPresenter
 
     @Override
     public void onProgress(MultiImageView multiImageView, long current, long total) {
-        if (multiImageView.getPostImage() == images.get(selectedPosition)) {
+        if (multiImageView.getPostImage() == getCurrentPostImage()) {
             callback.showProgress(true);
             callback.onLoadProgress(current / (float) total);
         }
@@ -494,6 +494,14 @@ public class ImageViewerPresenter
             muted = muted || !BackgroundUtils.isInForeground();
             callback.showVolumeMenuItem(true, muted);
             callback.setVolume(currentPostImage, muted);
+        }
+    }
+
+    @Override
+    public void onOpacityChanged(MultiImageView multiImageView, boolean hasOpacity, boolean opaque) {
+        PostImage currentPostImage = getCurrentPostImage();
+        if (multiImageView.getPostImage() == currentPostImage) {
+            callback.showOpacityMenuItem(hasOpacity, opaque);
         }
     }
 
@@ -531,7 +539,7 @@ public class ImageViewerPresenter
         for (ImageSearch imageSearch : ImageSearch.engines) {
             items.add(new FloatingMenuItem<>(imageSearch.getId(), imageSearch.getName()));
         }
-        ToolbarMenuItem overflowMenuItem = navigation.findItem(ToolbarMenu.OVERFLOW_ID);
+        ToolbarMenuItem overflowMenuItem = navigation.findOverflow();
         FloatingMenu<Integer> menu = new FloatingMenu<>(context, overflowMenuItem.getView(), items);
         menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
@@ -600,6 +608,8 @@ public class ImageViewerPresenter
         void onLoadProgress(float progress);
 
         void showVolumeMenuItem(boolean show, boolean muted);
+
+        void showOpacityMenuItem(boolean show, boolean opaque);
 
         void showDownloadMenuItem(boolean show);
 

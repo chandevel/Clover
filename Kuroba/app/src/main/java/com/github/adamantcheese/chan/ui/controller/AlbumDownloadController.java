@@ -60,7 +60,9 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class AlbumDownloadController
         extends Controller
         implements View.OnClickListener {
-    private final int CHECK_ALL_ID = 1;
+    private enum MenuId {
+        CHECK_ALL
+    }
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 
@@ -85,7 +87,7 @@ public class AlbumDownloadController
 
         updateTitle();
         navigation.buildMenu()
-                .withItem(CHECK_ALL_ID, R.drawable.ic_fluent_select_all_off_24_filled, this::onCheckAllClicked)
+                .withItem(MenuId.CHECK_ALL, R.drawable.ic_fluent_select_all_off_24_filled, this::onCheckAllClicked)
                 .build();
 
         download = view.findViewById(R.id.download);
@@ -217,7 +219,7 @@ public class AlbumDownloadController
     }
 
     private void updateDownloadIcon() {
-        ImageView downloadAllButton = navigation.findItem(CHECK_ALL_ID).getView();
+        ImageView downloadAllButton = navigation.findItem(MenuId.CHECK_ALL).getView();
         if (allChecked) {
             downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_off_24_filled);
         } else {

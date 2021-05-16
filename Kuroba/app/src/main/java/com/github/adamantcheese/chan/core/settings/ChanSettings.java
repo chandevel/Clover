@@ -216,7 +216,8 @@ public class ChanSettings {
     public static final BooleanSetting removeImageSpoilers;
     public static final BooleanSetting revealimageSpoilers;
     public static final BooleanSetting parsePostImageLinks;
-    public static final BooleanSetting transparencyOn;
+    public static final BooleanSetting useOpaqueBackgrounds;
+    public static final BooleanSetting opacityMenuItem;
     public static final BooleanSetting neverShowWebmControls;
     public static final BooleanSetting neverShowAlbumCellInfo;
 
@@ -375,7 +376,8 @@ public class ChanSettings {
             removeImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
             revealimageSpoilers = new BooleanSetting(p, "preference_auto_unspoil_images", true);
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
-            transparencyOn = new BooleanSetting(p, "image_transparency_on", false);
+            useOpaqueBackgrounds = new BooleanSetting(p, "image_transparency_on", false);
+            opacityMenuItem = new BooleanSetting(p, "opacity_menu_item", false);
             neverShowWebmControls = new BooleanSetting(p, "never_show_webm_controls", false);
             neverShowAlbumCellInfo = new BooleanSetting(p, "never_show_album_cell_info", false);
 

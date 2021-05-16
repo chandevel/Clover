@@ -16,8 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-
 /**
  * An item for a submenu of a ToolbarMenuItem. Most common as subitem for the overflow button.
  * Add with NavigationItem MenuBuilder.
@@ -25,36 +23,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class ToolbarMenuSubItem {
     public int id;
     public String text;
-    public boolean enabled;
+    public boolean enabled = true;
     public ClickCallback clicked;
 
-    public ToolbarMenuSubItem(int id, int text, ClickCallback clicked) {
-        this(id, getString(text), clicked);
-    }
-
-    public ToolbarMenuSubItem(int id, int text, boolean enabled) {
-        this(id, getString(text), enabled, null);
-    }
-
     public ToolbarMenuSubItem(int id, String text, ClickCallback clicked) {
-        this(id, text, true, clicked);
-    }
-
-    public ToolbarMenuSubItem(String text, ClickCallback clicked) {
-        this(-1, text, true, clicked);
-    }
-
-    public ToolbarMenuSubItem(int id, String text, boolean enabled, ClickCallback clicked) {
         this.id = id;
         this.text = text;
-        this.enabled = enabled;
-        this.clicked = clicked;
-    }
-
-    public ToolbarMenuSubItem(int id, int text, boolean enabled, ClickCallback clicked) {
-        this.id = id;
-        this.text = getString(text);
-        this.enabled = enabled;
         this.clicked = clicked;
     }
 
