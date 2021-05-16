@@ -290,17 +290,10 @@ public class AppearanceSettingsController
                     "Set image backgrounds to be opaque rather than transparent by default"
             ));
 
-            images.add(new BooleanSettingView(
-                    this,
+            images.add(new BooleanSettingView(this,
                     ChanSettings.opacityMenuItem,
                     "Opacity menu item",
                     "Move the transparency toggle for images into the toolbar"
-            ));
-
-            images.add(new BooleanSettingView(this,
-                    ChanSettings.neverShowWebmControls,
-                    "Never show WEBM controls",
-                    "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."
             ));
 
             requiresUiRefresh.add(images.add(new BooleanSettingView(this,

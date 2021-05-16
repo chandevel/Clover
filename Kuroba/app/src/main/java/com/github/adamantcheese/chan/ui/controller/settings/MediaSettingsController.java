@@ -211,6 +211,18 @@ public class MediaSettingsController
                     R.string.setting_headset_default_muted_description
             ));
 
+            video.add(new BooleanSettingView(this,
+                    ChanSettings.neverShowWebmControls,
+                    "Never show WEBM controls",
+                    "Treats WEBMs like GIFs; tap to close, double tap to play/pause, always automatically loops."
+            ));
+
+            video.add(new BooleanSettingView(this,
+                    ChanSettings.enableSoundposts,
+                    "Enable soundposts",
+                    "Treats images with a filename embedded audio URL as a video, or adds sound to existing videos."
+            ));
+
             groups.add(video);
         }
 

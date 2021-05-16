@@ -110,7 +110,16 @@ public class StringUtils {
         return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
     }
 
-    public static boolean endsWithAny(String s, String[] suffixes) {
+    public static boolean startsWithAny(String s, String... suffixes) {
+        for (String suffix : suffixes) {
+            if (s.startsWith(suffix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean endsWithAny(String s, String... suffixes) {
         for (String suffix : suffixes) {
             if (s.endsWith(suffix)) {
                 return true;

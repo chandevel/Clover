@@ -218,7 +218,6 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
     public static final BooleanSetting useOpaqueBackgrounds;
     public static final BooleanSetting opacityMenuItem;
-    public static final BooleanSetting neverShowWebmControls;
     public static final BooleanSetting neverShowAlbumCellInfo;
 
     // Set elsewhere in the application
@@ -271,6 +270,8 @@ public class ChanSettings {
     public static final BooleanSetting videoAutoLoop;
     public static final BooleanSetting videoDefaultMuted;
     public static final BooleanSetting headsetDefaultMuted;
+    public static final BooleanSetting neverShowWebmControls;
+    public static final BooleanSetting enableSoundposts;
 
     // Media loading
     public static final OptionsSetting<MediaAutoLoadMode> imageAutoLoadNetwork;
@@ -378,7 +379,6 @@ public class ChanSettings {
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
             useOpaqueBackgrounds = new BooleanSetting(p, "image_transparency_on", false);
             opacityMenuItem = new BooleanSetting(p, "opacity_menu_item", false);
-            neverShowWebmControls = new BooleanSetting(p, "never_show_webm_controls", false);
             neverShowAlbumCellInfo = new BooleanSetting(p, "never_show_album_cell_info", false);
 
             //Elsewhere
@@ -445,6 +445,8 @@ public class ChanSettings {
             videoAutoLoop = new BooleanSetting(p, "preference_video_loop", true);
             videoDefaultMuted = new BooleanSetting(p, "preference_video_default_muted", true);
             headsetDefaultMuted = new BooleanSetting(p, "preference_headset_default_muted", true);
+            neverShowWebmControls = new BooleanSetting(p, "never_show_webm_controls", false);
+            enableSoundposts = new BooleanSetting(p, "enable_soundposts", true);
 
             // Media loading
             imageAutoLoadNetwork = new OptionsSetting<>(p,

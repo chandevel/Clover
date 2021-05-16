@@ -51,17 +51,23 @@ import com.github.adamantcheese.chan.exoplayer.ResponseCachingOkHttpDataSource;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -357,6 +363,13 @@ public class MultiImageView
     }
 
     private void setBigImage() {
+        // if this image has a sound file attached to the filename, set this to be a video instead and use exoplayer to display it
+        if (ChanSettings.enableSoundposts.get() && SOUND_URL_PATTERN.matcher(postImage.filename).find()) {
+            mode = Mode.VIDEO;
+            setVideo();
+            return;
+        }
+
         if (request != null) {
             request.cancel();
             request = null;
@@ -383,6 +396,8 @@ public class MultiImageView
     }
 
     private void setGif() {
+        // gifs are not playable by exoplayer, so unfortunately soundposts for gifs don't work
+
         if (request != null) {
             request.cancel();
             request = null;
@@ -447,6 +462,7 @@ public class MultiImageView
 
     private static final ProgressiveMediaSource.Factory okHttpFactory =
             new ProgressiveMediaSource.Factory(new ResponseCachingOkHttpDataSource.Factory(NetUtils.applicationClient));
+    private static final Pattern SOUND_URL_PATTERN = Pattern.compile(".*\\[sound=(.*)\\]", Pattern.CASE_INSENSITIVE);
 
     private void setVideo() {
         if (!hasContent || mode == Mode.VIDEO) {
@@ -454,7 +470,30 @@ public class MultiImageView
             exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
 
-            exoPlayer.setMediaSource(okHttpFactory.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString())));
+            try {
+                if (ChanSettings.enableSoundposts.get()) {
+                    Matcher m = SOUND_URL_PATTERN.matcher(postImage.filename);
+                    if (!m.find()) {
+                        throw new Exception("Fallback to no soundpost");
+                    }
+                    String soundURL = URLDecoder.decode(m.group(1), "UTF-8");
+                    if (!StringUtils.startsWithAny(soundURL, "http://", "https://")) {
+                        soundURL = "https://" + soundURL;
+                    }
+                    MediaSource soundSource = okHttpFactory.createMediaSource(MediaItem.fromUri(soundURL));
+                    if (postImage.type == PostImage.Type.STATIC) {
+                        exoPlayer.setMediaSource(soundSource);
+                    } else {
+                        exoPlayer.setMediaSource(new MergingMediaSource(soundSource,
+                                okHttpFactory.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()))
+                        ));
+                    }
+                } else {
+                    throw new Exception("Fallback to no soundpost");
+                }
+            } catch (Exception e) {
+                exoPlayer.setMediaSource(okHttpFactory.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString())));
+            }
             exoPlayer.prepare();
 
             exoPlayer.setVolume(0f);
@@ -463,7 +502,10 @@ public class MultiImageView
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                 @Override
                 public void onAudioDecoderInitialized(
-                        @NonNull EventTime eventTime, @NonNull String decoderName, long initializationDurationMs
+                        @NonNull EventTime eventTime,
+                        @NonNull String decoderName,
+                        long initializedTimestampMs,
+                        long initializationDurationMs
                 ) {
                     callback.onAudioLoaded(MultiImageView.this);
                 }
@@ -475,17 +517,24 @@ public class MultiImageView
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
             exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
-            NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
-                @Override
-                public void onBitmapFailure(
-                        @NonNull HttpUrl source, Exception e
-                ) {} // use the default drawable
+            NetUtils.makeBitmapRequest(
+                    postImage.type == PostImage.Type.STATIC ? postImage.imageUrl : postImage.thumbnailUrl,
+                    new BitmapResult() {
+                        @Override
+                        public void onBitmapFailure(
+                                @NonNull HttpUrl source, Exception e
+                        ) {} // use the default drawable
 
-                @Override
-                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                    exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
-                }
-            });
+                        @Override
+                        public void onBitmapSuccess(
+                                @NonNull HttpUrl source,
+                                @NonNull Bitmap bitmap,
+                                boolean fromCache
+                        ) {
+                            exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
+                        }
+                    }
+            );
             setVolume(getDefaultMuteState());
             exoPlayer.play();
             onModeLoaded(Mode.VIDEO, exoVideoView);
