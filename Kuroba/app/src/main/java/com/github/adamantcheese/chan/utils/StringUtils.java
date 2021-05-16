@@ -162,6 +162,11 @@ public class StringUtils {
                 .format(new Date());
     }
 
+    public static String getTimeDefaultLocale(long unixTime) {
+        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault())
+                .format(new Date(unixTime));
+    }
+
     public static String centerEllipsize(String string, int maxLength) {
         if (string.length() <= maxLength) {
             return string;
