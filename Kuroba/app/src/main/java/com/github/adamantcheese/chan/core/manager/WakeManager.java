@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.receiver.WakeUpdateReceiver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -40,7 +41,6 @@ import java.util.Set;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Deals with background alarms specifically. No foreground stuff here.
@@ -52,8 +52,8 @@ public class WakeManager {
     private final PowerManager powerManager;
 
     private final Set<Wakeable> wakeableSet = new HashSet<>();
-    public static final Intent intent = new Intent(getAppContext(), WakeUpdateReceiver.class);
-    private final PendingIntent pendingIntent = PendingIntent.getBroadcast(getAppContext(), 1, intent, 0);
+    private final PendingIntent pendingIntent =
+            PendingIntent.getBroadcast(getAppContext(), 1, new Intent(getAppContext(), WakeUpdateReceiver.class), 0);
     private long lastBackgroundUpdateTime = 0L; // allow the wake manager to run at construction time
     private boolean alarmRunning;
 
@@ -69,10 +69,12 @@ public class WakeManager {
     }
 
     public void onBroadcastReceived(boolean doCheck) {
-        if (doCheck && System.currentTimeMillis() - lastBackgroundUpdateTime < SECONDS.toMillis(90)) {
-            Logger.d(this, "Background update broadcast ignored because it was requested too soon");
+        long currentTime = System.currentTimeMillis();
+        Logger.d(this, "Alarm trigger @ " + StringUtils.getTimeDefaultLocale(currentTime));
+        if (doCheck && currentTime - lastBackgroundUpdateTime < ChanSettings.watchBackgroundInterval.get()) {
+            Logger.d(this, "Early; previous @ " + StringUtils.getTimeDefaultLocale(lastBackgroundUpdateTime));
         } else {
-            lastBackgroundUpdateTime = System.currentTimeMillis();
+            lastBackgroundUpdateTime = currentTime;
             for (Wakeable wakeable : wakeableSet) {
                 wakeable.onWake();
             }
