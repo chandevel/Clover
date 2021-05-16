@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.ui.controller.ToolbarNavigationController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
@@ -56,13 +57,17 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public abstract class SettingsController
-        extends Controller {
+        extends Controller
+        implements ToolbarNavigationController.ToolbarSearchCallback {
+    private RecyclerView groupRecycler;
 
     protected List<SettingsGroup> groups = new ArrayList<>();
     protected List<SettingView> requiresUiRefresh = new ArrayList<>();
     // Very user unfriendly.
     protected List<SettingView> requiresRestart = new ArrayList<>();
     private boolean needRestart = false;
+
+    private final List<SettingsGroup> displayList = new ArrayList<>();
 
     public SettingsController(Context context) {
         super(context);
@@ -73,38 +78,49 @@ public abstract class SettingsController
         super.onCreate();
 
         view = new RecyclerView(context);
-        ((RecyclerView) view).setLayoutManager(new LinearLayoutManager(context) {
+        groupRecycler = (RecyclerView) view;
+        groupRecycler.setLayoutManager(new LinearLayoutManager(context) {
             @Override
             protected void calculateExtraLayoutSpace(
                     @NonNull RecyclerView.State state, @NonNull int[] extraLayoutSpace
             ) {
+                // lays out everything at once
                 extraLayoutSpace[0] = Integer.MAX_VALUE / 2;
                 extraLayoutSpace[1] = Integer.MAX_VALUE / 2;
             }
         });
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor_secondary));
-        view.setId(R.id.recycler_view);
 
+        navigation.buildMenu().withItem(
+                R.drawable.ic_fluent_search_24_filled,
+                (item) -> ((ToolbarNavigationController) navigationController).showSearch()
+        ).build();
+
+        // populate all the data lists
         populatePreferences();
 
-        ((RecyclerView) view.findViewById(R.id.recycler_view)).setAdapter(new SettingsGroupAdapter());
+        // populate all the display lists
+        filterSettingGroups("");
+
+        groupRecycler.setAdapter(new SettingsGroupAdapter());
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
 
-        ((RecyclerView) view.findViewById(R.id.recycler_view)).setAdapter(null); // unbinds all attached groups
+        groupRecycler.setAdapter(null); // unbinds all attached groups
 
         if (needRestart) {
             ((StartActivity) context).restartApp();
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        ((RecyclerView) view).getAdapter().notifyDataSetChanged();
+        groupRecycler.getAdapter().notifyDataSetChanged();
     }
 
     public void onPreferenceChange(SettingView item) {
@@ -117,6 +133,31 @@ public abstract class SettingsController
             postToEventBus(new RefreshUIMessage(SETTINGS_REFRESH_REQUEST));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
+        }
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {
+        filterSettingGroups("");
+    }
+
+    @Override
+    public void onSearchEntered(String entered) {
+        filterSettingGroups(entered);
+    }
+
+    private void filterSettingGroups(String filter) {
+        displayList.clear();
+
+        for (SettingsGroup group : groups) {
+            group.filter(filter);
+            if (!group.displayList.isEmpty()) {
+                displayList.add(group);
+            }
+        }
+
+        if (groupRecycler.getAdapter() != null) {
+            groupRecycler.getAdapter().notifyDataSetChanged();
         }
     }
 
@@ -149,7 +190,7 @@ public abstract class SettingsController
 
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            SettingsGroup group = groups.get(position);
+            SettingsGroup group = displayList.get(position);
             ((TextView) holder.itemView.findViewById(R.id.header)).setText(group.name);
             if (position == 0) {
                 ((RecyclerView.LayoutParams) holder.itemView.getLayoutParams()).topMargin = 0;
@@ -175,12 +216,12 @@ public abstract class SettingsController
 
         @Override
         public int getItemCount() {
-            return groups.size();
+            return displayList.size();
         }
 
         @Override
-        public int getItemViewType(int position) {
-            return groups.get(position).name.hashCode();
+        public long getItemId(int position) {
+            return displayList.get(position).name.hashCode();
         }
     }
 
@@ -208,6 +249,9 @@ public abstract class SettingsController
 
         @Override
         public void onBindViewHolder(@NonNull SettingViewHolder holder, int position) {
+            SettingView settingView = group.displayList.get(position);
+            holder.settingView = settingView;
+
             int itemMargin = 0;
             if (isTablet()) {
                 itemMargin = dp(16);
@@ -215,7 +259,6 @@ public abstract class SettingsController
 
             updatePaddings(holder.itemView, itemMargin, itemMargin, -1, -1);
 
-            SettingView settingView = group.settingViews.get(position);
             setDescriptionText(holder.itemView, settingView.getTopDescription(), settingView.getBottomDescription());
             settingView.setView(holder.itemView);
             try {
@@ -229,26 +272,33 @@ public abstract class SettingsController
         public void onViewRecycled(
                 @NonNull SettingViewHolder holder
         ) {
-            SettingView settingView = group.settingViews.get(holder.getAdapterPosition());
             try {
-                if (settingView instanceof LinkSettingView) {
-                    EventBus.getDefault().unregister(settingView); // for setting notifications
+                if (holder.settingView instanceof LinkSettingView) {
+                    EventBus.getDefault().unregister(holder.settingView); // for setting notifications
                 }
             } catch (Exception ignored) {}
+            holder.settingView = null;
         }
 
         @Override
         public int getItemCount() {
-            return group.settingViews.size();
+            return group.displayList.size();
         }
 
         @Override
         public int getItemViewType(int position) {
-            return group.settingViews.get(position).getClass().getSimpleName().hashCode();
+            return group.displayList.get(position).getClass().getSimpleName().hashCode();
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return group.displayList.get(position).name.hashCode();
         }
 
         private class SettingViewHolder
                 extends RecyclerView.ViewHolder {
+            private SettingView settingView;
+
             public SettingViewHolder(@NonNull View itemView) {
                 super(itemView);
             }
