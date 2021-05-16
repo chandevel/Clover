@@ -221,7 +221,7 @@ public class AlbumDownloadController
         if (allChecked) {
             downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_off_24_filled);
         } else {
-            downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_24_filled);
+            downloadAllButton.setImageResource(R.drawable.ic_fluent_select_all_on_24_filled);
         }
     }
 

@@ -77,7 +77,7 @@ public class AlbumViewController
         this.postImages = postImages;
 
         navigation.buildMenu()
-                .withItem(DOWNLOAD_ALBUM_ID, R.drawable.ic_fluent_table_move_down_24_filled, this::downloadAlbumClicked)
+                .withItem(DOWNLOAD_ALBUM_ID, R.drawable.ic_fluent_table_move_below_24_filled, this::downloadAlbumClicked)
                 .build();
 
         navigation.title = title;

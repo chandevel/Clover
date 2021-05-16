@@ -475,7 +475,7 @@ public class MultiImageView
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
-            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_24_filled));
+            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
             NetUtils.makeBitmapRequest(postImage.thumbnailUrl, new BitmapResult() {
                 @Override
                 public void onBitmapFailure(

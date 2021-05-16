@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -198,7 +199,7 @@ public class ResponseCachingOkHttpDataSource
         } catch (IOException e) {
             @Nullable
             String message = e.getMessage();
-            if (message != null && Util.toLowerInvariant(message).matches("cleartext communication.*not permitted.*")) {
+            if (message != null && Ascii.toLowerCase(message).matches("cleartext communication.*not permitted.*")) {
                 throw new CleartextNotPermittedException(e, dataSpec);
             }
             throw new HttpDataSourceException("Unable to connect", e, dataSpec, HttpDataSourceException.TYPE_OPEN);
