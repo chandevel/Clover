@@ -39,7 +39,7 @@ public class SoundcloudEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("soundcloud"));
+        return StringUtils.containsAny(comment, "soundcloud");
     }
 
     @Override

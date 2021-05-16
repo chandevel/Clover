@@ -34,7 +34,7 @@ public class ClypEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("clyp.it"));
+        return StringUtils.containsAny(comment, "clyp.it");
     }
 
     @Override

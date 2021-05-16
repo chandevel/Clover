@@ -35,7 +35,7 @@ public class PixivEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("pixiv"));
+        return StringUtils.containsAny(comment, "pixiv");
     }
 
     @Override

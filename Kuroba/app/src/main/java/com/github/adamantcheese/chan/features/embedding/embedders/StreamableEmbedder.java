@@ -35,7 +35,7 @@ public class StreamableEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("streamable"));
+        return StringUtils.containsAny(comment, "streamable");
     }
 
     @Override

@@ -42,7 +42,7 @@ public class YoutubeEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Arrays.asList("youtu.be", "youtube"));
+        return StringUtils.containsAny(comment, "youtu.be", "youtube");
     }
 
     @Override

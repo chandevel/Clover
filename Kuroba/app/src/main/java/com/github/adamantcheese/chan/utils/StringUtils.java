@@ -18,7 +18,6 @@ import com.vdurmont.emoji.EmojiParser;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -128,7 +127,7 @@ public class StringUtils {
         return false;
     }
 
-    public static boolean containsAny(CharSequence s, List<CharSequence> contains) {
+    public static boolean containsAny(CharSequence s, CharSequence... contains) {
         for (CharSequence contain : contains) {
             if (TextUtils.indexOf(s, contain) >= 0) {
                 return true;
@@ -256,7 +255,9 @@ public class StringUtils {
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 
-    public static SpannableStringBuilder applySearchSpans(Theme theme, @Nullable CharSequence source, String searchQuery) {
+    public static SpannableStringBuilder applySearchSpans(
+            Theme theme, @Nullable CharSequence source, String searchQuery
+    ) {
         SpannableStringBuilder sourceCopy = new SpannableStringBuilder(source == null ? "" : source);
         if (!TextUtils.isEmpty(searchQuery)) {
             Pattern search = Pattern.compile(FilterEngine.escapeRegex(searchQuery), Pattern.CASE_INSENSITIVE);

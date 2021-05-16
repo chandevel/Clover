@@ -55,7 +55,7 @@ public class QuickLatexEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Arrays.asList("[math]", "[eqn]"));
+        return StringUtils.containsAny(comment, "[math]", "[eqn]");
     }
 
     @Override

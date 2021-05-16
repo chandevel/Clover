@@ -37,7 +37,7 @@ public class VimeoEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("vimeo"));
+        return StringUtils.containsAny(comment, "vimeo");
     }
 
     @Override

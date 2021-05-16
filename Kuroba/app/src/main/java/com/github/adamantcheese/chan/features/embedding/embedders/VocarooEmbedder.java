@@ -36,7 +36,7 @@ public class VocarooEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Arrays.asList("vocaroo", "voca.ro"));
+        return StringUtils.containsAny(comment, "vocaroo", "voca.ro");
     }
 
     @Override

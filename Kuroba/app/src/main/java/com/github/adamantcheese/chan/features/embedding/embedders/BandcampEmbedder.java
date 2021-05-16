@@ -42,7 +42,7 @@ public class BandcampEmbedder
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, Collections.singletonList("bandcamp"));
+        return StringUtils.containsAny(comment, "bandcamp");
     }
 
     @Override
