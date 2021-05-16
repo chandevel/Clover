@@ -156,12 +156,6 @@ public class AlbumViewController
     }
 
     @Override
-    public void onSearchVisibilityChanged(boolean visible) {}
-
-    @Override
-    public void onSearchEntered(String entered) {}
-
-    @Override
     public void onNavItemSet() {
         AndroidUtils.getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)

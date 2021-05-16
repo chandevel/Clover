@@ -16,12 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -37,7 +34,6 @@ import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -118,17 +114,22 @@ public class BrowseController
         if (ChanSettings.moveSortToToolbar.get()) {
             menuBuilder.withItem(R.drawable.ic_fluent_list_24_filled, this::handleSorting);
         }
-        menuBuilder.withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked);
-        menuBuilder.withItem(R.drawable.animated_refresh_icon, this::reloadClicked);
+        menuBuilder.withItem(R.drawable.ic_fluent_search_24_filled, (item) -> {
+            if (threadLayout.getPresenter().isBound()) {
+                ((ToolbarNavigationController) navigationController).showSearch();
+            }
+        }).withItem(R.drawable.animated_refresh_icon, this::reloadClicked);
 
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
-            overflowBuilder.withSubItem(OverflowMenuId.REPLY, R.string.action_reply, () -> threadLayout.openReply(true));
+            overflowBuilder.withSubItem(OverflowMenuId.REPLY,
+                    R.string.action_reply,
+                    () -> threadLayout.openReply(true)
+            );
         }
 
-        overflowBuilder.withSubItem(
-                OverflowMenuId.VIEW_MODE,
+        overflowBuilder.withSubItem(OverflowMenuId.VIEW_MODE,
                 ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
@@ -149,29 +150,6 @@ public class BrowseController
 
         // Presenter
         presenter.create(this);
-    }
-
-    private void searchClicked(ToolbarMenuItem item) {
-        ThreadPresenter presenter = threadLayout.getPresenter();
-        if (presenter.isBound()) {
-            View refreshView = item.getView();
-            refreshView.setScaleX(1f);
-            refreshView.setScaleY(1f);
-            refreshView.animate()
-                    .scaleX(10f)
-                    .scaleY(10f)
-                    .setDuration(500)
-                    .setInterpolator(new AccelerateInterpolator(2f))
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            refreshView.setScaleX(1f);
-                            refreshView.setScaleY(1f);
-                        }
-                    });
-
-            ((ToolbarNavigationController) navigationController).showSearch();
-        }
     }
 
     private void reloadClicked(ToolbarMenuItem item) {

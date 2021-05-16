@@ -140,10 +140,10 @@ public abstract class ToolbarNavigationController
     }
 
     public interface ToolbarSearchCallback {
-        void onSearchVisibilityChanged(boolean visible);
+        default void onSearchVisibilityChanged(boolean visible) {}
 
-        void onSearchEntered(String entered);
+        default void onSearchEntered(String entered) {}
 
-        void onNavItemSet();
+        default void onNavItemSet() {}
     }
 }

@@ -41,7 +41,6 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -127,7 +126,9 @@ public class FiltersController
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
         navigation.buildMenu()
-                .withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked)
+                .withItem(R.drawable.ic_fluent_search_24_filled,
+                        (item) -> ((ToolbarNavigationController) navigationController).showSearch()
+                )
                 .withItem(ChanSettings.debugFilters.get()
                         ? R.drawable.ic_fluent_highlight_24_filled
                         : R.drawable.ic_fluent_highlight_24_regular, (item) -> {
@@ -223,10 +224,6 @@ public class FiltersController
         adapter.reload();
     }
 
-    private void searchClicked(ToolbarMenuItem item) {
-        ((ToolbarNavigationController) navigationController).showSearch();
-    }
-
     public void showFilterDialog(final Filter filter) {
         final View filterLayout = LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
         final FilterLayout layout = filterLayout.findViewById(R.id.filter_layout);
@@ -286,9 +283,6 @@ public class FiltersController
         adapter.searchQuery = entered;
         adapter.filter();
     }
-
-    @Override
-    public void onNavItemSet() {}
 
     private class FilterAdapter
             extends RecyclerView.Adapter<FilterHolder> {

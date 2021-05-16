@@ -18,6 +18,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +84,7 @@ public class DrawerHistoryAdapter
     public void onBindViewHolder(HistoryCell holder, int position) {
         History history = historyList.get(position);
         if (history != LOADING && history != NO_HISTORY) {
-            if (!history.loadable.title.toLowerCase().contains(searchQuery.toLowerCase())) {
+            if (!StringUtils.containsIgnoreCase(history.loadable.title, searchQuery)) {
                 holder.itemView.setVisibility(View.GONE);
                 ViewGroup.LayoutParams oldParams = holder.itemView.getLayoutParams();
                 oldParams.height = 0;

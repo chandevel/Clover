@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
@@ -86,7 +87,7 @@ public class DrawerPinAdapter
             pin = watchManager.getAllPins().get(position);
         }
 
-        if (!pin.loadable.title.toLowerCase().contains(searchQuery.toLowerCase())) {
+        if (!StringUtils.containsIgnoreCase(pin.loadable.title, searchQuery)) {
             holder.itemView.setVisibility(View.GONE);
             ViewGroup.LayoutParams oldParams = holder.itemView.getLayoutParams();
             oldParams.height = 0;

@@ -32,7 +32,6 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ArchivePresenter;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
@@ -78,7 +77,10 @@ public class ArchiveController
 
         // Navigation
         navigation.title = getString(R.string.archive_title, BoardHelper.getName(board));
-        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled, this::searchClicked).build();
+        navigation.buildMenu().withItem(
+                R.drawable.ic_fluent_search_24_filled,
+                (item) -> ((ToolbarNavigationController) navigationController).showSearch()
+        ).build();
 
         // View binding
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh);
@@ -99,10 +101,6 @@ public class ArchiveController
         presenter.onRefresh();
     }
 
-    private void searchClicked(ToolbarMenuItem item) {
-        ((ToolbarNavigationController) navigationController).showSearch();
-    }
-
     @Override
     public void onSearchEntered(String entered) {
         presenter.onSearchEntered(entered);
@@ -112,9 +110,6 @@ public class ArchiveController
     public void onSearchVisibilityChanged(boolean visible) {
         presenter.onSearchVisibility(visible);
     }
-
-    @Override
-    public void onNavItemSet() {}
 
     @Override
     public void onRefresh() {

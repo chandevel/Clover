@@ -100,9 +100,6 @@ public class BoardAddLayout
     }
 
     @Override
-    public void onClearPressedWhenEmpty() {}
-
-    @Override
     public void suggestionsWereChanged(List<BoardSuggestion> suggestionList) {
         suggestionsAdapter.setSuggestionList(suggestionList);
     }

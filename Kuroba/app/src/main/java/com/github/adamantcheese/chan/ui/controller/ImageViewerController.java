@@ -196,15 +196,6 @@ public class ImageViewerController
         });
     }
 
-    @Override
-    public void onSearchEntered(String entered) {}
-
-    @Override
-    public void onSearchVisibilityChanged(boolean visible) {}
-
-    @Override
-    public void onNavItemSet() {}
-
     private void goPostClicked(ToolbarMenuItem item) {
         PostImage postImage = presenter.getCurrentPostImage();
         ImageViewerCallback imageViewerCallback = goPostCallback.goToPost(postImage);
