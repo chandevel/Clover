@@ -247,14 +247,14 @@ public class StringUtils {
         return "[" + ((out.charAt(0) == '0' && Character.isDigit(out.charAt(1))) ? out.substring(1) : out) + "]";
     }
 
-    public static SpannableStringBuilder applySearchSpans(Theme theme, CharSequence source, String searchQuery) {
-        SpannableStringBuilder commentCopy = new SpannableStringBuilder(source);
+    public static SpannableStringBuilder applySearchSpans(Theme theme, @Nullable CharSequence source, String searchQuery) {
+        SpannableStringBuilder sourceCopy = new SpannableStringBuilder(source == null ? "" : source);
         if (!TextUtils.isEmpty(searchQuery)) {
             Pattern search = Pattern.compile(FilterEngine.escapeRegex(searchQuery), Pattern.CASE_INSENSITIVE);
-            Matcher searchMatch = search.matcher(commentCopy);
+            Matcher searchMatch = search.matcher(sourceCopy);
             // apply new spans
             while (searchMatch.find()) {
-                commentCopy.setSpan(
+                sourceCopy.setSpan(
                         new SearchHighlightSpan(theme),
                         searchMatch.toMatchResult().start(),
                         searchMatch.toMatchResult().end(),
@@ -262,7 +262,7 @@ public class StringUtils {
                 );
             }
         }
-        return commentCopy;
+        return sourceCopy;
     }
 
     // Copied from Apache Commons Lang 3, modified for SpannableStringBuilders

@@ -103,7 +103,7 @@ public class ArchivePresenter
             }
         }
 
-        callback.setArchiveItems(filteredItems);
+        callback.setArchiveItems(filteredItems, filter);
     }
 
     private boolean filterApplies(InternalSiteArchive.ArchiveItem item, String filter) {
@@ -111,7 +111,7 @@ public class ArchivePresenter
     }
 
     public interface Callback {
-        void setArchiveItems(List<InternalSiteArchive.ArchiveItem> items);
+        void setArchiveItems(List<InternalSiteArchive.ArchiveItem> items, String filter);
 
         void hideRefreshing();
 

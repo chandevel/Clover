@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 import android.content.res.Configuration;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,13 +35,12 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.controller.ToolbarNavigationController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -67,6 +67,7 @@ public abstract class SettingsController
     protected List<SettingView> requiresRestart = new ArrayList<>();
     private boolean needRestart = false;
 
+    private String filterText = "";
     private final List<SettingsGroup> displayList = new ArrayList<>();
 
     public SettingsController(Context context) {
@@ -100,7 +101,7 @@ public abstract class SettingsController
         populatePreferences();
 
         // populate all the display lists
-        filterSettingGroups("");
+        filterSettingGroups(filterText);
 
         groupRecycler.setAdapter(new SettingsGroupAdapter());
     }
@@ -124,9 +125,10 @@ public abstract class SettingsController
     }
 
     public void onPreferenceChange(SettingView item) {
-        if ((item instanceof ListSettingView) || (item instanceof StringSettingView)
-                || (item instanceof IntegerSettingView) || (item instanceof LinkSettingView)) {
-            setDescriptionText(item.view, item.getTopDescription(), item.getBottomDescription());
+        for (SettingsGroup group : displayList) {
+            if (group.displayList.contains(item)) {
+                view.post(() -> groupRecycler.getAdapter().notifyItemChanged(displayList.indexOf(group), item));
+            }
         }
 
         if (requiresUiRefresh.contains(item)) {
@@ -148,10 +150,11 @@ public abstract class SettingsController
 
     private void filterSettingGroups(String filter) {
         displayList.clear();
+        filterText = filter;
 
         for (SettingsGroup group : groups) {
             group.filter(filter);
-            if (!group.displayList.isEmpty()) {
+            if (!group.displayList.isEmpty() || StringUtils.containsIgnoreCase(group.name, filter)) {
                 displayList.add(group);
             }
         }
@@ -164,11 +167,14 @@ public abstract class SettingsController
     protected abstract void populatePreferences();
 
     private void setDescriptionText(View view, String topText, String bottomText) {
-        ((TextView) view.findViewById(R.id.top)).setText(topText);
+        SpannableStringBuilder builder = StringUtils.applySearchSpans(ThemeHelper.getTheme(), topText, filterText);
+        ((TextView) view.findViewById(R.id.top)).setText(builder);
 
         final TextView bottom = view.findViewById(R.id.bottom);
         if (bottom != null) {
-            bottom.setText(bottomText);
+            SpannableStringBuilder builder2 =
+                    StringUtils.applySearchSpans(ThemeHelper.getTheme(), bottomText, filterText);
+            bottom.setText(builder2);
             bottom.setVisibility(TextUtils.isEmpty(bottomText) ? GONE : VISIBLE);
         }
     }
@@ -191,7 +197,9 @@ public abstract class SettingsController
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             SettingsGroup group = displayList.get(position);
-            ((TextView) holder.itemView.findViewById(R.id.header)).setText(group.name);
+            SpannableStringBuilder builder =
+                    StringUtils.applySearchSpans(ThemeHelper.getTheme(), group.name, filterText);
+            ((TextView) holder.itemView.findViewById(R.id.header)).setText(builder);
             if (position == 0) {
                 ((RecyclerView.LayoutParams) holder.itemView.getLayoutParams()).topMargin = 0;
             }
@@ -207,6 +215,21 @@ public abstract class SettingsController
 
             RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
             settingViewRecycler.swapAdapter(new SettingViewAdapter(group), false);
+        }
+
+        @Override
+        public void onBindViewHolder(
+                @NonNull RecyclerView.ViewHolder holder, int position, @NonNull List<Object> payloads
+        ) {
+            if (payloads.isEmpty()) {
+                super.onBindViewHolder(holder, position, payloads);
+            } else if (payloads.size() == 1 && payloads.get(0) instanceof SettingView) {
+                // called when a preference changes
+                SettingsGroup group = displayList.get(position);
+                RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
+                holder.itemView.post(() -> settingViewRecycler.getAdapter()
+                        .notifyItemChanged(group.displayList.indexOf((SettingView) payloads.get(0)), new Object()));
+            }
         }
 
         @Override
@@ -266,6 +289,19 @@ public abstract class SettingsController
                     EventBus.getDefault().register(settingView); // for setting notifications
                 }
             } catch (Exception ignored) {}
+        }
+
+        @Override
+        public void onBindViewHolder(
+                @NonNull SettingViewHolder holder, int position, @NonNull List<Object> payloads
+        ) {
+            if (payloads.isEmpty()) {
+                super.onBindViewHolder(holder, position, payloads);
+            } else if (payloads.size() == 1) {
+                // called when a preference changes
+                SettingView settingView = group.displayList.get(position);
+                setDescriptionText(holder.itemView, settingView.getTopDescription(), settingView.getBottomDescription());
+            }
         }
 
         @Override

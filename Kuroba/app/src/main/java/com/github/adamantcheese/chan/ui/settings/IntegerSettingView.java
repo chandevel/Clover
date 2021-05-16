@@ -78,7 +78,7 @@ public class IntegerSettingView
 
     @Override
     public String getBottomDescription() {
-        return setting.get() != null ? setting.get().toString() : null;
+        return setting.get() != null ? setting.get().toString() : "";
     }
 
     @Override
