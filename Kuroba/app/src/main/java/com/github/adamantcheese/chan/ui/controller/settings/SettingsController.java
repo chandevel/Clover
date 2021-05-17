@@ -224,11 +224,12 @@ public abstract class SettingsController
             if (payloads.isEmpty()) {
                 super.onBindViewHolder(holder, position, payloads);
             } else if (payloads.size() == 1 && payloads.get(0) instanceof SettingView) {
+                final SettingView settingView = (SettingView) payloads.get(0);
                 // called when a preference changes
                 SettingsGroup group = displayList.get(position);
                 RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
                 holder.itemView.post(() -> settingViewRecycler.getAdapter()
-                        .notifyItemChanged(group.displayList.indexOf((SettingView) payloads.get(0)), new Object()));
+                        .notifyItemChanged(group.displayList.indexOf(settingView), new Object()));
             }
         }
 

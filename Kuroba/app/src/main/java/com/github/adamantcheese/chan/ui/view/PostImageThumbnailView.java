@@ -76,8 +76,10 @@ public class PostImageThumbnailView
             int y = (int) (getHeight() * 0.5 - playIcon.getIntrinsicHeight() * 0.5);
 
             bounds.set(x, y, x + playIcon.getIntrinsicWidth(), y + playIcon.getIntrinsicHeight());
+            Rect curBounds = playIcon.getBounds();
             playIcon.setBounds(bounds);
             playIcon.draw(canvas);
+            playIcon.setBounds(curBounds);
         }
     }
 }

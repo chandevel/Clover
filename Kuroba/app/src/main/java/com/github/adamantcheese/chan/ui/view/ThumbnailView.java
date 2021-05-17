@@ -324,8 +324,8 @@ public abstract class ThumbnailView
 
     protected void setImageBitmap(Bitmap bitmap, boolean animate) {
         errorText = null;
-
         clearCalls();
+        invalidate();
 
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
