@@ -698,6 +698,7 @@ public class ThreadLayout
                     break;
                 case ERROR:
                     loadView.setView(errorLayout);
+                    threadListLayout.gainedFocus();
                     break;
             }
         }
