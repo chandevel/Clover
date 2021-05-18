@@ -314,11 +314,15 @@ public class PostAdapter
     public void setThread(ChanThread thread, PostsFilter newFilter) {
         BackgroundUtils.ensureMainThread();
 
+        boolean prevUseStatusView = showStatusView();
+        boolean loadableChanged = !thread.getLoadable().equals(loadable);
         this.loadable = thread.getLoadable();
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
         boolean filterChanged = !Objects.equals(currentFilter, newFilter);
         currentFilter = newFilter;
+
+        boolean newUseStatusView = showStatusView();
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
@@ -329,58 +333,48 @@ public class PostAdapter
             }
         }
 
+        // shortcut for performance, if the loadable has changed just invalidate everything
+        if (loadableChanged) {
+            displayList.clear();
+            displayList.addAll(newList);
+            notifyDataSetChanged();
+            return;
+        }
+
+        // otherwise, use a diff to calculate adapter changes more efficiently and not refresh items that haven't changed
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             // +1 for status cells
             @Override
             public int getOldListSize() {
-                return displayList.size() + (showStatusView() ? 1 : 0);
+                return displayList.size() + (prevUseStatusView ? 1 : 0);
             }
 
             @Override
             public int getNewListSize() {
-                return newList.size() + (showStatusView() ? 1 : 0);
+                return newList.size() + (newUseStatusView ? 1 : 0);
             }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                if (showStatusView() && oldItemPosition == displayList.size() && newItemPosition == newList.size()) {
-                    // thread status cell locations match up, these are the same
-                    return true;
-                } else if (showStatusView() && oldItemPosition == displayList.size()
-                        && oldItemPosition != newList.size()) {
-                    // thread status cell locations don't match up, new cell is later than old cell
-                    return false;
-                } else if (showStatusView() && newItemPosition != displayList.size()
-                        && newItemPosition == newList.size()) {
-                    // thread status cell locations don't match up, new cell is before old cell
-                    return false;
-                } else {
-                    // check getItemId returns for both lists, effectively
-                    return displayList.get(oldItemPosition).no == newList.get(newItemPosition).no;
-                }
+                Post oldPost = oldItemPosition >= displayList.size() ? null : displayList.get(oldItemPosition);
+                Post newPost = newItemPosition >= newList.size() ? null : newList.get(newItemPosition);
+                // if one of these posts is out-of-range, return true so that we can check contents
+                // we want to call notifyItemChanged in this case, and that's how to do it with this method
+                if (oldPost == null || newPost == null) return true;
+                return oldPost.no == newPost.no;
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-                if (showStatusView() && oldItemPosition == displayList.size() && newItemPosition == newList.size()) {
-                    // thread status cell locations match up, these are the same
-                    return true;
-                }
-
                 // if the filter has changed, all other locations have new contents
                 if (filterChanged) return false;
 
-                if (showStatusView() && oldItemPosition == displayList.size() && oldItemPosition != newList.size()) {
-                    // thread status cell locations don't match up, new cell is later than old cell
-                    return false;
-                } else if (showStatusView() && newItemPosition != displayList.size()
-                        && newItemPosition == newList.size()) {
-                    // thread status cell locations don't match up, new cell is before old cell
-                    return false;
-                } else {
-                    // check equality of posts to see if they have changed
-                    return displayList.get(oldItemPosition).equals(newList.get(newItemPosition));
-                }
+                Post oldPost = oldItemPosition >= displayList.size() ? null : displayList.get(oldItemPosition);
+                Post newPost = newItemPosition >= newList.size() ? null : newList.get(newItemPosition);
+
+                if (oldPost == null || newPost == null) return false;
+                // check equality of posts to see if they have changed
+                return oldPost.equals(newPost);
             }
         });
 
