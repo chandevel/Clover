@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/md_grey_600</item>
+        <item name="themeDrawableDimmedColor">@color/md_grey_750</item>
         <item name="highlight_color">#1C000000</item>
         <item name="divider_color">#20000000</item>
         <item name="setting_description_top">@drawable/setting_description_top</item>
@@ -61,6 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <item name="colorControlNormal">@color/textColorSecondary</item>
         <item name="themeDrawableColor">@color/white</item>
+        <item name="themeDrawableDimmedColor">@color/md_grey_575</item>
         <item name="highlight_color">#1CFFFFFF</item>
         <item name="divider_color">#28FFFFFF</item>
         <item name="setting_description_top">@drawable/setting_description_top_dark</item>

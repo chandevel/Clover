@@ -16,16 +16,23 @@
  */
 package com.github.adamantcheese.chan.core.repository;
 
+import androidx.collection.LruCache;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
-import java.util.HashMap;
-import java.util.Map;
-
+/**
+ * Keeps track of last replies and threads in a board to provide next available post time info for that board.
+ */
 public class LastReplyRepository {
-    private static final Map<Board, Long> lastReplyMap = new HashMap<>();
-    private static final Map<Board, Long> lastThreadMap = new HashMap<>();
+    private static final LruCache<Board, Long> lastReplyMap = new LruCache<>(500);
+    private static final LruCache<Board, Long> lastThreadMap = new LruCache<>(500);
 
+    /**
+     * Update the internal map with this loadable.
+     *
+     * @param loadable The loadable for which a reply or thread was just posted.
+     */
     public static void putLastReply(Loadable loadable) {
         if (loadable.isCatalogMode()) {
             lastThreadMap.put(loadable.board, System.currentTimeMillis());
@@ -34,6 +41,10 @@ public class LastReplyRepository {
         }
     }
 
+    /**
+     * @param loadable The loadable to check if it can be posted or not
+     * @return time in seconds until a reply or thread can be posted
+     */
     public static long getTimeUntilDraftPostable(Loadable loadable) {
         if (loadable.isCatalogMode()) {
             return getTimeUntilThread(loadable.board);

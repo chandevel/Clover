@@ -311,7 +311,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:backgroundTint="@color/transparent_black"
                         android:clickable="false"
                         android:gravity="center"
-                        android:textColor="#fff"
+                        android:textColor="@color/white"
                         android:textSize="12sp"
                         android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
