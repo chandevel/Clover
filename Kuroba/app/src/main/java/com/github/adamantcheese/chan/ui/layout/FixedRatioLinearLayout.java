@@ -48,6 +48,7 @@ public class FixedRatioLinearLayout
 
     public void setRatio(float ratio) {
         this.ratio = ratio;
+        invalidate();
     }
 
     @Override
