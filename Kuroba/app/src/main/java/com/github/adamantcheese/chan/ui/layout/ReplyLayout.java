@@ -785,7 +785,7 @@ public class ReplyLayout
 
     @Override
     public void openPostOptions(boolean open) {
-        postOptions.setVisibility(open || ChanSettings.alwaysShowPostOptions.get() ? VISIBLE : GONE);
+        postOptions.setVisibility(open ? VISIBLE : GONE);
     }
 
     @Override

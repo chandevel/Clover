@@ -115,6 +115,8 @@ public class ReplyPresenter
 
         switchPage(Page.INPUT);
 
+        callback.openFlag(ChanSettings.alwaysShowPostOptions.get() && (loadable.board.countryFlags
+                || !loadable.board.boardFlags.isEmpty()));
         callback.openPostOptions(ChanSettings.alwaysShowPostOptions.get());
         callback.openSubject(ChanSettings.alwaysShowPostOptions.get() && loadable.isCatalogMode());
     }
@@ -170,7 +172,7 @@ public class ReplyPresenter
     public void onMoreClicked() {
         moreOpen = !moreOpen;
         callback.setExpanded(moreOpen);
-        callback.openPostOptions(moreOpen);
+        callback.openPostOptions(moreOpen || ChanSettings.alwaysShowPostOptions.get());
         if (loadable.isCatalogMode()) {
             callback.openSubject(moreOpen || ChanSettings.alwaysShowPostOptions.get());
         }
@@ -192,7 +194,7 @@ public class ReplyPresenter
             callback.openCommentSJISButton(moreOpen);
         }
         if (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty()) {
-            callback.openFlag(moreOpen);
+            callback.openFlag(moreOpen || ChanSettings.alwaysShowPostOptions.get());
         }
     }
 
@@ -502,9 +504,9 @@ public class ReplyPresenter
         selectedQuote = -1;
         callback.openMessage(null);
         callback.setExpanded(false);
-        callback.openSubject(
-                loadable != null && (ChanSettings.alwaysShowPostOptions.get() && loadable.isCatalogMode()));
-        callback.openFlag(false);
+        callback.openSubject(loadable != null && ChanSettings.alwaysShowPostOptions.get() && loadable.isCatalogMode());
+        callback.openFlag(loadable != null && (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty())
+                && ChanSettings.alwaysShowPostOptions.get());
         callback.openCommentQuoteButton(false);
         callback.openCommentSpoilerButton(false);
         callback.openCommentCodeButton(false);

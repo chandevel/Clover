@@ -84,7 +84,7 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.alwaysShowPostOptions,
                     "Always show post options",
-                    "Always displays the reply name, options, and subject field (if applicable)"
+                    "Always displays the reply name, options, flag selector, and subject field (if applicable)"
             )));
 
             requiresRestart.add(layout.add(new BooleanSettingView(this,
