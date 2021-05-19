@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="56dp"
     android:background="@drawable/ripple_item_background"
     android:orientation="horizontal"
     tools:background="?backcolor">
@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/thumbnail"
         android:layout_width="48dp"
         android:layout_height="48dp"
+        android:layout_gravity="center_vertical"
         android:layout_marginLeft="4dp"
         android:padding="4dp"
         app:circular="true"
@@ -34,10 +35,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingLeft="8dp"
-        android:paddingRight="16dp">
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/text"
@@ -45,7 +45,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:paddingTop="8dp"
             android:textSize="15sp"
             tools:text="Thread title" />
 
@@ -53,9 +52,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/subtext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="8dp"
             android:textColor="?android:textColorSecondary"
-            android:textSize="11sp"
+            android:textSize="12sp"
             tools:text="Board title" />
 
     </LinearLayout>
