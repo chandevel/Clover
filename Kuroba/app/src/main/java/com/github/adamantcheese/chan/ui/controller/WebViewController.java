@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -32,6 +33,7 @@ import android.widget.TextView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
 
@@ -41,7 +43,7 @@ public class WebViewController
         extends Controller {
     private final String navTitle;
     private final HttpUrl initialUrl;
-    private String optionalJavascriptAfterLoad = "";
+    private String optionalJavascriptAfterLoad;
 
     public WebViewController(Context context, String title, HttpUrl url) {
         super(context);
@@ -60,7 +62,9 @@ public class WebViewController
             webView.setWebViewClient(new WebViewClient() {
                 @Override
                 public void onPageFinished(WebView view, String url) {
-                    webView.loadUrl(optionalJavascriptAfterLoad);
+                    if (!TextUtils.isEmpty(optionalJavascriptAfterLoad)) {
+                        webView.loadUrl(optionalJavascriptAfterLoad);
+                    }
                 }
             });
             WebSettings settings = webView.getSettings();
@@ -84,6 +88,11 @@ public class WebViewController
                         navigationController.popController(true);
                         return true;
                     } else {
+                        Logger.i(
+                                WebViewController.this,
+                                consoleMessage.lineNumber() + ":" + consoleMessage.message() + " "
+                                        + consoleMessage.sourceId()
+                        );
                         return super.onConsoleMessage(consoleMessage);
                     }
                 }
@@ -114,6 +123,10 @@ public class WebViewController
     }
 
     public void setOptionalJavascriptAfterLoad(String javascript) {
+        if (!javascript.startsWith("javascript:")) {
+            Logger.w(this, "Set javascript didn't start with prefix 'javascript:'");
+            return;
+        }
         optionalJavascriptAfterLoad = javascript;
     }
 }
