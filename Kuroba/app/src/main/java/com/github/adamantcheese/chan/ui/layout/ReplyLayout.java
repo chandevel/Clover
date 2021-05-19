@@ -97,11 +97,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -115,8 +112,6 @@ public class ReplyLayout
                    SelectionListeningEditText.SelectionChangedListener, CaptchaTokenHolder.CaptchaValidationListener {
 
     ReplyPresenter presenter;
-    @Inject
-    CaptchaTokenHolder captchaTokenHolder;
 
     private ReplyLayoutCallback callback;
 
@@ -191,7 +186,7 @@ public class ReplyLayout
         if (isInEditMode()) return;
 
         EventBus.getDefault().register(this);
-        captchaTokenHolder.addListener(this);
+        CaptchaTokenHolder.getInstance().addListener(this);
     }
 
     @Override
@@ -200,15 +195,12 @@ public class ReplyLayout
         if (isInEditMode()) return;
 
         EventBus.getDefault().unregister(this);
-        captchaTokenHolder.removeListener(this);
+        CaptchaTokenHolder.getInstance().removeListener(this);
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (!isInEditMode()) {
-            inject(this);
-        }
 
         presenter = new ReplyPresenter(getContext(), this);
 

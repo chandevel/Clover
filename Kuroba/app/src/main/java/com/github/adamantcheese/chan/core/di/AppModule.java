@@ -29,7 +29,6 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy;
@@ -128,13 +127,6 @@ public class AppModule {
     public ImageSaver provideImageSaver(FileManager fileManager) {
         Logger.d(DI_TAG, "Image saver");
         return new ImageSaver(fileManager);
-    }
-
-    @Provides
-    @Singleton
-    public CaptchaTokenHolder provideCaptchaHolder() {
-        Logger.d(DI_TAG, "Captcha holder");
-        return new CaptchaTokenHolder();
     }
 
     @Provides

@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 
 public class CaptchaTokenHolder {
+    private static final CaptchaTokenHolder instance = new CaptchaTokenHolder();
+
     private static final long INTERVAL = 5000;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -28,6 +30,12 @@ public class CaptchaTokenHolder {
     private Timer timer;
 
     private final List<CaptchaValidationListener> captchaValidationListeners = new ArrayList<>();
+
+    public static CaptchaTokenHolder getInstance() {
+        return instance;
+    }
+
+    private CaptchaTokenHolder() {}
 
     // this Deque operates as a queue, where the first added captcha token is the first removed, as it would be the first to expire
     @GuardedBy("itself")

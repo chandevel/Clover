@@ -44,9 +44,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 /**
@@ -56,9 +53,6 @@ public class CaptchaV2NoJsFallbackLayout
         extends WebView
         implements AuthenticationLayoutInterface {
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
-
-    @Inject
-    CaptchaTokenHolder captchaTokenHolder;
 
     private AuthenticationLayoutCallback callback;
     private String baseUrl;
@@ -77,7 +71,6 @@ public class CaptchaV2NoJsFallbackLayout
     public CaptchaV2NoJsFallbackLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getSettings().setUserAgentString(NetUtils.USER_AGENT);
-        inject(this);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -142,8 +135,8 @@ public class CaptchaV2NoJsFallbackLayout
     }
 
     public void reset() {
-        if (captchaTokenHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
+        if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -161,12 +154,12 @@ public class CaptchaV2NoJsFallbackLayout
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            captchaTokenHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaTokenHolder.getToken();
+                token = CaptchaTokenHolder.getInstance().getToken();
             } else {
                 token = response;
             }

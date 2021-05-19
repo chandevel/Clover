@@ -45,9 +45,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -67,9 +64,6 @@ public class CaptchaV2NoJsLayout
 
     private boolean isAutoReply = true;
 
-    @Inject
-    CaptchaTokenHolder captchaTokenHolder;
-
     public CaptchaV2NoJsLayout(@NonNull Context context) {
         this(context, null, 0);
     }
@@ -80,7 +74,6 @@ public class CaptchaV2NoJsLayout
 
     public CaptchaV2NoJsLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inject(this);
 
         this.presenter = new CaptchaV2NoJsPresenter(this);
         this.adapter = new CaptchaV2NoJsAdapter();
@@ -125,8 +118,8 @@ public class CaptchaV2NoJsLayout
 
     @Override
     public void reset() {
-        if (captchaTokenHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
+        if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -168,12 +161,12 @@ public class CaptchaV2NoJsLayout
     @Override
     public void onVerificationDone(String verificationToken) {
         BackgroundUtils.runOnMainThread(() -> {
-            captchaTokenHolder.addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaTokenHolder.getToken();
+                token = CaptchaTokenHolder.getInstance().getToken();
             } else {
                 token = verificationToken;
             }

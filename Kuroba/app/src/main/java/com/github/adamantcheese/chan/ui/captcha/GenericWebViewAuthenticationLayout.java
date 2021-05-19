@@ -32,10 +32,6 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class GenericWebViewAuthenticationLayout
         extends WebView
         implements AuthenticationLayoutInterface {
@@ -50,9 +46,6 @@ public class GenericWebViewAuthenticationLayout
     private boolean resettingFromFoundText = false;
     private final boolean isAutoReply = true;
 
-    @Inject
-    CaptchaTokenHolder captchaTokenHolder;
-
     public GenericWebViewAuthenticationLayout(Context context) {
         this(context, null);
     }
@@ -64,7 +57,6 @@ public class GenericWebViewAuthenticationLayout
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getSettings().setUserAgentString(NetUtils.USER_AGENT);
-        inject(this);
         setFocusableInTouchMode(true);
     }
 
@@ -85,8 +77,8 @@ public class GenericWebViewAuthenticationLayout
 
     @Override
     public void reset() {
-        if (captchaTokenHolder.hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
+        if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -114,12 +106,12 @@ public class GenericWebViewAuthenticationLayout
                 }, 1000);
             }
         } else if (success) {
-            captchaTokenHolder.addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaTokenHolder.getToken();
+                token = CaptchaTokenHolder.getInstance().getToken();
             } else {
                 token = text;
             }

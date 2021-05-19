@@ -47,10 +47,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-
 import static android.view.View.MeasureSpec.AT_MOST;
-import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
@@ -73,9 +70,6 @@ public class CaptchaV2JsLayout
 
     private boolean isAutoReply = true;
 
-    @Inject
-    CaptchaTokenHolder captchaTokenHolder;
-
     public CaptchaV2JsLayout(Context context) {
         this(context, null);
     }
@@ -87,7 +81,6 @@ public class CaptchaV2JsLayout
     public CaptchaV2JsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getSettings().setUserAgentString(NetUtils.USER_AGENT);
-        inject(this);
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -139,8 +132,8 @@ public class CaptchaV2JsLayout
         if (loaded) {
             loadUrl("javascript:grecaptcha.reset()");
         } else {
-            if (captchaTokenHolder.hasToken() && isAutoReply) {
-                callback.onAuthenticationComplete(this, null, captchaTokenHolder.getToken(), true);
+            if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+                callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
                 return;
             }
 
@@ -189,12 +182,12 @@ public class CaptchaV2JsLayout
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            captchaTokenHolder.addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
 
             String token;
 
             if (isAutoReply) {
-                token = captchaTokenHolder.getToken();
+                token = CaptchaTokenHolder.getInstance().getToken();
             } else {
                 token = response;
             }
