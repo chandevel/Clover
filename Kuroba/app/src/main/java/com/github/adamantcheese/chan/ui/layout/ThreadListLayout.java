@@ -58,7 +58,6 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
@@ -66,7 +65,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.CARD;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -185,7 +184,7 @@ public class ThreadListLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (postViewMode != CARD || recyclerView.getLayoutManager() == null) return;
+        if (postViewMode != GRID || recyclerView.getLayoutManager() == null) return;
 
         int gridCountSetting = isInEditMode() ? 3 : ChanSettings.getBoardColumnCount();
         boolean compactMode;
@@ -228,7 +227,7 @@ public class ThreadListLayout
                     };
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
                     break;
-                case CARD:
+                case GRID:
                     layoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
@@ -265,7 +264,7 @@ public class ThreadListLayout
                 case LIST:
                     ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
                     break;
-                case CARD:
+                case GRID:
                     ((GridLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
                     break;
             }
@@ -598,7 +597,7 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        int defaultPadding = postViewMode == CARD ? dp(1) : 0;
+        int defaultPadding = postViewMode == GRID ? dp(1) : 0;
         int recyclerTop = defaultPadding + toolbarHeight();
         int recyclerBottom = defaultPadding;
         //reply view padding calculations (before measure)
@@ -679,7 +678,7 @@ public class ThreadListLayout
         switch (postViewMode) {
             case LIST:
                 return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-            case CARD:
+            case GRID:
                 return ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
         }
         return -1;

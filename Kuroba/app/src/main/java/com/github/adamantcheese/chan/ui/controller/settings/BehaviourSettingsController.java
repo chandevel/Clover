@@ -25,14 +25,19 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.ProxyMode;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.controller.WebViewController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
+import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -238,6 +243,16 @@ public class BehaviourSettingsController
                     R.string.setting_proxy_port,
                     R.string.setting_proxy_port,
                     new Pair<>(0, 0xFFFF)
+            )));
+
+            List<ListSettingView.Item<ProxyMode>> proxyTypes = new ArrayList<>();
+            for (ProxyMode type : ProxyMode.values()) {
+                proxyTypes.add(new ListSettingView.Item<>(type.name().toUpperCase(), type));
+            }
+            requiresRestart.add(proxy.add(new ListSettingView<>(this,
+                    ChanSettings.proxyType,
+                    R.string.setting_proxy_type,
+                    proxyTypes
             )));
 
             groups.add(proxy);

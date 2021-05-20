@@ -149,7 +149,7 @@ public class PostAdapter
                     case LIST:
                         layout = inflateType == TYPE_POST ? R.layout.cell_post : R.layout.cell_post_stub;
                         break;
-                    case CARD:
+                    case GRID:
                         layout = inflateType == TYPE_POST ? R.layout.cell_post_card : R.layout.cell_post_stub_card;
                         break;
                 }

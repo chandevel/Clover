@@ -195,7 +195,7 @@ public class BrowseController
     private void handleViewMode() {
         ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
-            postViewMode = ChanSettings.PostViewMode.CARD;
+            postViewMode = ChanSettings.PostViewMode.GRID;
         } else {
             postViewMode = ChanSettings.PostViewMode.LIST;
         }

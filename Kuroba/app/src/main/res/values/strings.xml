@@ -466,6 +466,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
 
     <!-- Behavior proxy group -->
     <string name="setting_proxy_port">Proxy server port</string>
+    <string name="setting_proxy_type">Proxy type</string>
 
     <!-- Media -->
     <string name="settings_screen_media">Media</string>

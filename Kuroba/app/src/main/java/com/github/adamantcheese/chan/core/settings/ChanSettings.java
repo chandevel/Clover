@@ -107,18 +107,12 @@ public class ChanSettings {
 
     public enum PostViewMode
             implements OptionSettingItem {
-        LIST("list"),
-        CARD("grid");
-
-        String name;
-
-        PostViewMode(String name) {
-            this.name = name;
-        }
+        LIST,
+        GRID;
 
         @Override
         public String getKey() {
-            return name;
+            return name().toLowerCase();
         }
     }
 
@@ -151,6 +145,23 @@ public class ChanSettings {
         @Override
         public String getKey() {
             return name;
+        }
+    }
+
+    public enum ProxyMode
+            implements OptionSettingItem {
+        HTTP(Proxy.Type.HTTP),
+        SOCKS(Proxy.Type.SOCKS);
+
+        Proxy.Type type;
+
+        ProxyMode(Proxy.Type type) {
+            this.type = type;
+        }
+
+        @Override
+        public String getKey() {
+            return type.name().toLowerCase();
         }
     }
     //endregion
@@ -255,6 +266,7 @@ public class ChanSettings {
     public static final BooleanSetting proxyEnabled;
     public static final StringSetting proxyAddress;
     public static final IntegerSetting proxyPort;
+    public static final OptionsSetting<ProxyMode> proxyType;
     //endregion
 
     //region MEDIA
@@ -420,9 +432,10 @@ public class ChanSettings {
             proxyEnabled = new BooleanSetting(p, "preference_proxy_enabled", false);
             proxyAddress = new StringSetting(p, "preference_proxy_address", "");
             proxyPort = new IntegerSetting(p, "preference_proxy_port", 80);
+            proxyType = new OptionsSetting<>(p, "preference_proxy_type", ProxyMode.class, ProxyMode.HTTP);
             try {
                 proxy = proxyEnabled.get()
-                        ? new Proxy(Proxy.Type.HTTP,
+                        ? new Proxy(proxyType.get().type,
                         InetSocketAddress.createUnresolved(proxyAddress.get(), proxyPort.get())
                 )
                         : null;
