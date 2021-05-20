@@ -228,6 +228,10 @@ public class ThreadPresenter
         }
     }
 
+    public void refreshUI() {
+        showPosts();
+    }
+
     public void onForegroundChanged(boolean foreground) {
         if (isBound()) {
             if (foreground && isWatching()) {

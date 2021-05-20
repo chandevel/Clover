@@ -509,7 +509,7 @@ public class ThreadLayout
 
         DatabaseUtils.runTask(databaseHideManager.addThreadHide(postHide));
 
-        presenter.requestData();
+        presenter.refreshUI();
 
         int snackbarStringId = hide ? R.string.thread_hidden : R.string.thread_removed;
 
@@ -517,7 +517,7 @@ public class ThreadLayout
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             DatabaseUtils.runTask(databaseHideManager.removePostHide(postHide));
-            presenter.requestData();
+            presenter.refreshUI();
         }).show();
     }
 
@@ -535,7 +535,7 @@ public class ThreadLayout
 
         DatabaseUtils.runTask(databaseHideManager.addPostsHide(hideList));
 
-        presenter.requestData();
+        presenter.refreshUI();
 
         String formattedString;
         if (hide) {
@@ -548,7 +548,7 @@ public class ThreadLayout
         snackbar.setGestureInsetBottomIgnored(true);
         snackbar.setAction(R.string.undo, v -> {
             DatabaseUtils.runTask(databaseHideManager.removePostsHide(hideList));
-            presenter.requestData();
+            presenter.refreshUI();
         }).show();
     }
 
@@ -556,7 +556,7 @@ public class ThreadLayout
     public void unhideOrUnremovePost(Post post) {
         DatabaseUtils.runTask(databaseHideManager.removePostHide(PostHide.unhidePost(post)));
 
-        presenter.requestData();
+        presenter.refreshUI();
     }
 
     @Override
@@ -575,7 +575,7 @@ public class ThreadLayout
 
         DatabaseUtils.runTask(databaseHideManager.removePostsHide(postsToRestore));
 
-        presenter.requestData();
+        presenter.refreshUI();
 
         Snackbar snackbar =
                 Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
