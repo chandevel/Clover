@@ -77,7 +77,9 @@ public class WebViewController
                 public void onCloseWindow(WebView window) {
                     super.onCloseWindow(window);
                     // some window.close events are routed into here, pop the controller if so
-                    navigationController.popController(true);
+                    if (alive) {
+                        navigationController.popController(true);
+                    }
                 }
 
                 @Override
@@ -85,7 +87,9 @@ public class WebViewController
                     // cheap hack to capture a JS window close error message
                     // when that error occurs for this controller/webview, pop the controllers
                     if (consoleMessage.message().contains("close")) {
-                        navigationController.popController(true);
+                        if (alive) {
+                            navigationController.popController(true);
+                        }
                         return true;
                     } else {
                         Logger.i(
@@ -118,6 +122,9 @@ public class WebViewController
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (view instanceof WebView) {
+            ((WebView) view).destroy();
+        }
         // with WebViewSyncCookieManager, this puts webview cookies into OkHttp's cookie jar
         NetUtils.applicationClient.cookieJar().loadForRequest(initialUrl);
     }
