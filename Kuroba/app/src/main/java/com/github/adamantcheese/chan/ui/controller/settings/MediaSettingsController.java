@@ -242,7 +242,7 @@ public class MediaSettingsController
             requiresRestart.add(loading.add(new IntegerSettingView(this,
                     ChanSettings.fileCacheSize,
                     "File cache size (in MB)",
-                    "File cache size in MB\nDefault 512MB, 2x for prefetch",
+                    "File cache size in MB\n(x2 if prefetch enabled)",
                     new Pair<>(100, 2000)
             )));
 
