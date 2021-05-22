@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.site.sites;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -10,6 +11,7 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
+import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import java.util.Map;
 
@@ -114,7 +116,7 @@ public class Kun8
 
         setActions(new VichanActions(this) {
             @Override
-            public void setupPost(Loadable loadable, MultipartHttpCall call) {
+            public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
                 super.setupPost(loadable, call);
 
                 if (loadable.isThreadMode()) {
@@ -127,9 +129,13 @@ public class Kun8
             }
 
             @Override
-            public boolean requirePrepare() {
-                // We don't need to check the antispam fields for 8chan.
-                return false;
+            public void prepare(
+                    MultipartHttpCall<ReplyResponse> call,
+                    Loadable loadable,
+                    NetUtilsClasses.ResponseResult<Void> callback
+            ) {
+                // don't need to check antispam for this site
+                callback.onSuccess(null);
             }
 
             @Override

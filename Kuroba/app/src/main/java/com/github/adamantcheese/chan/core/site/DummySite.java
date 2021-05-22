@@ -240,7 +240,7 @@ public class DummySite
             public boolean isLoggedIn() { return false; }
 
             @Override
-            public LoginRequest getLoginDetails() { return new LoginRequest("", ""); }
+            public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", ""); }
         };
     }
 

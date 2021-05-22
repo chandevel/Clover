@@ -16,13 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 
 import org.jsoup.Jsoup;
 
@@ -33,12 +36,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class Chan4DeleteHttpCall
-        extends HttpCall {
+        extends HttpCall<DeleteResponse> {
     private final DeleteRequest deleteRequest;
-    public final DeleteResponse deleteResponse = new DeleteResponse();
 
-    public Chan4DeleteHttpCall(Site site, DeleteRequest deleteRequest) {
-        super(site);
+    public Chan4DeleteHttpCall(@NonNull NetUtilsClasses.ResponseResult<DeleteResponse> callback, DeleteRequest deleteRequest) {
+        super(callback);
         this.deleteRequest = deleteRequest;
     }
 
@@ -54,19 +56,20 @@ public class Chan4DeleteHttpCall
         formBuilder.add("mode", "usrdel");
         formBuilder.add("pwd", deleteRequest.savedReply.password);
 
-        requestBuilder.url(getSite().endpoints().delete(deleteRequest.post));
+        requestBuilder.url(deleteRequest.post.board.site.endpoints().delete(deleteRequest.post));
         requestBuilder.post(formBuilder.build());
     }
 
     @Override
-    public Void convert(Response response)
+    public DeleteResponse convert(Response response)
             throws IOException {
+        DeleteResponse deleteResponse = new DeleteResponse();
         String responseString = response.body().string();
         if (responseString.contains("errmsg")) {
             deleteResponse.errorMessage = Jsoup.parse(responseString).select("#errmsg").html();
         } else {
             deleteResponse.deleted = true;
         }
-        return null;
+        return deleteResponse;
     }
 }

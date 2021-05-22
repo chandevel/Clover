@@ -110,12 +110,12 @@ public class NetUtils {
         resultListeners.clear();
     }
 
-    public static void makeHttpCall(HttpCall httpCall) {
+    public static void makeHttpCall(HttpCall<?> httpCall) {
         makeHttpCall(httpCall, null);
     }
 
     public static void makeHttpCall(
-            HttpCall httpCall, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            HttpCall<?> httpCall, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         Request.Builder requestBuilder = new Request.Builder();
         httpCall.setup(requestBuilder, progressListener);
@@ -155,16 +155,17 @@ public class NetUtils {
             File tempFile = new File(new File(getCacheDir(), "requested"),
                     StringUtils.fileNameRemoveBadCharacters(filename) + "." + fileExt
             );
+            ResponseBody body = response.body();
+            if (body == null) throw new IOException("No body!");
             tempFile.getParentFile().mkdirs();
-            long contentLength = response.body().contentLength();
-            try (InputStream is = response.body().byteStream()) {
+            long contentLength = body.contentLength();
+            try (InputStream is = body.byteStream()) {
                 IOUtils.writeToFile(is, tempFile, -1);
             } catch (Exception ignored) {}
 
             if (contentLength != tempFile.length()) {
                 throw new IOException(
-                        "File sizes don't match! Expected:" + response.body().contentLength() + ", Actual: "
-                                + tempFile.length());
+                        "File sizes don't match! Expected:" + contentLength + ", Actual: " + tempFile.length());
             }
 
             return tempFile;

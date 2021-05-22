@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,7 +41,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LoginController
         extends Controller
-        implements View.OnClickListener, NetUtilsClasses.ResponseResult<LoginResponse> {
+        implements NetUtilsClasses.ResponseResult<LoginResponse> {
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;
@@ -78,7 +77,26 @@ public class LoginController
         if (loggedIn) {
             button.setText(R.string.setting_pass_logout);
         }
-        button.setOnClickListener(this);
+        button.setOnClickListener((v) -> {
+            if (site.actions().isLoggedIn()) {
+                site.actions().logout();
+                crossfadeView.toggle(true, true);
+                button.setText(R.string.submit);
+            } else {
+                hideKeyboard(view);
+                inputToken.setEnabled(false);
+                inputPin.setEnabled(false);
+                button.setEnabled(false);
+                button.setText(R.string.loading);
+
+                String user = inputToken.getText().toString();
+                String pass = inputPin.getText().toString();
+                site.actions().login(new LoginRequest(site, user, pass), this);
+            }
+
+            errors.setText(null);
+            errors.setVisibility(GONE);
+        });
 
         bottomDescription.setText(HtmlCompat.fromHtml(getString(R.string.setting_pass_bottom_description),
                 HtmlCompat.FROM_HTML_MODE_LEGACY
@@ -98,35 +116,11 @@ public class LoginController
     }
 
     @Override
-    public void onClick(View v) {
-        if (v == button) {
-            if (site.actions().isLoggedIn()) {
-                site.actions().logout();
-                crossfadeView.toggle(true, true);
-                button.setText(R.string.submit);
-            } else {
-                hideKeyboard(view);
-                inputToken.setEnabled(false);
-                inputPin.setEnabled(false);
-                button.setEnabled(false);
-                button.setText(R.string.loading);
-
-                String user = inputToken.getText().toString();
-                String pass = inputPin.getText().toString();
-                site.actions().login(new LoginRequest(user, pass), this);
-            }
-
-            errors.setText(null);
-            errors.setVisibility(GONE);
-        }
-    }
-
-    @Override
     public void onSuccess(LoginResponse loginResponse) {
-        if (loginResponse.success) {
+        if (loginResponse.isSuccess()) {
             crossfadeView.toggle(false, true);
             button.setText(R.string.setting_pass_logout);
-            authenticated.setText(loginResponse.message);
+            authenticated.setText(loginResponse.getMessage());
         } else {
             authFail(loginResponse);
         }
@@ -136,17 +130,12 @@ public class LoginController
 
     @Override
     public void onFailure(Exception e) {
-        authFail(null);
+        authFail(new LoginResponse(getString(R.string.setting_pass_error), false));
         authAfter();
     }
 
     private void authFail(LoginResponse response) {
-        String message = getString(R.string.setting_pass_error);
-        if (response != null && response.message != null) {
-            message = response.message;
-        }
-
-        errors.setText(message);
+        errors.setText(response.getMessage());
         errors.setVisibility(VISIBLE);
         button.setText(R.string.submit);
     }

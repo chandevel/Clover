@@ -12,13 +12,13 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
-import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
+import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -139,7 +139,7 @@ public class Dvach
         setActions(new VichanActions(this) {
 
             @Override
-            public void setupPost(Loadable loadable, MultipartHttpCall call) {
+            public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
                 super.setupPost(loadable, call);
 
                 if (loadable.isThreadMode()) {
@@ -152,53 +152,37 @@ public class Dvach
             }
 
             @Override
-            public boolean requirePrepare() {
-                return false;
+            public void prepare(
+                    MultipartHttpCall<ReplyResponse> call, Loadable loadable, ResponseResult<Void> callback
+            ) {
+                // don't need to check antispam for this site
+                callback.onSuccess(null);
             }
 
             @Override
             public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(loadableWithDraft).setCallback(new ResponseResult<CommonReplyHttpCall>() {
-                    @Override
-                    public void onSuccess(CommonReplyHttpCall httpPost) {
-                        postListener.onSuccess(httpPost.replyResponse);
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        postListener.onFailure(e);
-                    }
-                }), postListener);
+                NetUtils.makeHttpCall(new DvachReplyCall(postListener, loadableWithDraft), postListener);
             }
 
             @Override
             public boolean postRequiresAuthentication() {
-                return !isLoggedIn();
+                return true;
             }
 
             @Override
             public SiteAuthentication postAuthenticate() {
-                if (isLoggedIn()) {
-                    return SiteAuthentication.fromNone();
-                } else {
-                    switch (captchaType.get()) {
-                        case V2JS:
-                            return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY,
-                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
-                            );
-                        case V2NOJS:
-                            return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY,
-                                    "https://2ch.hk/api/captcha/recaptcha/mobile"
-                            );
-                        default:
-                            throw new IllegalArgumentException();
-                    }
+                switch (captchaType.get()) {
+                    case V2JS:
+                        return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY,
+                                "https://2ch.hk/api/captcha/recaptcha/mobile"
+                        );
+                    case V2NOJS:
+                        return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY,
+                                "https://2ch.hk/api/captcha/recaptcha/mobile"
+                        );
+                    default:
+                        throw new IllegalArgumentException();
                 }
-            }
-
-            @Override
-            public void delete(DeleteRequest deleteRequest, ResponseResult<DeleteResponse> deleteListener) {
-                super.delete(deleteRequest, deleteListener);
             }
 
             @Override

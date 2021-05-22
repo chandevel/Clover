@@ -43,7 +43,7 @@ public class TaimabaActions
     }
 
     @Override
-    public void setupPost(Loadable loadable, MultipartHttpCall call) {
+    public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
         Reply reply = loadable.draft;
         call.parameter("fart", Integer.toString((int) (Random.Default.nextDouble() * 15000) + 5000));
 
@@ -73,9 +73,12 @@ public class TaimabaActions
     }
 
     @Override
-    public void handlePost(ReplyResponse replyResponse, Response response)
-            throws IOException {
-        String responseString = response.body().string();
+    public ReplyResponse handlePost(Loadable loadable, Response response) {
+        ReplyResponse replyResponse = new ReplyResponse(loadable);
+        String responseString = "";
+        try {
+            responseString = response.body().string();
+        } catch (Exception ignored) {}
         Matcher err = errorPattern().matcher(responseString);
         if (err.find()) {
             replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
@@ -83,6 +86,7 @@ public class TaimabaActions
             replyResponse.threadNo = replyResponse.originatingLoadable.no;
             replyResponse.posted = true;
         }
+        return replyResponse;
     }
 
     public Pattern errorPattern() {

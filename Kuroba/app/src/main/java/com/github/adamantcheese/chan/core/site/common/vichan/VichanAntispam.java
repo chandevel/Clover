@@ -18,14 +18,11 @@ package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.utils.Logger;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,15 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
 
 /**
  * Vichan applies garbage looking fields to the post form, to combat bots.
  * Load up the normal html, parse the form, and get these fields for our post.
- * <p>
- * {@link #get()} blocks, run it off the main thread.
  */
 public class VichanAntispam {
     private final HttpUrl url;
@@ -71,41 +63,38 @@ public class VichanAntispam {
         );
     }
 
-    public Map<String, String> get() {
-        Map<String, String> res = new HashMap<>();
+    public void get(NetUtilsClasses.ResponseResult<Map<String, String>> callback) {
+        NetUtils.makeCall(
+                NetUtils.applicationClient,
+                url,
+                new NetUtilsClasses.ChainConverter<>((NetUtilsClasses.Converter<Map<String, String>, Document>) document -> {
+                    Map<String, String> res = new HashMap<>();
+                    Elements form = document.body().getElementsByTag("form");
+                    for (Element element : form) {
+                        if (element.attr("name").equals("post")) {
+                            // Add all <input> and <textarea> elements.
+                            Elements inputs = element.getElementsByTag("input");
+                            inputs.addAll(element.getElementsByTag("textarea"));
 
-        Request request = new Request.Builder().url(url).cacheControl(NetUtilsClasses.NO_CACHE).build();
-        try {
-            Response response = NetUtils.applicationClient.newCall(request).execute();
-            ResponseBody body = response.body();
-            if (body != null) {
-                Document document = Jsoup.parse(body.string());
-                Elements form = document.body().getElementsByTag("form");
-                for (Element element : form) {
-                    if (element.attr("name").equals("post")) {
-                        // Add all <input> and <textarea> elements.
-                        Elements inputs = element.getElementsByTag("input");
-                        inputs.addAll(element.getElementsByTag("textarea"));
+                            for (Element input : inputs) {
+                                String name = input.attr("name");
+                                String value = input.val();
 
-                        for (Element input : inputs) {
-                            String name = input.attr("name");
-                            String value = input.val();
-
-                            if (!fieldsToIgnore.contains(name)) {
-                                res.put(name, value);
+                                if (!fieldsToIgnore.contains(name)) {
+                                    res.put(name, value);
+                                }
                             }
+
+                            break;
                         }
-
-                        break;
                     }
-                }
-            }
-        } catch (IOException e) {
-            Logger.e(this, "IOException parsing vichan bot fields", e);
-        } catch (NullPointerException e) {
-            Logger.e(this, "NullPointerException parsing vichan bot fields", e);
-        }
-
-        return res;
+                    return res;
+                }).chain(NetUtilsClasses.HTML_CONVERTER),
+                callback,
+                null,
+                NetUtilsClasses.NO_CACHE,
+                0,
+                true
+        );
     }
 }

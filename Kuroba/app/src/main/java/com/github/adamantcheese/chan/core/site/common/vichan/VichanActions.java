@@ -52,7 +52,7 @@ public class VichanActions
     }
 
     @Override
-    public void setupPost(Loadable loadable, MultipartHttpCall call) {
+    public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
         Reply reply = loadable.draft;
         call.parameter("board", loadable.boardCode);
 
@@ -83,23 +83,32 @@ public class VichanActions
     }
 
     @Override
-    public boolean requirePrepare() {
-        return true;
-    }
-
-    @Override
-    public void prepare(MultipartHttpCall call, ReplyResponse replyResponse) {
-        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(replyResponse.originatingLoadable.desktopUrl()));
+    public void prepare(MultipartHttpCall<ReplyResponse> call, Loadable loadable, NetUtilsClasses.ResponseResult<Void> callback) {
+        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(loadable.desktopUrl()));
         antispam.addDefaultIgnoreFields();
-        for (Map.Entry<String, String> e : antispam.get().entrySet()) {
-            call.parameter(e.getKey(), e.getValue());
-        }
+        antispam.get(new ResponseResult<Map<String, String>>() {
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+
+            @Override
+            public void onSuccess(Map<String, String> result) {
+                for (Map.Entry<String, String> e : result.entrySet()) {
+                    call.parameter(e.getKey(), e.getValue());
+                }
+                callback.onSuccess(null);
+            }
+        });
     }
 
     @Override
-    public void handlePost(ReplyResponse replyResponse, Response response)
-            throws IOException {
-        String responseString = response.body().string();
+    public ReplyResponse handlePost(Loadable loadable, Response response) {
+        ReplyResponse replyResponse = new ReplyResponse(loadable);
+        String responseString = "";
+        try {
+            responseString = response.body().string();
+        } catch (Exception ignored) {}
         Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(responseString);
         Matcher err = errorPattern().matcher(responseString);
         if (auth.find()) {
@@ -128,10 +137,11 @@ public class VichanActions
                 replyResponse.errorMessage = "Error posting: could not find posted thread.";
             }
         }
+        return replyResponse;
     }
 
     @Override
-    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
+    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall<DeleteResponse> call) {
         call.parameter("board", deleteRequest.post.board.code);
         call.parameter("delete", "Delete");
         call.parameter("delete_" + deleteRequest.post.no, "on");
@@ -143,14 +153,16 @@ public class VichanActions
     }
 
     @Override
-    public void handleDelete(DeleteResponse response, Response httpResponse)
+    public DeleteResponse handleDelete(Response httpResponse)
             throws IOException {
+        DeleteResponse response = new DeleteResponse();
         Matcher err = errorPattern().matcher(httpResponse.body().string());
         if (err.find()) {
             response.errorMessage = Jsoup.parse(err.group(1)).body().text();
         } else {
             response.deleted = true;
         }
+        return response;
     }
 
     public Pattern errorPattern() {

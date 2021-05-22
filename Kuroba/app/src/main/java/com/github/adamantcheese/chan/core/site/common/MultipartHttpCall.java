@@ -16,8 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
@@ -31,30 +33,30 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 
 @SuppressWarnings("UnusedReturnValue")
-public abstract class MultipartHttpCall
-        extends HttpCall {
+public abstract class MultipartHttpCall<T>
+        extends HttpCall<T> {
     private final MultipartBody.Builder formBuilder;
 
     private HttpUrl url;
 
-    public MultipartHttpCall(Site site) {
-        super(site);
+    public MultipartHttpCall(@NonNull NetUtilsClasses.ResponseResult<T> callback) {
+        super(callback);
 
         formBuilder = new MultipartBody.Builder();
         formBuilder.setType(MultipartBody.FORM);
     }
 
-    public MultipartHttpCall url(HttpUrl url) {
+    public MultipartHttpCall<T> url(HttpUrl url) {
         this.url = url;
         return this;
     }
 
-    public MultipartHttpCall parameter(String name, String value) {
+    public MultipartHttpCall<T> parameter(String name, String value) {
         formBuilder.addFormDataPart(name, value);
         return this;
     }
 
-    public MultipartHttpCall fileParameter(String name, String filename, File file) {
+    public MultipartHttpCall<T> fileParameter(String name, String filename, File file) {
         formBuilder.addFormDataPart(name,
                 filename,
                 RequestBody.create(file, MediaType.parse("application/octet-stream"))

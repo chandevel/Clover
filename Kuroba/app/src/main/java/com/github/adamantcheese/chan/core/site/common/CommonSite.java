@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
@@ -39,14 +40,12 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -442,39 +441,31 @@ public abstract class CommonSite
 
         @Override
         public void post(Loadable loadableWithDraft, PostListener postListener) {
-            ReplyResponse replyResponse = new ReplyResponse(loadableWithDraft);
-
-            MultipartHttpCall call = new MultipartHttpCall(site) {
+            MultipartHttpCall<ReplyResponse> call = new MultipartHttpCall<ReplyResponse>(postListener) {
                 @Override
-                public Void convert(Response response)
-                        throws IOException {
-                    handlePost(replyResponse, response);
-                    return null;
+                public ReplyResponse convert(Response response) {
+                    return handlePost(loadableWithDraft, response);
                 }
             };
 
             call.url(site.endpoints().reply(loadableWithDraft));
 
-            if (requirePrepare()) {
-                BackgroundUtils.runOnBackgroundThread(() -> {
-                    prepare(call, replyResponse);
-                    BackgroundUtils.runOnMainThread(() -> {
-                        setupPost(loadableWithDraft, call);
-                        makePostCall(call, replyResponse, postListener);
-                    });
-                });
-            } else {
-                setupPost(loadableWithDraft, call);
-                makePostCall(call, replyResponse, postListener);
-            }
+            prepare(call, loadableWithDraft, new ResponseResult<Void>() {
+                @Override
+                public void onFailure(Exception e) {}
+
+                @Override
+                public void onSuccess(Void result) {
+                    setupPost(loadableWithDraft, call);
+                    NetUtils.makeHttpCall(call);
+                }
+            });
         }
 
-        public void setupPost(Loadable loadable, MultipartHttpCall call) {
+        public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
         }
 
-        public void handlePost(ReplyResponse response, Response httpResponse)
-                throws IOException {
-        }
+        public abstract ReplyResponse handlePost(Loadable loadable, Response httpResponse);
 
         @Override
         public boolean postRequiresAuthentication() {
@@ -486,60 +477,36 @@ public abstract class CommonSite
             return SiteAuthentication.fromNone();
         }
 
-        private void makePostCall(HttpCall call, ReplyResponse replyResponse, PostListener postListener) {
-            NetUtils.makeHttpCall(call.setCallback(new ResponseResult<HttpCall>() {
-                @Override
-                public void onFailure(Exception e) {
-                    postListener.onFailure(e);
-                }
-
-                @Override
-                public void onSuccess(HttpCall result) {
-                    postListener.onSuccess(replyResponse);
-                }
-            }));
-        }
-
-        public boolean requirePrepare() {
-            return false;
-        }
-
-        public void prepare(MultipartHttpCall call, ReplyResponse replyResponse) {
+        public void prepare(
+                MultipartHttpCall<ReplyResponse> call,
+                Loadable loadable,
+                NetUtilsClasses.ResponseResult<Void> extraHeaders
+        ) {
+            // by default, no class needs any extra headers so just invoke the result immediately
+            extraHeaders.onSuccess(null);
         }
 
         @Override
         public void delete(DeleteRequest deleteRequest, ResponseResult<DeleteResponse> deleteListener) {
-            DeleteResponse deleteResponse = new DeleteResponse();
-
-            MultipartHttpCall call = new MultipartHttpCall(site) {
+            MultipartHttpCall<DeleteResponse> call = new MultipartHttpCall<DeleteResponse>(deleteListener) {
                 @Override
-                public Void convert(Response response)
+                public DeleteResponse convert(Response response)
                         throws IOException {
-                    handleDelete(deleteResponse, response);
-                    return null;
+                    return handleDelete(response);
                 }
             };
 
             call.url(site.endpoints().delete(deleteRequest.post));
             setupDelete(deleteRequest, call);
-            NetUtils.makeHttpCall(call.setCallback(new ResponseResult<HttpCall>() {
-                @Override
-                public void onSuccess(HttpCall httpCall) {
-                    deleteListener.onSuccess(deleteResponse);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    deleteListener.onFailure(e);
-                }
-            }));
+            NetUtils.makeHttpCall(call);
         }
 
-        public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall call) {
+        public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall<DeleteResponse> call) {
         }
 
-        public void handleDelete(DeleteResponse response, Response httpResponse)
+        public DeleteResponse handleDelete(Response httpResponse)
                 throws IOException {
+            return new DeleteResponse();
         }
 
         @Override

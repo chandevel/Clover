@@ -44,12 +44,12 @@ import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
+import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -372,17 +372,17 @@ public class Chan4
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(loadableWithDraft).setCallback(new ResponseResult<CommonReplyHttpCall>() {
+            NetUtils.makeHttpCall(new Chan4ReplyCall(new ResponseResult<ReplyResponse>() {
                 @Override
-                public void onSuccess(CommonReplyHttpCall httpPost) {
-                    postListener.onSuccess(httpPost.replyResponse);
+                public void onSuccess(ReplyResponse replyResponse) {
+                    postListener.onSuccess(replyResponse);
                 }
 
                 @Override
                 public void onFailure(Exception e) {
                     postListener.onFailure(e);
                 }
-            }), postListener);
+            }, loadableWithDraft), postListener);
         }
 
         @Override
@@ -409,19 +409,17 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(Chan4.this,
-                    deleteRequest
-            ).setCallback(new ResponseResult<Chan4DeleteHttpCall>() {
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new ResponseResult<DeleteResponse>() {
                 @Override
-                public void onSuccess(Chan4DeleteHttpCall httpPost) {
-                    deleteListener.onSuccess(httpPost.deleteResponse);
+                public void onSuccess(DeleteResponse deleteResponse) {
+                    deleteListener.onSuccess(deleteResponse);
                 }
 
                 @Override
                 public void onFailure(Exception e) {
                     deleteListener.onFailure(e);
                 }
-            }));
+            }, deleteRequest));
         }
 
         @Override
@@ -429,19 +427,17 @@ public class Chan4
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(Chan4.this,
-                    loginRequest
-            ).setCallback(new ResponseResult<Chan4PassHttpCall>() {
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(new ResponseResult<LoginResponse>() {
                 @Override
-                public void onSuccess(Chan4PassHttpCall httpCall) {
-                    loginListener.onSuccess(httpCall.loginResponse);
+                public void onSuccess(LoginResponse loginResponse) {
+                    loginListener.onSuccess(loginResponse);
                 }
 
                 @Override
                 public void onFailure(Exception e) {
                     loginListener.onFailure(e);
                 }
-            }));
+            }, loginRequest));
         }
 
         @Override
@@ -473,7 +469,7 @@ public class Chan4
 
         @Override
         public LoginRequest getLoginDetails() {
-            return new LoginRequest(passUser.get(), passPass.get());
+            return new LoginRequest(Chan4.this, passUser.get(), passPass.get());
         }
     };
 

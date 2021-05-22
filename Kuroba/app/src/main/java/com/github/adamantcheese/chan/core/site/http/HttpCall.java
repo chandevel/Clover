@@ -35,58 +35,41 @@ import okhttp3.Response;
  * Http calls are an abstraction over a normal OkHttp call.
  * <p>These HttpCalls are used for emulating &lt;form&gt; elements used for posting, reporting, deleting, etc.
  * <p>Implement {@link #setup(Request.Builder, ProgressRequestBody.ProgressRequestListener)} and {@link #convert(Response)}.
- * {@code setup()} is called on the main thread, set up up the request builder here. {@code execute()} is
- * called on a worker thread after the response was executed, do something with the response here.
+ * {@code setup()} is called on the main thread, set up up the request builder here.
  */
-@SuppressWarnings("unchecked")
-public abstract class HttpCall
-        implements Callback, NetUtilsClasses.Converter<Void, Response> {
-    private final Site site;
+public abstract class HttpCall<T>
+        implements Callback, NetUtilsClasses.Converter<T, Response> {
 
-    @SuppressWarnings("rawtypes")
-    private NetUtilsClasses.ResponseResult callback;
-    private Exception exception;
+    private final NetUtilsClasses.ResponseResult<T> callback;
 
     public abstract void setup(
             Request.Builder requestBuilder, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     );
 
-    public abstract Void convert(Response response)
+    public HttpCall(@NonNull NetUtilsClasses.ResponseResult<T> callback) {
+        this.callback = callback;
+    }
+
+    public abstract T convert(Response response)
             throws IOException;
-
-    public HttpCall(Site site) {
-        this.site = site;
-    }
-
-    public Site getSite() {
-        return site;
-    }
 
     @Override
     public void onResponse(@NonNull Call call, @NonNull Response response) {
+        T convert = null;
         try {
-            convert(response);
+            convert = convert(response);
             response.close();
         } catch (Exception e) {
-            exception = new IOException("Error processing response", e);
+            Logger.e(this, "onResponse", e);
+            callback.onFailure(e);
         }
 
-        if (exception != null) {
-            Logger.e(this, "onResponse", exception);
-            callback.onFailure(exception);
-        } else {
-            callback.onSuccess(HttpCall.this);
-        }
+        callback.onSuccess(convert);
     }
 
     @Override
     public void onFailure(@NonNull Call call, @NonNull IOException e) {
         Logger.e(this, "onFailure", e);
         callback.onFailure(e);
-    }
-
-    public HttpCall setCallback(NetUtilsClasses.ResponseResult<? extends HttpCall> callback) {
-        this.callback = new NetUtilsClasses.MainThreadResponseResult(callback);
-        return this;
     }
 }

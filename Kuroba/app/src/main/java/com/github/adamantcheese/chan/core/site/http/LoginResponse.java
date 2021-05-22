@@ -17,6 +17,19 @@
 package com.github.adamantcheese.chan.core.site.http;
 
 public class LoginResponse {
-    public boolean success;
-    public String message;
+    private final boolean success;
+    private final String message;
+
+    public LoginResponse(String message, boolean success) {
+        this.message = message;
+        this.success = success;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

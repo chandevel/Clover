@@ -16,27 +16,32 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 
-import java.io.IOException;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import okhttp3.FormBody;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class Chan4PassHttpCall
-        extends HttpCall {
-    private final LoginRequest loginRequest;
-    public final LoginResponse loginResponse = new LoginResponse();
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
 
-    public Chan4PassHttpCall(Site site, LoginRequest loginRequest) {
-        super(site);
+public class Chan4PassHttpCall
+        extends HttpCall<LoginResponse> {
+    private final LoginRequest loginRequest;
+
+    public Chan4PassHttpCall(@NonNull NetUtilsClasses.ResponseResult<LoginResponse> callback, LoginRequest loginRequest) {
+        super(callback);
         this.loginRequest = loginRequest;
     }
 
@@ -51,31 +56,25 @@ public class Chan4PassHttpCall
         formBuilder.add("id", loginRequest.user);
         formBuilder.add("pin", loginRequest.pass);
 
-        requestBuilder.url(getSite().endpoints().login());
+        requestBuilder.url(loginRequest.site.endpoints().login());
         requestBuilder.post(formBuilder.build());
     }
 
     @Override
-    public Void convert(Response response)
-            throws IOException {
-        String responseString = response.body().string();
-        if (responseString.contains("Success! Your device is now authorized")) {
-            // cookies are stored in the OkHttp client's CookieJar
-            loginResponse.message = "Success! Your device is now authorized.";
-            loginResponse.success = true;
-        } else {
-            String message;
-            if (responseString.contains("Your Token must be exactly 10 characters")) {
-                message = "Your Token must be exactly 10 characters";
-            } else if (responseString.contains("You have left one or more fields blank")) {
-                message = "You have left one or more fields blank";
-            } else if (responseString.contains("Incorrect Token or PIN")) {
-                message = "Incorrect Token or PIN";
-            } else {
-                message = "Unknown error";
+    public LoginResponse convert(Response response) {
+        String message = "Unknown error";
+        try {
+            Document document = HTML_CONVERTER.convert(response);
+            Elements found = new Elements();
+            found.addAll(document.select(".msg-error"));
+            boolean success = found.addAll(document.select(".msg-success"));
+            Element responseMessage = found.first();
+            if (responseMessage != null) {
+                message = responseMessage.text();
             }
-            loginResponse.message = message;
+            return new LoginResponse(message, success);
+        } catch (Exception e) {
+            return new LoginResponse(message, false);
         }
-        return null;
     }
 }
