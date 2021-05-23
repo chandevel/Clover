@@ -85,7 +85,7 @@ public class CommentParser {
     private Pattern quotePattern = Pattern.compile(".*#p?(\\d+)");
 
     // A pattern matching any board links
-    private final Pattern boardLinkPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/");
+    private final Pattern boardLinkPattern = Pattern.compile("(?:https?:?)?(?://boards\\.4chan.*?\\.org)?/(.*?)/");
     //alternate for some sites (formerly 8chan)
     private final Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     // A pattern matching any board search links
