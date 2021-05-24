@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
@@ -441,12 +442,13 @@ public abstract class CommonSite
 
         @Override
         public void post(Loadable loadableWithDraft, PostListener postListener) {
-            MultipartHttpCall<ReplyResponse> call = new MultipartHttpCall<ReplyResponse>(postListener) {
-                @Override
-                public ReplyResponse convert(Response response) {
-                    return handlePost(loadableWithDraft, response);
-                }
-            };
+            MultipartHttpCall<ReplyResponse> call =
+                    new MultipartHttpCall<ReplyResponse>(new MainThreadResponseResult<>(postListener)) {
+                        @Override
+                        public ReplyResponse convert(Response response) {
+                            return handlePost(loadableWithDraft, response);
+                        }
+                    };
 
             call.url(site.endpoints().reply(loadableWithDraft));
 
@@ -488,13 +490,14 @@ public abstract class CommonSite
 
         @Override
         public void delete(DeleteRequest deleteRequest, ResponseResult<DeleteResponse> deleteListener) {
-            MultipartHttpCall<DeleteResponse> call = new MultipartHttpCall<DeleteResponse>(deleteListener) {
-                @Override
-                public DeleteResponse convert(Response response)
-                        throws IOException {
-                    return handleDelete(response);
-                }
-            };
+            MultipartHttpCall<DeleteResponse> call =
+                    new MultipartHttpCall<DeleteResponse>(new MainThreadResponseResult<>(deleteListener)) {
+                        @Override
+                        public DeleteResponse convert(Response response)
+                                throws IOException {
+                            return handleDelete(response);
+                        }
+                    };
 
             call.url(site.endpoints().delete(deleteRequest.post));
             setupDelete(deleteRequest, call);

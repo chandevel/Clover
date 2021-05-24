@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
@@ -350,7 +351,7 @@ public class Chan4
         @Override
         public void archive(Board board, ResponseResult<InternalSiteArchive> archiveListener) {
             NetUtils.makeHTMLRequest(endpoints().archive(board),
-                    new NetUtilsClasses.MainThreadResponseResult<>(archiveListener),
+                    new MainThreadResponseResult<>(archiveListener),
                     response -> {
                         List<InternalSiteArchive.ArchiveItem> items = new ArrayList<>();
 
@@ -372,7 +373,7 @@ public class Chan4
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(new ResponseResult<ReplyResponse>() {
+            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(new ResponseResult<ReplyResponse>() {
                 @Override
                 public void onSuccess(ReplyResponse replyResponse) {
                     postListener.onSuccess(replyResponse);
@@ -382,7 +383,7 @@ public class Chan4
                 public void onFailure(Exception e) {
                     postListener.onFailure(e);
                 }
-            }, loadableWithDraft), postListener);
+            }), loadableWithDraft), postListener);
         }
 
         @Override
@@ -409,7 +410,7 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new ResponseResult<DeleteResponse>() {
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new MainThreadResponseResult<>(new ResponseResult<DeleteResponse>() {
                 @Override
                 public void onSuccess(DeleteResponse deleteResponse) {
                     deleteListener.onSuccess(deleteResponse);
@@ -419,7 +420,7 @@ public class Chan4
                 public void onFailure(Exception e) {
                     deleteListener.onFailure(e);
                 }
-            }, deleteRequest));
+            }), deleteRequest));
         }
 
         @Override
@@ -427,7 +428,7 @@ public class Chan4
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(new ResponseResult<LoginResponse>() {
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(new ResponseResult<LoginResponse>() {
                 @Override
                 public void onSuccess(LoginResponse loginResponse) {
                     loginListener.onSuccess(loginResponse);
@@ -437,7 +438,7 @@ public class Chan4
                 public void onFailure(Exception e) {
                     loginListener.onFailure(e);
                 }
-            }, loginRequest));
+            }), loginRequest));
         }
 
         @Override

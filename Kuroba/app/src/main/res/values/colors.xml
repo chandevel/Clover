@@ -10,12 +10,13 @@
     <color name="fluent_default_icon_tint">#FFFFFFFF</color>
 
     <!-- basic colors -->
-    <color name="black">#000000</color>
-    <color name="almost_black">#010101</color>
-    <color name="white">#ffffff</color>
-    <color name="red">#FF0000</color>
-    <color name="green">#00FF00</color>
-    <color name="blue">#0000FF</color>
+    <color name="transparent">#00000000</color>
+    <color name="black">#FF000000</color>
+    <color name="almost_black">#FF010101</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="red">#FFFF0000</color>
+    <color name="green">#FF00FF00</color>
+    <color name="blue">#FF0000FF</color>
 
     <color name="transparent_black">#80000000</color>
 

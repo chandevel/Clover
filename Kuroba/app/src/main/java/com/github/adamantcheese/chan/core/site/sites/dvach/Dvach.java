@@ -161,7 +161,7 @@ public class Dvach
 
             @Override
             public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(postListener, loadableWithDraft), postListener);
+                NetUtils.makeHttpCall(new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener), loadableWithDraft), postListener);
             }
 
             @Override
