@@ -4,12 +4,19 @@ import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.LruCache;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Pair;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -23,7 +30,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +45,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.STRING_CONVERTER;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -104,7 +112,8 @@ public class QuickLatexEmbedder
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         BackgroundUtils.runOnBackgroundThread(() -> {
-                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy, imageUrl, math.first);
+                            Pair<Call, Callback> ret =
+                                    generateMathSpanCalls(commentCopy, imageUrl, math.first, theme, generatedLinkables);
                             if (ret == null || ret.first == null || ret.second == null) return;
                             try {
                                 ret.second.onResponse(ret.first, ret.first.execute());
@@ -115,8 +124,7 @@ public class QuickLatexEmbedder
                 }));
             } else {
                 // need to request an image URL
-                ret.add(new Pair<>(
-                        NetUtils.applicationClient.newCall(setupMathImageUrlRequest(math.second)),
+                ret.add(new Pair<>(NetUtils.applicationClient.newCall(setupMathImageUrlRequest(math.second)),
                         new NetUtilsClasses.IgnoreFailureCallback() {
                             @Override
                             public void onResponse(@NotNull Call call, @NotNull Response response) {
@@ -133,8 +141,12 @@ public class QuickLatexEmbedder
                                         String err = matcher.group(2);
                                         if (err == null) {
                                             mathCache.put(math.first, url);
-                                            Pair<Call, Callback> ret =
-                                                    generateMathSpanCalls(commentCopy, url, math.first);
+                                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy,
+                                                    url,
+                                                    math.first,
+                                                    theme,
+                                                    generatedLinkables
+                                            );
                                             if (ret == null || ret.first == null || ret.second == null) return;
                                             ret.second.onResponse(ret.first, ret.first.execute());
                                         }
@@ -169,7 +181,11 @@ public class QuickLatexEmbedder
     }
 
     private Pair<Call, Callback> generateMathSpanCalls(
-            SpannableStringBuilder comment, @NonNull HttpUrl imageUrl, String rawMath
+            SpannableStringBuilder comment,
+            @NonNull HttpUrl imageUrl,
+            String rawMath,
+            Theme theme,
+            List<PostLinkable> generatedLinkables
     ) {
         // execute immediately, so that the invalidate function is called when all embeds are done
         // that means that we can't enqueue this request
@@ -181,8 +197,6 @@ public class QuickLatexEmbedder
 
             @Override
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                // while this does run on the main thread (and shouldn't!), it's too much of a hassle to do this properly
-                // this returns fast enough that the other embed processing time gives this time to complete before invalidate
                 int startIndex = 0;
                 while (true) {
                     synchronized (comment) {
@@ -190,13 +204,18 @@ public class QuickLatexEmbedder
                         if (startIndex < 0) break;
 
                         SpannableStringBuilder replacement = new SpannableStringBuilder(" ");
-                        replacement.setSpan(
-                                new ImageSpan(getAppContext(), bitmap),
+                        replacement.setSpan(new ImageSpan(getAppContext(), bitmap),
                                 0,
                                 1,
                                 ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
                                         | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                         );
+                        // this will be removed before invalidation
+                        generatedLinkables.add(new PostLinkable(theme,
+                                imageUrl.toString(),
+                                rawMath,
+                                PostLinkable.Type.EMBED_TEMP
+                        ));
 
                         // replace the proper section of the comment
                         comment.replace(startIndex, startIndex + rawMath.length(), replacement);
@@ -206,6 +225,6 @@ public class QuickLatexEmbedder
                     }
                 }
             }
-        }, 0, 0, false);
+        }, 0, 0, false, false);
     }
 }

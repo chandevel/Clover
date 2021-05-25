@@ -51,6 +51,7 @@ public class PostLinkable
         QUOTE, //key: the quote text, value: Integer, post num in text
         LINK, //key: the link text to display, value: String, the link text url
         EMBED, // same as LINK, but used for embedding engine stuff
+        EMBED_TEMP, // same as EMBED, but only temporarily added, to be removed later in the embedding process
         SPOILER, //key: "SPOILER", value: CharSequence, the spoilered text
         THREAD, //key: the thread link text, value: ThreadLink, matching the board, opNo, and postNo
         BOARD, //key: the board link text, value: String, the board code

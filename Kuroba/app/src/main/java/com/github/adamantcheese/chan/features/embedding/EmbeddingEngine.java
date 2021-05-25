@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -234,6 +235,15 @@ public class EmbeddingEngine
     ) {
         // check if we need to do any processing to invalidate, as a shortcut
         if (generatedImages.isEmpty() && generatedLinkables.isEmpty()) return;
+
+        // remove any temp linkables (embeds that don't really generate a linkable, but let it pass through this function)
+        // notably QuickLatexEmbedder uses this
+        for (Iterator<PostLinkable> iterator = generatedLinkables.iterator(); iterator.hasNext(); ) {
+            PostLinkable linkable = iterator.next();
+            if (linkable.type == PostLinkable.Type.EMBED_TEMP) {
+                iterator.remove();
+            }
+        }
 
         // clear out any overlapping embed postlinkables from the generated set
         // split up auto/embed links
