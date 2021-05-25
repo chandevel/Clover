@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.View;
 
 import androidx.core.util.Pair;
@@ -57,7 +58,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.ui.toolbar.ToolbarMenu.OVERFLOW_ID;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -247,11 +247,10 @@ public class ViewThreadController
         if (doubleNavigationController != null
                 && doubleNavigationController.getLeftController() instanceof BrowseController) {
             //slide or phone layout
+            BrowseController browseController = (BrowseController) doubleNavigationController.getLeftController();
+            browseController.setBoard(catalogLoadable.board);
+            browseController.searchQuery = searchQuery;
             doubleNavigationController.switchToController(true);
-            ((BrowseController) doubleNavigationController.getLeftController()).setBoard(catalogLoadable.board);
-            if (searchQuery != null) {
-                ((BrowseController) doubleNavigationController.getLeftController()).searchQuery = searchQuery;
-            }
         } else if (doubleNavigationController != null
                 && doubleNavigationController.getLeftController() instanceof StyledToolbarNavigationController) {
             //split layout

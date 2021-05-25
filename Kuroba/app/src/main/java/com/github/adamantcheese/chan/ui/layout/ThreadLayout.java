@@ -674,9 +674,6 @@ public class ThreadLayout
             if (this.visible == Visible.THREAD) {
                 threadListLayout.cleanup();
                 postPopupHelper.popAll();
-                if (presenter.getLoadable() == null || presenter.getLoadable().isThreadMode()) {
-                    showSearch(false);
-                }
                 dismissSnackbar();
             }
 

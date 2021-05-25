@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.text.TextUtils;
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
@@ -38,10 +39,12 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -60,7 +63,9 @@ public class BrowseController
     @Inject
     BrowsePresenter presenter;
 
+    // these together bodge together search term persistency between controllers and clear stuff out if you change boards
     public String searchQuery = null;
+    public boolean clearNextSearch = false;
 
     public BrowseController(Context context) {
         super(context);
@@ -274,6 +279,11 @@ public class BrowseController
         navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
+
+        if(presenter.getLoadable() != null && !presenter.getLoadable().boardCode.equalsIgnoreCase(loadable.boardCode)) {
+            clearNextSearch = true;
+        }
+
         presenter.bindLoadable(loadable);
         presenter.requestData();
 
@@ -361,13 +371,30 @@ public class BrowseController
     }
 
     @Override
-    public void onSlideChanged() {
-        super.onSlideChanged();
-        if (getToolbar() != null && searchQuery != null) {
-            getToolbar().openSearch();
-            getToolbar().searchInput(searchQuery);
-            searchQuery = null;
+    public void onNavItemSet() {
+        super.onNavItemSet();
+
+        if (getToolbar() != null) {
+            if(!Objects.equals(navigation.searchText, searchQuery)) {
+                if(TextUtils.isEmpty(searchQuery) && clearNextSearch) {
+                    clearNextSearch = false;
+                    getToolbar().closeSearch();
+                    AndroidUtils.clearAnySelectionsAndKeyboards(context);
+                    return;
+                }
+            }
+            if(!TextUtils.isEmpty(searchQuery)) {
+                getToolbar().openSearch();
+                getToolbar().searchInput(searchQuery);
+                searchQuery = null;
+            }
         }
+    }
+
+    @Override
+    public void onSearchVisibilityChanged(boolean visible) {
+        super.onSearchVisibilityChanged(visible);
+        clearNextSearch = false;
     }
 
     @Override

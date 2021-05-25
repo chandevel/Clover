@@ -140,10 +140,23 @@ public abstract class ToolbarNavigationController
     }
 
     public interface ToolbarSearchCallback {
+        /**
+         * Called when search visibility changes
+         *
+         * @param visible Visible or not
+         */
         default void onSearchVisibilityChanged(boolean visible) {}
 
+        /**
+         * Called when search text is changed
+         *
+         * @param entered The search text
+         */
         default void onSearchEntered(String entered) {}
 
+        /**
+         * Called whenever the navigation item for the toolbar is consistent with the controller being shown.
+         */
         default void onNavItemSet() {}
     }
 }

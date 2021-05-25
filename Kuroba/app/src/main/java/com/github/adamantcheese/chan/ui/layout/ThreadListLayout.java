@@ -107,7 +107,7 @@ public class ThreadListLayout
                 showingThread.getLoadable().listViewIndex = indexTop[0];
                 showingThread.getLoadable().listViewTop = indexTop[1];
 
-                if(!recyclerView.canScrollVertically(1)){
+                if (!recyclerView.canScrollVertically(1)) {
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
                     // while in a layout pass. Postpone to the next frame.
                     recyclerView.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
@@ -365,7 +365,7 @@ public class ThreadListLayout
     }
 
     public void openSearch(boolean open) {
-        if (showingThread != null && searchOpen != open) {
+        if (searchOpen != open) {
             searchOpen = open;
 
             searchStatus.measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
