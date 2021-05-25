@@ -52,6 +52,7 @@ import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -193,11 +194,18 @@ public class CommentParser {
     private CharSequence handleAnchor(
             @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
     ) {
-        CommentParser.Link handlerLink = matchAnchor(post, text, anchor, callback);
+        Link handlerLink = null;
+        try {
+            handlerLink = matchAnchor(post, text, anchor, callback);
+        } catch (Exception e) {
+            Logger.w(this, "Failed to parse an element, leaving as plain text.");
+        }
         SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
 
         if (handlerLink != null) {
             addReply(theme, callback, post, handlerLink, spannableStringBuilder);
+        } else {
+            spannableStringBuilder.append(text);
         }
 
         return spannableStringBuilder.length() > 0 ? spannableStringBuilder : null;
@@ -373,7 +381,7 @@ public class CommentParser {
         return text;
     }
 
-    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
+    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) throws Exception {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
