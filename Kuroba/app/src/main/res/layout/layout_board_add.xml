@@ -28,8 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        tools:layout_height="60dp">
+        android:orientation="horizontal" >
 
         <com.github.adamantcheese.chan.ui.layout.SearchLayout
             android:id="@+id/search"
@@ -37,13 +36,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:paddingVertical="8dp" />
-
-        <Button
-            android:id="@+id/select_all"
-            style="@style/Widget.AppCompat.Button.Borderless"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="@string/select_all" />
 
     </LinearLayout>
 

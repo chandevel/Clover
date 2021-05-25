@@ -64,7 +64,6 @@ public class BoardAddLayout
         // View binding
         SearchLayout search = findViewById(R.id.search);
         RecyclerView suggestionsRecycler = findViewById(R.id.suggestions);
-        Button checkAllButton = findViewById(R.id.select_all);
 
         // Adapters
         suggestionsAdapter = new SuggestionsAdapter();
@@ -72,7 +71,6 @@ public class BoardAddLayout
         // View setup
         search.setCallback(this);
 
-        checkAllButton.setOnClickListener(v -> suggestionsAdapter.selectAll());
         suggestionsRecycler.setAdapter(suggestionsAdapter);
 
         suggestionsRecycler.requestFocus();
@@ -129,13 +127,6 @@ public class BoardAddLayout
         public void setSuggestionList(List<BoardSuggestion> suggestions) {
             suggestionList.clear();
             suggestionList.addAll(suggestions);
-            notifyDataSetChanged();
-        }
-
-        public void selectAll() {
-            for (BoardSuggestion suggestion : suggestionList) {
-                suggestion.checked = true;
-            }
             notifyDataSetChanged();
         }
 
