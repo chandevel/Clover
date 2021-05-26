@@ -158,17 +158,13 @@ public class NetUtils {
             ResponseBody body = response.body();
             if (body == null) throw new IOException("No body!");
             tempFile.getParentFile().mkdirs();
-            long contentLength = body.contentLength();
             try (InputStream is = body.byteStream()) {
                 IOUtils.writeToFile(is, tempFile, -1);
-            } catch (Exception ignored) {}
-
-            if (contentLength != tempFile.length()) {
-                throw new IOException(
-                        "File sizes don't match! Expected:" + contentLength + ", Actual: " + tempFile.length());
+                return tempFile;
+            } catch (Exception e) {
+                tempFile.delete();
+                throw e;
             }
-
-            return tempFile;
         }, new MainThreadResponseResult<>(new ResponseResult<File>() {
             @Override
             public void onFailure(Exception e) {
