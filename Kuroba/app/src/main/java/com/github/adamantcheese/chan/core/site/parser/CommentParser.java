@@ -108,29 +108,31 @@ public class CommentParser {
         rule(tagRule("a").action(this::handleAnchor));
 
         rule(tagRule("span").cssClass("deadlink")
-                .foregroundColor(StyleRule.ForegroundColor.QUOTE)
+                .foregroundColor(R.attr.post_quote_color, true)
                 .strikeThrough()
                 .action(this::handleDead));
         rule(tagRule("span").cssClass("spoiler").link(Type.SPOILER));
-        rule(tagRule("span").cssClass("fortune").action(this::handleFortune));
+        rule(tagRule("span").cssClass("fortune").bold());
         rule(tagRule("span").cssClass("abbr").nullify());
-        rule(tagRule("span").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
+        rule(tagRule("span").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
         rule(tagRule("span").cssClass("sjis").action(this::handleSJIS));
+        rule(tagRule("span")); // this allows inline styled elements to be processed
 
         rule(tagRule("table").action(this::handleTable));
 
         rule(tagRule("s").link(Type.SPOILER));
 
         rule(tagRule("strong").bold());
-        // these ones are css inline style specific
-        rule(tagRule("strong-color: red").bold().foregroundColor(StyleRule.ForegroundColor.RED));
-        rule(tagRule("p-font-size:15px-font-weight:bold").bold());
-
         rule(tagRule("b").bold());
+
         rule(tagRule("strike").strikeThrough());
 
         rule(tagRule("i").italic());
         rule(tagRule("em").italic());
+
+        rule(tagRule("u").underline());
+
+        rule(tagRule("font").applyFontRules());
 
         rule(tagRule("pre").cssClass("prettyprint").monospace().code().trimEndWhitespace().size(sp(12f)));
         return this;
@@ -174,7 +176,6 @@ public class CommentParser {
             CharSequence text,
             Element element
     ) {
-
         List<StyleRule> rules = this.rules.get(tag);
         if (rules != null) {
             for (int i = 0; i < 2; i++) {
@@ -257,22 +258,6 @@ public class CommentParser {
         res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
 
         spannableStringBuilder.append(res);
-    }
-
-    private CharSequence handleFortune(
-            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element span
-    ) {
-        // html looks like <span class="fortune" style="color:#0893e1"><br><br><b>Your fortune:</b>
-        String style = span.attr("style");
-        if (!TextUtils.isEmpty(style)) {
-            style = style.replace(" ", "").substring(style.indexOf('#') + 1);
-            int hexColor = Integer.parseInt(style, 16);
-            if (hexColor >= 0 && hexColor <= 0xffffff) {
-                text = span(text, new ForegroundColorSpanHashed(0xff000000 + hexColor), new StyleSpan(Typeface.BOLD));
-            }
-        }
-
-        return text;
     }
 
     // This is used on /p/ for exif data.
@@ -381,7 +366,8 @@ public class CommentParser {
         return text;
     }
 
-    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) throws Exception {
+    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback)
+            throws Exception {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API

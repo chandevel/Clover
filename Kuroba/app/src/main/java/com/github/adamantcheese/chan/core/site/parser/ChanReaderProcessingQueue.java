@@ -64,7 +64,7 @@ public class ChanReaderProcessingQueue {
         return toParse;
     }
 
-    Post.Builder getOp() {
+    public Post.Builder getOp() {
         return op;
     }
 }

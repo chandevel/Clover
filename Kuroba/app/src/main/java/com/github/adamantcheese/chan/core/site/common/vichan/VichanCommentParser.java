@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
@@ -28,7 +29,7 @@ public class VichanCommentParser
         super();
         addDefaultRules();
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
-        rule(StyleRule.tagRule("p").cssClass("quote").foregroundColor(StyleRule.ForegroundColor.INLINE_QUOTE));
+        rule(StyleRule.tagRule("p").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
     }
 
     @Override

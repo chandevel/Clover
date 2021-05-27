@@ -29,42 +29,34 @@ import android.text.style.UnderlineSpan;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CodeBackgroundSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.RelativeSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class StyleRule {
-    public enum ForegroundColor {
-        INLINE_QUOTE,
-        QUOTE,
-        RED
-    }
-
-    private final List<String> blockElements = Arrays.asList("p", "div");
-
     public static StyleRule tagRule(String tag) {
         return new StyleRule().tag(tag);
     }
 
     private String tag;
-    private List<String> classes;
-
+    private final List<String> classes = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
 
-    private ForegroundColor foregroundColor = null;
+    private int foregroundColor = 0;
+    private boolean foregroundColorRes = false;
     private boolean strikeThrough;
     private boolean underline;
     private boolean bold;
@@ -73,6 +65,7 @@ public class StyleRule {
     private boolean code;
     private boolean trimEndWhitespace;
     private int size = 0;
+    private boolean applyFontRules;
 
     private PostLinkable.Type link = null;
 
@@ -85,7 +78,7 @@ public class StyleRule {
     public StyleRule tag(String tag) {
         this.tag = tag;
 
-        if (blockElements.contains(tag)) {
+        if (StringUtils.containsAny(tag, "p", "div")) {
             blockElement = true;
         }
 
@@ -97,11 +90,7 @@ public class StyleRule {
     }
 
     public StyleRule cssClass(String cssClass) {
-        if (classes == null) {
-            classes = new ArrayList<>(4);
-        }
         classes.add(cssClass);
-
         return this;
     }
 
@@ -110,8 +99,9 @@ public class StyleRule {
         return this;
     }
 
-    public StyleRule foregroundColor(ForegroundColor foregroundColor) {
+    public StyleRule foregroundColor(int foregroundColor, boolean foregroundColorRes) {
         this.foregroundColor = foregroundColor;
+        this.foregroundColorRes = foregroundColorRes;
         return this;
     }
 
@@ -160,6 +150,11 @@ public class StyleRule {
         return this;
     }
 
+    public StyleRule applyFontRules() {
+        this.applyFontRules = true;
+        return this;
+    }
+
     public StyleRule nullify() {
         nullify = true;
         return this;
@@ -171,11 +166,11 @@ public class StyleRule {
     }
 
     public boolean highPriority() {
-        return classes != null && !classes.isEmpty();
+        return !classes.isEmpty();
     }
 
     public boolean applies(Element element) {
-        if (classes == null || classes.isEmpty()) {
+        if (classes.isEmpty()) {
             return true;
         }
 
@@ -206,8 +201,12 @@ public class StyleRule {
 
         List<Object> spansToApply = new ArrayList<>(2);
 
-        if (foregroundColor != null) {
-            spansToApply.add(new ForegroundColorSpanHashed(getForegroundColor(theme, foregroundColor)));
+        if (foregroundColor != 0) {
+            int color = foregroundColor;
+            if (foregroundColorRes) {
+                color = getAttrColor(theme.resValue, foregroundColor);
+            }
+            spansToApply.add(new ForegroundColorSpanHashed(color));
         }
 
         if (strikeThrough) {
@@ -242,6 +241,85 @@ public class StyleRule {
             spansToApply.add(new PostLinkable(theme, link.name(), result, link));
         }
 
+        String style = element.attr("style");
+        if (!style.isEmpty()) {
+            style = style.replace(" ", "");
+            String[] styles = style.split(";");
+            for (String s : styles) {
+                String[] rule = s.split(":");
+                if (rule.length != 2) continue;
+                switch (rule[0]) {
+                    case "color":
+                        spansToApply.add(new ForegroundColorSpanHashed(Color.parseColor(rule[1])));
+                        break;
+                    case "font-weight":
+                        spansToApply.add(new StyleSpan(Typeface.BOLD)); // whatever the weight, just make it bold
+                        break;
+                    case "font-size":
+                        String size = rule[1];
+                        if (size.contains("%")) {
+                            float scale = Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f;
+                            spansToApply.add(new RelativeSizeSpanHashed(scale));
+                        } else if (size.contains("px")) {
+                            int sizeDP = dp(Float.parseFloat(size.substring(0, size.indexOf("px"))));
+                            spansToApply.add(new AbsoluteSizeSpanHashed(sizeDP));
+                        } else if (s.contains("pt")) {
+                            // 1pt = 1.33px
+                            int sizeDP = dp((Float.parseFloat(size.substring(0, size.indexOf("pt"))) * 4f) / 3f);
+                            spansToApply.add(new AbsoluteSizeSpanHashed(sizeDP));
+                        } else {
+                            float scale = 1f;
+                            float scalarUnit = 1f / 4f; // 25% increase in size
+                            switch (rule[1]) {
+                                case "xx-small":
+                                    scale -= 3 * scalarUnit;
+                                    break;
+                                case "x-small":
+                                    scale -= 2 * scalarUnit;
+                                    break;
+                                case "small":
+                                case "smaller":
+                                    scale -= scalarUnit;
+                                    break;
+                                case "medium":
+                                    scale = 1f;
+                                    break;
+                                case "large":
+                                case "larger":
+                                    scale += scalarUnit;
+                                    break;
+                                case "x-large":
+                                    scale += 2 * scalarUnit;
+                                    break;
+                                case "xx-large":
+                                    scale += 3 * scalarUnit;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            spansToApply.add(new RelativeSizeSpanHashed(scale));
+                        }
+                        break;
+                    default:
+                        break; // ignore anything else
+                }
+            }
+        }
+
+        // special builtins for <font>
+        if (applyFontRules) {
+            String color = element.attr("color");
+            if (!color.isEmpty()) {
+                spansToApply.add(new ForegroundColorSpanHashed(Color.parseColor(color)));
+            }
+            String size = element.attr("size");
+            if (!size.isEmpty()) {
+                boolean relative = StringUtils.containsAny(size, "+", "-");
+                int s = (relative ? 3 : 0) + Integer.parseInt(size);
+                spansToApply.add(new RelativeSizeSpanHashed(s / 3f));
+            }
+        }
+
         if (!spansToApply.isEmpty()) {
             result = applySpan(result, spansToApply);
         }
@@ -256,19 +334,6 @@ public class StyleRule {
         }
 
         return result;
-    }
-
-    private int getForegroundColor(Theme theme, ForegroundColor foregroundColor) {
-        switch (foregroundColor) {
-            case INLINE_QUOTE:
-                return getAttrColor(theme.resValue, R.attr.post_inline_quote_color);
-            case QUOTE:
-                return getAttrColor(theme.resValue, R.attr.post_quote_color);
-            case RED:
-                return Color.RED;
-            default:
-                return 0;
-        }
     }
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {

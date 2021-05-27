@@ -241,19 +241,6 @@ public class DefaultPostParser
             }
             return new SpannableStringBuilder(text);
         } else if (node instanceof Element) {
-            StringBuilder nodeName = new StringBuilder(node.nodeName());
-            String styleAttr = node.attr("style");
-            if (!styleAttr.isEmpty() && !nodeName.toString().equals("span")) {
-                nodeName.append('-');
-                String[] split = styleAttr.split(";");
-                for (int i = 0; i < split.length; i++) {
-                    nodeName.append(split[i].trim());
-                    if (i < split.length - 1) {
-                        nodeName.append('-');
-                    }
-                }
-            }
-
             // Recursively call parseNode with the nodes of the paragraph.
             List<Node> innerNodes = node.childNodes();
             List<CharSequence> texts = new ArrayList<>(innerNodes.size() + 1);
@@ -265,7 +252,7 @@ public class DefaultPostParser
             CharSequence allInnerText = TextUtils.concat(texts.toArray(new CharSequence[0]));
 
             CharSequence result =
-                    commentParser.handleTag(callback, theme, post, nodeName.toString(), allInnerText, (Element) node);
+                    commentParser.handleTag(callback, theme, post, node.nodeName(), allInnerText, (Element) node);
             return new SpannableStringBuilder(result != null ? result : "");
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());
