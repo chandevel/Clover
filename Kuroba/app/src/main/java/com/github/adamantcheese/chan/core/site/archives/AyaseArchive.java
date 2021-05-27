@@ -239,15 +239,13 @@ public class AyaseArchive
                 Element element
         ) {
             throw new NotImplementedError(); // this likely can be fully removed and not overridden
-            /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a >, so we want to handle the inner element directly if there are any
+            /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
+            // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
+            // deepest nodes are processed first
+            // in this case, we just want to return the text that has already been processed inside of this "greentext" node
+            // otherwise duplicate PostLinkables will be generated
             if (element.getElementsByTag("span").hasClass("greentext") && element.childrenSize() > 0) {
-                return super.handleTag(callback,
-                        theme,
-                        post,
-                        element.children().first().tagName(),
-                        text,
-                        element.children().first()
-                );
+                return text;
             }
             return super.handleTag(callback, theme, post, tag, text, element);*/
         }

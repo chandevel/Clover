@@ -65,13 +65,17 @@ public class FoolFuukaArchive
             // OP object
             readPostObject(reader, queue);
 
-            reader.nextName(); // posts object
-            reader.beginObject();
-            // Posts object
-            while (reader.hasNext()) {
-                readPostObject(reader, queue);
+            // in the event of only an OP, the regular posts section is not there
+            if (reader.peek() != JsonToken.END_OBJECT) {
+                reader.nextName(); // posts object
+                reader.beginObject();
+                // Posts object
+                while (reader.hasNext()) {
+                    readPostObject(reader, queue);
+                }
+                reader.endObject();
             }
-            reader.endObject();
+
             reader.endObject();
             reader.endObject();
         }
