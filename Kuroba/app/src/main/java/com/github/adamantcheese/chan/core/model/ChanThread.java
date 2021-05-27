@@ -109,11 +109,12 @@ public class ChanThread {
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean hasReplies = op.getReplies() >= 0 || posts.size() - 1 > 0;
         boolean hasImages = op.getImagesCount() >= 0 || getImagesCount() > 0;
+        boolean hasUniqueIps = op.getUniqueIps() >= 0;
+        String separator = " / ";
         int style = extraStyling ? Typeface.BOLD_ITALIC : Typeface.ITALIC;
-        if (hasReplies && hasImages) {
-            boolean hasBumpLimit = loadable.board.bumpLimit > 0;
-            boolean hasImageLimit = loadable.board.imageLimit > 0;
 
+        if (hasReplies) {
+            boolean hasBumpLimit = loadable.board.bumpLimit > 0;
             SpannableString replies =
                     new SpannableString((op.getReplies() >= 0 ? op.getReplies() : posts.size() - 1) + "R");
             if (hasBumpLimit && op.getReplies() >= loadable.board.bumpLimit) {
@@ -125,7 +126,11 @@ public class ChanThread {
                     replies.setSpan(new UnderlineSpan(), 0, replies.length(), 0);
                 }
             }
+            builder.append(replies);
+        }
 
+        if (hasImages) {
+            boolean hasImageLimit = loadable.board.imageLimit > 0;
             SpannableString images =
                     new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : getImagesCount()) + "I");
             if (hasImageLimit && op.getImagesCount() >= loadable.board.imageLimit) {
@@ -137,28 +142,30 @@ public class ChanThread {
                     images.setSpan(new UnderlineSpan(), 0, images.length(), 0);
                 }
             }
+            builder.append(hasReplies ? separator : "").append(images);
+        }
 
-            builder.append(replies).append(" / ").append(images);
+        if (hasUniqueIps) {
+            String ips = op.getUniqueIps() + "P";
+            builder.append(hasReplies || hasImages ? separator : "").append(ips);
+        }
 
-            if (op.getUniqueIps() >= 0) {
-                String ips = op.getUniqueIps() + "P";
-                builder.append(" / ").append(ips);
-            }
-
-            CommonDataStructs.ChanPage p = PageRepository.getPage(op);
-            if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
-                SpannableString page = new SpannableString(String.valueOf(p.page));
-                if (p.page >= loadable.board.pages) {
-                    page.setSpan(new StyleSpan(style), 0, page.length(), 0);
-                    if (extraStyling) {
-                        page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                                android.R.attr.textColor
-                        )), 0, page.length(), 0);
-                        page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
-                    }
+        CommonDataStructs.ChanPage p = PageRepository.getPage(op);
+        if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
+            SpannableString page = new SpannableString(String.valueOf(p.page));
+            if (p.page >= loadable.board.pages) {
+                page.setSpan(new StyleSpan(style), 0, page.length(), 0);
+                if (extraStyling) {
+                    page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
+                            android.R.attr.textColor
+                    )), 0, page.length(), 0);
+                    page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
                 }
-                builder.append(" / ").append(getString(R.string.thread_page_no)).append(' ').append(page);
             }
+            builder.append(hasReplies || hasImages || hasUniqueIps ? separator : "")
+                    .append(getString(R.string.thread_page_no))
+                    .append(' ')
+                    .append(page);
         }
         return builder;
     }
