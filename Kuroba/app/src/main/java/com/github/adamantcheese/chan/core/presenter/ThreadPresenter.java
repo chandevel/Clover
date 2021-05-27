@@ -985,8 +985,8 @@ public class ThreadPresenter
 
     @Override
     public void onListStatusClicked() {
-        if (!isBound()) return;
-        if (!chanLoader.getThread().isArchived()) {
+        if (!isBound() || getChanThread() == null) return;
+        if (!getChanThread().isArchived()) {
             chanLoader.requestMoreData();
         } else {
             showArchives(loadable, loadable.no);

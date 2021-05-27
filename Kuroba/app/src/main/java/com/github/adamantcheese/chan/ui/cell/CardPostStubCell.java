@@ -56,9 +56,7 @@ public class CardPostStubCell
         title = findViewById(R.id.title);
         options = findViewById(R.id.options);
 
-        if (!isInEditMode()) {
-            setCompact(false);
-        }
+        setCompact(false);
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
@@ -99,7 +97,8 @@ public class CardPostStubCell
             Post post,
             PostCellCallback callback,
             boolean inPopup,
-            boolean highlighted, boolean compact,
+            boolean highlighted,
+            boolean compact,
             Theme theme
     ) {
         this.post = post;
@@ -131,12 +130,12 @@ public class CardPostStubCell
     }
 
     private void setCompact(boolean compact) {
-        int textSizeSp = ChanSettings.fontSize.get() + (compact ? -2 : 0);
+        int textSizeSp = (isInEditMode() ? 15 : ChanSettings.fontSize.get()) + (compact ? -2 : 0);
         title.setTextSize(textSizeSp);
-        int p = compact ? dp(3) : dp(8);
+        int p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
         // Same as the layout.
-        title.setPadding(p, p, p, 0);
-        options.setPadding(p, p / 2, p / 2, p / 2);
+        title.setPadding(p, p, p, p);
+        options.setPadding(p / 2, p / 2, p / 2, p / 2);
     }
 }
