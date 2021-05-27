@@ -58,6 +58,7 @@ import androidx.preference.PreferenceManager;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.EventBus;
@@ -463,6 +464,11 @@ public class AndroidUtils {
 
     public static AudioManager getAudioManager() {
         return (AudioManager) getAppContext().getSystemService(AUDIO_SERVICE);
+    }
+
+    public static boolean getDefaultMuteState() {
+        return ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
+                || !getAudioManager().isWiredHeadsetOn());
     }
 
     public static void postToEventBus(Object message) {

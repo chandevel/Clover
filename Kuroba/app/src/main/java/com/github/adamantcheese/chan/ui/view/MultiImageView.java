@@ -81,6 +81,7 @@ import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONV
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
@@ -265,11 +266,6 @@ public class MultiImageView
     @Override
     public void onSwipeToSaveImage() {
         callback.onSwipeToSaveImage();
-    }
-
-    private boolean getDefaultMuteState() {
-        return ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
-                || !getAudioManager().isWiredHeadsetOn());
     }
 
     public void setVolume(boolean muted) {
@@ -496,7 +492,6 @@ public class MultiImageView
             }
             exoPlayer.prepare();
 
-            exoPlayer.setVolume(0f);
             exoPlayer.setRepeatMode(ChanSettings.videoAutoLoop.get() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
 
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {

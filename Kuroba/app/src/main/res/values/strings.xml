@@ -486,7 +486,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_video_default_muted">Start videos muted</string>
     <string name="setting_video_default_muted_description">If a video has audio, mute it by default</string>
     <string name="setting_headset_default_muted">Mute headset videos</string>
-    <string name="setting_headset_default_muted_description">Mute the video even if a wired headset is connected</string>
+    <string name="setting_headset_default_muted_description">Mute the video even if a WIRED headset is connected</string>
     <string name="setting_share_url">Share URL to image</string>
     <string name="setting_share_url_description">Share the URL to the image instead of the image itself</string>
     <string name="settings_remove_image_spoilers">Remove image spoilers</string>

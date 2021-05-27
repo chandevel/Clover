@@ -57,6 +57,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 
 public class ImageViewerPresenter
@@ -85,8 +86,7 @@ public class ImageViewerPresenter
     private boolean viewPagerVisible = false;
     private boolean changeViewsOnInTransitionEnd = false;
 
-    private boolean muted = ChanSettings.videoDefaultMuted.get() && (ChanSettings.headsetDefaultMuted.get()
-            || !getAudioManager().isWiredHeadsetOn());
+    private boolean muted = getDefaultMuteState();
 
     public ImageViewerPresenter(Context context, Callback callback) {
         this.context = context;
