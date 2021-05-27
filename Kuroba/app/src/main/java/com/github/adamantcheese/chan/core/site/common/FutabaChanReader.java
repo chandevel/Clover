@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.site.common;
 
+import android.text.TextUtils;
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
@@ -276,6 +277,12 @@ public class FutabaChanReader
         if (builder.op) {
             // Update OP fields later on the main thread
             queue.setOp(builder.clone());
+        }
+
+        if (queue.getOp().sticky) {
+            // for some weird reason, stickies have random \n's in the API return, so just clear those out
+            // this has been reported to the devs
+            builder.comment(builder.comment.toString().replace("\n", ""));
         }
 
         Post cached = queue.getCachedPost(builder.no);
