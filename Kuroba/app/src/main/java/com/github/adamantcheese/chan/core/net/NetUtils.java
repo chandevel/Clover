@@ -70,7 +70,7 @@ import static okhttp3.Protocol.HTTP_2;
 public class NetUtils {
     public static final String USER_AGENT = BuildConfig.APP_LABEL + "/" + BuildConfig.VERSION_NAME;
 
-    private static final int MB = 1024 * 1024;
+    public static final int MB = 1024 * 1024;
     // The OkHttpClient installed cache, used for all requests
     private static final Cache OK_HTTP_CACHE = new Cache(new File(getCacheDir(), "okhttp"),
             ChanSettings.autoLoadThreadImages.get()

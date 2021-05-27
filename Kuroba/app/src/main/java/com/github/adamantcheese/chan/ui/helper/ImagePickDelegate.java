@@ -46,6 +46,7 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
@@ -53,7 +54,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImagePickDelegate {
     private static final int IMAGE_PICK_RESULT = 2;
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
+    private static final long MAX_FILE_SIZE = 50 * MB;
     private static final String DEFAULT_FILE_NAME = "file";
 
     private final Activity activity;

@@ -77,6 +77,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONVERTER;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -710,7 +711,7 @@ public class MultiImageView
             GifImageView gif = (GifImageView) child;
             if (gif.getDrawable() instanceof GifDrawable) {
                 GifDrawable drawable = (GifDrawable) gif.getDrawable();
-                if (drawable.getFrameByteCount() > 100 * 1024 * 1024) { // max size from RecordingCanvas
+                if (drawable.getFrameByteCount() > 100 * MB) { // max size from RecordingCanvas
                     onError(new Exception("Uncompressed GIF too large (>100MB), " + PostUtils.getReadableFileSize(
                             drawable.getFrameByteCount())));
                     return false;
