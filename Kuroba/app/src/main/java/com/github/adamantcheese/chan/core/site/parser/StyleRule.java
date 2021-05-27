@@ -78,7 +78,7 @@ public class StyleRule {
     public StyleRule tag(String tag) {
         this.tag = tag;
 
-        if (StringUtils.containsAny(tag, "p", "div")) {
+        if (StringUtils.startsWithAny(tag, "p", "div")) {
             blockElement = true;
         }
 
