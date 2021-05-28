@@ -36,7 +36,7 @@ public class SettingsGroup {
         this.name = name;
     }
 
-    public SettingView add(SettingView settingView) {
+    public <T extends SettingView> T add(T settingView) {
         settingViews.add(settingView);
         return settingView;
     }

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.settings;
 
 import android.view.View;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 public abstract class SettingView {
@@ -44,6 +45,14 @@ public abstract class SettingView {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+        if (built) {
+            view.setEnabled(enabled);
+            view.findViewById(R.id.top).setEnabled(enabled);
+            View bottom = view.findViewById(R.id.bottom);
+            if (bottom != null) {
+                bottom.setEnabled(enabled);
+            }
+        }
     }
 
     public String getTopDescription() {

@@ -69,12 +69,6 @@ public class BooleanSettingView
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         if (built) {
-            view.setEnabled(enabled);
-            view.findViewById(R.id.top).setEnabled(enabled);
-            View bottom = view.findViewById(R.id.bottom);
-            if (bottom != null) {
-                bottom.setEnabled(enabled);
-            }
             switcher.setEnabled(enabled);
         }
     }

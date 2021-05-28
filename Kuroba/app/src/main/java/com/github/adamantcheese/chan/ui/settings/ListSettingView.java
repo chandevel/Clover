@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.settings;
 import android.view.Gravity;
 import android.view.View;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
@@ -80,19 +79,6 @@ public class ListSettingView<T>
     public void setView(View view) {
         view.setOnClickListener(this);
         super.setView(view);
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        if (built) {
-            view.setEnabled(enabled);
-            view.findViewById(R.id.top).setEnabled(enabled);
-            View bottom = view.findViewById(R.id.bottom);
-            if (bottom != null) {
-                bottom.setEnabled(enabled);
-            }
-        }
     }
 
     @Override

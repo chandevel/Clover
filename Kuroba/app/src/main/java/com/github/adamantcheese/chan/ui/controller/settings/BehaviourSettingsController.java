@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
 
@@ -52,6 +53,11 @@ public class BehaviourSettingsController
     @Inject
     DatabaseHideManager hideManager;
 
+    private BooleanSettingView proxyEnabledSetting;
+    private StringSettingView proxyAddressSetting;
+    private IntegerSettingView proxyPortSetting;
+    private ListSettingView<ProxyMode> proxyTypeSetting;
+
     public BehaviourSettingsController(Context context) {
         super(context);
     }
@@ -60,6 +66,19 @@ public class BehaviourSettingsController
     public void onCreate() {
         super.onCreate();
         navigation.setTitle(R.string.settings_screen_behavior);
+
+        proxyAddressSetting.setEnabled(ChanSettings.proxyEnabled.get());
+        proxyPortSetting.setEnabled(ChanSettings.proxyEnabled.get());
+        proxyTypeSetting.setEnabled(ChanSettings.proxyEnabled.get());
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+
+        if (item == proxyEnabledSetting) {
+            updateProxySettings();
+        }
     }
 
     @Override
@@ -225,37 +244,44 @@ public class BehaviourSettingsController
         {
             SettingsGroup proxy = new SettingsGroup(R.string.settings_group_proxy);
 
-            requiresRestart.add(proxy.add(new BooleanSettingView(this,
+            proxyEnabledSetting = proxy.add(new BooleanSettingView(this,
                     ChanSettings.proxyEnabled,
                     R.string.setting_proxy_enabled,
                     R.string.empty
-            )));
+            ));
 
-            requiresRestart.add(proxy.add(new StringSettingView(this,
+            proxyAddressSetting = proxy.add(new StringSettingView(this,
                     ChanSettings.proxyAddress,
                     R.string.setting_proxy_address,
                     R.string.setting_proxy_address,
                     R.string.empty
-            )));
+            ));
 
-            requiresRestart.add(proxy.add(new IntegerSettingView(this,
+            proxyPortSetting = proxy.add(new IntegerSettingView(this,
                     ChanSettings.proxyPort,
                     R.string.setting_proxy_port,
                     R.string.setting_proxy_port,
                     new Pair<>(0, 0xFFFF)
-            )));
+            ));
 
             List<ListSettingView.Item<ProxyMode>> proxyTypes = new ArrayList<>();
             for (ProxyMode type : ProxyMode.values()) {
                 proxyTypes.add(new ListSettingView.Item<>(type.name().toUpperCase(), type));
             }
-            requiresRestart.add(proxy.add(new ListSettingView<>(this,
+            proxyTypeSetting = proxy.add(new ListSettingView<>(this,
                     ChanSettings.proxyType,
                     R.string.setting_proxy_type,
                     proxyTypes
-            )));
+            ));
 
+            requiresRestart.addAll(proxy.settingViews);
             groups.add(proxy);
         }
+    }
+
+    private void updateProxySettings() {
+        proxyAddressSetting.setEnabled(ChanSettings.proxyEnabled.get());
+        proxyPortSetting.setEnabled(ChanSettings.proxyEnabled.get());
+        proxyTypeSetting.setEnabled(ChanSettings.proxyEnabled.get());
     }
 }

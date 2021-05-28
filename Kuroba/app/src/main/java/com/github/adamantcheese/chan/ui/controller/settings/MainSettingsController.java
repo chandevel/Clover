@@ -105,13 +105,13 @@ public class MainSettingsController
         {
             SettingsGroup general = new SettingsGroup(R.string.settings_group_settings);
 
-            watchLink = (LinkSettingView) general.add(new LinkSettingView(this,
+            watchLink = general.add(new LinkSettingView(this,
                     R.string.settings_watch,
                     R.string.empty,
                     v -> navigationController.pushController(new WatchSettingsController(context))
             ));
 
-            sitesSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+            sitesSetting = general.add(new LinkSettingView(this,
                     R.string.settings_sites,
                     R.string.empty,
                     v -> navigationController.pushController(new SitesSetupController(context))
@@ -143,7 +143,7 @@ public class MainSettingsController
                     ))
             ));
 
-            filtersSetting = (LinkSettingView) general.add(new LinkSettingView(this,
+            filtersSetting = general.add(new LinkSettingView(this,
                     R.string.settings_filters,
                     R.string.empty,
                     v -> navigationController.pushController(new FiltersController(context))

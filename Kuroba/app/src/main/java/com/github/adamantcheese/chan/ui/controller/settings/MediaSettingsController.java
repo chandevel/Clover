@@ -150,32 +150,32 @@ public class MediaSettingsController
             SettingsGroup media = new SettingsGroup(R.string.settings_group_saving);
 
             //Save locations
-            saveLocation = (LinkSettingView) media.add(new LinkSettingView(this,
+            saveLocation = media.add(new LinkSettingView(this,
                     getString(R.string.save_location_screen),
                     saveLocationSetupDelegate.getSaveLocation(),
                     v -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
             ));
 
             //Save modifications
-            imageBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            imageBoardFolderSetting = media.add(new BooleanSettingView(this,
                     ChanSettings.saveImageBoardFolder,
                     R.string.setting_save_image_board_folder,
                     R.string.setting_save_image_board_folder_description
             ));
 
-            imageThreadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            imageThreadFolderSetting = media.add(new BooleanSettingView(this,
                     ChanSettings.saveImageThreadFolder,
                     R.string.setting_save_image_thread_folder,
                     R.string.setting_save_image_thread_folder_description
             ));
 
-            albumBoardFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            albumBoardFolderSetting = media.add(new BooleanSettingView(this,
                     ChanSettings.saveAlbumBoardFolder,
                     R.string.setting_save_album_board_folder,
                     R.string.setting_save_album_board_folder_description
             ));
 
-            albumThreadFolderSetting = (BooleanSettingView) media.add(new BooleanSettingView(this,
+            albumThreadFolderSetting = media.add(new BooleanSettingView(this,
                     ChanSettings.saveAlbumThreadFolder,
                     R.string.setting_save_album_thread_folder,
                     R.string.setting_save_album_thread_folder_description
@@ -199,13 +199,13 @@ public class MediaSettingsController
                     R.string.setting_video_auto_loop_description
             ));
 
-            videoDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
+            videoDefaultMutedSetting = video.add(new BooleanSettingView(this,
                     ChanSettings.videoDefaultMuted,
                     R.string.setting_video_default_muted,
                     R.string.setting_video_default_muted_description
             ));
 
-            headsetDefaultMutedSetting = (BooleanSettingView) video.add(new BooleanSettingView(this,
+            headsetDefaultMutedSetting = video.add(new BooleanSettingView(this,
                     ChanSettings.headsetDefaultMuted,
                     R.string.setting_headset_default_muted,
                     R.string.setting_headset_default_muted_description
