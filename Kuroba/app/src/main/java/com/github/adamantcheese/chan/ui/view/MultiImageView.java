@@ -60,6 +60,7 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -81,7 +82,6 @@ import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONVERTER;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
@@ -544,7 +544,11 @@ public class MultiImageView
         }
 
         if (!hasContent || mode == Mode.OTHER) {
-            openLink(postImage.imageUrl.toString());
+            Snackbar snackbar =
+                    Snackbar.make(this, R.string.open_link_confirmation, Snackbar.LENGTH_LONG);
+            snackbar.setAction(R.string.open, (v -> openLink(postImage.imageUrl.toString())));
+            snackbar.setGestureInsetBottomIgnored(true);
+            snackbar.show();
             onModeLoaded(Mode.OTHER, null);
         }
     }

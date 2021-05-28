@@ -88,6 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="select_none">Select none</string>
     <string name="loading">Loading…</string>
     <string name="default_">Default</string>
+    <string name="open">Open</string>
 
     <string name="mark_as_my_post">Mark as my post</string>
     <string name="unmark_as_my_post">Unmark as my post</string>
