@@ -21,10 +21,13 @@ import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
+
+import java.util.regex.Pattern;
 
 /**
  * A Theme object, a wrapper around a Android theme<br>
@@ -115,6 +118,8 @@ public class Theme {
         // UPPER_CASE_SNAKE_CASE
         //
         // for any new items added to this enum; settings saving and display names depend on it.
+        // This is statically checked in debug builds.
+        //
         // NAME_HERE(R.style.PRIMARY_COLOR, R.style.ACCENT_COLOR)
 
         RED(R.style.PrimaryRed, R.style.AccentRed),
@@ -159,6 +164,17 @@ public class Theme {
 
         public String prettyName() {
             return StringUtils.caseAndSpace(name(), "_");
+        }
+    }
+
+    static {
+        if (BuildConfig.DEBUG) {
+            Pattern colorStyleAssertion = Pattern.compile("[A-Z_]+");
+            for (MaterialColorStyle style : MaterialColorStyle.values()) {
+                if (!colorStyleAssertion.matcher(style.name()).matches()) {
+                    throw new RuntimeException("Style \"" + style.name() + "\" is not in UPPER_CASE_SNAKE_CASE.");
+                }
+            }
         }
     }
 }
