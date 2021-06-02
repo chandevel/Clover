@@ -18,8 +18,7 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.text.SpannableStringBuilder;
-import android.text.style.TypefaceSpan;
+import android.graphics.Typeface;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -63,6 +62,7 @@ public class LogsController
         container.setPadding(dp(8), dp(8), dp(8), dp(8));
         container.setBackgroundColor(Color.BLACK);
         logTextView = new TextView(context);
+        logTextView.setTypeface(Typeface.MONOSPACE);
         logTextView.setTextColor(Color.WHITE);
         logTextView.setLineSpacing(dp(1), 1);
         container.addView(logTextView, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
@@ -71,9 +71,7 @@ public class LogsController
 
         String logs = loadLogs();
         if (logs != null) {
-            SpannableStringBuilder logText = new SpannableStringBuilder(logs);
-            logText.setSpan(new TypefaceSpan("monospace"), 0, logText.length(), 0);
-            logTextView.setText(logText);
+            logTextView.setText(logs);
         }
     }
 
