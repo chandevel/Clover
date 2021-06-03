@@ -7,12 +7,12 @@ import android.text.format.DateUtils;
 import android.util.Base64;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.google.common.io.Files;
 import com.vdurmont.emoji.EmojiParser;
 
 import java.text.DateFormat;
@@ -36,26 +36,6 @@ public class StringUtils {
 
     static {
         UTCFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-    }
-
-    @Nullable
-    public static String extractFileNameExtension(String filename) {
-        int index = filename.lastIndexOf('.');
-        if (index == -1) {
-            return null;
-        }
-
-        return filename.substring(index + 1);
-    }
-
-    @NonNull
-    public static String removeExtensionFromFileName(String filename) {
-        int index = filename.lastIndexOf('.');
-        if (index == -1) {
-            return filename;
-        }
-
-        return filename.substring(0, index);
     }
 
     public static String dirNameRemoveBadCharacters(String dirName) {
@@ -96,17 +76,16 @@ public class StringUtils {
             return result;
         }
 
-        String extension = extractFileNameExtension(result);
+        String extension = Files.getFileExtension(result);
 
-        int extensionLength = extension == null ? 0 : (extension.length() + 1);
-        int charactersToTrim = 3 + extensionLength;
+        int charactersToTrim = 4 + extension.length();
 
         if (result.length() < charactersToTrim) {
             return result;
         }
 
         String trimmedUrl = result.substring(0, result.length() - charactersToTrim);
-        return trimmedUrl + "XXX" + (extension == null ? "" : "." + extension);
+        return trimmedUrl + "XXX." + extension;
     }
 
     public static boolean startsWithAny(String s, String... suffixes) {

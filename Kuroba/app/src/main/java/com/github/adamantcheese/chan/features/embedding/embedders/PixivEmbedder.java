@@ -12,11 +12,11 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,7 +77,7 @@ public class PixivEmbedder
                             .thumbnailUrl(HttpUrl.get(generatedURL))
                             .imageUrl(HttpUrl.get(fullsizeUrl)) // this isn't the "source" as it's always a JPG, but it's good enough
                             .filename(Parser.unescapeEntities(input.select("a>h1").get(0).html(), false))
-                            .extension(StringUtils.extractFileNameExtension(fullsizeUrl))
+                            .extension(Files.getFileExtension(fullsizeUrl))
                             .isInlined()
                             .build()
             );

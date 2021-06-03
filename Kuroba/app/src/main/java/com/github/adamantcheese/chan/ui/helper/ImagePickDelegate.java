@@ -35,7 +35,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.IOUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -143,7 +143,7 @@ public class ImagePickDelegate {
         String urlFileName = clipboardURL.pathSegments().get(clipboardURL.pathSize() - 1);
         cancelableDownload = NetUtils.makeFileRequest(clipboardURL,
                 "clipboard_url",
-                StringUtils.extractFileNameExtension(urlFileName),
+                Files.getFileExtension(urlFileName),
                 new NetUtilsClasses.ResponseResult<File>() {
                     @Override
                     public void onFailure(Exception e) {

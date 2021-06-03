@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
 import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
@@ -270,8 +271,8 @@ public class NetUtils {
                         performBitmapFailure(url, new NullPointerException("No response data"), mainThread);
                         return;
                     }
-                    String fileExtension = StringUtils.extractFileNameExtension(url.toString());
-                    if (fileExtension != null && fileExtension.equalsIgnoreCase("webm")) {
+
+                    if ("webm".equalsIgnoreCase(Files.getFileExtension(url.toString()))) {
                         File tempFile = new File(getCacheDir(), UUID.randomUUID().toString());
                         if (!tempFile.createNewFile()) {
                             tempFile.delete();

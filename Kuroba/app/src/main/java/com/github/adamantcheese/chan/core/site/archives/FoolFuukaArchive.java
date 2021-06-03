@@ -17,7 +17,7 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import org.jsoup.nodes.Element;
 
@@ -174,8 +174,8 @@ public class FoolFuukaArchive
                                     break;
                                 case "media_filename":
                                     String filename = reader.nextString();
-                                    imageBuilder.filename(StringUtils.removeExtensionFromFileName(filename));
-                                    imageBuilder.extension(StringUtils.extractFileNameExtension(filename));
+                                    imageBuilder.filename(Files.getNameWithoutExtension(filename));
+                                    imageBuilder.extension(Files.getFileExtension(filename));
                                     break;
                                 case "media_hash":
                                     imageBuilder.fileHash(reader.nextString(), true);
@@ -206,7 +206,7 @@ public class FoolFuukaArchive
                                     }
                                     break;
                                 case "media_orig":
-                                    imageBuilder.serverFilename(StringUtils.removeExtensionFromFileName(reader.nextString()));
+                                    imageBuilder.serverFilename(Files.getNameWithoutExtension(reader.nextString()));
                                     break;
                                 case "thumb_link":
                                     if (reader.peek() == JsonToken.NULL) {

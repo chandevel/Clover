@@ -108,7 +108,7 @@ public class DefaultPostParser
                     builder.comment.setSpan(new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull View widget) {
-                            showToast(widget.getContext(), "This post has been removed");
+                            showToast(widget.getContext(), "This post has been removed.");
                         }
                     }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), 0);
                     builder.comment.removeSpan(l);

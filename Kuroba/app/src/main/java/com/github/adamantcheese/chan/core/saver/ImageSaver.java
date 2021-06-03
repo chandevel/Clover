@@ -42,6 +42,7 @@ import com.github.k1rakishou.fsaf.file.AbstractFile;
 import com.github.k1rakishou.fsaf.file.DirectorySegment;
 import com.github.k1rakishou.fsaf.file.FileSegment;
 import com.github.k1rakishou.fsaf.util.FSAFUtils;
+import com.google.common.io.Files;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -440,18 +441,18 @@ public class ImageSaver {
     private String filterName(String name) {
         String filteredName = StringUtils.fileNameRemoveBadCharacters(name);
 
-        String extension = StringUtils.extractFileNameExtension(filteredName);
+        String extension = Files.getFileExtension(filteredName);
 
         // Remove the extension length + the '.' symbol from the resulting "filteredName" length
         // and if it equals to 0 that means that the whole file name consists of bad characters
         // (e.g. the whole filename consists of japanese characters) so we need to generate a new
         // file name
-        boolean isOnlyExtensionLeft = (extension != null && (filteredName.length() - extension.length() - 1) == 0);
+        boolean isOnlyExtensionLeft = (filteredName.length() - extension.length() - 1) == 0;
 
         // filteredName.length() == 0 will only be true when "name" parameter does not have an
         // extension
         if (filteredName.isEmpty() || isOnlyExtensionLeft) {
-            String appendExtension = extension != null ? "." + extension : "";
+            String appendExtension = !extension.isEmpty() ? "." + extension : "";
             filteredName = System.currentTimeMillis() + appendExtension;
         }
 

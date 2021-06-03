@@ -17,6 +17,7 @@ import androidx.exifinterface.media.ExifInterface;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -128,7 +129,7 @@ public class BitmapUtils {
         }
 
         for (File file : files) {
-            if (StringUtils.extractFileNameExtension(file.getAbsolutePath()).equals("tmp")) {
+            if ("tmp".equalsIgnoreCase(Files.getFileExtension(file.getAbsolutePath()))) {
                 if (!file.delete()) {
                     Logger.w(TAG, "Could not delete old temp image file: " + file.getAbsolutePath());
                 }

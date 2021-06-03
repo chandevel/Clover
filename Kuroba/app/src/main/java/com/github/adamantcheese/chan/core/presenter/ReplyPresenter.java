@@ -55,7 +55,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import java.io.File;
 import java.util.Map;
@@ -417,9 +417,7 @@ public class ReplyPresenter
 
     public void filenameNewClicked() {
         if (draft == null) return;
-        String currentExt = StringUtils.extractFileNameExtension(draft.fileName);
-        currentExt = (currentExt == null) ? "" : "." + currentExt;
-        draft.fileName = System.currentTimeMillis() + currentExt;
+        draft.fileName = System.currentTimeMillis() + "." + Files.getFileExtension(draft.fileName);
         callback.loadDraftIntoViews(draft);
     }
 
@@ -594,7 +592,7 @@ public class ReplyPresenter
         callback.setFileName(name);
         previewOpen = true;
 
-        boolean probablyWebm = "webm".equals(StringUtils.extractFileNameExtension(name));
+        boolean probablyWebm = "webm".equalsIgnoreCase(Files.getFileExtension(name));
         int maxSize = probablyWebm ? loadable.board.maxWebmSize : loadable.board.maxFileSize;
         //if the max size is undefined for the board, ignore this message
         if (file != null && file.length() > maxSize && maxSize != -1) {
