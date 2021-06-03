@@ -101,12 +101,15 @@ public class CardPostCell
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.edit();
-            icons.set(PostIcons.STICKY_FLAG, true);
-            icons.set(PostIcons.CLOSED_FLAG, true);
-            icons.set(PostIcons.DELETED_FLAG, true);
-            icons.set(PostIcons.ARCHIVED_FLAG, true);
-            icons.apply();
+            icons.setWithoutText(new Post.Builder().sticky(true)
+                    .closed(true)
+                    .archived(true)
+                    .board(Board.getDummyBoard())
+                    .no(1)
+                    .opId(1)
+                    .setUnixTimestampSeconds(System.currentTimeMillis())
+                    .comment("")
+                    .build(), iconSizePx);
         }
 
         setOnClickListener((view) -> callback.onPostClicked(post));
@@ -213,14 +216,7 @@ public class CardPostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        icons.edit();
-        icons.set(PostIcons.STICKY_FLAG, post.isSticky());
-        icons.set(PostIcons.CLOSED_FLAG, post.isClosed());
-        icons.set(PostIcons.DELETED_FLAG, post.deleted.get());
-        icons.set(PostIcons.ARCHIVED_FLAG, post.isArchived());
-        icons.set(PostIcons.HTTP_ICONS_FLAG_NO_TEXT, post.httpIcons != null);
-        icons.setHttpIcons(post.httpIcons, iconSizePx);
-        icons.apply();
+        icons.setWithoutText(post, iconSizePx);
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
         title.setText(TextUtils.isEmpty(post.subjectSpan)
@@ -243,7 +239,7 @@ public class CardPostCell
 
     @Override
     public void unsetPost() {
-        icons.cancelRequests();
+        icons.clear();
         thumbView.setPostImage(null, 0);
         thumbView.setOnClickListener(null);
         thumbView.setOnLongClickListener(null);

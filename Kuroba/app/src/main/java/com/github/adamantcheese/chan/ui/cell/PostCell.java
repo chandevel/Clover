@@ -75,7 +75,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
@@ -172,26 +171,28 @@ public class PostCell
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.edit();
-            icons.set(PostIcons.STICKY_FLAG, true);
-            icons.set(PostIcons.CLOSED_FLAG, true);
-            icons.set(PostIcons.DELETED_FLAG, true);
-            icons.set(PostIcons.ARCHIVED_FLAG, true);
-            icons.set(PostIcons.HTTP_ICONS_FLAG_NO_TEXT, true);
-            icons.setHttpIcons(Collections.singletonList(new PostHttpIcon(OTHER,
-                    null,
-                    new NetUtilsClasses.PassthroughBitmapResult() {
-                        @Override
-                        public void onBitmapSuccess(
-                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
-                        ) {
-                            super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
-                        }
-                    },
-                    "yt",
-                    "yt"
-            )), iconSizePx);
-            icons.apply();
+            icons.setWithText(new Post.Builder().sticky(true)
+                    .closed(true)
+                    .archived(true)
+                    .board(Board.getDummyBoard())
+                    .no(1)
+                    .opId(1)
+                    .setUnixTimestampSeconds(System.currentTimeMillis())
+                    .comment("")
+                    .addHttpIcon(new PostHttpIcon(OTHER,
+                            null,
+                            new NetUtilsClasses.PassthroughBitmapResult() {
+                                @Override
+                                public void onBitmapSuccess(
+                                        @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                                ) {
+                                    super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
+                                }
+                            },
+                            "yt",
+                            "yt"
+                    ))
+                    .build(), iconSizePx);
         }
 
         comment.setTextSize(textSizeSp);
@@ -371,14 +372,7 @@ public class PostCell
 
         title.setText(titleParts);
 
-        icons.edit();
-        icons.set(PostIcons.STICKY_FLAG, post.isSticky());
-        icons.set(PostIcons.CLOSED_FLAG, post.isClosed());
-        icons.set(PostIcons.DELETED_FLAG, post.deleted.get());
-        icons.set(PostIcons.ARCHIVED_FLAG, post.isArchived());
-        icons.set(PostIcons.HTTP_ICONS_FLAG_TEXT, post.httpIcons != null);
-        icons.setHttpIcons(post.httpIcons, iconSizePx);
-        icons.apply();
+        icons.setWithText(post, iconSizePx);
 
         if (!threadMode) {
             comment.setMaxLines(COMMENT_MAX_LINES_BOARD);
@@ -560,8 +554,8 @@ public class PostCell
 
     @Override
     public void unsetPost() {
-        icons.cancelRequests();
         thumbnailViews.setAdapter(null);
+        icons.clear();
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);
@@ -745,44 +739,6 @@ public class PostCell
         ) {
             super.getItemOffsets(outRect, view, parent, state);
             outRect.bottom = spacing;
-        }
-    }
-
-    static class PostIconsHttpIcon {
-        protected final String name;
-        protected Call request;
-        protected Bitmap bitmap;
-
-        PostIconsHttpIcon(final PostIcons postIcons, PostHttpIcon icon) {
-            name = icon.description;
-
-            icon.bitmapResult.setPassthrough(new NetUtilsClasses.BitmapResult() {
-                @Override
-                public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                    bitmap = BitmapRepository.error;
-                    postIcons.invalidate();
-                }
-
-                @Override
-                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                    PostIconsHttpIcon.this.bitmap = bitmap;
-                    postIcons.invalidate();
-                }
-            });
-
-            // don't cache stuff in memory for icons since they could be sprite-mapped (ie 4chan)
-            if (icon.url != null) {
-                request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult);
-            } else {
-                icon.bitmapResult.onBitmapSuccess(null, bitmap, true);
-            }
-        }
-
-        void cancel() {
-            if (request != null) {
-                request.cancel();
-                request = null;
-            }
         }
     }
 

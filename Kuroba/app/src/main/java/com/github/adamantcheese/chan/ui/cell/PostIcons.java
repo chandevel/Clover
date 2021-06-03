@@ -10,13 +10,20 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.ui.cell.PostCell.PostIconsHttpIcon;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 import static android.view.View.MeasureSpec.EXACTLY;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -67,12 +74,17 @@ public class PostIcons
         this.spacing = spacing;
     }
 
-    public void edit() {
+    private void edit() {
         previousIcons = iconFlags;
+        if (httpIcons != null) {
+            for (PostIconsHttpIcon httpIcon : httpIcons) {
+                httpIcon.cancel();
+            }
+        }
         httpIcons = null;
     }
 
-    public void apply() {
+    private void apply() {
         if (previousIcons != iconFlags) {
             // Require a layout only if the height changed
             if (previousIcons == 0 || iconFlags == 0) {
@@ -84,8 +96,9 @@ public class PostIcons
         }
     }
 
-    public void setHttpIcons(List<PostHttpIcon> icons, int size) {
+    private void setHttpIcons(List<PostHttpIcon> icons, boolean displayText, int size) {
         if (icons == null) return;
+        set(displayText ? PostIcons.HTTP_ICONS_FLAG_TEXT : PostIcons.HTTP_ICONS_FLAG_NO_TEXT, true);
         httpIconTextColor = getAttrColor(getContext(), R.attr.post_details_color);
         httpIconTextSize = size;
         httpIcons = new ArrayList<>(icons.size());
@@ -94,15 +107,7 @@ public class PostIcons
         }
     }
 
-    public void cancelRequests() {
-        if (httpIcons != null) {
-            for (PostIconsHttpIcon httpIcon : httpIcons) {
-                httpIcon.cancel();
-            }
-        }
-    }
-
-    public void set(int icon, boolean enable) {
+    private void set(int icon, boolean enable) {
         if (enable) {
             iconFlags |= icon;
         } else {
@@ -110,7 +115,33 @@ public class PostIcons
         }
     }
 
-    public boolean get(int icon) {
+    public void setWithText(Post post, int iconSizePx) {
+        edit();
+        set(PostIcons.STICKY_FLAG, post.isSticky());
+        set(PostIcons.CLOSED_FLAG, post.isClosed());
+        set(PostIcons.DELETED_FLAG, post.deleted.get());
+        set(PostIcons.ARCHIVED_FLAG, post.isArchived());
+        setHttpIcons(post.httpIcons, true, iconSizePx);
+        apply();
+    }
+
+    public void setWithoutText(Post post, int iconSizePx) {
+        edit();
+        set(PostIcons.STICKY_FLAG, post.isSticky());
+        set(PostIcons.CLOSED_FLAG, post.isClosed());
+        set(PostIcons.DELETED_FLAG, post.deleted.get());
+        set(PostIcons.ARCHIVED_FLAG, post.isArchived());
+        setHttpIcons(post.httpIcons, false, iconSizePx);
+        apply();
+    }
+
+    public void clear() {
+        edit();
+        iconFlags = 0;
+        apply();
+    }
+
+    private boolean get(int icon) {
         return (iconFlags & icon) == icon;
     }
 
@@ -175,5 +206,43 @@ public class PostIcons
 
     private int getScaledWidth(Bitmap bitmap) {
         return (int) (((float) height / bitmap.getHeight()) * bitmap.getWidth());
+    }
+
+    static class PostIconsHttpIcon {
+        protected final String name;
+        protected Call request;
+        protected Bitmap bitmap;
+
+        PostIconsHttpIcon(final PostIcons postIcons, PostHttpIcon icon) {
+            name = icon.description;
+
+            icon.bitmapResult.setPassthrough(new NetUtilsClasses.BitmapResult() {
+                @Override
+                public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+                    bitmap = BitmapRepository.error;
+                    postIcons.invalidate();
+                }
+
+                @Override
+                public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                    PostIconsHttpIcon.this.bitmap = bitmap;
+                    postIcons.invalidate();
+                }
+            });
+
+            // don't cache stuff in memory for icons since they could be sprite-mapped (ie 4chan)
+            if (icon.url != null) {
+                request = NetUtils.makeBitmapRequest(icon.url, icon.bitmapResult);
+            } else {
+                icon.bitmapResult.onBitmapSuccess(null, bitmap, true);
+            }
+        }
+
+        void cancel() {
+            if (request != null) {
+                request.cancel();
+                request = null;
+            }
+        }
     }
 }
