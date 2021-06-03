@@ -47,7 +47,6 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressResponseBody;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.exoplayer.ResponseCachingOkHttpDataSource;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
@@ -56,14 +55,19 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
+import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
+import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Locale;
@@ -78,6 +82,7 @@ import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONVERTER;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
@@ -457,8 +462,18 @@ public class MultiImageView
         onModeLoaded(Mode.GIFIMAGE, view);
     }
 
-    private static final ProgressiveMediaSource.Factory okHttpFactory =
-            new ProgressiveMediaSource.Factory(new ResponseCachingOkHttpDataSource.Factory(NetUtils.applicationClient));
+    private static final ProgressiveMediaSource.Factory MEDIA_FACTORY;
+
+    static {
+        OkHttpDataSource.Factory okHttpFactory = new OkHttpDataSource.Factory(NetUtils.applicationClient);
+        okHttpFactory.setUserAgent(NetUtils.USER_AGENT);
+        okHttpFactory.setCacheControl(NetUtilsClasses.ONE_DAY_CACHE);
+        CacheDataSource.Factory cacheFactory = new CacheDataSource.Factory();
+        cacheFactory.setUpstreamDataSourceFactory(okHttpFactory);
+        cacheFactory.setCache(new SimpleCache(new File(getCacheDir(), "exoplayer"), new LeastRecentlyUsedCacheEvictor(50 * MB)));
+        MEDIA_FACTORY = new ProgressiveMediaSource.Factory(cacheFactory);
+    }
+
     private static final Pattern SOUND_URL_PATTERN = Pattern.compile(".*\\[sound=(.*)\\]", Pattern.CASE_INSENSITIVE);
 
     private void setVideo() {
@@ -477,19 +492,19 @@ public class MultiImageView
                     if (!StringUtils.startsWithAny(soundURL, "http://", "https://")) {
                         soundURL = "https://" + soundURL;
                     }
-                    MediaSource soundSource = okHttpFactory.createMediaSource(MediaItem.fromUri(soundURL));
+                    MediaSource soundSource = MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(soundURL));
                     if (postImage.type == PostImage.Type.STATIC) {
                         exoPlayer.setMediaSource(soundSource);
                     } else {
                         exoPlayer.setMediaSource(new MergingMediaSource(soundSource,
-                                okHttpFactory.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()))
+                                MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()))
                         ));
                     }
                 } else {
                     throw new Exception("Fallback to no soundpost");
                 }
             } catch (Exception e) {
-                exoPlayer.setMediaSource(okHttpFactory.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString())));
+                exoPlayer.setMediaSource(MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString())));
             }
             exoPlayer.prepare();
 
@@ -523,9 +538,7 @@ public class MultiImageView
 
                         @Override
                         public void onBitmapSuccess(
-                                @NonNull HttpUrl source,
-                                @NonNull Bitmap bitmap,
-                                boolean fromCache
+                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
                         ) {
                             exoVideoView.setDefaultArtwork(new BitmapDrawable(getContext().getResources(), bitmap));
                         }
@@ -544,8 +557,7 @@ public class MultiImageView
         }
 
         if (!hasContent || mode == Mode.OTHER) {
-            Snackbar snackbar =
-                    Snackbar.make(this, R.string.open_link_confirmation, Snackbar.LENGTH_LONG);
+            Snackbar snackbar = Snackbar.make(this, R.string.open_link_confirmation, Snackbar.LENGTH_LONG);
             snackbar.setAction(R.string.open, (v -> openLink(postImage.imageUrl.toString())));
             snackbar.setGestureInsetBottomIgnored(true);
             snackbar.show();
