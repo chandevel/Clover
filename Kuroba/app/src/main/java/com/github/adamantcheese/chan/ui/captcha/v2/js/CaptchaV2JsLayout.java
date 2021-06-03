@@ -42,10 +42,13 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
+
+import kotlin.io.TextStreamsKt;
 
 import static android.view.View.MeasureSpec.AT_MOST;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
@@ -145,7 +148,10 @@ public class CaptchaV2JsLayout
     public void hardReset() {
         int[] attr = {R.attr.isLightTheme};
         boolean isLightTheme = getContext().getTheme().obtainStyledAttributes(attr).getBoolean(0, true);
-        String html = IOUtils.assetAsString(getContext(), "html/captcha2.html");
+        String html = "";
+        try (InputStream htmlStream = getContext().getResources().getAssets().open("html/captcha2.html")) {
+            html = TextStreamsKt.readText(new InputStreamReader(htmlStream));
+        } catch (Exception ignored) {}
         html = html.replace("__site_key__", siteKey);
         html = html.replace("__theme__", isLightTheme ? "light" : "dark");
 

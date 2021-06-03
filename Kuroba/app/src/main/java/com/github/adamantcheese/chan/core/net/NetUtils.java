@@ -21,7 +21,6 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
@@ -41,6 +40,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import kotlin.io.FilesKt;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -159,13 +159,8 @@ public class NetUtils {
             ResponseBody body = response.body();
             if (body == null) throw new IOException("No body!");
             tempFile.getParentFile().mkdirs();
-            try (InputStream is = body.byteStream()) {
-                IOUtils.writeToFile(is, tempFile, -1);
-                return tempFile;
-            } catch (Exception e) {
-                tempFile.delete();
-                throw e;
-            }
+            FilesKt.writeBytes(tempFile, body.bytes());
+            return tempFile;
         }, new MainThreadResponseResult<>(new ResponseResult<File>() {
             @Override
             public void onFailure(Exception e) {
@@ -215,16 +210,21 @@ public class NetUtils {
     /**
      * Request a bitmap with resizing.
      *
-     * @param url     The request URL. If null, null will be returned.
-     * @param result  The callback for this call.
-     * @param width   The requested width of the result
-     * @param height  The requested height of the result
-     * @param enqueue Should this be enqueued or not
+     * @param url        The request URL. If null, null will be returned.
+     * @param result     The callback for this call.
+     * @param width      The requested width of the result
+     * @param height     The requested height of the result
+     * @param enqueue    Should this be enqueued or not
      * @param mainThread Should this result be run on the main thread or not (most wrappers do)
      * @return An enqueued bitmap call.
      */
     public static Pair<Call, Callback> makeBitmapRequest(
-            final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height, boolean enqueue, boolean mainThread
+            final HttpUrl url,
+            @NonNull final BitmapResult result,
+            final int width,
+            final int height,
+            boolean enqueue,
+            boolean mainThread
     ) {
         if (url == null) return null;
         synchronized (NetUtils.class) {
@@ -260,15 +260,14 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (!response.isSuccessful()) {
-                    performBitmapFailure(url, new HttpCodeException(response), mainThread);
-                    response.close();
-                    return;
-                }
-
                 try (ResponseBody body = response.body()) {
                     if (body == null) {
                         performBitmapFailure(url, new NullPointerException("No response data"), mainThread);
+                        return;
+                    }
+
+                    if (!response.isSuccessful()) {
+                        performBitmapFailure(url, new HttpCodeException(response), mainThread);
                         return;
                     }
 
@@ -276,9 +275,12 @@ public class NetUtils {
                         File tempFile = new File(getCacheDir(), UUID.randomUUID().toString());
                         if (!tempFile.createNewFile()) {
                             tempFile.delete();
-                            performBitmapFailure(url, new IOException("Failed to create temp file for decode."), mainThread);
+                            performBitmapFailure(url,
+                                    new IOException("Failed to create temp file for decode."),
+                                    mainThread
+                            );
                         }
-                        IOUtils.writeToFile(body.byteStream(), tempFile, -1);
+                        FilesKt.writeBytes(tempFile, body.bytes());
                         BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
@@ -324,12 +326,11 @@ public class NetUtils {
         if (results == null) return;
         for (final BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            if(mainThread) {
+            if (mainThread) {
                 BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapSuccess(url, bitmap, fromCache));
             } else {
                 bitmapResult.onBitmapSuccess(url, bitmap, fromCache);
             }
-
         }
     }
 
@@ -338,7 +339,7 @@ public class NetUtils {
         if (results == null) return;
         for (final BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
-            if(mainThread) {
+            if (mainThread) {
                 BackgroundUtils.runOnMainThread(() -> bitmapResult.onBitmapFailure(url, e));
             } else {
                 bitmapResult.onBitmapFailure(url, e);
@@ -507,20 +508,17 @@ public class NetUtils {
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) {
-                if (!response.isSuccessful()) {
-                    result.onFailure(new HttpCodeException(response));
-                    response.close();
-                    return;
-                }
+                try (Response r = response) {
+                    if (!response.isSuccessful()) {
+                        result.onFailure(new HttpCodeException(response));
+                        return;
+                    }
 
-                try {
-                    T read = converter.convert(response);
+                    T read = converter.convert(r);
                     if (read == null) throw new NullPointerException("Process returned null!");
                     result.onSuccess(read);
                 } catch (Exception e) {
                     result.onFailure(e);
-                } finally {
-                    response.close();
                 }
             }
         };

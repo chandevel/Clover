@@ -37,8 +37,11 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import kotlin.io.TextStreamsKt;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -137,7 +140,10 @@ public class LegacyCaptchaLayout
     @Override
     public void reset() {
         input.setText("");
-        String html = IOUtils.assetAsString(getContext(), "html/captcha_legacy.html");
+        String html = "";
+        try (InputStream htmlStream = getContext().getResources().getAssets().open("html/captcha_legacy.html")) {
+            html = TextStreamsKt.readText(new InputStreamReader(htmlStream));
+        } catch (Exception ignored) {}
         html = html.replace("__site_key__", siteKey);
         internalWebView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null);
         image.setUrl(null, 0);

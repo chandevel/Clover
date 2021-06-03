@@ -34,14 +34,15 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.google.common.io.Files;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlin.io.FilesKt;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -220,7 +221,8 @@ public class ImagePickDelegate {
         try (FileInputStream stream = new FileInputStream(activity.getContentResolver()
                 .openFileDescriptor(uri, "r")
                 .getFileDescriptor())) {
-            IOUtils.writeToFile(stream, getPickFile(), MAX_FILE_SIZE);
+            if(stream.available() > MAX_FILE_SIZE) throw new IOException("File too large!");
+            Files.asByteSink(getPickFile()).writeFrom(stream);
             success = true;
         } catch (Exception ignored) {
         }

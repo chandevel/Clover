@@ -29,11 +29,12 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+
+import kotlin.io.TextStreamsKt;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -101,10 +102,9 @@ public class LogsController
             return null;
         }
 
-        InputStream outputStream = process.getInputStream();
         //This filters our log output to just stuff we care about in-app (and if a crash happens, the uncaught handler gets it and this will still allow it through)
         String filtered = "";
-        for (String line : IOUtils.readString(outputStream).split("\n")) {
+        for (String line : TextStreamsKt.readLines(new InputStreamReader(process.getInputStream()))) {
             if (line.contains(BuildConfig.APP_LABEL)) filtered = filtered.concat(line).concat("\n");
         }
 

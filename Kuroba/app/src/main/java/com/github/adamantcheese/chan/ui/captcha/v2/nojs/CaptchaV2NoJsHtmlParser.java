@@ -28,7 +28,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.IOUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.File;
@@ -40,6 +39,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.io.FilesKt;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -157,7 +157,9 @@ public class CaptchaV2NoJsHtmlParser {
         captchaV2NoJsInfo.captchaTitle = captchaTitle;
     }
 
-    private void parseAndDownloadChallengeImage(String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo, String siteKey)
+    private void parseAndDownloadChallengeImage(
+            String responseHtml, CaptchaV2NoJsInfo captchaV2NoJsInfo, String siteKey
+    )
             throws CaptchaNoJsV2ParsingError, IOException {
         Matcher matcher = challengeImageUrlPattern.matcher(responseHtml);
         if (!matcher.find()) {
@@ -265,7 +267,7 @@ public class CaptchaV2NoJsHtmlParser {
                         "Could not download challenge image, status code = " + response.code());
             }
 
-            IOUtils.writeToFile(response.body().byteStream(), getChallengeImageFile(), -1);
+            FilesKt.writeBytes(getChallengeImageFile(), response.body().bytes());
         }
     }
 
