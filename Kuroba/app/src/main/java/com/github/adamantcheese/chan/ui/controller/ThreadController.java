@@ -32,6 +32,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
@@ -47,6 +48,7 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
@@ -105,7 +107,11 @@ public abstract class ThreadController
         if (share) {
             shareLink(link);
         } else {
-            openLinkInBrowser(context, link);
+            if (ChanSettings.openLinkBrowser.get()) {
+                openLink(link);
+            } else {
+                openLinkInBrowser(context, link);
+            }
         }
     }
 
@@ -169,7 +175,8 @@ public abstract class ThreadController
 
     @Override
     public void openWebViewController(String baseUrl, String javascript) {
-        WebViewController javascriptController = new WebViewController(context, "Javascript link", HttpUrl.get(baseUrl));
+        WebViewController javascriptController =
+                new WebViewController(context, "Javascript link", HttpUrl.get(baseUrl));
         javascriptController.setOptionalJavascriptAfterLoad(javascript);
         navigationController.pushController(javascriptController);
     }

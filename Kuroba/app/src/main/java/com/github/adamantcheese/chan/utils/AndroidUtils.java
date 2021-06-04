@@ -195,6 +195,12 @@ public class AndroidUtils {
         }
     }
 
+    /**
+     * Tries to open a link in a custom tab.
+     *
+     * @param context Context for activity resolution
+     * @param link url to open
+     */
     public static void openLinkInBrowser(Context context, String link) {
         if (TextUtils.isEmpty(link)) {
             showToast(context, R.string.open_link_failed);

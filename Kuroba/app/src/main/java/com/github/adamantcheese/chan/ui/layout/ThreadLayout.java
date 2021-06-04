@@ -297,14 +297,14 @@ public class ThreadLayout
     }
 
     public void openLinkConfirmed(final PostLinkable linkable, final String link) {
-        if(linkable.type != PostLinkable.Type.JAVASCRIPT) {
+        if (linkable.type == PostLinkable.Type.JAVASCRIPT) {
+            callback.openWebViewController(link, (String) linkable.value);
+        } else {
             if (ChanSettings.openLinkBrowser.get()) {
                 AndroidUtils.openLink(link);
             } else {
                 openLinkInBrowser(getContext(), link);
             }
-        } else {
-            callback.openWebViewController(link, (String) linkable.value);
         }
     }
 
