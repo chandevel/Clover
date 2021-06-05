@@ -28,11 +28,12 @@ import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -70,16 +71,10 @@ public class LoginController
         inputPin = view.findViewById(R.id.input_pin);
         authenticated = view.findViewById(R.id.authenticated);
 
-        errors.setVisibility(GONE);
-
-        final boolean loggedIn = site.actions().isLoggedIn();
-        if (loggedIn) {
-            button.setText(R.string.setting_pass_logout);
-        }
         button.setOnClickListener((v) -> {
             authBefore();
             if (site.actions().isLoggedIn()) {
-                site.actions().logout(new NetUtilsClasses.ResponseResult<LoginResponse>() {
+                site.actions().logout(new ResponseResult<LoginResponse>() {
                     @Override
                     public void onFailure(Exception e) {
                         authFail(getString(R.string.setting_pass_error_logout));
@@ -103,7 +98,7 @@ public class LoginController
             } else {
                 site.actions().login(
                         new LoginRequest(site, inputToken.getText().toString(), inputPin.getText().toString(), true),
-                        new NetUtilsClasses.ResponseResult<LoginResponse>() {
+                        new ResponseResult<LoginResponse>() {
                             @Override
                             public void onFailure(Exception e) {
                                 authFail(getString(R.string.setting_pass_error_login));
@@ -141,11 +136,10 @@ public class LoginController
         inputToken.setText(loginDetails.user);
         inputPin.setText(loginDetails.pass);
 
-        // Sanity check
-        if (parentController.view.getWindowToken() == null) {
-            throw new IllegalArgumentException("parentController.view not attached");
+        final boolean loggedIn = site.actions().isLoggedIn();
+        if (loggedIn) {
+            button.setText(R.string.setting_pass_logout);
         }
-
         crossfadeView.toggle(!loggedIn, false);
     }
 
@@ -160,6 +154,10 @@ public class LoginController
     private void authFail(String message) {
         errors.setText(message);
         errors.setVisibility(VISIBLE);
+        BackgroundUtils.runOnMainThread(() -> {
+            errors.setText(null);
+            errors.setVisibility(GONE);
+        }, 5000);
     }
 
     private void authAfter() {

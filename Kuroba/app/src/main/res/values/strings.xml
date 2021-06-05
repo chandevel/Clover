@@ -543,7 +543,8 @@ Setting the themes to the same will function as if dark mode is effectively off.
 
     <string name="setting_pass_authenticated">Device authorized!</string>
     <string name="setting_pass_logout">Logout</string>
-    <string name="setting_pass_error">Connection error</string>
+    <string name="setting_pass_error_login">Failed to login!</string>
+    <string name="setting_pass_error_logout">Failed to logout!</string>
     <string name="setting_pass_bottom_description">"
 <![CDATA[
 Forgot your 4chan Pass login details?<br>
