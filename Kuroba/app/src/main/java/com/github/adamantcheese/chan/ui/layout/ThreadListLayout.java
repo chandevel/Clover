@@ -21,6 +21,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -245,6 +246,11 @@ public class ThreadListLayout
             }
             setRecyclerViewPadding();
             recyclerView.setLayoutManager(layoutManager);
+
+            // in order for dividers to appear correctly, we have to clear out the adapter and set it again
+            // see PostAdapter's onattachedtorecyclerview method
+            postAdapter.setPostViewMode(postViewMode);
+            recyclerView.setAdapter(null);
             recyclerView.setAdapter(postAdapter);
         }
     }

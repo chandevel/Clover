@@ -372,6 +372,7 @@ public class ChanThreadLoader {
     }
 
     private void notifyAboutError(ChanLoaderException exception) {
+        // TODO store errorrs in chanthread?
         call = null;
         clearTimer();
 

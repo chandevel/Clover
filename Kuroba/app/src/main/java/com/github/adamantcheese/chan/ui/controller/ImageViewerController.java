@@ -179,11 +179,6 @@ public class ImageViewerController
 
         showVolumeMenuItem(false, true);
 
-        // Sanity check
-        if (parentController.view.getWindowToken() == null) {
-            throw new IllegalArgumentException("parentController.view not attached");
-        }
-
         OneShotPreDrawListener.add(parentController.view, () -> {
             // Pager is measured, but still invisible
             PostImage postImage = presenter.getCurrentPostImage();
