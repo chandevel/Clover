@@ -111,7 +111,7 @@ public class CommentParser {
                 .foregroundColor(R.attr.post_quote_color, true)
                 .strikeThrough()
                 .action(this::handleDead));
-        rule(tagRule("span").cssClass("spoiler").link(Type.SPOILER));
+        rule(tagRule("span").cssClass("spoiler").spoiler());
         rule(tagRule("span").cssClass("fortune").bold());
         rule(tagRule("span").cssClass("abbr").nullify());
         rule(tagRule("span").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
@@ -120,7 +120,7 @@ public class CommentParser {
 
         rule(tagRule("table").action(this::handleTable));
 
-        rule(tagRule("s").link(Type.SPOILER));
+        rule(tagRule("s").spoiler());
 
         rule(tagRule("strong").bold());
         rule(tagRule("b").bold());

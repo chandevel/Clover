@@ -67,7 +67,7 @@ public class StyleRule {
     private int size = 0;
     private boolean applyFontRules;
 
-    private PostLinkable.Type link = null;
+    private boolean spoiler = false;
 
     private boolean nullify;
 
@@ -105,8 +105,8 @@ public class StyleRule {
         return this;
     }
 
-    public StyleRule link(PostLinkable.Type link) {
-        this.link = link;
+    public StyleRule spoiler() {
+        this.spoiler = true;
         return this;
     }
 
@@ -237,8 +237,8 @@ public class StyleRule {
             spansToApply.add(new AbsoluteSizeSpanHashed(size));
         }
 
-        if (link != null) {
-            spansToApply.add(new PostLinkable(theme, link.name(), result, link));
+        if (spoiler) {
+            spansToApply.add(new PostLinkable(theme, result, result, PostLinkable.Type.SPOILER));
         }
 
         String style = element.attr("style");

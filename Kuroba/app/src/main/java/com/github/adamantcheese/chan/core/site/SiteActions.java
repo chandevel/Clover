@@ -59,7 +59,7 @@ public interface SiteActions {
 
     void login(LoginRequest loginRequest, NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
-    void logout();
+    void logout(NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
     boolean isLoggedIn();
 
