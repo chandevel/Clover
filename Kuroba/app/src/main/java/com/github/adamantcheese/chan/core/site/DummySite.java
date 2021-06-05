@@ -234,13 +234,13 @@ public class DummySite
             public void login(LoginRequest loginRequest, ResponseResult<LoginResponse> loginListener) {}
 
             @Override
-            public void logout() {}
+            public void logout(final ResponseResult<LoginResponse> loginListener) {}
 
             @Override
             public boolean isLoggedIn() { return false; }
 
             @Override
-            public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", ""); }
+            public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", "", true); }
         };
     }
 

@@ -191,11 +191,11 @@ public class NetUtilsClasses {
     /**
      * Converts input I into output O
      *
-     * @param <I> the response's type that will be processed, usually converted first with a ResponseConverter
+     * @param <I> the type that will be processed
      * @param <O> the returned object's type
      */
     public interface Converter<O, I> {
-        O convert(I input)
+        @Nullable O convert(I input)
                 throws Exception;
     }
 
@@ -204,8 +204,8 @@ public class NetUtilsClasses {
      * Opposed to Guava's Converter class, this is one-way, as generally these are used for Responses, which cannot be
      * reversibly converted, nor should they be.
      *
-     * @param <O> the
-     * @param <I>
+     * @param <I> the type that will be processed
+     * @param <O> the returned object's type
      */
     public static class ChainConverter<O, I>
             implements Converter<O, I> {
@@ -215,6 +215,13 @@ public class NetUtilsClasses {
             next = finalConverter;
         }
 
+        /**
+         * An intermediate chained converter, so that some intermediate object can be processed
+         *
+         * @param intermediate The intermediate converter
+         * @param <T>          The intermediate object type
+         * @return A ChainConverter that can have additional Converters chained into it
+         */
         public <T> ChainConverter<O, T> chain(Converter<I, T> intermediate) {
             return new ChainConverter<>(response -> convert(intermediate.convert(response)));
         }

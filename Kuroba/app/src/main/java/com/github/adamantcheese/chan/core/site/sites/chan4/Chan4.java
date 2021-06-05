@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
@@ -373,17 +374,7 @@ public class Chan4
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(new ResponseResult<ReplyResponse>() {
-                @Override
-                public void onSuccess(ReplyResponse replyResponse) {
-                    postListener.onSuccess(replyResponse);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    postListener.onFailure(e);
-                }
-            }), loadableWithDraft), postListener);
+            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft), postListener);
         }
 
         @Override
@@ -410,17 +401,7 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new MainThreadResponseResult<>(new ResponseResult<DeleteResponse>() {
-                @Override
-                public void onSuccess(DeleteResponse deleteResponse) {
-                    deleteListener.onSuccess(deleteResponse);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    deleteListener.onFailure(e);
-                }
-            }), deleteRequest));
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new MainThreadResponseResult<>(deleteListener), deleteRequest));
         }
 
         @Override
@@ -428,34 +409,14 @@ public class Chan4
             passUser.set(loginRequest.user);
             passPass.set(loginRequest.pass);
 
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(new ResponseResult<LoginResponse>() {
-                @Override
-                public void onSuccess(LoginResponse loginResponse) {
-                    loginListener.onSuccess(loginResponse);
-                }
-
-                @Override
-                public void onFailure(Exception e) {
-                    loginListener.onFailure(e);
-                }
-            }), loginRequest));
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener), loginRequest));
         }
 
         @Override
-        public void logout() {
-            List<Cookie> currentCookies = NetUtils.applicationClient.cookieJar().loadForRequest(sys);
-            List<Cookie> expireCookies = new ArrayList<>();
-            for (Cookie c : currentCookies) {
-                if (c.name().startsWith("pass")) {
-                    expireCookies.add(new Cookie.Builder().domain(c.domain())
-                            .name(c.name())
-                            .value(c.value())
-                            .path(c.path())
-                            .expiresAt(0)
-                            .build());
-                }
-            }
-            NetUtils.applicationClient.cookieJar().saveFromResponse(sys, expireCookies);
+        public void logout(final ResponseResult<LoginResponse> loginListener) {
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
+                    new LoginRequest(Chan4.this, "", "", false)
+            ));
         }
 
         @Override
@@ -470,7 +431,7 @@ public class Chan4
 
         @Override
         public LoginRequest getLoginDetails() {
-            return new LoginRequest(Chan4.this, passUser.get(), passPass.get());
+            return new LoginRequest(Chan4.this, passUser.get(), passPass.get(), true);
         }
     };
 

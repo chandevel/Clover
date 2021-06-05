@@ -30,7 +30,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -161,21 +160,7 @@ public class NetUtils {
             tempFile.getParentFile().mkdirs();
             FilesKt.writeBytes(tempFile, body.bytes());
             return tempFile;
-        }, new MainThreadResponseResult<>(new ResponseResult<File>() {
-            @Override
-            public void onFailure(Exception e) {
-                result.onFailure(e);
-            }
-
-            @Override
-            public void onSuccess(File res) {
-                if (res != null) {
-                    result.onSuccess(res);
-                } else {
-                    result.onFailure(new NullPointerException("File returned was null!"));
-                }
-            }
-        }), progressListener, ONE_DAY_CACHE, 0);
+        }, new MainThreadResponseResult<>(result), progressListener, ONE_DAY_CACHE, 0);
     }
 
     /**
@@ -465,7 +450,8 @@ public class NetUtils {
 
     /**
      * This is the mothership of this class mostly, it does all the heavy lifting for you once provided the proper stuff
-     * Generally don't use this! Use one of the wrapper methods instead.
+     * Generally don't use this! Use one of the wrapper methods instead. This class ensures that all responses are properly
+     * closed.
      *
      * @param url              The request URL.
      * @param converter        The converter that will convert the response into a form the reader can process.
@@ -515,7 +501,7 @@ public class NetUtils {
                     }
 
                     T read = converter.convert(r);
-                    if (read == null) throw new NullPointerException("Process returned null!");
+                    if (read == null) throw new NullPointerException("Convert returned null!");
                     result.onSuccess(read);
                 } catch (Exception e) {
                     result.onFailure(e);

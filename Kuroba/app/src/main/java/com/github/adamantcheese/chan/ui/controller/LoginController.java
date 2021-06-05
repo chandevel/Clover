@@ -40,8 +40,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LoginController
-        extends Controller
-        implements NetUtilsClasses.ResponseResult<LoginResponse> {
+        extends Controller {
     private CrossfadeView crossfadeView;
     private TextView errors;
     private Button button;
@@ -78,20 +77,55 @@ public class LoginController
             button.setText(R.string.setting_pass_logout);
         }
         button.setOnClickListener((v) -> {
+            authBefore();
             if (site.actions().isLoggedIn()) {
-                site.actions().logout();
-                crossfadeView.toggle(true, true);
-                button.setText(R.string.submit);
-            } else {
-                hideKeyboard(view);
-                inputToken.setEnabled(false);
-                inputPin.setEnabled(false);
-                button.setEnabled(false);
-                button.setText(R.string.loading);
+                site.actions().logout(new NetUtilsClasses.ResponseResult<LoginResponse>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        authFail(getString(R.string.setting_pass_error_logout));
+                        button.setText(R.string.setting_pass_logout);
+                        authAfter();
+                    }
 
-                String user = inputToken.getText().toString();
-                String pass = inputPin.getText().toString();
-                site.actions().login(new LoginRequest(site, user, pass), this);
+                    @Override
+                    public void onSuccess(LoginResponse loginResponse) {
+                        if (loginResponse.isSuccess()) {
+                            crossfadeView.toggle(true, true);
+                            button.setText(R.string.submit);
+                        } else {
+                            authFail(loginResponse.getMessage());
+                            button.setText(R.string.setting_pass_logout);
+                        }
+
+                        authAfter();
+                    }
+                });
+            } else {
+                site.actions().login(
+                        new LoginRequest(site, inputToken.getText().toString(), inputPin.getText().toString(), true),
+                        new NetUtilsClasses.ResponseResult<LoginResponse>() {
+                            @Override
+                            public void onFailure(Exception e) {
+                                authFail(getString(R.string.setting_pass_error_login));
+                                button.setText(R.string.submit);
+                                authAfter();
+                            }
+
+                            @Override
+                            public void onSuccess(LoginResponse loginResponse) {
+                                if (loginResponse.isSuccess()) {
+                                    crossfadeView.toggle(false, true);
+                                    button.setText(R.string.setting_pass_logout);
+                                    authenticated.setText(loginResponse.getMessage());
+                                } else {
+                                    authFail(loginResponse.getMessage());
+                                    button.setText(R.string.submit);
+                                }
+
+                                authAfter();
+                            }
+                        }
+                );
             }
 
             errors.setText(null);
@@ -115,29 +149,17 @@ public class LoginController
         crossfadeView.toggle(!loggedIn, false);
     }
 
-    @Override
-    public void onSuccess(LoginResponse loginResponse) {
-        if (loginResponse.isSuccess()) {
-            crossfadeView.toggle(false, true);
-            button.setText(R.string.setting_pass_logout);
-            authenticated.setText(loginResponse.getMessage());
-        } else {
-            authFail(loginResponse);
-        }
-
-        authAfter();
+    private void authBefore() {
+        hideKeyboard(view);
+        inputToken.setEnabled(false);
+        inputPin.setEnabled(false);
+        button.setEnabled(false);
+        button.setText(R.string.loading);
     }
 
-    @Override
-    public void onFailure(Exception e) {
-        authFail(new LoginResponse(getString(R.string.setting_pass_error), false));
-        authAfter();
-    }
-
-    private void authFail(LoginResponse response) {
-        errors.setText(response.getMessage());
+    private void authFail(String message) {
+        errors.setText(message);
         errors.setVisibility(VISIBLE);
-        button.setText(R.string.submit);
     }
 
     private void authAfter() {

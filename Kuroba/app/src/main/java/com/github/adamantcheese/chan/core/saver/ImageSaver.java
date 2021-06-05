@@ -394,7 +394,6 @@ public class ImageSaver {
             activeDownloads.clear();
         }
 
-        showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
         onBatchCompleted();
     }
 

@@ -531,7 +531,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public void logout() {
+        public void logout(final ResponseResult<LoginResponse> loginListener) {
         }
 
         @Override

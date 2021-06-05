@@ -21,7 +21,6 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
@@ -40,7 +39,9 @@ public class Chan4PassHttpCall
         extends HttpCall<LoginResponse> {
     private final LoginRequest loginRequest;
 
-    public Chan4PassHttpCall(@NonNull NetUtilsClasses.ResponseResult<LoginResponse> callback, LoginRequest loginRequest) {
+    public Chan4PassHttpCall(
+            @NonNull NetUtilsClasses.ResponseResult<LoginResponse> callback, LoginRequest loginRequest
+    ) {
         super(callback);
         this.loginRequest = loginRequest;
     }
@@ -51,10 +52,12 @@ public class Chan4PassHttpCall
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
 
-        formBuilder.add("act", "do_login");
-
-        formBuilder.add("id", loginRequest.user);
-        formBuilder.add("pin", loginRequest.pass);
+        if (loginRequest.login) {
+            formBuilder.add("id", loginRequest.user);
+            formBuilder.add("pin", loginRequest.pass);
+        } else {
+            formBuilder.add("logout", "1");
+        }
 
         requestBuilder.url(loginRequest.site.endpoints().login());
         requestBuilder.post(formBuilder.build());
@@ -62,12 +65,15 @@ public class Chan4PassHttpCall
 
     @Override
     public LoginResponse convert(Response response) {
+        if (!loginRequest.login) {
+            return new LoginResponse("Logged out!", true);
+        }
         String message = "Unknown error";
         try {
             Document document = HTML_CONVERTER.convert(response);
             Elements found = new Elements();
-            found.addAll(document.select(".msg-error"));
-            boolean success = found.addAll(document.select(".msg-success"));
+            found.addAll(document.select(".msg-error:not(.hidden)"));
+            boolean success = found.addAll(document.select(".msg-success:not(.hidden)"));
             Element responseMessage = found.first();
             if (responseMessage != null) {
                 message = responseMessage.text();
