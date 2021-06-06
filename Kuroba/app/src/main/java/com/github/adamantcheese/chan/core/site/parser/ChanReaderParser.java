@@ -228,6 +228,8 @@ public class ChanReaderParser
             // Maps post no's to a list of no's that that post received replies from
             Map<Integer, List<Integer>> replies = new HashMap<>();
 
+            // for all posts, for any posts this post is replying to (ie has >>1234), add this post to a list of numbers for the replying number
+            // ie map this post to another post's repliesFrom, temporarily
             for (Post sourcePost : allPosts) {
                 for (int replyTo : sourcePost.repliesTo) {
                     List<Integer> value = replies.get(replyTo);
@@ -239,6 +241,7 @@ public class ChanReaderParser
                 }
             }
 
+            // for all post numbers, now properly assign the repliesFrom field, removing any removed posts along the way
             for (Map.Entry<Integer, List<Integer>> entry : replies.entrySet()) {
                 int key = entry.getKey();
                 List<Integer> value = entry.getValue();

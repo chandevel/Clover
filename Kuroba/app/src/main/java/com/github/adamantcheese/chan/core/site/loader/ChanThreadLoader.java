@@ -295,7 +295,7 @@ public class ChanThreadLoader {
         call = null;
 
         try {
-            if (response == null || response.posts.isEmpty()) {
+            if (response.posts.isEmpty()) {
                 throw new Exception("No posts in thread!");
             }
 
@@ -306,8 +306,7 @@ public class ChanThreadLoader {
         }
     }
 
-    private void onResponseInternal(ChanLoaderResponse response)
-            throws Exception {
+    private void onResponseInternal(ChanLoaderResponse response) {
         BackgroundUtils.ensureBackgroundThread();
 
         synchronized (this) {
