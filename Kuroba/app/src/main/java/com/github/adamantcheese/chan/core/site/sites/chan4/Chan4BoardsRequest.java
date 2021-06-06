@@ -23,6 +23,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
+import org.jsoup.parser.Parser;
+
 import java.io.IOException;
 
 public class Chan4BoardsRequest
@@ -157,7 +159,7 @@ public class Chan4BoardsRequest
                     board.forcedAnon = reader.nextInt() == 1;
                     break;
                 case "meta_description":
-                    board.description = reader.nextString();
+                    board.description = Parser.unescapeEntities(reader.nextString(), false);
                     break;
                 case "is_archived":
                     board.archive = reader.nextInt() == 1;

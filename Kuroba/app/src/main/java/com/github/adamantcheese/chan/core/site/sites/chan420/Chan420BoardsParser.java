@@ -95,9 +95,6 @@ public class Chan420BoardsParser
                 case "nws_board":
                     board.workSafe = reader.nextInt() == 1;
                     break;
-                case "display_order":
-                    board.order = reader.nextInt();
-                    break;
                 default:
                     reader.skipValue();
                     break;

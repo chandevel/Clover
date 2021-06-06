@@ -18,8 +18,12 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
+import android.os.Build;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -31,7 +35,6 @@ import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
-import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
@@ -48,6 +51,7 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class BrowseController
@@ -150,6 +154,7 @@ public class BrowseController
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.getPresenter().scrollTo(0, false))
                 .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.getPresenter().scrollTo(-1, false))
+                .withSubItem(R.string.board_info, this::showBoardInfo)
                 .build()
                 .build();
 
@@ -274,13 +279,14 @@ public class BrowseController
 
     @Override
     public void loadBoard(Loadable loadable) {
-        loadable.title = BoardHelper.getName(loadable.board);
+        loadable.title = loadable.board.getFormattedName();
         navigation.title = "/" + loadable.boardCode + "/";
         navigation.subtitle = loadable.board.name;
 
         ThreadPresenter presenter = threadLayout.getPresenter();
 
-        if(presenter.getLoadable() != null && !presenter.getLoadable().boardCode.equalsIgnoreCase(loadable.boardCode)) {
+        if (presenter.getLoadable() != null
+                && !presenter.getLoadable().boardCode.equalsIgnoreCase(loadable.boardCode)) {
             clearNextSearch = true;
         }
 
@@ -375,15 +381,15 @@ public class BrowseController
         super.onNavItemSet();
 
         if (getToolbar() != null) {
-            if(!Objects.equals(navigation.searchText, searchQuery)) {
-                if(TextUtils.isEmpty(searchQuery) && clearNextSearch) {
+            if (!Objects.equals(navigation.searchText, searchQuery)) {
+                if (TextUtils.isEmpty(searchQuery) && clearNextSearch) {
                     clearNextSearch = false;
                     getToolbar().closeSearch();
                     AndroidUtils.clearAnySelectionsAndKeyboards(context);
                     return;
                 }
             }
-            if(!TextUtils.isEmpty(searchQuery)) {
+            if (!TextUtils.isEmpty(searchQuery)) {
                 getToolbar().openSearch();
                 getToolbar().searchInput(searchQuery);
                 searchQuery = null;
@@ -400,5 +406,51 @@ public class BrowseController
     @Override
     public Post getPostForPostImage(PostImage postImage) {
         return threadLayout.getPresenter().getPostFromPostImage(postImage);
+    }
+
+    private void showBoardInfo() {
+        Board board = presenter.currentBoard();
+        if (board == null) return;
+
+        AlertDialog dialog = getDefaultAlertBuilder(context).setPositiveButton(R.string.ok, null).create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        SpannableStringBuilder text = new SpannableStringBuilder();
+
+        text.append('/')
+                .append(board.code)
+                .append('/')
+                .append('\n')
+                .append(board.name)
+                .append("\n")
+                .append(board.description)
+                .append('\n');
+        if (!board.workSafe) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get() && ChanSettings.addDubs
+                    .get()) {
+                text.append("\uD83D\uDD1E");
+            } else {
+                text.append("NSFW");
+            }
+            text.append(" Board").append('\n');
+        }
+        text.append("Bump limit: ").append(String.valueOf(board.bumpLimit)).append(" posts").append("\n");
+        text.append("Image limit: ").append(String.valueOf(board.imageLimit)).append(" images").append("\n");
+
+        text.append("New thread cooldown: ")
+                .append(String.valueOf(board.cooldownThreads))
+                .append(" seconds")
+                .append("\n");
+        text.append("New reply cooldown: ")
+                .append(String.valueOf(board.cooldownReplies))
+                .append(" seconds")
+                .append("\n");
+        text.append("Image reply cooldown: ")
+                .append(String.valueOf(board.cooldownImages))
+                .append(" seconds")
+                .append("\n");
+
+        dialog.setMessage(text);
+        dialog.show();
     }
 }

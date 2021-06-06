@@ -450,7 +450,7 @@ public class BrowseBoardsFloatingMenu
         public void bind(Board board) {
             this.board = board;
             itemView.setOnClickListener(v -> itemClicked(null, board));
-            text.setText(BoardHelper.getName(board));
+            text.setText(board.getFormattedName());
         }
     }
 

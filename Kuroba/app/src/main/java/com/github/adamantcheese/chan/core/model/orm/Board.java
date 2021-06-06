@@ -216,6 +216,14 @@ public class Board
         return board;
     }
 
+    public String getFormattedName() {
+        StringBuilder b = new StringBuilder().append('/').append(code).append('/');
+        if (!TextUtils.isEmpty(name)) {
+            b.append(" \u2013 ").append(name);
+        }
+        return b.toString();
+    }
+
     public boolean hasMissingInfo() {
         return TextUtils.isEmpty(name) || TextUtils.isEmpty(code) || perPage < 0 || pages < 0;
     }
@@ -301,7 +309,8 @@ public class Board
         if (board.getClass() != Board.class) return false;
         Board b = (Board) board;
         return siteId == b.siteId && code.equals(b.code) && bumpLimit == b.bumpLimit && imageLimit == b.imageLimit
-                && cooldownImages == b.cooldownImages && boardFlags.equals(b.boardFlags) && countryFlags == b.countryFlags;
+                && cooldownImages == b.cooldownImages && boardFlags.equals(b.boardFlags)
+                && countryFlags == b.countryFlags;
     }
 
     @Override

@@ -760,4 +760,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="reply_filename_hint">Tap to randomize filename</string>
     <string name="reply_spoiler_hint">Toggle if posting as a spoiler</string>
+
+    <string name="board_info">Board info</string>
 </resources>

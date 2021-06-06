@@ -23,6 +23,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
+import org.jsoup.parser.Parser;
+
 import java.io.IOException;
 
 public class DvachBoardsParser
@@ -83,7 +85,7 @@ public class DvachBoardsParser
                     board.bumpLimit = reader.nextInt();
                     break;
                 case "info":
-                    board.description = reader.nextString();
+                    board.description = Parser.unescapeEntities(reader.nextString(), false);
                     break;
                 case "category":
                     board.workSafe = !"Взрослым".equals(reader.nextString());

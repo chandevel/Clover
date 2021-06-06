@@ -237,7 +237,7 @@ public class FilterLayout
             }
 
             for (Board board : allSavedBoards) {
-                String name = BoardHelper.getName(board);
+                String name = board.getFormattedName();
                 boolean checked = filterEngine.matchesBoard(filter, board);
 
                 items.add(new SelectLayout.SelectItem<>(board, board.id, name, "", name, checked));

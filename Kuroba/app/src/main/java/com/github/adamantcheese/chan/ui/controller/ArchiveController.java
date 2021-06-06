@@ -78,7 +78,7 @@ public class ArchiveController
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_archive, null);
 
         // Navigation
-        navigation.title = getString(R.string.archive_title, BoardHelper.getName(board));
+        navigation.title = getString(R.string.archive_title, board.getFormattedName());
         navigation.buildMenu().withItem(
                 R.drawable.ic_fluent_search_24_filled,
                 (item) -> ((ToolbarNavigationController) navigationController).showSearch()

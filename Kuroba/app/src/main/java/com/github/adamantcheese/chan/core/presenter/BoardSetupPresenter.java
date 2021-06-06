@@ -242,14 +242,14 @@ public class BoardSetupPresenter
 
         public String getName() {
             if (board != null) {
-                return BoardHelper.getName(board);
+                return board.getFormattedName();
             } else {
                 return "/" + code + "/";
             }
         }
 
         public String getDescription() {
-            return BoardHelper.getDescription(board);
+            return board == null ? "" : board.description;
         }
 
         public boolean isChecked() {

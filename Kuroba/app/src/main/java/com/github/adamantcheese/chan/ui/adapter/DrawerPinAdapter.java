@@ -109,7 +109,7 @@ public class DrawerPinAdapter
         if (pinWatcher != null) {
             CharSequence summary = pinWatcher.getSummary();
             if (summary == null) {
-                summary = new SpannableStringBuilder(BoardHelper.getName(pin.loadable.board));
+                summary = new SpannableStringBuilder(pin.loadable.board.getFormattedName());
             } else {
                 summary = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - " + summary);
             }

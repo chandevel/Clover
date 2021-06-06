@@ -30,20 +30,15 @@ import java.util.List;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 
 public class BoardHelper {
-    public static String getName(Board board) {
-        return "/" + board.code + "/ \u2013 " + board.name;
-    }
-
-    public static String getDescription(Board board) {
-        if (board == null) return "";
-        return Parser.unescapeEntities(board.description, false);
-    }
-
     public static Boards search(Boards from, final String query) {
         List<Pair<Board, Integer>> ratios = new ArrayList<>();
         Board exact = null;
         for (Board board : from) {
-            int ratio = getTokenSortRatio(board, query);
+            int code = FuzzySearch.ratio(board.code, query);
+            int name = FuzzySearch.ratio(board.name, query);
+            int description = FuzzySearch.weightedRatio(board.description, query);
+            // code weight highest, then name, description last
+            int ratio = code * 8 + name * 5 + Math.max(0, description - 30) * 4;
 
             if (ratio > 2) {
                 ratios.add(new Pair<>(board, ratio));
@@ -68,14 +63,6 @@ public class BoardHelper {
         }
 
         return result;
-    }
-
-    private static int getTokenSortRatio(Board board, String query) {
-        int code = FuzzySearch.ratio(board.code, query);
-        int name = FuzzySearch.ratio(board.name, query);
-        int description = FuzzySearch.weightedRatio(getDescription(board), query);
-
-        return code * 8 + name * 5 + Math.max(0, description - 30) * 4;
     }
 
     public static String boardUniqueId(Board board) {
