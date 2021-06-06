@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Post
         extends Embeddable
-        implements Comparable<Post>, Cloneable {
+        implements Comparable<Post> {
     public final String boardCode;
 
     public final Board board;
@@ -362,50 +362,6 @@ public class Post
     public String toString() {
         return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
                 + "]";
-    }
-
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    @NonNull
-    @Override
-    public Post clone() {
-        Post clone = new Builder().board(board)
-                .no(no)
-                .opId(opId)
-                .op(isOP)
-                .replies(replies)
-                .images(imagesCount)
-                .uniqueIps(uniqueIps)
-                .sticky(sticky)
-                .archived(archived)
-                .lastModified(lastModified)
-                .closed(closed)
-                .subject(subject)
-                .name(name)
-                .comment(comment)
-                .tripcode(tripcode)
-                .setUnixTimestampSeconds(time)
-                .images(images)
-                .posterId(id)
-                .moderatorCapcode(capcode)
-                .setHttpIcons(httpIcons)
-                .filter(
-                        filterHighlightedColor,
-                        filterStub,
-                        filterRemove,
-                        filterWatch,
-                        filterReplies,
-                        filterOnlyOP,
-                        filterSaved
-                )
-                .isSavedReply(isSavedReply)
-                .spans(subjectSpan, nameTripcodeIdCapcodeSpan)
-                .repliesTo(repliesTo)
-                .build();
-        clone.repliesFrom.addAll(repliesFrom);
-        clone.setTitle(getTitle());
-        clone.deleted.set(deleted.get());
-        clone.embedComplete.set(embedComplete.get());
-        return clone;
     }
 
     @Override

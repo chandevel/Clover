@@ -191,19 +191,13 @@ public class DatabaseHideManager {
         Set<Post> postWithAllReplies =
                 PostUtils.findPostWithReplies(parentPost.no, new ArrayList<>(postsFastLookupMap.values()));
 
-        Set<Integer> postNoWithAllReplies = new HashSet<>(postWithAllReplies.size());
-
         for (Post p : postWithAllReplies) {
-            postNoWithAllReplies.add(p.no);
-        }
-
-        for (Integer no : postNoWithAllReplies) {
-            if (no == parentPost.no) {
+            if (p.no == parentPost.no) {
                 // do nothing with the parent post
                 continue;
             }
 
-            Post childPost = postsFastLookupMap.get(no);
+            Post childPost = postsFastLookupMap.get(p.no);
             if (childPost == null) {
                 // cross-thread post
                 continue;
@@ -221,10 +215,7 @@ public class DatabaseHideManager {
                 );
 
                 // assign the filter parameters to the child post
-                postsFastLookupMap.put(no, newPost);
-
-                postWithAllReplies.remove(childPost);
-                postWithAllReplies.add(newPost);
+                postsFastLookupMap.put(p.no, newPost);
             }
         }
     }
@@ -241,7 +232,7 @@ public class DatabaseHideManager {
             boolean filterReplies,
             boolean filterSaved
     ) {
-        return new Post.Builder().board(childPost.board)
+        Post n = new Post.Builder().board(childPost.board)
                 .posterId(childPost.id)
                 .opId(childPost.opId)
                 .no(childPost.no)
@@ -273,6 +264,12 @@ public class DatabaseHideManager {
                 .spans(childPost.subjectSpan, childPost.nameTripcodeIdCapcodeSpan)
                 .repliesTo(childPost.repliesTo)
                 .build();
+        // reassign these, as they are only otherwise set elsewhere but should remain as-is
+        n.repliesFrom.addAll(childPost.repliesFrom);
+        n.embedComplete.set(childPost.embedComplete.get());
+        n.deleted.set(childPost.deleted.get());
+        n.setTitle(childPost.getTitle());
+        return n;
     }
 
     @Nullable
