@@ -77,23 +77,11 @@ public class SitesSetupPresenter
         }
     }
 
-    public void show() {
-        updateSitesInUi();
-
-        if (sites.getAll().isEmpty()) {
-            callback.showHint();
-        }
-    }
-
     public void move(int from, int to) {
         Site item = sitesShown.remove(from);
         sitesShown.add(to, item);
         saveOrder();
         updateSitesInUi();
-    }
-
-    public void onShowDialogClicked() {
-        callback.showAddDialog();
     }
 
     public void onAddClicked(Class<? extends Site> siteClass) {
@@ -103,10 +91,6 @@ public class SitesSetupPresenter
         saveOrder();
 
         updateSitesInUi();
-    }
-
-    public void onSiteCellSettingsClicked(Site site) {
-        callback.openSiteConfiguration(site);
     }
 
     private void saveOrder() {
@@ -144,11 +128,5 @@ public class SitesSetupPresenter
 
     public interface Callback {
         void setSites(List<SiteBoardCount> sites);
-
-        void showHint();
-
-        void showAddDialog();
-
-        void openSiteConfiguration(Site site);
     }
 }

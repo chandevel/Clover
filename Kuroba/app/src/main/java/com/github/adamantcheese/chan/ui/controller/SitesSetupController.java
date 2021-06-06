@@ -58,7 +58,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SitesSetupController
         extends StyledToolbarNavigationController
-        implements SitesSetupPresenter.Callback, View.OnClickListener {
+        implements SitesSetupPresenter.Callback {
 
     @Inject
     SiteRepository siteRepository;
@@ -117,18 +117,11 @@ public class SitesSetupController
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(sitesRecyclerview);
-        addButton.setOnClickListener(this);
+        addButton.setOnClickListener(v -> showAddDialog());
         crossfadeView.toggle(false, false);
 
         // Presenter
         presenter = new SitesSetupPresenter(context, this);
-    }
-
-    @Override
-    public void onShow() {
-        super.onShow();
-
-        presenter.show();
     }
 
     @Override
@@ -137,28 +130,10 @@ public class SitesSetupController
         presenter.destroy();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == addButton) {
-            presenter.onShowDialogClicked();
-        }
-    }
-
-    @Override
-    public void showHint() {
-        AndroidUtils.getBaseToolTip(context)
-                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                .setArrowOrientation(ArrowOrientation.BOTTOM)
-                .setTextResource(R.string.setup_sites_add_hint)
-                .setPreferenceName("AddSite")
-                .build()
-                .showAlignTop(addButton);
-    }
-
-    @Override
-    public void showAddDialog() {
+    private void showAddDialog() {
         final RecyclerView dialogView = new RecyclerView(context);
         dialogView.setLayoutManager(new LinearLayoutManager(context));
+        dialogView.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
 
         SitePreviewAdapter adapter = new SitePreviewAdapter();
         if (adapter.siteClasses.isEmpty()) {
@@ -173,17 +148,21 @@ public class SitesSetupController
     }
 
     @Override
-    public void openSiteConfiguration(Site site) {
-        navigationController.pushController(new SiteSetupController(context, site));
-    }
-
-    @Override
     public void setSites(List<SiteBoardCount> sites) {
         this.sites.clear();
         this.sites.addAll(sites);
         sitesAdapter.notifyDataSetChanged();
 
         crossfadeView.toggle(!sites.isEmpty(), true);
+        if (!sites.isEmpty()) {
+            AndroidUtils.getBaseToolTip(context)
+                    .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                    .setArrowOrientation(ArrowOrientation.BOTTOM)
+                    .setTextResource(R.string.setup_sites_add_hint)
+                    .setPreferenceName("AddSite")
+                    .build()
+                    .showAlignTop(addButton);
+        }
     }
 
     private class SitesAdapter
@@ -246,7 +225,9 @@ public class SitesSetupController
             ImageView reorder = itemView.findViewById(R.id.reorder);
 
             // Setup views
-            itemView.setOnClickListener(v -> presenter.onSiteCellSettingsClicked(site));
+            itemView.setOnClickListener(v -> navigationController.pushController(new SiteSetupController(context,
+                    site
+            )));
             removeSite.setOnClickListener(v -> getDefaultAlertBuilder(v.getContext()).setTitle(getString(R.string.delete_site_dialog_title))
                     .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                     .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
