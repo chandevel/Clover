@@ -756,6 +756,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="filter_add_hint">Add a filter</string>
     <string name="filter_toggle_hint">Toggle all filters on/off</string>
+    <string name="filter_debug_hint">Toggle filter debugging</string>
     <string name="album_download_hint">Download multiple images</string>
 
     <string name="reply_filename_hint">Tap to randomize filename</string>

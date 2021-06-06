@@ -58,6 +58,8 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.controller.FiltersController.MenuId.DEBUG;
+import static com.github.adamantcheese.chan.ui.controller.FiltersController.MenuId.SEARCH;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -68,6 +70,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 public class FiltersController
         extends Controller
         implements ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
+    enum MenuId {
+        SEARCH,
+        DEBUG
+    }
+
     @Inject
     DatabaseFilterManager databaseFilterManager;
 
@@ -126,22 +133,26 @@ public class FiltersController
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
         navigation.buildMenu()
-                .withItem(R.drawable.ic_fluent_search_24_filled,
+                .withItem(SEARCH,
+                        R.drawable.ic_fluent_search_24_filled,
                         (item) -> ((ToolbarNavigationController) navigationController).showSearch()
                 )
-                .withItem(ChanSettings.debugFilters.get()
-                        ? R.drawable.ic_fluent_highlight_24_filled
-                        : R.drawable.ic_fluent_highlight_24_regular, (item) -> {
-                    ChanSettings.debugFilters.toggle();
-                    item.setImage(ChanSettings.debugFilters.get()
-                            ? R.drawable.ic_fluent_highlight_24_filled
-                            : R.drawable.ic_fluent_highlight_24_regular);
-                    showToast(context,
-                            "Filter debugging turned " + (ChanSettings.debugFilters.get()
-                                    ? "on; tap highlighted text to see matched filter."
-                                    : "off.")
-                    );
-                })
+                .withItem(DEBUG,
+                        ChanSettings.debugFilters.get()
+                                ? R.drawable.ic_fluent_highlight_24_filled
+                                : R.drawable.ic_fluent_highlight_24_regular,
+                        (item) -> {
+                            ChanSettings.debugFilters.toggle();
+                            item.setImage(ChanSettings.debugFilters.get()
+                                    ? R.drawable.ic_fluent_highlight_24_filled
+                                    : R.drawable.ic_fluent_highlight_24_regular);
+                            showToast(context,
+                                    "Filter debugging turned " + (ChanSettings.debugFilters.get()
+                                            ? "on; tap highlighted text to see matched filter."
+                                            : "off.")
+                            );
+                        }
+                )
                 .build();
 
         adapter = new FilterAdapter();
@@ -162,9 +173,7 @@ public class FiltersController
     }
 
     @Override
-    public void onShow() {
-        super.onShow();
-
+    public void onNavItemSet() {
         Balloon addHint = AndroidUtils.getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("AddFilter")
@@ -177,7 +186,14 @@ public class FiltersController
                 .setArrowOrientation(ArrowOrientation.BOTTOM)
                 .setTextResource(R.string.filter_toggle_hint)
                 .build();
-        addHint.relayShowAlignTop(toggleHint, enable);
+        Balloon debugHint = AndroidUtils.getBaseToolTip(context)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                .setPreferenceName("DebugFilter")
+                .setArrowOrientation(ArrowOrientation.TOP)
+                .setTextResource(R.string.filter_debug_hint)
+                .build();
+        addHint.relayShowAlignTop(toggleHint, enable)
+                .relayShowAlignBottom(debugHint, navigation.findItem(DEBUG).getView());
         addHint.showAlignTop(add);
     }
 
