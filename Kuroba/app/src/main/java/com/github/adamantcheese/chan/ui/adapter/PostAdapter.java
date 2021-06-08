@@ -271,6 +271,9 @@ public class PostAdapter
             case TYPE_POST_STUB:
                 ((PostCellInterface) holder.itemView).unsetPost();
                 break;
+            case TYPE_STATUS:
+                ((ThreadStatusCell) holder.itemView).setError(null);
+                break;
         }
     }
 
