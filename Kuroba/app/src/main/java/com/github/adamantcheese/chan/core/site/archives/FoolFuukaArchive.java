@@ -9,7 +9,9 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -290,6 +292,46 @@ public class FoolFuukaArchive
                 } else {
                     return "https://" + domain + "/" + loadable.boardCode;
                 }
+            }
+
+            @Override
+            public Loadable resolveLoadable(Site site, HttpUrl url) {
+                List<String> parts = url.pathSegments();
+
+                if (!parts.isEmpty()) {
+                    String boardCode = parts.get(0);
+                    Board board = site.board(boardCode);
+                    if (board != null) {
+                        if (parts.size() == 1) {
+                            // Board mode
+                            return Loadable.forCatalog(board);
+                        } else {
+                            // Thread mode
+                            int no = -1;
+                            try {
+                                no = Integer.parseInt(parts.get(2));
+                            } catch (Exception ignored) {
+                            }
+
+                            int post = -1;
+                            try {
+                                post = Integer.parseInt(url.fragment());
+                            } catch (Exception ignored) {
+                            }
+
+                            if (no >= 0) {
+                                Loadable loadable = Loadable.forThread(board, no, "", false);
+                                if (post >= 0) {
+                                    loadable.markedNo = post;
+                                }
+
+                                return loadable;
+                            }
+                        }
+                    }
+                }
+
+                return null;
             }
 
             @Override

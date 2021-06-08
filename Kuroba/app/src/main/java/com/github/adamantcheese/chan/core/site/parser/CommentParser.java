@@ -466,19 +466,26 @@ public class CommentParser {
         public Object value;
     }
 
+    /**
+     * A board, thread, and postId combination to identify a thread.
+     * Used for ExternalSiteArchives.
+     */
     public static class ThreadLink {
-        public String board;
+        public String boardCode;
         public int threadId;
         public int postId;
 
-        public ThreadLink(String board, int threadId, int postId) {
-            this.board = board;
+        public ThreadLink(String boardCode, int threadId, int postId) {
+            this.boardCode = boardCode;
             this.threadId = threadId;
             this.postId = postId;
         }
     }
 
-    // this should only ever be for Archives
+    /**
+     * Resolve a board and postId to a ThreadLink.
+     * Used for ExternalSiteArchives.
+     */
     public static class ResolveLink {
         public Board board;
         public int postId;

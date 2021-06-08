@@ -867,7 +867,7 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.THREAD) {
             ThreadLink link = (ThreadLink) linkable.value;
 
-            Board board = loadable.site.board(link.board);
+            Board board = loadable.site.board(link.boardCode);
             if (board != null) {
                 Loadable thread =
                         Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
@@ -894,7 +894,7 @@ public class ThreadPresenter
             if (linkable.value instanceof ThreadLink) {
                 ThreadLink opPostPair = (ThreadLink) linkable.value;
                 Loadable constructed =
-                        Loadable.forThread(Board.fromSiteNameCode(loadable.site, opPostPair.board, opPostPair.board),
+                        Loadable.forThread(Board.fromSiteNameCode(loadable.site, opPostPair.boardCode, opPostPair.boardCode),
                                 opPostPair.threadId,
                                 "",
                                 false
@@ -907,8 +907,8 @@ public class ThreadPresenter
                     toResolve.resolve((threadLink) -> {
                         if (threadLink != null) {
                             Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(toResolve.board.site,
-                                    threadLink.board,
-                                    threadLink.board
+                                    threadLink.boardCode,
+                                    threadLink.boardCode
                                     ),
                                     threadLink.threadId,
                                     "",

@@ -19,14 +19,18 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.di.AppModule;
+import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.features.embedding.embedders.BandcampEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.ClypEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
@@ -279,10 +283,28 @@ public class EmbeddingEngine
         List<PostLinkable> generated = new ArrayList<>();
         Iterable<LinkSpan> links = LINK_EXTRACTOR.extractLinks(comment);
         for (LinkSpan link : links) {
+            // if there's already a PostLinkable here, skip over it, we'd otherwise be stacking stuff up
+            if (comment.getSpans(link.getBeginIndex(), link.getEndIndex(), PostLinkable.class).length > 0) continue;
             String linkText = TextUtils.substring(comment, link.getBeginIndex(), link.getEndIndex());
             String scheme = linkText.substring(0, linkText.indexOf(':'));
             if (!"http".equals(scheme) && !"https".equals(scheme)) continue; // only autolink URLs, not any random URI
             PostLinkable pl = new PostLinkable(theme, linkText, linkText, PostLinkable.Type.EMBED);
+
+            // double check however and set up "archive" links here in place of regular links
+            // this allows the person to pick any archive they want, regardless of if it actually is the link in question
+            try {
+                String domain = HttpUrl.get(linkText).topPrivateDomain();
+                if (domain == null) throw new IllegalArgumentException("No domain?");
+                ExternalSiteArchive a = ArchivesManager.getInstance().archiveForDomain(domain);
+                if (a != null) {
+                    Loadable resolved = a.resolvable().resolveLoadable(a, HttpUrl.get(linkText));
+                    if (resolved != null) {
+                        Object value = new ThreadLink(resolved.boardCode, resolved.no, resolved.markedNo);
+                        pl = new PostLinkable(theme, linkText, value, PostLinkable.Type.ARCHIVE);
+                    }
+                }
+            } catch (Exception ignored) {}
+
             //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
             //we use 500 here for to go below post linkables, but above everything else basically
             comment.setSpan(pl,
@@ -307,7 +329,7 @@ public class EmbeddingEngine
         if (!ChanSettings.parsePostImageLinks.get()) return Collections.emptyList();
         List<PostImage> generated = new ArrayList<>();
         for (PostLinkable linkable : linkables) {
-            Matcher matcher = IMAGE_URL_PATTERN.matcher((String) linkable.value);
+            Matcher matcher = IMAGE_URL_PATTERN.matcher(linkable.value.toString());
             if (matcher.matches()) {
                 boolean noThumbnail = StringUtils.endsWithAny(linkable.value.toString(), noThumbLinkSuffixes);
                 String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";

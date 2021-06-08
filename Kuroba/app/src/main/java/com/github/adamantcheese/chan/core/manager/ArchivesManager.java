@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.util.JsonReader;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
@@ -29,6 +31,8 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.archives.FoolFuukaArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -98,6 +102,14 @@ public class ArchivesManager
             }
         }
         return result;
+    }
+
+    @Nullable
+    public ExternalSiteArchive archiveForDomain(@NonNull String domain) {
+        for (ExternalSiteArchive a : archivesList) {
+            if (a.domain.equalsIgnoreCase(domain)) return a;
+        }
+        return null;
     }
 
     @Override
