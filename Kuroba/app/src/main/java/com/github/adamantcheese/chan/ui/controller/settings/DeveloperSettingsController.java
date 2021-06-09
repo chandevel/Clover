@@ -24,6 +24,7 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -31,6 +32,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseHelper;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
@@ -128,6 +130,7 @@ public class DeveloperSettingsController
                 }
             }
             context.getSharedPreferences("com.skydoves.balloon", Context.MODE_PRIVATE).edit().clear().commit();
+            ((PersistentCookieJar) NetUtils.applicationClient.cookieJar()).clear();
             ((StartActivity) context).restartApp();
         });
         resetDbButton.setText("Reset application and restart fresh");
