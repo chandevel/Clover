@@ -113,7 +113,6 @@ public class WatchManager
     private static final long STATE_UPDATE_DEBOUNCE_TIME_MS = 1000L;
 
     private final DatabasePinManager databasePinManager;
-    private final WakeManager wakeManager;
 
     private IntervalType currentInterval = NONE;
     private final List<Pin> pins;
@@ -123,11 +122,8 @@ public class WatchManager
     private Set<PinWatcher> waitingForPinWatchersForBackgroundUpdate;
 
     public WatchManager(
-            DatabasePinManager databasePinManager, WakeManager wakeManager
+            DatabasePinManager databasePinManager
     ) {
-        //retain local references to needed managers/factories/pins
-        this.wakeManager = wakeManager;
-
         stateUpdateDebouncer = new Debouncer(true);
         this.databasePinManager = databasePinManager;
 
@@ -612,12 +608,12 @@ public class WatchManager
                     break;
                 case BACKGROUND:
                     // Stop receiving scheduled broadcasts
-                    wakeManager.unregisterWakeable(this);
+                    WakeManager.getInstance().unregisterWakeable(this);
                     break;
                 case NONE:
                     // Stop everything
                     handler.removeMessages(MESSAGE_UPDATE);
-                    wakeManager.unregisterWakeable(this);
+                    WakeManager.getInstance().unregisterWakeable(this);
                     break;
             }
         } else {
@@ -630,7 +626,7 @@ public class WatchManager
                         break;
                     case BACKGROUND:
                         //Background -> foreground/none means stop receiving background updates
-                        wakeManager.unregisterWakeable(this);
+                        WakeManager.getInstance().unregisterWakeable(this);
                         break;
                     case NONE:
                         //Nothing -> foreground/background means do nothing
@@ -647,12 +643,12 @@ public class WatchManager
                         break;
                     case BACKGROUND:
                         //Foreground/none -> background means start receiving background updates
-                        wakeManager.registerWakeable(this);
+                        WakeManager.getInstance().registerWakeable(this);
                         break;
                     case NONE:
                         //Foreground/background -> none means stop receiving every update
                         handler.removeMessages(MESSAGE_UPDATE);
-                        wakeManager.unregisterWakeable(this);
+                        WakeManager.getInstance().unregisterWakeable(this);
                         break;
                 }
             }
@@ -700,7 +696,7 @@ public class WatchManager
                     waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
                             + StringUtils.getCurrentTimeDefaultLocale()
             );
-            wakeManager.manageLock(true, WatchManager.this);
+            WakeManager.getInstance().manageLock(true, WatchManager.this);
         }
     }
 
@@ -715,7 +711,7 @@ public class WatchManager
                 if (waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
                     Logger.d(this, "All watchers updated, finished at " + StringUtils.getCurrentTimeDefaultLocale());
                     waitingForPinWatchersForBackgroundUpdate = null;
-                    wakeManager.manageLock(false, WatchManager.this);
+                    WakeManager.getInstance().manageLock(false, WatchManager.this);
                 }
             }
         }

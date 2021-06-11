@@ -46,7 +46,6 @@ import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FI
 
 public class FilterWatchManager
         implements WakeManager.Wakeable {
-    private final WakeManager wakeManager;
     private final BoardRepository boardRepository;
     private final FilterEngine filterEngine;
     private final WatchManager watchManager;
@@ -63,18 +62,16 @@ public class FilterWatchManager
     private boolean processing = false;
 
     public FilterWatchManager(
-            WakeManager wakeManager,
             BoardRepository boardRepository,
             FilterEngine filterEngine,
             WatchManager watchManager
     ) {
-        this.wakeManager = wakeManager;
         this.boardRepository = boardRepository;
         this.filterEngine = filterEngine;
         this.watchManager = watchManager;
 
         if (!filterEngine.getEnabledWatchFilters().isEmpty()) {
-            wakeManager.registerWakeable(this);
+            WakeManager.getInstance().registerWakeable(this);
         }
 
         Set<Integer> previousIgnore = AppModule.gson.fromJson(PersistableChanState.filterWatchIgnored.get(),
@@ -89,16 +86,16 @@ public class FilterWatchManager
     public void onEvent(RefreshUIMessage message) {
         if (message.reason != FILTERS_CHANGED) return;
         if (filterEngine.getEnabledWatchFilters().isEmpty()) {
-            wakeManager.unregisterWakeable(this);
+            WakeManager.getInstance().unregisterWakeable(this);
         } else {
-            wakeManager.registerWakeable(this);
+            WakeManager.getInstance().registerWakeable(this);
         }
     }
 
     @Override
     public void onWake() {
         if (!processing) {
-            wakeManager.manageLock(true, FilterWatchManager.this);
+            WakeManager.getInstance().manageLock(true, FilterWatchManager.this);
             processing = true;
             populateFilterLoaders();
             if (!filterLoaders.keySet().isEmpty()) {
@@ -110,7 +107,7 @@ public class FilterWatchManager
                     loader.requestData();
                 }
             } else {
-                wakeManager.manageLock(false, FilterWatchManager.this);
+                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             }
         }
     }
@@ -179,7 +176,7 @@ public class FilterWatchManager
                 Logger.d(this,
                         "Finished processing filter loaders, ended at " + StringUtils.getCurrentTimeDefaultLocale()
                 );
-                wakeManager.manageLock(false, FilterWatchManager.this);
+                WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
             }
         }
     }

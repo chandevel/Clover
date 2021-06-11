@@ -46,6 +46,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * Deals with background alarms specifically. No foreground stuff here.
  */
 public class WakeManager {
+    private static WakeManager instance;
     private final Map<Object, WakeLock> wakeLocks = new HashMap<>();
 
     private final AlarmManager alarmManager;
@@ -58,7 +59,15 @@ public class WakeManager {
     private long lastBackgroundUpdateTime = System.currentTimeMillis() - ChanSettings.watchBackgroundInterval.get();
     private boolean alarmRunning;
 
-    public WakeManager() {
+    public static WakeManager getInstance() {
+        if (instance == null) {
+            instance = new WakeManager();
+        }
+
+        return instance;
+    }
+
+    private WakeManager() {
         alarmManager = (AlarmManager) getAppContext().getSystemService(Context.ALARM_SERVICE);
         powerManager = (PowerManager) getAppContext().getSystemService(Context.POWER_SERVICE);
 

@@ -166,9 +166,6 @@ public class DrawerController
     @Inject
     WatchManager watchManager;
 
-    @Inject
-    WakeManager wakeManager;
-
     public DrawerController(Context context) {
         super(context);
         EventBus.getDefault().register(this);
@@ -263,7 +260,7 @@ public class DrawerController
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(false);
             if (pinMode) {
-                wakeManager.onBroadcastReceived(!BuildConfig.DEBUG);
+                WakeManager.getInstance().onBroadcastReceived(!BuildConfig.DEBUG);
             } else {
                 if (recyclerView.getAdapter() == null) return;
                 ((DrawerHistoryAdapter) recyclerView.getAdapter()).load();

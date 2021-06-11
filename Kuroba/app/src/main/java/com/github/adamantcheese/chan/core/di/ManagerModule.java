@@ -54,29 +54,21 @@ public class ManagerModule {
     @Provides
     @Singleton
     public WatchManager provideWatchManager(
-            DatabasePinManager databasePinManager, WakeManager wakeManager, FileManager fileManager
+            DatabasePinManager databasePinManager
     ) {
         Logger.d(AppModule.DI_TAG, "Watch manager");
-        return new WatchManager(databasePinManager, wakeManager);
-    }
-
-    @Provides
-    @Singleton
-    public WakeManager provideWakeManager() {
-        Logger.d(AppModule.DI_TAG, "Wake manager");
-        return new WakeManager();
+        return new WatchManager(databasePinManager);
     }
 
     @Provides
     @Singleton
     public FilterWatchManager provideFilterWatchManager(
-            WakeManager wakeManager,
             BoardRepository boardRepository,
             FilterEngine filterEngine,
             WatchManager watchManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
-        return new FilterWatchManager(wakeManager, boardRepository, filterEngine, watchManager);
+        return new FilterWatchManager(boardRepository, filterEngine, watchManager);
     }
 
     @Provides

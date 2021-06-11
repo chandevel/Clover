@@ -38,6 +38,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.UpdateManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -119,6 +120,8 @@ public class StartActivity
     SiteResolver siteResolver;
     @Inject
     WatchManager watchManager;
+    @Inject
+    FilterWatchManager filterWatchManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

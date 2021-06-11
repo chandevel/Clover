@@ -22,21 +22,11 @@ import android.content.Intent;
 
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 
-import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-
 public class WakeUpdateReceiver
         extends BroadcastReceiver {
-    @Inject
-    WakeManager wakeManager;
-
-    public WakeUpdateReceiver() {
-        inject(this);
-    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        wakeManager.onBroadcastReceived(true);
+        WakeManager.getInstance().onBroadcastReceived(true);
     }
 }

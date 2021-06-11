@@ -150,9 +150,6 @@ public class ThreadPresenter
     @Inject
     private BoardManager boardManager;
 
-    @Inject
-    private FilterWatchManager filterWatchManager;
-
     private final ThreadPresenterCallback threadPresenterCallback;
     private Loadable loadable;
     private ChanThreadLoader chanLoader;
