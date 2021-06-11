@@ -141,32 +141,38 @@ public class CommentParser {
 
         rule(tagRule("pre").cssClass("prettyprint").monospace().code().trimEndWhitespace().size(sp(12f)));
 
+        // replaces img tags with an attached image, and any alt-text will become a spoilered text item
         rule(tagRule("img").action((theme, callback, post, text, element) -> {
             try {
                 SpannableString ret = new SpannableString(text);
                 if (element.hasAttr("alt")) {
                     String alt = element.attr("alt");
                     if (!alt.isEmpty()) {
-                        ret = new SpannableString(element.attr("alt"));
-                        ret.setSpan(new PostLinkable(theme, ret, ret, Type.SPOILER),
-                                0,
-                                ret.length(),
-                                (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                        ret = new SpannableString(element.attr("alt") + " ");
+                        ret.setSpan(new PostLinkable(theme, ret, ret, Type.SPOILER), 0,
+                                // don't include the space at the end of the text
+                                ret.length() - 1, (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
                         );
                     }
                 }
                 HttpUrl src = HttpUrl.get(element.attr("src"));
-                post.images(Collections.singletonList(new PostImage.Builder().imageUrl(src)
+                PostImage i = new PostImage.Builder().imageUrl(src)
                         .thumbnailUrl(src)
                         .spoilerThumbnailUrl(src)
                         .filename(Files.getNameWithoutExtension(src.toString()))
                         .extension(Files.getFileExtension(src.toString()))
-                        .build()));
+                        .build();
+                if (post.images.size() < 5 && !post.images.contains(i)) {
+                    post.images(Collections.singletonList(i));
+                }
                 return ret;
             } catch (Exception e) {
                 return text;
             }
         }));
+
+        // replaces iframes with the associated src url text
+        rule(tagRule("iframe").action((theme, callback, post, text, element) -> element.attr("src")));
         return this;
     }
 
