@@ -579,6 +579,12 @@ public class Post
             return this;
         }
 
+        /**
+         * Add images to this post
+         *
+         * @param images A list of images to add
+         * @return This builder
+         */
         public Builder images(List<PostImage> images) {
             this.images.addAll(images);
 

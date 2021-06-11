@@ -21,8 +21,6 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
-import org.jsoup.parser.Parser;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

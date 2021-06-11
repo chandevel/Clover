@@ -50,7 +50,6 @@ import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -373,7 +372,10 @@ public class Chan4
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft), postListener);
+            NetUtils.makeHttpCall(
+                    new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
+                    postListener
+            );
         }
 
         @Override
@@ -400,7 +402,10 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new MainThreadResponseResult<>(deleteListener), deleteRequest));
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(
+                    new MainThreadResponseResult<>(deleteListener),
+                    deleteRequest
+            ));
         }
 
         @Override

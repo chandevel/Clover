@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.core.model.InternalSiteArchive.ArchiveItem;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ArchivePresenter;
-import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
@@ -79,8 +78,7 @@ public class ArchiveController
 
         // Navigation
         navigation.title = getString(R.string.archive_title, board.getFormattedName());
-        navigation.buildMenu().withItem(
-                R.drawable.ic_fluent_search_24_filled,
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled,
                 (item) -> ((ToolbarNavigationController) navigationController).showSearch()
         ).build();
 
@@ -193,7 +191,11 @@ public class ArchiveController
 
         public void setItem(ArchiveItem item, String filter) {
             this.item = item;
-            ((TextView) itemView).setText(StringUtils.applySearchSpans(ThemeHelper.getTheme(), item.description, filter));
+            ((TextView) itemView).setText(StringUtils.applySearchSpans(
+                    ThemeHelper.getTheme(),
+                    item.description,
+                    filter
+            ));
         }
     }
 }

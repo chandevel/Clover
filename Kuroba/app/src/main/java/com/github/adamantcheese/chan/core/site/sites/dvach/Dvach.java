@@ -16,8 +16,6 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -161,7 +159,10 @@ public class Dvach
 
             @Override
             public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener), loadableWithDraft), postListener);
+                NetUtils.makeHttpCall(new DvachReplyCall(
+                        new NetUtilsClasses.MainThreadResponseResult<>(postListener),
+                        loadableWithDraft
+                ), postListener);
             }
 
             @Override

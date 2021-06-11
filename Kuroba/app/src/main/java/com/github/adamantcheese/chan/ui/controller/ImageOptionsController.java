@@ -111,8 +111,7 @@ public class ImageOptionsController
         super(context);
         this.callback = callback;
         try { //load up the last image options every time this controller is created
-            lastOptions = AppModule.gson.fromJson(
-                    ChanSettings.lastImageOptions.get(),
+            lastOptions = AppModule.gson.fromJson(ChanSettings.lastImageOptions.get(),
                     ImageReencodingPresenter.ImageOptions.class
             );
         } catch (Exception e) {

@@ -6,7 +6,8 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public class RelativeSizeSpanHashed extends RelativeSizeSpan {
+public class RelativeSizeSpanHashed
+        extends RelativeSizeSpan {
     public RelativeSizeSpanHashed(float proportion) {
         super(proportion);
     }

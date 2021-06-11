@@ -83,7 +83,11 @@ public class VichanActions
     }
 
     @Override
-    public void prepare(MultipartHttpCall<ReplyResponse> call, Loadable loadable, NetUtilsClasses.ResponseResult<Void> callback) {
+    public void prepare(
+            MultipartHttpCall<ReplyResponse> call,
+            Loadable loadable,
+            NetUtilsClasses.ResponseResult<Void> callback
+    ) {
         VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(loadable.desktopUrl()));
         antispam.addDefaultIgnoreFields();
         antispam.get(new ResponseResult<Map<String, String>>() {
@@ -177,8 +181,7 @@ public class VichanActions
     @Override
     public void pages(Board board, ResponseResult<ChanPages> pagesListener) {
         // Vichan keeps the pages and the catalog as one JSON unit, so parse those here
-        NetUtils.makeJsonRequest(
-                site.endpoints().catalog(board),
+        NetUtils.makeJsonRequest(site.endpoints().catalog(board),
                 new ResponseResult<ChanPages>() {
                     @Override
                     public void onFailure(Exception e) {

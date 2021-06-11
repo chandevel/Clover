@@ -21,8 +21,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.github.adamantcheese.chan.core.manager.WakeManager;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 

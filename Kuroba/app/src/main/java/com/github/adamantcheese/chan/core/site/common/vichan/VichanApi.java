@@ -8,7 +8,6 @@ import androidx.core.util.Pair;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
@@ -275,9 +274,9 @@ public class VichanApi
         }
 
         if (countryCode != null && countryDescription != null) {
-            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(
-                    ICON_TYPE.COUNTRY_FLAG,
+            Pair<HttpUrl, PassthroughBitmapResult> resultPair =
+                    endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.COUNTRY_FLAG,
                     resultPair.first,
                     resultPair.second,
                     countryCode,

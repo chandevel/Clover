@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -36,8 +35,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 @SuppressLint("AppCompatCustomView")
 public class ThreadStatusCell
@@ -77,7 +74,7 @@ public class ThreadStatusCell
             setCallback(new Callback() {
                 @Override
                 public long getTimeUntilLoadMore() {
-                    return 20*1000L;
+                    return 20 * 1000L;
                 }
 
                 @Override

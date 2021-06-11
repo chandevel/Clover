@@ -44,8 +44,10 @@ public class SettingsGroup {
     public void filter(String text) {
         displayList.clear();
         for (SettingView settingView : settingViews) {
-            if (StringUtils.containsIgnoreCase(settingView.getTopDescription(), text)
-                    || StringUtils.containsIgnoreCase(settingView.getBottomDescription(), text)) {
+            if (StringUtils.containsIgnoreCase(settingView.getTopDescription(), text) || StringUtils.containsIgnoreCase(
+                    settingView.getBottomDescription(),
+                    text
+            )) {
                 displayList.add(settingView);
             }
         }

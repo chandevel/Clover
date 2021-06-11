@@ -37,6 +37,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -53,6 +54,7 @@ import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.google.common.io.Files;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -66,6 +68,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -86,7 +90,8 @@ public class CommentParser {
     private Pattern quotePattern = Pattern.compile(".*#p?(\\d+)");
 
     // A pattern matching any board links
-    private final Pattern boardLinkPattern = Pattern.compile("(?:https?:?)?(?://boards\\.4chan.*?\\.org)?/(.*?)/(?:catalog)?");
+    private final Pattern boardLinkPattern =
+            Pattern.compile("(?:https?:?)?(?://boards\\.4chan.*?\\.org)?/(.*?)/(?:catalog)?");
     //alternate for some sites (formerly 8chan)
     private final Pattern boardLinkPattern8Chan = Pattern.compile("/(.*?)/index.html");
     // A pattern matching any board search links
@@ -135,6 +140,33 @@ public class CommentParser {
         rule(tagRule("font").applyFontRules());
 
         rule(tagRule("pre").cssClass("prettyprint").monospace().code().trimEndWhitespace().size(sp(12f)));
+
+        rule(tagRule("img").action((theme, callback, post, text, element) -> {
+            try {
+                SpannableString ret = new SpannableString(text);
+                if (element.hasAttr("alt")) {
+                    String alt = element.attr("alt");
+                    if (!alt.isEmpty()) {
+                        ret = new SpannableString(element.attr("alt"));
+                        ret.setSpan(new PostLinkable(theme, ret, ret, Type.SPOILER),
+                                0,
+                                ret.length(),
+                                (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                        );
+                    }
+                }
+                HttpUrl src = HttpUrl.get(element.attr("src"));
+                post.images(Collections.singletonList(new PostImage.Builder().imageUrl(src)
+                        .thumbnailUrl(src)
+                        .spoilerThumbnailUrl(src)
+                        .filename(Files.getNameWithoutExtension(src.toString()))
+                        .extension(Files.getFileExtension(src.toString()))
+                        .build()));
+                return ret;
+            } catch (Exception e) {
+                return text;
+            }
+        }));
         return this;
     }
 

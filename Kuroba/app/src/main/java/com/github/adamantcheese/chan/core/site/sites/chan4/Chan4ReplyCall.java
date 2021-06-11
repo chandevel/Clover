@@ -88,14 +88,11 @@ public class Chan4ReplyCall
         RequestBody requestBody;
 
         if (progressListener == null) {
-            requestBody = RequestBody.create(originatingLoadable.draft.file,
-                    MediaType.parse("application/octet-stream")
-            );
+            requestBody =
+                    RequestBody.create(originatingLoadable.draft.file, MediaType.parse("application/octet-stream"));
         } else {
             requestBody = new ProgressRequestBody(
-                    RequestBody.create(originatingLoadable.draft.file,
-                            MediaType.parse("application/octet-stream")
-                    ),
+                    RequestBody.create(originatingLoadable.draft.file, MediaType.parse("application/octet-stream")),
                     progressListener
             );
         }

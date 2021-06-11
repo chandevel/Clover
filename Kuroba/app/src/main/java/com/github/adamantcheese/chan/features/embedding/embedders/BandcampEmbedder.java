@@ -19,7 +19,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import org.jsoup.nodes.Document;
 
 import java.io.StringReader;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

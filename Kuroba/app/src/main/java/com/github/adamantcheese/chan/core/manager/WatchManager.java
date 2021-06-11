@@ -27,7 +27,6 @@ import android.text.SpannableStringBuilder;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -916,17 +915,17 @@ public class WatchManager
                 }
             }
 
-                Logger.vd(this, String.format(
-                        Locale.ENGLISH,
-                        "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
-                        pin.watchLastCount,
-                        pin.watchNewCount,
-                        wereNewPosts,
-                        pin.quoteLastCount,
-                        pin.quoteNewCount,
-                        wereNewQuotes,
-                        chanLoader.getTimeUntilLoadMore() / 1000
-                ));
+            Logger.vd(this, String.format(
+                    Locale.ENGLISH,
+                    "postlast=%d postnew=%d werenewposts=%b quotelast=%d quotenew=%d werenewquotes=%b nextload=%ds",
+                    pin.watchLastCount,
+                    pin.watchNewCount,
+                    wereNewPosts,
+                    pin.quoteLastCount,
+                    pin.quoteNewCount,
+                    wereNewQuotes,
+                    chanLoader.getTimeUntilLoadMore() / 1000
+            ));
 
             if (thread.isArchived() || thread.isClosed()) {
                 pin.archived = true;

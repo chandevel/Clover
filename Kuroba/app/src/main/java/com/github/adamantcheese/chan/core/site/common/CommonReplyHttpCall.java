@@ -42,7 +42,10 @@ public abstract class CommonReplyHttpCall
 
     public final Loadable originatingLoadable;
 
-    public CommonReplyHttpCall(@NonNull NetUtilsClasses.ResponseResult<ReplyResponse> callback, Loadable originatingLoadable) {
+    public CommonReplyHttpCall(
+            @NonNull NetUtilsClasses.ResponseResult<ReplyResponse> callback,
+            Loadable originatingLoadable
+    ) {
         super(callback);
         this.originatingLoadable = originatingLoadable;
     }

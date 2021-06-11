@@ -60,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:hint="@string/setting_pass_token"
                     android:imeOptions="actionNext"
-                    android:inputType="text" />
+                    android:inputType="textVisiblePassword" />
 
                 <EditText
                     android:id="@+id/input_pin"

@@ -132,28 +132,25 @@ public class FiltersController
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
-        navigation.buildMenu()
-                .withItem(SEARCH,
-                        R.drawable.ic_fluent_search_24_filled,
-                        (item) -> ((ToolbarNavigationController) navigationController).showSearch()
-                )
-                .withItem(DEBUG,
-                        ChanSettings.debugFilters.get()
-                                ? R.drawable.ic_fluent_highlight_24_filled
-                                : R.drawable.ic_fluent_highlight_24_regular,
-                        (item) -> {
-                            ChanSettings.debugFilters.toggle();
-                            item.setImage(ChanSettings.debugFilters.get()
-                                    ? R.drawable.ic_fluent_highlight_24_filled
-                                    : R.drawable.ic_fluent_highlight_24_regular);
-                            showToast(context,
-                                    "Filter debugging turned " + (ChanSettings.debugFilters.get()
-                                            ? "on; tap highlighted text to see matched filter."
-                                            : "off.")
-                            );
-                        }
-                )
-                .build();
+        navigation.buildMenu().withItem(SEARCH,
+                R.drawable.ic_fluent_search_24_filled,
+                (item) -> ((ToolbarNavigationController) navigationController).showSearch()
+        ).withItem(DEBUG,
+                ChanSettings.debugFilters.get()
+                        ? R.drawable.ic_fluent_highlight_24_filled
+                        : R.drawable.ic_fluent_highlight_24_regular,
+                (item) -> {
+                    ChanSettings.debugFilters.toggle();
+                    item.setImage(ChanSettings.debugFilters.get()
+                            ? R.drawable.ic_fluent_highlight_24_filled
+                            : R.drawable.ic_fluent_highlight_24_regular);
+                    showToast(context,
+                            "Filter debugging turned " + (ChanSettings.debugFilters.get()
+                                    ? "on; tap highlighted text to see matched filter."
+                                    : "off.")
+                    );
+                }
+        ).build();
 
         adapter = new FilterAdapter();
 

@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import kotlin.io.FilesKt;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -221,7 +220,7 @@ public class ImagePickDelegate {
         try (FileInputStream stream = new FileInputStream(activity.getContentResolver()
                 .openFileDescriptor(uri, "r")
                 .getFileDescriptor())) {
-            if(stream.available() > MAX_FILE_SIZE) throw new IOException("File too large!");
+            if (stream.available() > MAX_FILE_SIZE) throw new IOException("File too large!");
             Files.asByteSink(getPickFile()).writeFrom(stream);
             success = true;
         } catch (Exception ignored) {

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.View;
 
 import androidx.core.util.Pair;
@@ -118,7 +117,11 @@ public class ViewThreadController
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
         if (!ChanSettings.enableReplyFab.get()) {
-            menuOverflowBuilder.withSubItem(OverflowMenuId.REPLY, R.string.action_reply, () -> threadLayout.openReply(true));
+            menuOverflowBuilder.withSubItem(
+                    OverflowMenuId.REPLY,
+                    R.string.action_reply,
+                    () -> threadLayout.openReply(true)
+            );
         }
 
         menuOverflowBuilder.withSubItem(R.string.action_search,

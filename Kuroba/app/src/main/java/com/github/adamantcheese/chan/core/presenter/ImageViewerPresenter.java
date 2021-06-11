@@ -56,7 +56,6 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAudioManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 

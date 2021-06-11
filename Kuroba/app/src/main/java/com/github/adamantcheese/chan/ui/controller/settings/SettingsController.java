@@ -92,8 +92,7 @@ public abstract class SettingsController
         });
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor_secondary));
 
-        navigation.buildMenu().withItem(
-                R.drawable.ic_fluent_search_24_filled,
+        navigation.buildMenu().withItem(R.drawable.ic_fluent_search_24_filled,
                 (item) -> ((ToolbarNavigationController) navigationController).showSearch()
         ).build();
 
@@ -301,7 +300,11 @@ public abstract class SettingsController
             } else if (payloads.size() == 1) {
                 // called when a preference changes
                 SettingView settingView = group.displayList.get(position);
-                setDescriptionText(holder.itemView, settingView.getTopDescription(), settingView.getBottomDescription());
+                setDescriptionText(
+                        holder.itemView,
+                        settingView.getTopDescription(),
+                        settingView.getBottomDescription()
+                );
             }
         }
 

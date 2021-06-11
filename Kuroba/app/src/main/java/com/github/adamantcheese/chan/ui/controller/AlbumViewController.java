@@ -48,6 +48,7 @@ public class AlbumViewController
     private enum MenuId {
         DOWNLOAD_ALBUM
     }
+
     private GridRecyclerView recyclerView;
 
     private List<PostImage> postImages;
@@ -79,7 +80,10 @@ public class AlbumViewController
         this.postImages = postImages;
 
         navigation.buildMenu()
-                .withItem(MenuId.DOWNLOAD_ALBUM, R.drawable.ic_fluent_table_move_below_24_filled, this::downloadAlbumClicked)
+                .withItem(MenuId.DOWNLOAD_ALBUM,
+                        R.drawable.ic_fluent_table_move_below_24_filled,
+                        this::downloadAlbumClicked
+                )
                 .build();
 
         navigation.title = title;

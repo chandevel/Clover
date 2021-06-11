@@ -63,6 +63,7 @@ public class AlbumDownloadController
     private enum MenuId {
         CHECK_ALL
     }
+
     private GridRecyclerView recyclerView;
     private FloatingActionButton download;
 

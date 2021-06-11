@@ -20,9 +20,6 @@ import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 
 import java.util.List;
 
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.STRING;
-
 /**
  * Hacky stuff to give the site settings a good UI.
  */
