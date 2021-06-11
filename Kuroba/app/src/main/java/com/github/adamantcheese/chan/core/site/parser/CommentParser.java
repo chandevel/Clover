@@ -148,10 +148,11 @@ public class CommentParser {
                 if (element.hasAttr("alt")) {
                     String alt = element.attr("alt");
                     if (!alt.isEmpty()) {
-                        ret = new SpannableString(element.attr("alt") + " ");
-                        ret.setSpan(new PostLinkable(theme, ret, ret, Type.SPOILER), 0,
-                                // don't include the space at the end of the text
-                                ret.length() - 1, (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                        ret = new SpannableString(alt + " ");
+                        ret.setSpan(new PostLinkable(theme, alt, alt, Type.SPOILER),
+                                0,
+                                alt.length(),
+                                (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
                         );
                     }
                 }
