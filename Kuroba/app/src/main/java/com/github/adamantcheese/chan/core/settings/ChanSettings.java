@@ -258,7 +258,6 @@ public class ChanSettings {
     public static final BooleanSetting shareUrl;
 
     // Other options
-    public static final StringSetting parseYoutubeAPIKey;
     public static final BooleanSetting fullUserRotationEnable;
     public static final BooleanSetting allowFilePickChooser;
 
@@ -421,10 +420,6 @@ public class ChanSettings {
             shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
 
             // Other options
-            // 4chanX's key: AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE; not set as a default because lots of people use it
-            // and the quota tends to run out quickly, ending up in a lot of non-parsed titles
-            // default no-api key tries its best to get the info it can, but may fail on certain youtube videos without warning
-            parseYoutubeAPIKey = new StringSetting(p, "parse_youtube_API_key", "");
             fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
             allowFilePickChooser = new BooleanSetting(p, "allow_file_picker_chooser", false);
 
