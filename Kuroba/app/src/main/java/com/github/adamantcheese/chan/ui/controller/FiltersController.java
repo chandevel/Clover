@@ -171,6 +171,7 @@ public class FiltersController
 
     @Override
     public void onNavItemSet() {
+        if (navigation.search) return; // bit of a hack to ignore the search change
         Balloon addHint = AndroidUtils.getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("AddFilter")
