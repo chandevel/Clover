@@ -245,76 +245,11 @@ public class StyleRule {
 
         String style = element.attr("style");
         if (!style.isEmpty()) {
-            style = style.replace(" ", "");
-            String[] styles = style.split(";");
-            for (String s : styles) {
-                String[] rule = s.split(":");
-                if (rule.length != 2) continue;
-                switch (rule[0]) {
-                    case "color":
-                        spansToApply.add(new ForegroundColorSpanHashed(Color.parseColor(rule[1])));
-                        break;
-                    case "font-weight":
-                        spansToApply.add(new StyleSpan(Typeface.BOLD)); // whatever the weight, just make it bold
-                        break;
-                    case "font-size":
-                        // for all rules, cap to range 25% - 175%
-                        String size = rule[1];
-                        if (size.contains("%")) {
-                            float scale =
-                                    Math.max(Math.min(Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f,
-                                            1.75f
-                                    ), 0.25f);
-                            spansToApply.add(new RelativeSizeSpanHashed(scale));
-                        } else if (size.contains("px")) {
-                            int sizePx =
-                                    (int) Math.max(Math.min(dp(Float.parseFloat(s.substring(0, size.indexOf("px")))),
-                                            sp(ChanSettings.fontSize.get()) * 1.75f
-                                    ), sp(ChanSettings.fontSize.get()) * 0.25f);
-                            spansToApply.add(new AbsoluteSizeSpanHashed(sizePx));
-                        } else if (s.contains("pt")) {
-                            // 1pt = 1.33px
-                            int sizeDP = (int) Math.max(Math.min(dp(
-                                    (Float.parseFloat(size.substring(0, size.indexOf("pt"))) * 4f) / 3f),
-                                    sp(ChanSettings.fontSize.get()) * 1.75f
-                            ), sp(ChanSettings.fontSize.get()) * 0.25f);
-                            spansToApply.add(new AbsoluteSizeSpanHashed(sizeDP));
-                        } else {
-                            float scale = 1f;
-                            float scalarUnit = 1f / 4f; // 25% increase in size
-                            switch (rule[1]) {
-                                case "xx-small":
-                                    scale -= 3 * scalarUnit; // 25%
-                                    break;
-                                case "x-small":
-                                    scale -= 2 * scalarUnit;
-                                    break;
-                                case "small":
-                                case "smaller":
-                                    scale -= scalarUnit;
-                                    break;
-                                case "medium":
-                                    scale = 1f; //100%
-                                    break;
-                                case "large":
-                                case "larger":
-                                    scale += scalarUnit;
-                                    break;
-                                case "x-large":
-                                    scale += 2 * scalarUnit;
-                                    break;
-                                case "xx-large":
-                                    scale += 3 * scalarUnit; // 175%
-                                    break;
-                                default:
-                                    break;
-                            }
-                            spansToApply.add(new RelativeSizeSpanHashed(scale));
-                        }
-                        break;
-                    default:
-                        break; // ignore anything else
-                }
+            try {
+                style = style.replace(" ", "");
+                applyCssStyles(style, spansToApply);
+            } catch (Exception ignored) {
+                // for any style-related error, just ignore applying styling
             }
         }
 
@@ -346,6 +281,78 @@ public class StyleRule {
         }
 
         return result;
+    }
+
+    private void applyCssStyles(String cssString, List<Object> spansToApply) {
+        String[] styles = cssString.split(";");
+        for (String s : styles) {
+            String[] rule = s.split(":");
+            if (rule.length != 2) continue;
+            switch (rule[0]) {
+                case "color":
+                    spansToApply.add(new ForegroundColorSpanHashed(Color.parseColor(rule[1])));
+                    break;
+                case "font-weight":
+                    spansToApply.add(new StyleSpan(Typeface.BOLD)); // whatever the weight, just make it bold
+                    break;
+                case "font-size":
+                    // for all rules, cap to range 25% - 175%
+                    String size = rule[1];
+                    if (size.contains("%")) {
+                        float scale = Math.max(
+                                Math.min(Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f, 1.75f),
+                                0.25f
+                        );
+                        spansToApply.add(new RelativeSizeSpanHashed(scale));
+                    } else if (size.contains("px")) {
+                        int sizePx = (int) Math.max(Math.min(dp(Float.parseFloat(s.substring(0, size.indexOf("px")))),
+                                sp(ChanSettings.fontSize.get()) * 1.75f
+                        ), sp(ChanSettings.fontSize.get()) * 0.25f);
+                        spansToApply.add(new AbsoluteSizeSpanHashed(sizePx));
+                    } else if (s.contains("pt")) {
+                        // 1pt = 1.33px
+                        int sizeDP = (int) Math.max(Math.min(dp(
+                                (Float.parseFloat(size.substring(0, size.indexOf("pt"))) * 4f) / 3f),
+                                sp(ChanSettings.fontSize.get()) * 1.75f
+                        ), sp(ChanSettings.fontSize.get()) * 0.25f);
+                        spansToApply.add(new AbsoluteSizeSpanHashed(sizeDP));
+                    } else {
+                        float scale = 1f;
+                        float scalarUnit = 1f / 4f; // 25% increase in size
+                        switch (rule[1]) {
+                            case "xx-small":
+                                scale -= 3 * scalarUnit; // 25%
+                                break;
+                            case "x-small":
+                                scale -= 2 * scalarUnit;
+                                break;
+                            case "small":
+                            case "smaller":
+                                scale -= scalarUnit;
+                                break;
+                            case "medium":
+                                scale = 1f; //100%
+                                break;
+                            case "large":
+                            case "larger":
+                                scale += scalarUnit;
+                                break;
+                            case "x-large":
+                                scale += 2 * scalarUnit;
+                                break;
+                            case "xx-large":
+                                scale += 3 * scalarUnit; // 175%
+                                break;
+                            default:
+                                break;
+                        }
+                        spansToApply.add(new RelativeSizeSpanHashed(scale));
+                    }
+                    break;
+                default:
+                    break; // ignore anything else
+            }
+        }
     }
 
     private SpannableString applySpan(CharSequence text, List<Object> spans) {
