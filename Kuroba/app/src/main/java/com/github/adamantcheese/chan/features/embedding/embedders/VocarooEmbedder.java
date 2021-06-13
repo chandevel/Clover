@@ -31,7 +31,7 @@ import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.p
 public class VocarooEmbedder
         extends VoidEmbedder {
     private static final Pattern VOCAROO_LINK_PATTERN =
-            Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{12})(?:/|\\b)");
+            Pattern.compile("https?://(?:(?:www\\.)?vocaroo\\.com|voca\\.ro)/(\\w{11,12})(?:/|\\b)");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
