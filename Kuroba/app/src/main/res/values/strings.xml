@@ -748,8 +748,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="apply_image_filter_to_post">Apply image hash filters to posts</string>
     <string name="apply_image_filter_to_post_description">Applies image hash filtering to posts themselves as opposed to images</string>
-    <string name="yt_api_key_dialog">Youtube API Key</string>
-    <string name="yt_api_key_dialog_description">Without a key parsing is still possible, but may not be reliable. You can use your own key, or snag the one from 4chanX.</string>
 
     <string name="clear_history">Long press to clear all history!</string>
     <string name="no_history">No history available.</string>

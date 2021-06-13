@@ -10,13 +10,10 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.URLDecoder;
 import java.util.List;
@@ -29,15 +26,15 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
-import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class YoutubeEmbedder
         implements Embedder {
+    // Group 1 is the video id, Group 2 is any parameters after the ID
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
-    private static final Pattern API_PARAMS = Pattern.compile("player_response=(.*?)&");
+    // All the relevant information is hidden away in a var called ytInitialPlayerResponse; we can snag that JSON and use it
+    private static final Pattern API_PARAMS = Pattern.compile("ytInitialPlayerResponse = (.*?);var");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
@@ -56,35 +53,8 @@ public class YoutubeEmbedder
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-            return HttpUrl.get("https://www.youtube.com/get_video_info?el=detailpage&video_id=" + matcher.group(1));
-        } else {
-            return HttpUrl.get(
-                    "https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=" + matcher.group(1)
-                            + "&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key="
-                            + ChanSettings.parseYoutubeAPIKey.get());
-        }
+        return HttpUrl.get("https://www.youtube.com/watch?v=" + matcher.group(1) + matcher.group(2));
     }
-
-    //for testing, using 4chanx's api key
-    //normal https://www.googleapis.com/youtube/v3/videos?part=snippet&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
-    //duration https://www.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails&id=dQw4w9WgXcQ&fields=items%28id%2Csnippet%28title%29%2CcontentDetails%28duration%29%29&key=AIzaSyB5_zaen_-46Uhz1xGR-lz1YoUMHqCD6CE
-
-    /* SAMPLE JSON FOR YOUTUBE WITH DURATION AND API KEY
-        {
-          "items": [
-            {
-              "id": "UyXlt9PP4eM",
-              "snippet": {
-                "title": "ATC Spindle Part 3: Designing the Spindle Mount"
-              },
-              "contentDetails": {
-                "duration": "PT22M27S"
-              }
-            }
-          ]
-        }
-     */
 
     @Override
     public List<Pair<Call, Callback>> generateCallPairs(
@@ -100,80 +70,47 @@ public class YoutubeEmbedder
     public EmbedResult convert(Response response)
             throws Exception {
         return new NetUtilsClasses.ChainConverter<EmbedResult, JsonReader>(input -> {
-            if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-                return processNoApiKey(input);
-            } else {
-                return processApiKey(input);
-            }
-        }).chain(input -> {
-            if (ChanSettings.parseYoutubeAPIKey.get().isEmpty()) {
-                Matcher paramsMatcher = API_PARAMS.matcher(URLDecoder.decode(response.body().string(), "utf-8"));
-                if (paramsMatcher.find()) {
-                    return new JsonReader(new StringReader(paramsMatcher.group(1)));
-                }
-                return null;
-            } else {
-                return new JsonReader(new InputStreamReader(response.body().byteStream(), UTF_8));
-            }
-        }).convert(response);
-    }
-
-    private static EmbedResult processNoApiKey(JsonReader response)
-            throws IOException {
-        String title = "Title missing";
-        String duration = "[?:??]";
-        response.beginObject();
-        while (response.hasNext()) {
-            if ("videoDetails".equals(response.nextName())) {
-                response.beginObject();
-                while (response.hasNext()) {
-                    switch (response.nextName()) {
-                        case "title":
-                            title = URLDecoder.decode(response.nextString(), "utf-8");
-                            break;
-                        case "lengthSeconds":
-                            duration = prettyPrintDateUtilsElapsedTime(response.nextInt());
-                            break;
-                        case "isLiveContent":
-                            if (response.nextBoolean()) {
-                                duration = "[LIVE]";
-                            }
-                            break;
-                        default:
-                            response.skipValue();
-                            break;
+            String url = response.request().url().toString();
+            String title = "Title missing";
+            String duration = "[?:??]";
+            input.beginObject();
+            while (input.hasNext()) {
+                if ("videoDetails".equals(input.nextName())) {
+                    input.beginObject();
+                    while (input.hasNext()) {
+                        switch (input.nextName()) {
+                            case "title":
+                                title = URLDecoder.decode(input.nextString(), "utf-8");
+                                break;
+                            case "lengthSeconds":
+                                duration = prettyPrintDateUtilsElapsedTime(input.nextInt());
+                                break;
+                            case "isLiveContent":
+                                if (input.nextBoolean()) {
+                                    duration = "[LIVE]";
+                                }
+                                break;
+                            default:
+                                input.skipValue();
+                                break;
+                        }
                     }
+                } else {
+                    input.skipValue();
                 }
-            } else {
-                response.skipValue();
             }
-        }
-        response.endObject();
+            input.endObject();
 
-        return new EmbedResult(title, duration, null);
-    }
+            duration += url.contains("autoplay") ? "[AUTOPLAY]" : "";
+            duration += url.contains("loop") ? "[LOOP]" : "";
 
-    private static EmbedResult processApiKey(JsonReader response)
-            throws IOException {
-        response.beginObject(); // JSON start
-        response.nextName();
-        response.beginArray();
-        response.beginObject();
-        response.nextName(); // video ID
-        response.nextString();
-        response.nextName(); // snippet
-        response.beginObject();
-        response.nextName(); // title
-        String title = response.nextString();
-        response.endObject();
-        response.nextName(); // content details
-        response.beginObject();
-        response.nextName(); // duration
-        String duration = prettyPrint8601Time(response.nextString());
-        response.endObject();
-        response.endObject();
-        response.endArray();
-        response.endObject();
-        return new EmbedResult(title, duration, null);
+            return new EmbedResult(title, duration, null);
+        }).chain(input -> {
+            Matcher paramsMatcher = API_PARAMS.matcher(response.body().string());
+            if (paramsMatcher.find()) {
+                return new JsonReader(new StringReader(paramsMatcher.group(1)));
+            }
+            return null;
+        }).convert(response);
     }
 }

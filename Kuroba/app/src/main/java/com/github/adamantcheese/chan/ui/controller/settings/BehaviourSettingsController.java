@@ -218,13 +218,6 @@ public class BehaviourSettingsController
         {
             SettingsGroup other = new SettingsGroup("Other Options");
 
-            other.add(new StringSettingView(this,
-                    ChanSettings.parseYoutubeAPIKey,
-                    R.string.yt_api_key_dialog,
-                    R.string.yt_api_key_dialog,
-                    R.string.yt_api_key_dialog_description
-            ));
-
             requiresRestart.add(other.add(new BooleanSettingView(this,
                     ChanSettings.fullUserRotationEnable,
                     R.string.setting_full_screen_rotation,
