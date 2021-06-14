@@ -136,7 +136,7 @@ public class SiteSetupController
     public void showLogin() {
         SettingsGroup login = new SettingsGroup(R.string.setup_site_group_login);
 
-        loginLink = new LinkSettingView(this, getString(R.string.setup_site_login), "", v -> {
+        loginLink = new LinkSettingView(this, getString(R.string.setup_site_login), "", (v, sv) -> {
             LoginController loginController = new LoginController(context, site);
             navigationController.pushController(loginController);
         });
@@ -150,7 +150,7 @@ public class SiteSetupController
     protected void populatePreferences() {
         SettingsGroup general = new SettingsGroup(R.string.setup_site_group_general);
 
-        boardsLink = new LinkSettingView(this, getString(R.string.setup_site_boards), "", v -> {
+        boardsLink = new LinkSettingView(this, getString(R.string.setup_site_boards), "", (v, sv) -> {
             BoardSetupController boardSetupController = new BoardSetupController(context);
             boardSetupController.setSite(site);
             navigationController.pushController(boardSetupController);

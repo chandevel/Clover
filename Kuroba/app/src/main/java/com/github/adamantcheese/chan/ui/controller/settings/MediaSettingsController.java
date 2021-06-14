@@ -153,7 +153,7 @@ public class MediaSettingsController
             saveLocation = media.add(new LinkSettingView(this,
                     getString(R.string.save_location_screen),
                     saveLocationSetupDelegate.getSaveLocation(),
-                    v -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
+                    (v, sv) -> saveLocationSetupDelegate.showUseSAFOrOldAPIForSaveLocationDialog()
             ));
 
             //Save modifications

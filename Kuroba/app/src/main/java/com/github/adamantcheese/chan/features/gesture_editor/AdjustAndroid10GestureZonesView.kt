@@ -45,12 +45,8 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
         color = Color.WHITE
     }
 
-    @Inject
-    lateinit var exclusionZonesHolder: Android10GesturesExclusionZonesHolder
-
     init {
         setWillNotDraw(false)
-        inject(this)
 
         gestureZoneEditorTouchHandler = GestureZoneEditorTouchHandler(this)
     }
@@ -63,7 +59,7 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
             measuredHeight: Int
     ) {
         this.orientation = orientation
-        this.exclusionZonesHolder.fillZones(addedZones, skipZone)
+        Android10GesturesExclusionZonesHolder.fillZones(addedZones, skipZone)
 
         currentEditableZone = EditableZone().apply {
             val editableZoneParams = if (skipZone == null) {
@@ -99,7 +95,7 @@ class AdjustAndroid10GestureZonesView @JvmOverloads constructor(
     fun onAddZoneButtonClicked() {
         val editableZone = checkNotNull(currentEditableZone) { "currentEditableZone is null" }
 
-        exclusionZonesHolder.addZone(
+        Android10GesturesExclusionZonesHolder.addZone(
                 orientation,
                 editableZone.getCurrentAttachSide(),
                 editableZone.getCurrentZone().asRect()

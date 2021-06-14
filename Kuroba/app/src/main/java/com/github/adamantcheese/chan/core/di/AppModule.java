@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
-import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
 import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy;
@@ -45,8 +44,6 @@ import java.io.File;
 import javax.inject.Singleton;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getMaxScreenSize;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getMinScreenSize;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
 import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
@@ -155,13 +152,5 @@ public class AppModule {
             Logger.e("AppModule", "cache dir creation failed, this may fail catastrophically!");
         }
         return cacheDir;
-    }
-
-    @Provides
-    @Singleton
-    public Android10GesturesExclusionZonesHolder provideAndroid10GesturesHolder() {
-        Logger.d(DI_TAG, "Android10GesturesExclusionZonesHolder");
-
-        return new Android10GesturesExclusionZonesHolder(getMinScreenSize(), getMaxScreenSize());
     }
 }

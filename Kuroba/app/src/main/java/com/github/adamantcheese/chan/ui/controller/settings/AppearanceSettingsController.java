@@ -61,7 +61,7 @@ public class AppearanceSettingsController
             appearance.add(new LinkSettingView(this,
                     getString(R.string.setting_theme),
                     ThemeHelper.getTheme().name,
-                    v -> navigationController.pushController(new ThemeSettingsController(context))
+                    (v, sv) -> navigationController.pushController(new ThemeSettingsController(context))
             ));
 
             groups.add(appearance);

@@ -98,9 +98,6 @@ public class NavigationControllerContainerLayout
     private final Rect shadowRect = new Rect();
     private int shadowPosition;
 
-    @Inject
-    Android10GesturesExclusionZonesHolder exclusionZonesHolder;
-
     public NavigationControllerContainerLayout(Context context) {
         this(context, null);
     }
@@ -111,7 +108,6 @@ public class NavigationControllerContainerLayout
 
     public NavigationControllerContainerLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        inject(this);
 
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
@@ -288,7 +284,7 @@ public class NavigationControllerContainerLayout
 
     @SuppressLint("NewApi") // this method is only called by methods that already check this condition
     private void provideAndroid10GesturesExclusionZones() {
-        Map<Integer, Set<ExclusionZone>> zonesMap = exclusionZonesHolder.getZones();
+        Map<Integer, Set<ExclusionZone>> zonesMap = Android10GesturesExclusionZonesHolder.getZones();
         if (zonesMap.size() > 0) {
             int orientation = getContext().getResources().getConfiguration().orientation;
             Set<ExclusionZone> zones = zonesMap.get(orientation);

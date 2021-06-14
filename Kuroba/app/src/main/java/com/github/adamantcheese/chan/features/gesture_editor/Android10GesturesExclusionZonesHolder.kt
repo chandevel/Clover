@@ -4,39 +4,33 @@ import android.graphics.Rect
 import com.github.adamantcheese.chan.core.di.AppModule
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.core.settings.ChanSettings.EMPTY_JSON
-import com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10
+import com.github.adamantcheese.chan.utils.AndroidUtils.*
 import com.github.adamantcheese.chan.utils.Logger
 
-class Android10GesturesExclusionZonesHolder(
-        private val minScreenSize: Int,
-        private val maxScreenSize: Int
-) {
-    private val exclusionZones: MutableMap<Int, MutableSet<ExclusionZone>> = loadZones()
+object Android10GesturesExclusionZonesHolder {
+    private val exclusionZones: MutableMap<Int, MutableSet<ExclusionZone>> = mutableMapOf()
+    private var minScreenSize: Int = getMinScreenSize()
+    private var maxScreenSize: Int = getMaxScreenSize()
+
+    init {
+        loadZones()
+    }
 
     private fun loadZones(): MutableMap<Int, MutableSet<ExclusionZone>> {
         val zones = mutableMapOf<Int, MutableSet<ExclusionZone>>()
 
         val json = ChanSettings.androidTenGestureZones.get()
-        if (json.isEmpty() || json == EMPTY_JSON) {
-            Logger.d(TAG, "Json setting string is empty, reset.")
-            ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
-            return zones
-        }
-
-        if (!isAndroid10()) {
-            Logger.d(TAG, "Not android 10, reset.")
-            ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
+        if (json.isEmpty() || !isAndroid10()) {
+            Logger.d(this, "Gesture zones reset, either empty or not Android 10+.")
+            resetZones()
             return zones
         }
 
         val exclusionZones = try {
-            AppModule.gson.fromJson(
-                    json,
-                    ExclusionZonesJson::class.java
-            )
+            AppModule.gson.fromJson(json, ExclusionZonesJson::class.java)
         } catch (error: Throwable) {
-            Logger.e(TAG, "Error while trying to parse zones json, reset.", error)
-            ChanSettings.androidTenGestureZones.set(EMPTY_JSON)
+            Logger.e(this, "Error while trying to parse zones json, reset.", error)
+            resetZones()
             return zones
         }
 
@@ -51,12 +45,8 @@ class Android10GesturesExclusionZonesHolder(
                     "oldMaxScreenSize = ${exclusionZones.maxScreenSize}, " +
                     "currentMaxScreenSize = $maxScreenSize"
 
-            Logger.d(TAG, "Screen sizes do not match! $sizesString")
+            Logger.d(this, "Screen sizes do not match! $sizesString")
             resetZones()
-            return zones
-        }
-
-        if (exclusionZones.zones.isEmpty()) {
             return zones
         }
 
@@ -76,7 +66,7 @@ class Android10GesturesExclusionZonesHolder(
 
             zoneRect.checkValid()
             zones[zoneJson.screenOrientation]!!.add(zoneRect)
-            Logger.d(TAG, "Loaded zone $zoneJson")
+            Logger.d(this, "Loaded zone $zoneJson")
         }
 
         return zones
@@ -97,9 +87,9 @@ class Android10GesturesExclusionZonesHolder(
         )
         exclusionZone.checkValid()
 
-        val prevZone = getZoneOrNull(orientation, attachSide)
+        val prevZone = getZone(orientation, attachSide)
         if (prevZone != null) {
-            Logger.d(TAG, "addZone() Removing previous zone with the same params " +
+            Logger.d(this, "addZone() Removing previous zone with the same params " +
                     "as the new one, prevZone = $prevZone")
             removeZone(prevZone.screenOrientation, prevZone.attachSide)
         }
@@ -125,10 +115,11 @@ class Android10GesturesExclusionZonesHolder(
             )
             ChanSettings.androidTenGestureZones.set(json)
 
-            Logger.d(TAG, "Added zone $zoneRect for orientation $orientation")
+            Logger.d(this, "Added zone $zoneRect for orientation $orientation")
         }
     }
 
+    @JvmStatic
     fun removeZone(orientation: Int, attachSide: AttachSide) {
         if (exclusionZones.isEmpty()) {
             return
@@ -138,8 +129,7 @@ class Android10GesturesExclusionZonesHolder(
             return
         }
 
-        val exclusionZone = getZoneOrNull(orientation, attachSide)
-                ?: return
+        val exclusionZone = getZone(orientation, attachSide) ?: return
 
         if (exclusionZones[orientation]!!.remove(exclusionZone)) {
             val newExclusionZones = mutableListOf<ExclusionZoneJson>()
@@ -164,7 +154,7 @@ class Android10GesturesExclusionZonesHolder(
             )
             ChanSettings.androidTenGestureZones.set(json)
 
-            Logger.d(TAG, "Removed zone $exclusionZone for orientation $orientation")
+            Logger.d(this, "Removed zone $exclusionZone for orientation $orientation")
         }
     }
 
@@ -190,11 +180,13 @@ class Android10GesturesExclusionZonesHolder(
         }
     }
 
+    @JvmStatic
     fun getZones(): MutableMap<Int, MutableSet<ExclusionZone>> {
         return exclusionZones
     }
 
-    fun getZoneOrNull(orientation: Int, attachSide: AttachSide): ExclusionZone? {
+    @JvmStatic
+    fun getZone(orientation: Int, attachSide: AttachSide): ExclusionZone? {
         val zones = exclusionZones[orientation]
                 ?.filter { zone -> zone.attachSide == attachSide }
                 ?: emptyList()
@@ -215,17 +207,14 @@ class Android10GesturesExclusionZonesHolder(
                 .also { zone -> zone.checkValid() }
     }
 
+    @JvmStatic
     fun resetZones() {
-        Logger.d(TAG, "All zones reset")
+        Logger.d(this, "All zones reset")
 
         if (exclusionZones.isNotEmpty()) {
             exclusionZones.clear()
         }
 
         ChanSettings.androidTenGestureZones.setSync(EMPTY_JSON)
-    }
-
-    companion object {
-        private const val TAG = "Android10GesturesExclusionZonesHolder"
     }
 }

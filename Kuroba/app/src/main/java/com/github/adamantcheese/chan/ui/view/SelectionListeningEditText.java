@@ -52,7 +52,7 @@ public class SelectionListeningEditText
         // this is due to an issue where suggestions are not run synchronously, so the suggestion system tries to generate
         // a set of suggestions, but if you delete text while this occurs, an index out of bounds exception will be thrown
         // as obviously you are now out of the range it was calculating suggestions for
-        // this is solved on Android 10 and above, but not below; suggestions are disabled for these Android versions
+        // this is solved on Android 10+, but not below; suggestions are disabled for these Android versions
         // https://issuetracker.google.com/issues/140891676
         // autocorrect still functions, but is only on the keyboard, not through a popup window (which is where the crash happens)
         if (isAndroid10()) return super.isSuggestionsEnabled();

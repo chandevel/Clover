@@ -34,17 +34,17 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 public class LinkSettingView
         extends SettingView {
     public SettingNotification settingNotificationType = SettingNotification.Default;
-    private final View.OnClickListener clickListener;
+    private final SettingViewOnClickListener clickListener;
     private String description;
 
     public LinkSettingView(
-            SettingsController settingsController, int name, int description, View.OnClickListener clickListener
+            SettingsController settingsController, int name, int description, SettingViewOnClickListener clickListener
     ) {
         this(settingsController, getString(name), getString(description), clickListener);
     }
 
     public LinkSettingView(
-            SettingsController settingsController, String name, String description, View.OnClickListener clickListener
+            SettingsController settingsController, String name, String description, SettingViewOnClickListener clickListener
     ) {
         super(settingsController, name);
         this.description = description;
@@ -53,7 +53,7 @@ public class LinkSettingView
 
     @Override
     public void setView(View view) {
-        view.setOnClickListener(clickListener);
+        view.setOnClickListener((v -> clickListener.onClick(v, this)));
         super.setView(view);
     }
 
@@ -100,5 +100,9 @@ public class LinkSettingView
                 notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotificationType.getNotificationIconTintColor())));
                 break;
         }
+    }
+
+    public interface SettingViewOnClickListener {
+        void onClick(View v, SettingView sv);
     }
 }

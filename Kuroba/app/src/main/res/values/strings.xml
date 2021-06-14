@@ -617,10 +617,7 @@ Don't have a 4chan Pass?<br>
 
     <string name="setting_enable_emoji">Enable emoji</string>
     <string name="setting_enable_emoji_description">Enable emoji posting and parsing</string>
-    <string name="experimental_settings_group">Experimental settings</string>
 
-    <string name="settings_experimental_settings_title">⚠ EXPERIMENTAL ⚠</string>
-    <string name="settings_experimental_settings_description">These settings may be in an unstable state. They are for testing. They may break the app and you may have to reset the app data. Use them at your own risk if you are really interested in some feature. Backup everything beforehand.</string>
     <string name="setting_full_screen_rotation">Allow full sensor rotation</string>
     <string name="settings_always_open_drawer">Always open the drawer when a thread is bookmarked</string>
     <string name="settings_image_long_url">Enable long-press image URL copy</string>
@@ -715,19 +712,14 @@ Don't have a 4chan Pass?<br>
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
     <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, or FLAC files linked in posts as internally viewable post attachments with a special spoiler image.</string>
     <string name="add_new_zone">Add new zone</string>
-    <string name="setting_exclusion_zones_left_zone_portrait">Left zone (Portrait orientation)</string>
-    <string name="setting_exclusion_zones_right_zone_portrait">Right zone (Portrait orientation)</string>
-    <string name="setting_exclusion_zones_left_zone_landscape">Left zone (Landscape orientation)</string>
-    <string name="setting_exclusion_zones_right_zone_landscape">Right zone (Landscape orientation)</string>
+    <string name="setting_exclusion_zones_left_zone">Left zone</string>
+    <string name="setting_exclusion_zones_right_zone">Right zone</string>
     <string name="setting_exclusion_zones_reset_zones">Reset exclusion zones</string>
-    <string name="setting_exclusion_zones_reset_zones_description">All exclusion zones will be deleted; the app will be restarted</string>
-    <string name="setting_exclusion_zones_editor">Android 10 gesture exclusion zones</string>
-    <string name="setting_exclusion_zones_editor_description">Adjust zones where Android 10 gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to be applied!</string>
-    <string name="setting_exclusion_zones_actions_dialog_title">Android 10 exclusion zones actions</string>
-    <string name="setting_exclusion_zones_wrong_phone_orientation">Wrong phone orientation, you need to rotate your phone 90 degrees to any side before using this option.</string>
+    <string name="setting_exclusion_zones_editor">Gesture exclusion zones</string>
+    <string name="setting_exclusion_zones_editor_description">Adjust zones where Android 10+ gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to be applied!</string>
+    <string name="setting_exclusion_zones_actions_dialog_title_portrait">Exclusion zone actions (Portrait)</string>
+    <string name="setting_exclusion_zones_actions_dialog_title_landscape">Exclusion zone actions (Landscape)</string>
     <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
-    <string name="setting_exclusion_zones_zone_removed">Zone removed. Restart the app for the changes to kick in.</string>
-    <string name="setting_exclusion_zones_zone_added">New exclusion zone added. Restart the app for the changes to kick in.</string>
 
     <string name="setting_allow_okhttp_http2">Allow OkHttp to use HTTP/2 protocol</string>
     <string name="setting_allow_okhttp_ipv6">Allow OkHttp to use IPv6</string>

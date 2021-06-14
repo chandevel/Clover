@@ -102,14 +102,14 @@ public class ImportExportSettingsController
                     this,
                     getString(R.string.export_settings),
                     getString(R.string.export_settings_to_a_file),
-                    v -> onExportClicked()
+                    (v, sv) -> onExportClicked()
             ));
 
             group.add(new LinkSettingView(
                     this,
                     getString(R.string.import_settings),
                     getString(R.string.import_settings_from_a_file),
-                    v -> onImportClicked()
+                    (v, sv) -> onImportClicked()
             ));
 
             groups.add(group);
