@@ -168,7 +168,11 @@ public class EmbeddingEngine
 
         // These count as embedding, so we do them here
         List<PostLinkable> generatedAutoLinks = new ArrayList<>(generateAutoLinks(theme, autoLinkCopy));
-        List<PostImage> generatedImages = new NoDeleteArrayList<>(generatePostImages(generatedAutoLinks));
+        List<PostLinkable> possibleImageLinks = new ArrayList<>(generatedAutoLinks);
+        for(PostLinkable l : autoLinkCopy.getSpans(0, autoLinkCopy.length(), PostLinkable.class)) {
+            if(l.type == PostLinkable.Type.LINK) possibleImageLinks.add(l);
+        }
+        List<PostImage> generatedImages = new NoDeleteArrayList<>(generatePostImages(possibleImageLinks));
 
         SpannableStringBuilder embedCopy = new SpannableStringBuilder(autoLinkCopy);
         List<PostLinkable> generatedLinkables = new ArrayList<>(generatedAutoLinks);

@@ -104,11 +104,14 @@ public class ArchivesManager
         return result;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     public ExternalSiteArchive archiveForDomain(@NonNull String domain) {
-        for (ExternalSiteArchive a : archivesList) {
-            if (a.domain.equalsIgnoreCase(domain)) return a;
-        }
+        try {
+            for (ExternalSiteArchive a : archivesList) {
+                if (HttpUrl.get("https://" + a.domain).topPrivateDomain().equalsIgnoreCase(domain)) return a;
+            }
+        } catch (Exception ignored) {}
         return null;
     }
 
