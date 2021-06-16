@@ -65,6 +65,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static android.content.Context.AUDIO_SERVICE;
@@ -492,6 +493,11 @@ public class AndroidUtils {
         }
 
         return screenOrientation;
+    }
+
+    public static boolean isAprilFoolsDay() {
+        Calendar calendar = Calendar.getInstance();
+        return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
     }
 
     /**

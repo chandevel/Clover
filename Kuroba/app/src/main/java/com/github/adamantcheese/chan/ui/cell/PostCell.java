@@ -31,6 +31,7 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.view.ActionMode;
@@ -46,6 +47,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -80,9 +82,7 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static android.widget.RelativeLayout.ALIGN_PARENT_BOTTOM;
-import static android.widget.RelativeLayout.ALIGN_PARENT_RIGHT;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
@@ -112,7 +112,7 @@ public class PostCell
     private View filterMatchColor;
 
     private RelativeLayout headerWrapper;
-    private RelativeLayout bodyWrapper;
+    private ConstraintLayout bodyWrapper;
 
     private int detailsSizePx;
     private int iconSizePx;
@@ -181,19 +181,14 @@ public class PostCell
                     .opId(1)
                     .setUnixTimestampSeconds(System.currentTimeMillis())
                     .comment("")
-                    .addHttpIcon(new PostHttpIcon(OTHER,
-                            null,
-                            new NetUtilsClasses.PassthroughBitmapResult() {
-                                @Override
-                                public void onBitmapSuccess(
-                                        @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
-                                ) {
-                                    super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
-                                }
-                            },
-                            "yt",
-                            "yt"
-                    ))
+                    .addHttpIcon(new PostHttpIcon(OTHER, null, new NetUtilsClasses.PassthroughBitmapResult() {
+                        @Override
+                        public void onBitmapSuccess(
+                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                        ) {
+                            super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
+                        }
+                    }, "", ""))
                     .build(), iconSizePx);
         }
 
@@ -202,17 +197,13 @@ public class PostCell
 
         replies.setTextSize(textSizeSp);
         replies.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
-
-        OnClickListener repliesClickListener = v -> {
+        replies.setOnClickListener(v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
             }
 
-            if (post.repliesFrom.size() > 0) {
-                callback.onShowPostReplies(post);
-            }
-        };
-        replies.setOnClickListener(repliesClickListener);
+            callback.onShowPostReplies(post);
+        });
 
         options.setOnClickListener(v -> {
             List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
@@ -330,15 +321,18 @@ public class PostCell
         titleParts.append(applySearchSpans(theme, post.nameTripcodeIdCapcodeSpan, callback.getSearchQuery()));
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
-        SpannableString date = new SpannableString(
-                "No. " + post.no + (ChanSettings.addDubs.get() ? " " + getRepeatDigits(post.no) : "") + " " + (
-                        ChanSettings.postFullDate.get()
-                                ? PostHelper.getLocalDate(post)
-                                : DateUtils.getRelativeTimeSpanString(post.time * 1000L,
-                                        System.currentTimeMillis(),
-                                        DateUtils.SECOND_IN_MILLIS,
-                                        0
-                                )));
+        SpannableStringBuilder date = new SpannableStringBuilder().append("No. ")
+                .append(String.valueOf(post.no))
+                .append(" ")
+                .append(ChanSettings.addDubs.get() ? getRepeatDigits(post.no) : "")
+                .append(ChanSettings.addDubs.get() ? " " : "")
+                .append(ChanSettings.postFullDate.get()
+                        ? PostHelper.getLocalDate(post)
+                        : DateUtils.getRelativeTimeSpanString(post.time * 1000L,
+                                System.currentTimeMillis(),
+                                DateUtils.SECOND_IN_MILLIS,
+                                0
+                        ));
         date.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, date.length(), 0);
         date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
 
@@ -479,16 +473,21 @@ public class PostCell
             replies.setVisibility(VISIBLE);
 
             int replyCount = threadMode ? post.repliesFrom.size() : post.getReplies();
-            String text = getQuantityString(R.plurals.reply, replyCount, replyCount);
+            SpannableStringBuilder text = new SpannableStringBuilder();
+            text.append(getQuantityString(R.plurals.reply, replyCount, replyCount));
+            if (replyCount > 7 && loadable.isThreadMode()) {
+                text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
+            }
 
             if (!threadMode && post.getImagesCount() > 0) {
-                text += ", " + getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount());
+                text.append(", ")
+                        .append(getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount()));
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
                 ChanPage p = PageRepository.getPage(post);
                 if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
-                    text += ", page " + p.page;
+                    text.append(", page ").append(String.valueOf(p.page));
                 }
             }
 
@@ -498,15 +497,14 @@ public class PostCell
         }
     }
 
+    // matches cell_post's declarations, and adjustments from those declarations
     private static final RelativeLayout.LayoutParams DEFAULT_BODY_PARAMS =
-            new RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
     private static final RelativeLayout.LayoutParams SHIFT_LEFT_PARAMS;
     private static final RelativeLayout.LayoutParams SHIFT_BELOW_PARAMS;
 
     static {
         DEFAULT_BODY_PARAMS.alignWithParent = true;
-        DEFAULT_BODY_PARAMS.addRule(ALIGN_PARENT_RIGHT);
-        DEFAULT_BODY_PARAMS.addRule(ALIGN_PARENT_BOTTOM);
         DEFAULT_BODY_PARAMS.addRule(BELOW, R.id.header_wrapper);
         DEFAULT_BODY_PARAMS.addRule(RIGHT_OF, R.id.thumbnail_views);
 
@@ -539,7 +537,7 @@ public class PostCell
     private final String[] dubTexts =
             {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
 
-    private String getRepeatDigits(int no) {
+    private SpannableString getRepeatDigits(int no) {
         CharSequence number = new StringBuilder().append(no).reverse();
         char init = number.charAt(0);
         int count = 1;
@@ -551,7 +549,9 @@ public class PostCell
                 break;
             }
         }
-        return dubTexts[count - 1];
+        SpannableString s = new SpannableString(dubTexts[count - 1]);
+        s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
+        return s;
     }
 
     @Override

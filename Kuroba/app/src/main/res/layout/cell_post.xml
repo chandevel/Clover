@@ -20,7 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    tools:background="?backcolor">
+    tools:background="?backcolor"
+    tools:layout_height="300dp">
 
     <View
         android:id="@+id/filter_match_color"
@@ -69,43 +70,60 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_below="@id/title" />
         </RelativeLayout>
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/body_wrapper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/header_wrapper"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
             android:layout_toRightOf="@+id/thumbnail_views">
 
             <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
                 android:id="@+id/comment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/spacer"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_chainStyle="spread_inside"
                 tools:text="@string/lorem_ipsum" />
+
+            <!--
+                This spacer is here so that the "replies" area is always snapped
+                to the bottom of the cell, even if the comment expands the cell, or if
+                the comment is missing. I could only do this with ConstraintLayout, as
+                RelativeLayout would expand the replies area to fill the area missed by
+                a missing comment, which would make the area to click far too large.
+            -->
+            <Space
+                android:id="@+id/spacer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/replies"
+                app:layout_constraintTop_toBottomOf="@id/comment" />
 
             <TextView
                 android:id="@+id/replies"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/comment"
-                android:layout_alignParentBottom="true"
                 android:background="@drawable/ripple_item_background"
                 android:gravity="bottom"
                 android:textColor="?android:textColorSecondary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/spacer"
                 tools:text="2 replies" />
-        </RelativeLayout>
 
-        <ProgressBar
-            android:id="@+id/embed_spinner"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:indeterminate="true"
-            android:indeterminateTint="?colorAccent"
-            android:indeterminateTintMode="src_atop"
-            android:padding="4dp" />
+            <ProgressBar
+                android:id="@+id/embed_spinner"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:indeterminate="true"
+                android:indeterminateTint="?colorAccent"
+                android:indeterminateTintMode="src_atop"
+                android:padding="4dp"
+                app:layout_constraintBottom_toBottomOf="@id/replies"
+                app:layout_constraintRight_toRightOf="@id/replies" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:id="@+id/options"
@@ -117,8 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingVertical="8dp"
             android:paddingLeft="10dp"
             android:src="@drawable/ic_fluent_more_vertical_24_filled"
-            app:tint="?android:textColorSecondary"
-            tools:ignore="ContentDescription" />
+            app:tint="?android:textColorSecondary" />
 
     </RelativeLayout>
 
