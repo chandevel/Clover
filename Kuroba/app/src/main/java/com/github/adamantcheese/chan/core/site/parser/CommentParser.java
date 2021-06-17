@@ -117,7 +117,7 @@ public class CommentParser {
                 .strikeThrough()
                 .action(this::handleDead));
         rule(tagRule("span").cssClass("spoiler").spoiler());
-        rule(tagRule("span").cssClass("fortune").bold());
+        rule(tagRule("span").cssClass("fortune").bold().cssStyleInFront());
         rule(tagRule("span").cssClass("abbr").nullify());
         rule(tagRule("span").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
         rule(tagRule("span").cssClass("sjis").action(this::handleSJIS));
