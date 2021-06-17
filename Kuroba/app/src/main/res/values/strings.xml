@@ -716,7 +716,7 @@ Don't have a 4chan Pass?<br>
     <string name="setting_exclusion_zones_right_zone">Right zone</string>
     <string name="setting_exclusion_zones_reset_zones">Reset exclusion zones</string>
     <string name="setting_exclusion_zones_editor">Gesture exclusion zones</string>
-    <string name="setting_exclusion_zones_editor_description">Adjust zones where Android 10+ gestures will be disabled. \n\nYou will have to rotate your phone/tablet to set zones for different orientations. \nYou will have to restart the app for the changes to be applied!</string>
+    <string name="setting_exclusion_zones_editor_description">Adjust zones where Android 10+ gestures will be disabled.\nYou will have to rotate your device to set zones for different orientations.</string>
     <string name="setting_exclusion_zones_actions_dialog_title_portrait">Exclusion zone actions (Portrait)</string>
     <string name="setting_exclusion_zones_actions_dialog_title_landscape">Exclusion zone actions (Landscape)</string>
     <string name="setting_exclusion_zones_edit_or_remove_zone_title">Edit or remove zone?</string>
