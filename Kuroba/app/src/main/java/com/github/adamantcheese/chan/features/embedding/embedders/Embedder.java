@@ -12,6 +12,7 @@ import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +32,10 @@ public interface Embedder
 
     default boolean shouldCacheResults() {
         return true;
+    }
+
+    default int getTimeoutMillis() {
+        return (int) TimeUnit.SECONDS.toMillis(3);
     }
 
     /**

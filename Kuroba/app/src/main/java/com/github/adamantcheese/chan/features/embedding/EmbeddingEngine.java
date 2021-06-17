@@ -169,8 +169,8 @@ public class EmbeddingEngine
         // These count as embedding, so we do them here
         List<PostLinkable> generatedAutoLinks = new ArrayList<>(generateAutoLinks(theme, autoLinkCopy));
         List<PostLinkable> possibleImageLinks = new ArrayList<>(generatedAutoLinks);
-        for(PostLinkable l : autoLinkCopy.getSpans(0, autoLinkCopy.length(), PostLinkable.class)) {
-            if(l.type == PostLinkable.Type.LINK) possibleImageLinks.add(l);
+        for (PostLinkable l : autoLinkCopy.getSpans(0, autoLinkCopy.length(), PostLinkable.class)) {
+            if (l.type == PostLinkable.Type.LINK) possibleImageLinks.add(l);
         }
         List<PostImage> generatedImages = new NoDeleteArrayList<>(generatePostImages(possibleImageLinks));
 
@@ -410,7 +410,7 @@ public class EmbeddingEngine
                         ),
                         null,
                         NetUtilsClasses.ONE_DAY_CACHE,
-                        2500,
+                        embedder.getTimeoutMillis(),
                         false
                 ));
             }

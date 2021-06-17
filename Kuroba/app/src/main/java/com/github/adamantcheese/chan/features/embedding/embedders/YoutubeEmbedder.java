@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import java.io.StringReader;
 import java.net.URLDecoder;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,12 @@ public class YoutubeEmbedder
     @Override
     public boolean shouldEmbed(CharSequence comment) {
         return StringUtils.containsAny(comment, "youtu.be", "youtube");
+    }
+
+    @Override
+    public int getTimeoutMillis() {
+        // extra time for this one since the JSON to parse can be quite large
+        return (int) TimeUnit.SECONDS.toMillis(10);
     }
 
     @Override
