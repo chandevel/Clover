@@ -49,6 +49,9 @@ open class AdjustAndroid10GestureZonesController(
         viewRoot = view.findViewById(R.id.view_root)
         adjustZonesView = view.findViewById(R.id.adjust_gesture_zones_view)
         addZoneButton = view.findViewById(R.id.add_zone_button)
+        if (skipZone != null) {
+            addZoneButton.setText(R.string.apply_options)
+        }
         addZoneButton.setOnClickListener { adjustZonesView.onAddZoneButtonClicked() }
 
         adjustZonesView.viewTreeObserver.addOnGlobalLayoutListener(globalLayoutListener)
