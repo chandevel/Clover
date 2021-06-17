@@ -16,43 +16,41 @@ object Android10GesturesExclusionZonesHolder {
         loadZones()
     }
 
-    private fun loadZones(): MutableMap<Int, MutableSet<ExclusionZone>> {
-        val zones = mutableMapOf<Int, MutableSet<ExclusionZone>>()
-
+    private fun loadZones() {
         val json = ChanSettings.androidTenGestureZones.get()
         if (json.isEmpty() || !isAndroid10()) {
             Logger.d(this, "Gesture zones reset, either empty or not Android 10+.")
             resetZones()
-            return zones
+            return
         }
 
-        val exclusionZones = try {
+        val existingZones = try {
             AppModule.gson.fromJson(json, ExclusionZonesJson::class.java)
         } catch (error: Throwable) {
             Logger.e(this, "Error while trying to parse zones json, reset.", error)
             resetZones()
-            return zones
+            return
         }
 
         // The old settings must belong to a phone with the same screen size as the current one,
         // otherwise something may break
         if (
-                exclusionZones.minScreenSize != minScreenSize
-                || exclusionZones.maxScreenSize != maxScreenSize
+                existingZones.minScreenSize != minScreenSize
+                || existingZones.maxScreenSize != maxScreenSize
         ) {
-            val sizesString = "oldMinScreenSize = ${exclusionZones.minScreenSize}, " +
+            val sizesString = "oldMinScreenSize = ${existingZones.minScreenSize}, " +
                     "currentMinScreenSize = ${minScreenSize}, " +
-                    "oldMaxScreenSize = ${exclusionZones.maxScreenSize}, " +
+                    "oldMaxScreenSize = ${existingZones.maxScreenSize}, " +
                     "currentMaxScreenSize = $maxScreenSize"
 
             Logger.d(this, "Screen sizes do not match! $sizesString")
             resetZones()
-            return zones
+            return
         }
 
-        exclusionZones.zones.forEach { zoneJson ->
-            if (!zones.containsKey(zoneJson.screenOrientation)) {
-                zones[zoneJson.screenOrientation] = mutableSetOf()
+        existingZones.zones.forEach { zoneJson ->
+            if (!exclusionZones.containsKey(zoneJson.screenOrientation)) {
+                exclusionZones[zoneJson.screenOrientation] = mutableSetOf()
             }
 
             val zoneRect = ExclusionZone(
@@ -65,11 +63,9 @@ object Android10GesturesExclusionZonesHolder {
             )
 
             zoneRect.checkValid()
-            zones[zoneJson.screenOrientation]!!.add(zoneRect)
+            exclusionZones[zoneJson.screenOrientation]!!.add(zoneRect)
             Logger.d(this, "Loaded zone $zoneJson")
         }
-
-        return zones
     }
 
     fun addZone(orientation: Int, attachSide: AttachSide, zoneRect: Rect) {
@@ -113,7 +109,7 @@ object Android10GesturesExclusionZonesHolder {
             val json = AppModule.gson.toJson(
                     ExclusionZonesJson(minScreenSize, maxScreenSize, newExclusionZones)
             )
-            ChanSettings.androidTenGestureZones.set(json)
+            ChanSettings.androidTenGestureZones.setSync(json)
 
             Logger.d(this, "Added zone $zoneRect for orientation $orientation")
         }
@@ -152,7 +148,7 @@ object Android10GesturesExclusionZonesHolder {
             val json = AppModule.gson.toJson(
                     ExclusionZonesJson(minScreenSize, maxScreenSize, newExclusionZones)
             )
-            ChanSettings.androidTenGestureZones.set(json)
+            ChanSettings.androidTenGestureZones.setSync(json)
 
             Logger.d(this, "Removed zone $exclusionZone for orientation $orientation")
         }

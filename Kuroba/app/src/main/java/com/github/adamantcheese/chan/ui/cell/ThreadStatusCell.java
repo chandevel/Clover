@@ -35,6 +35,9 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 @SuppressLint("AppCompatCustomView")
 public class ThreadStatusCell
@@ -74,7 +77,7 @@ public class ThreadStatusCell
             setCallback(new Callback() {
                 @Override
                 public long getTimeUntilLoadMore() {
-                    return 20 * 1000L;
+                    return SECONDS.toMillis(20);
                 }
 
                 @Override

@@ -34,6 +34,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class PostHelper {
     public static CharSequence prependIcon(
             @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, int height
@@ -67,7 +69,7 @@ public class PostHelper {
     private static final Date tmpDate = new Date();
 
     public static String getLocalDate(Post post) {
-        tmpDate.setTime(post.time * 1000L);
+        tmpDate.setTime(SECONDS.toMillis(post.time));
         return dateFormat.format(tmpDate);
     }
 }

@@ -98,6 +98,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardConte
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class PostCell
         extends LinearLayout
@@ -328,7 +329,7 @@ public class PostCell
                 .append(ChanSettings.addDubs.get() ? " " : "")
                 .append(ChanSettings.postFullDate.get()
                         ? PostHelper.getLocalDate(post)
-                        : DateUtils.getRelativeTimeSpanString(post.time * 1000L,
+                        : DateUtils.getRelativeTimeSpanString(SECONDS.toMillis(post.time),
                                 System.currentTimeMillis(),
                                 DateUtils.SECOND_IN_MILLIS,
                                 0
