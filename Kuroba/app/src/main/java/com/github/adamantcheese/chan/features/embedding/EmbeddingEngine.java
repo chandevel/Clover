@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.features.embedding.embedders.VocarooEmbedde
 import com.github.adamantcheese.chan.features.embedding.embedders.YoutubeEmbedder;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
+import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.gson.reflect.TypeToken;
 
@@ -441,7 +442,9 @@ public class EmbeddingEngine
     ) {
         return new ResponseResult<EmbedResult>() {
             @Override
-            public void onFailure(Exception e) {} // don't do anything, let the autolinker take care of it
+            public void onFailure(Exception e) {
+                Logger.vd("EmbeddingEngine", "Embed failed for " + URL, e);
+            } // don't do anything, let the autolinker take care of it
 
             @Override
             public void onSuccess(EmbedResult result) {
