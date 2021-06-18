@@ -21,6 +21,8 @@ import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
+
 public interface Embedder
         extends Converter<EmbedResult, Response> {
 
@@ -64,12 +66,14 @@ public interface Embedder
      * @return A list of pairs of call/callback that will do the embedding. A post may have more than one thing to be embedded.
      * Calls should NOT be enqueued, as the embedding engine will take care of enqueuing the appropriate call/callback pair.
      */
-    List<Pair<Call, Callback>> generateCallPairs(
+    default List<Pair<Call, Callback>> generateCallPairs(
             Theme theme,
             SpannableStringBuilder commentCopy,
             List<PostLinkable> generatedLinkables,
             List<PostImage> generatedImages
-    );
+    ) {
+        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
+    }
 
     /**
      * This is used by helper calls in EmbeddingEngine to automatically process a returned result.

@@ -1,18 +1,13 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
-import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
-import androidx.core.util.Pair;
-
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.Jsoup;
@@ -20,16 +15,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.StringReader;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 
 public class SoundcloudEmbedder
         implements Embedder {
@@ -54,16 +44,6 @@ public class SoundcloudEmbedder
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
         return HttpUrl.get("https://w.soundcloud.com/player/?visual=true&show_artwork=true&url=" + matcher.group(1));
-    }
-
-    @Override
-    public List<Pair<Call, Callback>> generateCallPairs(
-            Theme theme,
-            SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
-    ) {
-        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
     }
 
     @SuppressWarnings("RegExpRedundantEscape") // complains, but otherwise will fail at runtime

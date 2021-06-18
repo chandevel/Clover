@@ -1,32 +1,22 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
-import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
 
-import androidx.core.util.Pair;
-
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.StringReader;
 import java.net.URLDecoder;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class YoutubeEmbedder
@@ -61,16 +51,6 @@ public class YoutubeEmbedder
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
         return HttpUrl.get("https://www.youtube.com/watch?v=" + matcher.group(1) + matcher.group(2));
-    }
-
-    @Override
-    public List<Pair<Call, Callback>> generateCallPairs(
-            Theme theme,
-            SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
-    ) {
-        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
     }
 
     @Override

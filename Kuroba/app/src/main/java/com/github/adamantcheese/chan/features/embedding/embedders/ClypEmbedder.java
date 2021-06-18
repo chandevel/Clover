@@ -1,30 +1,21 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
-import android.text.SpannableStringBuilder;
 import android.util.JsonReader;
-
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.random.Random;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class ClypEmbedder
@@ -73,16 +64,6 @@ public class ClypEmbedder
       "DateCreated": "2020-09-20T05:16:29.473Z"
     }
      */
-
-    @Override
-    public List<Pair<Call, Callback>> generateCallPairs(
-            Theme theme,
-            SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
-    ) {
-        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
-    }
 
     @Override
     public NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter() {
