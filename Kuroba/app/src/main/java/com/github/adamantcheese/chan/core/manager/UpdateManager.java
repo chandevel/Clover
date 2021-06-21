@@ -287,10 +287,9 @@ public class UpdateManager {
                         openIntent(intent);
                     }
                 }),
-                (bytesRead, contentLength, start, done) -> {
+                (url, bytesRead, contentLength, start, done) -> {
                     if (updateDownloadDialog != null) {
-                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (bytesRead
-                                / (double) contentLength)));
+                        updateDownloadDialog.setProgress((int) (updateDownloadDialog.getMax() * (bytesRead / (double) contentLength)));
                     }
                 }
         );
