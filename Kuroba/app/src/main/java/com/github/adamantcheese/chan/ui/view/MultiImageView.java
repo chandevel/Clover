@@ -291,21 +291,24 @@ public class MultiImageView
     }
 
     @Override
-    public void onDownloadProgress(long bytesRead, long contentLength, boolean firstUpdate, boolean done) {
-        BackgroundUtils.runOnMainThread(() -> {
-            if (done) {
-                callback.hideProgress(MultiImageView.this);
-                return;
-            }
-            if (firstUpdate) {
-                callback.onProgress(MultiImageView.this, 0, 1);
-                return;
-            }
+    public void onDownloadProgress(HttpUrl source, long bytesRead, long contentLength, boolean firstUpdate, boolean done) {
+        if(request != null) {
+            if(!request.request().url().equals(source)) return;
+            BackgroundUtils.runOnMainThread(() -> {
+                if (done) {
+                    callback.hideProgress(MultiImageView.this);
+                    return;
+                }
+                if (firstUpdate) {
+                    callback.onProgress(MultiImageView.this, 0, 1);
+                    return;
+                }
 
-            if (contentLength != -1) {
-                callback.onProgress(MultiImageView.this, bytesRead, contentLength);
-            }
-        });
+                if (contentLength != -1) {
+                    callback.onProgress(MultiImageView.this, bytesRead, contentLength);
+                }
+            });
+        }
     }
 
     private void setThumbnail(boolean center) {

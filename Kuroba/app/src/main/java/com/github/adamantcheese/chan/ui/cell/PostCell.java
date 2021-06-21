@@ -322,11 +322,12 @@ public class PostCell
         titleParts.append(applySearchSpans(theme, post.nameTripcodeIdCapcodeSpan, callback.getSearchQuery()));
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
+        CharSequence dubs = ChanSettings.addDubs.get() ? getRepeatDigits(post.no) : "";
         SpannableStringBuilder date = new SpannableStringBuilder().append("No. ")
                 .append(String.valueOf(post.no))
                 .append(" ")
-                .append(ChanSettings.addDubs.get() ? getRepeatDigits(post.no) : "")
-                .append(ChanSettings.addDubs.get() ? " " : "")
+                .append(dubs)
+                .append(ChanSettings.addDubs.get() ? (dubs.length() > 0 ? " " : "") : "")
                 .append(ChanSettings.postFullDate.get()
                         ? PostHelper.getLocalDate(post)
                         : DateUtils.getRelativeTimeSpanString(SECONDS.toMillis(post.time),

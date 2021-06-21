@@ -478,7 +478,7 @@ public class NetUtils {
         clientBuilder.addNetworkInterceptor(chain -> {
             Response originalResponse = chain.proceed(chain.request());
             return originalResponse.newBuilder()
-                    .body(new ProgressResponseBody(originalResponse.body(), progressListener))
+                    .body(new ProgressResponseBody(originalResponse, progressListener))
                     .build();
         });
         Request.Builder builder = new Request.Builder().url(url).addHeader("Referer", url.toString());

@@ -35,7 +35,7 @@ public class YoutubeEmbedder
     public void setup(CookieJar cookieJar) {
         List<Cookie> toAdd = new ArrayList<>();
         // this cookie has an expiration date, but we set it here to be forever basically
-        toAdd.add(new Cookie.Builder().domain(".youtube.com")
+        toAdd.add(new Cookie.Builder().domain("youtube.com")
                 .path("/")
                 .secure()
                 .name("CONSENT")
