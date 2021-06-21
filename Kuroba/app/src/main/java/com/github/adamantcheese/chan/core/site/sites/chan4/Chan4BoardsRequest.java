@@ -144,6 +144,7 @@ public class Chan4BoardsRequest
                     break;
                 case "country_flags":
                     board.countryFlags = reader.nextInt() == 1;
+                    //board.boardFlags.putAll(ISO_3166_1_ALPHA_2_FLAGS.INSTANCE.getFLAG_CODES());
                     break;
                 case "board_flags":
                     reader.beginObject();
