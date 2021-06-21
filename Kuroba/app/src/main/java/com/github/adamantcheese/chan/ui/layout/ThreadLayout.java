@@ -284,6 +284,11 @@ public class ThreadLayout
     }
 
     @Override
+    public void refreshUI() {
+        threadListLayout.refreshUI();
+    }
+
+    @Override
     public void openLink(PostLinkable linkable, final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
             getDefaultAlertBuilder(getContext()).setNegativeButton(R.string.cancel, null)

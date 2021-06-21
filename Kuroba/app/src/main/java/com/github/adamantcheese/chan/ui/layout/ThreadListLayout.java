@@ -719,6 +719,12 @@ public class ThreadListLayout
         swipeRefresh.setRefreshing(false);
     }
 
+    public void refreshUI() {
+        recyclerView.setAdapter(null);
+        recyclerView.getRecycledViewPool().clear();
+        recyclerView.setAdapter(postAdapter);
+    }
+
     /**
      * Positions a hat bitmap over the top-left corner of post cells
      */

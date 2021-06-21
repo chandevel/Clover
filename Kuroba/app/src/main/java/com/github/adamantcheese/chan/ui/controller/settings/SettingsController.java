@@ -317,6 +317,7 @@ public abstract class SettingsController
                     EventBus.getDefault().unregister(holder.settingView); // for setting notifications
                 }
             } catch (Exception ignored) {}
+            holder.settingView.setView(null);
             holder.settingView = null;
         }
 

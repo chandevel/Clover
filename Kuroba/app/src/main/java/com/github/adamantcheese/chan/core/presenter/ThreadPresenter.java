@@ -220,6 +220,7 @@ public class ThreadPresenter
         BackgroundUtils.ensureMainThread();
 
         if (isBound()) {
+            threadPresenterCallback.refreshUI();
             threadPresenterCallback.showLoading();
             chanLoader.requestData();
         }
@@ -1321,6 +1322,8 @@ public class ThreadPresenter
         void showLoading();
 
         void showEmpty();
+
+        void refreshUI();
 
         void showThread(Loadable threadLoadable);
 

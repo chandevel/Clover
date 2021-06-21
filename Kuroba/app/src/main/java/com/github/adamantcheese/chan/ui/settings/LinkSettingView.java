@@ -44,7 +44,10 @@ public class LinkSettingView
     }
 
     public LinkSettingView(
-            SettingsController settingsController, String name, String description, SettingViewOnClickListener clickListener
+            SettingsController settingsController,
+            String name,
+            String description,
+            SettingViewOnClickListener clickListener
     ) {
         super(settingsController, name);
         this.description = description;
@@ -53,8 +56,9 @@ public class LinkSettingView
 
     @Override
     public void setView(View view) {
-        view.setOnClickListener((v -> clickListener.onClick(v, this)));
         super.setView(view);
+        if (view == null) return;
+        view.setOnClickListener((v -> clickListener.onClick(v, this)));
     }
 
     @Subscribe(sticky = true)
@@ -73,13 +77,13 @@ public class LinkSettingView
 
     public void setDescription(String description) {
         this.description = description;
-        if (built) {
+        if (view == null) {
             settingsController.onPreferenceChange(this);
         }
     }
 
     protected void updateSettingNotificationIcon(SettingNotification settingNotification) {
-        if (!built) return;
+        if (view == null) return;
         ImageView notificationIcon = view.findViewById(R.id.setting_notification_icon);
         if (notificationIcon == null) return; // no notification icon for this view
 
