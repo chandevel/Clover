@@ -108,6 +108,10 @@ public class EmbeddingEngine
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
 
+        for(Embedder e : embedders) {
+            e.setup(NetUtils.applicationClient.cookieJar());
+        }
+
         context.getLifecycle().addObserver(this);
     }
 

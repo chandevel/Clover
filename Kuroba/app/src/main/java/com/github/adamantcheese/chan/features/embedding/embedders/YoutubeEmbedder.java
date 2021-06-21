@@ -10,10 +10,14 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.StringReader;
 import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
@@ -26,6 +30,20 @@ public class YoutubeEmbedder
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
     // All the relevant information is hidden away in a var called ytInitialPlayerResponse; we can snag that JSON and use it
     private static final Pattern API_PARAMS = Pattern.compile("ytInitialPlayerResponse = (.*?);var");
+
+    @Override
+    public void setup(CookieJar cookieJar) {
+        List<Cookie> toAdd = new ArrayList<>();
+        // this cookie has an expiration date, but we set it here to be forever basically
+        toAdd.add(new Cookie.Builder().domain(".youtube.com")
+                .path("/")
+                .secure()
+                .name("CONSENT")
+                .value("YES+cb.20210615-14-p0.EN-GB+FX")
+                .expiresAt(Long.MAX_VALUE)
+                .build());
+        cookieJar.saveFromResponse(HttpUrl.get("https://www.youtube.com"), toAdd);
+    }
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {

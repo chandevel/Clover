@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
@@ -25,6 +26,9 @@ import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.a
 
 public interface Embedder
         extends Converter<EmbedResult, Response> {
+
+    // acts like a constructor for subclasses, called when EmbeddingEngine initializes
+    default void setup(CookieJar cookieJar) {}
 
     /**
      * @param comment A copy of the post's initial data
