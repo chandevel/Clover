@@ -1,4 +1,4 @@
-package org.floens.chan.core.site.sites.chan8;
+package org.floens.chan.core.site.sites.kun8;
 
 import androidx.annotation.Nullable;
 
@@ -20,21 +20,21 @@ import java.util.Map;
 
 import okhttp3.HttpUrl;
 
-public class Chan8 extends CommonSite {
+public class Kun8 extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public Class<? extends Site> getSiteClass() {
-            return Chan8.class;
+            return Kun8.class;
         }
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://8ch.net/");
+            return HttpUrl.parse("https://8kun.top/");
         }
 
         @Override
         public String[] getNames() {
-            return new String[]{"8chan", "8ch"};
+            return new String[]{"8chan", "8ch", "8kun"};
         }
 
         @Override
@@ -55,7 +55,7 @@ public class Chan8 extends CommonSite {
     @Override
     public void setup() {
         setName("8chan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8ch.net/static/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
         setBoardsType(BoardsType.INFINITE);
 
         setResolvable(URL_HANDLER);
@@ -68,11 +68,19 @@ public class Chan8 extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://8ch.net",
-                "https://sys.8ch.net") {
+                "https://8kun.top",
+                "https://sys.8kun.top") {
+            private final HttpUrl i = new HttpUrl.Builder()
+                    .scheme("https")
+                    .host("media.8kun.top")
+                    .build();
+
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return root.builder().s("file_store").s(arg.get("tim") + "." + arg.get("ext")).url();
+                return i.newBuilder()
+                        .addPathSegment("file_store")
+                        .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
+                        .build();
             }
 
             @Override
@@ -89,8 +97,11 @@ public class Chan8 extends CommonSite {
                         ext = "jpg";
                         break;
                 }
-
-                return root.builder().s("file_store").s("thumb").s(arg.get("tim") + "." + ext).url();
+                return i.newBuilder()
+                        .addPathSegment("file_store")
+                        .addPathSegment("thumb")
+                        .addPathSegment(arg.get("tim") + "." + arg.get("ext"))
+                        .build();
             }
         });
 
@@ -116,7 +127,7 @@ public class Chan8 extends CommonSite {
 
             @Override
             public SiteAuthentication postAuthenticate() {
-                return SiteAuthentication.fromUrl("https://8ch.net/dnsbls_bypass.php",
+                return SiteAuthentication.fromUrl("8kun.top/dnsbls_bypass.php",
                         "You failed the CAPTCHA",
                         "You may now go back and make your post");
             }

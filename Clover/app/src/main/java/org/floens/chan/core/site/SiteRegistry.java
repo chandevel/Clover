@@ -21,7 +21,7 @@ import android.util.SparseArray;
 
 import org.floens.chan.core.site.sites.arisuchan.Arisuchan;
 import org.floens.chan.core.site.sites.chan4.Chan4;
-import org.floens.chan.core.site.sites.chan8.Chan8;
+import org.floens.chan.core.site.sites.kun8.Kun8;
 import org.floens.chan.core.site.sites.dvach.Dvach;
 import org.floens.chan.core.site.sites.lainchan.Lainchan;
 import org.floens.chan.core.site.sites.sushichan.Sushichan;
@@ -38,7 +38,7 @@ public class SiteRegistry {
 
     static {
         URL_HANDLERS.add(Chan4.URL_HANDLER);
-        URL_HANDLERS.add(Chan8.URL_HANDLER);
+        URL_HANDLERS.add(Kun8.URL_HANDLER);
         URL_HANDLERS.add(Lainchan.URL_HANDLER);
         URL_HANDLERS.add(Arisuchan.URL_HANDLER);
         URL_HANDLERS.add(Sushichan.URL_HANDLER);
@@ -51,7 +51,7 @@ public class SiteRegistry {
         // find the correct class to use.
         SITE_CLASSES.put(0, Chan4.class);
 
-        SITE_CLASSES.put(1, Chan8.class);
+        SITE_CLASSES.put(1, Kun8.class);
         SITE_CLASSES.put(2, Lainchan.class);
         SITE_CLASSES.put(3, Arisuchan.class);
         SITE_CLASSES.put(4, Sushichan.class);
