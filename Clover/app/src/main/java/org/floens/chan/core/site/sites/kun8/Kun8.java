@@ -34,7 +34,7 @@ public class Kun8 extends CommonSite {
 
         @Override
         public String[] getNames() {
-            return new String[]{"8chan", "8ch", "8kun"};
+            return new String[]{"8kun"};
         }
 
         @Override
@@ -54,7 +54,7 @@ public class Kun8 extends CommonSite {
 
     @Override
     public void setup() {
-        setName("8chan");
+        setName("8kun");
         setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
         setBoardsType(BoardsType.INFINITE);
 
@@ -69,7 +69,7 @@ public class Kun8 extends CommonSite {
 
         setEndpoints(new VichanEndpoints(this,
                 "https://8kun.top",
-                "https://sys.8kun.top") {
+                "https://8kun.top") {
             private final HttpUrl i = new HttpUrl.Builder()
                     .scheme("https")
                     .host("media.8kun.top")
@@ -127,7 +127,7 @@ public class Kun8 extends CommonSite {
 
             @Override
             public SiteAuthentication postAuthenticate() {
-                return SiteAuthentication.fromUrl("8kun.top/dnsbls_bypass.php",
+                return SiteAuthentication.fromUrl("https://8kun.top/dnsbls_bypass.php",
                         "You failed the CAPTCHA",
                         "You may now go back and make your post");
             }
