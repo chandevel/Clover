@@ -69,7 +69,7 @@ public class Kun8 extends CommonSite {
 
         setEndpoints(new VichanEndpoints(this,
                 "https://8kun.top",
-                "https://8kun.top") {
+                "https://sys.8kun.top") {
             private final HttpUrl i = new HttpUrl.Builder()
                     .scheme("https")
                     .host("media.8kun.top")

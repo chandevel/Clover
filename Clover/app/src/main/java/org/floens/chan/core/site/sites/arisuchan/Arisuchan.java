@@ -41,7 +41,7 @@ public class Arisuchan extends CommonSite {
 
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://arisuchan.jp/");
+            return HttpUrl.parse("https://archive.arisuchan.jp/");
         }
 
         @Override
@@ -67,7 +67,7 @@ public class Arisuchan extends CommonSite {
     @Override
     public void setup() {
         setName("Arisuchan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://arisuchan.jp/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://archive.arisuchan.jp/favicon.ico")));
 
         setBoards(
                 Board.fromSiteNameCode(this, "art and design", "art"),
@@ -95,8 +95,8 @@ public class Arisuchan extends CommonSite {
         });
 
         setEndpoints(new VichanEndpoints(this,
-                "https://arisuchan.jp",
-                "https://arisuchan.jp"));
+                "https://archive.arisuchan.jp",
+                "https://archive.arisuchan.jp"));
         setActions(new VichanActions(this));
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
