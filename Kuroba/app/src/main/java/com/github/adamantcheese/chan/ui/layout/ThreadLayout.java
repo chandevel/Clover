@@ -591,6 +591,7 @@ public class ThreadLayout
         if (more <= 0 || !BackgroundUtils.isInForeground() || (threadListLayout.isReplyLayoutOpen()
                 && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
                 && ChanSettings.moveInputToBottom.get())) {
+            CancellableSnackbar.cleanup();
             return;
         }
 
