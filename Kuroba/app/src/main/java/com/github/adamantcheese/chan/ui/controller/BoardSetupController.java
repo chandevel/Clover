@@ -40,6 +40,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.layout.BoardAddLayout;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
+import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -176,26 +177,20 @@ public class BoardSetupController
 
     @Override
     public void showRemovedSnackbar(final Board board) {
-        Snackbar snackbar = Snackbar.make(view,
+        CancellableSnackbar.showSnackbar(view,
                 getString(R.string.setup_board_removed, board.getFormattedName()),
-                Snackbar.LENGTH_LONG
+                R.string.undo,
+                v -> presenter.undoRemoveBoard(board)
         );
-        snackbar.setGestureInsetBottomIgnored(true);
-
-        snackbar.setAction(R.string.undo, v -> presenter.undoRemoveBoard(board));
-        snackbar.show();
     }
 
     @Override
     public void boardsWereAdded(int count) {
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
-        Snackbar snackbar = Snackbar.make(view,
-                getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count, count)),
-                Snackbar.LENGTH_LONG
+        CancellableSnackbar.showSnackbar(view,
+                getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count, count))
         );
-        snackbar.setGestureInsetBottomIgnored(true);
-        snackbar.show();
     }
 
     private class SavedBoardsAdapter

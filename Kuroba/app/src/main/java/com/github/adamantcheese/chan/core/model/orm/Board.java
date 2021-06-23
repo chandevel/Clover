@@ -117,6 +117,7 @@ public class Board
     @DatabaseField
     public boolean countryFlags = false;
 
+    // flag code, flag name
     @DatabaseField(dataType = DataType.SERIALIZABLE, canBeNull = false)
     public HashMap<String, String> boardFlags = new HashMap<>();
 

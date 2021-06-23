@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
+import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -264,13 +265,14 @@ public class FiltersController
         postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         adapter.reload();
 
-        Snackbar s = Snackbar.make(view, getString(R.string.filter_removed_undo, clone.pattern), Snackbar.LENGTH_LONG);
-        s.setAction(R.string.undo, v -> {
-            filterEngine.createOrUpdateFilter(clone);
-            adapter.reload();
-        });
-        s.setGestureInsetBottomIgnored(true);
-        s.show();
+        CancellableSnackbar.showSnackbar(view,
+                getString(R.string.filter_removed_undo, clone.pattern),
+                R.string.undo,
+                v -> {
+                    filterEngine.createOrUpdateFilter(clone);
+                    adapter.reload();
+                }
+        );
     }
 
     @Override

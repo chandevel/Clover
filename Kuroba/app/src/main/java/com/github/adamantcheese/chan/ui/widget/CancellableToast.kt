@@ -11,10 +11,8 @@ object CancellableToast {
     @JvmStatic
     @Synchronized
     fun cleanup() {
-        if (toast != null) {
-            toast!!.cancel()
-            toast = null
-        }
+        toast?.cancel()
+        toast = null
     }
 
     @JvmStatic

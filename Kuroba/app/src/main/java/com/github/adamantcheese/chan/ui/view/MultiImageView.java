@@ -47,6 +47,7 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressResponseBody;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
@@ -560,10 +561,11 @@ public class MultiImageView
         }
 
         if (!hasContent || mode == Mode.OTHER) {
-            Snackbar snackbar = Snackbar.make(this, R.string.open_link_confirmation, Snackbar.LENGTH_LONG);
-            snackbar.setAction(R.string.open, (v -> openLink(postImage.imageUrl.toString())));
-            snackbar.setGestureInsetBottomIgnored(true);
-            snackbar.show();
+            CancellableSnackbar.showSnackbar(this,
+                    R.string.open_link_confirmation,
+                    R.string.open,
+                    v -> openLink(postImage.imageUrl.toString())
+            );
             onModeLoaded(Mode.OTHER, null);
         }
     }

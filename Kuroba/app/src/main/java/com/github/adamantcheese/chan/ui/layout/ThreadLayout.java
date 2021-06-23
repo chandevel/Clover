@@ -64,6 +64,7 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
@@ -122,7 +123,6 @@ public class ThreadLayout
     private ProgressDialog deletingDialog;
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
-    private Snackbar newPostsNotification;
 
     public ThreadLayout(Context context) {
         this(context, null);
@@ -516,14 +516,14 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        int snackbarStringId = hide ? R.string.thread_hidden : R.string.thread_removed;
-
-        Snackbar snackbar = Snackbar.make(this, snackbarStringId, Snackbar.LENGTH_LONG);
-        snackbar.setGestureInsetBottomIgnored(true);
-        snackbar.setAction(R.string.undo, v -> {
-            DatabaseUtils.runTask(databaseHideManager.removePostHide(postHide));
-            presenter.refreshUI();
-        }).show();
+        CancellableSnackbar.showSnackbar(this,
+                hide ? R.string.thread_hidden : R.string.thread_removed,
+                R.string.undo,
+                v -> {
+                    DatabaseUtils.runTask(databaseHideManager.removePostHide(postHide));
+                    presenter.refreshUI();
+                }
+        );
     }
 
     @Override
@@ -549,12 +549,10 @@ public class ThreadLayout
             formattedString = getQuantityString(R.plurals.post_removed, posts.size(), posts.size());
         }
 
-        Snackbar snackbar = Snackbar.make(this, formattedString, Snackbar.LENGTH_LONG);
-        snackbar.setGestureInsetBottomIgnored(true);
-        snackbar.setAction(R.string.undo, v -> {
+        CancellableSnackbar.showSnackbar(this, formattedString, R.string.undo, v -> {
             DatabaseUtils.runTask(databaseHideManager.removePostsHide(hideList));
             presenter.refreshUI();
-        }).show();
+        });
     }
 
     @Override
@@ -582,46 +580,31 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        Snackbar snackbar =
-                Snackbar.make(this, getString(R.string.restored_n_posts, postsToRestore.size()), Snackbar.LENGTH_LONG);
-        snackbar.setGestureInsetBottomIgnored(true);
-        snackbar.show();
+        CancellableSnackbar.showSnackbar(
+                this,
+                getString(R.string.restored_n_posts, postsToRestore.size())
+        );
     }
 
     @Override
-    public void showNewPostsSnackbar(int more) {
-        if (more <= 0 || !threadListLayout.canScrollVertically(1) || !BackgroundUtils.isInForeground() || (
-                threadListLayout.isReplyLayoutOpen() && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
-                        && ChanSettings.moveInputToBottom.get())) {
-            dismissSnackbar();
+    public void showNewPostsSnackbar(final Loadable loadable, int more) {
+        if (more <= 0 || !BackgroundUtils.isInForeground() || (threadListLayout.isReplyLayoutOpen()
+                && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
+                && ChanSettings.moveInputToBottom.get())) {
             return;
         }
 
         if (threadListLayout.getReplyPresenter().getPage() != Page.AUTHENTICATION) {
-            String text = getQuantityString(R.plurals.thread_new_posts, more, more);
-            dismissSnackbar();
-            newPostsNotification = Snackbar.make(this, text, Snackbar.LENGTH_LONG);
-            newPostsNotification.setGestureInsetBottomIgnored(true);
-            newPostsNotification.setAction(R.string.thread_new_posts_goto, v -> {
-                presenter.onNewPostsViewClicked();
-                dismissSnackbar();
-            }).show();
-        } else {
-            dismissSnackbar();
+            CancellableSnackbar.showSnackbar(this,
+                    getQuantityString(R.plurals.thread_new_posts, more, more),
+                    R.string.thread_new_posts_goto,
+                    v -> {
+                        if (loadable == presenter.getLoadable()) {
+                            presenter.onNewPostsViewClicked();
+                        }
+                    }
+            );
         }
-    }
-
-    private void dismissSnackbar() {
-        if (newPostsNotification != null) {
-            newPostsNotification.dismiss();
-            newPostsNotification = null;
-        }
-    }
-
-    @Override
-    public void onDetachedFromWindow() {
-        dismissSnackbar();
-        super.onDetachedFromWindow();
     }
 
     @Override
@@ -679,7 +662,7 @@ public class ThreadLayout
             if (this.visible == Visible.THREAD) {
                 threadListLayout.cleanup();
                 postPopupHelper.popAll();
-                dismissSnackbar();
+                CancellableSnackbar.cleanup();
             }
 
             this.visible = visible;

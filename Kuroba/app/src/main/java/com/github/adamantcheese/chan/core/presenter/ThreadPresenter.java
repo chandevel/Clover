@@ -380,7 +380,7 @@ public class ThreadPresenter
             }
 
             if (more > 0 && loadable.no == result.getLoadable().no) {
-                threadPresenterCallback.showNewPostsSnackbar(more);
+                threadPresenterCallback.showNewPostsSnackbar(loadable, more);
             }
         }
 
@@ -424,7 +424,7 @@ public class ThreadPresenter
             watchManager.onBottomPostViewed(pin);
         }
 
-        threadPresenterCallback.showNewPostsSnackbar(-1);
+        threadPresenterCallback.showNewPostsSnackbar(loadable, -1);
 
         // Update the last seen indicator
         showPosts();
@@ -1389,7 +1389,7 @@ public class ThreadPresenter
 
         void hideThread(Post post, int threadNo, boolean hide);
 
-        void showNewPostsSnackbar(int more);
+        void showNewPostsSnackbar(final Loadable loadable, int more);
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 
