@@ -74,6 +74,7 @@ public class DefaultPostParser
     // not preceded by /, ", l, &, : and not followed by ;
     // otherwise match @num, #num, and $num
     private final Pattern extraQuotePattern = Pattern.compile("(?<![/\"l&:])[@#$](\\d+)(?!;)");
+    private final Pattern extraSpoilerPattern = Pattern.compile("\\[spoiler\\](.*?)\\[/spoiler\\]");
     private final Pattern boldPattern = Pattern.compile("\\*\\*(.+)\\*\\*");
     private final Pattern italicPattern = Pattern.compile("\\*(.+)\\*");
     private final Pattern codePattern = Pattern.compile("`(.+)`");
@@ -212,8 +213,12 @@ public class DefaultPostParser
 
         try {
             String comment = post.comment.toString().replace("<wbr>", "");
+            // modifiers for HTML
             if (ChanSettings.parseExtraQuotes.get()) {
                 comment = extraQuotePattern.matcher(comment).replaceAll(commentParser.createQuoteElementString(post));
+            }
+            if (ChanSettings.parseExtraSpoilers.get()) {
+                comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
             }
             if (ChanSettings.mildMarkdown.get()) {
                 comment = boldPattern.matcher(comment).replaceAll("<b>$1</b>");
@@ -221,9 +226,8 @@ public class DefaultPostParser
                 comment = codePattern.matcher(comment).replaceAll("<pre class=\"prettyprint\">$1</pre>");
                 comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
             }
-            Document document = Jsoup.parseBodyFragment(comment);
 
-            for (Node node : document.body().childNodes()) {
+            for (Node node : Jsoup.parseBodyFragment(comment).body().childNodes()) {
                 total.append(parseNode(theme, post, callback, node));
             }
         } catch (Exception e) {

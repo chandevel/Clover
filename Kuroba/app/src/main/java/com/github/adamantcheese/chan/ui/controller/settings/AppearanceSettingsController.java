@@ -244,7 +244,13 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.parseExtraQuotes,
                     "Convert non-standard quotes",
-                    "Attempts to parse non-standard quotes as regular quotes, for those posts that try to avoid direct quoting"
+                    "Attempt to parse non-standard quotes as regular quotes, for those posts that try to avoid direct quoting, like @num or  #num"
+            )));
+
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.parseExtraSpoilers,
+                    "Convert spoiler tags",
+                    "Attempt to parse [spoiler] tags on boards that don't support spoilers as regular spoiler tags"
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
