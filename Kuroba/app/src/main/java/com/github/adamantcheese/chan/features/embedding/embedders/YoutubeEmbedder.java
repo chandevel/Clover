@@ -100,6 +100,7 @@ public class YoutubeEmbedder
                                 break;
                         }
                     }
+                    input.endObject();
                 } else {
                     input.skipValue();
                 }
