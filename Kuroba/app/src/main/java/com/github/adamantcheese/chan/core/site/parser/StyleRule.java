@@ -85,7 +85,7 @@ public class StyleRule {
     public StyleRule tag(String tag) {
         this.tag = tag;
 
-        if (StringUtils.startsWithAny(tag, "p", "div")) {
+        if (StringUtils.isAnyIgnoreCase(tag, "p", "div")) {
             blockElement = true;
         }
 

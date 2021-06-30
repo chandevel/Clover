@@ -88,9 +88,18 @@ public class StringUtils {
         return trimmedUrl + "XXX." + extension;
     }
 
-    public static boolean startsWithAny(String s, String... suffixes) {
-        for (String suffix : suffixes) {
-            if (s.startsWith(suffix)) {
+    public static boolean isAnyIgnoreCase(String s, String... strings) {
+        for (String str : strings) {
+            if (s.equalsIgnoreCase(str)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean startsWithAny(String s, String... prefixes) {
+        for (String prefix : prefixes) {
+            if (s.startsWith(prefix)) {
                 return true;
             }
         }
