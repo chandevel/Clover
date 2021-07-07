@@ -3,6 +3,8 @@ package com.github.adamantcheese.chan.ui.captcha;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.widget.Button;
@@ -20,13 +22,14 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import okhttp3.HttpUrl;
 
 public class CustomJsonLayout
         extends LinearLayout
         implements AuthenticationLayoutInterface, ResponseResult<CustomJsonLayout.ParsedJsonStruct> {
+
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
@@ -153,24 +156,27 @@ public class CustomJsonLayout
     @Override
     public void onFailure(Exception e) {
         callback.onAuthenticationFailed(e);
+        handler.removeCallbacks(RESET_RUNNABLE);
     }
+
+    private final Runnable RESET_RUNNABLE = () -> {
+        currentStruct = null;
+        verify.setOnClickListener(null);
+        slider.setOnSeekBarChangeListener(null);
+        bg.setTranslationX(0);
+        reset();
+    };
 
     @Override
     public void onSuccess(ParsedJsonStruct result) {
         currentStruct = result;
-        BackgroundUtils.runOnMainThread(() -> {
-            currentStruct = null;
-            verify.setOnClickListener(null);
-            slider.setOnSeekBarChangeListener(null);
-            bg.setTranslationX(0);
-            reset();
-        }, currentStruct.ttl * 1000);
+        handler.removeCallbacks(RESET_RUNNABLE);
+        handler.postDelayed(RESET_RUNNABLE, currentStruct.ttl * 1000);
 
-        verify.setOnClickListener(v -> callback.onAuthenticationComplete(this,
-                currentStruct.challenge,
-                input.getText().toString(),
-                true
-        ));
+        verify.setOnClickListener(v -> {
+            callback.onAuthenticationComplete(this, currentStruct.challenge, input.getText().toString(), true);
+            handler.removeCallbacks(RESET_RUNNABLE);
+        });
 
         if (bg != null) {
             slider.setVisibility(VISIBLE);
