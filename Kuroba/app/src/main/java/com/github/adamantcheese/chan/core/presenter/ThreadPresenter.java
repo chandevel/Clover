@@ -77,6 +77,8 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -301,8 +303,8 @@ public class ThreadPresenter
 
     public synchronized void showAlbum() {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
-        int[] pos = threadPresenterCallback.getCurrentPosition();
-        int displayPosition = pos[0];
+        RecyclerViewPosition pos = threadPresenterCallback.getCurrentPosition();
+        int displayPosition = pos.index;
 
         List<PostImage> images = new ArrayList<>();
         int index = 0;
@@ -1343,7 +1345,7 @@ public class ThreadPresenter
 
         PostViewMode getPostViewMode();
 
-        int[] getCurrentPosition();
+        RecyclerViewPosition getCurrentPosition();
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
 

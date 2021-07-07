@@ -91,9 +91,7 @@ public class FilesLayout
     public void setFiles(FileWatcher.FileItems fileItems) {
         // Save the associated list position
         if (currentFileItems != null) {
-            int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
-            currentHistory.index = indexTop[0];
-            currentHistory.top = indexTop[1];
+            currentHistory.position = RecyclerUtils.getIndexAndTop(recyclerView);
             history.put(currentFileItems.path.getAbsolutePath(), currentHistory);
         }
 
@@ -103,8 +101,8 @@ public class FilesLayout
         // Restore any previous list position
         currentHistory = history.get(fileItems.path.getAbsolutePath());
         if (currentHistory != null) {
-            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(currentHistory.index,
-                    currentHistory.top
+            ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(currentHistory.position.index,
+                    currentHistory.position.top
             );
             filesAdapter.setHighlightedItem(currentHistory.clickedItem);
         } else {
@@ -138,7 +136,7 @@ public class FilesLayout
     }
 
     private static class FileItemHistory {
-        int index, top;
+        RecyclerUtils.RecyclerViewPosition position;
         FileWatcher.FileItem clickedItem;
     }
 

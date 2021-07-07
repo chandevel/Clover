@@ -25,6 +25,8 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -143,8 +145,7 @@ public class PostPopupHelper {
     public static class RepliesData {
         public List<Post> posts;
         public int forPostNo;
-        public int listViewIndex;
-        public int listViewTop;
+        public RecyclerViewPosition position;
 
         public RepliesData(Post forPost, List<Post> posts) {
             this.forPostNo = forPost == null ? -1 : forPost.no;

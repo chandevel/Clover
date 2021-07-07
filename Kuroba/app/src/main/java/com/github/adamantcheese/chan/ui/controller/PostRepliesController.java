@@ -39,6 +39,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -142,14 +143,12 @@ public class PostRepliesController
         );
         adapter.lastSeenIndicatorPosition = Integer.MIN_VALUE; //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-        layoutManager.scrollToPositionWithOffset(data.listViewIndex, data.listViewTop);
+        layoutManager.scrollToPositionWithOffset(data.position.index, data.position.top);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                int[] indexAndTop = RecyclerUtils.getIndexAndTop(recyclerView);
-                data.listViewIndex = indexAndTop[0];
-                data.listViewTop = indexAndTop[1];
+                data.position = RecyclerUtils.getIndexAndTop(recyclerView);
             }
         });
 

@@ -60,6 +60,7 @@ import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.Calendar;
 import java.util.List;
@@ -102,10 +103,10 @@ public class ThreadListLayout
         @Override
         public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
             if (showingThread != null) {
-                int[] indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
+                RecyclerViewPosition indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
-                showingThread.getLoadable().listViewIndex = indexTop[0];
-                showingThread.getLoadable().listViewTop = indexTop[1];
+                showingThread.getLoadable().listViewIndex = indexTop.index;
+                showingThread.getLoadable().listViewTop = indexTop.top;
 
                 if (!recyclerView.canScrollVertically(1)) {
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
@@ -549,7 +550,7 @@ public class ThreadListLayout
         threadListLayoutCallback.showImageReencodingWindow();
     }
 
-    public int[] getIndexAndTop() {
+    public RecyclerViewPosition getIndexAndTop() {
         return RecyclerUtils.getIndexAndTop(recyclerView);
     }
 

@@ -47,7 +47,7 @@ public class RecyclerUtils {
         }
     }
 
-    public static int[] getIndexAndTop(RecyclerView recyclerView) {
+    public static RecyclerViewPosition getIndexAndTop(RecyclerView recyclerView) {
         int index = 0, top = 0;
         if (recyclerView.getLayoutManager().getChildCount() > 0) {
             View topChild = recyclerView.getLayoutManager().getChildAt(0);
@@ -56,7 +56,17 @@ public class RecyclerUtils {
             RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
             top = layoutManager.getDecoratedTop(topChild) - params.topMargin - recyclerView.getPaddingTop();
         }
-        return new int[]{index, top};
+        return new RecyclerViewPosition(index, top);
+    }
+
+    public static final class RecyclerViewPosition {
+        public int index;
+        public int top;
+
+        public RecyclerViewPosition(int index, int top) {
+            this.index = index;
+            this.top = top;
+        }
     }
 
     // From https://github.com/DhruvamSharma/Recycler-View-Series; comments are there

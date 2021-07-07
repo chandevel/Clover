@@ -68,6 +68,7 @@ import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.android.material.snackbar.Snackbar;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -357,7 +358,7 @@ public class ThreadLayout
     }
 
     @Override
-    public int[] getCurrentPosition() {
+    public RecyclerUtils.RecyclerViewPosition getCurrentPosition() {
         return threadListLayout.getIndexAndTop();
     }
 
