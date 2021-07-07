@@ -49,9 +49,10 @@ public interface SiteActions {
      * <p>Some sites know beforehand if you need to authenticate, some sites only report it
      * after posting. That's why there are two methods.</p>
      *
+     * @param loadableWithDraft The draft reply with info possibly necessary for auth.
      * @return an {@link SiteAuthentication} model that describes the way to authenticate.
      */
-    SiteAuthentication postAuthenticate();
+    SiteAuthentication postAuthenticate(Loadable loadableWithDraft);
 
     void delete(DeleteRequest deleteRequest, NetUtilsClasses.ResponseResult<DeleteResponse> deleteListener);
 

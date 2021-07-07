@@ -33,8 +33,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
@@ -103,11 +103,11 @@ public class CaptchaV2NoJsLayout
     }
 
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
+    public void initialize(Loadable loadable, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
         this.isAutoReply = autoReply;
 
-        SiteAuthentication authentication = site.actions().postAuthenticate();
+        SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
         if (authentication.type != CAPTCHA2_NOJS) {
             callback.onFallbackToV1CaptchaView(isAutoReply);
             return;

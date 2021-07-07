@@ -139,7 +139,7 @@ public class Kun8
             }
 
             @Override
-            public SiteAuthentication postAuthenticate() {
+            public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
                 return SiteAuthentication.fromUrl(
                         "https://sys.8kun.top/dnsbls_bypass.php",
                         "You failed the CAPTCHA",

@@ -41,7 +41,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -536,14 +535,14 @@ public class ReplyPresenter
                     break;
                 case AUTHENTICATION:
                     callback.setPage(Page.AUTHENTICATION);
-                    SiteAuthentication authentication = loadable.site.actions().postAuthenticate();
+                    SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();
 
                     try {
                         // If the user doesn't have WebView installed it will throw an error
-                        callback.initializeAuthentication(loadable.site,
+                        callback.initializeAuthentication(loadable,
                                 authentication,
                                 this,
                                 useV2NoJsCaptcha,
@@ -629,7 +628,7 @@ public class ReplyPresenter
         void setPage(Page page);
 
         void initializeAuthentication(
-                Site site,
+                Loadable loadable,
                 SiteAuthentication authentication,
                 AuthenticationLayoutCallback callback,
                 boolean useV2NoJsCaptcha,

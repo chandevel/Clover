@@ -34,9 +34,9 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
@@ -88,14 +88,14 @@ public class CaptchaV2JsLayout
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply) {
+    public void initialize(Loadable loadable, AuthenticationLayoutCallback callback, boolean autoReply) {
         this.callback = callback;
         this.isAutoReply = autoReply;
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);
 
-        SiteAuthentication authentication = site.actions().postAuthenticate();
+        SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
 
         this.siteKey = authentication.siteKey;
         this.baseUrl = authentication.baseUrl;

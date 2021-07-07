@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
@@ -62,8 +63,13 @@ public class Chan4ReplyCall
 
         if (reply.captchaResponse != null) {
             if (reply.captchaChallenge != null) {
-                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+                if (Chan4.captchaType.get() != CommonDataStructs.CaptchaType.CUSTOM) {
+                    formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
+                    formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+                } else {
+                    formBuilder.addFormDataPart("t-challenge", reply.captchaChallenge);
+                    formBuilder.addFormDataPart("t-response", reply.captchaResponse);
+                }
             } else {
                 formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
             }

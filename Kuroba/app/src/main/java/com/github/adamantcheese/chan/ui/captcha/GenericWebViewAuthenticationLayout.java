@@ -25,8 +25,8 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
@@ -62,13 +62,13 @@ public class GenericWebViewAuthenticationLayout
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
-    public void initialize(Site site, AuthenticationLayoutCallback callback, boolean ignored) {
+    public void initialize(Loadable loadable, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
 
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);
 
-        authentication = site.actions().postAuthenticate();
+        authentication = loadable.site.actions().postAuthenticate(loadable);
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);

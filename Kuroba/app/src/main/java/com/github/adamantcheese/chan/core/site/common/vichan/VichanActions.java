@@ -174,7 +174,7 @@ public class VichanActions
     }
 
     @Override
-    public SiteAuthentication postAuthenticate() {
+    public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
         return SiteAuthentication.fromNone();
     }
 

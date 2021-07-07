@@ -48,7 +48,8 @@ public class CommonDataStructs {
     public enum CaptchaType
             implements OptionSettingItem {
         V2JS,
-        V2NOJS;
+        V2NOJS,
+        CUSTOM;
 
         @Override
         public String getKey() {

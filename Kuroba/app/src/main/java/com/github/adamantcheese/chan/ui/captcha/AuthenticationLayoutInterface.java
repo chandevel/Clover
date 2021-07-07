@@ -16,10 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.captcha;
 
-import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
 public interface AuthenticationLayoutInterface {
-    void initialize(Site site, AuthenticationLayoutCallback callback, boolean autoReply);
+    void initialize(Loadable loadable, AuthenticationLayoutCallback callback, boolean autoReply);
 
     void reset();
 

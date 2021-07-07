@@ -171,7 +171,7 @@ public class Dvach
             }
 
             @Override
-            public SiteAuthentication postAuthenticate() {
+            public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
                 switch (captchaType.get()) {
                     case V2JS:
                         return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY,

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?backcolor"
+    android:orientation="vertical"
+    android:paddingVertical="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="Scroll image to line up, then enter."
+        android:textSize="18sp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp">
+
+        <ImageView
+            android:id="@+id/bg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foregroundGravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/archived_icon" />
+
+        <ImageView
+            android:id="@+id/fg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:foregroundGravity="center"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:src="@drawable/bandcamp_icon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 1 - 100 -->
+    <SeekBar
+        android:id="@+id/slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:max="100"
+        android:progress="50" />
+
+    <EditText
+        android:id="@+id/captcha_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:hint="@string/reply_captcha_text"
+        android:singleLine="true" />
+
+    <Button
+        android:id="@+id/verify"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:text="@string/captcha_layout_v2_verify_button_text" />
+
+</com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout>

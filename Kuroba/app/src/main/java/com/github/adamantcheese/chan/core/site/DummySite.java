@@ -219,7 +219,7 @@ public class DummySite
             public boolean postRequiresAuthentication() { return false; }
 
             @Override
-            public SiteAuthentication postAuthenticate() {
+            public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
                 return SiteAuthentication.fromNone();
             }
 

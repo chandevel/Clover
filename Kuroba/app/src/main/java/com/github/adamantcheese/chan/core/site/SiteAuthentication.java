@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.site;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA1;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CUSTOM_JSON;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.GENERIC_WEBVIEW;
 import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.NONE;
 
@@ -29,6 +30,7 @@ public class SiteAuthentication {
         CAPTCHA1,
         CAPTCHA2,
         CAPTCHA2_NOJS,
+        CUSTOM_JSON,
         GENERIC_WEBVIEW
     }
 
@@ -53,6 +55,12 @@ public class SiteAuthentication {
     public static SiteAuthentication fromCaptcha2nojs(String siteKey, String baseUrl) {
         SiteAuthentication a = new SiteAuthentication(CAPTCHA2_NOJS);
         a.siteKey = siteKey;
+        a.baseUrl = baseUrl;
+        return a;
+    }
+
+    public static SiteAuthentication fromCustomJson(String baseUrl) {
+        SiteAuthentication a = new SiteAuthentication(CUSTOM_JSON);
         a.baseUrl = baseUrl;
         return a;
     }

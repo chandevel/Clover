@@ -62,13 +62,13 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout;
 import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
@@ -456,7 +456,7 @@ public class ReplyLayout
 
     @Override
     public void initializeAuthentication(
-            Site site,
+            Loadable loadable,
             SiteAuthentication authentication,
             AuthenticationLayoutCallback callback,
             boolean useV2NoJsCaptcha,
@@ -492,6 +492,11 @@ public class ReplyLayout
                     }
 
                     break;
+                case CUSTOM_JSON:
+                    // specific to 4chan, may abstract in the future
+                    authenticationLayout = (CustomJsonLayout) LayoutInflater.from(getContext())
+                            .inflate(R.layout.layout_captcha_custom_json, captchaContainer, false);
+                    break;
                 case GENERIC_WEBVIEW:
                     GenericWebViewAuthenticationLayout view = new GenericWebViewAuthenticationLayout(getContext());
 
@@ -512,7 +517,7 @@ public class ReplyLayout
             hideKeyboard(this);
         }
 
-        authenticationLayout.initialize(site, callback, autoReply);
+        authenticationLayout.initialize(loadable, callback, autoReply);
         authenticationLayout.reset();
     }
 

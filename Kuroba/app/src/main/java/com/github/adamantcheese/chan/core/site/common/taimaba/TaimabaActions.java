@@ -93,7 +93,7 @@ public class TaimabaActions
     }
 
     @Override
-    public SiteAuthentication postAuthenticate() {
+    public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
         return SiteAuthentication.fromNone();
     }
 }

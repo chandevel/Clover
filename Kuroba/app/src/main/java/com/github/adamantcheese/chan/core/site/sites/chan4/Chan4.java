@@ -73,7 +73,7 @@ import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
-import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2NOJS;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CUSTOM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
@@ -372,8 +372,7 @@ public class Chan4
 
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(
-                    new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
+            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
                     postListener
             );
         }
@@ -384,7 +383,7 @@ public class Chan4
         }
 
         @Override
-        public SiteAuthentication postAuthenticate() {
+        public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
             final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
             if (isLoggedIn()) {
                 return SiteAuthentication.fromNone();
@@ -394,6 +393,14 @@ public class Chan4
                         return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, b.toString());
                     case V2NOJS:
                         return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, b.toString());
+                    case CUSTOM:
+                        HttpUrl.Builder urlBuilder = sys.newBuilder()
+                                .addPathSegment("captcha")
+                                .addQueryParameter("board", loadableWithDraft.board.code);
+                        if (loadableWithDraft.isThreadMode()) {
+                            urlBuilder.addQueryParameter("thread_id", String.valueOf(loadableWithDraft.no));
+                        }
+                        return SiteAuthentication.fromCustomJson(urlBuilder.build().toString());
                     default:
                         throw new IllegalArgumentException();
                 }
@@ -402,8 +409,7 @@ public class Chan4
 
         @Override
         public void delete(DeleteRequest deleteRequest, final ResponseResult<DeleteResponse> deleteListener) {
-            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(
-                    new MainThreadResponseResult<>(deleteListener),
+            NetUtils.makeHttpCall(new Chan4DeleteHttpCall(new MainThreadResponseResult<>(deleteListener),
                     deleteRequest
             ));
         }
@@ -443,7 +449,7 @@ public class Chan4
     private final StringSetting passUser;
     private final StringSetting passPass;
 
-    private OptionsSetting<CaptchaType> captchaType;
+    public static OptionsSetting<CaptchaType> captchaType;
     private BooleanSetting spriteSetting;
 
     public Chan4() {
@@ -459,7 +465,7 @@ public class Chan4
         super.initializeSettings();
 
         captchaType =
-                new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, V2NOJS);
+                new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, CUSTOM);
         spriteSetting = new BooleanSetting(settingsProvider, "preference_sprite_map_chan4", false);
     }
 
@@ -467,7 +473,7 @@ public class Chan4
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
         SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript"));
+                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript", "4chan Custom"));
         SiteSetting<?> spriteMapSetting =
                 new SiteSetting<>("Use sprite maps for board flags", BOOLEAN, spriteSetting, Collections.emptyList());
         settings.add(captchaSetting);
