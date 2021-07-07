@@ -56,12 +56,12 @@ public abstract class SiteBase
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {
+        if (initialized) {
+            throw new IllegalStateException("Cannot initialize more than once!");
+        }
+
         this.id = id;
         this.userSettings = userSettings;
-
-        if (initialized) {
-            throw new IllegalStateException();
-        }
         initialized = true;
     }
 
@@ -109,22 +109,6 @@ public abstract class SiteBase
         Board board = Board.fromSiteNameCode(this, name, code);
         boardManager.updateAvailableBoardsForSite(this, new Boards(Collections.singletonList(board)));
         return board;
-    }
-
-    public static boolean containsMediaHostUrl(HttpUrl desiredSiteUrl, String[] mediaHosts) {
-        String host = desiredSiteUrl.host();
-
-        for (String mediaHost : mediaHosts) {
-            if (host.equals(mediaHost)) {
-                return true;
-            }
-
-            if (host.equals("www." + mediaHost)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     @Override

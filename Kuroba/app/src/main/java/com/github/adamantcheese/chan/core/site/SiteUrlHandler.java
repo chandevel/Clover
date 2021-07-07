@@ -32,4 +32,20 @@ public interface SiteUrlHandler {
     String desktopUrl(Loadable loadable, int postNo);
 
     Loadable resolveLoadable(Site site, HttpUrl url);
+
+    static boolean containsMediaHostUrl(HttpUrl desiredSiteUrl, String[] mediaHosts) {
+        String host = desiredSiteUrl.host();
+
+        for (String mediaHost : mediaHosts) {
+            if (host.equals(mediaHost)) {
+                return true;
+            }
+
+            if (host.equals("www." + mediaHost)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

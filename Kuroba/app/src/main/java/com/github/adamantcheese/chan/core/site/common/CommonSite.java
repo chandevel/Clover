@@ -265,7 +265,7 @@ public abstract class CommonSite
 
         @Override
         public boolean matchesMediaHost(@NonNull HttpUrl url) {
-            return SiteBase.containsMediaHostUrl(url, getMediaHosts());
+            return SiteUrlHandler.containsMediaHostUrl(url, getMediaHosts());
         }
 
         @Override
@@ -475,7 +475,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public SiteAuthentication postAuthenticate() {
+        public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
             return SiteAuthentication.fromNone();
         }
 

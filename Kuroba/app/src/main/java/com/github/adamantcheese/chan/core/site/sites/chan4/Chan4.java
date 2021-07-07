@@ -86,7 +86,7 @@ public class Chan4
 
         @Override
         public boolean matchesMediaHost(@NonNull HttpUrl url) {
-            return SiteBase.containsMediaHostUrl(url, mediaHosts);
+            return SiteUrlHandler.containsMediaHostUrl(url, mediaHosts);
         }
 
         @Override
