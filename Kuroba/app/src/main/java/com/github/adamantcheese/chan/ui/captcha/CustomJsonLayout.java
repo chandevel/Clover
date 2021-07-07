@@ -22,6 +22,9 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.ui.widget.CancellableToast;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import okhttp3.HttpUrl;
 
@@ -38,7 +41,7 @@ public class CustomJsonLayout
     private ImageView bg;
     private ImageView fg;
     private SeekBar slider;
-    private EditText input;
+    private TextInputEditText input;
     private Button verify;
 
     public CustomJsonLayout(Context context) {
@@ -77,8 +80,10 @@ public class CustomJsonLayout
 
     @Override
     public void reset() {
-        if (currentStruct != null && System.currentTimeMillis() / 1000L < currentStruct.cdUntil)
-            return; // don't reset until after the cooldown
+        if (currentStruct != null && System.currentTimeMillis() / 1000L < currentStruct.cdUntil) {
+            CancellableToast.showToast(getContext(), "You have to wait before refreshing!");
+            return;
+        }
 
         bg.setImageBitmap(null);
         fg.setImageBitmap(null);

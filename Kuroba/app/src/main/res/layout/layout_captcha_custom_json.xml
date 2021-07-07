@@ -53,14 +53,22 @@
         android:max="100"
         android:progress="50" />
 
-    <EditText
-        android:id="@+id/captcha_input"
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:gravity="center"
-        android:hint="@string/reply_captcha_text"
-        android:singleLine="true" />
+        android:singleLine="true"
+        app:counterEnabled="true"
+        app:counterMaxLength="5">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/captcha_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:hint="@string/reply_captcha_text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/verify"

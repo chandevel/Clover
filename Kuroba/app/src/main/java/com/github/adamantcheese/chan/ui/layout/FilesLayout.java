@@ -136,7 +136,7 @@ public class FilesLayout
     }
 
     private static class FileItemHistory {
-        RecyclerUtils.RecyclerViewPosition position;
+        RecyclerUtils.RecyclerViewPosition position = new RecyclerUtils.RecyclerViewPosition(0, 0);
         FileWatcher.FileItem clickedItem;
     }
 
