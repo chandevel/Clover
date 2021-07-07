@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="8dp"
-        android:text="Scroll image to line up, then enter."
+        android:text="Slide the slider so the images line up.\n Then enter the text below."
         android:textSize="18sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -58,6 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:gravity="center"
         android:hint="@string/reply_captcha_text"
         android:singleLine="true" />
 

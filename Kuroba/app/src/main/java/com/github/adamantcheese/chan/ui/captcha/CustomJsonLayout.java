@@ -143,7 +143,7 @@ public class CustomJsonLayout
             if (error != null) {
                 throw new Exception(error + ": " + cd + "s left.");
             }
-            struct.range = Math.abs(bgWidth - fgWidth);
+            struct.range = Math.abs(bgWidth - fgWidth) * 4; // just so the range is good
             return struct;
         }, NetUtilsClasses.NO_CACHE);
     }
@@ -180,6 +180,8 @@ public class CustomJsonLayout
 
         if (bg != null) {
             slider.setVisibility(VISIBLE);
+            slider.setMax(currentStruct.range * 2);
+            slider.setProgress(currentStruct.range);
             slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
