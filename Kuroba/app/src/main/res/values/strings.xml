@@ -710,7 +710,7 @@ Don't have a 4chan Pass?<br>
     <string name="fail_reason_some_part_of_webview_not_initialized">Some part of WebViewChromium couldn\'t get initialized: (%1$s)</string>
 
     <string name="setting_enable_image_link_loading">Enable image link loading</string>
-    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, or FLAC files linked in posts as internally viewable post attachments with a special spoiler image.</string>
+    <string name="setting_enable_image_link_loading_description">Adds any JPG, PNG, GIF, WEBM, MP4, PDF, BMP, WEBP, MP3, SWF, M4A, OGG, FLAC, or WAV files linked in posts as internally viewable post attachments with a special spoiler image.</string>
     <string name="add_new_zone">Add new zone</string>
     <string name="setting_exclusion_zones_left_zone">Left zone</string>
     <string name="setting_exclusion_zones_right_zone">Right zone</string>

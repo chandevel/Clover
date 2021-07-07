@@ -66,6 +66,7 @@ public class TaimabaEndpoints
             case "m4a":
             case "ogg":
             case "flac":
+            case "wav":
                 return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
             default:
                 return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();

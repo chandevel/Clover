@@ -329,10 +329,10 @@ public class EmbeddingEngine
     //region Image Inlining
     // matches stuff like file.jpg or file?format=jpg&name=orig
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac)(?:.*)",
+            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac|wav)(?:.*)",
             Pattern.CASE_INSENSITIVE
     );
-    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac"};
+    private static final String[] noThumbLinkSuffixes = {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac", "wav"};
 
     private static List<PostImage> generatePostImages(List<PostLinkable> linkables) {
         if (!ChanSettings.parsePostImageLinks.get()) return Collections.emptyList();

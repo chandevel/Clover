@@ -89,6 +89,7 @@ public class PostImage {
             case "m4a":
             case "ogg":
             case "flac":
+            case "wav":
                 type = MOVIE;
                 break;
             case "pdf":
