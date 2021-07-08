@@ -8,7 +8,6 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -24,7 +23,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
 
 import okhttp3.HttpUrl;
 
@@ -92,7 +90,7 @@ public class CustomJsonLayout
 
         NetUtils.makeJsonRequest(HttpUrl.get(authentication.baseUrl), new MainThreadResponseResult<>(this), input -> {
             ParsedJsonStruct struct = new ParsedJsonStruct();
-            int fgWidth = 0, bgWidth = 0, cd = 0;
+            int cd = 0;
             String error = null;
             input.beginObject();
             while (input.hasNext()) {
@@ -109,7 +107,7 @@ public class CustomJsonLayout
                         struct.fg = Bitmap.createScaledBitmap(struct.fg,
                                 struct.fg.getWidth() * 4,
                                 struct.fg.getHeight() * 4,
-                                false
+                                true
                         );
                         break;
                     case "bg":
@@ -118,7 +116,7 @@ public class CustomJsonLayout
                         struct.bg = Bitmap.createScaledBitmap(struct.bg,
                                 struct.bg.getWidth() * 4,
                                 struct.bg.getHeight() * 4,
-                                false
+                                true
                         );
                         break;
                     case "error":
@@ -131,11 +129,7 @@ public class CustomJsonLayout
                         cd = input.nextInt();
                         break;
                     case "img_width":
-                        fgWidth = input.nextInt();
-                        break;
                     case "bg_width":
-                        bgWidth = input.nextInt();
-                        break;
                     case "valid_until":
                     case "img_height":
                         // unused
@@ -148,7 +142,6 @@ public class CustomJsonLayout
             if (error != null) {
                 throw new Exception(error + ": " + cd + "s left.");
             }
-            struct.range = Math.abs(bgWidth - fgWidth) * 4; // just so the range is good
             return struct;
         }, NetUtilsClasses.NO_CACHE);
     }
@@ -185,12 +178,12 @@ public class CustomJsonLayout
 
         if (bg != null) {
             slider.setVisibility(VISIBLE);
-            slider.setMax(currentStruct.range * 2);
-            slider.setProgress(currentStruct.range);
+            slider.setMax(currentStruct.bg.getWidth());
+            slider.setProgress(currentStruct.bg.getWidth() / 2);
             slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    bg.setTranslationX(progress - slider.getMax() / 2);
+                    bg.setTranslationX((progress - slider.getMax() / 2f) / 2);
                 }
 
                 @Override
@@ -212,7 +205,6 @@ public class CustomJsonLayout
         public String challenge;
         public int ttl;
         public long cdUntil;
-        public int range;
         public Bitmap fg;
         public Bitmap bg;
     }
