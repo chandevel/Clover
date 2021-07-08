@@ -104,19 +104,25 @@ public class CustomJsonLayout
                     case "img":
                         byte[] fgData = Base64.decode(input.nextString(), Base64.DEFAULT);
                         struct.fg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
-                        struct.fg = Bitmap.createScaledBitmap(struct.fg,
-                                struct.fg.getWidth() * 4,
-                                struct.fg.getHeight() * 4,
-                                true
+                        // resize to view width, capped at 4x image size
+                        struct.fg = Bitmap.createScaledBitmap(
+                                struct.fg,
+                                Math.min(getWidth(), struct.fg.getWidth() * 4),
+                                (int) (Math.min(getWidth(), struct.fg.getWidth() * 4) * ((float) struct.fg.getHeight()
+                                        / (float) struct.fg.getWidth())),
+                                false
                         );
                         break;
                     case "bg":
                         byte[] bgData = Base64.decode(input.nextString(), Base64.DEFAULT);
                         struct.bg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
-                        struct.bg = Bitmap.createScaledBitmap(struct.bg,
-                                struct.bg.getWidth() * 4,
-                                struct.bg.getHeight() * 4,
-                                true
+                        // resize to match foreground image height
+                        struct.bg = Bitmap.createScaledBitmap(
+                                struct.bg,
+                                (int) (struct.fg.getHeight() * ((float) struct.bg.getWidth()
+                                        / (float) struct.bg.getHeight())),
+                                struct.fg.getHeight(),
+                                false
                         );
                         break;
                     case "error":
