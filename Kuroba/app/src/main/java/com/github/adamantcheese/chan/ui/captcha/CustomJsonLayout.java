@@ -182,7 +182,7 @@ public class CustomJsonLayout
             handler.removeCallbacks(RESET_RUNNABLE);
         });
 
-        if (bg != null) {
+        if (currentStruct.bg != null) {
             slider.setVisibility(VISIBLE);
             slider.setMax(currentStruct.bg.getWidth());
             slider.setProgress(currentStruct.bg.getWidth() / 2);
