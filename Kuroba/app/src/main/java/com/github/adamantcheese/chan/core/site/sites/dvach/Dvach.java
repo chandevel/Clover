@@ -79,7 +79,7 @@ public class Dvach
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
         SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript"));
+                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript", null));
         settings.add(captchaSetting);
         return settings;
     }
@@ -159,8 +159,7 @@ public class Dvach
 
             @Override
             public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(new DvachReplyCall(
-                        new NetUtilsClasses.MainThreadResponseResult<>(postListener),
+                NetUtils.makeHttpCall(new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener),
                         loadableWithDraft
                 ), postListener);
             }

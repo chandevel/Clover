@@ -104,7 +104,9 @@ public class SiteSetupController
                     for (int i = 0; i < settingItems.length; i++) {
                         String name = setting.optionNames.get(i);
                         Enum anEnum = settingItems[i];
-                        items.add(new Item<>(name, anEnum));
+                        if (name != null) {
+                            items.add(new Item<>(name, anEnum));
+                        }
                     }
 
                     //noinspection unchecked
