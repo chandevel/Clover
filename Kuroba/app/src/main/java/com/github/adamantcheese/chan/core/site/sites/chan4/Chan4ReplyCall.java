@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -24,10 +25,12 @@ import androidx.annotation.Nullable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -59,7 +62,11 @@ public class Chan4ReplyCall
             formBuilder.addFormDataPart("sub", reply.subject);
         }
 
-        formBuilder.addFormDataPart("com", reply.comment);
+        formBuilder.addFormDataPart(
+                "com",
+                reply.comment + (AndroidUtils.isAprilFoolsDay() && !PersistableChanState.noFunAllowed.get() ?
+                        "\n\nSent from my " + Build.MANUFACTURER + " - " + Build.MODEL : "")
+        );
 
         if (reply.captchaResponse != null) {
             if (reply.captchaChallenge != null) {

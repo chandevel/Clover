@@ -198,6 +198,13 @@ public class DeveloperSettingsController
         threadCrashSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> ChanSettings.crashOnWrongThread.toggle());
         wrapper.addView(threadCrashSwitch);
 
+        Switch noFunAllowed = new Switch(context);
+        noFunAllowed.setText("Toggle fun");
+        noFunAllowed.setTextColor(getAttrColor(context, android.R.attr.textColor));
+        noFunAllowed.setChecked(PersistableChanState.noFunAllowed.get());
+        noFunAllowed.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.noFunAllowed.toggle());
+        wrapper.addView(noFunAllowed);
+
         ScrollView scrollView = new ScrollView(context);
         scrollView.setPadding(dp(16), dp(16), dp(16), dp(16));
         scrollView.addView(wrapper);

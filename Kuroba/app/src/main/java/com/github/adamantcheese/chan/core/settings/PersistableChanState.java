@@ -24,6 +24,8 @@ public class PersistableChanState {
 
     public static StringSetting filterWatchIgnored;
 
+    public static BooleanSetting noFunAllowed;
+
     static {
         try {
             SharedPreferencesSettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getAppState());
@@ -35,6 +37,8 @@ public class PersistableChanState {
             previousDevHash = new StringSetting(p, "previous_dev_hash", BuildConfig.COMMIT_HASH);
 
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
+
+            noFunAllowed = new BooleanSetting(p, "no_fun_allowed", false);
         } catch (Exception e) {
             Logger.e("PersistableChanState", "Error while initializing the state", e);
             throw e;
