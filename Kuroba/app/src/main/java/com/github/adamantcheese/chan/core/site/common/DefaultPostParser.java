@@ -73,7 +73,7 @@ public class DefaultPostParser
     // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
     // not preceded by /, ", l, &, : and not followed by ;
     // otherwise match @num, #num, and $num
-    private final Pattern extraQuotePattern = Pattern.compile("(?<![/\"l&:])[@#$](\\d+)(?!;)");
+    private final Pattern extraQuotePattern = Pattern.compile("(?<![/\"l&:])[@#](\\d+)(?!;)");
     private final Pattern extraSpoilerPattern = Pattern.compile("\\[spoiler\\](.*?)\\[/spoiler\\]");
     private final Pattern boldPattern = Pattern.compile("\\*\\*(.+)\\*\\*");
     private final Pattern italicPattern = Pattern.compile("\\*(.+)\\*");
