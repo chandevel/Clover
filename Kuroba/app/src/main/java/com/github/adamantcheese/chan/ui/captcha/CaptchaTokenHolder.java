@@ -49,11 +49,11 @@ public class CaptchaTokenHolder {
         captchaValidationListeners.remove(listener);
     }
 
-    public void addNewToken(String token, long tokenLifetime) {
+    public void addNewToken(String challenge, String token, long tokenLifetime) {
         removeNotValidTokens();
 
         synchronized (captchaQueue) {
-            captchaQueue.addLast(new CaptchaToken(token, tokenLifetime + System.currentTimeMillis()));
+            captchaQueue.addLast(new CaptchaToken(challenge, token, tokenLifetime + System.currentTimeMillis()));
             Logger.d(this, "New token added, validCount = " + captchaQueue.size() + ", token = " + captchaQueue.peek());
         }
 
@@ -75,7 +75,7 @@ public class CaptchaTokenHolder {
     }
 
     @Nullable
-    public String getToken() {
+    public CaptchaToken getToken() {
         removeNotValidTokens();
 
         synchronized (captchaQueue) {
@@ -88,7 +88,7 @@ public class CaptchaTokenHolder {
             Logger.d(this, "Got token " + token);
 
             notifyListeners();
-            return token.token;
+            return token;
         }
     }
 
@@ -156,11 +156,13 @@ public class CaptchaTokenHolder {
         void onCaptchaCountChanged(int validCaptchaCount);
     }
 
-    private static class CaptchaToken {
+    public static class CaptchaToken {
+        public String challenge;
         public String token;
         public long validUntil;
 
-        public CaptchaToken(String token, long validUntil) {
+        public CaptchaToken(String challenge, String token, long validUntil) {
+            this.challenge = challenge;
             this.token = token;
             this.validUntil = validUntil;
         }

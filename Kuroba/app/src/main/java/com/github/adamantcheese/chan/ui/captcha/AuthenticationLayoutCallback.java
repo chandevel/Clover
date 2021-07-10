@@ -16,9 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.captcha;
 
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
+
 public interface AuthenticationLayoutCallback {
     void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout, String challenge, String response, boolean autoReply
+            AuthenticationLayoutInterface authenticationLayout, CaptchaToken token, boolean autoReply
     );
 
     void onAuthenticationFailed(Throwable error);

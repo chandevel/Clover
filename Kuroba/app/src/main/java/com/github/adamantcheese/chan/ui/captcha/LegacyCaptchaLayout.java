@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.captcha;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
@@ -138,7 +137,11 @@ public class LegacyCaptchaLayout
 
     private void submitCaptcha() {
         hideKeyboard(this);
-        callback.onAuthenticationComplete(this, challenge, input.getText().toString(), true);
+        callback.onAuthenticationComplete(
+                this,
+                new CaptchaTokenHolder.CaptchaToken(challenge, input.getText().toString(), 0),
+                true
+        );
     }
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {

@@ -39,7 +39,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
-import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 public class PostRepliesController
         extends BaseFloatingController {

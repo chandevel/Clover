@@ -49,6 +49,8 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -245,7 +247,7 @@ public class ReplyPresenter
         }
 
         draft.spoilerImage = draft.spoilerImage && loadable.board.spoilers;
-        draft.captchaResponse = null;
+        draft.token = null;
 
         return true;
     }
@@ -365,15 +367,14 @@ public class ReplyPresenter
 
     @Override
     public void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout, String challenge, String response, boolean autoReply
+            AuthenticationLayoutInterface authenticationLayout, CaptchaToken token, boolean autoReply
     ) {
         if (draft == null) {
             switchPage(Page.INPUT);
             return;
         }
 
-        draft.captchaChallenge = challenge;
-        draft.captchaResponse = response;
+        draft.token = token;
 
         long timeLeft = LastReplyRepository.getTimeUntilDraftPostable(loadable);
         if (timeLeft > 0L && !autoReply) {

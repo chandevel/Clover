@@ -68,15 +68,15 @@ public class DvachReplyCall
             formBuilder.addFormDataPart("subject", reply.subject);
         }
 
-        if (reply.captchaResponse != null) {
+        if (reply.token != null && reply.token.token != null) {
             formBuilder.addFormDataPart("captcha_type", "recaptcha");
             formBuilder.addFormDataPart("captcha_key", Dvach.CAPTCHA_KEY);
 
-            if (reply.captchaChallenge != null) {
-                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+            if (reply.token.challenge != null) {
+                formBuilder.addFormDataPart("recaptcha_challenge_field", reply.token.challenge);
+                formBuilder.addFormDataPart("recaptcha_response_field", reply.token.token);
             } else {
-                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+                formBuilder.addFormDataPart("g-recaptcha-response", reply.token.token);
             }
         }
 

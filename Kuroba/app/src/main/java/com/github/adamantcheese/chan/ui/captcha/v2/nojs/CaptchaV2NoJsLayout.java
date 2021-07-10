@@ -119,7 +119,7 @@ public class CaptchaV2NoJsLayout
     @Override
     public void reset() {
         if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
+            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -161,24 +161,24 @@ public class CaptchaV2NoJsLayout
     @Override
     public void onVerificationDone(String verificationToken) {
         BackgroundUtils.runOnMainThread(() -> {
-            CaptchaTokenHolder.getInstance().addNewToken(verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(null, verificationToken, RECAPTCHA_TOKEN_LIVE_TIME);
 
-            String token;
+            CaptchaTokenHolder.CaptchaToken token;
 
             if (isAutoReply) {
                 token = CaptchaTokenHolder.getInstance().getToken();
             } else {
-                token = verificationToken;
+                token = new CaptchaTokenHolder.CaptchaToken(null, verificationToken, 0);
             }
 
             captchaVerifyButton.setEnabled(true);
-            callback.onAuthenticationComplete(this, null, token, isAutoReply);
+            callback.onAuthenticationComplete(this, token, isAutoReply);
         });
     }
 
     // Called when we got response from re-captcha but could not parse some part of it
     @Override
-    public void onCaptchaInfoParseError(Throwable error) {
+    public void onCaptchaInfoParseError(@NonNull Throwable error) {
         BackgroundUtils.runOnMainThread(() -> {
             Logger.e(CaptchaV2NoJsLayout.this, "CaptchaV2 error", error);
             showToast(getContext(), error.getMessage(), Toast.LENGTH_LONG);

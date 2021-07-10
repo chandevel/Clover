@@ -68,17 +68,17 @@ public class Chan4ReplyCall
                         "\n\nSent from my " + Build.MANUFACTURER + " - " + Build.MODEL : "")
         );
 
-        if (reply.captchaResponse != null) {
-            if (reply.captchaChallenge != null) {
+        if (reply.token != null && reply.token.token != null) {
+            if (reply.token.challenge != null) {
                 if (Chan4.captchaType.get() != CommonDataStructs.CaptchaType.CUSTOM) {
-                    formBuilder.addFormDataPart("recaptcha_challenge_field", reply.captchaChallenge);
-                    formBuilder.addFormDataPart("recaptcha_response_field", reply.captchaResponse);
+                    formBuilder.addFormDataPart("recaptcha_challenge_field", reply.token.challenge);
+                    formBuilder.addFormDataPart("recaptcha_response_field", reply.token.token);
                 } else {
-                    formBuilder.addFormDataPart("t-challenge", reply.captchaChallenge);
-                    formBuilder.addFormDataPart("t-response", reply.captchaResponse);
+                    formBuilder.addFormDataPart("t-challenge", reply.token.challenge);
+                    formBuilder.addFormDataPart("t-response", reply.token.token);
                 }
             } else {
-                formBuilder.addFormDataPart("g-recaptcha-response", reply.captchaResponse);
+                formBuilder.addFormDataPart("g-recaptcha-response", reply.token.token);
             }
         }
 

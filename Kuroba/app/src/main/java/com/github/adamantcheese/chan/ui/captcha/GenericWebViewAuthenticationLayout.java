@@ -28,6 +28,7 @@ import android.webkit.WebView;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -77,8 +78,8 @@ public class GenericWebViewAuthenticationLayout
 
     @Override
     public void reset() {
-        if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
+        if (isAutoReply && CaptchaTokenHolder.getInstance().hasToken()) {
+            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -106,17 +107,17 @@ public class GenericWebViewAuthenticationLayout
                 }, 1000);
             }
         } else if (success) {
-            CaptchaTokenHolder.getInstance().addNewToken(text, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken("", text, RECAPTCHA_TOKEN_LIVE_TIME);
 
-            String token;
+            CaptchaToken token;
 
-            if (isAutoReply) {
+            if (isAutoReply && CaptchaTokenHolder.getInstance().hasToken()) {
                 token = CaptchaTokenHolder.getInstance().getToken();
             } else {
-                token = text;
+                token = new CaptchaToken("", text, 0);
             }
 
-            callback.onAuthenticationComplete(this, "", token, isAutoReply);
+            callback.onAuthenticationComplete(this, token, isAutoReply);
         }
     }
 

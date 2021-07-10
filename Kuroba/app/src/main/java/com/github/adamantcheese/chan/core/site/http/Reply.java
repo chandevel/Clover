@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.core.site.http;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 
 import java.io.File;
 
@@ -27,14 +29,9 @@ import static kotlin.random.Random.Default;
  */
 public class Reply {
     /**
-     * Optional. {@code null} when ReCaptcha v2 was used or a 4pass
+     * Used for all authentication stuff that needs to be done.
      */
-    public String captchaChallenge;
-
-    /**
-     * Optional. {@code null} when a 4pass was used.
-     */
-    public String captchaResponse;
+    public CaptchaToken token;
 
     public File file;
     public String fileName;

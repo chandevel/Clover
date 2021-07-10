@@ -17,6 +17,7 @@
         android:textSize="18sp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="8dp">
@@ -63,29 +64,36 @@
         android:max="100"
         android:progress="50" />
 
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:singleLine="true"
-        app:counterEnabled="true"
-        app:counterMaxLength="5">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/captcha_input"
-            android:layout_width="match_parent"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:hint="@string/reply_captcha_text" />
+            android:layout_margin="8dp"
+            android:layout_weight="3"
+            android:singleLine="true">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/captcha_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:hint="@string/reply_captcha_text" />
 
-    <Button
-        android:id="@+id/verify"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/captcha_layout_v2_verify_button_text"
-        android:textSize="24sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/verify"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/captcha_layout_v2_verify_button_text"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
 
 </com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout>

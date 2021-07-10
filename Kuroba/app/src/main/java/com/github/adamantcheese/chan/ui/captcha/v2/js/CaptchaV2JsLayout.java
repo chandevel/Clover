@@ -136,7 +136,7 @@ public class CaptchaV2JsLayout
             loadUrl("javascript:grecaptcha.reset()");
         } else {
             if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
-                callback.onAuthenticationComplete(this, null, CaptchaTokenHolder.getInstance().getToken(), true);
+                callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
                 return;
             }
 
@@ -188,17 +188,17 @@ public class CaptchaV2JsLayout
         if (TextUtils.isEmpty(response)) {
             reset();
         } else {
-            CaptchaTokenHolder.getInstance().addNewToken(response, RECAPTCHA_TOKEN_LIVE_TIME);
+            CaptchaTokenHolder.getInstance().addNewToken(null, response, RECAPTCHA_TOKEN_LIVE_TIME);
 
-            String token;
+            CaptchaTokenHolder.CaptchaToken token;
 
             if (isAutoReply) {
                 token = CaptchaTokenHolder.getInstance().getToken();
             } else {
-                token = response;
+                token = new CaptchaTokenHolder.CaptchaToken(null, response, 0);
             }
 
-            callback.onAuthenticationComplete(this, null, token, isAutoReply);
+            callback.onAuthenticationComplete(this, token, isAutoReply);
         }
     }
 

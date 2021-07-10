@@ -7,12 +7,14 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Base64;
+import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -24,18 +26,24 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.HttpUrl;
+
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class CustomJsonLayout
         extends LinearLayout
         implements AuthenticationLayoutInterface, ResponseResult<CustomJsonLayout.ParsedJsonStruct> {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
+    private boolean isAutoReply;
 
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
     private ParsedJsonStruct currentStruct;
 
+    private ConstraintLayout wrapper;
     private ImageView bg;
     private ImageView fg;
     private SeekBar slider;
@@ -46,25 +54,30 @@ public class CustomJsonLayout
         super(context);
     }
 
-    public CustomJsonLayout(
-            Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs
-    ) {
+    public CustomJsonLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public CustomJsonLayout(
-            Context context, @Nullable @org.jetbrains.annotations.Nullable AttributeSet attrs, int defStyleAttr
-    ) {
+    public CustomJsonLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        wrapper = findViewById(R.id.wrapper);
         bg = findViewById(R.id.bg);
         fg = findViewById(R.id.fg);
         slider = findViewById(R.id.slider);
         input = findViewById(R.id.captcha_input);
+        input.setOnEditorActionListener((v, actionId, event) -> {
+            if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                hideKeyboard(input);
+                verify.callOnClick();
+                return true;
+            }
+            return false;
+        });
         verify = findViewById(R.id.verify);
     }
 
@@ -74,14 +87,22 @@ public class CustomJsonLayout
     ) {
         this.callback = callback;
         authentication = loadable.site.actions().postAuthenticate(loadable);
+        isAutoReply = autoReply;
     }
 
     @Override
     public void reset() {
+        if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+            return;
+        }
+
         if (currentStruct != null && System.currentTimeMillis() / 1000L < currentStruct.cdUntil) {
             CancellableToast.showToast(getContext(), "You have to wait before refreshing!");
             return;
         }
+
+        handler.removeCallbacks(RESET_RUNNABLE);
 
         bg.setImageBitmap(null);
         fg.setImageBitmap(null);
@@ -104,25 +125,24 @@ public class CustomJsonLayout
                     case "img":
                         byte[] fgData = Base64.decode(input.nextString(), Base64.DEFAULT);
                         struct.fg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
-                        // resize to view width, capped at 4x image size
-                        struct.fg = Bitmap.createScaledBitmap(
-                                struct.fg,
-                                Math.min(getWidth(), struct.fg.getWidth() * 4),
-                                (int) (Math.min(getWidth(), struct.fg.getWidth() * 4) * ((float) struct.fg.getHeight()
+                        // resize to wrapping view draw area, capped at 4x image size
+                        int viewWidth = wrapper.getWidth() - wrapper.getPaddingLeft() - wrapper.getPaddingRight();
+                        struct.fg = Bitmap.createScaledBitmap(struct.fg,
+                                Math.min(viewWidth, struct.fg.getWidth() * 4),
+                                (int) (Math.min(viewWidth, struct.fg.getWidth() * 4) * ((float) struct.fg.getHeight()
                                         / (float) struct.fg.getWidth())),
-                                false
+                                true
                         );
                         break;
                     case "bg":
                         byte[] bgData = Base64.decode(input.nextString(), Base64.DEFAULT);
                         struct.bg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
                         // resize to match foreground image height
-                        struct.bg = Bitmap.createScaledBitmap(
-                                struct.bg,
+                        struct.bg = Bitmap.createScaledBitmap(struct.bg,
                                 (int) (struct.fg.getHeight() * ((float) struct.bg.getWidth()
                                         / (float) struct.bg.getHeight())),
                                 struct.fg.getHeight(),
-                                false
+                                true
                         );
                         break;
                     case "error":
@@ -160,13 +180,13 @@ public class CustomJsonLayout
     @Override
     public void onFailure(Exception e) {
         callback.onAuthenticationFailed(e);
-        handler.removeCallbacks(RESET_RUNNABLE);
     }
 
     private final Runnable RESET_RUNNABLE = () -> {
         currentStruct = null;
         verify.setOnClickListener(null);
         slider.setOnSeekBarChangeListener(null);
+        slider.setVisibility(VISIBLE);
         bg.setTranslationX(0);
         reset();
     };
@@ -174,12 +194,37 @@ public class CustomJsonLayout
     @Override
     public void onSuccess(ParsedJsonStruct result) {
         currentStruct = result;
-        handler.removeCallbacks(RESET_RUNNABLE);
-        handler.postDelayed(RESET_RUNNABLE, currentStruct.ttl * 1000);
+
+        if ("noop".equals(currentStruct.challenge)) {
+            CaptchaTokenHolder.getInstance()
+                    .addNewToken(currentStruct.challenge,
+                            input.getText().toString(),
+                            TimeUnit.SECONDS.toMillis(currentStruct.ttl)
+                    );
+            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+            return;
+        }
+
+        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(currentStruct.ttl));
 
         verify.setOnClickListener(v -> {
-            callback.onAuthenticationComplete(this, currentStruct.challenge, input.getText().toString(), true);
             handler.removeCallbacks(RESET_RUNNABLE);
+
+            CaptchaTokenHolder.getInstance()
+                    .addNewToken(currentStruct.challenge,
+                            input.getText().toString(),
+                            TimeUnit.SECONDS.toMillis(currentStruct.ttl)
+                    );
+
+            CaptchaTokenHolder.CaptchaToken token;
+
+            if (isAutoReply && CaptchaTokenHolder.getInstance().hasToken()) {
+                token = CaptchaTokenHolder.getInstance().getToken();
+            } else {
+                token = new CaptchaTokenHolder.CaptchaToken("", input.getText().toString(), 0);
+            }
+
+            callback.onAuthenticationComplete(this, token, isAutoReply);
         });
 
         if (currentStruct.bg != null) {

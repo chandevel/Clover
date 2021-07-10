@@ -62,9 +62,7 @@ public class FilterWatchManager
     private boolean processing = false;
 
     public FilterWatchManager(
-            BoardRepository boardRepository,
-            FilterEngine filterEngine,
-            WatchManager watchManager
+            BoardRepository boardRepository, FilterEngine filterEngine, WatchManager watchManager
     ) {
         this.boardRepository = boardRepository;
         this.filterEngine = filterEngine;
