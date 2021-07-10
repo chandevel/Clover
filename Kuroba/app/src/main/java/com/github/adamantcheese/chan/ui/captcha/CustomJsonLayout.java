@@ -229,12 +229,12 @@ public class CustomJsonLayout
 
         if (currentStruct.bg != null) {
             slider.setVisibility(VISIBLE);
-            slider.setMax(currentStruct.bg.getWidth());
-            slider.setProgress(currentStruct.bg.getWidth() / 2);
+            slider.setMax(currentStruct.fg.getWidth() / 2);
+            slider.setProgress(slider.getMax() / 2);
             slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    bg.setTranslationX((progress - slider.getMax() / 2f) / 2);
+                    bg.setTranslationX(progress - slider.getMax() / 2f);
                 }
 
                 @Override
