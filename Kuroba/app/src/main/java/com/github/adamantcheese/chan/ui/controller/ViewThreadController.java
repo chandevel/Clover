@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
+import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -117,8 +118,7 @@ public class ViewThreadController
         NavigationItem.MenuOverflowBuilder menuOverflowBuilder = menuBuilder.withOverflow(this);
 
         if (!ChanSettings.enableReplyFab.get()) {
-            menuOverflowBuilder.withSubItem(
-                    OverflowMenuId.REPLY,
+            menuOverflowBuilder.withSubItem(OverflowMenuId.REPLY,
                     R.string.action_reply,
                     () -> threadLayout.openReply(true)
             );
@@ -154,11 +154,21 @@ public class ViewThreadController
 
     private void pinClicked(ToolbarMenuItem item) {
         dismissFloatingMenu();
-        if (threadLayout.getPresenter().pin()) {
-            setPinIconState(true);
 
-            updateDrawerHighlighting(loadable);
+        Pin pin = watchManager.getPinByLoadable(loadable);
+        if (pin == null) {
+            ChanThread thread = threadLayout.getPresenter().getChanThread();
+            if (thread != null) {
+                Post op = thread.getOp();
+                loadable.thumbnailUrl = op.image() == null ? null : op.image().getThumbnailUrl();
+            }
+            watchManager.createPin(loadable);
+        } else {
+            watchManager.deletePin(pin);
         }
+
+        setPinIconState(true);
+        updateDrawerHighlighting(loadable);
     }
 
     public void showYourPosts() {

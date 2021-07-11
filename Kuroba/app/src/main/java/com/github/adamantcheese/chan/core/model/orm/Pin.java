@@ -33,6 +33,8 @@ public class Pin
     @DatabaseField(canBeNull = false, foreign = true)
     public Loadable loadable;
 
+    // Is this pin being watched by the WatchManager?
+    // Note that a pin's watched or not-watched state is different than a pin existing at all
     @DatabaseField
     public boolean watching = true;
 

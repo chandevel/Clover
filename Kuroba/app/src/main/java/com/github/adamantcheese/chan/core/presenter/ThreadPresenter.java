@@ -38,7 +38,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -77,7 +76,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
-import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.io.IOException;
@@ -246,27 +244,6 @@ public class ThreadPresenter
         }
     }
 
-    public synchronized boolean pin() {
-        if (!isBound()) return false;
-        Pin pin = watchManager.findPinByLoadableId(loadable.id);
-        if (pin == null) {
-            if (chanLoader.getThread() != null) {
-                Post op = chanLoader.getThread().getOp();
-                loadable.thumbnailUrl = op.image() == null ? null : op.image().getThumbnailUrl();
-            }
-            watchManager.createPin(loadable);
-            return true;
-        }
-
-        if (pin.watching) {
-            watchManager.deletePin(pin);
-        } else {
-            watchManager.createPin(pin);
-        }
-
-        return true;
-    }
-
     public void onSearchVisibilityChanged(boolean visible) {
         searchOpen = visible;
         threadPresenterCallback.showSearch(visible);
@@ -416,7 +393,7 @@ public class ThreadPresenter
     @Override
     public void onListScrolledToBottom() {
         if (!isBound()) return;
-        if (chanLoader.getThread() != null && loadable.isThreadMode() && chanLoader.getThread().getPosts().size() > 0) {
+        if (chanLoader.getThread() != null && loadable.isThreadMode() && !chanLoader.getThread().getPosts().isEmpty()) {
             List<Post> posts = chanLoader.getThread().getPosts();
             loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
@@ -893,12 +870,14 @@ public class ThreadPresenter
         } else if (linkable.type == PostLinkable.Type.ARCHIVE) {
             if (linkable.value instanceof ThreadLink) {
                 ThreadLink opPostPair = (ThreadLink) linkable.value;
-                Loadable constructed =
-                        Loadable.forThread(Board.fromSiteNameCode(loadable.site, opPostPair.boardCode, opPostPair.boardCode),
-                                opPostPair.threadId,
-                                "",
-                                false
-                        );
+                Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(loadable.site,
+                        opPostPair.boardCode,
+                        opPostPair.boardCode
+                        ),
+                        opPostPair.threadId,
+                        "",
+                        false
+                );
                 showArchives(constructed, opPostPair.postId);
             } else if (linkable.value instanceof ResolveLink) {
                 ResolveLink toResolve = (ResolveLink) linkable.value;
@@ -906,9 +885,10 @@ public class ThreadPresenter
                     showToast(context, "Calling archive API, just a moment!");
                     toResolve.resolve((threadLink) -> {
                         if (threadLink != null) {
-                            Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(toResolve.board.site,
-                                    threadLink.boardCode,
-                                    threadLink.boardCode
+                            Loadable constructed = Loadable.forThread(
+                                    Board.fromSiteNameCode(toResolve.board.site,
+                                            threadLink.boardCode,
+                                            threadLink.boardCode
                                     ),
                                     threadLink.threadId,
                                     "",
