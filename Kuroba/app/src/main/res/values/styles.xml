@@ -259,7 +259,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="android:textColorSecondary">@color/md_grey_500</item>
         <item name="android:textColorHint">@color/md_grey_500</item>
 
-        <item name="divider_color">#00222222</item>
+        <item name="divider_color">#28FFFFFF</item>
         <item name="highlight_linkable_blend">1.3</item>
 
         <item name="post_name_color">#566e78</item>
