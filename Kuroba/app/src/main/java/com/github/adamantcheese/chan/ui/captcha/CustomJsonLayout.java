@@ -72,7 +72,6 @@ public class CustomJsonLayout
         input = findViewById(R.id.captcha_input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                hideKeyboard(input);
                 verify.callOnClick();
                 return true;
             }
@@ -93,6 +92,7 @@ public class CustomJsonLayout
     @Override
     public void reset() {
         if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
+            hideKeyboard(input);
             callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
@@ -179,6 +179,7 @@ public class CustomJsonLayout
 
     @Override
     public void onFailure(Exception e) {
+        hideKeyboard(input);
         callback.onAuthenticationFailed(e);
     }
 
@@ -196,6 +197,7 @@ public class CustomJsonLayout
         currentStruct = result;
 
         if ("noop".equals(currentStruct.challenge)) {
+            hideKeyboard(input);
             CaptchaTokenHolder.getInstance()
                     .addNewToken(currentStruct.challenge,
                             input.getText().toString(),
@@ -209,6 +211,7 @@ public class CustomJsonLayout
 
         verify.setOnClickListener(v -> {
             handler.removeCallbacks(RESET_RUNNABLE);
+            hideKeyboard(input);
 
             CaptchaTokenHolder.getInstance()
                     .addNewToken(currentStruct.challenge,
