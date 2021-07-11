@@ -932,11 +932,13 @@ public class ThreadPresenter
 
     @Override
     public void onPostNoClicked(Post post) {
+        threadPresenterCallback.hidePostsPopup();
         threadPresenterCallback.quote(post, false);
     }
 
     @Override
     public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        threadPresenterCallback.hidePostsPopup();
         threadPresenterCallback.quote(post, quoted);
     }
 
