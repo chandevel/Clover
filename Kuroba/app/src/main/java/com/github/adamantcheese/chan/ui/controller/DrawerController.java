@@ -357,7 +357,7 @@ public class DrawerController
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
             openMessage(getString(R.string.drawer_pins_cleared,
-                    getQuantityString(R.plurals.bookmark, pins.size(), pins.size())
+                    getQuantityString(R.plurals.bookmark, pins.size())
             ), v -> watchManager.addAll(pins), getString(R.string.undo));
         } else {
             int text;

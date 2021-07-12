@@ -72,7 +72,7 @@ public class SiteSetupController
 
     @Override
     public void setBoardCount(int boardCount) {
-        String boardsString = getQuantityString(R.plurals.board, boardCount, boardCount);
+        String boardsString = getQuantityString(R.plurals.board, boardCount);
         String descriptionText = getString(R.string.setup_site_boards_description, boardsString);
         boardsLink.setDescription(descriptionText);
     }

@@ -33,8 +33,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import okhttp3.HttpUrl;
-
 import static com.github.adamantcheese.chan.Chan.inject;
 
 public abstract class SiteBase

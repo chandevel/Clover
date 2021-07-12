@@ -119,7 +119,7 @@ public class AlbumDownloadController
                         : siteNameSafe + File.separator + loadable.boardCode) : null;
                 String message = getString(
                         R.string.album_download_confirm,
-                        getQuantityString(R.plurals.image, checkCount, checkCount),
+                        getQuantityString(R.plurals.image, checkCount),
                         (subFolder != null ? subFolder : "your base saved files location") + "."
                 );
 

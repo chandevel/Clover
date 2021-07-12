@@ -296,8 +296,7 @@ public class FutabaChanReader
         }
 
         if (boardFlagCode != null && boardFlagDescription != null) {
-            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(
-                    ICON_TYPE.BOARD_FLAG,
+            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(ICON_TYPE.BOARD_FLAG,
                     makeArgument("board_code", builder.board.code, "board_flag_code", boardFlagCode)
             );
             builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.BOARD_FLAG,

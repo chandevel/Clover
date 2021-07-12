@@ -49,7 +49,6 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -543,12 +542,7 @@ public class ReplyPresenter
 
                     try {
                         // If the user doesn't have WebView installed it will throw an error
-                        callback.initializeAuthentication(loadable,
-                                authentication,
-                                this,
-                                useV2NoJsCaptcha,
-                                autoReply
-                        );
+                        callback.initializeAuthentication(loadable, authentication, this, useV2NoJsCaptcha, autoReply);
                     } catch (Throwable error) {
                         onAuthenticationFailed(error);
                     }

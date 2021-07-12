@@ -265,7 +265,9 @@ public class StyleRule {
         }
 
         if (spoiler) {
-            spansToApply.add(new Pair<>(new PostLinkable(theme, result, result, PostLinkable.Type.SPOILER), DEFAULT_RENDER_WEIGHT));
+            spansToApply.add(new Pair<>(new PostLinkable(theme, result, result, PostLinkable.Type.SPOILER),
+                    DEFAULT_RENDER_WEIGHT
+            ));
         }
 
         String style = element.attr("style");
@@ -282,7 +284,9 @@ public class StyleRule {
         if (applyFontRules) {
             String color = element.attr("color");
             if (!color.isEmpty()) {
-                spansToApply.add(new Pair<>(new ForegroundColorSpanHashed(Color.parseColor(color)), DEFAULT_RENDER_WEIGHT));
+                spansToApply.add(new Pair<>(new ForegroundColorSpanHashed(Color.parseColor(color)),
+                        DEFAULT_RENDER_WEIGHT
+                ));
             }
             String size = element.attr("size");
             if (!size.isEmpty()) {
@@ -316,19 +320,23 @@ public class StyleRule {
             if (rule.length != 2) continue;
             switch (rule[0]) {
                 case "color":
-                    spansToApply.add(new Pair<>(new ForegroundColorSpanHashed(Color.parseColor(rule[1])), RENDER_WEIGHT));
+                    spansToApply.add(new Pair<>(new ForegroundColorSpanHashed(Color.parseColor(rule[1])),
+                            RENDER_WEIGHT
+                    ));
                     break;
                 case "font-weight":
-                    spansToApply.add(new Pair<>(new StyleSpan(Typeface.BOLD), RENDER_WEIGHT)); // whatever the weight, just make it bold
+                    spansToApply.add(new Pair<>(new StyleSpan(Typeface.BOLD),
+                            RENDER_WEIGHT
+                    )); // whatever the weight, just make it bold
                     break;
                 case "font-size":
                     // for all rules, cap to range 25% - 175%
                     String size = rule[1];
                     if (size.contains("%")) {
-                        float scale = Math.max(
-                                Math.min(Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f, 1.75f),
-                                0.25f
-                        );
+                        float scale =
+                                Math.max(Math.min(Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f, 1.75f),
+                                        0.25f
+                                );
                         spansToApply.add(new Pair<>(new RelativeSizeSpanHashed(scale), RENDER_WEIGHT));
                     } else if (size.contains("px")) {
                         int sizePx = (int) Math.max(Math.min(dp(Float.parseFloat(s.substring(0, size.indexOf("px")))),
@@ -387,7 +395,11 @@ public class StyleRule {
             if (span != null) {
                 //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
                 //we use 1000 here for to go above everything else
-                result.setSpan(span.first, 0, result.length(), (span.second << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
+                result.setSpan(span.first,
+                        0,
+                        result.length(),
+                        (span.second << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                );
             }
         }
         return result;

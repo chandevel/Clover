@@ -38,8 +38,7 @@ public class Chan4DeleteHttpCall
     private final DeleteRequest deleteRequest;
 
     public Chan4DeleteHttpCall(
-            @NonNull NetUtilsClasses.ResponseResult<DeleteResponse> callback,
-            DeleteRequest deleteRequest
+            @NonNull NetUtilsClasses.ResponseResult<DeleteResponse> callback, DeleteRequest deleteRequest
     ) {
         super(callback);
         this.deleteRequest = deleteRequest;

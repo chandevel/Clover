@@ -67,7 +67,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.google.android.material.snackbar.Snackbar;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.ArrayList;
@@ -545,9 +544,9 @@ public class ThreadLayout
 
         String formattedString;
         if (hide) {
-            formattedString = getQuantityString(R.plurals.post_hidden, posts.size(), posts.size());
+            formattedString = getQuantityString(R.plurals.post_hidden, posts.size());
         } else {
-            formattedString = getQuantityString(R.plurals.post_removed, posts.size(), posts.size());
+            formattedString = getQuantityString(R.plurals.post_removed, posts.size());
         }
 
         CancellableSnackbar.showSnackbar(this, formattedString, R.string.undo, v -> {
@@ -581,10 +580,7 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        CancellableSnackbar.showSnackbar(
-                this,
-                getString(R.string.restored_n_posts, postsToRestore.size())
-        );
+        CancellableSnackbar.showSnackbar(this, getString(R.string.restored_n_posts, postsToRestore.size()));
     }
 
     @Override
@@ -598,7 +594,7 @@ public class ThreadLayout
 
         if (threadListLayout.getReplyPresenter().getPage() != Page.AUTHENTICATION) {
             CancellableSnackbar.showSnackbar(this,
-                    getQuantityString(R.plurals.thread_new_posts, more, more),
+                    getQuantityString(R.plurals.new_posts, more),
                     R.string.thread_new_posts_goto,
                     v -> {
                         if (loadable == presenter.getLoadable()) {

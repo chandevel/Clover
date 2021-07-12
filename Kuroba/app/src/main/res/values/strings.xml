@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%d site</item>
         <item quantity="other">%d sites</item>
     </plurals>
-    <plurals name="thread_new_posts">
+    <plurals name="new_posts">
         <item quantity="one">%d new post</item>
         <item quantity="other">%d new posts</item>
     </plurals>
@@ -59,10 +59,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <plurals name="watch_new_quotes">
         <item quantity="one">%d new post quoting you</item>
         <item quantity="other">%d new posts quoting you</item>
-    </plurals>
-    <plurals name="watch_new_quoting">
-        <item quantity="one">%1$d new post, %2$d quoting you</item>
-        <item quantity="other">%1$d new posts, %2$d quoting you</item>
     </plurals>
 
     <string name="empty" />

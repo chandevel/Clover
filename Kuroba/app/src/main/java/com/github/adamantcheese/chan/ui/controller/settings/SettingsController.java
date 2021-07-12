@@ -300,8 +300,7 @@ public abstract class SettingsController
             } else if (payloads.size() == 1) {
                 // called when a preference changes
                 SettingView settingView = group.displayList.get(position);
-                setDescriptionText(
-                        holder.itemView,
+                setDescriptionText(holder.itemView,
                         settingView.getTopDescription(),
                         settingView.getBottomDescription()
                 );

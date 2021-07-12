@@ -472,8 +472,11 @@ public class Chan4
     @Override
     public List<SiteSetting<?>> settings() {
         List<SiteSetting<?>> settings = new ArrayList<>();
-        SiteSetting<?> captchaSetting =
-                new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript", "4chan Custom"));
+        SiteSetting<?> captchaSetting = new SiteSetting<>("Captcha type",
+                OPTIONS,
+                captchaType,
+                Arrays.asList("Javascript", "Noscript", "4chan Custom")
+        );
         SiteSetting<?> spriteMapSetting =
                 new SiteSetting<>("Use sprite maps for board flags", BOOLEAN, spriteSetting, Collections.emptyList());
         settings.add(captchaSetting);

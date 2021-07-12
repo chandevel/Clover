@@ -29,7 +29,8 @@ public class YoutubeEmbedder
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
             "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
     // All the relevant information is hidden away in a var called ytInitialPlayerResponse; we can snag that JSON and use it
-    private static final Pattern API_PARAMS = Pattern.compile("ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\s*;(?:\\s*v)?");
+    private static final Pattern API_PARAMS =
+            Pattern.compile("ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\s*;(?:\\s*v)?");
 
     @Override
     public void setup(CookieJar cookieJar) {

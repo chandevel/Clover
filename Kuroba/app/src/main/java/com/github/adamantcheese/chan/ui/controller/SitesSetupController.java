@@ -251,7 +251,7 @@ public class SitesSetupController
             text.setText(site.name());
 
             int boardCount = siteBoardCount.boardCount;
-            String descriptionText = getQuantityString(R.plurals.board, boardCount, boardCount);
+            String descriptionText = getQuantityString(R.plurals.board, boardCount);
             description.setText(descriptionText);
 
             if (boardCount == 0) {

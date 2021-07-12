@@ -237,26 +237,15 @@ public class WatchNotification
         String message;
         Set<Post> postsForExpandedLines;
         if (notifyQuotesOnly) {
-            message = getQuantityString(R.plurals.watch_new_quotes,
-                    listQuoting.size(),
-                    listQuoting.size(),
-                    listQuoting.size()
-            );
+            message = getQuantityString(R.plurals.watch_new_quotes, listQuoting.size());
             postsForExpandedLines = listQuoting;
         } else {
             postsForExpandedLines = unviewedPosts;
             if (listQuoting.size() > 0) {
-                message = getQuantityString(R.plurals.watch_new_quoting,
-                        unviewedPosts.size(),
-                        unviewedPosts.size(),
-                        listQuoting.size()
-                );
+                message = getQuantityString(R.plurals.new_posts, unviewedPosts.size()) + ", "
+                        + getQuantityString(R.plurals.watch_new_quotes, listQuoting.size());
             } else {
-                message = getQuantityString(R.plurals.thread_new_posts,
-                        unviewedPosts.size(),
-                        unviewedPosts.size(),
-                        unviewedPosts.size()
-                );
+                message = getQuantityString(R.plurals.new_posts, unviewedPosts.size());
             }
         }
 

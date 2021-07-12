@@ -191,8 +191,7 @@ public class ArchiveController
 
         public void setItem(ArchiveItem item, String filter) {
             this.item = item;
-            ((TextView) itemView).setText(StringUtils.applySearchSpans(
-                    ThemeHelper.getTheme(),
+            ((TextView) itemView).setText(StringUtils.applySearchSpans(ThemeHelper.getTheme(),
                     item.description,
                     filter
             ));

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site.http;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 
 import java.io.File;

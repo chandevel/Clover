@@ -78,8 +78,8 @@ public class MainSettingsController
         int siteCount = DatabaseUtils.runTask(databaseSiteManager.getCount());
         int filterCount = DatabaseUtils.runTask(databaseFilterManager.getCount());
 
-        sitesSetting.setDescription(getQuantityString(R.plurals.site, siteCount, siteCount));
-        filtersSetting.setDescription(getQuantityString(R.plurals.filter, filterCount, filterCount));
+        sitesSetting.setDescription(getQuantityString(R.plurals.site, siteCount));
+        filtersSetting.setDescription(getQuantityString(R.plurals.filter, filterCount));
         watchLink.setDescription(ChanSettings.watchEnabled.get() ? (ChanSettings.watchBackground.get()
                 ? R.string.setting_watch_summary_enabled_background
                 : R.string.setting_watch_summary_enabled) : R.string.setting_watch_summary_disabled);

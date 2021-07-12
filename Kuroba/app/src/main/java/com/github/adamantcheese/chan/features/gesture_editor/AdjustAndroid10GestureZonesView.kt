@@ -10,10 +10,8 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
-import com.github.adamantcheese.chan.Chan.inject
 import com.github.adamantcheese.chan.R
 import com.github.adamantcheese.chan.utils.AndroidUtils.getRes
-import javax.inject.Inject
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class AdjustAndroid10GestureZonesView @JvmOverloads constructor(

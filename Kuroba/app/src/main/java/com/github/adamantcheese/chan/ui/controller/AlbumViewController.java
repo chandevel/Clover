@@ -87,7 +87,7 @@ public class AlbumViewController
                 .build();
 
         navigation.title = title;
-        navigation.subtitle = getQuantityString(R.plurals.image, postImages.size(), postImages.size());
+        navigation.subtitle = getQuantityString(R.plurals.image, postImages.size());
         targetIndex = index;
     }
 

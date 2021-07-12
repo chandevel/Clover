@@ -61,9 +61,7 @@ public class ManagerModule {
     @Provides
     @Singleton
     public FilterWatchManager provideFilterWatchManager(
-            BoardRepository boardRepository,
-            FilterEngine filterEngine,
-            WatchManager watchManager
+            BoardRepository boardRepository, FilterEngine filterEngine, WatchManager watchManager
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(boardRepository, filterEngine, watchManager);

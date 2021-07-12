@@ -43,7 +43,6 @@ import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import javax.inject.Inject;
 
@@ -189,7 +188,7 @@ public class BoardSetupController
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
         CancellableSnackbar.showSnackbar(view,
-                getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count, count))
+                getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count))
         );
     }
 

@@ -476,14 +476,14 @@ public class PostCell
 
             int replyCount = threadMode ? post.repliesFrom.size() : post.getReplies();
             SpannableStringBuilder text = new SpannableStringBuilder();
-            text.append(getQuantityString(R.plurals.reply, replyCount, replyCount));
+            text.append(getQuantityString(R.plurals.reply, replyCount));
             if (replyCount > 7 && loadable.isThreadMode()) {
                 text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             }
 
             if (!threadMode && post.getImagesCount() > 0) {
                 text.append(", ")
-                        .append(getQuantityString(R.plurals.image, post.getImagesCount(), post.getImagesCount()));
+                        .append(getQuantityString(R.plurals.image, post.getImagesCount()));
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {

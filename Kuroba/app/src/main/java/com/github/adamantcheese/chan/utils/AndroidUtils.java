@@ -113,11 +113,7 @@ public class AndroidUtils {
     }
 
     public static String getQuantityString(int res, int quantity) {
-        return getRes().getQuantityString(res, quantity);
-    }
-
-    public static String getQuantityString(int res, int quantity, Object... formatArgs) {
-        return getRes().getQuantityString(res, quantity, formatArgs);
+        return getRes().getQuantityString(res, quantity, quantity);
     }
 
     public static SharedPreferences getPreferences() {

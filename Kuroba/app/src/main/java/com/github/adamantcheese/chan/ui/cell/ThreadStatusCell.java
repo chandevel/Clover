@@ -35,7 +35,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 

@@ -423,7 +423,7 @@ public class ThreadListLayout
         if (query != null) {
             int size = getDisplayingPosts().size();
             searchStatus.setText(getString(R.string.search_results,
-                    getQuantityString(R.plurals.posts, size, size),
+                    getQuantityString(R.plurals.posts, size),
                     query
             ));
         }
