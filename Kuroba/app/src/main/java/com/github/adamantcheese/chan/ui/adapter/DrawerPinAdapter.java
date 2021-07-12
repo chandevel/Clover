@@ -145,7 +145,7 @@ public class DrawerPinAdapter
             holder.watchCountText.setVisibility(GONE);
         }
 
-        if (pin.drawerHighlight) {
+        if (pin.shouldHighlight.get()) {
             holder.itemView.setBackground(new ColorDrawable(getAttrColor(context, R.attr.highlight_color)));
         } else {
             holder.itemView.setBackground(getAttrDrawable(context, R.drawable.ripple_item_background));
@@ -178,7 +178,7 @@ public class DrawerPinAdapter
     public void setHighlightedPin(@Nullable Pin highlighted) {
         synchronized (watchManager.getAllPins()) {
             for (Pin p : watchManager.getAllPins()) {
-                p.drawerHighlight = (p == highlighted);
+                p.shouldHighlight.set(p == highlighted);
             }
         }
         notifyItemChanged(watchManager.getAllPins().indexOf(this.highlighted));

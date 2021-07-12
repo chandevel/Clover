@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.model.orm;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.ui.theme.Highlightable;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -26,7 +27,7 @@ import java.util.Objects;
 
 @DatabaseTable(tableName = "pin")
 public class Pin
-        implements Comparable<Pin>, Cloneable {
+        implements Comparable<Pin>, Cloneable, Highlightable {
     @DatabaseField(generatedId = true)
     public int id;
 
@@ -61,9 +62,6 @@ public class Pin
 
     //local field for keeping track of if the thread is a sticky; don't put this in the database
     public boolean isSticky = false;
-
-    //local field for pin highlighting consistency; don't put this in the database
-    public boolean drawerHighlight = false;
 
     public Pin() {
     }

@@ -104,7 +104,7 @@ public class DrawerHistoryAdapter
                     history.loadable.board.name
             ));
 
-            if (history.highlighted) {
+            if (history.shouldHighlight.get()) {
                 holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
                         R.attr.highlight_color
                 )));
@@ -184,7 +184,7 @@ public class DrawerHistoryAdapter
                 History history = getHistory();
 
                 for (History h : historyList) {
-                    h.highlighted = (h == history);
+                    h.shouldHighlight.set(h == history);
                 }
 
                 notifyItemChanged(historyList.indexOf(highlighted));

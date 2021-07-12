@@ -21,6 +21,7 @@ import android.annotation.SuppressLint;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.ui.theme.Highlightable;
 import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.stmt.UpdateBuilder;
@@ -219,9 +220,8 @@ public class DatabaseLoadableManager {
         };
     }
 
-    public static class History {
-        public Loadable loadable;
-        public boolean highlighted;
+    public static class History implements Highlightable {
+        public final Loadable loadable;
 
         public History(Loadable l) {
             loadable = l;
