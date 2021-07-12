@@ -381,7 +381,7 @@ public class DrawerController
             handler.removeCallbacksAndMessages(null);
             synchronized (watchManager.getAllPins()) {
                 for (Pin p : watchManager.getAllPins()) {
-                    p.drawerHighlight = false; // clear all highlights
+                    p.shouldHighlight.set(false); // clear all highlights
                 }
             }
             recyclerView.setAdapter(new DrawerHistoryAdapter(this));
