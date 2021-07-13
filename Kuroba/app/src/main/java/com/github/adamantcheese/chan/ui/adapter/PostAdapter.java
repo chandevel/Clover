@@ -281,7 +281,7 @@ public class PostAdapter
         return false;
     }
 
-    public boolean shouldHighlight(Post post) {
+    public boolean shouldHighlight(@NonNull Post post) {
         return post.id.equals(highlightedId) || post.no == highlightedNo || post.tripcode.equals(highlightedTripcode);
     }
 

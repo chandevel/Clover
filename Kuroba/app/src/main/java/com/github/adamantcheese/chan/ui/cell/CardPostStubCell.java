@@ -17,7 +17,6 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
-import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -64,11 +63,6 @@ public class CardPostStubCell
             Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
             showOptions(v, items, extraItems, extraOption);
         });
-
-        if (!isInEditMode() && ChanSettings.getBoardColumnCount() == 1) {
-            ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
-            invalidate();
-        }
     }
 
     private void showOptions(

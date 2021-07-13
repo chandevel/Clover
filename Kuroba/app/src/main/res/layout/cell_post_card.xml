@@ -24,20 +24,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     app:cardCornerRadius="@dimen/grid_card_corner_radius"
     app:cardElevation="2dp">
 
-    <!-- ratio 9/18 -->
-    <com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/card_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="@drawable/ripple_item_background"
-        android:orientation="vertical"
-        app:layout_ratio="0.5">
+        android:orientation="vertical">
 
         <!-- ratio 16/13 -->
         <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
             android:id="@+id/thumbnail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
             app:ratio="1.2307692307692307692307692307692" />
 
         <View
@@ -45,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="10dp"
             android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/thumbnail"
             tools:background="@color/red"
             tools:visibility="visible" />
 
@@ -54,35 +54,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
+            app:layout_constraintTop_toBottomOf="@id/filter_match_color"
             tools:text="Title goes here" />
 
-        <RelativeLayout
+        <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
+            android:id="@+id/comment"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
-
-            <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
-                android:id="@+id/comment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:ellipsize="end"
-                tools:text="@string/lorem_ipsum" />
-
-            <ProgressBar
-                android:id="@+id/embed_spinner"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentBottom="true"
-                android:indeterminate="true"
-                android:indeterminateTint="?colorAccent"
-                android:indeterminateTintMode="src_atop"
-                android:padding="5dp" />
-        </RelativeLayout>
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toTopOf="@id/replies_section"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintVertical_chainStyle="spread_inside"
+            tools:text="@string/lorem_ipsum" />
 
         <RelativeLayout
+            android:id="@+id/replies_section"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/comment">
 
             <TextView
                 android:id="@+id/replies"
@@ -101,19 +91,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:layout_height="wrap_content"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/options"
+                android:layout_toLeftOf="@id/embed_spinner"
                 android:layout_toRightOf="@id/replies" />
+
+            <ProgressBar
+                android:id="@+id/embed_spinner"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/options"
+                android:indeterminate="true"
+                android:indeterminateTint="?colorAccent"
+                android:indeterminateTintMode="src_atop"
+                android:padding="5dp" />
 
             <ImageView
                 android:id="@+id/options"
                 android:layout_width="wrap_content"
                 android:layout_height="32dp"
                 android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:background="@drawable/ripple_item_background"
                 android:src="@drawable/ic_fluent_more_vertical_20_filled"
                 app:tint="?android:textColorSecondary" />
         </RelativeLayout>
 
-    </com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.github.adamantcheese.chan.ui.cell.CardPostCell>

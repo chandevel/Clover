@@ -655,10 +655,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="color" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="FixedRatioLinearLayout">
-        <attr name="layout_ratio" format="float" />
-    </declare-styleable>
-
     <declare-styleable name="ThumbnailView">
         <attr name="circular" format="boolean" />
     </declare-styleable>

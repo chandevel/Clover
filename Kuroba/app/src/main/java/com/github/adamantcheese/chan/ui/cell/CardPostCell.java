@@ -36,7 +36,6 @@ import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
-import com.github.adamantcheese.chan.ui.layout.FixedRatioLinearLayout;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -122,7 +121,6 @@ public class CardPostCell
         });
 
         if (!isInEditMode() && ChanSettings.getBoardColumnCount() == 1) {
-            ((FixedRatioLinearLayout) findViewById(R.id.card_content)).setRatio(0.0f);
             thumbView.setOnLongClickListener(v -> {
                 callback.onPostClicked(post);
                 return true;
@@ -223,7 +221,7 @@ public class CardPostCell
                 ? null
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
-        comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : Integer.MAX_VALUE);
+        comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : COMMENT_MAX_LINES * 2);
         comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
