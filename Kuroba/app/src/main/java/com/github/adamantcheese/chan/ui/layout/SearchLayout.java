@@ -25,6 +25,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -85,7 +86,8 @@ public class SearchLayout
             }
         });
         searchView.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboard(searchView);
                 if (callback != null) {
                     callback.onSearchEntered(getText());

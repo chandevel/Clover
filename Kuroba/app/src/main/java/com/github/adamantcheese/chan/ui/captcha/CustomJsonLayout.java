@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -71,7 +72,8 @@ public class CustomJsonLayout
         slider = findViewById(R.id.slider);
         input = findViewById(R.id.captcha_input);
         input.setOnEditorActionListener((v, actionId, event) -> {
-            if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
                 verify.callOnClick();
                 return true;
             }

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.captcha;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
@@ -80,7 +81,8 @@ public class LegacyCaptchaLayout
         image.setOnClickListener(v -> reset());
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
+            if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboard(input);
                 submitCaptcha();
                 return true;
