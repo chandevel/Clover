@@ -209,7 +209,8 @@ public class CustomJsonLayout
             return;
         }
 
-        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(currentStruct.ttl));
+        // auto refresh captcha a little before captcha expires
+        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(currentStruct.ttl) - 5);
 
         verify.setOnClickListener(v -> {
             handler.removeCallbacks(RESET_RUNNABLE);
