@@ -30,43 +30,6 @@ public class SiteResolver {
         this.siteRepository = siteRepository;
     }
 
-    /**
-     * Can find a site by it's url (e.g. 4chan.org, 4channel.org) or it's media url (e.g. i.4cdn.org)
-     */
-    @Nullable
-    public Site findSiteForUrl(String url) {
-        HttpUrl httpUrl = sanitizeUrl(url);
-        SiteRepository.Sites sites = siteRepository.all();
-
-        if (httpUrl == null) {
-            for (Site site : sites.getAll()) {
-                SiteUrlHandler siteUrlHandler = site.resolvable();
-
-                if (siteUrlHandler.matchesName(url)) {
-                    return site;
-                }
-            }
-
-            return null;
-        }
-
-        if (!httpUrl.scheme().equals("https")) {
-            httpUrl = httpUrl.newBuilder().scheme("https").build();
-        }
-
-        for (Site site : sites.getAll()) {
-            SiteUrlHandler siteUrlHandler = site.resolvable();
-            if (siteUrlHandler.respondsTo(httpUrl)) {
-                return site;
-            }
-            if (siteUrlHandler.matchesMediaHost(httpUrl)) {
-                return site;
-            }
-        }
-
-        return null;
-    }
-
     public Loadable resolveLoadableForUrl(String url) {
         final HttpUrl httpUrl = sanitizeUrl(url);
 

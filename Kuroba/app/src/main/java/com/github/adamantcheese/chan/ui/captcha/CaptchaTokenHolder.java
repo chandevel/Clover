@@ -6,16 +6,16 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
@@ -23,8 +23,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 public class CaptchaTokenHolder {
     private static final CaptchaTokenHolder instance = new CaptchaTokenHolder();
 
-    private static final long INTERVAL = 5000;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     private Timer timer;
@@ -95,7 +93,7 @@ public class CaptchaTokenHolder {
     private void startTimer() {
         if (running.compareAndSet(false, true)) {
             timer = new Timer();
-            timer.scheduleAtFixedRate(new CheckCaptchaFreshnessTask(), INTERVAL, INTERVAL);
+            timer.scheduleAtFixedRate(new CheckCaptchaFreshnessTask(), 0, TimeUnit.SECONDS.toMillis(5));
 
             Logger.d(this, "Timer started");
         }
@@ -122,7 +120,8 @@ public class CaptchaTokenHolder {
                     captchasCountDecreased = true;
                     it.remove();
 
-                    Logger.d(this, "Captcha token expired, now = " + sdf.format(now) + ", token " + captchaToken);
+                    Logger.d(this, "Token expired at " + StringUtils.getCurrentTimeDefaultLocale());
+                    Logger.d(this, "Token: " + captchaToken);
                 }
             }
 
@@ -183,7 +182,8 @@ public class CaptchaTokenHolder {
         @NonNull
         @Override
         public String toString() {
-            return "validUntil = " + sdf.format(validUntil) + ", token = " + centerEllipsize(token, 16);
+            return "validUntil = " + StringUtils.getTimeDefaultLocale(validUntil) + ", token = "
+                    + centerEllipsize(token, 16);
         }
     }
 }

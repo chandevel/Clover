@@ -20,8 +20,6 @@ import okhttp3.HttpUrl;
 public class Kun8
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private final String[] mediaHosts = new String[]{"media.8kun.top"};
-
         @Override
         public HttpUrl getUrl() {
             return HttpUrl.parse("https://8kun.top/");
@@ -30,11 +28,6 @@ public class Kun8
         @Override
         public String[] getNames() {
             return new String[]{"8kun"};
-        }
-
-        @Override
-        public String[] getMediaHosts() {
-            return mediaHosts;
         }
 
         @Override

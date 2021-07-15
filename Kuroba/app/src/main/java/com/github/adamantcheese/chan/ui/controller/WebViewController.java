@@ -56,6 +56,7 @@ public class WebViewController
     public void onCreate() {
         super.onCreate();
         navigation.title = navTitle;
+        navigation.swipeable = false;
 
         try {
             WebView webView = new WebView(context);

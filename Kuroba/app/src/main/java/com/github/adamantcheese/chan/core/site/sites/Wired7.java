@@ -49,11 +49,6 @@ public class Wired7
         }
 
         @Override
-        public String[] getMediaHosts() {
-            return new String[]{ROOT};
-        }
-
-        @Override
         public String[] getNames() {
             return new String[]{"Wired-7, wired7, Wired7"};
         }

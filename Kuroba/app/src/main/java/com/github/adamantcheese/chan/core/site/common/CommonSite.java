@@ -248,8 +248,6 @@ public abstract class CommonSite
             implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
 
-        public abstract String[] getMediaHosts();
-
         public abstract String[] getNames();
 
         @Override
@@ -264,12 +262,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public boolean matchesMediaHost(@NonNull HttpUrl url) {
-            return SiteUrlHandler.containsMediaHostUrl(url, getMediaHosts());
-        }
-
-        @Override
-        public boolean respondsTo(HttpUrl url) {
+        public boolean respondsTo(@NonNull HttpUrl url) {
             return getUrl().host().equals(url.host());
         }
 

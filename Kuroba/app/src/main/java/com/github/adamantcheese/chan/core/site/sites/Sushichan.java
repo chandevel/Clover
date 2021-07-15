@@ -38,11 +38,6 @@ public class Sushichan
         }
 
         @Override
-        public String[] getMediaHosts() {
-            return new String[]{ROOT};
-        }
-
-        @Override
         public String[] getNames() {
             return new String[]{"sushichan"};
         }

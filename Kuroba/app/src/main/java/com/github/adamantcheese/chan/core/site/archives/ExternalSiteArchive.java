@@ -177,13 +177,8 @@ public abstract class ExternalSiteArchive
         }
 
         @Override
-        public boolean respondsTo(HttpUrl url) {
+        public boolean respondsTo(@NonNull HttpUrl url) {
             return domain.equals(url.host());
-        }
-
-        @Override
-        public boolean matchesMediaHost(@NonNull HttpUrl url) {
-            return false;
         }
 
         @Override

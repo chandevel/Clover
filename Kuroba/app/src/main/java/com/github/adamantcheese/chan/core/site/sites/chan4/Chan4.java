@@ -81,38 +81,36 @@ public class Chan4
     private ChanReader reader;
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
-
-        private final String[] mediaHosts = new String[]{"i.4cdn.org"};
-
-        @Override
-        public boolean matchesMediaHost(@NonNull HttpUrl url) {
-            return SiteUrlHandler.containsMediaHostUrl(url, mediaHosts);
-        }
-
         @Override
         public boolean matchesName(String value) {
             return value.equals("4chan");
         }
 
+        @SuppressWarnings("ConstantConditions")
         @Override
-        public boolean respondsTo(HttpUrl url) {
-            String host = url.host();
-
-            return host.equals("4chan.org") || host.equals("www.4chan.org") || host.equals("boards.4chan.org")
-                    || host.equals("4channel.org") || host.equals("www.4channel.org") || host.equals(
-                    "boards.4channel.org");
+        public boolean respondsTo(@NonNull HttpUrl url) {
+            return url.topPrivateDomain().equalsIgnoreCase(b.topPrivateDomain()) || url.topPrivateDomain()
+                    .equalsIgnoreCase(bSafe.topPrivateDomain());
         }
 
         @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isThreadMode()) {
-                String url = "https://boards.4chan.org/" + loadable.boardCode + "/thread/" + loadable.no;
+                String url = (loadable.board.workSafe ? bSafe : b).newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .addPathSegment("/thread/")
+                        .addPathSegment(String.valueOf(loadable.no))
+                        .build()
+                        .toString();
                 if (postNo > 0 && loadable.no != postNo) {
                     url += "#p" + postNo;
                 }
                 return url;
             } else {
-                return "https://boards.4chan.org/" + loadable.boardCode + "/";
+                return (loadable.board.workSafe ? bSafe : b).newBuilder()
+                        .addPathSegment(loadable.boardCode)
+                        .build()
+                        .toString();
             }
         }
 
@@ -168,7 +166,9 @@ public class Chan4
     private final HttpUrl t = new HttpUrl.Builder().scheme("https").host("i.4cdn.org").build();
     private final HttpUrl s = new HttpUrl.Builder().scheme("https").host("s.4cdn.org").build();
     private final HttpUrl sys = new HttpUrl.Builder().scheme("https").host("sys.4chan.org").build();
-    private final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
+    private final HttpUrl sysSafe = new HttpUrl.Builder().scheme("https").host("sys.4channel.org").build();
+    private static final HttpUrl b = new HttpUrl.Builder().scheme("https").host("boards.4chan.org").build();
+    private static final HttpUrl bSafe = new HttpUrl.Builder().scheme("https").host("boards.4channel.org").build();
 
     private final SiteEndpoints endpoints = new SiteEndpoints() {
         @Override
@@ -292,22 +292,31 @@ public class Chan4
 
         @Override
         public HttpUrl archive(Board board) {
-            return b.newBuilder().addPathSegment(board.code).addPathSegment("archive").build();
+            return (board.workSafe ? bSafe : b).newBuilder()
+                    .addPathSegment(board.code)
+                    .addPathSegment("archive")
+                    .build();
         }
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return sys.newBuilder().addPathSegment(loadable.boardCode).addPathSegment("post").build();
+            return (loadable.board.workSafe ? sysSafe : sys).newBuilder()
+                    .addPathSegment(loadable.boardCode)
+                    .addPathSegment("post")
+                    .build();
         }
 
         @Override
         public HttpUrl delete(Post post) {
-            return sys.newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
+            return (post.board.workSafe ? sysSafe : sys).newBuilder()
+                    .addPathSegment(post.board.code)
+                    .addPathSegment("imgboard.php")
+                    .build();
         }
 
         @Override
         public HttpUrl report(Post post) {
-            return sys.newBuilder()
+            return (post.board.workSafe ? sysSafe : sys).newBuilder()
                     .addPathSegment(post.board.code)
                     .addPathSegment("imgboard.php")
                     .addQueryParameter("mode", "report")
@@ -394,7 +403,7 @@ public class Chan4
                     case V2NOJS:
                         return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, b.toString());
                     case CUSTOM:
-                        HttpUrl.Builder urlBuilder = sys.newBuilder()
+                        HttpUrl.Builder urlBuilder = (loadableWithDraft.board.workSafe ? sysSafe : sys).newBuilder()
                                 .addPathSegment("captcha")
                                 .addQueryParameter("board", loadableWithDraft.board.code);
                         if (loadableWithDraft.isThreadMode()) {

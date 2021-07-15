@@ -37,8 +37,6 @@ import okhttp3.HttpUrl;
 public class Chan420
         extends CommonSite {
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private final String[] mediaHosts = new String[]{"boards.420chan.org"};
-
         @Override
         public HttpUrl getUrl() {
             return HttpUrl.parse("https://420chan.org/");
@@ -47,11 +45,6 @@ public class Chan420
         @Override
         public String[] getNames() {
             return new String[]{"420chan", "420"};
-        }
-
-        @Override
-        public String[] getMediaHosts() {
-            return mediaHosts;
         }
 
         @Override

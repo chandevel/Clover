@@ -38,11 +38,6 @@ public class Lainchan
         }
 
         @Override
-        public String[] getMediaHosts() {
-            return new String[]{ROOT};
-        }
-
-        @Override
         public String[] getNames() {
             return new String[]{"lainchan"};
         }

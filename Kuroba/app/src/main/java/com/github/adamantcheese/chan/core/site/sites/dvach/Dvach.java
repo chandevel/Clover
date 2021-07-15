@@ -42,11 +42,6 @@ public class Dvach
         }
 
         @Override
-        public String[] getMediaHosts() {
-            return new String[]{ROOT};
-        }
-
-        @Override
         public String[] getNames() {
             return new String[]{"dvach", "2ch"};
         }

@@ -79,12 +79,7 @@ public class DummySite
             }
 
             @Override
-            public boolean respondsTo(HttpUrl url) {
-                return false;
-            }
-
-            @Override
-            public boolean matchesMediaHost(@NonNull HttpUrl url) {
+            public boolean respondsTo(@NonNull HttpUrl url) {
                 return false;
             }
 
