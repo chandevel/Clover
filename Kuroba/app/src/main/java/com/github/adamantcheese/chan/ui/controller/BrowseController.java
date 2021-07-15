@@ -205,7 +205,9 @@ public class BrowseController
     private void handleViewMode() {
         ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
-            postViewMode = ChanSettings.PostViewMode.GRID;
+            postViewMode = ChanSettings.useStaggeredGrid.get()
+                    ? ChanSettings.PostViewMode.STAGGER
+                    : ChanSettings.PostViewMode.GRID;
         } else {
             postViewMode = ChanSettings.PostViewMode.LIST;
         }

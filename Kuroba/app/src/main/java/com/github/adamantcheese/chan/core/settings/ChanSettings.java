@@ -108,7 +108,8 @@ public class ChanSettings {
     public enum PostViewMode
             implements OptionSettingItem {
         LIST,
-        GRID;
+        GRID,
+        STAGGER;
 
         @Override
         public String getKey() {
@@ -192,6 +193,7 @@ public class ChanSettings {
     public static final IntegerSetting albumGridSpanCountPortrait;
     public static final IntegerSetting boardGridSpanCountLandscape;
     public static final IntegerSetting albumGridSpanCountLandscape;
+    public static final BooleanSetting useStaggeredGrid;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting alwaysShowPostOptions;
     public static final BooleanSetting enableReplyFab;
@@ -353,6 +355,7 @@ public class ChanSettings {
             albumGridSpanCountPortrait = new IntegerSetting(p, "preference_album_grid_span_count", 0);
             boardGridSpanCountLandscape = new IntegerSetting(p, "preference_board_grid_span_count_landscape", 0);
             albumGridSpanCountLandscape = new IntegerSetting(p, "preference_album_grid_span_count_landscape", 0);
+            useStaggeredGrid = new BooleanSetting(p, "use_staggered_grid", false);
             neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
             alwaysShowPostOptions = new BooleanSetting(p, "preference_always_show_post_options", false);
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);

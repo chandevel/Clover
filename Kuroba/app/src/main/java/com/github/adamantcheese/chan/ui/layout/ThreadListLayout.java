@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -68,6 +69,7 @@ import java.util.TimeZone;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -202,7 +204,11 @@ public class ThreadListLayout
         }
 
         postAdapter.setCompact(compactMode);
-        ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
+        if (postViewMode == STAGGER) {
+            ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
+        } else {
+            ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
+        }
     }
 
     public void setPostViewMode(PostViewMode postViewMode) {
@@ -229,7 +235,22 @@ public class ThreadListLayout
                     setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
                     break;
                 case GRID:
-                    layoutManager = new GridLayoutManager(null, spanCount, GridLayoutManager.VERTICAL, false) {
+                    layoutManager = new GridLayoutManager(getContext(), spanCount) {
+                        @Override
+                        public boolean requestChildRectangleOnScreen(
+                                @NonNull RecyclerView parent,
+                                @NonNull View child,
+                                @NonNull Rect rect,
+                                boolean immediate,
+                                boolean focusedChildVisible
+                        ) {
+                            return false;
+                        }
+                    };
+                    setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor_secondary));
+                    break;
+                case STAGGER:
+                    layoutManager = new StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL) {
                         @Override
                         public boolean requestChildRectangleOnScreen(
                                 @NonNull RecyclerView parent,
@@ -268,10 +289,13 @@ public class ThreadListLayout
 
             switch (postViewMode) {
                 case LIST:
+                case GRID:
                     ((LinearLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
                     break;
-                case GRID:
-                    ((GridLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index, top);
+                case STAGGER:
+                    ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).scrollToPositionWithOffset(index,
+                            top
+                    );
                     break;
             }
 
@@ -422,10 +446,7 @@ public class ThreadListLayout
 
         if (query != null) {
             int size = getDisplayingPosts().size();
-            searchStatus.setText(getString(R.string.search_results,
-                    getQuantityString(R.plurals.posts, size),
-                    query
-            ));
+            searchStatus.setText(getString(R.string.search_results, getQuantityString(R.plurals.posts, size), query));
         }
 
         setRecyclerViewPadding();
@@ -603,7 +624,7 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        int defaultPadding = postViewMode == GRID ? dp(1) : 0;
+        int defaultPadding = postViewMode == LIST ? 0 : dp(1);
         int recyclerTop = defaultPadding + toolbarHeight();
         int recyclerBottom = defaultPadding;
         //reply view padding calculations (before measure)
@@ -683,9 +704,15 @@ public class ThreadListLayout
     private int getTopAdapterPosition() {
         switch (postViewMode) {
             case LIST:
-                return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
             case GRID:
-                return ((GridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+                return ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+            case STAGGER:
+                try {
+                    return ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPositions(
+                            null)[0];
+                } catch (Exception e) {
+                    return -1;
+                }
         }
         return -1;
     }

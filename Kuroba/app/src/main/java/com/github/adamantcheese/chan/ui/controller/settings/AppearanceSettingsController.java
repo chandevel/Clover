@@ -75,6 +75,13 @@ public class AppearanceSettingsController
 
             setupGridColumnsSetting(layout);
 
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(
+                    this,
+                    ChanSettings.useStaggeredGrid,
+                    "Use staggered grid",
+                    "Staggers catalog mode grid instead of everything being inline"
+            )));
+
             requiresRestart.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.neverHideToolbar,
                     R.string.setting_never_hide_toolbar,
