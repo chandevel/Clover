@@ -52,9 +52,11 @@ public class Chan4PassHttpCall
     ) {
         FormBody.Builder formBuilder = new FormBody.Builder();
 
+        // https://github.com/4chan/4chan-API/issues/91#issuecomment-855168518
         if (loginRequest.login) {
             formBuilder.add("id", loginRequest.user);
             formBuilder.add("pin", loginRequest.pass);
+            formBuilder.add("long_login", "1");
         } else {
             formBuilder.add("logout", "1");
         }
@@ -68,6 +70,7 @@ public class Chan4PassHttpCall
         if (!loginRequest.login) {
             return new LoginResponse("Logged out!", true);
         }
+
         String message = "Unknown error";
         try {
             Document document = HTML_CONVERTER.convert(response);
