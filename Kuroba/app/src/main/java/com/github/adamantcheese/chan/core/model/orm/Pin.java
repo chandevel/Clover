@@ -27,7 +27,8 @@ import java.util.Objects;
 
 @DatabaseTable(tableName = "pin")
 public class Pin
-        implements Comparable<Pin>, Cloneable, Highlightable {
+        extends Highlightable
+        implements Comparable<Pin>, Cloneable {
     @DatabaseField(generatedId = true)
     public int id;
 

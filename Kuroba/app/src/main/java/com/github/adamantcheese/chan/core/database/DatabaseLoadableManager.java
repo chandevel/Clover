@@ -221,7 +221,7 @@ public class DatabaseLoadableManager {
     }
 
     public static class History
-            implements Highlightable {
+            extends Highlightable {
         public final Loadable loadable;
 
         public History(Loadable l) {
