@@ -51,6 +51,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.http2.StreamResetException;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
@@ -119,7 +120,13 @@ public class NetUtils {
     ) {
         Request.Builder requestBuilder = new Request.Builder();
         httpCall.setup(requestBuilder, progressListener);
-        applicationClient.newCall(requestBuilder.build()).enqueue(httpCall);
+        OkHttpClient client = applicationClient;
+        if (ChanSettings.verboseLogs.get()) {
+            HttpLoggingInterceptor debuggingInterceptor = new HttpLoggingInterceptor();
+            debuggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
+            client = applicationClient.newBuilder().addNetworkInterceptor(debuggingInterceptor).build();
+        }
+        client.newCall(requestBuilder.build()).enqueue(httpCall);
     }
 
     /**
