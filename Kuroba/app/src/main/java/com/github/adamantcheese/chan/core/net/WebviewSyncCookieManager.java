@@ -4,6 +4,8 @@ import android.webkit.CookieManager;
 
 import androidx.annotation.NonNull;
 
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,10 +17,10 @@ import okhttp3.HttpUrl;
 
 public class WebviewSyncCookieManager
         implements CookieJar {
-    private final CookieJar actualCookieJar;
+    private final PersistentCookieJar actualCookieJar;
     private final CookieManager webviewCookieManager;
 
-    public WebviewSyncCookieManager(@NonNull CookieJar actualCookieJar) {
+    public WebviewSyncCookieManager(@NonNull PersistentCookieJar actualCookieJar) {
         this.actualCookieJar = actualCookieJar;
         this.webviewCookieManager = CookieManager.getInstance();
     }
@@ -72,6 +74,11 @@ public class WebviewSyncCookieManager
         actualCookieJar.saveFromResponse(url, ret);
 
         return ret;
+    }
+
+    public void clear() {
+        webviewCookieManager.removeAllCookie();
+        actualCookieJar.clear();
     }
 
     private static class CustomHashCookie {
