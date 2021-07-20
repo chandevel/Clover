@@ -39,7 +39,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:hint="@string/reply_captcha_text"
+            android:imeOptions="actionDone"
             android:inputType="textVisiblePassword"
+            android:maxLines="1"
             android:textSize="16sp" />
 
         <ImageView
@@ -50,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:background="@drawable/ripple_item_background"
             android:padding="6dp"
             android:src="@drawable/ic_fluent_send_24_filled"
-            app:tint="?attr/themeDrawableColor"/>
+            app:tint="?attr/themeDrawableColor" />
 
     </LinearLayout>
 

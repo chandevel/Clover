@@ -579,7 +579,7 @@ public class ReplyLayout
         }
 
         if (error.getMessage() != null) {
-            return String.format("%s: %s", error.getClass().getSimpleName(), error.getMessage());
+            return error.getMessage();
         }
 
         return error.getClass().getSimpleName();

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -64,7 +65,8 @@ public class SearchLayout
         searchView.setHint(getString(R.string.search_hint));
         searchView.setHintTextColor(getAttrColor(getContext(), android.R.attr.textColorHint));
         searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColorPrimary));
-        searchView.setSingleLine(true);
+        searchView.setMaxLines(1);
+        searchView.setInputType(InputType.TYPE_CLASS_TEXT);
         searchView.setBackgroundResource(0);
         searchView.setPadding(0, 0, 0, 0);
         clearButton = new ImageView(getContext());

@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.util.Base64;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -49,7 +48,7 @@ public class CustomJsonLayout
     private ImageView fg;
     private SeekBar slider;
     private TextInputEditText input;
-    private Button verify;
+    private ImageView verify;
 
     public CustomJsonLayout(Context context) {
         super(context);
