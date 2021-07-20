@@ -56,7 +56,9 @@ public class Chan4PassHttpCall
         if (loginRequest.login) {
             formBuilder.add("id", loginRequest.user);
             formBuilder.add("pin", loginRequest.pass);
-            formBuilder.add("long_login", "1");
+            // disabled as a result of 4chan expecting "long logins" to all be from the same IP address
+            // which is fine on a computer with a relatively static IP, however doesn't work well on mobile
+            // formBuilder.add("long_login", "1");
         } else {
             formBuilder.add("logout", "1");
         }
