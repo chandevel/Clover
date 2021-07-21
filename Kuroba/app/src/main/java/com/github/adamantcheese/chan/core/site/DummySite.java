@@ -235,6 +235,9 @@ public class DummySite
 
             @Override
             public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", "", true); }
+
+            @Override
+            public void clearCookies() {}
         };
     }
 

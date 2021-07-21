@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.site.sites;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
@@ -19,10 +20,12 @@ import okhttp3.HttpUrl;
 
 public class Kun8
         extends CommonSite {
+    private static final HttpUrl ROOT = HttpUrl.get("https://8kun.top/");
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://8kun.top/");
+            return ROOT;
         }
 
         @Override
@@ -138,6 +141,12 @@ public class Kun8
                         "You failed the CAPTCHA",
                         "You may now go back and make your post"
                 );
+            }
+
+            @Override
+            public void clearCookies() {
+                NetUtils.clearCookies(ROOT);
+                NetUtils.clearCookies(HttpUrl.get("https://sys.8kun.top"));
             }
         });
 

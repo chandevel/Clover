@@ -36,10 +36,12 @@ import okhttp3.HttpUrl;
 
 public class Chan420
         extends CommonSite {
+    private static final HttpUrl ROOT = HttpUrl.get("https://420chan.org/");
+
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse("https://420chan.org/");
+            return ROOT;
         }
 
         @Override
@@ -105,6 +107,11 @@ public class Chan420
                         listener.onSuccess(result);
                     }
                 }, new Chan420BoardsParser(Chan420.this), NetUtilsClasses.ONE_DAY_CACHE);
+            }
+
+            @Override
+            public void clearCookies() {
+                NetUtils.clearCookies(ROOT);
             }
         });
         setApi(new TaimabaApi(this));

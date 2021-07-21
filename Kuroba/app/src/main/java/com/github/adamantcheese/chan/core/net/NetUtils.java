@@ -44,6 +44,7 @@ import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Cookie;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -94,6 +95,23 @@ public class NetUtils {
                         Request request = chain.request().newBuilder().header("User-Agent", USER_AGENT).build();
                         return chain.proceed(request);
                     }));
+
+    public static void clearCookies(HttpUrl url) {
+        List<Cookie> cookieList = NetUtils.applicationClient.cookieJar().loadForRequest(url);
+        List<Cookie> expiredList = new ArrayList<>();
+        for (Cookie c : cookieList) {
+            Cookie.Builder builder = new Cookie.Builder().path(c.path()).name(c.name()).value(c.value()).expiresAt(0);
+            if (c.secure()) builder.secure();
+            if (c.httpOnly()) builder.httpOnly();
+            if (c.hostOnly()) {
+                builder.hostOnlyDomain(c.domain());
+            } else {
+                builder.domain(c.domain());
+            }
+            expiredList.add(builder.build());
+        }
+        NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
+    }
 
     // max 1/4 the maximum Dalvik runtime size
     // by default, the max heap size of stock android is 512MiB; keep that in mind if you change things here

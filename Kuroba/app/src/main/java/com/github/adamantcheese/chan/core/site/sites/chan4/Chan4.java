@@ -445,12 +445,25 @@ public class Chan4
                     return true;
                 }
             }
+            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sysSafe)) {
+                if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
+                    return true;
+                }
+            }
             return false;
         }
 
         @Override
         public LoginRequest getLoginDetails() {
             return new LoginRequest(Chan4.this, passUser.get(), passPass.get(), true);
+        }
+
+        @Override
+        public void clearCookies() {
+            NetUtils.clearCookies(sys);
+            NetUtils.clearCookies(sysSafe);
+            NetUtils.clearCookies(b);
+            NetUtils.clearCookies(bSafe);
         }
     };
 

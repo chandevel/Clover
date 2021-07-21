@@ -33,12 +33,12 @@ import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.C
 
 public class Dvach
         extends CommonSite {
-    public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private static final String ROOT = "https://2ch.hk";
+    private static final HttpUrl ROOT = HttpUrl.get("https://2ch.hk");
 
+    public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse(ROOT);
+            return ROOT;
         }
 
         @Override
@@ -205,6 +205,11 @@ public class Dvach
                         listener.onSuccess(result);
                     }
                 }, new DvachBoardsParser(Dvach.this), NetUtilsClasses.ONE_DAY_CACHE);
+            }
+
+            @Override
+            public void clearCookies() {
+                NetUtils.clearCookies(ROOT);
             }
         });
 

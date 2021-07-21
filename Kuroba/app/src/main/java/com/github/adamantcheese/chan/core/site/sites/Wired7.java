@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.sites;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
@@ -40,12 +41,12 @@ import static android.text.TextUtils.isEmpty;
 
 public class Wired7
         extends CommonSite {
-    public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private static final String ROOT = "https://wired-7.org/";
+    private static final HttpUrl ROOT = HttpUrl.get("https://wired-7.org/");
 
+    public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse(ROOT);
+            return ROOT;
         }
 
         @Override
@@ -181,6 +182,11 @@ public class Wired7
                 }
             }
             return replyResponse;
+        }
+
+        @Override
+        public void clearCookies() {
+            NetUtils.clearCookies(ROOT);
         }
     }
 }

@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -158,6 +159,12 @@ public class SiteSetupController
             navigationController.pushController(boardSetupController);
         });
         general.add(boardsLink);
+
+        general.add(new LinkSettingView(this, "Clear cookies for this site", "", ((v, sv) -> {
+            site.actions().clearCookies();
+            setIsLoggedIn(site.actions().isLoggedIn()); // may have changed
+            CancellableToast.showToast(context, "Cleared site cookies!");
+        })));
 
         groups.add(general);
     }

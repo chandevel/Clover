@@ -65,4 +65,6 @@ public interface SiteActions {
     boolean isLoggedIn();
 
     LoginRequest getLoginDetails();
+
+    void clearCookies();
 }

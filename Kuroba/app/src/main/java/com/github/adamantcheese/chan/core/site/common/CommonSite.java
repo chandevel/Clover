@@ -334,11 +334,6 @@ public abstract class CommonSite
             this.site = site;
         }
 
-        @NonNull
-        public SimpleHttpUrl from(String url) {
-            return new SimpleHttpUrl(url);
-        }
-
         @Override
         public HttpUrl catalog(Board board) {
             return null;
@@ -535,6 +530,10 @@ public abstract class CommonSite
         @Override
         public LoginRequest getLoginDetails() {
             return null;
+        }
+
+        @Override
+        public void clearCookies() {
         }
     }
 

@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.site.sites;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
@@ -29,12 +30,11 @@ import okhttp3.HttpUrl;
 
 public class Lainchan
         extends CommonSite {
+    private static final HttpUrl ROOT = HttpUrl.get("https://lainchan.org/");
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
-        private static final String ROOT = "https://lainchan.org/";
-
         @Override
         public HttpUrl getUrl() {
-            return HttpUrl.parse(ROOT);
+            return ROOT;
         }
 
         @Override
@@ -96,7 +96,12 @@ public class Lainchan
         });
 
         setEndpoints(new VichanEndpoints(this, "https://lainchan.org", "https://lainchan.org"));
-        setActions(new VichanActions(this));
+        setActions(new VichanActions(this) {
+            @Override
+            public void clearCookies() {
+                NetUtils.clearCookies(ROOT);
+            }
+        });
         setApi(new VichanApi(this));
         setParser(new VichanCommentParser());
     }
