@@ -225,7 +225,7 @@ public class DummySite
             public void archive(Board board, ResponseResult<InternalSiteArchive> archiveListener) {}
 
             @Override
-            public void login(LoginRequest loginRequest, ResponseResult<LoginResponse> loginListener) {}
+            public void login(String username, String password, ResponseResult<LoginResponse> loginListener) {}
 
             @Override
             public void logout(final ResponseResult<LoginResponse> loginListener) {}

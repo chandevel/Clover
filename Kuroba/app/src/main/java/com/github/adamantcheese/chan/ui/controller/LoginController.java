@@ -96,8 +96,8 @@ public class LoginController
                     }
                 });
             } else {
-                site.actions().login(
-                        new LoginRequest(site, inputToken.getText().toString(), inputPin.getText().toString(), true),
+                site.actions().login(inputToken.getText().toString(),
+                        inputPin.getText().toString(),
                         new ResponseResult<LoginResponse>() {
                             @Override
                             public void onFailure(Exception e) {

@@ -58,7 +58,7 @@ public interface SiteActions {
 
     void archive(Board board, NetUtilsClasses.ResponseResult<InternalSiteArchive> archiveListener);
 
-    void login(LoginRequest loginRequest, NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
+    void login(String username, String password, NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
     void logout(NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 

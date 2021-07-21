@@ -515,7 +515,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public void login(LoginRequest loginRequest, ResponseResult<LoginResponse> loginListener) {
+        public void login(String username, String password, ResponseResult<LoginResponse> loginListener) {
         }
 
         @Override

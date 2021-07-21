@@ -424,11 +424,13 @@ public class Chan4
         }
 
         @Override
-        public void login(LoginRequest loginRequest, final ResponseResult<LoginResponse> loginListener) {
-            passUser.set(loginRequest.user);
-            passPass.set(loginRequest.pass);
+        public void login(String username, String password, final ResponseResult<LoginResponse> loginListener) {
+            passUser.set(username);
+            passPass.set(password);
 
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener), loginRequest));
+            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
+                    new LoginRequest(Chan4.this, passUser.get(), passPass.get(), true)
+            ));
         }
 
         @Override
