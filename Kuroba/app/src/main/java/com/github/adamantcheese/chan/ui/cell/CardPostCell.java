@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
+import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -221,7 +222,16 @@ public class CardPostCell
                 ? null
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
-        comment.setMaxLines(ChanSettings.getBoardColumnCount() != 1 ? COMMENT_MAX_LINES : COMMENT_MAX_LINES * 2);
+        // change the line height depending on the thumbnail height, so wait for a measure
+        OneShotPreDrawListener.add(thumbView, () -> {
+            if (ChanSettings.getBoardColumnCount() != 1) {
+                int maxLines = (int) thumbView.getHeight() / comment.getLineHeight();
+                comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES));
+            } else {
+                comment.setMaxLines(COMMENT_MAX_LINES);
+            }
+        });
+
         comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
