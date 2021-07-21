@@ -228,7 +228,7 @@ public class CardPostCell
                 int maxLines = (int) thumbView.getHeight() / comment.getLineHeight();
                 comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES));
             } else {
-                comment.setMaxLines(COMMENT_MAX_LINES);
+                comment.setMaxLines(COMMENT_MAX_LINES * 2);
             }
         });
 
