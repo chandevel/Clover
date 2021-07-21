@@ -28,6 +28,7 @@ import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -41,6 +42,7 @@ public class CustomJsonLayout
 
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
+    private Call captchaCall;
     private ParsedJsonStruct currentStruct;
 
     private ConstraintLayout wrapper;
@@ -104,73 +106,81 @@ public class CustomJsonLayout
         }
 
         handler.removeCallbacks(RESET_RUNNABLE);
+        if (captchaCall != null) {
+            captchaCall.cancel();
+        }
 
         bg.setImageBitmap(null);
         fg.setImageBitmap(null);
         slider.setProgress(slider.getMax() / 2);
         input.setText(null);
 
-        NetUtils.makeJsonRequest(HttpUrl.get(authentication.baseUrl), new MainThreadResponseResult<>(this), input -> {
-            ParsedJsonStruct struct = new ParsedJsonStruct();
-            int cd = 0;
-            String error = null;
-            input.beginObject();
-            while (input.hasNext()) {
-                switch (input.nextName()) {
-                    case "challenge":
-                        struct.challenge = input.nextString();
-                        break;
-                    case "cd_until":
-                        struct.cdUntil = input.nextLong();
-                        break;
-                    case "img":
-                        byte[] fgData = Base64.decode(input.nextString(), Base64.DEFAULT);
-                        struct.fg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
-                        // resize to wrapping view draw area, capped at 4x image size
-                        int viewWidth = wrapper.getWidth() - wrapper.getPaddingLeft() - wrapper.getPaddingRight();
-                        struct.fg = Bitmap.createScaledBitmap(struct.fg,
-                                Math.min(viewWidth, struct.fg.getWidth() * 4),
-                                (int) (Math.min(viewWidth, struct.fg.getWidth() * 4) * ((float) struct.fg.getHeight()
-                                        / (float) struct.fg.getWidth())),
-                                true
-                        );
-                        break;
-                    case "bg":
-                        byte[] bgData = Base64.decode(input.nextString(), Base64.DEFAULT);
-                        struct.bg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
-                        // resize to match foreground image height
-                        struct.bg = Bitmap.createScaledBitmap(struct.bg,
-                                (int) (struct.fg.getHeight() * ((float) struct.bg.getWidth()
-                                        / (float) struct.bg.getHeight())),
-                                struct.fg.getHeight(),
-                                true
-                        );
-                        break;
-                    case "error":
-                        error = input.nextString();
-                        break;
-                    case "ttl":
-                        struct.ttl = input.nextInt();
-                        break;
-                    case "cd":
-                        cd = input.nextInt();
-                        break;
-                    case "img_width":
-                    case "bg_width":
-                    case "valid_until":
-                    case "img_height":
-                        // unused
-                    default:
-                        input.skipValue();
-                        break;
-                }
-            }
-            input.endObject();
-            if (error != null) {
-                throw new Exception(error + ": " + cd + "s left.");
-            }
-            return struct;
-        }, NetUtilsClasses.NO_CACHE);
+        captchaCall = NetUtils.makeJsonRequest(HttpUrl.get(authentication.baseUrl),
+                new MainThreadResponseResult<>(this),
+                input -> {
+                    ParsedJsonStruct struct = new ParsedJsonStruct();
+                    int cd = 0;
+                    String error = null;
+                    input.beginObject();
+                    while (input.hasNext()) {
+                        switch (input.nextName()) {
+                            case "challenge":
+                                struct.challenge = input.nextString();
+                                break;
+                            case "cd_until":
+                                struct.cdUntil = input.nextLong();
+                                break;
+                            case "img":
+                                byte[] fgData = Base64.decode(input.nextString(), Base64.DEFAULT);
+                                struct.fg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
+                                // resize to wrapping view draw area, capped at 4x image size
+                                int viewWidth =
+                                        wrapper.getWidth() - wrapper.getPaddingLeft() - wrapper.getPaddingRight();
+                                struct.fg = Bitmap.createScaledBitmap(struct.fg,
+                                        Math.min(viewWidth, struct.fg.getWidth() * 4),
+                                        (int) (Math.min(viewWidth, struct.fg.getWidth() * 4) * (
+                                                (float) struct.fg.getHeight() / (float) struct.fg.getWidth())),
+                                        true
+                                );
+                                break;
+                            case "bg":
+                                byte[] bgData = Base64.decode(input.nextString(), Base64.DEFAULT);
+                                struct.bg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
+                                // resize to match foreground image height
+                                struct.bg = Bitmap.createScaledBitmap(struct.bg,
+                                        (int) (struct.fg.getHeight() * ((float) struct.bg.getWidth() / (float) struct.bg
+                                                .getHeight())),
+                                        struct.fg.getHeight(),
+                                        true
+                                );
+                                break;
+                            case "error":
+                                error = input.nextString();
+                                break;
+                            case "ttl":
+                                struct.ttl = input.nextInt();
+                                break;
+                            case "cd":
+                                cd = input.nextInt();
+                                break;
+                            case "img_width":
+                            case "bg_width":
+                            case "valid_until":
+                            case "img_height":
+                                // unused
+                            default:
+                                input.skipValue();
+                                break;
+                        }
+                    }
+                    input.endObject();
+                    if (error != null) {
+                        throw new Exception(error + ": " + cd + "s left.");
+                    }
+                    return struct;
+                },
+                NetUtilsClasses.NO_CACHE
+        );
     }
 
     @Override
@@ -208,8 +218,8 @@ public class CustomJsonLayout
             return;
         }
 
-        // auto refresh captcha a little before captcha expires
-        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(currentStruct.ttl) - 5);
+        // auto refresh captcha a little after captcha expires
+        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(currentStruct.ttl + 5));
 
         verify.setOnClickListener(v -> {
             handler.removeCallbacks(RESET_RUNNABLE);
@@ -255,6 +265,15 @@ public class CustomJsonLayout
 
         bg.setImageBitmap(currentStruct.bg);
         fg.setImageBitmap(currentStruct.fg);
+    }
+
+    public void destroy() {
+        currentStruct = null;
+        if (captchaCall != null) {
+            captchaCall.cancel();
+            captchaCall = null;
+        }
+        handler.removeCallbacks(RESET_RUNNABLE);
     }
 
     protected static class ParsedJsonStruct {

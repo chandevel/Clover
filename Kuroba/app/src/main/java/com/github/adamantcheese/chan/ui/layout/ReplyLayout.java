@@ -552,10 +552,7 @@ public class ReplyLayout
             return;
         }
 
-        // cleanup resources when switching from the new to the old captcha view
-        if (authenticationLayout instanceof CaptchaV2NoJsLayout) {
-            ((CaptchaV2NoJsLayout) authenticationLayout).onDestroy();
-        }
+        authenticationLayout.destroy();
 
         captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;

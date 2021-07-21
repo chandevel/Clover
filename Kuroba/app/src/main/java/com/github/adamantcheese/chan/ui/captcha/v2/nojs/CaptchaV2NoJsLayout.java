@@ -249,7 +249,7 @@ public class CaptchaV2NoJsLayout
         }
     }
 
-    public void onDestroy() {
+    public void destroy() {
         adapter.onDestroy();
         presenter.onDestroy();
     }
