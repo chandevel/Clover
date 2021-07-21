@@ -187,7 +187,7 @@ public class ThreadListLayout
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (postViewMode != GRID || recyclerView.getLayoutManager() == null) return;
+        if (postViewMode == LIST || recyclerView.getLayoutManager() == null) return;
 
         int gridCountSetting = isInEditMode() ? 3 : ChanSettings.getBoardColumnCount();
         boolean compactMode;
