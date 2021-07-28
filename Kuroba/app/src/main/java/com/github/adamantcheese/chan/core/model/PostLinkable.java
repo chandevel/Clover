@@ -16,9 +16,14 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import android.graphics.Color;
+import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.style.ClickableSpan;
+import android.text.style.LineBackgroundSpan;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -31,13 +36,8 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
 
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.EMBED;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.JAVASCRIPT;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrFloat;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 /**
@@ -46,40 +46,52 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
  * and handled if it was a PostLinkable.
  */
 public class PostLinkable
-        extends ClickableSpan {
+        extends ClickableSpan
+        implements LineBackgroundSpan {
     public enum Type {
-        QUOTE, //key: the quote text, value: Integer, post num in text
-        LINK, //key: the link text to display, value: String, the link text url
-        EMBED, // same as LINK, but used for embedding engine stuff
-        EMBED_TEMP, // same as EMBED, but only temporarily added, to be removed later in the embedding process
-        SPOILER, //key: "SPOILER", value: CharSequence, the spoilered text
-        THREAD, //key: the thread link text, value: ThreadLink, matching the board, opNo, and postNo
-        BOARD, //key: the board link text, value: String, the board code
-        SEARCH, //key: the search link text, value: SearchLink, matchinng the board and search query text
-        ARCHIVE, //key: the deadlink text or the `href` for the html tag, value: ThreadLink OR ResolveLink, matching the board, opNo, and postNo or board and postNo, respectively
-        JAVASCRIPT //key: the link text, like "View" or something, value: the javascript that needs to be run on the source webpage
+        QUOTE,              // value: Integer, post num in text
+        LINK,               // value: String, the link text url
+        EMBED_AUTO_LINK,    // same as LINK, but used for embedding engine auto links
+        EMBED_REPLACE_LINK, // same as LINK, but used for embedding engine link replacements (ie youtube titles)
+        EMBED_TEMP,         // same as LINK, but only temporarily added, to be removed later in the embedding process
+        SPOILER,            // value: CharSequence, the spoilered text
+        THREAD,             // value: ThreadLink, matching the board, opNo, and postNo
+        BOARD,              // value: String, the board code
+        SEARCH,             // value: SearchLink, matchinng the board and search query text
+        ARCHIVE,            // value: ThreadLink OR ResolveLink, matching the board, opNo, and postNo or board and postNo, respectively
+        JAVASCRIPT,         // value: String, the javascript that needs to be run on the source webpage
+        OTHER               // value: Object, a catch-all for any other linkables; value is always new Object()
     }
 
-    private final float blendRatio;
     private final int quoteColor;
     private final int spoilerColor;
-    public final CharSequence key;
-    public final Object value;
+    public final Object value; // the value associated with the text, see enum above
     public final Type type;
 
     private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
 
-    public PostLinkable(@NonNull Theme theme, CharSequence key, Object value, Type type) {
-        blendRatio = getAttrFloat(theme.resValue, R.attr.highlight_linkable_blend);
+    private final Paint dashPaint = new Paint();
+    private final Path dashPath = new Path();
+
+    private static final float DASH_SPACING = dp(3); // arbitrary, but looks good
+    private static final float UNDERLINE_THICKNESS = dp(2.392578125f); // same as getUnderlineThickness in API 29+
+    private static final float BASELINE_OFFSET = dp(1.025390625f); // same as getUnderlinePosition in API 29+
+
+    public PostLinkable(@NonNull Theme theme, Object value, Type type) {
         quoteColor = getAttrColor(theme.resValue, R.attr.post_quote_color);
         spoilerColor = getAttrColor(theme.resValue, R.attr.post_spoiler_color);
-        this.key = key;
         this.value = value;
         this.type = type;
+
+        // internal dash paint setup
+        dashPaint.setColor(quoteColor);
+        dashPaint.setStyle(Paint.Style.STROKE);
+        dashPaint.setPathEffect(new DashPathEffect(new float[]{DASH_SPACING, DASH_SPACING}, 0));
+        // only one side of the stroke needs to be this thick, it is doubled automatically
+        dashPaint.setStrokeWidth(UNDERLINE_THICKNESS / 2);
     }
 
-    @Override
     public void onClick(@NonNull View widget) {
         spoilerVisible = !spoilerVisible;
     }
@@ -88,43 +100,80 @@ public class PostLinkable
         this.markedNo = markedNo;
     }
 
-    @Override
-    public void updateDrawState(@NonNull TextPaint ds) {
-        if (type != SPOILER) {
-            ds.setColor(type == LINK || type == EMBED || type == JAVASCRIPT ? ds.linkColor : quoteColor);
-            ds.setUnderlineText(true);
-            ds.setFakeBoldText(false);
-            ds.setTextScaleX(1.0f);
-            if (type == QUOTE && value instanceof Integer && ((int) value) == markedNo) {
-                float[] HSV = new float[3];
-                Color.colorToHSV(quoteColor, HSV);
-                HSV[1] = Math.min(HSV[1] * blendRatio, 1.0f);
-                HSV[2] = Math.min(HSV[2] * blendRatio, 1.0f);
-                int ARGB = Color.HSVToColor(Color.alpha(quoteColor), HSV);
-                ds.setColor(ARGB);
-                ds.setFakeBoldText(true);
-                ds.setTextScaleX(1.1f);
-            }
-        } else {
-            ds.bgColor = spoilerColor;
-            ds.setUnderlineText(false);
-            ds.setFakeBoldText(false);
-            ds.setTextScaleX(1.0f);
-            if (!spoilerVisible) {
-                ds.setColor(spoilerColor);
-            } else {
-                ds.setColor(getContrastColor(spoilerColor));
-            }
-        }
-    }
-
     public boolean isSpoilerVisible() {
         return spoilerVisible;
     }
 
     @Override
+    public void updateDrawState(TextPaint textPaint) {
+        switch (type) {
+            // regular links (external to the application)
+            case LINK:
+            case JAVASCRIPT:
+            case EMBED_AUTO_LINK:
+            case EMBED_REPLACE_LINK:
+            case EMBED_TEMP:
+                textPaint.setColor(textPaint.linkColor);
+                //noinspection fallthrough
+            case OTHER:
+                textPaint.setUnderlineText(true);
+                break;
+            // special postlinkable links (internal to the application)
+            case QUOTE:
+            case SEARCH:
+            case THREAD:
+            case ARCHIVE:
+            case BOARD:
+                textPaint.setColor(quoteColor);
+                // in this case, we want to dotted underline the text, so it is taken care of below in drawBackground
+                textPaint.setUnderlineText(!(value instanceof Integer && ((int) value) == markedNo));
+                break;
+            // spoiler specific
+            case SPOILER:
+                textPaint.bgColor = spoilerColor;
+                textPaint.setColor(spoilerVisible ? getContrastColor(spoilerColor) : spoilerColor);
+                break;
+        }
+    }
+
+    @Override
+    public void drawBackground(
+            @NonNull Canvas canvas,
+            @NonNull Paint paint,
+            int left,
+            int right,
+            int top,
+            int baseline,
+            int bottom,
+            @NonNull CharSequence text,
+            int start,
+            int end,
+            int lineNumber
+    ) {
+        if (type == Type.QUOTE && value instanceof Integer && ((int) value) == markedNo) {
+            // calculate starting position of this span on the line
+            Spanned lineText = (Spanned) text.subSequence(start, end); // the text on this line being rendered
+            int spanStart = lineText.getSpanStart(this); // where this span starts on this line
+            int spanEnd = lineText.getSpanEnd(this); // where this span ends on this line
+            CharSequence preText = lineText.subSequence(0, spanStart); // the text that is before this span
+            CharSequence spanned = lineText.subSequence(spanStart, spanEnd); // the text spanned in this line
+            float preSpannedWidth = paint.measureText(preText, 0, preText.length()); // with previous paint attributes
+            float spannedWidth = paint.measureText(spanned, 0, spanned.length());
+
+            float newLeft = left + preSpannedWidth;
+            float newBottom = bottom - BASELINE_OFFSET * 2;
+
+            // draw dashed line
+            dashPath.rewind();
+            dashPath.moveTo(newLeft, newBottom);
+            dashPath.lineTo(newLeft + spannedWidth, newBottom);
+            canvas.drawPath(dashPath, this.dashPaint);
+        }
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(key.toString(), value.toString(), type.ordinal());
+        return Objects.hash(value.toString(), type.ordinal());
     }
 
     @Override
@@ -132,9 +181,6 @@ public class PostLinkable
         if (obj == null) return false;
         if (!(obj instanceof PostLinkable)) return false;
         PostLinkable linkable = (PostLinkable) obj;
-
-        // We need to ignore the spans here when comparing
-        return linkable.key.toString().equals(this.key.toString()) && linkable.value.equals(this.value) && linkable.type
-                .equals(this.type);
+        return linkable.value.equals(this.value) && linkable.type.equals(this.type);
     }
 }

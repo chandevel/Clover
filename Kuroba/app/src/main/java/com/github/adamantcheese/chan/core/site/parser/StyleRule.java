@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.site.parser;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.StrikethroughSpan;
@@ -55,6 +54,8 @@ public class StyleRule {
         return new StyleRule().tag(tag);
     }
 
+    private static final int DEFAULT_RENDER_WEIGHT = 1000;
+
     private String tag;
     private final List<String> classes = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
@@ -71,7 +72,6 @@ public class StyleRule {
     private boolean monospace;
     private boolean code;
     private boolean trimEndWhitespace;
-    private int size = 0;
     private boolean applyFontRules;
 
     private boolean spoiler = false;
@@ -163,11 +163,6 @@ public class StyleRule {
         return this;
     }
 
-    public StyleRule size(int size) {
-        this.size = size;
-        return this;
-    }
-
     public StyleRule applyFontRules() {
         this.applyFontRules = true;
         return this;
@@ -217,7 +212,6 @@ public class StyleRule {
             result = action.execute(theme, callback, post, result, element);
         }
 
-        int DEFAULT_RENDER_WEIGHT = 1000;
         List<Pair<Object, Integer>> spansToApply = new ArrayList<>(2);
 
         if (backgroundColor != 0) {
@@ -260,12 +254,8 @@ public class StyleRule {
             spansToApply.add(new Pair<>(new CodeBackgroundSpan(theme), DEFAULT_RENDER_WEIGHT));
         }
 
-        if (size != 0) {
-            spansToApply.add(new Pair<>(new AbsoluteSizeSpanHashed(size), DEFAULT_RENDER_WEIGHT));
-        }
-
         if (spoiler) {
-            spansToApply.add(new Pair<>(new PostLinkable(theme, result, result, PostLinkable.Type.SPOILER),
+            spansToApply.add(new Pair<>(new PostLinkable(theme, result, PostLinkable.Type.SPOILER),
                     DEFAULT_RENDER_WEIGHT
             ));
         }
@@ -306,14 +296,14 @@ public class StyleRule {
         }
 
         if (trimEndWhitespace) {
-            result = StringUtils.chomp(new SpannableStringBuilder(result));
+            result = StringUtils.chomp(result);
         }
 
         return result;
     }
 
     private void applyCssStyles(String cssString, List<Pair<Object, Integer>> spansToApply) {
-        int RENDER_WEIGHT = cssStyleInFront ? 600 : 1000;
+        int RENDER_WEIGHT = cssStyleInFront ? (int) (DEFAULT_RENDER_WEIGHT * 0.6f) : DEFAULT_RENDER_WEIGHT;
         String[] styles = cssString.split(";");
         for (String s : styles) {
             String[] rule = s.split(":");
@@ -399,6 +389,7 @@ public class StyleRule {
                         0,
                         result.length(),
                         (span.second << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                 );
             }
         }

@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -134,6 +136,17 @@ public class ThemeSettingsController
 
         @Override
         public void onPostLinkableClicked(Post post, PostLinkable linkable) {
+            switch (linkable.type) {
+                case LINK:
+                case EMBED_AUTO_LINK:
+                case EMBED_REPLACE_LINK:
+                    if (ChanSettings.openLinkBrowser.get()) {
+                        AndroidUtils.openLink((String) linkable.value);
+                    } else {
+                        openLinkInBrowser(context, (String) linkable.value);
+                    }
+                    break;
+            }
         }
 
         @Override
@@ -397,7 +410,8 @@ public class ThemeSettingsController
                     .subject("Lorem ipsum")
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
-                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span>")
+                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
+                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>")
                     .idColor(Color.WHITE);
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())

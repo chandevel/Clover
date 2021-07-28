@@ -18,10 +18,9 @@ package com.github.adamantcheese.chan.core.site.common;
 
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ClickableSpan;
-import android.text.style.StrikethroughSpan;
 import android.view.View;
 
 import androidx.annotation.AnyThread;
@@ -103,15 +102,16 @@ public class DefaultPostParser
             if (l.type == Type.QUOTE) {
                 if (callback.isRemoved((int) l.value)) {
                     builder.repliesToNos.remove((int) l.value);
-                    builder.comment.setSpan(new StrikethroughSpan(),
-                            builder.comment.getSpanStart(l),
-                            builder.comment.getSpanEnd(l),
-                            0
-                    );
-                    builder.comment.setSpan(new ClickableSpan() {
+                    builder.comment.setSpan(new PostLinkable(theme, new Object(), Type.OTHER) {
                         @Override
                         public void onClick(@NonNull View widget) {
                             showToast(widget.getContext(), "This post has been removed.");
+                        }
+
+                        @Override
+                        public void updateDrawState(TextPaint textPaint) {
+                            super.updateDrawState(textPaint);
+                            textPaint.setStrikeThruText(true);
                         }
                     }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), 0);
                     builder.comment.removeSpan(l);

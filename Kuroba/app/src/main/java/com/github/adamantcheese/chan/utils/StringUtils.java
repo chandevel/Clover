@@ -263,8 +263,8 @@ public class StringUtils {
         return sourceCopy;
     }
 
-    // Copied from Apache Commons Lang 3, modified for SpannableStringBuilders
-    public static CharSequence chomp(final SpannableStringBuilder str) {
+    // Copied from Apache Commons Lang 3
+    public static CharSequence chomp(final CharSequence str) {
         if (str == null || str.length() == 0) {
             return str;
         }
@@ -272,7 +272,7 @@ public class StringUtils {
         if (str.length() == 1) {
             final char ch = str.charAt(0);
             if (ch == '\r' || ch == '\n') {
-                return new SpannableStringBuilder("");
+                return "";
             }
             return str;
         }

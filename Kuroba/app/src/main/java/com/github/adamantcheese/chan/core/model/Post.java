@@ -33,6 +33,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -275,6 +276,20 @@ public class Post
         synchronized (comment) {
             List<PostLinkable> linkables = new ArrayList<>();
             Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
+            return linkables;
+        }
+    }
+
+    @MainThread
+    public List<PostLinkable> getQuoteLinkables() {
+        synchronized (comment) {
+            List<PostLinkable> linkables = getLinkables();
+            for (Iterator<PostLinkable> iterator = linkables.iterator(); iterator.hasNext(); ) {
+                PostLinkable l = iterator.next();
+                if (l.type != PostLinkable.Type.QUOTE) {
+                    iterator.remove();
+                }
+            }
             return linkables;
         }
     }

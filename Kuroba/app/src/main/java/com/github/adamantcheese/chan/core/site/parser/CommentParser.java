@@ -22,7 +22,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.JsonReader;
@@ -140,7 +139,7 @@ public class CommentParser {
 
         rule(tagRule("font").applyFontRules());
 
-        rule(tagRule("pre").cssClass("prettyprint").monospace().code().trimEndWhitespace().size(sp(12f)));
+        rule(tagRule("pre").cssClass("prettyprint").code().trimEndWhitespace());
 
         // replaces img tags with an attached image, and any alt-text will become a spoilered text item
         rule(tagRule("img").action((theme, callback, post, text, element) -> {
@@ -150,7 +149,7 @@ public class CommentParser {
                     String alt = element.attr("alt");
                     if (!alt.isEmpty()) {
                         ret = new SpannableString(alt + " ");
-                        ret.setSpan(new PostLinkable(theme, alt, alt, Type.SPOILER),
+                        ret.setSpan(new PostLinkable(theme, alt, Type.SPOILER),
                                 0,
                                 alt.length(),
                                 (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
@@ -294,7 +293,7 @@ public class CommentParser {
         }
 
         SpannableString res = new SpannableString(handlerLink.key);
-        PostLinkable pl = new PostLinkable(theme, handlerLink.key, handlerLink.value, handlerLink.type);
+        PostLinkable pl = new PostLinkable(theme, handlerLink.value, handlerLink.type);
         res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
 
         spannableStringBuilder.append(res);
@@ -329,7 +328,7 @@ public class CommentParser {
 
         // Overrides the text (possibly) parsed by child nodes.
         return span(EXIF_INFO_STRING,
-                new ClickableSpan() {
+                new PostLinkable(theme, new Object(), Type.OTHER) {
                     @Override
                     public void onClick(@NonNull View widget) {
                         AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setMessage(parts)
@@ -353,7 +352,7 @@ public class CommentParser {
         SpannableStringBuilder sjisArt = new SpannableStringBuilder(text);
         sjisArt.setSpan(new CustomTypefaceSpan("", submona), 0, sjisArt.length(), 0);
         return span("[SJIS art available. Click here to view.]",
-                new ClickableSpan() {
+                new PostLinkable(theme, new Object(), Type.OTHER) {
                     @Override
                     public void onClick(@NonNull View widget) {
                         TextView sjisView = new TextView(widget.getContext());
@@ -383,7 +382,6 @@ public class CommentParser {
             List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(builder.board);
             if (!boards.isEmpty()) {
                 PostLinkable newLinkable = new PostLinkable(theme,
-                        text,
                         // if the deadlink is in an external archive, set a resolve link
                         // if the deadlink is in any other site, we don't have enough info to properly link to stuff, so
                         // we assume that deadlinks in an OP are previous threads
@@ -490,9 +488,14 @@ public class CommentParser {
         int l = result.length();
 
         if (additionalSpans != null && additionalSpans.length > 0) {
-            for (Object additionalSpan : additionalSpans) {
+            for (int i = 0; i < additionalSpans.length; i++) {
+                Object additionalSpan = additionalSpans[i];
                 if (additionalSpan != null) {
-                    result.setSpan(additionalSpan, 0, l, 0);
+                    result.setSpan(additionalSpan,
+                            0,
+                            l,
+                            ((500 / (i + 1) << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
+                    );
                 }
             }
         }

@@ -640,11 +640,7 @@ public class PostCell
 
                         //do onclick on all spoiler postlinkables afterwards, so that we don't update the spoiler state early
                         for (ClickableSpan s : link) {
-                            if (s instanceof PostLinkable && ((PostLinkable) s).type == PostLinkable.Type.SPOILER) {
-                                s.onClick(widget);
-                            } else if (!(s instanceof PostLinkable)) {
-                                s.onClick(widget);
-                            }
+                            s.onClick(widget);
                         }
 
                         buffer.removeSpan(BACKGROUND_SPAN);

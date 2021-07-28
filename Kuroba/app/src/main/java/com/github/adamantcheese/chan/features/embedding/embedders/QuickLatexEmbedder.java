@@ -203,7 +203,6 @@ public class QuickLatexEmbedder
                         );
                         // this will be removed before invalidation
                         generatedLinkables.add(new PostLinkable(theme,
-                                imageUrl.toString(),
                                 rawMath,
                                 PostLinkable.Type.EMBED_TEMP
                         ));

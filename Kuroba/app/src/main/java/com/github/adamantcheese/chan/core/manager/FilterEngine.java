@@ -18,9 +18,7 @@ package com.github.adamantcheese.chan.core.manager;
 
 import android.text.Spannable;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.Toast;
 
@@ -33,6 +31,8 @@ import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -286,15 +286,10 @@ public class FilterEngine {
                             Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                     );
                     final String filterPattern = filter.pattern;
-                    ((Spannable) text).setSpan(new ClickableSpan() {
+                    ((Spannable) text).setSpan(new PostLinkable(ThemeHelper.getTheme(), new Object(), Type.OTHER) {
                         @Override
                         public void onClick(@NonNull View widget) {
                             showToast(getAppContext(), "Matching filter: " + filterPattern, Toast.LENGTH_LONG);
-                        }
-
-                        @Override
-                        public void updateDrawState(@NonNull TextPaint ds) {
-                            ds.setUnderlineText(true);
                         }
                     }, result.start(), result.end(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                 }

@@ -834,79 +834,89 @@ public class ThreadPresenter
     @Override
     public void onPostLinkableClicked(Post post, PostLinkable linkable) {
         if (!isBound()) return;
-        if (linkable.type == PostLinkable.Type.QUOTE) {
-            Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
-            if (linked != null) {
-                threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
-            }
-        } else if (linkable.type == PostLinkable.Type.LINK || linkable.type == PostLinkable.Type.EMBED) {
-            threadPresenterCallback.openLink(linkable, (String) linkable.value);
-        } else if (linkable.type == PostLinkable.Type.THREAD) {
-            ThreadLink link = (ThreadLink) linkable.value;
-
-            Board board = loadable.site.board(link.boardCode);
-            if (board != null) {
-                Loadable thread =
-                        Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
-                thread.markedNo = link.postId;
-
-                threadPresenterCallback.showThread(thread);
-            }
-        } else if (linkable.type == PostLinkable.Type.BOARD) {
-            Board board = boardManager.getBoard(loadable.site, (String) linkable.value);
-            if (board == null) {
-                showToast(context, R.string.site_uses_dynamic_boards);
-            } else {
-                threadPresenterCallback.showBoard(Loadable.forCatalog(board));
-            }
-        } else if (linkable.type == PostLinkable.Type.SEARCH) {
-            SearchLink search = (SearchLink) linkable.value;
-            Board board = boardManager.getBoard(loadable.site, search.board);
-            if (board == null) {
-                showToast(context, R.string.site_uses_dynamic_boards);
-            } else {
-                threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(board), search.search);
-            }
-        } else if (linkable.type == PostLinkable.Type.ARCHIVE) {
-            if (linkable.value instanceof ThreadLink) {
-                ThreadLink opPostPair = (ThreadLink) linkable.value;
-                Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(loadable.site,
-                        opPostPair.boardCode,
-                        opPostPair.boardCode
-                        ),
-                        opPostPair.threadId,
-                        "",
-                        false
-                );
-                showArchives(constructed, opPostPair.postId);
-            } else if (linkable.value instanceof ResolveLink) {
-                ResolveLink toResolve = (ResolveLink) linkable.value;
-                if (toResolve.board.site instanceof ExternalSiteArchive) {
-                    showToast(context, "Calling archive API, just a moment!");
-                    toResolve.resolve((threadLink) -> {
-                        if (threadLink != null) {
-                            Loadable constructed = Loadable.forThread(
-                                    Board.fromSiteNameCode(toResolve.board.site,
-                                            threadLink.boardCode,
-                                            threadLink.boardCode
-                                    ),
-                                    threadLink.threadId,
-                                    "",
-                                    false
-                            );
-                            showArchives(constructed, threadLink.postId);
-                        } else {
-                            showToast(context, "Failed to resolve thread external post link!");
-                        }
-                    }, new ResolveLink.ResolveParser(toResolve));
-                } else {
-                    // for any dead links that aren't in an archive, assume that they're a link to a previous thread OP
-                    Loadable constructed = Loadable.forThread(toResolve.board, toResolve.postId, "", false);
-                    showArchives(constructed, toResolve.postId);
+        switch (linkable.type) {
+            case QUOTE:
+                Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
+                if (linked != null) {
+                    threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
                 }
-            }
-        } else if (linkable.type == PostLinkable.Type.JAVASCRIPT) {
-            threadPresenterCallback.openLink(linkable, loadable.desktopUrl(post));
+                break;
+            case LINK:
+            case EMBED_AUTO_LINK:
+            case EMBED_REPLACE_LINK:
+                threadPresenterCallback.openLink(linkable, (String) linkable.value);
+                break;
+            case THREAD:
+                ThreadLink link = (ThreadLink) linkable.value;
+
+                Board board = loadable.site.board(link.boardCode);
+                if (board != null) {
+                    Loadable thread =
+                            Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
+                    thread.markedNo = link.postId;
+
+                    threadPresenterCallback.showThread(thread);
+                }
+                break;
+            case BOARD:
+                Board b = boardManager.getBoard(loadable.site, (String) linkable.value);
+                if (b == null) {
+                    showToast(context, R.string.site_uses_dynamic_boards);
+                } else {
+                    threadPresenterCallback.showBoard(Loadable.forCatalog(b));
+                }
+                break;
+            case SEARCH:
+                SearchLink search = (SearchLink) linkable.value;
+                Board bd = boardManager.getBoard(loadable.site, search.board);
+                if (bd == null) {
+                    showToast(context, R.string.site_uses_dynamic_boards);
+                } else {
+                    threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(bd), search.search);
+                }
+                break;
+            case ARCHIVE:
+                if (linkable.value instanceof ThreadLink) {
+                    ThreadLink opPostPair = (ThreadLink) linkable.value;
+                    Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(loadable.site,
+                            opPostPair.boardCode,
+                            opPostPair.boardCode
+                            ),
+                            opPostPair.threadId,
+                            "",
+                            false
+                    );
+                    showArchives(constructed, opPostPair.postId);
+                } else if (linkable.value instanceof ResolveLink) {
+                    ResolveLink toResolve = (ResolveLink) linkable.value;
+                    if (toResolve.board.site instanceof ExternalSiteArchive) {
+                        showToast(context, "Calling archive API, just a moment!");
+                        toResolve.resolve((threadLink) -> {
+                            if (threadLink != null) {
+                                Loadable constructed = Loadable.forThread(
+                                        Board.fromSiteNameCode(toResolve.board.site,
+                                                threadLink.boardCode,
+                                                threadLink.boardCode
+                                        ),
+                                        threadLink.threadId,
+                                        "",
+                                        false
+                                );
+                                showArchives(constructed, threadLink.postId);
+                            } else {
+                                showToast(context, "Failed to resolve thread external post link!");
+                            }
+                        }, new ResolveLink.ResolveParser(toResolve));
+                    } else {
+                        // for any dead links that aren't in an archive, assume that they're a link to a previous thread OP
+                        Loadable constructed = Loadable.forThread(toResolve.board, toResolve.postId, "", false);
+                        showArchives(constructed, toResolve.postId);
+                    }
+                }
+                break;
+            case JAVASCRIPT:
+                threadPresenterCallback.openLink(linkable, loadable.desktopUrl(post));
+                break;
         }
     }
 
@@ -1164,10 +1174,10 @@ public class ThreadPresenter
         for (PostLinkable linkable : linkables) {
             //skip SPOILER linkables, they aren't useful to display
             if (linkable.type == PostLinkable.Type.SPOILER) continue;
-            String key = linkable.key.toString();
+            CharSequence key = post.comment.subSequence(post.comment.getSpanStart(linkable), post.comment.getSpanEnd(linkable));
             String value = linkable.value.toString();
             //need to trim off starting spaces for certain media links if embedded
-            String trimmedUrl = (key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.substring(2) : key;
+            String trimmedUrl = ((key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.subSequence(2, key.length()) : key).toString();
             boolean speciallyProcessed = false;
             // context doesn't matter here
             for (Embedder e : EmbeddingEngine.getInstance().getEmbedders()) {

@@ -28,7 +28,7 @@ public class TaimabaCommentParser
         super();
         addDefaultRules();
         rule(StyleRule.tagRule("strike").strikeThrough());
-        rule(StyleRule.tagRule("pre").monospace().size(sp(12f)));
+        rule(StyleRule.tagRule("pre").monospace());
         rule(StyleRule.tagRule("blockquote").cssClass("unkfunc").foregroundColor(R.attr.post_inline_quote_color, true));
     }
 }

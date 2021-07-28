@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <attr name="themeDrawableDimmedColor" format="color" />
     <attr name="highlight_color" format="color" />
     <attr name="divider_color" format="color" />
-    <attr name="highlight_linkable_blend" format="float" />
 
     <attr name="backcolor" format="reference|color" />
     <attr name="backcolor_secondary" format="reference|color" />

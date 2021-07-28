@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -96,16 +95,9 @@ public class PostPopupHelper {
     }
 
     private void updateLinkableMarkedNos(RepliesData data, boolean bind) {
+        // only quote linkables need updating, and also we only mark them if there's more than one quote
         for (Post p : data.posts) {
-            // we only care about quote links here
-            List<PostLinkable> linkables = p.getLinkables();
-            for (Iterator<PostLinkable> iterator = linkables.iterator(); iterator.hasNext(); ) {
-                PostLinkable linkable = iterator.next();
-                if (linkable.type != PostLinkable.Type.QUOTE) {
-                    iterator.remove();
-                }
-            }
-            // only set a marked no if there's more than one quote link, for visual clarity
+            List<PostLinkable> linkables = p.getQuoteLinkables();
             for (PostLinkable linkable : linkables) {
                 linkable.setMarkedNo(bind && linkables.size() > 1 ? data.forPostNo : -1);
             }
