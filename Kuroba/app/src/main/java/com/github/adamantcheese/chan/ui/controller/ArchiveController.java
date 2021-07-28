@@ -47,6 +47,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class ArchiveController
         extends Controller
@@ -182,9 +183,9 @@ public class ArchiveController
             super(new TextView(context));
             TextView view = (TextView) itemView;
             view.setLayoutParams(new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
-            view.setMinimumHeight(dp(context, 48));
+            view.setMinimumHeight((int) dp(context, 48));
             view.setGravity(CENTER_VERTICAL);
-            view.setPadding(dp(context, 8), dp(context, 8), dp(context, 8), dp(context, 8));
+            updatePaddings(view, dp(context, 8), dp(context, 8), dp(context, 8), dp(context, 8));
             view.setTextSize(14);
             view.setOnClickListener(v -> onItemClicked(item));
         }

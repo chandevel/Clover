@@ -92,7 +92,7 @@ public class ListSettingView<T>
         }
 
         FloatingMenu<T> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
-        menu.setAnchorGravity(Gravity.LEFT, dp(5), dp(5));
+        menu.setAnchorGravity(Gravity.LEFT, (int) dp(5), (int) dp(5));
         menu.setCallback(new FloatingMenu.ClickCallback<T>() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu<T> menu, FloatingMenuItem<T> item) {

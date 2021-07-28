@@ -108,7 +108,7 @@ public class SearchLayout
                 }, 100);
             }
         });
-        LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, dp(getContext(), 36), 1);
+        LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, (int) dp(getContext(), 36), 1);
         searchViewParams.gravity = Gravity.CENTER_VERTICAL;
         addView(searchView, searchViewParams);
         searchView.setFocusable(true);
@@ -128,7 +128,7 @@ public class SearchLayout
             }
             requestKeyboardFocus(searchView);
         });
-        addView(clearButton, dp(getContext(), 48), MATCH_PARENT);
+        addView(clearButton, (int) dp(getContext(), 48), MATCH_PARENT);
     }
 
     public void setCallback(SearchLayoutCallback callback) {

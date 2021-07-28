@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -96,6 +97,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -115,8 +117,8 @@ public class PostCell
     private RelativeLayout headerWrapper;
     private ConstraintLayout bodyWrapper;
 
-    private int detailsSizePx;
-    private int iconSizePx;
+    private float detailsSizePx;
+    private float iconSizePx;
     private boolean threadMode;
     private boolean ignoreNextOnClick;
 
@@ -158,19 +160,19 @@ public class PostCell
         bodyWrapper = findViewById(R.id.body_wrapper);
 
         int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
-        int paddingPx = dp(getContext(), textSizeSp - 7);
+        float paddingPx = dp(getContext(), textSizeSp - 7);
         detailsSizePx = sp(getContext(), textSizeSp - 4);
 
         thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(getContext(), 2));
-        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(paddingPx, paddingPx, 0, paddingPx);
+        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins((int) paddingPx, (int) paddingPx, 0, (int) paddingPx);
 
         title.setTextSize(textSizeSp);
-        title.setPadding(paddingPx, paddingPx, dp(getContext(), 24), paddingPx / 2);
+        updatePaddings(title, paddingPx, dp(getContext(), 24), paddingPx, paddingPx/2);
 
         iconSizePx = sp(getContext(), textSizeSp);
-        icons.setHeight(iconSizePx);
+        icons.setHeight((int) iconSizePx);
         icons.setSpacing(dp(getContext(), 4));
-        icons.setPadding(paddingPx, 0, dp(getContext(), 24), 0);
+        updatePaddings(icons, paddingPx, dp(getContext(), 24), 0 , 0);
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
@@ -194,10 +196,10 @@ public class PostCell
         }
 
         comment.setTextSize(textSizeSp);
-        comment.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
+        updatePaddings(comment, paddingPx, paddingPx, paddingPx/2, paddingPx);
 
         replies.setTextSize(textSizeSp);
-        replies.setPadding(paddingPx, paddingPx / 2, paddingPx, paddingPx);
+        updatePaddings(replies, paddingPx, paddingPx, paddingPx/2, paddingPx);
         replies.setOnClickListener(v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
@@ -336,7 +338,7 @@ public class PostCell
                                 0
                         ));
         date.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, date.length(), 0);
-        date.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, date.length(), 0);
+        date.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, date.length(), 0);
 
         titleParts.append(date);
 
@@ -351,7 +353,7 @@ public class PostCell
                 SpannableStringBuilder fileInfo = new SpannableStringBuilder().append("\n")
                         .append(applySearchSpans(theme, filename, callback.getSearchQuery()));
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, fileInfo.length(), 0);
                 fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
                 titleParts.append(fileInfo);
             }
@@ -363,7 +365,7 @@ public class PostCell
                 fileInfo.append(image.isInlined ? "" : " " + getReadableFileSize(image.size));
                 fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
                 fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, fileInfo.length(), 0);
+                fileInfo.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, fileInfo.length(), 0);
                 titleParts.append(fileInfo);
             }
         }
@@ -482,8 +484,7 @@ public class PostCell
             }
 
             if (!threadMode && post.getImagesCount() > 0) {
-                text.append(", ")
-                        .append(getQuantityString(R.plurals.image, post.getImagesCount()));
+                text.append(", ").append(getQuantityString(R.plurals.image, post.getImagesCount()));
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
@@ -615,7 +616,7 @@ public class PostCell
                             callback.onPostLinkableClicked(post, linkable1);
                         } else if (linkable2 != null && linkable1 != null) {
                             //spoilered link, figure out which span is the spoiler
-                            if (linkable1.type == PostLinkable.Type.SPOILER) {
+                            if (linkable1.type == Type.SPOILER) {
                                 if (linkable1.isSpoilerVisible()) {
                                     //linkable2 is the link and we're unspoilered
                                     callback.onPostLinkableClicked(post, linkable2);
@@ -623,7 +624,7 @@ public class PostCell
                                     //linkable2 is the link and we're spoilered; don't do the click event on the link yet
                                     link.remove(linkable2);
                                 }
-                            } else if (linkable2.type == PostLinkable.Type.SPOILER) {
+                            } else if (linkable2.type == Type.SPOILER) {
                                 if (linkable2.isSpoilerVisible()) {
                                     //linkable 1 is the link and we're unspoilered
                                     callback.onPostLinkableClicked(post, linkable1);
@@ -728,9 +729,9 @@ public class PostCell
 
     public static class DPSpacingItemDecoration
             extends RecyclerView.ItemDecoration {
-        private final int spacing;
+        private final float spacing;
 
-        public DPSpacingItemDecoration(Context context, int spacing) {
+        public DPSpacingItemDecoration(Context context, float spacing) {
             this.spacing = dp(context, spacing);
         }
 
@@ -742,7 +743,7 @@ public class PostCell
                 @NonNull RecyclerView.State state
         ) {
             super.getItemOffsets(outRect, view, parent, state);
-            outRect.bottom = spacing;
+            outRect.bottom = (int) spacing;
         }
     }
 

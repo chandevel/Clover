@@ -63,7 +63,7 @@ public abstract class ThumbnailView
     private Call bitmapCall;
     private OneShotPreDrawListener drawListener;
     private final boolean circular;
-    private int rounding = 0;
+    private float rounding = 0;
 
     // animate() for ALPHA doesn't call setAlpha but instead some internal function
     // we need setAlpha though, so this class uses a ValueAnimator to take care of that for us
@@ -193,7 +193,7 @@ public abstract class ThumbnailView
         }
     }
 
-    public void setRounding(int rounding) {
+    public void setRounding(float rounding) {
         this.rounding = rounding;
     }
 

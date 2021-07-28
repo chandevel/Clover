@@ -20,11 +20,11 @@ public class FastScrollerHelper {
         StateListDrawable thumb = getThumb(recyclerView.getContext());
         StateListDrawable track = getTrack(recyclerView.getContext());
 
-        final int defaultThickness = dp(4);
-        final int targetWidth = dp(8);
-        final int minimumRange = dp(50);
-        final int margin = dp(0);
-        final int thumbMinLength = dp(23);
+        final int defaultThickness = (int) dp(4);
+        final int targetWidth = (int) dp(8);
+        final int minimumRange = (int) dp(50);
+        final int margin = (int) dp(0);
+        final int thumbMinLength = (int) dp(23);
 
         return new FastScroller(recyclerView,
                 thumb,

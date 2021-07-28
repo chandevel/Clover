@@ -1173,7 +1173,7 @@ public class ThreadPresenter
             for (Embedder e : EmbeddingEngine.getInstance().getEmbedders()) {
                 if (e.shouldEmbed(value)) {
                     if (added.contains(trimmedUrl)) continue;
-                    keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), sp(16)));
+                    keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), (int) sp(16)));
                     added.add(trimmedUrl);
                     speciallyProcessed = true;
                     break;

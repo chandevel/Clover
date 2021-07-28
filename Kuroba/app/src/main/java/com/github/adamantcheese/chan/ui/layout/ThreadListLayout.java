@@ -624,9 +624,9 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        int defaultPadding = postViewMode == LIST ? 0 : dp(1);
-        int recyclerTop = defaultPadding + toolbarHeight();
-        int recyclerBottom = defaultPadding;
+        float defaultPadding = postViewMode == LIST ? 0 : dp(1);
+        float recyclerTop = defaultPadding + toolbarHeight();
+        float recyclerBottom = defaultPadding;
         //reply view padding calculations (before measure)
         if (ChanSettings.moveInputToBottom.get()) {
             reply.setPadding(0, 0, 0, 0);
@@ -663,14 +663,14 @@ public class ThreadListLayout
             recyclerTop += searchStatus.getMeasuredHeight(); //search status has built-in padding for the toolbar height
             recyclerTop -= toolbarHeight();
         }
-        recyclerView.setPadding(defaultPadding, recyclerTop, defaultPadding, recyclerBottom);
+        updatePaddings(recyclerView, defaultPadding, defaultPadding, recyclerTop, recyclerBottom);
 
         swipeRefresh.setProgressViewOffset(
                 false,
                 // hide the refresh
-                recyclerTop - swipeRefresh.getProgressCircleDiameter(),
+                (int) (recyclerTop - swipeRefresh.getProgressCircleDiameter()),
                 // 40 pixels away from the top of all the stuff that could add to the padding
-                recyclerTop + dp(40)
+                (int) (recyclerTop + dp(40))
         );
 
         //reply view padding calculations (after measure)
@@ -770,7 +770,7 @@ public class ThreadListLayout
             float bitmapXCenter = bitmapWrapper.bitmap.getScaledWidth(c) * bitmapWrapper.centerX;
             float bitmapYCenter = bitmapWrapper.bitmap.getScaledHeight(c) * bitmapWrapper.centerY;
             // if in list mode, move it over slightly to align with the thumbnail
-            int thumbnailAdjustment = (postViewMode == LIST ? dp(ChanSettings.fontSize.get() - 7) : 0);
+            float thumbnailAdjustment = (postViewMode == LIST ? dp(ChanSettings.fontSize.get() - 7) : 0);
 
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class CardPostStubCell
         extends CardView
@@ -126,10 +127,10 @@ public class CardPostStubCell
     private void setCompact(boolean compact) {
         int textSizeSp = (isInEditMode() ? 15 : ChanSettings.fontSize.get()) + (compact ? -2 : 0);
         title.setTextSize(textSizeSp);
-        int p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
+        float p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
         // Same as the layout.
-        title.setPadding(p, p, p, p);
-        options.setPadding(p / 2, p / 2, p / 2, p / 2);
+        updatePaddings(title, p, p, p, p);
+        updatePaddings(options, p / 2, p / 2, p / 2, p / 2);
     }
 }

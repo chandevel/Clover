@@ -92,13 +92,13 @@ open class AdjustAndroid10GestureZonesController(
         when (attachSide) {
             AttachSide.Bottom -> {
                 prevLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP)
-                prevLayoutParams.topMargin = TOP_BUTTON_MARGIN
+                prevLayoutParams.topMargin = TOP_BUTTON_MARGIN.toInt()
                 prevLayoutParams.bottomMargin = 0
             }
             AttachSide.Top -> {
                 prevLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
                 prevLayoutParams.topMargin = 0
-                prevLayoutParams.bottomMargin = BOTTOM_BUTTON_MARGIN
+                prevLayoutParams.bottomMargin = BOTTOM_BUTTON_MARGIN.toInt()
             }
             else -> return
         }

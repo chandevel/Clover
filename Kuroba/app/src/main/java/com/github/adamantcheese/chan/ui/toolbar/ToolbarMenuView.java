@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.R;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 /**
  * The container view for the list of ToolbarMenuItems, a list of ImageViews.
@@ -48,7 +49,7 @@ public class ToolbarMenuView
 
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
-        setPadding(dp(6f), 0, dp(3f), 0);
+        updatePaddings(this, dp(6f), dp(3f), 0, 0);
     }
 
     public void attach(ToolbarMenu menu) {
@@ -78,7 +79,7 @@ public class ToolbarMenuView
             imageView.setVisibility(item.visible ? VISIBLE : GONE);
 
             imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
-            imageView.setPadding(dp(10f), 0, dp(10f), 0);
+            updatePaddings(imageView, dp(10f), dp(10f), 0 , 0);
 
             imageView.setImageDrawable(item.drawable);
             imageView.setBackgroundResource(R.drawable.ripple_item_background);

@@ -31,6 +31,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -99,7 +100,7 @@ public class DefaultPostParser
 
         // process any removed posts, and remove any linkables/spans attached
         for (PostLinkable l : builder.getLinkables()) {
-            if (l.type == PostLinkable.Type.QUOTE) {
+            if (l.type == Type.QUOTE) {
                 if (callback.isRemoved((int) l.value)) {
                     builder.repliesToNos.remove((int) l.value);
                     builder.comment.setSpan(new StrikethroughSpan(),
@@ -151,7 +152,7 @@ public class DefaultPostParser
         SpannableString idSpan = null;
         SpannableString capcodeSpan = null;
 
-        int detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
+        float detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
 
         if (!TextUtils.isEmpty(builder.subject)) {
             subjectSpan = new SpannableString(builder.subject);
@@ -170,21 +171,21 @@ public class DefaultPostParser
         if (!TextUtils.isEmpty(builder.tripcode)) {
             tripcodeSpan = new SpannableString(builder.tripcode);
             tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, tripcodeSpan.length(), 0);
-            tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, tripcodeSpan.length(), 0);
+            tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, tripcodeSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(builder.posterId)) {
             idSpan = new SpannableString("  " + builder.posterId + "  ");
             idSpan.setSpan(new ForegroundColorSpanHashed(getContrastColor(builder.idColor)), 0, idSpan.length(), 0);
             idSpan.setSpan(new BackgroundColorSpan(builder.idColor), 0, idSpan.length(), 0);
-            idSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, idSpan.length(), 0);
+            idSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, idSpan.length(), 0);
         }
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
             capcodeSpan = new SpannableString(StringUtils.caseAndSpace(builder.moderatorCapcode, null));
             int accentColor = getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
             capcodeSpan.setSpan(new ForegroundColorSpanHashed(accentColor), 0, capcodeSpan.length(), 0);
-            capcodeSpan.setSpan(new AbsoluteSizeSpanHashed(detailsSizePx), 0, capcodeSpan.length(), 0);
+            capcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, capcodeSpan.length(), 0);
         }
 
         CharSequence nameTripcodeIdCapcodeSpan = new SpannableString("");

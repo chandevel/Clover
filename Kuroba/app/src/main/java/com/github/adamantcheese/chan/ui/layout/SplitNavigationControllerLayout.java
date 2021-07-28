@@ -27,8 +27,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class SplitNavigationControllerLayout
         extends LinearLayout {
-    private final int dividerWidth;
-    private final int minimumLeftWidth;
+    private final float dividerWidth;
+    private final float minimumLeftWidth;
     private final double ratio;
 
     private ViewGroup leftView;
@@ -48,8 +48,8 @@ public class SplitNavigationControllerLayout
 
         setOrientation(LinearLayout.HORIZONTAL);
 
-        dividerWidth = dp(1);
-        minimumLeftWidth = dp(300);
+        dividerWidth = dp(context, 1);
+        minimumLeftWidth = dp(context, 300);
         ratio = 0.35;
     }
 
@@ -67,7 +67,7 @@ public class SplitNavigationControllerLayout
 
     public void build() {
         addView(leftView, new LinearLayout.LayoutParams(0, MATCH_PARENT));
-        addView(divider, new LinearLayout.LayoutParams(dividerWidth, MATCH_PARENT));
+        addView(divider, new LinearLayout.LayoutParams((int) dividerWidth, MATCH_PARENT));
         addView(rightView, new LinearLayout.LayoutParams(0, MATCH_PARENT));
     }
 
@@ -80,11 +80,11 @@ public class SplitNavigationControllerLayout
             throw new IllegalArgumentException();
         }
 
-        int minWidth = Math.min(minimumLeftWidth, widthSize / 2);
-        int leftWidth = Math.max(minWidth, (int) (widthSize * ratio));
-        int rightWidth = widthSize - dividerWidth - leftWidth;
-        leftView.getLayoutParams().width = leftWidth;
-        rightView.getLayoutParams().width = rightWidth;
+        float minWidth = Math.min(minimumLeftWidth, widthSize / 2f);
+        float leftWidth = Math.max(minWidth, (int) (widthSize * ratio));
+        float rightWidth = widthSize - dividerWidth - leftWidth;
+        leftView.getLayoutParams().width = (int) leftWidth;
+        rightView.getLayoutParams().width = (int) rightWidth;
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }

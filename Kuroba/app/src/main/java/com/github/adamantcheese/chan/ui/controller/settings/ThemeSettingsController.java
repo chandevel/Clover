@@ -303,7 +303,7 @@ public class ThemeSettingsController
                 updateAdapter(currentTheme);
             }
         });
-        menu.setPopupHeight(dp(300));
+        menu.setPopupHeight((int) dp(300));
         menu.show();
     }
 
@@ -497,7 +497,7 @@ public class ThemeSettingsController
                         holder.toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
                     }
                 });
-                menu.setPopupHeight(dp(300));
+                menu.setPopupHeight((int) dp(300));
                 menu.show();
             };
             holder.toolbar.setCallback(new Toolbar.ToolbarCallback() {

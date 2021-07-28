@@ -57,7 +57,7 @@ public class NavigationControllerContainerLayout
      * when a controller is being swiped. (The lower it is the easier it is to start moving the controller which may
      * make it harder to click other views)
      */
-    private final int minimalMovedPixels = dp(10);
+    private final float minimalMovedPixels = dp(10);
     private final int maxFlingPixels;
 
     private boolean swipeEnabled = true;
@@ -211,7 +211,7 @@ public class NavigationControllerContainerLayout
 
                 velocityTracker.addMovement(event);
                 velocityTracker.computeCurrentVelocity(1000);
-                int velocity = (int) velocityTracker.getXVelocity();
+                float velocity = velocityTracker.getXVelocity();
 
                 if (translationX > 0) {
                     boolean doFlingAway = false;
@@ -220,7 +220,7 @@ public class NavigationControllerContainerLayout
                             || translationX >= getWidth() * 3 / 4) {
                         velocity = Math.max(dp(2000), velocity);
 
-                        scroller.fling(translationX, 0, velocity, 0, 0, Integer.MAX_VALUE, 0, 0);
+                        scroller.fling(translationX, 0, (int) velocity, 0, 0, Integer.MAX_VALUE, 0, 0);
 
                         // Make sure the animation always goes past the end
                         if (scroller.getFinalX() < getWidth()) {

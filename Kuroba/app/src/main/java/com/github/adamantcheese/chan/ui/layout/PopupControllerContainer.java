@@ -48,13 +48,13 @@ public class PopupControllerContainer
         if (widthMode == MeasureSpec.EXACTLY && widthSize < dp(getContext(), 600)) {
             child.width = widthSize;
         } else {
-            child.width = dp(getContext(), 600);
+            child.width = (int) dp(getContext(), 600);
         }
 
         if (heightMode == MeasureSpec.EXACTLY && heightSize < dp(getContext(), 600)) {
             child.height = heightSize;
         } else {
-            child.height = dp(getContext(), 600);
+            child.height = (int) dp(getContext(), 600);
         }
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);

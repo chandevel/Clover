@@ -38,7 +38,7 @@ public class ColorPickerView
 
     private final Paint paint;
     private final Paint centerPaint;
-    private final int centerRadius;
+    private final float centerRadius;
 
     public ColorPickerView(Context context) {
         super(context);

@@ -300,20 +300,20 @@ public class AndroidUtils {
         return application.getFilesDir().getParentFile();
     }
 
-    public static int dp(float dp) {
-        return (int) (dp * getRes().getDisplayMetrics().density);
+    public static float dp(float dp) {
+        return dp * getRes().getDisplayMetrics().density;
     }
 
-    public static int dp(Context context, float dp) {
-        return (int) (dp * context.getResources().getDisplayMetrics().density);
+    public static float dp(Context context, float dp) {
+        return dp * context.getResources().getDisplayMetrics().density;
     }
 
-    public static int sp(float sp) {
-        return (int) (sp * getRes().getDisplayMetrics().scaledDensity);
+    public static float sp(float sp) {
+        return sp * getRes().getDisplayMetrics().scaledDensity;
     }
 
-    public static int sp(Context context, float sp) {
-        return (int) (sp * context.getResources().getDisplayMetrics().scaledDensity);
+    public static float sp(Context context, float sp) {
+        return sp * context.getResources().getDisplayMetrics().scaledDensity;
     }
 
     public static void requestKeyboardFocus(Dialog dialog, final View view) {
@@ -353,28 +353,28 @@ public class AndroidUtils {
     /**
      * Specify -1 to leave that padding the same as before.
      */
-    public static void updatePaddings(View view, int left, int right, int top, int bottom) {
-        int newLeft = left;
+    public static void updatePaddings(View view, float left, float right, float top, float bottom) {
+        float newLeft = left;
         if (newLeft < 0) {
             newLeft = view.getPaddingLeft();
         }
 
-        int newRight = right;
+        float newRight = right;
         if (newRight < 0) {
             newRight = view.getPaddingRight();
         }
 
-        int newTop = top;
+        float newTop = top;
         if (newTop < 0) {
             newTop = view.getPaddingTop();
         }
 
-        int newBottom = bottom;
+        float newBottom = bottom;
         if (newBottom < 0) {
             newBottom = view.getPaddingBottom();
         }
 
-        view.setPadding(newLeft, newTop, newRight, newBottom);
+        view.setPadding((int) newLeft, (int) newTop, (int) newRight, (int) newBottom);
     }
 
     public static boolean removeFromParentView(View view) {

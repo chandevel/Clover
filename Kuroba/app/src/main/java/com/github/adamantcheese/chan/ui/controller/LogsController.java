@@ -40,6 +40,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class LogsController
         extends Controller {
@@ -60,7 +61,7 @@ public class LogsController
         navigation.buildMenu().withItem(R.drawable.ic_fluent_clipboard_code_24_filled, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
-        container.setPadding(dp(8), dp(8), dp(8), dp(8));
+        updatePaddings(container, dp(8), dp(8), dp(8), dp(8));
         container.setBackgroundColor(Color.BLACK);
         logTextView = new TextView(context);
         logTextView.setTypeface(Typeface.MONOSPACE);

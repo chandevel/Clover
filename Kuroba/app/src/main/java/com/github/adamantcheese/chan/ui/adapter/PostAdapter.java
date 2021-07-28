@@ -114,7 +114,7 @@ public class PostAdapter
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
 
                         int dividerTop = child.getBottom() + params.bottomMargin;
-                        int dividerBottom = dividerTop + dp(4);
+                        int dividerBottom = (int) (dividerTop + dp(4));
 
                         lastSeen.setBounds(0, dividerTop, parent.getWidth(), dividerBottom);
                         lastSeen.draw(c);
@@ -131,7 +131,7 @@ public class PostAdapter
             ) {
                 super.getItemOffsets(outRect, view, parent, state);
                 if (parent.getChildAdapterPosition(view) == lastSeenIndicatorPosition) {
-                    outRect.top = dp(4);
+                    outRect.top = (int) dp(4);
                 }
             }
         };

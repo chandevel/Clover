@@ -41,8 +41,8 @@ public class FloatingMenu<T> {
     private final Context context;
     private final View anchor;
     private int anchorGravity = Gravity.RIGHT;
-    private int anchorOffsetX = -dp(5);
-    private int anchorOffsetY = dp(5);
+    private float anchorOffsetX = -dp(5);
+    private float anchorOffsetY = dp(5);
     private int popupHeight = -1;
     private final List<FloatingMenuItem<T>> items;
     private FloatingMenuItem<T> selectedItem;
@@ -90,8 +90,8 @@ public class FloatingMenu<T> {
         popupWindow.setAnchorView(anchor);
         popupWindow.setModal(true);
         popupWindow.setDropDownGravity(anchorGravity);
-        popupWindow.setVerticalOffset(-anchor.getHeight() + anchorOffsetY);
-        popupWindow.setHorizontalOffset(anchorOffsetX);
+        popupWindow.setVerticalOffset((int) (-anchor.getHeight() + anchorOffsetY));
+        popupWindow.setHorizontalOffset((int) anchorOffsetX);
 
         if (popupHeight > 0) {
             popupWindow.setHeight(popupHeight);
@@ -112,7 +112,7 @@ public class FloatingMenu<T> {
         }
 
         popupWindow.setAdapter(adapter);
-        popupWindow.setWidth(measureContentWidth(dp(3 * 56)));
+        popupWindow.setWidth((int) measureContentWidth(dp(3 * 56)));
 
         popupWindow.setOnItemClickListener((parent, view, position, id) -> {
             if (position >= 0 && position < items.size()) {
@@ -152,9 +152,9 @@ public class FloatingMenu<T> {
         }
     }
 
-    private int measureContentWidth(int minimumSizePx) {
+    private float measureContentWidth(float minimumSizePx) {
         ViewGroup mMeasureParent = new FrameLayout(context);
-        int maxWidth = 0;
+        float maxWidth = 0;
         View itemView = null;
         int itemType = 0;
 
@@ -170,7 +170,7 @@ public class FloatingMenu<T> {
             itemView = adapter.getView(i, itemView, mMeasureParent);
             itemView.measure(widthMeasureSpec, heightMeasureSpec);
 
-            final int itemWidth = itemView.getMeasuredWidth();
+            final float itemWidth = itemView.getMeasuredWidth();
 
             if (itemWidth > maxWidth) {
                 maxWidth = itemWidth;

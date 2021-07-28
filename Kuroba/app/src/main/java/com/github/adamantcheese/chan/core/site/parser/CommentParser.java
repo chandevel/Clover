@@ -77,6 +77,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 @AnyThread
 public class CommentParser {
@@ -339,7 +340,7 @@ public class CommentParser {
                     }
                 },
                 new ForegroundColorSpanHashed(getAttrColor(theme.resValue, R.attr.post_inline_quote_color)),
-                new AbsoluteSizeSpanHashed(sp(12f))
+                new AbsoluteSizeSpanHashed((int) sp(12f))
         );
     }
 
@@ -358,7 +359,7 @@ public class CommentParser {
                         TextView sjisView = new TextView(widget.getContext());
                         sjisView.setMovementMethod(new ScrollingMovementMethod());
                         sjisView.setHorizontallyScrolling(true);
-                        sjisView.setPadding(dp(16), dp(16), dp(16), dp(16));
+                        updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
                         sjisView.setText(sjisArt);
                         AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setView(sjisView)
                                 .setPositiveButton(R.string.close, null)
@@ -368,7 +369,7 @@ public class CommentParser {
                     }
                 },
                 new ForegroundColorSpanHashed(getAttrColor(theme.resValue, R.attr.post_inline_quote_color)),
-                new AbsoluteSizeSpanHashed(sp(12f))
+                new AbsoluteSizeSpanHashed((int) sp(12f))
         );
     }
 

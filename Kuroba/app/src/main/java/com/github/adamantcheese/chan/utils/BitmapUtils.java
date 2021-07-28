@@ -190,7 +190,7 @@ public class BitmapUtils {
      * @param maxHeight the max height of the image
      * @return a bitmap, scaled to the max width and height if needed
      */
-    public static Bitmap decode(InputStream data, int maxWidth, int maxHeight) {
+    public static Bitmap decode(InputStream data, float maxWidth, float maxHeight) {
         Bitmap tempBitmap = BitmapFactory.decodeStream(data);
         if (tempBitmap == null || options.outWidth == -1 || options.outHeight == -1) return null;
 
@@ -198,18 +198,18 @@ public class BitmapUtils {
         return scaleBitmap(tempBitmap, maxWidth, maxHeight);
     }
 
-    private static Bitmap scaleBitmap(Bitmap input, int maxWidth, int maxHeight) {
+    private static Bitmap scaleBitmap(Bitmap input, float maxWidth, float maxHeight) {
         int actualWidth = input.getWidth();
         int actualHeight = input.getHeight();
 
         // Then compute the dimensions we would ideally like.
-        int desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
-        int desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth);
+        float desiredWidth = getResizedDimension(maxWidth, maxHeight, actualWidth, actualHeight);
+        float desiredHeight = getResizedDimension(maxHeight, maxWidth, actualHeight, actualWidth);
 
         // If necessary, scale down to the maximal acceptable size.
         Bitmap bitmap;
         if (actualWidth > desiredWidth || actualHeight > desiredHeight) {
-            bitmap = Bitmap.createScaledBitmap(input, desiredWidth, desiredHeight, true);
+            bitmap = Bitmap.createScaledBitmap(input, (int) desiredWidth, (int) desiredHeight, true);
             input.recycle();
         } else {
             bitmap = input;
@@ -217,7 +217,7 @@ public class BitmapUtils {
         return bitmap;
     }
 
-    private static int getResizedDimension(int maxPrimary, int maxSecondary, int actualPrimary, int actualSecondary) {
+    private static float getResizedDimension(float maxPrimary, float maxSecondary, float actualPrimary, float actualSecondary) {
         // If no dominant value at all, just return the actual.
         if (maxPrimary == 0 && maxSecondary == 0) {
             return actualPrimary;
@@ -236,7 +236,7 @@ public class BitmapUtils {
         return maxPrimary * ratio > maxSecondary ? (int) (maxSecondary / ratio) : maxPrimary;
     }
 
-    public static Bitmap decodeFile(File file, int maxWidth, int maxHeight) {
+    public static Bitmap decodeFile(File file, float maxWidth, float maxHeight) {
         try (FileInputStream fis = new FileInputStream(file)) {
             return BitmapUtils.decode(fis, maxWidth, maxHeight);
         } catch (Throwable e) {
@@ -250,7 +250,7 @@ public class BitmapUtils {
     }
 
     public static Bitmap decodeFilePreviewImage(
-            final File file, int maxWidth, int maxHeight, final ImageDecoderCallback callback, boolean addAudioIcon
+            final File file, float maxWidth, float maxHeight, final ImageDecoderCallback callback, boolean addAudioIcon
     ) {
         if (callback != null) {
             BackgroundUtils.runOnBackgroundThread(() -> {
@@ -263,7 +263,7 @@ public class BitmapUtils {
         }
     }
 
-    private static Bitmap decodeFilePreviewImage(final File file, int maxWidth, int maxHeight, boolean addAudioIcon) {
+    private static Bitmap decodeFilePreviewImage(final File file, float maxWidth, float maxHeight, boolean addAudioIcon) {
         Bitmap result = BitmapRepository.error;
         try {
             // Decode normally, scaling if necessary

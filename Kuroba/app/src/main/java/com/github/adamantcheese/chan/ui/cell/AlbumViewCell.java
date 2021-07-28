@@ -105,7 +105,7 @@ public class AlbumViewCell
                 || !ChanSettings.neverShowAlbumCellInfo.get())) {
             int width = MeasureSpec.getSize(widthMeasureSpec);
 
-            int height = width + dp(getContext(), 32);
+            int height = (int) (width + dp(getContext(), 32));
 
             super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY));
         } else {

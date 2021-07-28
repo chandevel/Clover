@@ -37,8 +37,8 @@ public class PostIcons
     protected static final int HTTP_ICONS_FLAG_TEXT = 0x10;
     protected static final int HTTP_ICONS_FLAG_NO_TEXT = 0x20;
 
-    private int height;
-    private int spacing;
+    private float height;
+    private float spacing;
     private int iconFlags;
     private int previousIcons;
     private final RectF drawRect = new RectF();
@@ -47,7 +47,7 @@ public class PostIcons
     private final Rect textRect = new Rect();
 
     private int httpIconTextColor;
-    private int httpIconTextSize;
+    private float httpIconTextSize;
 
     private List<PostIconsHttpIcon> httpIcons;
 
@@ -66,11 +66,11 @@ public class PostIcons
         setVisibility(GONE);
     }
 
-    public void setHeight(int height) {
+    public void setHeight(float height) {
         this.height = height;
     }
 
-    public void setSpacing(int spacing) {
+    public void setSpacing(float spacing) {
         this.spacing = spacing;
     }
 
@@ -96,7 +96,7 @@ public class PostIcons
         }
     }
 
-    private void setHttpIcons(List<PostHttpIcon> icons, boolean displayText, int size) {
+    private void setHttpIcons(List<PostHttpIcon> icons, boolean displayText, float size) {
         if (icons == null) return;
         set(displayText ? PostIcons.HTTP_ICONS_FLAG_TEXT : PostIcons.HTTP_ICONS_FLAG_NO_TEXT, true);
         httpIconTextColor = getAttrColor(getContext(), R.attr.post_details_color);
@@ -115,7 +115,7 @@ public class PostIcons
         }
     }
 
-    public void setWithText(Post post, int iconSizePx) {
+    public void setWithText(Post post, float iconSizePx) {
         edit();
         set(PostIcons.STICKY_FLAG, post.isSticky());
         set(PostIcons.CLOSED_FLAG, post.isClosed());
@@ -125,7 +125,7 @@ public class PostIcons
         apply();
     }
 
-    public void setWithoutText(Post post, int iconSizePx) {
+    public void setWithoutText(Post post, float iconSizePx) {
         edit();
         set(PostIcons.STICKY_FLAG, post.isSticky());
         set(PostIcons.CLOSED_FLAG, post.isClosed());
@@ -147,9 +147,9 @@ public class PostIcons
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int measureHeight = iconFlags == 0 ? 0 : (height + getPaddingTop() + getPaddingBottom());
+        float measureHeight = iconFlags == 0 ? 0 : (height + getPaddingTop() + getPaddingBottom());
 
-        setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec(measureHeight, EXACTLY));
+        setMeasuredDimension(widthMeasureSpec, MeasureSpec.makeMeasureSpec((int) measureHeight, EXACTLY));
     }
 
     @Override
@@ -197,15 +197,11 @@ public class PostIcons
         }
     }
 
-    private int drawBitmap(Canvas canvas, Bitmap bitmap, int offset) {
-        int width = getScaledWidth(bitmap);
-        drawRect.set(offset, 0f, offset + width, height);
+    private float drawBitmap(Canvas canvas, Bitmap bitmap, int offset) {
+        float scaledWidth = ((float) height / bitmap.getHeight()) * bitmap.getWidth();
+        drawRect.set(offset, 0f, offset + scaledWidth, height);
         canvas.drawBitmap(bitmap, null, drawRect, null);
-        return width + spacing;
-    }
-
-    private int getScaledWidth(Bitmap bitmap) {
-        return (int) (((float) height / bitmap.getHeight()) * bitmap.getWidth());
+        return scaledWidth + spacing;
     }
 
     static class PostIconsHttpIcon {

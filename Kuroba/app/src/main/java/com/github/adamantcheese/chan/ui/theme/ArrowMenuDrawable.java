@@ -49,7 +49,7 @@ public class ArrowMenuDrawable
     // wont look different
     private final Path mPath = new Path();
     // The reported intrinsic size of the drawable.
-    private final int mSize = dp(24f);
+    private final float mSize = dp(24f);
     // Whether we should mirror animation when animation is reversed.
     private boolean mVerticalMirror = false;
     // The interpolated version of the original progress
@@ -163,12 +163,12 @@ public class ArrowMenuDrawable
 
     @Override
     public int getIntrinsicHeight() {
-        return mSize;
+        return (int) mSize;
     }
 
     @Override
     public int getIntrinsicWidth() {
-        return mSize;
+        return (int) mSize;
     }
 
     @Override

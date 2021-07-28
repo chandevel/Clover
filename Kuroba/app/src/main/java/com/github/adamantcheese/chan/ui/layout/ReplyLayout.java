@@ -304,7 +304,7 @@ public class ReplyLayout
                     flag.setText(item.getId());
                 }
             });
-            menu.setPopupHeight(dp(300));
+            menu.setPopupHeight((int) dp(300));
             menu.show();
         });
         options.addTextChangedListener(this);
@@ -743,7 +743,7 @@ public class ReplyLayout
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
         comment.setMaxLines(expanded ? 500 : 6);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, expanded ? dp(300) : dp(200)));
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, (int) dp(expanded ? 300 : 200)));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
 
         setDividerVisibility(expanded);

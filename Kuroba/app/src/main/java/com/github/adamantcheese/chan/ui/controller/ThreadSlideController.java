@@ -88,7 +88,7 @@ public class ThreadSlideController
             slidingPaneLayout.setSliderFadeColor(Color.TRANSPARENT);
         } else {
             //regular slide stuff, with view dimming
-            slidingPaneLayout.setParallaxDistance(dp(100));
+            slidingPaneLayout.setParallaxDistance((int) dp(100));
             slidingPaneLayout.setShadowResourceLeft(R.drawable.panel_shadow);
             int fadeColor = (getAttrColor(context, R.attr.backcolor) & 0xffffff) + 0xCC000000;
             slidingPaneLayout.setSliderFadeColor(fadeColor);

@@ -34,6 +34,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class StringSettingView
         extends SettingView
@@ -76,7 +77,7 @@ public class StringSettingView
     @Override
     public void onClick(View v) {
         LinearLayout container = new LinearLayout(v.getContext());
-        container.setPadding(dp(24), dp(8), dp(24), 0);
+        updatePaddings(container, dp(24), dp(24), dp(8), 0);
 
         final EditText editText = new EditText(v.getContext());
         editText.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN);

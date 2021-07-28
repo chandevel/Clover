@@ -123,9 +123,9 @@ public class BrowseBoardsFloatingMenu
         recyclerView.setElevation(dp(4));
 
         // View attaching
-        int recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
-        LayoutParams params = new LayoutParams(recyclerWidth, WRAP_CONTENT);
-        params.setMargins(dp(5), dp(5), dp(5), dp(5));
+        float recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
+        LayoutParams params = new LayoutParams((int) recyclerWidth, WRAP_CONTENT);
+        params.setMargins((int) dp(5), (int) dp(5), (int) dp(5), (int) dp(5));
         addView(recyclerView, params);
 
         adapter = new BrowseBoardsAdapter();

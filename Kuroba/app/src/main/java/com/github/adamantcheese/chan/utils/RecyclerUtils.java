@@ -76,12 +76,12 @@ public class RecyclerUtils {
         final ColorDrawable divider = new ColorDrawable(getAttrColor(context, R.attr.divider_color)) {
             @Override
             public int getIntrinsicHeight() {
-                return dp(context, 1);
+                return (int) dp(context, 1);
             }
 
             @Override
             public int getIntrinsicWidth() {
-                return dp(context, 1);
+                return (int) dp(context, 1);
             }
         };
 
@@ -89,7 +89,7 @@ public class RecyclerUtils {
             @Override
             public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 super.onDraw(c, parent, state);
-                int paddingPx = dp(parent.getContext(), ChanSettings.fontSize.get() - 6);
+                float paddingPx = dp(parent.getContext(), ChanSettings.fontSize.get() - 6);
                 for (int i = 0; i < parent.getChildCount(); i++) {
                     View child = parent.getChildAt(i);
                     if (shouldShowDivider.shouldShowDivider(parent.getAdapter().getItemCount(),
@@ -97,7 +97,7 @@ public class RecyclerUtils {
                     )) {
                         RecyclerView.LayoutParams params = (RecyclerView.LayoutParams) child.getLayoutParams();
 
-                        int dividerTop, dividerBottom;
+                        float dividerTop, dividerBottom;
                         if (shouldShowDivider.showDividerTop()) {
                             dividerTop = child.getTop() - params.topMargin;
                             dividerBottom = dividerTop - dp(1);
@@ -106,7 +106,11 @@ public class RecyclerUtils {
                             dividerBottom = dividerTop + dp(1);
                         }
 
-                        divider.setBounds(paddingPx, dividerTop, parent.getWidth() - paddingPx, dividerBottom);
+                        divider.setBounds((int) paddingPx,
+                                (int) dividerTop,
+                                (int) (parent.getWidth() - paddingPx),
+                                (int) dividerBottom
+                        );
                         divider.draw(c);
                     }
                 }
@@ -124,9 +128,9 @@ public class RecyclerUtils {
                         parent.getChildAdapterPosition(view)
                 )) {
                     if (shouldShowDivider.showDividerTop()) {
-                        outRect.bottom = dp(1);
+                        outRect.bottom = (int) dp(1);
                     } else {
-                        outRect.top = dp(1);
+                        outRect.top = (int) dp(1);
                     }
                 }
             }

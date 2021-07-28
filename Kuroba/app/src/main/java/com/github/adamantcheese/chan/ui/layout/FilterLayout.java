@@ -273,7 +273,7 @@ public class FilterLayout
             }
 
             FloatingMenu<FilterAction> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
-            menu.setAnchorGravity(Gravity.LEFT, -dp(5), -dp(5));
+            menu.setAnchorGravity(Gravity.LEFT, (int) -dp(5), (int) -dp(5));
             menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
                 @Override
                 public void onFloatingMenuItemClicked(
@@ -324,7 +324,7 @@ public class FilterLayout
                         updateFilterAction();
                     })
                     .show();
-            dialog.getWindow().setLayout(dp(300), dp(300));
+            dialog.getWindow().setLayout((int) dp(300), (int) dp(300));
         }
     }
 

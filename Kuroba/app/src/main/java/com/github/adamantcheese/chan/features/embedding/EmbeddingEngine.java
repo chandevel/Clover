@@ -522,9 +522,9 @@ public class EmbeddingEngine
 
                 // Set the icon span for the linkable
                 ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
-                int height = sp(ChanSettings.fontSize.get());
+                float height = sp(ChanSettings.fontSize.get());
                 int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
-                siteIcon.getDrawable().setBounds(0, 0, width, height);
+                siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
                 replacement.setSpan(siteIcon,
                         0,
                         1,

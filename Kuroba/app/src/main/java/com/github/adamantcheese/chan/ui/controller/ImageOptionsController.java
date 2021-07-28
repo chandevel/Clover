@@ -196,11 +196,11 @@ public class ImageOptionsController
             // isCurrentlyVisible ? action fullscreened : action minimized
             optionsGroup.setVisibility(isCurrentlyVisible ? GONE : VISIBLE);
             int dimX = isCurrentlyVisible ? getWindowSize().x : MATCH_PARENT;
-            int dimY = isCurrentlyVisible ? getWindowSize().y : dp(0);
+            int dimY = isCurrentlyVisible ? getWindowSize().y : 0;
             int weight = isCurrentlyVisible ? 0 : 1;
             preview.setLayoutParams(new LinearLayout.LayoutParams(dimX, dimY, weight));
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) container.getLayoutParams();
-            params.width = isCurrentlyVisible ? WRAP_CONTENT : dp(300);
+            params.width = isCurrentlyVisible ? WRAP_CONTENT : (int) dp(300);
             params.height = WRAP_CONTENT;
             container.setLayoutParams(params);
         });

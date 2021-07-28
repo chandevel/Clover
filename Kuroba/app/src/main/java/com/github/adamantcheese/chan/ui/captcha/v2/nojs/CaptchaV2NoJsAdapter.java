@@ -23,7 +23,7 @@ public class CaptchaV2NoJsAdapter
         extends BaseAdapter {
     private static final int ANIMATION_DURATION = 50;
 
-    private int imageSize = 0;
+    private float imageSize = 0;
 
     private final List<ImageChallengeInfo> imageList = new ArrayList<>();
 
@@ -64,7 +64,7 @@ public class CaptchaV2NoJsAdapter
             ConstraintLayout blueCheckmarkHolder =
                     convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 
-            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(imageSize, imageSize);
+            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams((int) imageSize, (int) imageSize);
             imageView.setLayoutParams(layoutParams);
 
             imageView.setOnClickListener(view -> {
@@ -99,7 +99,7 @@ public class CaptchaV2NoJsAdapter
         return selectedList;
     }
 
-    public void setImageSize(int imageSize) {
+    public void setImageSize(float imageSize) {
         this.imageSize = imageSize;
     }
 

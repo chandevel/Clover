@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class DeveloperSettingsController
         extends Controller {
@@ -100,7 +101,7 @@ public class DeveloperSettingsController
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + DatabaseUtils.getDatabaseSummary());
-        summaryText.setPadding(0, dp(5), 0, 0);
+        updatePaddings(summaryText, 0, 0, dp(5), 0);
         wrapper.addView(summaryText);
 
         //APP RESET
@@ -206,7 +207,7 @@ public class DeveloperSettingsController
         wrapper.addView(noFunAllowed);
 
         ScrollView scrollView = new ScrollView(context);
-        scrollView.setPadding(dp(16), dp(16), dp(16), dp(16));
+        updatePaddings(scrollView, dp(16), dp(16), dp(16), dp(16));
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));

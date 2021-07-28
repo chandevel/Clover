@@ -347,13 +347,13 @@ public class ToolbarContainer
     }
 
     private void setPreviousAnimationProgress(View view, boolean pushing, float progress) {
-        final int offset = dp(16);
+        final float offset = dp(16);
         view.setTranslationY((pushing ? -offset : offset) * progress);
         view.setAlpha(1f - progress);
     }
 
     private void setAnimationProgress(View view, boolean pushing, float progress) {
-        final int offset = dp(16);
+        final float offset = dp(16);
         view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
         view.setAlpha(progress);
     }
@@ -370,7 +370,7 @@ public class ToolbarContainer
     private void transitionProgressAnimation(float progress, ToolbarPresenter.TransitionAnimationStyle style) {
         progress = Math.max(0f, Math.min(1f, progress));
 
-        final int offset = dp(16);
+        final float offset = dp(16);
 
         boolean pushing = style == ToolbarPresenter.TransitionAnimationStyle.PUSH;
 
@@ -460,7 +460,7 @@ public class ToolbarContainer
             // Possible view shown at the right side.
             if (item.rightView != null) {
                 removeFromParentView(item.rightView);
-                item.rightView.setPadding(0, 0, dp(16), 0);
+                item.rightView.setPadding(0, 0, (int) dp(16), 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
                 menu.addView(item.rightView, lp);
             }

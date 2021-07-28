@@ -53,6 +53,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
@@ -63,7 +64,7 @@ public class CardPostCell
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
-    private int iconSizePx;
+    private float iconSizePx;
 
     private PostImageThumbnailView thumbView;
     private TextView title;
@@ -225,7 +226,7 @@ public class CardPostCell
         // change the line height depending on the thumbnail height, so wait for a measure
         OneShotPreDrawListener.add(thumbView, () -> {
             if (ChanSettings.getBoardColumnCount() != 1) {
-                int maxLines = (int) thumbView.getHeight() / comment.getLineHeight();
+                int maxLines = thumbView.getHeight() / comment.getLineHeight();
                 comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES));
             } else {
                 comment.setMaxLines(COMMENT_MAX_LINES * 2);
@@ -265,16 +266,16 @@ public class CardPostCell
 
         icons.setSpacing(dp(getContext(), 4));
 
-        int p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
+        float p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
         // Same as the layout.
-        title.setPadding(p, p, p, 0);
-        comment.setPadding(p, p, p, 0);
-        replies.setPadding(p, p, p / 2, p);
-        options.setPadding(p, p / 2, p / 2, p / 2);
+        updatePaddings(title, p, p, p, 0);
+        updatePaddings(comment, p, p, p, 0);
+        updatePaddings(replies, p, p / 2, p, p);
+        updatePaddings(options, p, p / 2, p / 2, p / 2);
 
         ViewGroup.LayoutParams params = options.getLayoutParams();
-        params.height = dp(getContext(), 32) - (compact ? 2 * p : 0);
+        params.height = (int) (dp(getContext(), 32) - (compact ? 2 * p : 0));
         options.setLayoutParams(params);
     }
 }

@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class PostStubCell
         extends RelativeLayout
@@ -68,8 +69,8 @@ public class PostStubCell
         int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
         title.setTextSize(textSizeSp);
 
-        int paddingPx = dp(getContext(), textSizeSp - 7);
-        title.setPadding(paddingPx, paddingPx, 0, paddingPx);
+        float paddingPx = dp(getContext(), textSizeSp - 7);
+        updatePaddings(title, paddingPx, 0, paddingPx, paddingPx);
 
         findViewById(R.id.options).setOnClickListener(v -> {
             List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();

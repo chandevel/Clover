@@ -275,7 +275,7 @@ public abstract class SettingsController
             SettingView settingView = group.displayList.get(position);
             holder.settingView = settingView;
 
-            int itemMargin = 0;
+            float itemMargin = 0;
             if (isTablet()) {
                 itemMargin = dp(16);
             }

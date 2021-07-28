@@ -39,6 +39,7 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class IntegerSettingView
         extends SettingView
@@ -95,7 +96,7 @@ public class IntegerSettingView
     @Override
     public void onClick(View v) {
         LinearLayout container = new LinearLayout(v.getContext());
-        container.setPadding(dp(24), dp(24), dp(24), 0);
+        updatePaddings(container, dp(24), dp(24), dp(24), 0);
 
         DialogInterface.OnClickListener clickListener;
 

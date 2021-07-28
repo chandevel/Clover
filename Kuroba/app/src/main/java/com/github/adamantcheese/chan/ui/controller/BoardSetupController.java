@@ -52,6 +52,7 @@ import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefa
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class BoardSetupController
         extends Controller
@@ -230,13 +231,10 @@ public class BoardSetupController
             // Fill the height for the title if there is no description, otherwise make room
             // for it.
             ViewGroup.LayoutParams p = holder.text.getLayoutParams();
-            int newHeight = !savedBoard.description.isEmpty() ? dp(28) : dp(56);
-            if (newHeight != p.height) {
-                p.height = newHeight;
-                holder.text.setLayoutParams(p);
-            }
+            p.height = (int) (!savedBoard.description.isEmpty() ? dp(28) : dp(56));
+            holder.text.setLayoutParams(p);
             holder.text.setGravity(Gravity.CENTER_VERTICAL);
-            holder.text.setPadding(dp(8), dp(8), dp(8), !savedBoard.description.isEmpty() ? 0 : dp(8));
+            updatePaddings(holder.text, dp(8), dp(8), dp(8), !savedBoard.description.isEmpty() ? 0 : dp(8));
         }
 
         @Override
