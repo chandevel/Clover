@@ -254,7 +254,10 @@ public class NetUtils {
             return null;
         }
         Call call = applicationClient.getHttpRedirectClient()
-                .newCall(new Request.Builder().url(url).addHeader("Referer", url.toString()).build());
+                .newCall(new Request.Builder().url(url)
+                        .addHeader("Referer", url.toString())
+                        .cacheControl(new CacheControl.Builder().maxStale(365, TimeUnit.DAYS).build())
+                        .build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
