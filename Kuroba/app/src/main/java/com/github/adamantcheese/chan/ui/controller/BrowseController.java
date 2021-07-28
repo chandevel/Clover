@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.BrowsePresenter;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
@@ -431,7 +432,7 @@ public class BrowseController
                 .append(board.description)
                 .append('\n');
         if (!board.workSafe) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get() && ChanSettings.addDubs
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get() && !PersistableChanState.noFunAllowed
                     .get()) {
                 text.append("\uD83D\uDD1E");
             } else {

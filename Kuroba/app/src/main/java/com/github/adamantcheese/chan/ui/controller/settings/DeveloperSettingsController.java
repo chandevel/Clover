@@ -24,7 +24,6 @@ import android.widget.ScrollView;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -200,7 +199,7 @@ public class DeveloperSettingsController
         wrapper.addView(threadCrashSwitch);
 
         Switch noFunAllowed = new Switch(context);
-        noFunAllowed.setText("Toggle fun");
+        noFunAllowed.setText("No fun allowed?");
         noFunAllowed.setTextColor(getAttrColor(context, android.R.attr.textColor));
         noFunAllowed.setChecked(PersistableChanState.noFunAllowed.get());
         noFunAllowed.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.noFunAllowed.toggle());

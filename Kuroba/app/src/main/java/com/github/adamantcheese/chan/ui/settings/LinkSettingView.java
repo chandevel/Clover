@@ -45,7 +45,7 @@ public class LinkSettingView
 
     public LinkSettingView(
             SettingsController settingsController,
-            String name,
+            CharSequence name,
             String description,
             SettingViewOnClickListener clickListener
     ) {

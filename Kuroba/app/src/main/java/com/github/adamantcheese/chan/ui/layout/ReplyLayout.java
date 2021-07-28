@@ -62,6 +62,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
@@ -232,7 +233,6 @@ public class ReplyLayout
         ConstraintLayout submit = replyInputLayout.findViewById(R.id.submit);
         spacer = replyInputLayout.findViewById(R.id.spacer);
         reencodeImage = replyInputLayout.findViewById(R.id.reencode);
-        filenameNew = replyInputLayout.findViewById(R.id.filename_new);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
 
         progressLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_progress, this, false);
@@ -665,7 +665,7 @@ public class ReplyLayout
                 public void onAnimationEnd(Animator animation) {
                     SpannableString done;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
-                            && ChanSettings.addDubs.get()) {
+                            && !PersistableChanState.noFunAllowed.get()) {
                         done = new SpannableString("\uD83D\uDE29\uD83D\uDC4C");
                     } else {
                         done = new SpannableString("✓");

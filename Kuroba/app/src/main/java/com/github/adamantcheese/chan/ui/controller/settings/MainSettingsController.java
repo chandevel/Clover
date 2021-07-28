@@ -17,6 +17,9 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -26,7 +29,9 @@ import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
@@ -204,6 +209,21 @@ public class MainSettingsController
                 R.string.empty,
                 (v, sv) -> navigationController.pushController(new DeveloperSettingsController(context))
         ));
+
+        if (!PersistableChanState.noFunAllowed.get()) {
+            SpannableStringBuilder builder = new SpannableStringBuilder("  Pinkie Pie is best pony   ");
+            builder.setSpan(new ImageSpan(context, BitmapRepository.pinkiePie), 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ImageSpan(context, BitmapRepository.pinkiePie),
+                    builder.length() - 2,
+                    builder.length() - 1,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+            );
+            about.add(new LinkSettingView(this,
+                    builder,
+                    "Rainbow Dash a shit",
+                    (v, sv) -> openLinkInBrowser(context, "https://www.youtube.com/watch?v=43AuJjuxqAw")
+            ));
+        }
 
         groups.add(about);
     }

@@ -165,7 +165,7 @@ public abstract class SettingsController
 
     protected abstract void populatePreferences();
 
-    private void setDescriptionText(View view, String topText, String bottomText) {
+    private void setDescriptionText(View view, CharSequence topText, String bottomText) {
         SpannableStringBuilder builder = StringUtils.applySearchSpans(ThemeHelper.getTheme(), topText, filterText);
         ((TextView) view.findViewById(R.id.top)).setText(builder);
 

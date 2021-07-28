@@ -28,6 +28,8 @@ public class BitmapRepository {
     public static ResourceBitmap partyHat;
     public static ResourceBitmap xmasHat;
 
+    public static Bitmap pinkiePie;
+
     public static void initialize(Context c) {
         youtubeIcon = decode(c, R.drawable.youtube_icon);
         streamableIcon = decode(c, R.drawable.streamable_icon);
@@ -48,6 +50,8 @@ public class BitmapRepository {
         // images are 160x160 by default, so this is the center on that original image, before scaling
         partyHat = new ResourceBitmap(c, R.drawable.partyhat, 50, 125);
         xmasHat = new ResourceBitmap(c, R.drawable.xmashat, 50, 125);
+
+        pinkiePie = decode(c, R.drawable.pinkie_pie);
     }
 
     public static class ResourceBitmap {

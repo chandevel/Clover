@@ -22,12 +22,12 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 public abstract class SettingView {
-    public SettingsController settingsController;
-    public final String name;
+    public final SettingsController settingsController;
+    public final CharSequence name;
     public View view;
     public boolean enabled = true;
 
-    public SettingView(SettingsController settingsController, String name) {
+    public SettingView(SettingsController settingsController, CharSequence name) {
         this.settingsController = settingsController;
         this.name = name;
     }
@@ -53,7 +53,7 @@ public abstract class SettingView {
         }
     }
 
-    public String getTopDescription() {
+    public CharSequence getTopDescription() {
         return name;
     }
 
