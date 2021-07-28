@@ -77,9 +77,7 @@ public class LinkSettingView
 
     public void setDescription(String description) {
         this.description = description;
-        if (view == null) {
-            settingsController.onPreferenceChange(this);
-        }
+        settingsController.onPreferenceChange(this);
     }
 
     protected void updateSettingNotificationIcon(SettingNotification settingNotification) {
