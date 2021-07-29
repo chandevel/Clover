@@ -127,6 +127,11 @@ public class PostRepliesController
             }
 
             @Override
+            public boolean allowsDashedUnderlines() {
+                return true;
+            }
+
+            @Override
             public boolean isCompact() {
                 return false;
             }

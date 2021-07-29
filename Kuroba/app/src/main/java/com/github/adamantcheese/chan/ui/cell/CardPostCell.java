@@ -159,7 +159,8 @@ public class CardPostCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme
+            Theme theme,
+            InvalidateInterface invalidateInterface
     ) {
         this.callback = callback;
 

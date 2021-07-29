@@ -67,7 +67,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;

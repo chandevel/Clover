@@ -67,6 +67,7 @@ public class PostLinkable
     private final int spoilerColor;
     public final Object value; // the value associated with the text, see enum above
     public final Type type;
+    public PostLinkableCallback callback;
 
     private boolean spoilerVisible = ChanSettings.revealTextSpoilers.get();
     private int markedNo = -1;
@@ -100,12 +101,16 @@ public class PostLinkable
         this.markedNo = markedNo;
     }
 
+    public void setCallback(PostLinkableCallback callback) {
+        this.callback = callback;
+    }
+
     public boolean isSpoilerVisible() {
         return spoilerVisible;
     }
 
     @Override
-    public void updateDrawState(TextPaint textPaint) {
+    public void updateDrawState(@NonNull TextPaint textPaint) {
         switch (type) {
             // regular links (external to the application)
             case LINK:
@@ -125,8 +130,7 @@ public class PostLinkable
             case ARCHIVE:
             case BOARD:
                 textPaint.setColor(quoteColor);
-                // in this case, we want to dotted underline the text, so it is taken care of below in drawBackground
-                textPaint.setUnderlineText(!(value instanceof Integer && ((int) value) == markedNo));
+                textPaint.setUnderlineText(!shouldDrawDashedUnderline());
                 break;
             // spoiler specific
             case SPOILER:
@@ -150,7 +154,7 @@ public class PostLinkable
             int end,
             int lineNumber
     ) {
-        if (type == Type.QUOTE && value instanceof Integer && ((int) value) == markedNo) {
+        if (shouldDrawDashedUnderline()) {
             // calculate starting position of this span on the line
             Spanned lineText = (Spanned) text.subSequence(start, end); // the text on this line being rendered
             int spanStart = lineText.getSpanStart(this); // where this span starts on this line
@@ -171,6 +175,11 @@ public class PostLinkable
         }
     }
 
+    private boolean shouldDrawDashedUnderline() {
+        return callback != null && callback.allowsDashedUnderlines() && type == Type.QUOTE && value instanceof Integer
+                && ((int) value) == markedNo;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(value.toString(), type.ordinal());
@@ -182,5 +191,9 @@ public class PostLinkable
         if (!(obj instanceof PostLinkable)) return false;
         PostLinkable linkable = (PostLinkable) obj;
         return linkable.value.equals(this.value) && linkable.type.equals(this.type);
+    }
+
+    public interface PostLinkableCallback {
+        boolean allowsDashedUnderlines();
     }
 }

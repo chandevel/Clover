@@ -48,6 +48,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -74,7 +75,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -105,8 +105,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class PostCell
         extends LinearLayout
         implements PostCellInterface {
-    private static final int COMMENT_MAX_LINES_BOARD = 25;
-
     private RecyclerView thumbnailViews;
     private TextView title;
     private PostIcons icons;
@@ -129,6 +127,9 @@ public class PostCell
     private boolean highlighted;
 
     private GestureDetector doubleTapComment;
+
+    private OneShotPreDrawListener shifter = null;
+    private InvalidateInterface invalidateInterface;
 
     private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
@@ -164,15 +165,19 @@ public class PostCell
         detailsSizePx = sp(getContext(), textSizeSp - 4);
 
         thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(getContext(), 2));
-        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins((int) paddingPx, (int) paddingPx, 0, (int) paddingPx);
+        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins((int) paddingPx,
+                (int) paddingPx,
+                0,
+                (int) paddingPx
+        );
 
         title.setTextSize(textSizeSp);
-        updatePaddings(title, paddingPx, dp(getContext(), 24), paddingPx, paddingPx/2);
+        updatePaddings(title, paddingPx, dp(getContext(), 24), paddingPx, paddingPx / 2);
 
         iconSizePx = sp(getContext(), textSizeSp);
         icons.setHeight((int) iconSizePx);
         icons.setSpacing(dp(getContext(), 4));
-        updatePaddings(icons, paddingPx, dp(getContext(), 24), 0 , 0);
+        updatePaddings(icons, paddingPx, dp(getContext(), 24), 0, 0);
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
@@ -196,10 +201,10 @@ public class PostCell
         }
 
         comment.setTextSize(textSizeSp);
-        updatePaddings(comment, paddingPx, paddingPx, paddingPx/2, paddingPx);
+        updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx);
 
         replies.setTextSize(textSizeSp);
-        updatePaddings(replies, paddingPx, paddingPx, paddingPx/2, paddingPx);
+        updatePaddings(replies, paddingPx, paddingPx, paddingPx / 2, paddingPx);
         replies.setOnClickListener(v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
@@ -253,14 +258,23 @@ public class PostCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme
+            Theme theme,
+            InvalidateInterface invalidateInterface
     ) {
         this.loadable = loadable;
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
+        this.invalidateInterface = invalidateInterface;
 
         bindPost(theme, post);
+        if (shifter != null) {
+            shifter.removeListener();
+            shifter = null;
+        }
+        if (ChanSettings.shiftPostFormat.get()) {
+            shifter = OneShotPreDrawListener.add(this, this::doShiftPostFormatting);
+        }
 
         if (inPopup) {
             setOnTouchListener((v, ev) -> doubleTapComment.onTouchEvent(ev));
@@ -312,7 +326,7 @@ public class PostCell
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
             thumbnailViews.setVisibility(GONE);
         } else {
-            thumbnailViews.setAdapter(new PostImagesAdapter());
+            thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
             thumbnailViews.setVisibility(VISIBLE);
         }
 
@@ -374,12 +388,12 @@ public class PostCell
 
         icons.setWithText(post, iconSizePx);
 
-        if (!threadMode) {
-            comment.setMaxLines(COMMENT_MAX_LINES_BOARD);
-            comment.setEllipsize(TextUtils.TruncateAt.END);
-        } else {
+        if (threadMode) {
             comment.setMaxLines(Integer.MAX_VALUE);
             comment.setEllipsize(null);
+        } else {
+            comment.setMaxLines(25);
+            comment.setEllipsize(TextUtils.TruncateAt.END);
         }
 
         if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
@@ -533,7 +547,7 @@ public class PostCell
             } else if (shiftLeftThumb) {
                 bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
             }
-            requestLayout();
+            invalidateInterface.requestLayout();
         }
     }
 
@@ -559,14 +573,19 @@ public class PostCell
 
     @Override
     public void unsetPost() {
-        thumbnailViews.setAdapter(null);
+        if (ChanSettings.shiftPostFormat.get()) {
+            if (shifter != null) {
+                shifter.removeListener();
+                shifter = null;
+            }
+            bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
+        }
         icons.clear();
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post.comment.removeSpan(BACKGROUND_SPAN);
-        bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
         post = null;
     }
 

@@ -36,7 +36,8 @@ public interface PostCellInterface {
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme
+            Theme theme,
+            InvalidateInterface invalidateInterface
     );
 
     void unsetPost();

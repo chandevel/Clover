@@ -109,7 +109,7 @@ public class DefaultPostParser
                         }
 
                         @Override
-                        public void updateDrawState(TextPaint textPaint) {
+                        public void updateDrawState(@NonNull TextPaint textPaint) {
                             super.updateDrawState(textPaint);
                             textPaint.setStrikeThruText(true);
                         }

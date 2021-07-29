@@ -107,7 +107,8 @@ public class PostStubCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme
+            Theme theme,
+            InvalidateInterface invalidateInterface
     ) {
         this.post = post;
         this.callback = callback;

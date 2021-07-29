@@ -469,7 +469,6 @@ public class ThemeSettingsController
                     return false;
                 }
 
-                @Nullable
                 @Override
                 public ChanThread getChanThread() {
                     return thread;
@@ -481,6 +480,11 @@ public class ThemeSettingsController
                 @Override
                 public boolean showStatusView() {
                     return false;
+                }
+
+                @Override
+                public boolean allowsDashedUnderlines() {
+                    return true;
                 }
             };
             adapter.setThread(thread, new PostsFilter(PostsFilter.Order.BUMP, null));
