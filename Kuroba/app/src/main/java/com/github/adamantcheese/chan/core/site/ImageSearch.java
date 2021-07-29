@@ -92,16 +92,34 @@ public abstract class ImageSearch {
         });
 
         engines.add(new ImageSearch() {
-            @Override
             public String getName() {
                 return "Bing";
             }
 
-            @Override
             public String getUrl(String imageUrl) {
                 return "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl:"
                         + imageUrl + "&idpbck=1&selectedindex=0&id=" + imageUrl + "&ccid=EgN4f83z&mediaurl=" + imageUrl
                         + "&exph=1080&expw=1920&vt=2&sim=11";
+            }
+        });
+
+        engines.add(new ImageSearch() {
+            public String getName() {
+                return "Derpibooru";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "https://derpibooru.org/search/reverse?url=" + imageUrl;
+            }
+        });
+
+        engines.add(new ImageSearch() {
+            public String getName() {
+                return "Furbooru";
+            }
+
+            public String getUrl(String imageUrl) {
+                return "https://furbooru.org/search/reverse?url=" + imageUrl;
             }
         });
     }
