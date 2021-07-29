@@ -54,9 +54,7 @@ public class PageRepository {
     }
 
     public static void forceUpdateForBoard(final Board b) {
-        if (b != null) {
-            BackgroundUtils.runOnBackgroundThread(() -> requestBoard(b), 10000);
-        }
+        BackgroundUtils.runOnBackgroundThread(() -> requestBoard(b), 10000);
     }
 
     private static ChanPage findPage(Board board, int opNo) {
@@ -95,13 +93,13 @@ public class PageRepository {
     }
 
     private static synchronized void requestBoard(final Board b) {
-        if (!requestedBoards.contains(b)) {
+        if (b != null && !requestedBoards.contains(b)) {
             requestedBoards.add(b);
             b.site.actions().pages(b, (NetUtilsClasses.NoFailResponseResult<ChanPages>) result -> addPages(b, result));
         }
     }
 
-    private static synchronized void onPagesReceived(Board board, ChanPages pages) {
+    public static synchronized void addPages(Board board, ChanPages pages) {
         savedBoards.add(board);
         requestedBoards.remove(board);
         boardTimeMap.put(board, System.currentTimeMillis());
@@ -110,10 +108,6 @@ public class PageRepository {
         for (PageCallback callback : callbackList) {
             callback.onPagesReceived();
         }
-    }
-
-    public static void addPages(Board board, ChanPages pages) {
-        onPagesReceived(board, pages);
     }
 
     public static void addListener(PageCallback callback) {
