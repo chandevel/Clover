@@ -330,7 +330,7 @@ public class ReplyPresenter
                     error.removeSpan(s);
                 }
                 errorMessage.clear();
-                errorMessage.append(getString(R.string.reply_error_message, error));
+                errorMessage.append(getString(R.string.reply_error)).append(": ").append(error);
                 prefixLen += 1;
             }
             errorMessage.setSpan(new StyleSpan(Typeface.BOLD), 0, prefixLen, 0);

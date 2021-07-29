@@ -47,6 +47,7 @@ import okhttp3.Callback;
 import okhttp3.Cookie;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -130,19 +131,28 @@ public class NetUtils {
     }
 
     public static void makeHttpCall(HttpCall<?> httpCall) {
-        makeHttpCall(httpCall, null);
+        makeHttpCall(httpCall, Collections.emptyList(), null);
+    }
+
+    public static void makeHttpCall(HttpCall<?> httpCall, List<Interceptor> extraInterceptors) {
+        makeHttpCall(httpCall, extraInterceptors, null);
     }
 
     public static void makeHttpCall(
-            HttpCall<?> httpCall, @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            HttpCall<?> httpCall,
+            List<Interceptor> extraInterceptors,
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
     ) {
         Request.Builder requestBuilder = new Request.Builder();
         httpCall.setup(requestBuilder, progressListener);
-        OkHttpClient client = applicationClient;
+        OkHttpClient client = applicationClient; // default to this client
         if (ChanSettings.verboseLogs.get()) {
             HttpLoggingInterceptor debuggingInterceptor = new HttpLoggingInterceptor();
             debuggingInterceptor.setLevel(HttpLoggingInterceptor.Level.HEADERS);
             client = applicationClient.newBuilder().addNetworkInterceptor(debuggingInterceptor).build();
+        }
+        for (Interceptor i : extraInterceptors) {
+            client = client.newBuilder().addInterceptor(i).build();
         }
         client.newCall(requestBuilder.build()).enqueue(httpCall);
     }
