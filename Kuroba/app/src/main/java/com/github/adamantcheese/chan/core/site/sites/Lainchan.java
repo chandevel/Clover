@@ -38,11 +38,6 @@ public class Lainchan
         }
 
         @Override
-        public String[] getNames() {
-            return new String[]{"lainchan"};
-        }
-
-        @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();

@@ -45,11 +45,6 @@ public class Chan420
         }
 
         @Override
-        public String[] getNames() {
-            return new String[]{"420chan", "420"};
-        }
-
-        @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return "https://boards.420chan.org/" + loadable.boardCode + "/thread/" + (postNo > 0 ? postNo : "");

@@ -42,11 +42,6 @@ public class Dvach
         }
 
         @Override
-        public String[] getNames() {
-            return new String[]{"dvach", "2ch"};
-        }
-
-        @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();

@@ -172,11 +172,6 @@ public abstract class ExternalSiteArchive
     public abstract class ArchiveSiteUrlHandler
             implements SiteUrlHandler {
         @Override
-        public boolean matchesName(String value) {
-            return name.equals(value);
-        }
-
-        @Override
         public boolean respondsTo(@NonNull HttpUrl url) {
             return domain.equals(url.host());
         }

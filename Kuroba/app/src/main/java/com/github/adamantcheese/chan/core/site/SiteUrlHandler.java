@@ -23,8 +23,6 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import okhttp3.HttpUrl;
 
 public interface SiteUrlHandler {
-    boolean matchesName(String value);
-
     boolean respondsTo(@NonNull HttpUrl url);
 
     String desktopUrl(Loadable loadable, int postNo);

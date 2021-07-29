@@ -74,11 +74,6 @@ public class DummySite
     public SiteUrlHandler resolvable() {
         return new SiteUrlHandler() {
             @Override
-            public boolean matchesName(String value) {
-                return false;
-            }
-
-            @Override
             public boolean respondsTo(@NonNull HttpUrl url) {
                 return false;
             }

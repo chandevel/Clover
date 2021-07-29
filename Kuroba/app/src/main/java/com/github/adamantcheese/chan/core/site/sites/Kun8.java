@@ -29,11 +29,6 @@ public class Kun8
         }
 
         @Override
-        public String[] getNames() {
-            return new String[]{"8kun"};
-        }
-
-        @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();

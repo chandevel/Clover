@@ -248,19 +248,6 @@ public abstract class CommonSite
             implements SiteUrlHandler {
         public abstract HttpUrl getUrl();
 
-        public abstract String[] getNames();
-
-        @Override
-        public boolean matchesName(String value) {
-            for (String s : getNames()) {
-                if (value.equals(s)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         @Override
         public boolean respondsTo(@NonNull HttpUrl url) {
             return getUrl().host().equals(url.host());

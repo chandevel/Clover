@@ -82,11 +82,6 @@ public class Chan4
     private ChanReader reader;
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
-        @Override
-        public boolean matchesName(String value) {
-            return "4chan".equals(value);
-        }
-
         @SuppressWarnings("ConstantConditions")
         @Override
         public boolean respondsTo(@NonNull HttpUrl url) {

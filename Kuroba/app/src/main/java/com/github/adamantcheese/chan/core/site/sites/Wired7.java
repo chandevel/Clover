@@ -50,11 +50,6 @@ public class Wired7
         }
 
         @Override
-        public String[] getNames() {
-            return new String[]{"Wired-7, wired7, Wired7"};
-        }
-
-        @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
