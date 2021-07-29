@@ -111,6 +111,7 @@ public class MultiImageView
     private boolean op;
 
     private Mode mode = Mode.UNLOADED;
+    private Call thumbnailRequest;
     private Call request;
     private SimpleExoPlayer exoPlayer;
 
@@ -283,7 +284,22 @@ public class MultiImageView
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        cancelLoad();
+
+        if (thumbnailRequest != null) {
+            thumbnailRequest.cancel();
+            thumbnailRequest = null;
+        }
+
+        if (request != null) {
+            request.cancel();
+            request = null;
+        }
+
+        if (exoPlayer != null) {
+            // ExoPlayer will keep loading resources if we don't release it here.
+            exoPlayer.release();
+            exoPlayer = null;
+        }
 
         if (getContext() instanceof LifecycleOwner) {
             ((LifecycleOwner) getContext()).getLifecycle().removeObserver(this);
@@ -291,9 +307,11 @@ public class MultiImageView
     }
 
     @Override
-    public void onDownloadProgress(HttpUrl source, long bytesRead, long contentLength, boolean firstUpdate, boolean done) {
-        if(request != null) {
-            if(!request.request().url().equals(source)) return;
+    public void onDownloadProgress(
+            HttpUrl source, long bytesRead, long contentLength, boolean firstUpdate, boolean done
+    ) {
+        if (request != null) {
+            if (!request.request().url().equals(source)) return;
             BackgroundUtils.runOnMainThread(() -> {
                 if (done) {
                     callback.hideProgress(MultiImageView.this);
@@ -314,23 +332,23 @@ public class MultiImageView
     private void setThumbnail(boolean center) {
         BackgroundUtils.ensureMainThread();
 
-        if (request != null) {
-            request.cancel();
-            request = null;
+        if (thumbnailRequest != null) {
+            thumbnailRequest.cancel();
+            thumbnailRequest = null;
         }
 
         final HttpUrl thumbnailURL = postImage.getThumbnailUrl();
-        request = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
+        thumbnailRequest = NetUtils.makeBitmapRequest(thumbnailURL, new BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                request = null;
+                thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 if (center) onError(e);
             }
 
             @Override
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                request = null;
+                thumbnailRequest = null;
                 callback.hideProgress(MultiImageView.this);
                 onThumbnailBitmap(bitmap);
             }
@@ -473,7 +491,9 @@ public class MultiImageView
         okHttpFactory.setCacheControl(NetUtilsClasses.ONE_DAY_CACHE);
         CacheDataSource.Factory cacheFactory = new CacheDataSource.Factory();
         cacheFactory.setUpstreamDataSourceFactory(okHttpFactory);
-        cacheFactory.setCache(new SimpleCache(new File(getCacheDir(), "exoplayer"), new LeastRecentlyUsedCacheEvictor(50 * MB)));
+        cacheFactory.setCache(new SimpleCache(new File(getCacheDir(), "exoplayer"),
+                new LeastRecentlyUsedCacheEvictor(50 * MB)
+        ));
         MEDIA_FACTORY = new ProgressiveMediaSource.Factory(cacheFactory);
     }
 
@@ -681,20 +701,14 @@ public class MultiImageView
         }
     }
 
-    private void cancelLoad() {
-        if (request != null) {
-            request.cancel();
-            request = null;
-        }
-
-        if (exoPlayer != null) {
-            // ExoPlayer will keep loading resources if we don't release it here.
-            exoPlayer.release();
-            exoPlayer = null;
-        }
-    }
-
     private void onModeLoaded(Mode mode, View view) {
+        if (mode != Mode.LOWRES) {
+            if (thumbnailRequest != null) {
+                thumbnailRequest.cancel();
+                thumbnailRequest = null;
+            }
+        }
+
         if (view != null) {
             // Remove all other views
             boolean alreadyAttached = false;
