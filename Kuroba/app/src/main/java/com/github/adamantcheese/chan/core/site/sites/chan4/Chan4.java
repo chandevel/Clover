@@ -475,9 +475,48 @@ public class Chan4
 
         @Override
         public void logout(final ResponseResult<LoginResponse> loginListener) {
-            NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
-                    new LoginRequest(Chan4.this, "", "", false)
-            ));
+            NetUtils.makeHttpCall(
+                    new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
+                            new LoginRequest(Chan4.this, "", "", false)
+                    ),
+                    Collections.singletonList(chain -> {
+                        Response r = chain.proceed(chain.request());
+                        List<Cookie> cookieList = Cookie.parseAll(chain.request().url(), r.headers());
+                        List<Cookie> newList = new ArrayList<>();
+                        for (Cookie c : cookieList) {
+                            // same as login, but expire both cookies
+                            if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                                Cookie.Builder builder = new Cookie.Builder().path(c.path())
+                                        .name(c.name())
+                                        .value(c.value())
+                                        .expiresAt(c.expiresAt());
+                                if (c.secure()) builder.secure();
+                                if (c.httpOnly()) builder.httpOnly();
+                                if (c.hostOnly()) {
+                                    builder.hostOnlyDomain(sys.topPrivateDomain());
+                                } else {
+                                    builder.domain(sys.topPrivateDomain());
+                                }
+                                newList.add(builder.build());
+                                if (c.hostOnly()) {
+                                    builder.hostOnlyDomain(sysSafe.topPrivateDomain());
+                                } else {
+                                    builder.domain(sysSafe.topPrivateDomain());
+                                }
+                                newList.add(builder.build());
+                            } else {
+                                newList.add(c);
+                            }
+                        }
+                        Headers.Builder h = new Headers.Builder().addAll(r.headers());
+                        h.removeAll("Set-Cookie");
+                        for (Cookie c : newList) {
+                            h.add("Set-Cookie", c.toString());
+                        }
+                        NetUtils.applicationClient.cookieJar().saveFromResponse(r.request().url(), newList);
+                        return r.newBuilder().headers(h.build()).build();
+                    })
+            );
         }
 
         @Override
