@@ -185,6 +185,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:layout_height="wrap_content"
                         android:text="@string/image_options_fix_exif" />
 
+                    <CheckBox
+                        android:id="@+id/image_options_blur"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/image_options_blur" />
+
                 </LinearLayout>
 
                 <LinearLayout

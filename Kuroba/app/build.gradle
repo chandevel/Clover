@@ -79,6 +79,9 @@ android {
         versionName "v" + major + "." + minor + "." + patch
 
         buildConfigField "String", "COMMIT_HASH", "\"" + getCommitHash() + "\""
+
+        renderscriptTargetApi 21
+        renderscriptSupportModeEnabled true
     }
 
     compileOptions {

@@ -113,12 +113,14 @@ public class ImageReencodingPresenter {
         public boolean changeImageChecksum;
         public int reencodeQuality;
         public int reducePercent;
+        public boolean blur;
 
-        public ImageOptions(boolean fixExif, boolean changeImageChecksum, int reencodeQuality, int reducePercent) {
+        public ImageOptions(boolean fixExif, boolean changeImageChecksum, int reencodeQuality, int reducePercent, boolean blur) {
             this.fixExif = fixExif;
             this.changeImageChecksum = changeImageChecksum;
             this.reencodeQuality = reencodeQuality;
             this.reducePercent = reducePercent;
+            this.blur = blur;
             if (areOptionsInvalid()) { //reset these if not valid
                 this.reencodeQuality = MAX_QUALITY;
                 this.reducePercent = MIN_REDUCE;

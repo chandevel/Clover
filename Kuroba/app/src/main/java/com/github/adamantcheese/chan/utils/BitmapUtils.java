@@ -7,6 +7,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.ScriptIntrinsicBlur;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -33,6 +36,7 @@ import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
 import static android.graphics.Bitmap.CompressFormat.WEBP;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.core.repository.BitmapRepository.rs;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class BitmapUtils {
@@ -97,6 +101,16 @@ public class BitmapUtils {
 
         Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         bitmap.recycle();
+
+        if (imageOptions.blur) {
+            Allocation input = Allocation.createFromBitmap(rs, newBitmap);
+            Allocation output = Allocation.createTyped(rs, input.getType());
+            ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
+            script.setRadius(16f);
+            script.setInput(input);
+            script.forEach(output);
+            output.copyTo(newBitmap);
+        }
 
         File tempFile = null;
 

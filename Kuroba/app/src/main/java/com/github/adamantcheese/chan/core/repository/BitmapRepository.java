@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.repository;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.renderscript.RenderScript;
 import android.util.TypedValue;
 
 import com.github.adamantcheese.chan.R;
@@ -9,6 +10,8 @@ import com.github.adamantcheese.chan.R;
 import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
 
 public class BitmapRepository {
+    public static RenderScript rs;
+
     public static Bitmap youtubeIcon;
     public static Bitmap streamableIcon;
     public static Bitmap clypIcon;
@@ -31,6 +34,8 @@ public class BitmapRepository {
     public static Bitmap pinkiePie;
 
     public static void initialize(Context c) {
+        rs = RenderScript.create(c);
+
         youtubeIcon = decode(c, R.drawable.youtube_icon);
         streamableIcon = decode(c, R.drawable.streamable_icon);
         clypIcon = decode(c, R.drawable.clyp_icon);

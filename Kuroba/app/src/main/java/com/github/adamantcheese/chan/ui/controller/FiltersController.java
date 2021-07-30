@@ -190,6 +190,7 @@ public class FiltersController
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.filter_debug_hint)
                 .build();
+        // add, enable, debug
         addHint.relayShowAlignTop(toggleHint, enable)
                 .relayShowAlignBottom(debugHint, navigation.findItem(DEBUG).getView());
         addHint.showAlignTop(add);

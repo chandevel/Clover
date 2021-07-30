@@ -363,6 +363,7 @@ public class ViewThreadController
                 .setText("Swipe right to access bookmarks and settings")
                 .build();
 
+        // drawer hint, pin hint, album hint (if applicable), scroll hint
         Balloon chain1 = drawerHint.relayShowAlignBottom(pinHint, navigation.findItem(MenuId.PIN).getView());
         Balloon chain2 = chain1;
         if (!ChanSettings.textOnly.get()) {

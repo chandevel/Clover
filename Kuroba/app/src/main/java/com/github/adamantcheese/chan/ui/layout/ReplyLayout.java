@@ -1101,6 +1101,11 @@ public class ReplyLayout
     }
 
     private void showImageOptionHints() {
+        Balloon attachHint = AndroidUtils.getBaseToolTip(getContext())
+                .setPreferenceName("AttachHint")
+                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setTextResource(R.string.attach_button_hint)
+                .build();
         Balloon reencodeHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReencodeHint")
                 .setArrowOrientation(ArrowOrientation.RIGHT)
@@ -1117,13 +1122,15 @@ public class ReplyLayout
                 .setTextResource(R.string.reply_spoiler_hint)
                 .build();
 
+        // attach, spoiler (if applicable), reencode, filename
         if (presenter.canPostSpoileredImages()) {
-            spoilerHint.relayShowAlignLeft(filenameHint, filenameNew).relayShowAlignLeft(reencodeHint, reencodeImage);
-            spoilerHint.showAlignLeft(spoiler);
+            attachHint.relayShowAlignLeft(spoilerHint, spoiler)
+                    .relayShowAlignLeft(reencodeHint, reencodeImage)
+                    .relayShowAlignLeft(filenameHint, filenameNew);
         } else {
-            filenameHint.relayShowAlignLeft(reencodeHint, reencodeImage);
-            filenameHint.showAlignLeft(filenameNew);
+            attachHint.relayShowAlignLeft(reencodeHint, reencodeImage).relayShowAlignLeft(filenameHint, filenameNew);
         }
+        attachHint.showAlignLeft(attach);
     }
 
     @Override

@@ -559,6 +559,7 @@ Don't have a 4chan Pass?<br>
     <string name="could_not_apply_image_options">Could not apply new image options (error message is %1$s)</string>
     <string name="image_options_change_image_checksum">Change image checksum</string>
     <string name="image_options_fix_exif">Fix EXIF orientation</string>
+    <string name="image_options_blur">Blur</string>
     <string name="reencode_image_re_encode_image_text">Re-encode %s image as</string>
     <string name="reencode_image_as_jpeg">JPEG</string>
     <string name="reencode_image_as_png">PNG</string>
@@ -749,4 +750,5 @@ Don't have a 4chan Pass?<br>
     <string name="reply_spoiler_hint">Toggle if posting as a spoiler</string>
 
     <string name="board_info">Board info</string>
+    <string name="attach_button_hint">Long press to grab from clipboard URL instead</string>
 </resources>

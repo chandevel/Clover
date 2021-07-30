@@ -71,6 +71,7 @@ public class ImageOptionsController
 
     private CheckBox changeImageChecksum;
     private CheckBox fixExif;
+    private CheckBox blur;
 
     private Button cancel;
     private Button ok;
@@ -147,6 +148,7 @@ public class ImageOptionsController
         currentImageQuality = view.findViewById(R.id.reecode_image_current_quality);
         currentImageReduce = view.findViewById(R.id.reecode_image_current_reduce);
         fixExif = view.findViewById(R.id.image_options_fix_exif);
+        blur = view.findViewById(R.id.image_options_blur);
         changeImageChecksum = view.findViewById(R.id.image_options_change_image_checksum);
         cancel = view.findViewById(R.id.image_options_cancel);
         ok = view.findViewById(R.id.image_options_ok);
@@ -157,6 +159,7 @@ public class ImageOptionsController
             reduce.setProgress(lastOptions.reducePercent);
             changeImageChecksum.setChecked(lastOptions.changeImageChecksum);
             fixExif.setChecked(lastOptions.fixExif);
+            blur.setChecked(lastOptions.blur);
         }
 
         ((TextView) view.findViewById(R.id.reencode_title)).setText(getString(R.string.reencode_image_re_encode_image_text,
@@ -228,7 +231,8 @@ public class ImageOptionsController
             presenter.applyImageOptions(new ImageReencodingPresenter.ImageOptions(fixExif.isChecked(),
                     changeImageChecksum.isChecked(),
                     quality.getProgress(),
-                    reduce.getProgress()
+                    reduce.getProgress(),
+                    blur.isChecked()
             ));
         }
     }
@@ -261,6 +265,7 @@ public class ImageOptionsController
     @Override
     public void disableOrEnableButtons(boolean enabled) {
         fixExif.setEnabled(enabled);
+        blur.setEnabled(enabled);
         changeImageChecksum.setEnabled(enabled);
         viewHolder.setEnabled(enabled);
         cancel.setEnabled(enabled);
