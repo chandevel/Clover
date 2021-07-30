@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.core.presenter;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.util.MalformedJsonException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -88,6 +89,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.net.ssl.SSLException;
 
 import okhttp3.Call;
 import okhttp3.Request;
@@ -134,7 +136,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ThreadPresenter
-        implements ChanThreadLoader.ChanLoaderCallback, PostAdapter.PostAdapterCallback,
+        implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
     //region Private Variables
@@ -184,6 +186,13 @@ public class ThreadPresenter
 
             chanLoader = ChanLoaderManager.obtain(loadable, this);
             threadPresenterCallback.showLoading();
+
+            if (chanLoader.getThread() == null) {
+                chanLoader.requestFreshData();
+            } else {
+                onSuccess(chanLoader.getThread());
+                chanLoader.requestAdditionalData();
+            }
         }
     }
 
@@ -206,34 +215,24 @@ public class ThreadPresenter
         return loadable != null && chanLoader != null;
     }
 
-    public void requestInitialData() {
-        if (isBound()) {
-            if (chanLoader.getThread() == null) {
-                requestData();
-            } else {
-                chanLoader.quickLoad();
-            }
-        }
-    }
-
     public void requestData() {
         BackgroundUtils.ensureMainThread();
 
         if (isBound()) {
             threadPresenterCallback.refreshUI();
             threadPresenterCallback.showLoading();
-            chanLoader.requestData();
+            chanLoader.requestFreshData();
         }
     }
 
     public void refreshUI() {
-        showPosts();
+        chanLoader.requestAdditionalData();
     }
 
     public void onForegroundChanged(boolean foreground) {
         if (isBound()) {
             if (foreground && isWatching()) {
-                chanLoader.requestMoreData();
+                chanLoader.requestAdditionalData();
                 if (chanLoader.getThread() != null) {
                     // Show loading indicator in the status cell
                     showPosts();
@@ -314,7 +313,7 @@ public class ThreadPresenter
      * ChanThreadLoader callbacks
      */
     @Override
-    public void onChanLoaderData(ChanThread result) {
+    public void onSuccess(ChanThread result) {
         BackgroundUtils.ensureMainThread();
 
         if (isBound()) {
@@ -382,9 +381,26 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
+    public void onFailure(Exception error) {
         Logger.d(this, "onChanLoaderError()");
-        threadPresenterCallback.showError(error);
+
+        //by default, a network error has occurred if the exception field is not null
+        int errorMessageResId;
+        if (error instanceof SSLException) {
+            errorMessageResId = R.string.thread_load_failed_ssl;
+        } else if (error instanceof NetUtilsClasses.HttpCodeException) {
+            if (((NetUtilsClasses.HttpCodeException) error).isServerErrorNotFound()) {
+                errorMessageResId = R.string.thread_load_failed_not_found;
+            } else {
+                errorMessageResId = R.string.thread_load_failed_server;
+            }
+        } else if (error instanceof MalformedJsonException) {
+            errorMessageResId = R.string.thread_load_failed_parsing;
+        } else {
+            errorMessageResId = R.string.thread_load_failed_network;
+        }
+
+        threadPresenterCallback.showError(error, errorMessageResId);
     }
 
     /*
@@ -979,7 +995,7 @@ public class ThreadPresenter
     public void onListStatusClicked() {
         if (!isBound() || getChanThread() == null) return;
         if (!getChanThread().isArchived()) {
-            chanLoader.requestMoreData();
+            refreshUI();
         } else {
             showArchives(loadable, loadable.no);
         }
@@ -1015,7 +1031,7 @@ public class ThreadPresenter
     @Override
     public void requestNewPostLoad() {
         if (isBound() && loadable.isThreadMode()) {
-            chanLoader.requestMoreData();
+            refreshUI();
             PageRepository.forceUpdateForBoard(chanLoader.getLoadable().board);
         }
     }
@@ -1311,7 +1327,7 @@ public class ThreadPresenter
 
         void postClicked(Post post);
 
-        void showError(ChanThreadLoader.ChanLoaderException error);
+        void showError(Exception error, int errResId);
 
         void showLoading();
 

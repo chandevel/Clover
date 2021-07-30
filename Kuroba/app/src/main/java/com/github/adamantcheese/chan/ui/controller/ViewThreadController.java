@@ -318,7 +318,6 @@ public class ViewThreadController
         setPinIconState(false);
 
         updateLeftPaneHighlighting(loadable);
-        presenter.requestInitialData();
     }
 
     @Override

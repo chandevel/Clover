@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
@@ -102,7 +103,7 @@ public class FilterWatchManager
                                 + StringUtils.getCurrentTimeDefaultLocale()
                 );
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
-                    loader.requestData();
+                    loader.requestFreshData();
                 }
             } else {
                 WakeManager.getInstance().manageLock(false, FilterWatchManager.this);
@@ -136,9 +137,9 @@ public class FilterWatchManager
     }
 
     private class CatalogLoader
-            implements ChanThreadLoader.ChanLoaderCallback {
+            implements NetUtilsClasses.ResponseResult<ChanThread> {
         @Override
-        public void onChanLoaderData(ChanThread result) {
+        public void onSuccess(ChanThread result) {
             Logger.d(this, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
             for (Post p : result.getPosts()) {
                 if (p.filterWatch && !ignoredPosts.contains(p.no)) {
@@ -156,7 +157,7 @@ public class FilterWatchManager
         }
 
         @Override
-        public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
+        public void onFailure(Exception error) {
             Logger.d(this, "Filter loader failed, left " + numBoardsChecked);
             checkComplete();
         }

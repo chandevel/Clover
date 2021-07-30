@@ -16,22 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site.loader;
 
-import android.util.MalformedJsonException;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabasePinManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
-import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderParser;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -42,28 +36,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.net.ssl.SSLException;
-
-import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.
- * <p>Obtain ChanLoaders with {@link ChanLoaderManager}.
- * <p>ChanLoaders can load boards and threads, and return {@link ChanThread} objects on success, through
- * {@link ChanLoaderCallback}.
- * <p>For threads timers can be started with {@link #setTimer()} to do a request later.
+ * <p>Obtain ChanLoaders with {@link ChanLoaderManager} for either board catalogs or threads.
+ * <p>ChanLoaders return {@link ChanThread} objects on success, through {@link ResponseResult<ChanThread>}.
+ * <p>For threads, timers can be started with {@link #setTimer()} to do a request later.
  */
 public class ChanThreadLoader {
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
-    private final List<ChanLoaderCallback> listeners = new CopyOnWriteArrayList<>();
+    private final List<ResponseResult<ChanThread>> listeners = new CopyOnWriteArrayList<>();
 
     @NonNull
     private final Loadable loadable;
@@ -78,21 +67,11 @@ public class ChanThreadLoader {
     private int lastPostCount;
     private long lastLoadTime;
 
-    @Inject
-    private WatchManager watchManager;
-
-    @Inject
-    private DatabasePinManager databasePinManager;
-
-    @Inject
-    private DatabaseLoadableManager databaseLoadableManager;
-
     /**
      * <b>Do not call this constructor yourself, obtain ChanLoaders through {@link ChanLoaderManager}</b>
      */
     public ChanThreadLoader(@NonNull Loadable loadable) {
         this.loadable = loadable;
-        inject(this);
     }
 
     /**
@@ -100,7 +79,7 @@ public class ChanThreadLoader {
      *
      * @param listener the listener to add
      */
-    public void addListener(ChanLoaderCallback listener) {
+    public void addListener(ResponseResult<ChanThread> listener) {
         listeners.add(listener);
     }
 
@@ -110,9 +89,7 @@ public class ChanThreadLoader {
      * @param listener the listener to remove
      * @return true if there are no more listeners, false otherwise
      */
-    public boolean removeListener(ChanLoaderCallback listener) {
-        BackgroundUtils.ensureMainThread();
-
+    public boolean removeListener(ResponseResult<ChanThread> listener) {
         listeners.remove(listener);
 
         if (listeners.isEmpty()) {
@@ -135,7 +112,7 @@ public class ChanThreadLoader {
     /**
      * Request data for the first time.
      */
-    public void requestData() {
+    public void requestFreshData() {
         BackgroundUtils.ensureMainThread();
         clearTimer();
 
@@ -162,46 +139,15 @@ public class ChanThreadLoader {
     /**
      * Request more data. This only works for thread loaders.<br>
      * This clears any pending pending timers, created with {@link #setTimer()}.
-     *
-     * @return {@code true} if a new request was started, {@code false} otherwise.
      */
-    public boolean requestMoreData() {
+
+    public void requestAdditionalData() {
         BackgroundUtils.ensureMainThread();
         clearPendingRunnable();
 
         if (loadable.isThreadMode() && call == null) {
             call = getData();
-            return true;
-        } else {
-            return false;
         }
-    }
-
-    /**
-     * Request more data if {@link #getTimeUntilLoadMore()} is negative.
-     */
-    public boolean loadMoreIfTime() {
-        BackgroundUtils.ensureMainThread();
-        return getTimeUntilLoadMore() < 0L && requestMoreData();
-    }
-
-    public void quickLoad() {
-        BackgroundUtils.ensureMainThread();
-
-        ChanThread localThread;
-        synchronized (this) {
-            if (thread == null) {
-                throw new IllegalStateException("Cannot quick load without already loaded thread");
-            }
-
-            localThread = thread;
-        }
-
-        for (ChanLoaderCallback l : listeners) {
-            l.onChanLoaderData(localThread);
-        }
-
-        requestMoreData();
     }
 
     @NonNull
@@ -218,8 +164,8 @@ public class ChanThreadLoader {
         pendingFuture =
                 BackgroundUtils.backgroundScheduledService.schedule(() -> BackgroundUtils.runOnMainThread(() -> {
                     pendingFuture = null;
-                    requestMoreData();
-                }), watchTimeout, TimeUnit.SECONDS);
+                    requestAdditionalData();
+                }), watchTimeout, SECONDS);
     }
 
     public void clearTimer() {
@@ -227,16 +173,19 @@ public class ChanThreadLoader {
         clearPendingRunnable();
     }
 
+    private void clearPendingRunnable() {
+        if (pendingFuture != null) {
+            pendingFuture.cancel(false);
+            pendingFuture = null;
+        }
+    }
+
     /**
-     * Get the time in milliseconds until another loadMore is recommended
+     * @return milliseconds until another requestAdditionalData is recommended
      */
     public long getTimeUntilLoadMore() {
-        if (call != null) {
-            return 0L;
-        } else {
-            long waitTime = WATCH_TIMEOUTS[Math.max(0, currentTimeout)] * 1000L;
-            return lastLoadTime + waitTime - System.currentTimeMillis();
-        }
+        long waitTime = SECONDS.toMillis(WATCH_TIMEOUTS[Math.max(0, currentTimeout)]);
+        return call != null ? 0L : lastLoadTime + waitTime - System.currentTimeMillis();
     }
 
     private Call getData() {
@@ -248,66 +197,39 @@ public class ChanThreadLoader {
             }
         }
 
-        return NetUtils.makeJsonRequest(
-                getChanUrl(loadable),
-                new ResponseResult<ChanLoaderResponse>() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        notifyAboutError(new ChanLoaderException(e));
-                    }
+        return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
+            @Override
+            public void onFailure(Exception e) {
+                notifyAboutError(e);
+            }
 
-                    @Override
-                    public void onSuccess(ChanLoaderResponse result) {
-                        clearTimer();
-                        BackgroundUtils.runOnBackgroundThread(() -> onResponse(result));
-                    }
-                },
-                new ChanReaderParser(loadable, cachedClones, null),
-                // todo change this so that If-Modified-Since takes care of stuff
-                // cache this for the amount of time of the current timeout, minus a second to ensure it is purged upon the next request
-                new CacheControl.Builder().maxAge(WATCH_TIMEOUTS[Math.max(0, currentTimeout)] - 1, TimeUnit.SECONDS)
-                        .build()
-        );
+            @Override
+            public void onSuccess(ChanLoaderResponse result) {
+                if (result.posts.isEmpty()) {
+                    notifyAboutError(new Exception("No posts in thread!"));
+                } else {
+                    onResponseInternal(result);
+                }
+            }
+        }, new ChanReaderParser(loadable, cachedClones, null), null);
+        // TODO for cached thread loading, use a cacheControl with maxStale set so it loads a cached response
     }
 
     private HttpUrl getChanUrl(Loadable loadable) {
-        HttpUrl url;
-
-        if (loadable.site == null) {
-            throw new NullPointerException("Loadable.site == null");
-        }
-
-        if (loadable.board == null) {
-            throw new NullPointerException("Loadable.board == null");
-        }
-
         if (loadable.isThreadMode()) {
-            url = loadable.site.endpoints().thread(loadable);
+            return loadable.board.site.endpoints().thread(loadable);
         } else if (loadable.isCatalogMode()) {
-            url = loadable.site.endpoints().catalog(loadable.board);
+            return loadable.board.site.endpoints().catalog(loadable.board);
         } else {
             throw new IllegalArgumentException("Unknown mode");
-        }
-        return url;
-    }
-
-    private void onResponse(ChanLoaderResponse response) {
-        call = null;
-
-        try {
-            if (response.posts.isEmpty()) {
-                throw new Exception("No posts in thread!");
-            }
-
-            onResponseInternal(response);
-        } catch (Throwable e) {
-            Logger.e(ChanThreadLoader.this, "onResponse error", e);
-            notifyAboutError(new ChanLoaderException(e instanceof Exception ? (Exception) e : new Exception(e)));
         }
     }
 
     private void onResponseInternal(ChanLoaderResponse response) {
         BackgroundUtils.ensureBackgroundThread();
+
+        call = null;
+        clearTimer();
 
         synchronized (this) {
             if (thread == null) {
@@ -357,73 +279,25 @@ public class ChanThreadLoader {
             lastPostCount = postCount;
             currentTimeout = localThread.getOp().isSticky() ? 3 : 0;
         } else {
-            // no new posts, increase timer
+            // no new posts, increase timer; if -1, this becomes 0 in the case of a fresh load
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);
         }
 
-        DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
+        DatabaseUtils.runTaskAsync(instance(DatabaseLoadableManager.class).updateLoadable(loadable, false));
 
-        BackgroundUtils.runOnMainThread(() -> {
-            for (ChanLoaderCallback l : listeners) {
-                l.onChanLoaderData(localThread);
-            }
-        });
+        for (ResponseResult<ChanThread> l : listeners) {
+            BackgroundUtils.runOnMainThread(() -> l.onSuccess(localThread));
+        }
     }
 
-    private void notifyAboutError(ChanLoaderException exception) {
+    private void notifyAboutError(Exception exception) {
         call = null;
         clearTimer();
 
         Logger.e(this, "Loading error", exception);
 
-        BackgroundUtils.runOnMainThread(() -> {
-            for (ChanLoaderCallback l : listeners) {
-                l.onChanLoaderError(exception);
-            }
-        });
-    }
-
-    private void clearPendingRunnable() {
-        if (pendingFuture != null) {
-            pendingFuture.cancel(false);
-            pendingFuture = null;
-        }
-    }
-
-    public interface ChanLoaderCallback {
-        void onChanLoaderData(ChanThread result);
-
-        void onChanLoaderError(ChanLoaderException error);
-    }
-
-    public static class ChanLoaderException
-            extends Exception {
-        private final Exception exception;
-
-        public ChanLoaderException(Exception exception) {
-            this.exception = exception;
-        }
-
-        public boolean isNotFound() {
-            return exception instanceof HttpCodeException && ((HttpCodeException) exception).isServerErrorNotFound();
-        }
-
-        public int getErrorMessage() {
-            //by default, a network error has occurred if the exception field is not null
-            int errorMessage = exception != null ? R.string.thread_load_failed_network : R.string.empty;
-            if (exception instanceof SSLException) {
-                errorMessage = R.string.thread_load_failed_ssl;
-            } else if (exception instanceof HttpCodeException) {
-                if (((HttpCodeException) exception).isServerErrorNotFound()) {
-                    errorMessage = R.string.thread_load_failed_not_found;
-                } else {
-                    errorMessage = R.string.thread_load_failed_server;
-                }
-            } else if (exception instanceof MalformedJsonException) {
-                errorMessage = R.string.thread_load_failed_parsing;
-            }
-
-            return errorMessage;
+        for (ResponseResult<ChanThread> l : listeners) {
+            BackgroundUtils.runOnMainThread(() -> l.onFailure(exception));
         }
     }
 }

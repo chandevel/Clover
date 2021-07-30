@@ -167,13 +167,8 @@ public class BrowseController
     }
 
     private void reloadClicked(ToolbarMenuItem item) {
-        ThreadPresenter presenter = threadLayout.getPresenter();
-        if (presenter.isBound()) {
-            presenter.requestData();
-
-            // Give the rotation menu item view a spin.
-            ((AnimatedVectorDrawable) item.getView().getDrawable()).start();
-        }
+        threadLayout.getPresenter().requestData();
+        ((AnimatedVectorDrawable) item.getView().getDrawable()).start();
     }
 
     @Override
@@ -297,7 +292,6 @@ public class BrowseController
         }
 
         presenter.bindLoadable(loadable);
-        presenter.requestData();
 
         ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
         ToolbarMenuSubItem archive = navigation.findSubItem(OverflowMenuId.ARCHIVE);

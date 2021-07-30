@@ -54,7 +54,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
@@ -255,16 +254,16 @@ public class ThreadLayout
     }
 
     @Override
-    public void showError(ChanThreadLoader.ChanLoaderException error) {
-        String errorMessage = getString(error.getErrorMessage());
+    public void showError(Exception error, int errResId) {
+        String errorMsg = getString(errResId);
 
         if (visible == Visible.THREAD) {
-            threadListLayout.showError(errorMessage);
+            threadListLayout.showError(errorMsg);
         } else {
             switchVisible(Visible.ERROR);
-            errorText.setText(errorMessage);
+            errorText.setText(errResId);
             archiveButton = false;
-            if (error.getErrorMessage() == R.string.thread_load_failed_not_found) {
+            if (errResId == R.string.thread_load_failed_not_found) {
                 errorRetryButton.setText(R.string.thread_view_external_archive);
                 archiveButton = true;
 

@@ -34,6 +34,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
@@ -748,7 +749,7 @@ public class WatchManager
     }
 
     public class PinWatcher
-            implements ChanThreadLoader.ChanLoaderCallback, PageRepository.PageCallback {
+            implements NetUtilsClasses.ResponseResult<ChanThread>, PageRepository.PageCallback {
         private final Pin pin;
         private ChanThreadLoader chanLoader;
 
@@ -817,6 +818,11 @@ public class WatchManager
             PageRepository.removeListener(this);
         }
 
+        /**
+         *
+         * @param fromBackground was this update called from a background state
+         * @return true if a data call was requested
+         */
         private boolean update(boolean fromBackground) {
             if (!pin.isError && pin.watching) {
                 //check last page stuff, get the page for the OP and notify in the onPages method
@@ -824,11 +830,14 @@ public class WatchManager
                 if (fromBackground) {
                     // Always load regardless of timer, since the time left is not accurate for 15min+ intervals
                     chanLoader.clearTimer();
-                    chanLoader.requestMoreData();
+                    chanLoader.requestAdditionalData();
                     return true;
                 } else {
-                    // true if a load was started
-                    return chanLoader.loadMoreIfTime();
+                    if (chanLoader.getTimeUntilLoadMore() < 0L) {
+                        chanLoader.requestAdditionalData();
+                        return true;
+                    }
+                    return false;
                 }
             } else {
                 return false;
@@ -836,12 +845,13 @@ public class WatchManager
         }
 
         @Override
-        public void onChanLoaderError(ChanThreadLoader.ChanLoaderException error) {
+        public void onFailure(Exception error) {
             Logger.d(this, "onChanLoaderError()");
 
             // Ignore normal network errors, we only pause pins when there is absolutely no way
             // we'll ever need watching again: a 404.
-            if (error.isNotFound()) {
+            if (error instanceof NetUtilsClasses.HttpCodeException
+                    && ((NetUtilsClasses.HttpCodeException) error).isServerErrorNotFound()) {
                 pin.isError = true;
                 pin.watching = false;
             }
@@ -850,7 +860,7 @@ public class WatchManager
         }
 
         @Override
-        public void onChanLoaderData(ChanThread thread) {
+        public void onSuccess(ChanThread thread) {
             if (thread.getOp() != null) {
                 lastReplyCount = thread.getOp().getReplies();
                 pin.isSticky = thread.getOp().isSticky();

@@ -20,9 +20,10 @@ import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 
+import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader.ChanLoaderCallback;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.HashMap;
@@ -31,9 +32,9 @@ import java.util.Map;
 /**
  * ChanLoaderManager is a manager/factory for ChanLoaders. Only ChanLoaders for threads are cached.
  * Only one instance of this class should exist, and is dependency injected; as a result, the methods inside are synchronized.
- * <p>Each reference to a loader is a {@link ChanLoaderCallback}, these references can be obtained with
- * {@link #obtain(Loadable, ChanLoaderCallback)} and released with {@link #release(ChanThreadLoader, ChanLoaderCallback)}.
- * A loader is only cached if it has no more listeners, therefore you can call {@link #obtain(Loadable, ChanLoaderCallback)}
+ * <p>Each reference to a loader is a {@link ResponseResult<ChanThread>}, these references can be obtained with
+ * {@link #obtain(Loadable, ResponseResult<ChanThread>)} and released with {@link #release(ChanThreadLoader, ResponseResult<ChanThread>)}.
+ * A loader is only cached if it has no more listeners, therefore you can call {@link #obtain(Loadable, ResponseResult<ChanThread>)}
  * as many times as you want as long as you call release an equal amount of times.<br>
  * <br>
  * The internal cache here acts as a sort of cache for recently visited threads, preserving their already processed API
@@ -59,7 +60,9 @@ public class ChanLoaderManager {
             new LruCache<>(THREAD_LOADERS_CACHE_SIZE);
 
     @NonNull
-    public static synchronized ChanThreadLoader obtain(@NonNull Loadable loadable, ChanLoaderCallback listener) {
+    public static synchronized ChanThreadLoader obtain(
+            @NonNull Loadable loadable, ResponseResult<ChanThread> listener
+    ) {
         BackgroundUtils.ensureMainThread();
 
         ChanThreadLoader chanLoader;
@@ -86,7 +89,7 @@ public class ChanLoaderManager {
         return chanLoader;
     }
 
-    public static synchronized void release(@NonNull ChanThreadLoader chanLoader, ChanLoaderCallback listener) {
+    public static synchronized void release(@NonNull ChanThreadLoader chanLoader, ResponseResult<ChanThread> listener) {
         BackgroundUtils.ensureMainThread();
 
         Loadable loadable = chanLoader.getLoadable();
