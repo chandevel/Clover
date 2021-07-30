@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
 import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
@@ -162,7 +163,7 @@ public class SiteSetupController
 
         general.add(new LinkSettingView(this, "Clear cookies for this site", "", ((v, sv) -> {
             site.actions().clearCookies();
-            setIsLoggedIn(site.actions().isLoggedIn()); // may have changed
+            setIsLoggedIn(site.actions().isLoggedIn(Loadable.emptyLoadable())); // may have changed
             CancellableToast.showToast(context, "Cleared site cookies!");
         })));
 

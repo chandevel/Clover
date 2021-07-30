@@ -88,7 +88,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 public class ThemeSettingsController
         extends Controller {
 
-    private final Loadable dummyLoadable = Loadable.emptyLoadable();
+    private final Loadable dummyLoadable = Loadable.emptyLoadable().clone();
 
     {
         dummyLoadable.mode = Loadable.Mode.THREAD;

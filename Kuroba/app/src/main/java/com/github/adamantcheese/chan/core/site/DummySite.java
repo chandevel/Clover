@@ -206,7 +206,7 @@ public class DummySite
             public void post(Loadable loadableWithDraft, PostListener postListener) {}
 
             @Override
-            public boolean postRequiresAuthentication() { return false; }
+            public boolean postRequiresAuthentication(Loadable loadableWithDraft) { return false; }
 
             @Override
             public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
@@ -226,7 +226,7 @@ public class DummySite
             public void logout(final ResponseResult<LoginResponse> loginListener) {}
 
             @Override
-            public boolean isLoggedIn() { return false; }
+            public boolean isLoggedIn(Loadable loadable) { return false; }
 
             @Override
             public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", "", true); }

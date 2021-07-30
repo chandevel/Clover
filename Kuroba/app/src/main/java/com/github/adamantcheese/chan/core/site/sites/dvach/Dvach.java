@@ -159,7 +159,7 @@ public class Dvach
             }
 
             @Override
-            public boolean postRequiresAuthentication() {
+            public boolean postRequiresAuthentication(Loadable loadableWithDraft) {
                 return true;
             }
 

@@ -445,7 +445,7 @@ public abstract class CommonSite
         public abstract ReplyResponse handlePost(Loadable loadable, Response httpResponse);
 
         @Override
-        public boolean postRequiresAuthentication() {
+        public boolean postRequiresAuthentication(Loadable loadableWithDraft) {
             return false;
         }
 
@@ -510,7 +510,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public boolean isLoggedIn() {
+        public boolean isLoggedIn(Loadable loadable) {
             return false;
         }
 

@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 
@@ -40,7 +41,7 @@ public class SiteSetupPresenter {
     public void show() {
         callback.setBoardCount(DatabaseUtils.runTask(databaseBoardManager.getSiteSavedBoards(site)).size());
         if (hasLogin) {
-            callback.setIsLoggedIn(site.actions().isLoggedIn());
+            callback.setIsLoggedIn(site.actions().isLoggedIn(Loadable.emptyLoadable()));
         }
     }
 

@@ -28,6 +28,7 @@ import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
@@ -73,7 +74,7 @@ public class LoginController
 
         button.setOnClickListener((v) -> {
             authBefore();
-            if (site.actions().isLoggedIn()) {
+            if (site.actions().isLoggedIn(Loadable.emptyLoadable())) {
                 site.actions().logout(new ResponseResult<LoginResponse>() {
                     @Override
                     public void onFailure(Exception e) {
@@ -136,7 +137,7 @@ public class LoginController
         inputToken.setText(loginDetails.user);
         inputPin.setText(loginDetails.pass);
 
-        final boolean loggedIn = site.actions().isLoggedIn();
+        final boolean loggedIn = site.actions().isLoggedIn(Loadable.emptyLoadable());
         if (loggedIn) {
             button.setText(R.string.setting_pass_logout);
         }

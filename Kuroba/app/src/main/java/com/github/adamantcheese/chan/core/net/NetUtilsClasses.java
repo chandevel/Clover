@@ -15,12 +15,17 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Cookie;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -367,5 +372,12 @@ public class NetUtilsClasses {
         public @NotNull BufferedSource source() {
             return new Buffer();
         }
+    }
+
+    /**
+     * A cookie processor, depending on the input will either process it into another cookie, or return the input cookie
+     */
+    public interface CookieProcessor {
+        List<Cookie> process(Cookie c);
     }
 }

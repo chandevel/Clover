@@ -97,21 +97,59 @@ public class NetUtils {
                         return chain.proceed(request);
                     }));
 
+    /**
+     * @param processor The cookie processor to use for this interceptor
+     * @return an interceptor that will deal with cookies when attached to a client (use newBuilder)
+     */
+    public static Interceptor createCookieParsingInterceptor(NetUtilsClasses.CookieProcessor processor) {
+        return chain -> {
+            Response r = chain.proceed(chain.request());
+            List<Cookie> cookieList = Cookie.parseAll(chain.request().url(), r.headers());
+            List<Cookie> newList = new ArrayList<>();
+            for (Cookie c : cookieList) {
+                newList.addAll(processor.process(c));
+            }
+            Headers.Builder h = new Headers.Builder().addAll(r.headers());
+            h.removeAll("Set-Cookie");
+            for (Cookie c : newList) {
+                h.add("Set-Cookie", c.toString());
+            }
+            NetUtils.applicationClient.cookieJar().saveFromResponse(r.request().url(), newList);
+            return r.newBuilder().headers(h.build()).build();
+        };
+    }
+
     public static void clearCookies(HttpUrl url) {
         List<Cookie> cookieList = NetUtils.applicationClient.cookieJar().loadForRequest(url);
         List<Cookie> expiredList = new ArrayList<>();
         for (Cookie c : cookieList) {
-            Cookie.Builder builder = new Cookie.Builder().path(c.path()).name(c.name()).value(c.value()).expiresAt(0);
-            if (c.secure()) builder.secure();
-            if (c.httpOnly()) builder.httpOnly();
-            if (c.hostOnly()) {
-                builder.hostOnlyDomain(c.domain());
-            } else {
-                builder.domain(c.domain());
-            }
-            expiredList.add(builder.build());
+            expiredList.add(rebuildCookie(c).expiresAt(0).build());
         }
         NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
+    }
+
+    // TODO remove this in the future when OkHttp updates, since Cookie will have a builder method then
+    public static Cookie.Builder rebuildCookie(Cookie c) {
+        Cookie.Builder builder =
+                new Cookie.Builder().path(c.path()).name(c.name()).value(c.value()).expiresAt(c.expiresAt());
+        if (c.secure()) builder.secure();
+        if (c.httpOnly()) builder.httpOnly();
+        if (c.hostOnly()) {
+            builder.hostOnlyDomain(c.domain());
+        } else {
+            builder.domain(c.domain());
+        }
+        return builder;
+    }
+
+    public static Cookie.Builder rebuildCookie(Cookie c, String newDomain) {
+        Cookie.Builder builder = rebuildCookie(c);
+        if (c.hostOnly()) {
+            builder.hostOnlyDomain(newDomain);
+        } else {
+            builder.domain(newDomain);
+        }
+        return builder;
     }
 
     // max 1/4 the maximum Dalvik runtime size

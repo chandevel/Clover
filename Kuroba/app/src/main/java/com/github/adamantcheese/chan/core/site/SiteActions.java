@@ -39,11 +39,11 @@ public interface SiteActions {
     interface PostListener
             extends NetUtilsClasses.ResponseResult<ReplyResponse>, ProgressRequestBody.ProgressRequestListener {}
 
-    boolean postRequiresAuthentication();
+    boolean postRequiresAuthentication(Loadable loadableWithDraft);
 
     /**
      * If {@link ReplyResponse#requireAuthentication} was {@code true}, or if
-     * {@link #postRequiresAuthentication()} is {@code true}, get the authentication
+     * {@link #postRequiresAuthentication(Loadable)} is {@code true}, get the authentication
      * required to post.
      * <p>
      * <p>Some sites know beforehand if you need to authenticate, some sites only report it
@@ -62,7 +62,7 @@ public interface SiteActions {
 
     void logout(NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
-    boolean isLoggedIn();
+    boolean isLoggedIn(Loadable loadable);
 
     LoginRequest getLoginDetails();
 

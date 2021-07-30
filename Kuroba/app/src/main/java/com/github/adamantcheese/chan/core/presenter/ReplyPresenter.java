@@ -229,7 +229,7 @@ public class ReplyPresenter
     }
 
     private void submitOrAuthenticate(boolean authenticateOnly) {
-        if (loadable.site.actions().postRequiresAuthentication()) {
+        if (loadable.site.actions().postRequiresAuthentication(loadable)) {
             switchPage(Page.AUTHENTICATION, true, !authenticateOnly);
         } else {
             makeSubmitCall();

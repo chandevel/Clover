@@ -62,7 +62,7 @@ public class LastReplyRepository {
         Long lastTime = lastReplyMap.get(b);
         long lastReplyTime = lastTime != null ? lastTime : 0L;
         long waitTime = hasImage ? b.cooldownImages : b.cooldownReplies;
-        if (b.site.actions().isLoggedIn()) waitTime /= 2;
+        if (b.site.actions().isLoggedIn(Loadable.emptyLoadable())) waitTime /= 2;
         return waitTime - ((System.currentTimeMillis() - lastReplyTime) / 1000L);
     }
 
@@ -74,7 +74,7 @@ public class LastReplyRepository {
         Long lastTime = lastThreadMap.get(b);
         long lastThreadTime = lastTime != null ? lastTime : 0L;
         long waitTime = b.cooldownThreads;
-        if (b.site.actions().isLoggedIn()) waitTime /= 2;
+        if (b.site.actions().isLoggedIn(Loadable.emptyLoadable())) waitTime /= 2;
         return waitTime - ((System.currentTimeMillis() - lastThreadTime) / 1000L);
     }
 }

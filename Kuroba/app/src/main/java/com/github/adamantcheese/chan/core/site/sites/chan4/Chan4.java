@@ -67,11 +67,11 @@ import java.util.regex.Pattern;
 
 import kotlin.random.Random;
 import okhttp3.Cookie;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static com.github.adamantcheese.chan.core.net.NetUtils.createCookieParsingInterceptor;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CUSTOM;
@@ -378,20 +378,32 @@ public class Chan4
         @Override
         public void post(Loadable loadableWithDraft, final PostListener postListener) {
             NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
-                    Collections.emptyList(),
+                    Collections.singletonList(createCookieParsingInterceptor(c -> {
+                        // in the event of a pass being already used, these will be immediately expired and you will be logged out
+                        if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                            List<Cookie> out = new ArrayList<>();
+                            Collections.addAll(out,
+                                    NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),
+                                    NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).build()
+                            );
+                            return out;
+                        } else {
+                            return Collections.singletonList(c);
+                        }
+                    })),
                     postListener
             );
         }
 
         @Override
-        public boolean postRequiresAuthentication() {
-            return !isLoggedIn();
+        public boolean postRequiresAuthentication(Loadable loadableWithDraft) {
+            return !isLoggedIn(loadableWithDraft);
         }
 
         @Override
         public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
             final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
-            if (isLoggedIn()) {
+            if (isLoggedIn(loadableWithDraft)) {
                 return SiteAuthentication.fromNone();
             } else {
                 switch (captchaType.get()) {
@@ -427,45 +439,21 @@ public class Chan4
 
             NetUtils.makeHttpCall(new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
                     new LoginRequest(Chan4.this, passUser.get(), passPass.get(), true)
-            ), Collections.singletonList(chain -> {
-                Response r = chain.proceed(chain.request());
-                List<Cookie> cookieList = Cookie.parseAll(chain.request().url(), r.headers());
-                List<Cookie> newList = new ArrayList<>();
-                for (Cookie c : cookieList) {
-                    // for these two specific cookies, upon login set their expiration to never expire
-                    // 4chan defaults to 1 day, but an expired cookie value technically still works
-                    // also copy them to both 4chan.org and 4channel.org because hiro's real good at auth
-                    if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
-                        Cookie.Builder builder = new Cookie.Builder().path(c.path())
-                                .name(c.name())
-                                .value(c.value())
-                                .expiresAt(Long.MAX_VALUE);
-                        if (c.secure()) builder.secure();
-                        if (c.httpOnly()) builder.httpOnly();
-                        if (c.hostOnly()) {
-                            builder.hostOnlyDomain(sys.topPrivateDomain());
-                        } else {
-                            builder.domain(sys.topPrivateDomain());
-                        }
-                        newList.add(builder.build());
-                        if (c.hostOnly()) {
-                            builder.hostOnlyDomain(sysSafe.topPrivateDomain());
-                        } else {
-                            builder.domain(sysSafe.topPrivateDomain());
-                        }
-                        newList.add(builder.build());
-                    } else {
-                        newList.add(c);
-                    }
+            ), Collections.singletonList(createCookieParsingInterceptor(c -> {
+                // for these two specific cookies, upon login set their expiration to never expire
+                // 4chan defaults to 1 day, but an expired cookie value technically still works
+                // also copy them to both 4chan.org and 4channel.org because hiro's real good at auth
+                if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                    List<Cookie> out = new ArrayList<>();
+                    Collections.addAll(out,
+                            NetUtils.rebuildCookie(c, sys.topPrivateDomain()).expiresAt(Long.MAX_VALUE).build(),
+                            NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).expiresAt(Long.MAX_VALUE).build()
+                    );
+                    return out;
+                } else {
+                    return Collections.singletonList(c);
                 }
-                Headers.Builder h = new Headers.Builder().addAll(r.headers());
-                h.removeAll("Set-Cookie");
-                for (Cookie c : newList) {
-                    h.add("Set-Cookie", c.toString());
-                }
-                NetUtils.applicationClient.cookieJar().saveFromResponse(r.request().url(), newList);
-                return r.newBuilder().headers(h.build()).build();
-            }));
+            })));
         }
 
         @Override
@@ -474,54 +462,26 @@ public class Chan4
                     new Chan4PassHttpCall(new MainThreadResponseResult<>(loginListener),
                             new LoginRequest(Chan4.this, "", "", false)
                     ),
-                    Collections.singletonList(chain -> {
-                        Response r = chain.proceed(chain.request());
-                        List<Cookie> cookieList = Cookie.parseAll(chain.request().url(), r.headers());
-                        List<Cookie> newList = new ArrayList<>();
-                        for (Cookie c : cookieList) {
-                            // same as login, but expire both cookies
-                            if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
-                                Cookie.Builder builder = new Cookie.Builder().path(c.path())
-                                        .name(c.name())
-                                        .value(c.value())
-                                        .expiresAt(c.expiresAt());
-                                if (c.secure()) builder.secure();
-                                if (c.httpOnly()) builder.httpOnly();
-                                if (c.hostOnly()) {
-                                    builder.hostOnlyDomain(sys.topPrivateDomain());
-                                } else {
-                                    builder.domain(sys.topPrivateDomain());
-                                }
-                                newList.add(builder.build());
-                                if (c.hostOnly()) {
-                                    builder.hostOnlyDomain(sysSafe.topPrivateDomain());
-                                } else {
-                                    builder.domain(sysSafe.topPrivateDomain());
-                                }
-                                newList.add(builder.build());
-                            } else {
-                                newList.add(c);
-                            }
+                    Collections.singletonList(createCookieParsingInterceptor(c -> {
+                        // same as login, but expire both cookies
+                        if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                            List<Cookie> out = new ArrayList<>();
+                            Collections.addAll(out,
+                                    NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),
+                                    NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).build()
+                            );
+                            return out;
+                        } else {
+                            return Collections.singletonList(c);
                         }
-                        Headers.Builder h = new Headers.Builder().addAll(r.headers());
-                        h.removeAll("Set-Cookie");
-                        for (Cookie c : newList) {
-                            h.add("Set-Cookie", c.toString());
-                        }
-                        NetUtils.applicationClient.cookieJar().saveFromResponse(r.request().url(), newList);
-                        return r.newBuilder().headers(h.build()).build();
-                    })
+                    }))
             );
         }
 
         @Override
-        public boolean isLoggedIn() {
-            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sys)) {
-                if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
-                    return true;
-                }
-            }
-            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sysSafe)) {
+        public boolean isLoggedIn(Loadable loadable) {
+            for (Cookie cookie : NetUtils.applicationClient.cookieJar()
+                    .loadForRequest(loadable.board.workSafe ? sysSafe : sys)) {
                 if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
                     return true;
                 }

@@ -138,11 +138,14 @@ public class Loadable
         return loadable;
     }
 
+    private static Loadable emptyLoadable;
+
     public static Loadable emptyLoadable() {
-        Loadable ret = new Loadable();
-        ret.site = new DummySite();
-        ret.board = Board.getDummyBoard();
-        return ret;
+        if (emptyLoadable != null) return emptyLoadable;
+        emptyLoadable = new Loadable();
+        emptyLoadable.site = new DummySite();
+        emptyLoadable.board = Board.getDummyBoard();
+        return emptyLoadable;
     }
 
     public static Loadable forCatalog(Board board) {
