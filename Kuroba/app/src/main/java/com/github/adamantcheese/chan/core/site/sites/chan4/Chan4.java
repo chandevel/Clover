@@ -296,10 +296,10 @@ public class Chan4
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return (loadable.board.workSafe ? sysSafe : sys).newBuilder()
-                    .addPathSegment(loadable.boardCode)
-                    .addPathSegment("post")
-                    .build();
+            // due to an issue with posting and certain things returning incorrect cookie domains
+            // and OkHttp's cookie jar expecting the same domain as the request URL, this does not use
+            // syssafe like other methods
+            return sys.newBuilder().addPathSegment(loadable.boardCode).addPathSegment("post").build();
         }
 
         @Override
@@ -312,7 +312,8 @@ public class Chan4
 
         @Override
         public HttpUrl report(Post post) {
-            return (post.board.workSafe ? sysSafe : sys).newBuilder()
+            // see comment on reply
+            return sys.newBuilder()
                     .addPathSegment(post.board.code)
                     .addPathSegment("imgboard.php")
                     .addQueryParameter("mode", "report")
