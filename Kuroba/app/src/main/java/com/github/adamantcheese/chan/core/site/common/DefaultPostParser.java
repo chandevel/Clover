@@ -16,11 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
+import android.os.Build;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
 import android.text.TextUtils;
-import android.text.style.BackgroundColorSpan;
 import android.view.View;
 
 import androidx.annotation.AnyThread;
@@ -33,10 +33,13 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.RoundedBackgroundSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -133,79 +136,64 @@ public class DefaultPostParser
      * @param builder Post builder to get data from
      */
     private void parseInfoSpans(Theme theme, Post.Builder builder) {
-        boolean anonymize = ChanSettings.anonymize.get();
-        boolean anonymizeIds = ChanSettings.anonymizeIds.get();
+        float detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
+        SpannableStringBuilder nameTripcodeIdCapcodeSpan = new SpannableStringBuilder();
 
         final String defaultName = "Anonymous";
-        if (anonymize) {
+        if (ChanSettings.anonymize.get()) {
             builder.name(defaultName);
             builder.tripcode("");
         }
 
-        if (anonymizeIds) {
+        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
+                || ChanSettings.showAnonymousName.get())) {
+            SpannableString nameSpan = new SpannableString(builder.name);
+            nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
+            nameTripcodeIdCapcodeSpan.append(nameSpan).append("  ");
+        }
+
+        if (!TextUtils.isEmpty(builder.tripcode)) {
+            SpannableString tripcodeSpan = new SpannableString(builder.tripcode);
+            tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, tripcodeSpan.length(), 0);
+            tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, tripcodeSpan.length(), 0);
+            nameTripcodeIdCapcodeSpan.append(tripcodeSpan).append("  ");
+        }
+
+        if (ChanSettings.anonymizeIds.get()) {
             builder.posterId("");
         }
 
-        SpannableString subjectSpan = null;
-        SpannableString nameSpan = null;
-        SpannableString tripcodeSpan = null;
-        SpannableString idSpan = null;
-        SpannableString capcodeSpan = null;
+        if (!TextUtils.isEmpty(builder.posterId)) {
+            SpannableString idSpan = new SpannableString("  " + builder.posterId + "  ");
+            idSpan.setSpan(new ForegroundColorSpanHashed(getContrastColor(builder.idColor)), 0, idSpan.length(), 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    && PersistableChanState.experimentalRoundedIDSpans.get()) {
+                idSpan.setSpan(new RoundedBackgroundSpan(builder.idColor), 0, idSpan.length(), 0);
+            } else {
+                idSpan.setSpan(new BackgroundColorSpanHashed(builder.idColor), 0, idSpan.length(), 0);
+            }
+            idSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, idSpan.length(), 0);
+            nameTripcodeIdCapcodeSpan.append(idSpan).append("  ");
+        }
 
-        float detailsSizePx = sp(ChanSettings.fontSize.get() - 4);
+        if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
+            SpannableString capcodeSpan = new SpannableString(StringUtils.caseAndSpace(builder.moderatorCapcode, null));
+            int accentColor = getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
+            capcodeSpan.setSpan(new ForegroundColorSpanHashed(accentColor), 0, capcodeSpan.length(), 0);
+            capcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, capcodeSpan.length(), 0);
+            nameTripcodeIdCapcodeSpan.append(capcodeSpan).append("  ");
+        }
 
         if (!TextUtils.isEmpty(builder.subject)) {
-            subjectSpan = new SpannableString(builder.subject);
+            SpannableString subjectSpan = new SpannableString(builder.subject);
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
             if (!builder.filterStub) {
                 subjectSpan.setSpan(new ForegroundColorSpanHashed(theme.subjectColor), 0, subjectSpan.length(), 0);
             }
+            builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
+        } else {
+            builder.spans(null, nameTripcodeIdCapcodeSpan);
         }
-
-        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
-                || ChanSettings.showAnonymousName.get())) {
-            nameSpan = new SpannableString(builder.name);
-            nameSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, nameSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(builder.tripcode)) {
-            tripcodeSpan = new SpannableString(builder.tripcode);
-            tripcodeSpan.setSpan(new ForegroundColorSpanHashed(theme.nameColor), 0, tripcodeSpan.length(), 0);
-            tripcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, tripcodeSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(builder.posterId)) {
-            idSpan = new SpannableString("  " + builder.posterId + "  ");
-            idSpan.setSpan(new ForegroundColorSpanHashed(getContrastColor(builder.idColor)), 0, idSpan.length(), 0);
-            idSpan.setSpan(new BackgroundColorSpan(builder.idColor), 0, idSpan.length(), 0);
-            idSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, idSpan.length(), 0);
-        }
-
-        if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
-            capcodeSpan = new SpannableString(StringUtils.caseAndSpace(builder.moderatorCapcode, null));
-            int accentColor = getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
-            capcodeSpan.setSpan(new ForegroundColorSpanHashed(accentColor), 0, capcodeSpan.length(), 0);
-            capcodeSpan.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, capcodeSpan.length(), 0);
-        }
-
-        CharSequence nameTripcodeIdCapcodeSpan = new SpannableString("");
-        if (nameSpan != null) {
-            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, nameSpan, " ");
-        }
-
-        if (tripcodeSpan != null) {
-            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, tripcodeSpan, " ");
-        }
-
-        if (idSpan != null) {
-            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, idSpan, " ");
-        }
-
-        if (capcodeSpan != null) {
-            nameTripcodeIdCapcodeSpan = TextUtils.concat(nameTripcodeIdCapcodeSpan, capcodeSpan, " ");
-        }
-
-        builder.spans(subjectSpan, nameTripcodeIdCapcodeSpan);
     }
 
     private SpannableStringBuilder parseComment(@NonNull Theme theme, Post.Builder post, Callback callback) {

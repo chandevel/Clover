@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -205,6 +206,20 @@ public class DeveloperSettingsController
         noFunAllowed.setChecked(PersistableChanState.noFunAllowed.get());
         noFunAllowed.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.noFunAllowed.toggle());
         wrapper.addView(noFunAllowed);
+
+        TextView experimentalSection = new TextView(context);
+        experimentalSection.setText("Experimental Settings");
+        experimentalSection.setTextSize(16);
+        experimentalSection.setGravity(Gravity.CENTER_HORIZONTAL);
+        updatePaddings(experimentalSection, 0, 0, dp(5), 0);
+        wrapper.addView(experimentalSection);
+
+        Switch roundedIdTest = new Switch(context);
+        roundedIdTest.setText("Use rounded background span for IDs");
+        roundedIdTest.setTextColor(getAttrColor(context, android.R.attr.textColor));
+        roundedIdTest.setChecked(PersistableChanState.experimentalRoundedIDSpans.get());
+        roundedIdTest.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.experimentalRoundedIDSpans.toggle());
+        wrapper.addView(roundedIdTest);
 
         ScrollView scrollView = new ScrollView(context);
         updatePaddings(scrollView, dp(16), dp(16), dp(16), dp(16));

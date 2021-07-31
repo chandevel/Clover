@@ -357,7 +357,7 @@ public class ThreadPresenter
                 loadable.lastViewed = loadable.lastLoaded;
             }
 
-            if (more > 0 && loadable.no == result.getLoadable().no) {
+            if (loadable.no == result.getLoadable().no) {
                 threadPresenterCallback.showNewPostsSnackbar(loadable, more);
             }
         }

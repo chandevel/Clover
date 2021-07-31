@@ -27,7 +27,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -404,6 +403,8 @@ public class ThemeSettingsController
             Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
                     .no(123456789)
                     .opId(123456789)
+                    .posterId("TeStId++")
+                    .idColor(0xFF317CD3)
                     .op(true)
                     .replies(1)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
@@ -411,12 +412,13 @@ public class ThemeSettingsController
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
-                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>")
-                    .idColor(Color.WHITE);
+                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
                     .no(234567890)
                     .opId(123456789)
+                    .posterId("TeStId2+")
+                    .idColor(0xFF471D0A)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
@@ -429,6 +431,9 @@ public class ThemeSettingsController
                     .opId(123456789)
                     .name("W.T. Snacks")
                     .tripcode("!TcT.PTG1.2")
+                    .posterId("TeStId3+")
+                    .idColor(0xFFEAE189)
+                    .moderatorCapcode("Mod")
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
                     .comment(
                             "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"

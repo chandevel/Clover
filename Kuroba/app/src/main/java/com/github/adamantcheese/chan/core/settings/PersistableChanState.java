@@ -26,6 +26,8 @@ public class PersistableChanState {
 
     public static BooleanSetting noFunAllowed;
 
+    public static BooleanSetting experimentalRoundedIDSpans;
+
     static {
         try {
             SharedPreferencesSettingProvider p = new SharedPreferencesSettingProvider(AndroidUtils.getAppState());
@@ -39,6 +41,7 @@ public class PersistableChanState {
             filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
 
             noFunAllowed = new BooleanSetting(p, "no_fun_allowed", false);
+            experimentalRoundedIDSpans = new BooleanSetting(p, "experimental_rounded_id_spans", false);
         } catch (Exception e) {
             Logger.e("PersistableChanState", "Error while initializing the state", e);
             throw e;
