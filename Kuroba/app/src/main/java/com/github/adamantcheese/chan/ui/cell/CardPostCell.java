@@ -224,11 +224,12 @@ public class CardPostCell
                 ? null
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
-        // change the line height depending on the thumbnail height, so wait for a measure
+        // change the line height depending on the thumbnail height, so wait for a measure, but use a default value
+        comment.setMaxLines(COMMENT_MAX_LINES);
         OneShotPreDrawListener.add(thumbView, () -> {
             if (ChanSettings.getBoardColumnCount() != 1) {
                 int maxLines = thumbView.getHeight() / comment.getLineHeight();
-                comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES));
+                comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES)); // cap if too large
             } else {
                 comment.setMaxLines(COMMENT_MAX_LINES * 2);
             }
