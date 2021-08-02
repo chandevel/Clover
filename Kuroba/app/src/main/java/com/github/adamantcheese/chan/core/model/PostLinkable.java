@@ -22,8 +22,10 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.style.LineBackgroundSpan;
+import android.text.style.UpdateAppearance;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -86,7 +88,6 @@ public class PostLinkable
         this.type = type;
 
         // internal dash paint setup
-        dashPaint.setColor(quoteColor);
         dashPaint.setStyle(Paint.Style.STROKE);
         dashPaint.setPathEffect(new DashPathEffect(new float[]{DASH_SPACING, DASH_SPACING}, 0));
         // only one side of the stroke needs to be this thick, it is doubled automatically
@@ -159,13 +160,22 @@ public class PostLinkable
             Spanned lineText = (Spanned) text.subSequence(start, end); // the text on this line being rendered
             int spanStart = lineText.getSpanStart(this); // where this span starts on this line
             int spanEnd = lineText.getSpanEnd(this); // where this span ends on this line
-            CharSequence preText = lineText.subSequence(0, spanStart); // the text that is before this span
-            CharSequence spanned = lineText.subSequence(spanStart, spanEnd); // the text spanned in this line
+            Spanned preText = (Spanned) lineText.subSequence(0, spanStart); // the text that is before this span
+            Spanned spanned = (Spanned) lineText.subSequence(spanStart, spanEnd); // the text spanned in this line
             float preSpannedWidth = paint.measureText(preText, 0, preText.length()); // with previous paint attributes
             float spannedWidth = paint.measureText(spanned, 0, spanned.length());
 
             float newLeft = left + preSpannedWidth;
             float newBottom = bottom - BASELINE_OFFSET * 2;
+
+            // update colors in case of overlapping spans
+            TextPaint workPaint = new TextPaint();
+            for (CharacterStyle span : spanned.getSpans(0, spanned.length(), CharacterStyle.class)) {
+                if (span instanceof UpdateAppearance) {
+                    span.updateDrawState(workPaint);
+                }
+            }
+            dashPaint.setColor(workPaint.getColor());
 
             // draw dashed line
             dashPath.rewind();

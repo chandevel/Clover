@@ -97,7 +97,7 @@ public class PostPopupHelper {
     private void updateLinkableMarkedNos(RepliesData data, boolean bind) {
         // we only mark them if there's more than one quote
         for (Post p : data.posts) {
-            List<PostLinkable> linkables = p.getLinkables();
+            List<PostLinkable> linkables = p.getQuoteLinkables();
             for (PostLinkable linkable : linkables) {
                 linkable.setMarkedNo(bind && linkables.size() > 1 ? data.forPostNo : -1);
             }

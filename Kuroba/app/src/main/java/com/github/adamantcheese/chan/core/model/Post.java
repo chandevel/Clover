@@ -279,6 +279,20 @@ public class Post
         }
     }
 
+    @MainThread
+    public List<PostLinkable> getQuoteLinkables() {
+        synchronized (comment) {
+            List<PostLinkable> linkables = getLinkables();
+            List<PostLinkable> ret = new ArrayList<>();
+            for (PostLinkable l : linkables) {
+                if (l.type == PostLinkable.Type.QUOTE) {
+                    ret.add(l);
+                }
+            }
+            return ret;
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
