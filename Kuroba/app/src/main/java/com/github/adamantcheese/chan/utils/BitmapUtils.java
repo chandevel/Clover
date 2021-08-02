@@ -102,7 +102,7 @@ public class BitmapUtils {
         Bitmap newBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         bitmap.recycle();
 
-        if (imageOptions.blur) {
+        if (imageOptions.blur && rs != null) {
             Allocation input = Allocation.createFromBitmap(rs, newBitmap);
             Allocation output = Allocation.createTyped(rs, input.getType());
             ScriptIntrinsicBlur script = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));

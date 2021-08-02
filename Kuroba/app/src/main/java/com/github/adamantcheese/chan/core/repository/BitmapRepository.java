@@ -34,7 +34,9 @@ public class BitmapRepository {
     public static Bitmap pinkiePie;
 
     public static void initialize(Context c) {
-        rs = RenderScript.create(c);
+        try {
+            rs = RenderScript.create(c);
+        } catch (Throwable ignored) {}
 
         youtubeIcon = decode(c, R.drawable.youtube_icon);
         streamableIcon = decode(c, R.drawable.streamable_icon);

@@ -688,14 +688,11 @@ public class ThreadLayout
 
     private View inflateEmptyView() {
         View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_empty_setup, null);
-        TextView tv = view.findViewById(R.id.feature);
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // This unicode symbol crashes app on APIs below 23
-            //😴 sleeping face emoji
+            TextView tv = view.findViewById(R.id.feature);
+            // 😴 sleeping face emoji crashes app on APIs below 23
             tv.setText("\uD83D\uDE34");
         }
-
         return view;
     }
 
