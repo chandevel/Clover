@@ -86,6 +86,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.Balloon;
 import com.vdurmont.emoji.EmojiParser;
@@ -96,7 +98,7 @@ import org.greenrobot.eventbus.Subscribe;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -256,7 +258,9 @@ public class ReplyLayout
         flag.setOnClickListener(v -> {
             List<FloatingMenuItem<String>> items = new ArrayList<>();
             items.add(new FloatingMenuItem<>(null, "No Flag"));
-            Map<String, String> boardFlags = presenter.getBoardFlags();
+            TreeMap<String, String> boardFlags =
+                    new TreeMap<>(Ordering.natural().onResultOf(Functions.forMap(presenter.getBoardFlags())));
+            boardFlags.putAll(presenter.getBoardFlags());
             FloatingMenuItem<String> selected = null;
             for (String key : boardFlags.keySet()) {
                 FloatingMenuItem<String> flagItem = new FloatingMenuItem<>(key, boardFlags.get(key));
@@ -265,7 +269,6 @@ public class ReplyLayout
                 }
                 items.add(flagItem);
             }
-            if (items.isEmpty()) return;
             FloatingMenu<String> menu = new FloatingMenu<>(getContext(), flag, items);
             menu.setAnchorGravity(Gravity.CENTER, 0, 0);
             menu.setAdapter(new BaseAdapter() {
@@ -304,7 +307,7 @@ public class ReplyLayout
                     flag.setText(item.getId());
                 }
             });
-            menu.setPopupHeight((int) dp(300));
+            menu.setPopupHeight((int) dp(450));
             menu.show();
         });
         options.addTextChangedListener(this);
