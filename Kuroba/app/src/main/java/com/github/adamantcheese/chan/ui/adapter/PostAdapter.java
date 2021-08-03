@@ -200,7 +200,7 @@ public class PostAdapter
                             for (PostLinkable linkable : post.getLinkables()) {
                                 linkable.callback = this::allowsDashedUnderlines;
                             }
-                            doSetPost(postViewHolder, post, true);
+                            holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
                         }
                         break;
                     case TYPE_POST_STUB:
@@ -241,17 +241,20 @@ public class PostAdapter
             return;
         }
         CellType cellType = CellType.values()[holder.getItemViewType()];
-        if (cellType == TYPE_STATUS) {
-            String error = payloads.get(0) == null ? null : (String) payloads.get(0);
-            ((ThreadStatusCell) holder.itemView).setError(error);
-        } else if (cellType == TYPE_POST || cellType == TYPE_CARD) {
-            if (displayList.get(position) == ((PostCellInterface) holder.itemView).getPost()) {
+        switch (cellType) {
+            case TYPE_CARD:
+            case TYPE_POST:
                 doSetPost((PostViewHolder) holder, displayList.get(position), true);
-            } else {
+                break;
+            case TYPE_STATUS:
+                String error = payloads.get(0) == null ? null : (String) payloads.get(0);
+                ((ThreadStatusCell) holder.itemView).setError(error);
+                break;
+            case TYPE_CARD_STUB:
+            case TYPE_POST_STUB:
+            default:
                 super.onBindViewHolder(holder, position, payloads);
-            }
-        } else {
-            super.onBindViewHolder(holder, position, payloads);
+                break;
         }
     }
 

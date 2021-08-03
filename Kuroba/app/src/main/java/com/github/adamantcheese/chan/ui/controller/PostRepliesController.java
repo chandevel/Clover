@@ -122,7 +122,7 @@ public class PostRepliesController
             }
 
             @Override
-            public boolean shouldHighlight(Post post) {
+            public boolean shouldHighlight(@NonNull Post post) {
                 return false;
             }
 
