@@ -390,8 +390,8 @@ public class BrowseController
                 }
             }
             if (!TextUtils.isEmpty(searchQuery)) {
+                navigation.searchText = searchQuery;
                 getToolbar().openSearch();
-                getToolbar().searchInput(searchQuery);
                 searchQuery = null;
             }
         }
