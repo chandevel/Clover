@@ -33,7 +33,7 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.cell.PostCell;
+import com.github.adamantcheese.chan.ui.cell.PostViewMovementMethod;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
@@ -44,7 +44,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 /**
  * A Clickable span that handles post clicks. These are created in PostParser for post quotes, spoilers etc.<br>
- * PostCell has a {@link PostCell.PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
+ * PostCell has a {@link PostViewMovementMethod}, that searches spans at the location the TextView was tapped,
  * and handled if it was a PostLinkable.
  */
 public class PostLinkable

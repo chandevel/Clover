@@ -198,7 +198,7 @@ public class PostIcons
     }
 
     private float drawBitmap(Canvas canvas, Bitmap bitmap, int offset) {
-        float scaledWidth = ((float) height / bitmap.getHeight()) * bitmap.getWidth();
+        float scaledWidth = (height / bitmap.getHeight()) * bitmap.getWidth();
         drawRect.set(offset, 0f, offset + scaledWidth, height);
         canvas.drawBitmap(bitmap, null, drawRect, null);
         return scaledWidth + spacing;

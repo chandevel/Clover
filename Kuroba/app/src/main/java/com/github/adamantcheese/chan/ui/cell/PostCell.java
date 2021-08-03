@@ -22,15 +22,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.text.Layout;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
-import android.text.method.LinkMovementMethod;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
@@ -55,8 +50,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -77,7 +70,6 @@ import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import okhttp3.HttpUrl;
@@ -118,7 +110,6 @@ public class PostCell
     private float detailsSizePx;
     private float iconSizePx;
     private boolean threadMode;
-    private boolean ignoreNextOnClick;
 
     private Loadable loadable;
     private Post post;
@@ -130,8 +121,6 @@ public class PostCell
 
     private OneShotPreDrawListener shifter = null;
     private InvalidateInterface invalidateInterface;
-
-    private final PostViewMovementMethod commentMovementMethod = new PostViewMovementMethod();
 
     public PostCell(Context context) {
         super(context);
@@ -220,13 +209,7 @@ public class PostCell
             showOptions(v, items, extraItems, extraOption);
         });
 
-        setOnClickListener(v -> {
-            if (ignoreNextOnClick) {
-                ignoreNextOnClick = false;
-            } else {
-                callback.onPostClicked(post);
-            }
-        });
+        setOnClickListener(v -> callback.onPostClicked(post));
 
         doubleTapComment = new GestureDetector(getContext(), new DoubleTapCommentGestureListener());
     }
@@ -267,7 +250,7 @@ public class PostCell
         this.highlighted = highlighted;
         this.invalidateInterface = invalidateInterface;
 
-        bindPost(theme, post);
+        bindPost(theme, post, callback);
         if (shifter != null) {
             shifter.removeListener();
             shifter = null;
@@ -296,7 +279,7 @@ public class PostCell
         return false;
     }
 
-    private void bindPost(Theme theme, Post post) {
+    private void bindPost(Theme theme, Post post, PostCellCallback callback) {
         this.post = post;
 
         // Assume that we're in thread mode if the loadable is null
@@ -465,7 +448,7 @@ public class PostCell
             });
 
             // Sets focusable to auto, clickable and longclickable to true.
-            comment.setMovementMethod(commentMovementMethod);
+            comment.setMovementMethod(new PostViewMovementMethod(post, callback));
 
             // And this sets clickable to appropriate values again.
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
@@ -585,102 +568,7 @@ public class PostCell
         headerWrapper.setLongClickable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
-        post.comment.removeSpan(BACKGROUND_SPAN);
         post = null;
-    }
-
-    private static final BackgroundColorSpan BACKGROUND_SPAN = new BackgroundColorSpan(0x6633B5E5);
-
-    /**
-     * A MovementMethod that searches for PostLinkables.<br>
-     * See {@link PostLinkable} for more information.
-     */
-    public class PostViewMovementMethod
-            extends LinkMovementMethod {
-        @Override
-        public boolean onTouchEvent(@NonNull TextView widget, @NonNull Spannable buffer, @NonNull MotionEvent event) {
-            int action = event.getActionMasked();
-
-            if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL
-                    || action == MotionEvent.ACTION_DOWN) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-
-                x -= widget.getTotalPaddingLeft();
-                y -= widget.getTotalPaddingTop();
-
-                x += widget.getScrollX();
-                y += widget.getScrollY();
-
-                Layout layout = widget.getLayout();
-                int line = layout.getLineForVertical(y);
-                int off = layout.getOffsetForHorizontal(line, x);
-
-                ClickableSpan[] links = buffer.getSpans(off, off, ClickableSpan.class);
-                List<ClickableSpan> link = new ArrayList<>();
-                Collections.addAll(link, links);
-
-                if (link.size() > 0) {
-                    ClickableSpan clickableSpan1 = link.get(0);
-                    ClickableSpan clickableSpan2 = link.size() > 1 ? link.get(1) : null;
-                    PostLinkable linkable1 =
-                            clickableSpan1 instanceof PostLinkable ? (PostLinkable) clickableSpan1 : null;
-                    PostLinkable linkable2 =
-                            clickableSpan2 instanceof PostLinkable ? (PostLinkable) clickableSpan2 : null;
-                    if (action == MotionEvent.ACTION_UP) {
-                        ignoreNextOnClick = true;
-
-                        if (linkable2 == null && linkable1 != null) {
-                            //regular, non-spoilered link
-                            callback.onPostLinkableClicked(post, linkable1);
-                        } else if (linkable2 != null && linkable1 != null) {
-                            //spoilered link, figure out which span is the spoiler
-                            if (linkable1.type == Type.SPOILER) {
-                                if (linkable1.isSpoilerVisible()) {
-                                    //linkable2 is the link and we're unspoilered
-                                    callback.onPostLinkableClicked(post, linkable2);
-                                } else {
-                                    //linkable2 is the link and we're spoilered; don't do the click event on the link yet
-                                    link.remove(linkable2);
-                                }
-                            } else if (linkable2.type == Type.SPOILER) {
-                                if (linkable2.isSpoilerVisible()) {
-                                    //linkable 1 is the link and we're unspoilered
-                                    callback.onPostLinkableClicked(post, linkable1);
-                                } else {
-                                    //linkable1 is the link and we're spoilered; don't do the click event on the link yet
-                                    link.remove(linkable1);
-                                }
-                            } else {
-                                //weird case where a double stack of linkables, but isn't spoilered (some 4chan stickied posts)
-                                callback.onPostLinkableClicked(post, linkable1);
-                            }
-                        }
-
-                        //do onclick on all spoiler postlinkables afterwards, so that we don't update the spoiler state early
-                        for (ClickableSpan s : link) {
-                            s.onClick(widget);
-                        }
-
-                        buffer.removeSpan(BACKGROUND_SPAN);
-                    } else if (action == MotionEvent.ACTION_DOWN && clickableSpan1 instanceof PostLinkable) {
-                        buffer.setSpan(BACKGROUND_SPAN,
-                                buffer.getSpanStart(clickableSpan1),
-                                buffer.getSpanEnd(clickableSpan1),
-                                0
-                        );
-                    } else if (action == MotionEvent.ACTION_CANCEL) {
-                        buffer.removeSpan(BACKGROUND_SPAN);
-                    }
-
-                    return true;
-                } else {
-                    buffer.removeSpan(BACKGROUND_SPAN);
-                }
-            }
-
-            return true;
-        }
     }
 
     private class PostImagesAdapter
