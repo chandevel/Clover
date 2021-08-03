@@ -323,7 +323,9 @@ public class ViewThreadController
     @Override
     public void onNavItemSet() {
         if (navigation.search) return; // bit of a hack to ignore the search change
-        showHints();
+        try {
+            showHints();
+        } catch (Exception ignored) {}
     }
 
     private void showHints() {

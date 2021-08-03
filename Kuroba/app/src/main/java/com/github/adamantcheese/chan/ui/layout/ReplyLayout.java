@@ -855,7 +855,9 @@ public class ReplyLayout
                     preview.setImageBitmap(bitmap);
                     previewHolder.setVisibility(VISIBLE);
                     callback.updatePadding();
-                    showImageOptionHints();
+                    try {
+                        showImageOptionHints();
+                    } catch (Exception ignored) {}
                 } else {
                     openPreviewMessage(true, getString(R.string.reply_no_preview));
                 }
