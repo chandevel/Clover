@@ -190,8 +190,7 @@ public class ThreadPresenter
             if (chanLoader.getThread() == null) {
                 chanLoader.requestFreshData();
             } else {
-                onSuccess(chanLoader.getThread());
-                chanLoader.requestAdditionalData();
+                refreshUI();
             }
         }
     }
@@ -226,6 +225,7 @@ public class ThreadPresenter
     }
 
     public void refreshUI() {
+        onSuccess(chanLoader.getThread());
         chanLoader.requestAdditionalData();
     }
 
