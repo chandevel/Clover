@@ -355,7 +355,7 @@ public class PostAdapter
         this.loadable = thread.getLoadable();
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
-        currentFilter = newFilter;
+        currentFilter = newFilter == null ? new PostsFilter(PostsFilter.Order.BUMP, null) : newFilter;
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom

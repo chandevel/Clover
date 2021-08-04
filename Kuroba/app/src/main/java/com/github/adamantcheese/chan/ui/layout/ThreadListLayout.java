@@ -64,6 +64,7 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -470,7 +471,7 @@ public class ThreadListLayout
         if (showingThread.getLoadable().isThreadMode()) {
             openSearch(false);
         }
-        showingThread = null;
+        showPosts(new ChanThread(Loadable.emptyLoadable(), Collections.emptyList()), null, false);
         recyclerView.removeItemDecoration(PARTY);
         recyclerView.removeItemDecoration(SANTA);
     }
