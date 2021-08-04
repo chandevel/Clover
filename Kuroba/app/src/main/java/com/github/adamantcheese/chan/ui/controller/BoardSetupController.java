@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +41,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.layout.BoardAddLayout;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
-import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -75,7 +76,7 @@ public class BoardSetupController
     ) {
         @Override
         public boolean onMove(
-                RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
         ) {
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
@@ -177,7 +178,7 @@ public class BoardSetupController
 
     @Override
     public void showRemovedSnackbar(final Board board) {
-        CancellableSnackbar.showSnackbar(view,
+        AndroidUtils.buildCommonSnackbar(view,
                 getString(R.string.setup_board_removed, board.getFormattedName()),
                 R.string.undo,
                 v -> presenter.undoRemoveBoard(board)
@@ -188,7 +189,7 @@ public class BoardSetupController
     public void boardsWereAdded(int count) {
         savedBoardsRecycler.smoothScrollToPosition(savedAdapter.getItemCount());
 
-        CancellableSnackbar.showSnackbar(view,
+        AndroidUtils.buildCommonSnackbar(view,
                 getString(R.string.setup_board_added, getQuantityString(R.plurals.board, count))
         );
     }
@@ -211,6 +212,7 @@ public class BoardSetupController
             return savedBoards.get(position).id;
         }
 
+        @NonNull
         @Override
         public SavedBoardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new SavedBoardHolder(LayoutInflater.from(parent.getContext())

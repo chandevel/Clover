@@ -63,10 +63,10 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.ui.view.ThumbnailView;
-import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +122,8 @@ public class ThreadLayout
     private ProgressDialog deletingDialog;
     private boolean replyButtonEnabled;
     private boolean showingReplyButton = false;
+
+    private Snackbar newPostsSnackbar;
 
     public ThreadLayout(Context context) {
         this(context, null);
@@ -515,7 +517,7 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        CancellableSnackbar.showSnackbar(this,
+        AndroidUtils.buildCommonSnackbar(this,
                 hide ? R.string.thread_hidden : R.string.thread_removed,
                 R.string.undo,
                 v -> {
@@ -548,7 +550,7 @@ public class ThreadLayout
             formattedString = getQuantityString(R.plurals.post_removed, posts.size());
         }
 
-        CancellableSnackbar.showSnackbar(this, formattedString, R.string.undo, v -> {
+        AndroidUtils.buildCommonSnackbar(this, formattedString, R.string.undo, v -> {
             DatabaseUtils.runTask(databaseHideManager.removePostsHide(hideList));
             presenter.refreshUI();
         });
@@ -579,20 +581,22 @@ public class ThreadLayout
 
         presenter.refreshUI();
 
-        CancellableSnackbar.showSnackbar(this, getString(R.string.restored_n_posts, postsToRestore.size()));
+        AndroidUtils.buildCommonSnackbar(this, getString(R.string.restored_n_posts, postsToRestore.size()));
     }
 
     @Override
     public void showNewPostsSnackbar(final Loadable loadable, int more) {
-        if (more <= 0 || !BackgroundUtils.isInForeground() || (threadListLayout.isReplyLayoutOpen()
+        if (more <= 0 || (threadListLayout.isReplyLayoutOpen()
                 && threadListLayout.getReplyPresenter().getPage() != Page.LOADING
                 && ChanSettings.moveInputToBottom.get())) {
-            CancellableSnackbar.cleanup();
+            if (newPostsSnackbar != null) {
+                newPostsSnackbar.dismiss();
+            }
             return;
         }
 
         if (threadListLayout.getReplyPresenter().getPage() != Page.AUTHENTICATION) {
-            CancellableSnackbar.showSnackbar(this,
+            newPostsSnackbar = AndroidUtils.buildCommonSnackbar(this,
                     getQuantityString(R.plurals.new_posts, more),
                     R.string.thread_new_posts_goto,
                     v -> {
@@ -601,6 +605,12 @@ public class ThreadLayout
                         }
                     }
             );
+            newPostsSnackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                @Override
+                public void onDismissed(Snackbar transientBottomBar, int event) {
+                    newPostsSnackbar = null;
+                }
+            });
         }
     }
 
@@ -659,7 +669,9 @@ public class ThreadLayout
             if (this.visible == Visible.THREAD) {
                 threadListLayout.cleanup();
                 postPopupHelper.popAll();
-                CancellableSnackbar.cleanup();
+                if (newPostsSnackbar != null) {
+                    newPostsSnackbar.dismiss();
+                }
             }
 
             this.visible = visible;

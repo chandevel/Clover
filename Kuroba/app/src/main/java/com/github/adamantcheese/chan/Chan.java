@@ -38,7 +38,6 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.SavingNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
-import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -263,7 +262,6 @@ public class Chan
         BackgroundUtils.cleanup();
         NetUtils.cleanup();
         CancellableToast.cleanup();
-        CancellableSnackbar.cleanup();
     }
 
     public static class ForegroundChangedMessage {

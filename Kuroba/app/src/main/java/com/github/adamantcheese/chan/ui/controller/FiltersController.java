@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +42,6 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
-import com.github.adamantcheese.chan.ui.widget.CancellableSnackbar;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -96,7 +96,7 @@ public class FiltersController
     ) {
         @Override
         public boolean onMove(
-                RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
+                @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
         ) {
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
@@ -112,7 +112,7 @@ public class FiltersController
         }
 
         @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
                 int position = viewHolder.getAdapterPosition();
                 deleteFilter(adapter.displayList.get(position));
@@ -265,7 +265,7 @@ public class FiltersController
         postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         adapter.reload();
 
-        CancellableSnackbar.showSnackbar(view,
+        AndroidUtils.buildCommonSnackbar(view,
                 getString(R.string.filter_removed_undo, clone.pattern),
                 R.string.undo,
                 v -> {
@@ -312,6 +312,7 @@ public class FiltersController
             filter();
         }
 
+        @NonNull
         @Override
         public FilterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new FilterHolder(LayoutInflater.from(parent.getContext())
@@ -372,18 +373,13 @@ public class FiltersController
         public void move(int from, int to) {
             Filter filter = sourceList.remove(from);
             sourceList.add(to, filter);
-            sourceList = setOrders(sourceList);
+            for (int i = 0; i < sourceList.size(); i++) {
+                sourceList.get(i).order = i;
+            }
             DatabaseUtils.runTask(databaseFilterManager.updateFilters(sourceList));
             displayList.clear();
             displayList.addAll(sourceList);
             notifyDataSetChanged();
-        }
-
-        private List<Filter> setOrders(List<Filter> input) {
-            for (int i = 0; i < input.size(); i++) {
-                input.get(i).order = i;
-            }
-            return input;
         }
 
         public void filter() {

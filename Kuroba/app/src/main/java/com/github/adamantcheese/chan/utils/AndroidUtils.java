@@ -59,6 +59,7 @@ import androidx.preference.PreferenceManager;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
 
 import org.greenrobot.eventbus.EventBus;
@@ -515,5 +516,31 @@ public class AndroidUtils {
                 .setTextColor(getContrastColor(getAttrColor(context, R.attr.colorAccent)))
                 .setBackgroundColor(getAttrColor(context, R.attr.colorAccent))
                 .setLifecycleOwner((AppCompatActivity) context);
+    }
+
+    /**
+     * Build and show a common snackbar, with all the appropriate stuff set.
+     * @param view The anchoring view, with a coordinator layout somewhere as a parent
+     * @param message The message for the snackbar
+     * @param actionResId The action resource ID for the action button, if any
+     * @param action The action for the action button, if any
+     * @return the constructed snackbar
+     */
+    public static Snackbar buildCommonSnackbar(View view, String message, int actionResId, View.OnClickListener action) {
+        Snackbar s = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        s.setGestureInsetBottomIgnored(true);
+        s.setAction(actionResId, action);
+        if (BackgroundUtils.isInForeground()) {
+            BackgroundUtils.runOnMainThread(s::show);
+        }
+        return s;
+    }
+
+    public static Snackbar buildCommonSnackbar(View view, String message) {
+        return buildCommonSnackbar(view, message, 0, null);
+    }
+
+    public static Snackbar buildCommonSnackbar(View view, int message, int actionResId, View.OnClickListener action) {
+        return buildCommonSnackbar(view, getString(message), actionResId, action);
     }
 }
