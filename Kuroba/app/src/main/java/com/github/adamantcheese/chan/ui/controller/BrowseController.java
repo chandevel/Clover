@@ -146,7 +146,7 @@ public class BrowseController
                 ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
-                this::handleViewMode
+                this::toggleViewMode
         );
 
         if (!ChanSettings.moveSortToToolbar.get()) {
@@ -201,7 +201,7 @@ public class BrowseController
         }
     }
 
-    private void handleViewMode() {
+    private void toggleViewMode() {
         ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
         if (postViewMode == ChanSettings.PostViewMode.LIST) {
             postViewMode = ChanSettings.useStaggeredGrid.get()
@@ -434,8 +434,10 @@ public class BrowseController
             }
             text.append(" Board").append('\n');
         }
+        text.append(board.spoilers ? "Allows spoilered text and images" : "").append("\n");
         text.append("Bump limit: ").append(String.valueOf(board.bumpLimit)).append(" posts").append("\n");
         text.append("Image limit: ").append(String.valueOf(board.imageLimit)).append(" images").append("\n");
+        text.append("Page limit: ").append(String.valueOf(board.pages)).append("\n");
 
         text.append("New thread cooldown: ")
                 .append(String.valueOf(board.cooldownThreads))
@@ -456,7 +458,7 @@ public class BrowseController
 
     @Subscribe
     public void onEvent(RefreshUIMessage message) {
-        handleViewMode();
+        threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
         super.onEvent(message);
     }
 }
