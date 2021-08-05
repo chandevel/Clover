@@ -58,8 +58,6 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.controller.FiltersController.MenuId.DEBUG;
-import static com.github.adamantcheese.chan.ui.controller.FiltersController.MenuId.SEARCH;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -133,10 +131,10 @@ public class FiltersController
 
         navigation.setTitle(R.string.filters_screen);
         navigation.swipeable = false;
-        navigation.buildMenu().withItem(SEARCH,
+        navigation.buildMenu().withItem(MenuId.SEARCH,
                 R.drawable.ic_fluent_search_24_filled,
                 (item) -> ((ToolbarNavigationController) navigationController).showSearch()
-        ).withItem(DEBUG,
+        ).withItem(MenuId.DEBUG,
                 ChanSettings.debugFilters.get()
                         ? R.drawable.ic_fluent_highlight_24_filled
                         : R.drawable.ic_fluent_highlight_24_regular,
@@ -150,6 +148,7 @@ public class FiltersController
                                     ? "on; tap highlighted text to see matched filter."
                                     : "off.")
                     );
+                    postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
                 }
         ).build();
 
@@ -193,7 +192,7 @@ public class FiltersController
                 .build();
         // add, enable, debug
         addHint.relayShowAlignTop(toggleHint, enable)
-                .relayShowAlignBottom(debugHint, navigation.findItem(DEBUG).getView());
+                .relayShowAlignBottom(debugHint, navigation.findItem(MenuId.DEBUG).getView());
         addHint.showAlignTop(add);
     }
 
