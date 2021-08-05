@@ -142,7 +142,8 @@ public class ViewThreadController
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.scrollTo(0, false))
-                .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.scrollTo(-1, false));
+                .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.scrollTo(-1, false))
+                .withSubItem(R.string.action_scroll_to_new, () -> threadLayout.getPresenter().onNewPostsViewClicked());
 
         menuOverflowBuilder.build().build();
     }
