@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/card_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/ripple_item_background"
@@ -44,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="match_parent"
             android:layout_height="10dp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/thumbnail"
+            app:layout_constraintBottom_toBottomOf="@id/thumbnail"
             tools:background="@color/red"
             tools:visibility="visible" />
 
@@ -54,10 +53,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="3"
-            app:layout_constraintTop_toBottomOf="@id/filter_match_color"
+            app:layout_constraintTop_toBottomOf="@id/thumbnail"
             tools:text="Title goes here" />
 
-        <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
+        <TextView
             android:id="@+id/comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

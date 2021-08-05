@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AppearanceSettingsController
@@ -340,8 +341,8 @@ public class AppearanceSettingsController
         gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
         gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_default), 0));
         for (int columns = 1; columns <= (isPortrait ? 5 : 12); columns++) {
-            gridColumnsBoard.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
-            gridColumnsAlbum.add(new Item<>(getString(R.string.setting_grid_span_count_item, columns), columns));
+            gridColumnsBoard.add(new Item<>(getQuantityString(R.plurals.span_count, columns), columns));
+            gridColumnsAlbum.add(new Item<>(getQuantityString(R.plurals.span_count, columns), columns));
         }
 
         requiresUiRefresh.add(layout.add(new ListSettingView<>(this,

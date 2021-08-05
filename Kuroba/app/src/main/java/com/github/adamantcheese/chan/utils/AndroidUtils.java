@@ -520,16 +520,21 @@ public class AndroidUtils {
 
     /**
      * Build and show a common snackbar, with all the appropriate stuff set.
-     * @param view The anchoring view, with a coordinator layout somewhere as a parent
-     * @param message The message for the snackbar
+     *
+     * @param view        The anchoring view, with a coordinator layout somewhere as a parent
+     * @param message     The message for the snackbar
      * @param actionResId The action resource ID for the action button, if any
-     * @param action The action for the action button, if any
+     * @param action      The action for the action button, if any
      * @return the constructed snackbar
      */
-    public static Snackbar buildCommonSnackbar(View view, String message, int actionResId, View.OnClickListener action) {
+    public static Snackbar buildCommonSnackbar(
+            View view, String message, int actionResId, View.OnClickListener action
+    ) {
         Snackbar s = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
         s.setGestureInsetBottomIgnored(true);
-        s.setAction(actionResId, action);
+        if (actionResId != 0 && action != null) {
+            s.setAction(actionResId, action);
+        }
         if (BackgroundUtils.isInForeground()) {
             BackgroundUtils.runOnMainThread(s::show);
         }

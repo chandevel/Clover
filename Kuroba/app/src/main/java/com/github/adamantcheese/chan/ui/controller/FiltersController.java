@@ -64,6 +64,7 @@ import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FI
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
@@ -335,7 +336,7 @@ public class FiltersController
             if (types == 1) {
                 subText.append(FilterType.filterTypeName(FilterType.forFlags(filter.type).get(0)));
             } else {
-                subText.append(String.format(Locale.ENGLISH, "%d types", types));
+                subText.append(getQuantityString(R.plurals.type, types));
             }
 
             subText.append(" \u2013 ");
@@ -345,7 +346,7 @@ public class FiltersController
                 subText.append(String.format("/%s/", filter.boards.split(":")[1]));
             } else {
                 int size = filterEngine.getFilterBoardCount(filter);
-                subText.append(String.format(Locale.ENGLISH, "%d boards", size));
+                subText.append(getQuantityString(R.plurals.board, size));
             }
 
             subText.append(" \u2013 ").append(FilterAction.actionName(FilterAction.forId(filter.action)));

@@ -55,10 +55,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%1$d post removed</item>
         <item quantity="other">%1$d posts removed</item>
     </plurals>
-
     <plurals name="watch_new_quotes">
         <item quantity="one">%d new post quoting you</item>
         <item quantity="other">%d new posts quoting you</item>
+    </plurals>
+    <plurals name="span_count">
+        <item quantity="one">%d column</item>
+        <item quantity="other">%d columns</item>
+    </plurals>
+    <plurals name="type">
+        <item quantity="one">%d type</item>
+        <item quantity="other">%d types</item>
     </plurals>
 
     <string name="empty" />
@@ -406,7 +413,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_board_grid_span_count_landscape">Catalog mode column count (landscape)</string>
     <string name="setting_album_grid_span_count_landscape">Album mode column count (landscape)</string>
     <string name="setting_grid_span_count_default">Auto</string>
-    <string name="setting_grid_span_count_item">%1$d columns</string>
     <string name="setting_never_hide_toolbar">Never hide the toolbar</string>
     <string name="setting_enable_reply_fab">Enable the reply button</string>
     <string name="setting_enable_reply_fab_description">Disabling replaces the round button with a menu option</string>

@@ -59,8 +59,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 public class CardPostCell
         extends CardView
         implements PostCellInterface {
-    private static final int COMMENT_MAX_LINES = 10;
-
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
@@ -163,9 +161,8 @@ public class CardPostCell
             InvalidateInterface invalidateInterface
     ) {
         this.callback = callback;
-
-        bindPost(theme, post, highlighted);
         setCompact(compact);
+        bindPost(theme, post, highlighted);
     }
 
     public Post getPost() {
@@ -224,16 +221,13 @@ public class CardPostCell
                 ? null
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
-        // change the line height depending on the thumbnail height, so wait for a measure, but use a default value
-        comment.setMaxLines(COMMENT_MAX_LINES);
-        OneShotPreDrawListener.add(thumbView, () -> {
-            if (ChanSettings.getBoardColumnCount() != 1) {
-                int maxLines = thumbView.getHeight() / comment.getLineHeight();
-                comment.setMaxLines(Math.min(maxLines, COMMENT_MAX_LINES)); // cap if too large
-            } else {
-                comment.setMaxLines(COMMENT_MAX_LINES * 2);
-            }
-        });
+        // for ellipsize to work, set maxLines equal to the proper value after a measure
+        OneShotPreDrawListener.add(
+                this,
+                () -> comment.setMaxLines(
+                        (thumbView.getHeight() - title.getHeight() - title.getPaddingTop() - title.getPaddingBottom()
+                                - comment.getPaddingTop() - comment.getPaddingBottom()) / comment.getLineHeight())
+        );
 
         comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
 
