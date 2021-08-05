@@ -384,7 +384,7 @@ public class ImageViewerController
         NetUtils.makeBitmapRequest(postImage.getThumbnailUrl(), new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                // the preview image will just remain as the last successful response; good enough
+                previewImage.setBitmap(BitmapRepository.empty);
             }
 
             @Override
@@ -506,7 +506,7 @@ public class ImageViewerController
                 previewImage.setBitmap(bitmap);
                 startAnimation.start();
             }
-        });
+        }, 500);
     }
 
     public void startPreviewOutTransition(final PostImage postImage) {

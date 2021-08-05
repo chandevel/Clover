@@ -250,6 +250,21 @@ public class NetUtils {
     }
 
     /**
+     * Request a bitmap without resizing, with timeout
+     *
+     * @param url    The request URL. If null, null will be returned.
+     * @param result The callback for this call.
+     * @param timeoutMs  Optional timeout value, in milliseconds (-1 for no timeout)
+     * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
+     */
+    public static Call makeBitmapRequest(
+            final HttpUrl url, @NonNull final BitmapResult result, final int timeoutMs
+    ) {
+        Pair<Call, Callback> ret =  makeBitmapRequest(url, result, 0, 0, timeoutMs, true, true);
+        return ret == null ? null : ret.first;
+    }
+
+    /**
      * Request a bitmap with resizing.
      *
      * @param url    The request URL. If null, null will be returned.
@@ -261,7 +276,7 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
     ) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, true, true);
+        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, -1, true, true);
         return ret == null ? null : ret.first;
     }
 
@@ -272,6 +287,7 @@ public class NetUtils {
      * @param result     The callback for this call.
      * @param width      The requested width of the result
      * @param height     The requested height of the result
+     * @param timeoutMs  Optional timeout value, in milliseconds (-1 for no timeout)
      * @param enqueue    Should this be enqueued or not
      * @param mainThread Should this result be run on the main thread or not (most wrappers do)
      * @return An enqueued bitmap call.
@@ -281,6 +297,7 @@ public class NetUtils {
             @NonNull final BitmapResult result,
             final int width,
             final int height,
+            final int timeoutMs,
             boolean enqueue,
             boolean mainThread
     ) {
@@ -301,7 +318,11 @@ public class NetUtils {
             performBitmapSuccess(url, cachedBitmap, true, mainThread);
             return null;
         }
-        Call call = applicationClient.getHttpRedirectClient()
+        OkHttpClient client = applicationClient.getHttpRedirectClient();
+        if (timeoutMs != -1) {
+            client = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS).build();
+        }
+        Call call = client
                 .newCall(new Request.Builder().url(url)
                         .addHeader("Referer", url.toString())
                         .cacheControl(new CacheControl.Builder().maxStale(365, TimeUnit.DAYS).build())

@@ -215,6 +215,6 @@ public class QuickLatexEmbedder
                     }
                 }
             }
-        }, 0, 0, false, false);
+        }, 0, 0, -1, false, false);
     }
 }
