@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.ui.cell.InvalidateInterface;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -46,8 +45,11 @@ import java.util.List;
 
 import static android.view.View.GONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STAGGER;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB_STAGGER;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
@@ -55,13 +57,14 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class PostAdapter
-        extends RecyclerView.Adapter<RecyclerView.ViewHolder>
-        implements InvalidateInterface {
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     enum CellType {
         TYPE_POST,
         TYPE_POST_STUB,
         TYPE_CARD,
         TYPE_CARD_STUB,
+        TYPE_CARD_STAGGER,
+        TYPE_CARD_STUB_STAGGER,
         TYPE_STATUS
     }
 
@@ -157,7 +160,12 @@ public class PostAdapter
                 postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.cell_post_card, parent, false);
                 return new PostViewHolder(postCell);
+            case TYPE_CARD_STAGGER:
+                postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_post_card_stagger, parent, false);
+                return new PostViewHolder(postCell);
             case TYPE_CARD_STUB:
+            case TYPE_CARD_STUB_STAGGER:
                 postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.cell_post_stub_card, parent, false);
                 return new PostViewHolder(postCell);
@@ -182,8 +190,10 @@ public class PostAdapter
         switch (cellType) {
             case TYPE_POST:
             case TYPE_CARD:
+            case TYPE_CARD_STAGGER:
             case TYPE_POST_STUB:
             case TYPE_CARD_STUB:
+            case TYPE_CARD_STUB_STAGGER:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
                 final Post post = displayList.get(position);
                 doSetPost(postViewHolder, post, false);
@@ -191,6 +201,7 @@ public class PostAdapter
                 switch (cellType) {
                     case TYPE_POST:
                     case TYPE_CARD:
+                    case TYPE_CARD_STAGGER:
                         // apply embedding
                         boolean embedInProgress = EmbeddingEngine.getInstance().embed(theme, post, () -> {
                             recycler.post(() -> notifyItemChanged(position, new Object()));
@@ -205,6 +216,7 @@ public class PostAdapter
                         break;
                     case TYPE_POST_STUB:
                     case TYPE_CARD_STUB:
+                    case TYPE_CARD_STUB_STAGGER:
                         if (postAdapterCallback != null) {
                             holder.itemView.setOnClickListener(v -> postAdapterCallback.onUnhidePostClick(post));
                         }
@@ -224,8 +236,7 @@ public class PostAdapter
                 isInPopup(),
                 shouldHighlight(post),
                 isCompact(),
-                theme,
-                this
+                theme
         );
         if (clearEmbed) {
             holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
@@ -244,6 +255,7 @@ public class PostAdapter
         switch (cellType) {
             case TYPE_CARD:
             case TYPE_POST:
+            case TYPE_CARD_STAGGER:
                 doSetPost((PostViewHolder) holder, displayList.get(position), true);
                 break;
             case TYPE_STATUS:
@@ -252,29 +264,11 @@ public class PostAdapter
                 break;
             case TYPE_CARD_STUB:
             case TYPE_POST_STUB:
+            case TYPE_CARD_STUB_STAGGER:
             default:
                 super.onBindViewHolder(holder, position, payloads);
                 break;
         }
-    }
-
-    @Override
-    public void requestLayout() {
-        recycler.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                // recycler view swallows layout requests when scrolling, so we wait for idle
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    recycler.removeOnScrollListener(this);
-                    recycler.requestLayout();
-                }
-            }
-        });
-    }
-
-    @Override
-    public void invalidate() {
-        recycler.invalidate();
     }
 
     @Override
@@ -291,6 +285,7 @@ public class PostAdapter
         switch (CellType.values()[holder.getItemViewType()]) {
             case TYPE_POST:
             case TYPE_CARD:
+            case TYPE_CARD_STAGGER:
                 holder.itemView.findViewById(R.id.embed_spinner).setVisibility(View.VISIBLE);
                 Post post = ((PostCellInterface) holder.itemView).getPost();
                 post.stopEmbedding(); // before the post is cleared out
@@ -300,6 +295,7 @@ public class PostAdapter
                 //noinspection fallthrough
             case TYPE_POST_STUB:
             case TYPE_CARD_STUB:
+            case TYPE_CARD_STUB_STAGGER:
                 ((PostCellInterface) holder.itemView).unsetPost();
                 break;
             case TYPE_STATUS:
@@ -332,9 +328,13 @@ public class PostAdapter
         } else {
             Post post = displayList.get(position);
             if (post.filterStub) {
-                return postViewMode == LIST ? TYPE_POST_STUB.ordinal() : TYPE_CARD_STUB.ordinal();
+                return postViewMode == LIST
+                        ? TYPE_POST_STUB.ordinal()
+                        : (postViewMode == STAGGER ? TYPE_CARD_STUB_STAGGER.ordinal() : TYPE_CARD_STUB.ordinal());
             } else {
-                return postViewMode == LIST ? TYPE_POST.ordinal() : TYPE_CARD.ordinal();
+                return postViewMode == LIST
+                        ? TYPE_POST.ordinal()
+                        : (postViewMode == STAGGER ? TYPE_CARD_STAGGER.ordinal() : TYPE_CARD.ordinal());
             }
         }
     }

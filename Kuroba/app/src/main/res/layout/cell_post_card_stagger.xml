@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<com.github.adamantcheese.chan.ui.cell.CardPostCell xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/grid_card_margin"
+    app:cardBackgroundColor="?backcolor"
+    app:cardCornerRadius="@dimen/grid_card_corner_radius"
+    app:cardElevation="2dp"
+    tools:layout_width="250dp">
+
+    <!-- Constraint layout for general layout -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/ripple_item_background">
+
+        <!-- Constraint layout for thumbnail dimension ration -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/thumbnail_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintDimensionRatio="16:13"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />
+
+            <View
+                android:id="@+id/filter_match_color"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="@id/thumbnail"
+                tools:background="@color/red"
+                tools:visibility="visible" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="3"
+            app:layout_constraintTop_toBottomOf="@id/thumbnail_holder"
+            tools:text="@string/lorem_ipsum_short" />
+
+        <TextView
+            android:id="@+id/comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            app:layout_constraintBottom_toTopOf="@id/replies_section"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintVertical_bias="0"
+            tools:text="@string/lorem_ipsum" />
+
+        <!-- Placed here so that if there's no image, it'll draw over the comment -->
+        <com.github.adamantcheese.chan.ui.cell.PostIcons
+            android:id="@+id/icons"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginBottom="4dp"
+            app:layout_constraintBottom_toBottomOf="@id/thumbnail_holder"
+            app:layout_constraintRight_toRightOf="@id/thumbnail_holder" />
+
+        <LinearLayout
+            android:id="@+id/replies_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/replies"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?android:textColorSecondary"
+                tools:text="2 replies, 1 image" />
+
+            <ProgressBar
+                android:id="@+id/embed_spinner"
+                android:layout_width="32dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:indeterminate="true"
+                android:indeterminateTint="?colorAccent"
+                android:indeterminateTintMode="src_atop"
+                android:padding="5dp" />
+
+            <ImageView
+                android:id="@+id/options"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/ripple_item_background"
+                android:src="@drawable/ic_fluent_more_vertical_20_filled"
+                app:tint="?android:textColorSecondary" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.github.adamantcheese.chan.ui.cell.CardPostCell>

@@ -52,6 +52,7 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -66,12 +67,13 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
+import com.google.android.material.shape.ShapeAppearanceModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static android.text.TextUtils.isEmpty;
@@ -108,7 +110,6 @@ public class PostCell
     private ConstraintLayout bodyWrapper;
 
     private float detailsSizePx;
-    private float iconSizePx;
     private boolean threadMode;
 
     private Loadable loadable;
@@ -120,7 +121,6 @@ public class PostCell
     private GestureDetector doubleTapComment;
 
     private OneShotPreDrawListener shifter = null;
-    private InvalidateInterface invalidateInterface;
 
     public PostCell(Context context) {
         super(context);
@@ -163,14 +163,12 @@ public class PostCell
         title.setTextSize(textSizeSp);
         updatePaddings(title, paddingPx, dp(getContext(), 24), paddingPx, paddingPx / 2);
 
-        iconSizePx = sp(getContext(), textSizeSp);
-        icons.setHeight((int) iconSizePx);
-        icons.setSpacing(dp(getContext(), 4));
+        icons.getLayoutParams().height = (int) sp(getContext(), textSizeSp);
         updatePaddings(icons, paddingPx, dp(getContext(), 24), 0, 0);
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.setWithText(new Post.Builder().sticky(true)
+            icons.set(new Post.Builder().sticky(true)
                     .closed(true)
                     .archived(true)
                     .board(Board.getDummyBoard())
@@ -186,7 +184,7 @@ public class PostCell
                             super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
                         }
                     }, "", ""))
-                    .build(), iconSizePx);
+                    .build(), true);
         }
 
         comment.setTextSize(textSizeSp);
@@ -241,14 +239,12 @@ public class PostCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme,
-            InvalidateInterface invalidateInterface
+            Theme theme
     ) {
         this.loadable = loadable;
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
-        this.invalidateInterface = invalidateInterface;
 
         bindPost(theme, post, callback);
         if (shifter != null) {
@@ -268,10 +264,10 @@ public class PostCell
         return post;
     }
 
-    public ThumbnailView getThumbnailView(PostImage postImage) {
+    public ImageView getThumbnailView(PostImage postImage) {
         int pos = post.images.indexOf(postImage);
         RecyclerView.ViewHolder foundView = thumbnailViews.findViewHolderForLayoutPosition(pos);
-        return (ChanSettings.textOnly.get() || foundView == null) ? null : (ThumbnailView) foundView.itemView;
+        return (ChanSettings.textOnly.get() || foundView == null) ? null : (ImageView) foundView.itemView;
     }
 
     @Override
@@ -369,7 +365,7 @@ public class PostCell
 
         title.setText(titleParts);
 
-        icons.setWithText(post, iconSizePx);
+        icons.set(post, true);
 
         if (threadMode) {
             comment.setMaxLines(Integer.MAX_VALUE);
@@ -530,7 +526,6 @@ public class PostCell
             } else if (shiftLeftThumb) {
                 bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
             }
-            invalidateInterface.requestLayout();
         }
     }
 
@@ -572,36 +567,37 @@ public class PostCell
     }
 
     private class PostImagesAdapter
-            extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+            extends RecyclerView.Adapter<PostImagesAdapter.PostImageViewHolder> {
         public PostImagesAdapter() {
             setHasStableIds(true);
         }
 
         @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public PostImagesAdapter.PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             Context c = parent.getContext();
-            PostImageThumbnailView thumbnailView = new PostImageThumbnailView(c);
+            ShapeablePostImageView thumbnailView = new ShapeablePostImageView(c);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
-            thumbnailView.setRounding(dp(2));
-            return new RecyclerView.ViewHolder(thumbnailView) {};
+            thumbnailView.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(dp(c, 2)).build());
+            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            return new PostImageViewHolder(thumbnailView);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-            PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
+        public void onBindViewHolder(@NonNull PostImagesAdapter.PostImageViewHolder holder, int position) {
             final PostImage image = post.images.get(position);
-            thumbnailView.setPostImage(image, getThumbnailSize(holder.itemView.getContext()));
+            holder.thumbnailView.setType(image);
+            holder.loadPostImage(image, holder.thumbnailView);
 
             final Post internalPost = post;
-            thumbnailView.setOnClickListener(v -> {
+            holder.thumbnailView.setOnClickListener(v -> {
                 if (!internalPost.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
-                    callback.onThumbnailClicked(image, thumbnailView);
+                    callback.onThumbnailClicked(image, holder.thumbnailView);
                 }
             });
 
             if (ChanSettings.enableLongPressURLCopy.get()) {
-                thumbnailView.setOnLongClickListener(v -> {
+                holder.thumbnailView.setOnLongClickListener(v -> {
                     setClipboardContent("Image URL", image.imageUrl.toString());
                     showToast(getContext(), R.string.image_url_copied_to_clipboard);
                     return true;
@@ -611,12 +607,12 @@ public class PostCell
 
         @Override
         public void onViewRecycled(
-                @NonNull RecyclerView.ViewHolder holder
+                @NonNull PostImagesAdapter.PostImageViewHolder holder
         ) {
-            PostImageThumbnailView thumbnailView = (PostImageThumbnailView) holder.itemView;
-            thumbnailView.setPostImage(null, 0);
-            thumbnailView.setOnClickListener(null);
-            thumbnailView.setOnLongClickListener(null);
+            holder.thumbnailView.setType(null);
+            holder.cancelLoad(holder.thumbnailView);
+            holder.thumbnailView.setOnClickListener(null);
+            holder.thumbnailView.setOnLongClickListener(null);
         }
 
         @Override
@@ -627,6 +623,44 @@ public class PostCell
         @Override
         public long getItemId(int position) {
             return post.images.get(position).hashCode();
+        }
+
+        private class PostImageViewHolder
+                extends RecyclerView.ViewHolder
+                implements ImageLoadable {
+            private final ShapeablePostImageView thumbnailView;
+            private Call imageCall;
+            private HttpUrl lastHttpUrl;
+
+            public PostImageViewHolder(@NonNull ShapeablePostImageView itemView) {
+                super(itemView);
+                thumbnailView = itemView;
+            }
+
+            @Override
+            public HttpUrl getLastHttpUrl() {
+                return lastHttpUrl;
+            }
+
+            @Override
+            public void setLastHttpUrl(HttpUrl url) {
+                lastHttpUrl = url;
+            }
+
+            @Override
+            public Call getImageCall() {
+                return imageCall;
+            }
+
+            @Override
+            public void setImageCall(Call call) {
+                this.imageCall = call;
+            }
+
+            @Override
+            public float getMaxImageSize() {
+                return getThumbnailSize(getContext());
+            }
         }
     }
 

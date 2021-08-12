@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -62,7 +63,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -363,7 +363,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail) {
+    public void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail) {
         clearAnySelectionsAndKeyboards(getContext());
         callback.showImages(images, index, loadable, thumbnail);
     }
@@ -624,7 +624,7 @@ public class ThreadLayout
         }
     }
 
-    public ThumbnailView getThumbnail(PostImage postImage) {
+    public ImageView getThumbnail(PostImage postImage) {
         if (postPopupHelper.isOpen()) {
             return postPopupHelper.getThumbnail(postImage);
         } else {
@@ -746,6 +746,11 @@ public class ThreadLayout
         alertDialog.show();
     }
 
+    @Override
+    public int getGridWidth() {
+        return threadListLayout.getGridWidth();
+    }
+
     public interface ThreadLayoutCallback {
         void showThread(Loadable threadLoadable);
 
@@ -753,7 +758,7 @@ public class ThreadLayout
 
         void showBoardAndSearch(Loadable catalogLoadable, String searchQuery);
 
-        void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+        void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
 
         void showAlbum(List<PostImage> images, int index);
 

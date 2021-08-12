@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerVertical"
+    android:dividerPadding="12dp"
+    android:orientation="horizontal"
+    android:showDividers="middle"
+    tools:background="?backcolor">
+
+    <FrameLayout
+        android:id="@+id/replies_back"
+        style="?android:actionButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/ripple_item_background">
+
+        <TextView
+            style="?android:actionBarTabTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:paddingRight="20dp"
+            android:text="@string/back"
+            app:drawableLeftCompat="@drawable/ic_fluent_arrow_left_24_filled"
+            app:drawableTint="?attr/themeDrawableColor" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/replies_close"
+        style="?android:actionButtonStyle"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@drawable/ripple_item_background">
+
+        <TextView
+            style="?android:actionBarTabTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:paddingRight="20dp"
+            android:text="@string/close"
+            app:drawableLeftCompat="@drawable/ic_fluent_dismiss_24_filled"
+            app:drawableTint="?attr/themeDrawableColor" />
+    </FrameLayout>
+</LinearLayout>

@@ -17,51 +17,86 @@
 package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.SweepGradient;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+
+import static android.graphics.Color.BLUE;
+import static android.graphics.Color.CYAN;
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.MAGENTA;
+import static android.graphics.Color.RED;
+import static android.graphics.Color.YELLOW;
+import static android.graphics.Color.alpha;
+import static android.graphics.Color.argb;
+import static android.graphics.Color.blue;
+import static android.graphics.Color.green;
+import static android.graphics.Color.red;
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Shader.TileMode.REPEAT;
 
 public class ColorPickerView
         extends View {
-    private static final int[] COLORS =
-            new int[]{Color.RED, Color.MAGENTA, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW, Color.RED};
+    private static final int[] COLORS = new int[]{RED, MAGENTA, BLUE, CYAN, GREEN, YELLOW, RED};
     private final RectF ovalRect = new RectF();
 
     private final Paint paint;
+    private final Paint centerTransPaint;
     private final Paint centerPaint;
-    private final float centerRadius;
+    private float centerRadius;
 
     public ColorPickerView(Context context) {
-        super(context);
+        this(context, null);
+    }
 
-        centerRadius = dp(32);
+    public ColorPickerView(Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
 
-        Shader s = new SweepGradient(0, 0, COLORS, null);
+    public ColorPickerView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
 
-        paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setShader(s);
+        paint = new Paint(ANTI_ALIAS_FLAG);
+        paint.setShader(new SweepGradient(0, 0, COLORS, null));
         paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(dp(32));
 
-        centerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        centerPaint.setStrokeWidth(dp(5));
+        centerPaint = new Paint(ANTI_ALIAS_FLAG);
+
+        if (isInEditMode()) {
+            BitmapRepository.initialize(getContext());
+            setColor(GREEN & 0x7FFFFFFF);
+        }
+
+        centerTransPaint = new Paint(ANTI_ALIAS_FLAG);
+        centerTransPaint.setShader(new BitmapShader(BitmapRepository.transparentCheckerboard, REPEAT, REPEAT));
     }
 
     public void setColor(int color) {
         centerPaint.setColor(color);
+        invalidate();
     }
 
     public int getColor() {
         return centerPaint.getColor();
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int maxSize = Math.min(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.getSize(heightMeasureSpec));
+        centerRadius = maxSize / 4f;
+        paint.setStrokeWidth(maxSize / 4f);
+        setMeasuredDimension(maxSize, maxSize);
     }
 
     @Override
@@ -76,7 +111,15 @@ public class ColorPickerView
             if (unit < 0.0) {
                 unit += 1.0;
             }
-            centerPaint.setColor(interpColor(unit));
+            int newColor = interpColor(unit);
+            // deal with a possible alpha that was set
+            int alphaColor = Color.argb(
+                    Color.alpha(centerPaint.getColor()),
+                    Color.red(newColor),
+                    Color.green(newColor),
+                    Color.blue(newColor)
+            );
+            centerPaint.setColor(alphaColor);
             invalidate();
         }
         return true;
@@ -87,6 +130,7 @@ public class ColorPickerView
         float r = Math.min(getWidth() / 2f, getHeight() / 2f) - paint.getStrokeWidth() * 0.5f;
         ovalRect.set(-r, -r, r, r);
         canvas.translate(getWidth() / 2f, getHeight() / 2f);
+        canvas.drawRect(-centerRadius, -centerRadius, centerRadius, centerRadius, centerTransPaint);
         canvas.drawOval(ovalRect, paint);
         canvas.drawCircle(0, 0, centerRadius, centerPaint);
     }
@@ -106,12 +150,12 @@ public class ColorPickerView
         // now p is just the fractional part [0...1) and i is the index
         int c0 = ColorPickerView.COLORS[i];
         int c1 = ColorPickerView.COLORS[i + 1];
-        int a = ave(Color.alpha(c0), Color.alpha(c1), p);
-        int r = ave(Color.red(c0), Color.red(c1), p);
-        int g = ave(Color.green(c0), Color.green(c1), p);
-        int b = ave(Color.blue(c0), Color.blue(c1), p);
+        int a = ave(alpha(c0), alpha(c1), p);
+        int r = ave(red(c0), red(c1), p);
+        int g = ave(green(c0), green(c1), p);
+        int b = ave(blue(c0), blue(c1), p);
 
-        return Color.argb(a, r, g, b);
+        return argb(a, r, g, b);
     }
 
     private int ave(int s, int d, float p) {

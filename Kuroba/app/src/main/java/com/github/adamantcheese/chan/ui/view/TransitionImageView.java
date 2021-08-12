@@ -57,6 +57,11 @@ public class TransitionImageView
         paint.setFilterBitmap(true);
     }
 
+    /**
+     * Sets the bitmap when switching the image without animating.
+     *
+     * @param bitmap The source bitmap to animate from.
+     */
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -81,6 +86,13 @@ public class TransitionImageView
         matrix.setRectToRect(bitmapRect, destRect, Matrix.ScaleToFit.FILL);
     }
 
+    /**
+     * Set the target image view items to animate to/from when animating in/out.
+     *
+     * @param windowLocation The location of the view in the window.
+     * @param viewSize       The width and height of the view.
+     * @param bitmap         The bitmap in the view, or an empty bitmap.
+     */
     public void setSourceImageView(Point windowLocation, Point viewSize, Bitmap bitmap) {
         this.bitmap = bitmap;
         bitmapRect.set(0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -112,12 +124,26 @@ public class TransitionImageView
         );
     }
 
+    /**
+     * When animating in/out from a CustomScaleImageView, you'll need to take into account some parameters.
+     *
+     * @param stateScale      The current scale of the image.
+     * @param statePos        The source coordinate of the image's top right corner (0,0).
+     * @param stateBitmapSize The CustomScaleImageView's source width and height.
+     */
     public void setState(float stateScale, PointF statePos, PointF stateBitmapSize) {
         this.stateScale = stateScale;
         this.statePos = statePos;
         this.stateBitmapSize = stateBitmapSize;
     }
 
+    /**
+     * Set the progress for animating between the two views.
+     * If statePos is not null, we are animating out from a specified CustomScaleImageView state
+     * If statePos is null, we are animating in (usually) or out from a non-stateful item (like a thumbnail)
+     *
+     * @param progress The current animation progress
+     */
     public void setProgress(float progress) {
         this.progress = progress;
 

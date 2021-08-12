@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.BrowsePresenter;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
@@ -55,6 +56,8 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
@@ -143,7 +146,7 @@ public class BrowseController
         }
 
         overflowBuilder.withSubItem(OverflowMenuId.VIEW_MODE,
-                ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.LIST
+                ChanSettings.boardViewMode.get() == PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
                 this::toggleViewMode
@@ -202,18 +205,16 @@ public class BrowseController
     }
 
     private void toggleViewMode() {
-        ChanSettings.PostViewMode postViewMode = ChanSettings.boardViewMode.get();
-        if (postViewMode == ChanSettings.PostViewMode.LIST) {
-            postViewMode = ChanSettings.useStaggeredGrid.get()
-                    ? ChanSettings.PostViewMode.STAGGER
-                    : ChanSettings.PostViewMode.GRID;
+        PostViewMode postViewMode = ChanSettings.boardViewMode.get();
+        if (postViewMode == PostViewMode.LIST) {
+            postViewMode = ChanSettings.useStaggeredCatalogGrid.get() ? STAGGER : GRID;
         } else {
-            postViewMode = ChanSettings.PostViewMode.LIST;
+            postViewMode = PostViewMode.LIST;
         }
 
         ChanSettings.boardViewMode.set(postViewMode);
 
-        int viewModeText = postViewMode == ChanSettings.PostViewMode.LIST
+        int viewModeText = postViewMode == PostViewMode.LIST
                 ? R.string.action_switch_catalog
                 : R.string.action_switch_board;
         navigation.findSubItem(OverflowMenuId.VIEW_MODE).text = getString(viewModeText);
@@ -426,8 +427,8 @@ public class BrowseController
                 .append(board.description)
                 .append('\n');
         if (!board.workSafe) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get() && !PersistableChanState.noFunAllowed
-                    .get()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
+                    && !PersistableChanState.noFunAllowed.get()) {
                 text.append("\uD83D\uDD1E");
             } else {
                 text.append("NSFW");
@@ -458,7 +459,12 @@ public class BrowseController
 
     @Subscribe
     public void onEvent(RefreshUIMessage message) {
-        threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
+        PostViewMode currentBoardViewMode = ChanSettings.boardViewMode.get();
+        if (currentBoardViewMode == GRID || currentBoardViewMode == STAGGER) {
+            PostViewMode newMode = ChanSettings.useStaggeredCatalogGrid.get() ? STAGGER : GRID;
+            ChanSettings.boardViewMode.set(newMode);
+            threadLayout.setPostViewMode(newMode);
+        }
         super.onEvent(message);
     }
 }

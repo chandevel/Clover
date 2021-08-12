@@ -14,28 +14,31 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
-    tools:ignore="RtlSymmetry"
+    android:layout_height="wrap_content"
+    android:layout_margin="1dp"
+    android:minHeight="@dimen/cell_post_thumbnail_size"
     tools:layout_height="@dimen/cell_post_thumbnail_size"
     tools:layout_width="@dimen/cell_post_thumbnail_size">
 
-    <com.github.adamantcheese.chan.ui.view.PostImageThumbnailView
+    <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
         android:id="@+id/thumbnail_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="5dp" />
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />
 
     <ImageView
         android:id="@+id/checkbox2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:paddingLeft="7dp"
-        android:paddingTop="7dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="2dp"
         android:src="@drawable/ic_fluent_circle_24_filled"
         app:tint="@color/white" />
 
@@ -43,10 +46,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|top"
-        android:paddingLeft="7dp"
-        android:paddingTop="7dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="2dp"
         app:tint="@color/md_blue_500"
         tools:src="@drawable/ic_fluent_checkmark_circle_24_filled" />
 
-</FrameLayout>
+</RelativeLayout>

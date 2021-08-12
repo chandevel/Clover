@@ -20,6 +20,7 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -32,7 +33,6 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,8 +107,7 @@ public class PostStubCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme,
-            InvalidateInterface invalidateInterface
+            Theme theme
     ) {
         this.post = post;
         this.callback = callback;
@@ -130,7 +129,7 @@ public class PostStubCell
         return post;
     }
 
-    public ThumbnailView getThumbnailView(PostImage postImage) {
+    public ImageView getThumbnailView(PostImage postImage) {
         return null;
     }
 

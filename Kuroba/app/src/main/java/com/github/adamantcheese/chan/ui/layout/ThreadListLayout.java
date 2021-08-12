@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -58,7 +59,6 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
 import com.github.adamantcheese.chan.ui.view.FastScrollerHelper;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
@@ -99,6 +99,7 @@ public class ThreadListLayout
     private boolean replyOpen;
     private PostViewMode postViewMode;
     private int spanCount = 2;
+    private int spanWidth = 0;
     private boolean searchOpen;
 
     private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
@@ -194,7 +195,7 @@ public class ThreadListLayout
         if (gridCountSetting > 0) {
             // Set count
             spanCount = gridCountSetting;
-            compactMode = (getMeasuredWidth() / spanCount) < dp(getContext(), 120);
+            compactMode = ((float) getMeasuredWidth() / spanCount) < dp(getContext(), 120);
         } else {
             // Auto
             spanCount = Math.max(1,
@@ -204,11 +205,16 @@ public class ThreadListLayout
         }
 
         postAdapter.setCompact(compactMode);
+        spanWidth = getMeasuredWidth() / spanCount;
         if (postViewMode == STAGGER) {
             ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
         } else {
             ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
         }
+    }
+
+    public int getGridWidth() {
+        return postViewMode == LIST ? 0 : spanWidth;
     }
 
     public void setPostViewMode(PostViewMode postViewMode) {
@@ -484,7 +490,7 @@ public class ThreadListLayout
         return postViewMode;
     }
 
-    public ThumbnailView getThumbnail(PostImage postImage) {
+    public ImageView getThumbnail(PostImage postImage) {
         RecyclerView.LayoutManager layoutManager = recyclerView.getLayoutManager();
         if (layoutManager == null) return null;
         for (int i = 0; i < layoutManager.getChildCount(); i++) {

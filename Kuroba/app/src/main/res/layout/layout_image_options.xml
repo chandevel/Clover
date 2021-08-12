@@ -111,22 +111,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:text="Image quality: 100"
                         tools:ignore="HardcodedText" />
 
-                    <LinearLayout
+                    <SeekBar
+                        android:id="@+id/reecode_image_quality"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <SeekBar
-                            android:id="@+id/reecode_image_quality"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:max="100"
-                            android:min="1"
-                            android:progress="100"
-                            tools:targetApi="o" />
-
-                    </LinearLayout>
+                        android:max="100"
+                        android:min="1"
+                        android:progress="100"
+                        tools:targetApi="o" />
 
                 </LinearLayout>
 

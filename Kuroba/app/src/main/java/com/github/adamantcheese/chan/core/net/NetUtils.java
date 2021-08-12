@@ -246,21 +246,21 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final BitmapResult result
     ) {
-        return makeBitmapRequest(url, result, 0, 0);
+        return makeBitmapRequest(url, result, 0, 0, null);
     }
 
     /**
      * Request a bitmap without resizing, with timeout
      *
-     * @param url    The request URL. If null, null will be returned.
-     * @param result The callback for this call.
-     * @param timeoutMs  Optional timeout value, in milliseconds (-1 for no timeout)
+     * @param url       The request URL. If null, null will be returned.
+     * @param result    The callback for this call.
+     * @param timeoutMs Optional timeout value, in milliseconds (-1 for no timeout)
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final BitmapResult result, final int timeoutMs
     ) {
-        Pair<Call, Callback> ret =  makeBitmapRequest(url, result, 0, 0, timeoutMs, true, true);
+        Pair<Call, Callback> ret = makeBitmapRequest(url, result, 0, 0, timeoutMs, null, true, true);
         return ret == null ? null : ret.first;
     }
 
@@ -274,9 +274,13 @@ public class NetUtils {
      * @return An enqueued bitmap call. WILL RUN RESULT ON MAIN THREAD!
      */
     public static Call makeBitmapRequest(
-            final HttpUrl url, @NonNull final BitmapResult result, final int width, final int height
+            final HttpUrl url,
+            @NonNull final BitmapResult result,
+            final int width,
+            final int height,
+            @Nullable ProgressResponseBody.ProgressListener progressListener
     ) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, -1, true, true);
+        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, -1, progressListener, true, true);
         return ret == null ? null : ret.first;
     }
 
@@ -298,6 +302,7 @@ public class NetUtils {
             final int width,
             final int height,
             final int timeoutMs,
+            @Nullable final ProgressResponseBody.ProgressListener progressListener,
             boolean enqueue,
             boolean mainThread
     ) {
@@ -322,11 +327,16 @@ public class NetUtils {
         if (timeoutMs != -1) {
             client = client.newBuilder().callTimeout(timeoutMs, TimeUnit.MILLISECONDS).build();
         }
-        Call call = client
-                .newCall(new Request.Builder().url(url)
-                        .addHeader("Referer", url.toString())
-                        .cacheControl(new CacheControl.Builder().maxStale(365, TimeUnit.DAYS).build())
-                        .build());
+        client = client.newBuilder().addNetworkInterceptor(chain -> {
+            Response originalResponse = chain.proceed(chain.request());
+            return originalResponse.newBuilder()
+                    .body(new ProgressResponseBody(originalResponse, progressListener))
+                    .build();
+        }).build();
+        Call call = client.newCall(new Request.Builder().url(url)
+                .addHeader("Referer", url.toString())
+                .cacheControl(new CacheControl.Builder().maxStale(365, TimeUnit.DAYS).build())
+                .build());
         Callback callback = new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
@@ -363,11 +373,17 @@ public class NetUtils {
                             );
                         }
                         FilesKt.writeBytes(tempFile, body.bytes());
-                        BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, bitmap -> {
+                        Bitmap result =
+                                BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, mainThread ? null : bitmap -> {
+                                    //noinspection ResultOfMethodCallIgnored
+                                    tempFile.delete();
+                                    checkBitmap(url, bitmap, false);
+                                }, false);
+                        if (result != null) {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
-                            checkBitmap(url, bitmap, mainThread);
-                        }, false);
+                            checkBitmap(url, result, true);
+                        }
                     } else {
                         ExceptionCatchingInputStream wrappedStream =
                                 new ExceptionCatchingInputStream(body.byteStream());
@@ -418,7 +434,7 @@ public class NetUtils {
 
     private static synchronized void performBitmapFailure(@NonNull final HttpUrl url, Exception e, boolean mainThread) {
         final List<BitmapResult> results = resultListeners.remove(url);
-        if (results == null) return;
+        if (results == null || e instanceof StreamResetException || "Canceled".equals(e.getMessage())) return;
         for (final BitmapResult bitmapResult : results) {
             if (bitmapResult == null) continue;
             if (mainThread) {

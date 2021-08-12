@@ -193,7 +193,8 @@ public class ChanSettings {
     public static final IntegerSetting albumGridSpanCountPortrait;
     public static final IntegerSetting boardGridSpanCountLandscape;
     public static final IntegerSetting albumGridSpanCountLandscape;
-    public static final BooleanSetting useStaggeredGrid;
+    public static final BooleanSetting useStaggeredCatalogGrid;
+    public static final BooleanSetting useStaggeredAlbumGrid;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting alwaysShowPostOptions;
     public static final BooleanSetting enableReplyFab;
@@ -232,7 +233,6 @@ public class ChanSettings {
     public static final BooleanSetting parsePostImageLinks;
     public static final BooleanSetting useOpaqueBackgrounds;
     public static final BooleanSetting opacityMenuItem;
-    public static final BooleanSetting neverShowAlbumCellInfo;
 
     // Set elsewhere in the application
     public static final OptionsSetting<PostViewMode> boardViewMode;
@@ -355,7 +355,8 @@ public class ChanSettings {
             albumGridSpanCountPortrait = new IntegerSetting(p, "preference_album_grid_span_count", 0);
             boardGridSpanCountLandscape = new IntegerSetting(p, "preference_board_grid_span_count_landscape", 0);
             albumGridSpanCountLandscape = new IntegerSetting(p, "preference_album_grid_span_count_landscape", 0);
-            useStaggeredGrid = new BooleanSetting(p, "use_staggered_grid", false);
+            useStaggeredCatalogGrid = new BooleanSetting(p, "use_staggered_catalog_grid", false);
+            useStaggeredAlbumGrid = new BooleanSetting(p, "use_staggered_album_grid", false);
             neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
             alwaysShowPostOptions = new BooleanSetting(p, "preference_always_show_post_options", false);
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);
@@ -395,7 +396,6 @@ public class ChanSettings {
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
             useOpaqueBackgrounds = new BooleanSetting(p, "image_transparency_on", false);
             opacityMenuItem = new BooleanSetting(p, "opacity_menu_item", false);
-            neverShowAlbumCellInfo = new BooleanSetting(p, "never_show_album_cell_info", false);
 
             //Elsewhere
             boardViewMode =

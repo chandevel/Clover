@@ -20,7 +20,6 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,8 +93,7 @@ public class CardPostStubCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme,
-            InvalidateInterface invalidateInterface
+            Theme theme
     ) {
         this.post = post;
         this.callback = callback;
@@ -121,7 +119,7 @@ public class CardPostStubCell
     }
 
     @Override
-    public ThumbnailView getThumbnailView(PostImage postImage) {
+    public ImageView getThumbnailView(PostImage postImage) {
         return null;
     }
 

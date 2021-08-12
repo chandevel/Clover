@@ -16,7 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
@@ -32,9 +34,9 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.text.HtmlCompat;
 
 import com.github.adamantcheese.chan.R;
@@ -191,6 +193,7 @@ public class FilterLayout
         return filter;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onClick(View v) {
         if (v == typeText) {
@@ -313,18 +316,39 @@ public class FilterLayout
                     .setPositiveButton(R.string.close, null)
                     .show();
         } else if (v == colorContainer) {
-            final ColorPickerView colorPickerView = new ColorPickerView(getContext());
-            colorPickerView.setColor(filter.color);
+            View colorPickerView = LayoutInflater.from(getContext()).inflate(R.layout.layout_color_pick, null);
+            ColorPickerView colorView = colorPickerView.findViewById(R.id.color_picker);
+            SeekBar alphaBar = colorPickerView.findViewById(R.id.alpha_picker);
+            TextView percent = colorPickerView.findViewById(R.id.progress);
+            alphaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    colorView.setColor(Color.argb(progress,
+                            Color.red(colorView.getColor()),
+                            Color.green(colorView.getColor()),
+                            Color.blue(colorView.getColor())
+                    ));
+                    percent.setText((int) ((progress / (float) seekBar.getMax()) * 100) + "%");
+                }
 
-            AlertDialog dialog = getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_color_pick)
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {}
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {}
+            });
+            colorView.setColor(filter.color);
+            alphaBar.setProgress(Color.alpha(filter.color));
+            percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
+
+            getDefaultAlertBuilder(getContext())
                     .setView(colorPickerView)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog1, which) -> {
-                        filter.color = colorPickerView.getColor();
+                        filter.color = colorView.getColor();
                         updateFilterAction();
                     })
                     .show();
-            dialog.getWindow().setLayout((int) dp(300), (int) dp(300));
         }
     }
 

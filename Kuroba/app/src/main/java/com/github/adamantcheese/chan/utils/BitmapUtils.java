@@ -278,7 +278,7 @@ public class BitmapUtils {
     }
 
     private static Bitmap decodeFilePreviewImage(final File file, float maxWidth, float maxHeight, boolean addAudioIcon) {
-        Bitmap result = BitmapRepository.error;
+        Bitmap result = BitmapRepository.paddedError;
         try {
             // Decode normally, scaling if necessary
             result = decodeFile(file, maxWidth, maxHeight);

@@ -17,27 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/removed_posts_view_holder"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clickable="true"
     android:focusable="true">
 
-    <com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout
-        android:id="@+id/container"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:background="?backcolor"
         android:elevation="4dp"
-        android:minWidth="320dp"
         android:orientation="vertical"
         android:padding="4dp"
-        app:maxWidth="600dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="600dp"
+        app:layout_constraintWidth_min="320dp">
 
         <ListView
             android:id="@+id/removed_posts_posts_list"
@@ -45,33 +42,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="0dp"
             android:layout_weight="1"
             tools:layout_height="340dp"
-            tools:listitem="@layout/cell_post" />
+            tools:listitem="@layout/layout_removed_post" />
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:divider="?android:attr/dividerVertical"
+            android:dividerPadding="12dp"
+            android:orientation="horizontal"
+            android:paddingTop="4dp"
+            android:showDividers="middle">
 
             <Button
                 android:id="@+id/removed_posts_select_all"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/select_all" />
-
-            <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="@string/select_all" />
 
             <Button
                 android:id="@+id/removed_posts_restore_posts"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:text="@string/restore_posts" />
 
         </LinearLayout>
 
-    </com.github.adamantcheese.chan.ui.layout.MaxWidthLinearLayout>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.helper;
 
 import android.content.Context;
+import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -24,7 +25,6 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
 import java.util.Collections;
@@ -116,7 +116,7 @@ public class PostPopupHelper {
         presentingController.scrollTo(displayPosition);
     }
 
-    public ThumbnailView getThumbnail(PostImage postImage) {
+    public ImageView getThumbnail(PostImage postImage) {
         return presentingController.getThumbnail(postImage);
     }
 

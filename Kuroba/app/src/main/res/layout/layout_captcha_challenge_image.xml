@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
@@ -7,47 +7,31 @@
 
     <ImageView
         android:id="@+id/captcha_challenge_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:scaleType="fitXY"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/partyhat" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <FrameLayout
         android:id="@+id/captcha_challenge_blue_checkmark_holder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible">
 
         <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
             android:src="@drawable/ic_fluent_circle_24_filled"
-            app:layout_constraintBottom_toBottomOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintEnd_toEndOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintStart_toStartOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintTop_toTopOf="@+id/captcha_challenge_blue_checkmark_holder"
             app:tint="@color/white" />
 
         <ImageView
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:src="@drawable/ic_fluent_checkmark_circle_24_filled"
-            app:layout_constraintBottom_toBottomOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintEnd_toEndOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintStart_toStartOf="@+id/captcha_challenge_blue_checkmark_holder"
-            app:layout_constraintTop_toTopOf="@+id/captcha_challenge_blue_checkmark_holder"
             app:tint="@color/md_blue_500" />
 
+    </FrameLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

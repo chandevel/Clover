@@ -291,7 +291,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:src="@drawable/ic_fluent_image_add_24_filled"
                     app:tint="?attr/themeDrawableColor" />
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <FrameLayout
                     android:id="@+id/submit"
                     android:layout_width="36dp"
                     android:layout_height="36dp">
@@ -315,12 +315,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                         android:textColor="@color/white"
                         android:textSize="12sp"
                         android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_gravity="bottom|right"
                         tools:text="2"
                         tools:visibility="visible" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </FrameLayout>
 
                 <Space
                     android:id="@+id/spacer"

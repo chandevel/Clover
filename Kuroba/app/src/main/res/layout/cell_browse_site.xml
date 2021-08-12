@@ -25,11 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/image"
         android:layout_width="48dp"
         android:layout_height="match_parent"
-        android:paddingLeft="12dp"
         android:paddingVertical="8dp"
+        android:paddingLeft="12dp"
         android:scaleType="fitCenter"
         android:src="@drawable/exo_controls_fullscreen_enter"
-        tools:src="@drawable/ic_fluent_question_circle_24_regular" />
+        tools:src="@drawable/ic_stat_notify" />
 
     <TextView
         android:id="@+id/text"

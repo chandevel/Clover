@@ -64,7 +64,7 @@ public class Chan4ReplyCall
 
         formBuilder.addFormDataPart(
                 "com",
-                reply.comment + (AndroidUtils.isAprilFoolsDay() && !PersistableChanState.noFunAllowed.get() ?
+                reply.comment + (AndroidUtils.isAprilFoolsDay() ?
                         "\n\nSent from my " + Build.MANUFACTURER + " - " + Build.MODEL : "")
         );
 

@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -55,6 +56,8 @@ import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.controller.ImageViewerController;
+import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -63,9 +66,10 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +79,7 @@ import okhttp3.HttpUrl;
 
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -114,7 +119,33 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onThumbnailClicked(PostImage postImage, ThumbnailView thumbnail) {
+        public void onThumbnailClicked(PostImage postImage, ImageView thumbnail) {
+            ImageViewerNavigationController imagerViewer = new ImageViewerNavigationController(context);
+            presentController(imagerViewer, false);
+            imagerViewer.showImages(
+                    Collections.singletonList(postImage),
+                    0,
+                    dummyLoadable,
+                    new ImageViewerController.ImageViewerCallback() {
+                        @Override
+                        public ImageView getPreviewImageTransitionView(PostImage postImage) {
+                            return thumbnail;
+                        }
+
+                        @Override
+                        public void scrollToImage(PostImage postImage) {}
+
+                        @Override
+                        public Post getPostForPostImage(PostImage postImage) {
+                            return null;
+                        }
+
+                        @Override
+                        public Loadable getLoadable() {
+                            return dummyLoadable;
+                        }
+                    }
+            );
         }
 
         @Override
@@ -131,6 +162,9 @@ public class ThemeSettingsController
 
         @Override
         public void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup) {
+            if (id == PostOptions.POST_OPTION_INFO) {
+                showToast(context, "Menu option test.");
+            }
         }
 
         @Override
@@ -154,6 +188,11 @@ public class ThemeSettingsController
 
         @Override
         public void onPostSelectionQuoted(Post post, CharSequence quoted) {
+        }
+
+        @Override
+        public int getGridWidth() {
+            return 0;
         }
     };
 
@@ -348,7 +387,7 @@ public class ThemeSettingsController
 
     final List<Filter> filters = Collections.singletonList(new Filter(true,
             FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
-            "spacer",
+            "test",
             true,
             "",
             FilterEngine.FilterAction.COLOR.id,
@@ -412,6 +451,10 @@ public class ThemeSettingsController
                     .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
                             + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
+                            + "<span class=\"quote\">&gt;This is a inline quoted quote. "
+                            + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a></span><br>"
+                            + "<span class=\"quote\">&gt;This is a inline quoted quote that is marked. "
+                            + "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a></span><br>"
                             + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
 
             Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
@@ -421,9 +464,7 @@ public class ThemeSettingsController
                     .idColor(0xFF471D0A)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
-                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a> This is a spacer "
-                                    + "post for seeing the divider color; below is a youtube link for title/duration testing:<br>"
+                            "This is a spacer post for seeing the divider color; below is a link for embed testing:<br>"
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
             Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
@@ -457,8 +498,9 @@ public class ThemeSettingsController
             ChanThread thread = new ChanThread(dummyLoadable, posts);
 
             for (Post p : thread.getPosts()) {
-                for (PostLinkable linkable : p.getLinkables()) {
-                    linkable.setMarkedNo(123456789);
+                List<PostLinkable> linkables = p.getQuoteLinkables();
+                for (PostLinkable linkable : linkables) {
+                    linkable.setMarkedNo(linkables.size() > 1 ? 123456789 : -1);
                 }
             }
 
@@ -544,6 +586,19 @@ public class ThemeSettingsController
             final NavigationItem item = new NavigationItem();
             item.title = holder.theme.name;
             item.hasBack = false;
+            item.buildMenu().withOverflow().withSubItem(R.string.test_snackbar, () -> {
+                Snackbar test = AndroidUtils.buildCommonSnackbar(view,
+                        holder.itemView.getContext().getString(R.string.test_snackbar)
+                );
+                test.setAction(R.string.cancel, v -> test.dismiss());
+                test.show();
+            }).withSubItem(R.string.test_popup, () -> {
+                AlertDialog test = getDefaultAlertBuilder(holder.itemView.getContext()).setMessage(R.string.test_popup)
+                        .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                        .create();
+                test.setCanceledOnTouchOutside(true);
+                test.show();
+            }).build().build();
             holder.toolbar.setNavigationItem(false, true, item, holder.theme);
             holder.toolbar.setOnClickListener(colorClick);
         }

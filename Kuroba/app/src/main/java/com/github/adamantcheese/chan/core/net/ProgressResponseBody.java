@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.core.net;
 
 import androidx.annotation.Nullable;
 
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
+
 import java.io.IOException;
 
 import okhttp3.HttpUrl;
@@ -62,12 +64,12 @@ public class ProgressResponseBody
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 if (progressListener != null) {
-                    progressListener.onDownloadProgress(sourceUrl,
+                    BackgroundUtils.runOnMainThread(() -> progressListener.onDownloadProgress(sourceUrl,
                             totalBytesRead,
                             responseBody.contentLength(),
                             firstRead,
                             bytesRead == -1
-                    );
+                    ));
                 }
                 return bytesRead;
             }

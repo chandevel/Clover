@@ -26,17 +26,22 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.view.OneShotPreDrawListener;
 
@@ -65,18 +70,23 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.LoadingBar;
 import com.github.adamantcheese.chan.ui.view.MultiImageView;
 import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.ui.view.TransitionImageView;
+import com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -90,6 +100,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
+import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ImageViewerController
         extends Controller
@@ -158,6 +169,7 @@ public class ImageViewerController
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, () -> saveShare(true))
                 .withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation))
+                .withSubItem(R.string.image_info, this::imageInfoClicked)
                 .withSubItem(R.string.action_download_album, this::downloadAlbumClicked);
 
         if (!ChanSettings.opacityMenuItem.get()) {
@@ -241,6 +253,69 @@ public class ImageViewerController
         navigationController.pushController(albumDownloadController);
     }
 
+    // this code is basically a duplicate of the same in ThreadPresenter, but slightly modified for this specific use case
+    private void imageInfoClicked() {
+        SpannableStringBuilder text = new SpannableStringBuilder();
+        PostImage image = presenter.getCurrentPostImage();
+        AlertDialog dialog =
+                DefaultAlertDialog.getDefaultAlertBuilder(context).setPositiveButton(R.string.ok, null).create();
+        dialog.setCanceledOnTouchOutside(true);
+
+        text.append("Filename: ").append(image.filename).append(".").append(image.extension);
+        if ("webm".equals(image.extension.toLowerCase())) {
+            // check webms for extra titles, async
+            // this is a super simple example of what the embedding engine does, basically
+            String checking = "\nChecking for metadata titles…";
+            text.append(checking);
+            Call call = NetUtils.applicationClient.newCall(new Request.Builder().url(image.imageUrl).build());
+            call.enqueue(new NetUtilsClasses.IgnoreFailureCallback() {
+                @Override
+                public void onResponse(@NonNull Call call, @NonNull Response response)
+                        throws IOException {
+                    int index = text.toString().indexOf(checking);
+                    String replaceText = ""; // clears out text if nothing found
+
+                    byte[] bytes = new byte[2048];
+                    response.body().source().read(bytes);
+                    response.close();
+                    for (int i = 0; i < bytes.length - 1; i++) {
+                        if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
+                            byte len = (byte) (bytes[i + 2] ^ 0x80);
+                            // i is the position of the length bytes, which are 2 bytes
+                            // 1 after that is the actual string start
+                            replaceText = "\nMetadata title: " + new String(bytes, i + 2 + 1, len);
+                            break;
+                        }
+                    }
+                    text.replace(index, index + checking.length(), replaceText);
+                    // update on main thread, this is an OkHttp thread
+                    BackgroundUtils.runOnMainThread(() -> ((TextView) dialog.findViewById(android.R.id.message)).setText(
+                            text));
+                }
+            });
+            dialog.setOnDismissListener(dialog1 -> call.cancel());
+        }
+        if (image.isInlined) {
+            text.append("\nLinked file");
+        } else {
+            text.append("\nDimensions: ")
+                    .append(Integer.toString(image.imageWidth))
+                    .append("x")
+                    .append(Integer.toString(image.imageHeight));
+        }
+
+        if (image.size > 0) {
+            text.append("\nSize: ").append(getReadableFileSize(image.size));
+        }
+
+        if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that
+            text.append("\nSpoilered");
+        }
+
+        dialog.setMessage(text);
+        dialog.show();
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -292,9 +367,10 @@ public class ImageViewerController
         // the right info
 
         String siteName = presenter.getLoadable().site.name();
+        Post postForImage = imageViewerCallback.getPostForPostImage(postImage);
 
         int postNoString = presenter.getLoadable().no == 0
-                ? imageViewerCallback.getPostForPostImage(postImage).no
+                ? (postForImage == null ? 0 : postForImage.no)
                 : presenter.getLoadable().no;
 
         String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName) + File.separator
@@ -302,9 +378,7 @@ public class ImageViewerController
                 + postNoString + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
-                ? PostHelper.getTitle(imageViewerCallback.getPostForPostImage(postImage),
-                imageViewerCallback.getLoadable()
-        )
+                ? PostHelper.getTitle(postForImage, imageViewerCallback.getLoadable())
                 : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
@@ -456,7 +530,7 @@ public class ImageViewerController
     }
 
     public void startPreviewInTransition(PostImage postImage) {
-        ThumbnailView startImageView = getTransitionImageView(postImage);
+        ImageView startImageView = getTransitionImageView(postImage);
 
         statusBarColorPrevious = getWindow(context).getStatusBarColor();
 
@@ -527,7 +601,7 @@ public class ImageViewerController
             }
         }
 
-        ThumbnailView startImage = getTransitionImageView(postImage);
+        ImageView startImage = getTransitionImageView(postImage);
 
         endAnimation = new AnimatorSet();
         if (!setTransitionViewData(startImage)) {
@@ -565,12 +639,14 @@ public class ImageViewerController
         navigationController.stopPresenting(false);
     }
 
-    private boolean setTransitionViewData(ThumbnailView startView) {
+    private boolean setTransitionViewData(ImageView startView) {
         if (startView == null || startView.getWindowToken() == null) {
             return false;
         }
 
-        Bitmap bitmap = startView.getBitmap();
+        Bitmap bitmap = startView.getDrawable() instanceof BitmapDrawable
+                ? ((BitmapDrawable) startView.getDrawable()).getBitmap()
+                : null;
         if (bitmap == null) {
             bitmap = BitmapRepository.empty;
         }
@@ -606,7 +682,7 @@ public class ImageViewerController
         loadingBar.setAlpha(alpha);
     }
 
-    private ThumbnailView getTransitionImageView(PostImage postImage) {
+    private ImageView getTransitionImageView(PostImage postImage) {
         return imageViewerCallback.getPreviewImageTransitionView(postImage);
     }
 
@@ -663,7 +739,7 @@ public class ImageViewerController
     }
 
     public interface ImageViewerCallback {
-        ThumbnailView getPreviewImageTransitionView(PostImage postImage);
+        ImageView getPreviewImageTransitionView(PostImage postImage);
 
         void scrollToImage(PostImage postImage);
 

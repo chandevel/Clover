@@ -6,6 +6,7 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,13 +16,16 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 import static android.graphics.Typeface.BOLD;
 import static android.view.Gravity.CENTER;
@@ -96,7 +100,8 @@ public class DrawerHistoryAdapter
                 holder.itemView.getLayoutParams().width = MATCH_PARENT;
                 holder.itemView.getLayoutParams().height = WRAP_CONTENT;
             }
-            holder.thumbnail.setUrl(history.loadable.thumbnailUrl, holder.thumbnail.getLayoutParams().height);
+
+            holder.loadUrl(history.loadable.thumbnailUrl, holder.thumbnail);
 
             holder.text.setText(applySearchSpans(ThemeHelper.getTheme(), history.loadable.title, searchQuery));
             holder.subtext.setText(String.format("/%s/ – %s",
@@ -133,7 +138,7 @@ public class DrawerHistoryAdapter
         // since views can be recycled, we need to take care of everything that could've occurred, including the loading screen
         holder.itemView.getLayoutParams().height = WRAP_CONTENT;
         holder.thumbnail.setVisibility(View.VISIBLE);
-        holder.thumbnail.setUrl(null, 0);
+        holder.cancelLoad(holder.thumbnail);
         holder.text.setText("");
         holder.text.setGravity(TOP | START | CENTER);
         holder.text.getLayoutParams().height = WRAP_CONTENT;
@@ -168,10 +173,13 @@ public class DrawerHistoryAdapter
     }
 
     public class HistoryCell
-            extends RecyclerView.ViewHolder {
-        private final ThumbnailView thumbnail;
+            extends RecyclerView.ViewHolder
+            implements ImageLoadable {
+        private final ImageView thumbnail;
         private final TextView text;
         private final TextView subtext;
+        private Call thumbnailCall;
+        private HttpUrl lastHttpUrl;
 
         public HistoryCell(View itemView) {
             super(itemView);
@@ -201,6 +209,31 @@ public class DrawerHistoryAdapter
                 return historyList.get(position);
             }
             return null;
+        }
+
+        @Override
+        public HttpUrl getLastHttpUrl() {
+            return lastHttpUrl;
+        }
+
+        @Override
+        public void setLastHttpUrl(HttpUrl url) {
+            lastHttpUrl = url;
+        }
+
+        @Override
+        public Call getImageCall() {
+            return thumbnailCall;
+        }
+
+        @Override
+        public void setImageCall(Call call) {
+            thumbnailCall = call;
+        }
+
+        @Override
+        public float getMaxImageSize() {
+            return thumbnail.getLayoutParams().height;
         }
     }
 

@@ -23,6 +23,7 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcEvent;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
@@ -37,7 +38,6 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.EventBus;
@@ -186,12 +186,12 @@ public abstract class ThreadController
     }
 
     @Override
-    public void showImages(List<PostImage> images, int index, Loadable loadable, final ThumbnailView thumbnail) {
+    public void showImages(List<PostImage> images, int index, Loadable loadable, final ImageView thumbnail) {
         boolean isAlreadyPresenting =
                 isAlreadyPresenting((controller) -> controller instanceof ImageViewerNavigationController);
 
         // Just ignore the showImages request when the image is not loaded
-        if (thumbnail.getBitmap() != null && !isAlreadyPresenting) {
+        if (thumbnail.getDrawable() != null && !isAlreadyPresenting) {
             ImageViewerNavigationController imagerViewer = new ImageViewerNavigationController(context);
             presentController(imagerViewer, false);
             imagerViewer.showImages(images, index, loadable, this);
@@ -199,7 +199,7 @@ public abstract class ThreadController
     }
 
     @Override
-    public ThumbnailView getPreviewImageTransitionView(PostImage postImage) {
+    public ImageView getPreviewImageTransitionView(PostImage postImage) {
         return threadLayout.getThumbnail(postImage);
     }
 

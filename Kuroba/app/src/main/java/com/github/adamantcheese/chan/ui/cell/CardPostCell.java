@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
@@ -32,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -40,12 +42,16 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+
+import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -58,19 +64,21 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
         extends CardView
-        implements PostCellInterface {
+        implements PostCellInterface, ImageLoadable {
     private Post post;
     private PostCellInterface.PostCellCallback callback;
 
-    private float iconSizePx;
-
-    private PostImageThumbnailView thumbView;
+    private ShapeablePostImageView thumbView;
     private TextView title;
     private TextView comment;
     private TextView replies;
     private ImageView options;
     private View filterMatchColor;
     private PostIcons icons;
+
+    private OneShotPreDrawListener maxLinesUpdater;
+    private Call thumbnailCall;
+    private HttpUrl lastHttpUrl;
 
     public CardPostCell(Context context) {
         super(context);
@@ -100,7 +108,7 @@ public class CardPostCell
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.setWithoutText(new Post.Builder().sticky(true)
+            icons.set(new Post.Builder().sticky(true)
                     .closed(true)
                     .archived(true)
                     .board(Board.getDummyBoard())
@@ -108,7 +116,7 @@ public class CardPostCell
                     .opId(1)
                     .setUnixTimestampSeconds(System.currentTimeMillis())
                     .comment("")
-                    .build(), iconSizePx);
+                    .build(), false);
         }
 
         setOnClickListener((view) -> callback.onPostClicked(post));
@@ -157,8 +165,7 @@ public class CardPostCell
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme,
-            InvalidateInterface invalidateInterface
+            Theme theme
     ) {
         this.callback = callback;
         setCompact(compact);
@@ -169,7 +176,7 @@ public class CardPostCell
         return post;
     }
 
-    public ThumbnailView getThumbnailView(PostImage postImage) {
+    public ImageView getThumbnailView(PostImage postImage) {
         return thumbView;
     }
 
@@ -189,10 +196,18 @@ public class CardPostCell
 
         if (post.image() != null && !ChanSettings.textOnly.get()) {
             thumbView.setVisibility(VISIBLE);
-            thumbView.setPostImage(post.image(), -1);
+            thumbView.setType(post.image());
+            ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToBottom = R.id.thumbnail_holder;
+            ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToTop = UNSET;
+            icons.setBackgroundColor(0);
+            loadPostImage(post.image(), thumbView);
         } else {
             thumbView.setVisibility(GONE);
-            thumbView.setPostImage(null, 0);
+            thumbView.setType(null);
+            ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToBottom = UNSET;
+            ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToTop = R.id.replies_section;
+            icons.setBackgroundColor(getAttrColor(theme.resValue, R.attr.backcolor));
+            cancelLoad(thumbView);
         }
 
         thumbView.setOnClickListener((view) -> callback.onThumbnailClicked(post.image(), thumbView));
@@ -214,22 +229,23 @@ public class CardPostCell
             filterMatchColor.setVisibility(GONE);
         }
 
-        icons.setWithoutText(post, iconSizePx);
+        icons.set(post, false);
 
         title.setVisibility(TextUtils.isEmpty(post.subjectSpan) ? GONE : VISIBLE);
         title.setText(TextUtils.isEmpty(post.subjectSpan)
                 ? null
                 : applySearchSpans(theme, post.subjectSpan, callback.getSearchQuery()));
 
-        // for ellipsize to work, set maxLines equal to the proper value after a measure
-        OneShotPreDrawListener.add(
-                this,
-                () -> comment.setMaxLines(
-                        (thumbView.getHeight() - title.getHeight() - title.getPaddingTop() - title.getPaddingBottom()
-                                - comment.getPaddingTop() - comment.getPaddingBottom()) / comment.getLineHeight())
-        );
-
         comment.setText(applySearchSpans(theme, post.comment, callback.getSearchQuery()));
+        // for ellipsize to work, set maxLines equal to the proper value after a measure
+        if (ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.GRID) {
+            maxLinesUpdater = OneShotPreDrawListener.add(this, () -> {
+                comment.setMaxLines((int) Math.floor(
+                        (comment.getHeight() - comment.getPaddingTop() - comment.getPaddingBottom()) / (float) comment.getLineHeight()));
+            });
+        } else {
+            comment.setMaxLines(ChanSettings.getBoardColumnCount() == 1 ? 20 : 10);
+        }
 
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
@@ -245,22 +261,27 @@ public class CardPostCell
     @Override
     public void unsetPost() {
         icons.clear();
-        thumbView.setPostImage(null, 0);
+        thumbView.setType(null);
+        cancelLoad(thumbView);
         thumbView.setOnClickListener(null);
         thumbView.setOnLongClickListener(null);
+        if (maxLinesUpdater != null) {
+            maxLinesUpdater.removeListener();
+            maxLinesUpdater = null;
+        }
+        comment.setText(null);
+        comment.setMaxLines(Integer.MAX_VALUE);
         post = null;
     }
 
     private void setCompact(boolean compact) {
         int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
         int compactSize = textSizeSp + (compact ? -2 : 0);
-        iconSizePx = sp(getContext(), compactSize);
         title.setTextSize(compactSize);
-        icons.setHeight(iconSizePx);
         comment.setTextSize(compactSize);
         replies.setTextSize(compactSize);
 
-        icons.setSpacing(dp(getContext(), 4));
+        icons.getLayoutParams().height = (int) sp(getContext(), compactSize);
 
         float p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
@@ -273,5 +294,30 @@ public class CardPostCell
         ViewGroup.LayoutParams params = options.getLayoutParams();
         params.height = (int) (dp(getContext(), 32) - (compact ? 2 * p : 0));
         options.setLayoutParams(params);
+    }
+
+    @Override
+    public HttpUrl getLastHttpUrl() {
+        return lastHttpUrl;
+    }
+
+    @Override
+    public void setLastHttpUrl(HttpUrl url) {
+        lastHttpUrl = url;
+    }
+
+    @Override
+    public Call getImageCall() {
+        return thumbnailCall;
+    }
+
+    @Override
+    public void setImageCall(Call call) {
+        this.thumbnailCall = call;
+    }
+
+    @Override
+    public float getMaxImageSize() {
+        return callback == null ? getThumbnailSize(getContext()) : callback.getGridWidth();
     }
 }

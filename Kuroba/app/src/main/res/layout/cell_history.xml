@@ -23,15 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:orientation="horizontal"
     tools:background="?backcolor">
 
-    <com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/thumbnail"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="4dp"
         android:padding="4dp"
-        app:circular="true"
-        app:ratio="1.0" />
+        app:shapeAppearanceOverlay="@style/roundedImageViewRound"
+        tools:src="@drawable/ic_fluent_history_24_regular" />
 
     <LinearLayout
         android:layout_width="match_parent"

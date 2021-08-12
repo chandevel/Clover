@@ -6,9 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 
@@ -61,10 +60,9 @@ public class CaptchaV2NoJsAdapter
                     .inflate(R.layout.layout_captcha_challenge_image, parent, false);
 
             ImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);
-            ConstraintLayout blueCheckmarkHolder =
-                    convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
+            FrameLayout blueCheckmarkHolder = convertView.findViewById(R.id.captcha_challenge_blue_checkmark_holder);
 
-            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams((int) imageSize, (int) imageSize);
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams((int) imageSize, (int) imageSize);
             imageView.setLayoutParams(layoutParams);
 
             imageView.setOnClickListener(view -> {

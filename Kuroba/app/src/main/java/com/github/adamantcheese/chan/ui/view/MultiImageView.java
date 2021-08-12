@@ -31,6 +31,7 @@ import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -201,7 +202,7 @@ public class MultiImageView
         switch (mode) {
             case LOWRES:
             case OTHER:
-                ret = findView(ThumbnailImageView.class);
+                ret = findView(ShapeablePostImageView.class);
                 break;
             case BIGIMAGE:
                 ret = findView(CustomScaleImageView.class);
@@ -357,8 +358,9 @@ public class MultiImageView
 
     private void onThumbnailBitmap(Bitmap bitmap) {
         if (!hasContent || mode == Mode.LOWRES) {
-            ThumbnailImageView thumbnail = new ThumbnailImageView(getContext());
-            thumbnail.setType(postImage.type);
+            ShapeablePostImageView thumbnail = new ShapeablePostImageView(getContext());
+            thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER); // in this case, we don't want CENTER_CROP
+            thumbnail.setType(postImage);
             thumbnail.setImageBitmap(bitmap);
             thumbnail.setOnClickListener(null);
             thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));

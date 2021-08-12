@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import android.view.View;
+import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -24,7 +25,6 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 
 import java.util.List;
 
@@ -36,15 +36,14 @@ public interface PostCellInterface {
             boolean inPopup,
             boolean highlighted,
             boolean compact,
-            Theme theme,
-            InvalidateInterface invalidateInterface
+            Theme theme
     );
 
     void unsetPost();
 
     Post getPost();
 
-    ThumbnailView getThumbnailView(PostImage postImage);
+    ImageView getThumbnailView(PostImage postImage);
 
     interface PostCellCallback {
         Loadable getLoadable();
@@ -55,9 +54,11 @@ public interface PostCellInterface {
 
         void onPostDoubleClicked(Post post);
 
-        void onThumbnailClicked(PostImage image, ThumbnailView thumbnail);
+        void onThumbnailClicked(PostImage image, ImageView thumbnail);
 
         void onShowPostReplies(Post post);
+
+        int getGridWidth();
 
         enum PostOptions {
             POST_OPTION_QUOTE,

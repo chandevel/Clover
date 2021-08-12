@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
@@ -60,9 +59,7 @@ public class SiteIcon {
                 public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                     Logger.e(SiteIcon.this, "Error loading favicon", e);
                     drawable = null;
-                    BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(new BitmapDrawable(getRes(),
-                            BitmapRepository.error
-                    )));
+                    res.onSiteIcon(new BitmapDrawable(getRes(), BitmapRepository.error));
                 }
 
                 @Override
@@ -70,7 +67,7 @@ public class SiteIcon {
                     drawable = new BitmapDrawable(getRes(), bitmap);
                     drawable.setFilterBitmap(false);
                     drawable.setDither(false);
-                    BackgroundUtils.runOnMainThread(() -> res.onSiteIcon(drawable));
+                    res.onSiteIcon(drawable);
                 }
             });
         }

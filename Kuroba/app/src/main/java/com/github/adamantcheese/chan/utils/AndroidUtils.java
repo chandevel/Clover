@@ -59,6 +59,7 @@ import androidx.preference.PreferenceManager;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
 
@@ -493,6 +494,7 @@ public class AndroidUtils {
     }
 
     public static boolean isAprilFoolsDay() {
+        if (PersistableChanState.noFunAllowed.get()) return false;
         Calendar calendar = Calendar.getInstance();
         return calendar.get(Calendar.MONTH) == Calendar.APRIL && calendar.get(Calendar.DAY_OF_MONTH) == 1;
     }
@@ -531,6 +533,10 @@ public class AndroidUtils {
             View view, String message, int actionResId, View.OnClickListener action
     ) {
         Snackbar s = Snackbar.make(view, message, Snackbar.LENGTH_LONG);
+        // because we've got a weird mix of Material elements and other elements, these get messed up so they're set again
+        s.setBackgroundTint(view.getContext().getResources().getColor(R.color.md_grey_850));
+        s.setTextColor(Color.WHITE);
+        s.setActionTextColor(view.getContext().getResources().getColor(R.color.md_grey_300));
         s.setGestureInsetBottomIgnored(true);
         if (actionResId != 0 && action != null) {
             s.setAction(actionResId, action);

@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -37,7 +38,6 @@ import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 public class PostRepliesController
@@ -72,9 +72,9 @@ public class PostRepliesController
         return R.layout.layout_post_replies_container;
     }
 
-    public ThumbnailView getThumbnail(PostImage postImage) {
+    public ImageView getThumbnail(PostImage postImage) {
         if (recyclerView == null) return null;
-        ThumbnailView thumbnail = null;
+        ImageView thumbnail = null;
         for (int i = 0; i < recyclerView.getChildCount(); i++) {
             View view = recyclerView.getChildAt(i);
             if (view instanceof PostCellInterface) {
@@ -105,7 +105,7 @@ public class PostRepliesController
         View dataView = LayoutInflater.from(context)
                 .inflate(ChanSettings.repliesButtonsBottom.get()
                         ? R.layout.layout_post_replies_bottombuttons
-                        : R.layout.layout_post_replies, null);
+                        : R.layout.layout_post_replies_topbuttons, null);
 
         recyclerView = dataView.findViewById(R.id.post_list);
 

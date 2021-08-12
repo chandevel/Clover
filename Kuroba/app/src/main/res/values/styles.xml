@@ -29,8 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
-        <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
-        <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
         <item name="android:listPopupWindowStyle">@style/ListPopupWindowStyle</item>
 
@@ -55,8 +53,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="checkboxStyle">@style/Widget.AppCompat.CompoundButton.CheckBox</item>
         <item name="buttonStyle">@style/Widget.AppCompat.Button</item>
         <item name="actionBarItemBackground">@drawable/ripple_item_background</item>
-        <item name="snackbarButtonStyle">@style/SnackbarButtonStyle</item>
-        <item name="colorSurface">@color/white</item>
         <item name="textAppearanceBody2">@style/TextAppearance.MaterialComponents.Body2</item>
         <item name="android:listPopupWindowStyle">@style/ListPopupWindowStyle</item>
 
@@ -623,31 +619,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="tileBackgroundColor" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="MaxWidthLinearLayout">
-        <attr name="maxWidth" format="dimension" />
-    </declare-styleable>
-
-    <declare-styleable name="GridRecyclerView">
+    <declare-styleable name="AlbumLayout">
         <attr name="spanWidth" format="dimension" />
     </declare-styleable>
 
     <declare-styleable name="LoadingBar">
         <attr name="color" format="color" />
     </declare-styleable>
-
-    <declare-styleable name="ThumbnailView">
-        <attr name="circular" format="boolean" />
-    </declare-styleable>
-
-    <declare-styleable name="FixedRatioThumbnailView">
-        <attr name="ratio" format="float" />
-    </declare-styleable>
     <!-- endregion -->
-
-    <style name="SnackbarButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton.Snackbar">
-        <item name="android:textColor">@color/md_grey_300</item>
-        <item name="android:textSize">14sp</item>
-    </style>
 
     <style name="AlertDialogTheme" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">
         <item name="android:windowBackground">@drawable/dialog_material_background</item>
@@ -655,6 +634,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <style name="ListPopupWindowStyle" parent="Widget.AppCompat.ListPopupWindow">
         <item name="android:popupBackground">?backcolor</item>
+    </style>
+
+    <style name="roundedImageViewRound">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="roundedImageViewCorners">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">2dp</item>
     </style>
 
 </resources>

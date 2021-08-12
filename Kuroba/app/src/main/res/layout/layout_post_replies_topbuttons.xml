@@ -35,16 +35,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         app:layout_constraintWidth_max="600dp"
         app:layout_constraintWidth_min="320dp">
 
+        <include layout="@layout/post_replies_buttons" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/post_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="5"
             tools:listitem="@layout/cell_post" />
-
-        <include layout="@layout/post_replies_buttons" />
 
     </LinearLayout>
 

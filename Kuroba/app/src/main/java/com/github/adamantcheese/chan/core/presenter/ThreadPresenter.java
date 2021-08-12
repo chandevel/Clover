@@ -24,6 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -73,7 +74,6 @@ import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
@@ -408,8 +408,8 @@ public class ThreadPresenter
      */
     @Override
     public void onListScrolledToBottom() {
-        if (!isBound()) return;
-        if (chanLoader.getThread() != null && loadable.isThreadMode() && !chanLoader.getThread().getPosts().isEmpty()) {
+        if (!isBound() || loadable.isCatalogMode()) return;
+        if (chanLoader.getThread() != null && !chanLoader.getThread().getPosts().isEmpty()) {
             List<Post> posts = chanLoader.getThread().getPosts();
             loadable.lastViewed = posts.get(posts.size() - 1).no;
         }
@@ -543,7 +543,7 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onThumbnailClicked(PostImage postImage, ThumbnailView thumbnail) {
+    public void onThumbnailClicked(PostImage postImage, ImageView thumbnail) {
         if (!isBound()) return;
         List<PostImage> images = new ArrayList<>();
         int index = -1;
@@ -1041,6 +1041,11 @@ public class ThreadPresenter
         threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
+    @Override
+    public int getGridWidth() {
+        return threadPresenterCallback.getGridWidth();
+    }
+
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
@@ -1355,7 +1360,7 @@ public class ThreadPresenter
 
         RecyclerViewPosition getCurrentPosition();
 
-        void showImages(List<PostImage> images, int index, Loadable loadable, ThumbnailView thumbnail);
+        void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
 
         void showAlbum(List<PostImage> images, int index);
 
@@ -1410,5 +1415,7 @@ public class ThreadPresenter
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
+
+        int getGridWidth();
     }
 }

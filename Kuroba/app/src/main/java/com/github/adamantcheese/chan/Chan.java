@@ -32,7 +32,6 @@ import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
 import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-import com.github.adamantcheese.chan.core.repository.DrawableRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
@@ -106,7 +105,6 @@ public class Chan
 
         AndroidUtils.init(this);
         BitmapRepository.initialize(this);
-        DrawableRepository.initialize(this);
 
         WatchNotification.setupChannel();
         SavingNotification.setupChannel();

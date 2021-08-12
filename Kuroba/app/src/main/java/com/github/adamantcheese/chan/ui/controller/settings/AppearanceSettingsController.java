@@ -78,10 +78,17 @@ public class AppearanceSettingsController
 
             requiresUiRefresh.add(layout.add(new BooleanSettingView(
                     this,
-                    ChanSettings.useStaggeredGrid,
-                    "Use staggered grid",
+                    ChanSettings.useStaggeredCatalogGrid,
+                    "Use staggered catalog grid",
                     "Staggers catalog mode grid instead of everything being inline"
             )));
+
+            layout.add(new BooleanSettingView(
+                    this,
+                    ChanSettings.useStaggeredAlbumGrid,
+                    "Use staggered album grid",
+                    "Staggers album view/download grid instead of everything being inline"
+            ));
 
             requiresRestart.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.neverHideToolbar,
@@ -309,12 +316,6 @@ public class AppearanceSettingsController
                     "Opacity menu item",
                     "Move the transparency toggle for images into the toolbar"
             ));
-
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
-                    ChanSettings.neverShowAlbumCellInfo,
-                    "Never show album cell info",
-                    "Removes the file info from album cells"
-            )));
 
             groups.add(images);
         }

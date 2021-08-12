@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.core.repository;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.renderscript.RenderScript;
 import android.util.TypedValue;
 
@@ -26,7 +27,9 @@ public class BitmapRepository {
     public static Bitmap trashIcon;
     public static Bitmap archivedIcon;
     public static Bitmap error;
+    public static Bitmap paddedError;
     public static Bitmap empty;
+    public static Bitmap transparentCheckerboard;
 
     public static ResourceBitmap partyHat;
     public static ResourceBitmap xmasHat;
@@ -51,8 +54,14 @@ public class BitmapRepository {
         closedIcon = decode(c, R.drawable.closed_icon);
         trashIcon = decode(c, R.drawable.trash_icon);
         archivedIcon = decode(c, R.drawable.archived_icon);
+
         error = decode(c, R.drawable.error_icon);
+        paddedError = Bitmap.createBitmap(error.getWidth() * 2, error.getHeight() * 2, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(paddedError);
+        canvas.drawBitmap(error, error.getWidth() * 0.5f, error.getHeight() * 0.5f, null);
+
         empty = decode(c, R.drawable.empty);
+        transparentCheckerboard = decode(c, R.drawable.transparent_checkerboard);
 
         // images are 160x160 by default, so this is the center on that original image, before scaling
         partyHat = new ResourceBitmap(c, R.drawable.partyhat, 50, 125);

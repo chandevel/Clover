@@ -33,27 +33,29 @@ import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.ui.view.FixedRatioThumbnailView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import kotlin.io.TextStreamsKt;
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LegacyCaptchaLayout
         extends LinearLayout
-        implements AuthenticationLayoutInterface {
-    private FixedRatioThumbnailView image;
+        implements AuthenticationLayoutInterface, ImageLoadable {
+    private ImageView image;
     private EditText input;
-    private ImageView submit;
 
     private WebView internalWebView;
+    private Call captchaCall;
+    private HttpUrl lastHttpUrl;
 
     private SiteAuthentication authentication;
     private AuthenticationLayoutCallback callback;
@@ -89,8 +91,7 @@ public class LegacyCaptchaLayout
             }
             return false;
         });
-        submit = findViewById(R.id.submit);
-        submit.setOnClickListener(v -> submitCaptcha());
+        findViewById(R.id.submit).setOnClickListener(v -> submitCaptcha());
 
         // This captcha layout uses a webview in the background
         // Because the script changed significantly we can't just load the image straight up from the challenge data anymore.
@@ -126,6 +127,7 @@ public class LegacyCaptchaLayout
 
     @Override
     public void reset() {
+        cancelLoad(image);
         input.setText("");
         String html = "";
         try (InputStream htmlStream = getContext().getResources().getAssets().open("html/captcha_legacy.html")) {
@@ -133,7 +135,6 @@ public class LegacyCaptchaLayout
         } catch (Exception ignored) {}
         html = html.replace("__site_key__", authentication.siteKey);
         internalWebView.loadDataWithBaseURL(authentication.baseUrl, html, "text/html", "UTF-8", null);
-        image.setUrl(null, 0);
         input.requestFocus();
     }
 
@@ -147,7 +148,32 @@ public class LegacyCaptchaLayout
 
     private void onCaptchaLoaded(final String imageUrl, final String challenge) {
         this.challenge = challenge;
-        image.setUrl(HttpUrl.get(imageUrl), 0);
+        loadUrl(HttpUrl.get(imageUrl), image);
+    }
+
+    @Override
+    public HttpUrl getLastHttpUrl() {
+        return lastHttpUrl;
+    }
+
+    @Override
+    public void setLastHttpUrl(HttpUrl url) {
+        lastHttpUrl = url;
+    }
+
+    @Override
+    public Call getImageCall() {
+        return captchaCall;
+    }
+
+    @Override
+    public void setImageCall(Call call) {
+        captchaCall = call;
+    }
+
+    @Override
+    public float getMaxImageSize() {
+        return 0;
     }
 
     public static class CaptchaInterface {

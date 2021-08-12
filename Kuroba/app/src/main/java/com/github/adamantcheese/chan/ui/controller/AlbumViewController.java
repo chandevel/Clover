@@ -20,6 +20,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -29,17 +30,23 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.ui.cell.AlbumViewCell;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
+import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.skydoves.balloon.ArrowOrientation;
 import com.skydoves.balloon.ArrowPositionRules;
 
 import java.util.List;
 
+import okhttp3.Call;
+import okhttp3.HttpUrl;
+
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 public class AlbumViewController
         extends Controller
@@ -49,7 +56,7 @@ public class AlbumViewController
         DOWNLOAD_ALBUM
     }
 
-    private GridRecyclerView recyclerView;
+    private AlbumLayout recyclerView;
 
     private List<PostImage> postImages;
     private int targetIndex = -1;
@@ -67,12 +74,8 @@ public class AlbumViewController
         // View setup
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_view, null);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setItemAnimator(null);
-
-        AlbumAdapter albumAdapter = new AlbumAdapter(loadable);
-        recyclerView.setAdapter(albumAdapter);
+        recyclerView.setAdapter(new AlbumAdapter(loadable));
         recyclerView.scrollToPosition(targetIndex);
-        recyclerView.getLayoutManager().setItemPrefetchEnabled(false);
     }
 
     public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
@@ -98,19 +101,13 @@ public class AlbumViewController
     }
 
     @Override
-    public ThumbnailView getPreviewImageTransitionView(PostImage postImage) {
-        ThumbnailView thumbnail = null;
-        for (int i = 0; i < recyclerView.getChildCount(); i++) {
-            View view = recyclerView.getChildAt(i);
-            if (view instanceof AlbumViewCell) {
-                AlbumViewCell cell = (AlbumViewCell) view;
-                if (postImage == cell.getPostImage()) {
-                    thumbnail = cell.getThumbnailView();
-                    break;
-                }
-            }
+    public ImageView getPreviewImageTransitionView(PostImage postImage) {
+        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(postImages.indexOf(postImage));
+        if (holder instanceof AlbumAdapter.AlbumItemCellHolder) {
+            AlbumAdapter.AlbumItemCellHolder cellHolder = (AlbumAdapter.AlbumItemCellHolder) holder;
+            return cellHolder.thumbnailView;
         }
-        return thumbnail;
+        return null;
     }
 
     @Override
@@ -188,13 +185,17 @@ public class AlbumViewController
         }
 
         @Override
-        public void onBindViewHolder(AlbumItemCellHolder holder, int position) {
-            holder.cell.setPostImage(postImages.get(position));
+        public void onBindViewHolder(@NonNull AlbumItemCellHolder holder, int position) {
+            holder.postImage = postImages.get(position);
+            holder.thumbnailView.setType(holder.postImage);
+            holder.loadPostImage(holder.postImage, holder.thumbnailView);
         }
 
         @Override
         public void onViewRecycled(@NonNull AlbumItemCellHolder holder) {
-            holder.cell.setPostImage(null);
+            holder.postImage = null;
+            holder.thumbnailView.setType(null);
+            holder.cancelLoad(holder.thumbnailView);
         }
 
         @Override
@@ -208,16 +209,31 @@ public class AlbumViewController
         }
 
         private class AlbumItemCellHolder
-                extends RecyclerView.ViewHolder {
-            private final AlbumViewCell cell;
+                extends RecyclerView.ViewHolder
+                implements ImageLoadable {
+            private PostImage postImage;
+            private final ShapeablePostImageView thumbnailView;
+            private Call thumbnailCall;
+            private HttpUrl lastHttpUrl;
 
-            public AlbumItemCellHolder(View itemView) {
-                super(itemView);
-                cell = (AlbumViewCell) itemView;
-                cell.getLayoutParams().height = recyclerView.getRealSpanWidth();
-                cell.findViewById(R.id.thumbnail_view).setOnClickListener(v -> {
+            public AlbumItemCellHolder(View view) {
+                super(view);
+                this.thumbnailView = view.findViewById(R.id.thumbnail_view);
+
+                itemView.setOnLongClickListener(v -> {
+                    if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
+                        return false;
+                    }
+
+                    setClipboardContent("Image URL", postImage.imageUrl.toString());
+                    showToast(itemView.getContext(), R.string.image_url_copied_to_clipboard);
+
+                    return true;
+                });
+
+                thumbnailView.setOnClickListener(v -> {
                     final ImageViewerNavigationController imageViewer = new ImageViewerNavigationController(context);
-                    int index = postImages.indexOf(cell.getPostImage());
+                    int index = postImages.indexOf(postImage);
                     presentController(imageViewer, false);
                     imageViewer.showImages(postImages,
                             index,
@@ -226,6 +242,31 @@ public class AlbumViewController
                             AlbumViewController.this
                     );
                 });
+            }
+
+            @Override
+            public HttpUrl getLastHttpUrl() {
+                return lastHttpUrl;
+            }
+
+            @Override
+            public void setLastHttpUrl(HttpUrl url) {
+                lastHttpUrl = url;
+            }
+
+            @Override
+            public Call getImageCall() {
+                return thumbnailCall;
+            }
+
+            @Override
+            public void setImageCall(Call call) {
+                this.thumbnailCall = call;
+            }
+
+            @Override
+            public float getMaxImageSize() {
+                return recyclerView.getMeasuredSpanWidth();
             }
         }
     }

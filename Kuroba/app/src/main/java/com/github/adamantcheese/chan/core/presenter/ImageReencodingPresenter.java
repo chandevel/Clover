@@ -56,7 +56,7 @@ public class ImageReencodingPresenter {
                 dp(Math.min(displaySize.x, displaySize.y)), 0, bitmap -> {
                     if (bitmap == null) {
                         showToast(context, R.string.could_not_decode_image_bitmap);
-                        callback.showImagePreview(BitmapRepository.error);
+                        callback.showImagePreview(BitmapRepository.paddedError);
                         return;
                     }
 

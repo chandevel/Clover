@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <com.github.adamantcheese.chan.ui.cell.CardPostStubCell xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/grid_card_margin"
     android:background="@drawable/ripple_item_background"
@@ -25,19 +25,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     app:cardCornerRadius="@dimen/grid_card_corner_radius"
     app:cardElevation="2dp">
 
+    <!-- I don't know why, but having this in a RelativeLayout instead of a LinearLayout -->
+    <!-- and also using that Space view makes a RecyclerView with a Grid/StaggerGridLayoutManager -->
+    <!-- makes everything resize correctly when a view is changed to this one. -->
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
+        <Space
+            android:id="@+id/spacer"
+            android:layout_width="0dp"
+            android:layout_height="0dp" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@id/options"
+            android:layout_toRightOf="@id/spacer"
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="?android:textColorSecondary"
-            tools:text="@string/lorem_ipsum" />
+            tools:text="@string/lorem_ipsum_short" />
 
         <ImageView
             android:id="@+id/options"

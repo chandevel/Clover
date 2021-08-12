@@ -17,12 +17,15 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,15 +36,18 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.ui.view.ThumbnailView;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
+
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -65,6 +71,14 @@ public class DrawerPinAdapter
     private String searchQuery = "";
     private final Callback callback;
     private Pin highlighted;
+
+    private static final ColorMatrixColorFilter greyFilter;
+
+    static {
+        ColorMatrix grey = new ColorMatrix();
+        grey.setSaturation(0);
+        greyFilter = new ColorMatrixColorFilter(grey);
+    }
 
     public DrawerPinAdapter(@NonNull Callback callback) {
         inject(this);
@@ -101,8 +115,8 @@ public class DrawerPinAdapter
 
         holder.title.setText(applySearchSpans(ThemeHelper.getTheme(), pin.loadable.title, searchQuery));
 
-        holder.image.setUrl(pin.loadable.thumbnailUrl, holder.image.getLayoutParams().height);
-        holder.image.setGreyscale(!pin.watching);
+        holder.loadUrl(pin.loadable.thumbnailUrl, holder.image);
+        holder.image.setColorFilter(pin.watching ? null : greyFilter);
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
@@ -154,8 +168,8 @@ public class DrawerPinAdapter
 
     @Override
     public void onViewRecycled(@NonNull PinViewHolder holder) {
-        holder.image.setGreyscale(false);
-        holder.image.setUrl(null, 0);
+        holder.cancelLoad(holder.image);
+        holder.image.setColorFilter(null);
         holder.watchCountText.setText("");
         holder.title.setText("");
         holder.threadInfo.setText("");
@@ -199,11 +213,14 @@ public class DrawerPinAdapter
     }
 
     public class PinViewHolder
-            extends ViewHolder {
-        private final ThumbnailView image;
+            extends ViewHolder
+            implements ImageLoadable {
+        private final ImageView image;
         private final TextView title;
         private final TextView threadInfo;
         private final TextView watchCountText;
+        private Call thumbnailCall;
+        private HttpUrl lastHttpUrl;
 
         private PinViewHolder(View itemView) {
             super(itemView);
@@ -241,6 +258,31 @@ public class DrawerPinAdapter
                     }
                 }
             });
+        }
+
+        @Override
+        public HttpUrl getLastHttpUrl() {
+            return lastHttpUrl;
+        }
+
+        @Override
+        public void setLastHttpUrl(HttpUrl url) {
+            lastHttpUrl = url;
+        }
+
+        @Override
+        public Call getImageCall() {
+            return thumbnailCall;
+        }
+
+        @Override
+        public void setImageCall(Call call) {
+            thumbnailCall = call;
+        }
+
+        @Override
+        public float getMaxImageSize() {
+            return image.getLayoutParams().height;
         }
     }
 

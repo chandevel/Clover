@@ -128,7 +128,7 @@ class MultiImageViewGestureDetector(
                 return false
             }
         } else {
-            if (activeView is ThumbnailImageView) {
+            if (activeView is ShapeablePostImageView) {
                 // Current image is thumbnail, we can't use swipe-to-save gesture
                 callbacks.onSwipeToCloseImage()
             } else {

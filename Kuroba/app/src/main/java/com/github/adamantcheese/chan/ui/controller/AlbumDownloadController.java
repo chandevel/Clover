@@ -31,12 +31,13 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.view.GridRecyclerView;
-import com.github.adamantcheese.chan.ui.view.PostImageThumbnailView;
+import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -51,6 +52,8 @@ import javax.inject.Inject;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -58,14 +61,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AlbumDownloadController
-        extends Controller
-        implements View.OnClickListener {
+        extends Controller {
     private enum MenuId {
         CHECK_ALL
     }
 
-    private GridRecyclerView recyclerView;
-    private FloatingActionButton download;
+    private AlbumLayout recyclerView;
 
     private final List<AlbumDownloadItem> items = new ArrayList<>();
     private Loadable loadable;
@@ -91,13 +92,10 @@ public class AlbumDownloadController
                 .withItem(MenuId.CHECK_ALL, R.drawable.ic_fluent_select_all_off_24_filled, this::onCheckAllClicked)
                 .build();
 
-        download = view.findViewById(R.id.download);
-        download.setOnClickListener(this);
+        FloatingActionButton download = view.findViewById(R.id.download);
+        download.setOnClickListener(this::doDownloadClicked);
         recyclerView = view.findViewById(R.id.recycler_view);
-
-        AlbumAdapter adapter = new AlbumAdapter();
-        recyclerView.setAdapter(adapter);
-        recyclerView.getLayoutManager().setItemPrefetchEnabled(false);
+        recyclerView.setAdapter(new AlbumAdapter());
     }
 
     @Override
@@ -106,47 +104,44 @@ public class AlbumDownloadController
         compositeDisposable.dispose();
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == download) {
-            int checkCount = getCheckCount();
-            if (checkCount == 0) {
-                showToast(context, R.string.album_download_none_checked);
-            } else {
-                String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(loadable.site.name());
-                String subFolder = ChanSettings.saveAlbumBoardFolder.get() ? (ChanSettings.saveAlbumThreadFolder.get()
-                        ? appendAdditionalSubDirectories()
-                        : siteNameSafe + File.separator + loadable.boardCode) : null;
-                String message = getString(
-                        R.string.album_download_confirm,
-                        getQuantityString(R.plurals.image, checkCount),
-                        (subFolder != null ? subFolder : "your base saved files location") + "."
-                );
+    private void doDownloadClicked(View v) {
+        int checkCount = getCheckCount();
+        if (checkCount == 0) {
+            showToast(context, R.string.album_download_none_checked);
+        } else {
+            String siteNameSafe = StringUtils.dirNameRemoveBadCharacters(loadable.site.name());
+            String subFolder = ChanSettings.saveAlbumBoardFolder.get() ? (ChanSettings.saveAlbumThreadFolder.get()
+                    ? appendAdditionalSubDirectories()
+                    : siteNameSafe + File.separator + loadable.boardCode) : null;
+            String message = getString(
+                    R.string.album_download_confirm,
+                    getQuantityString(R.plurals.image, checkCount),
+                    (subFolder != null ? subFolder : "your base saved files location") + "."
+            );
 
-                //generate tasks before prompting
-                List<ImageSaveTask> tasks = new ArrayList<>(items.size());
-                for (AlbumDownloadItem item : items) {
-                    if (item.postImage.isInlined || item.postImage.hidden || item.postImage.deleted) {
-                        // Do not download inlined files via the Album downloads (because they often
-                        // fail with SSL exceptions) and we can't really trust those files.
-                        // Also don't download filter hidden items or deleted ones
-                        continue;
-                    }
-
-                    if (item.checked) {
-                        ImageSaveTask imageTask = new ImageSaveTask(item.postImage, false);
-                        if (subFolder != null) {
-                            imageTask.setSubFolder(subFolder);
-                        }
-                        tasks.add(imageTask);
-                    }
+            //generate tasks before prompting
+            List<ImageSaveTask> tasks = new ArrayList<>(items.size());
+            for (AlbumDownloadItem item : items) {
+                if (item.postImage.isInlined || item.postImage.hidden || item.postImage.deleted) {
+                    // Do not download inlined files via the Album downloads (because they often
+                    // fail with SSL exceptions) and we can't really trust those files.
+                    // Also don't download filter hidden items or deleted ones
+                    continue;
                 }
 
-                getDefaultAlertBuilder(context).setMessage(message)
-                        .setNegativeButton(R.string.cancel, null)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> startAlbumDownloadTask(tasks))
-                        .show();
+                if (item.checked) {
+                    ImageSaveTask imageTask = new ImageSaveTask(item.postImage, false);
+                    if (subFolder != null) {
+                        imageTask.setSubFolder(subFolder);
+                    }
+                    tasks.add(imageTask);
+                }
             }
+
+            getDefaultAlertBuilder(context).setMessage(message)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> startAlbumDownloadTask(tasks))
+                    .show();
         }
     }
 
@@ -276,6 +271,7 @@ public class AlbumDownloadController
             setHasStableIds(true);
         }
 
+        @NonNull
         @Override
         public AlbumDownloadHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new AlbumDownloadHolder(LayoutInflater.from(parent.getContext())
@@ -283,15 +279,17 @@ public class AlbumDownloadController
         }
 
         @Override
-        public void onBindViewHolder(AlbumDownloadHolder holder, int position) {
+        public void onBindViewHolder(@NonNull AlbumDownloadHolder holder, int position) {
             AlbumDownloadItem item = items.get(position);
-            holder.thumbnailView.setPostImage(item.postImage, -1);
+            holder.thumbnailView.setType(item.postImage);
+            holder.loadPostImage(item.postImage, holder.thumbnailView);
             setItemChecked(holder, item.checked, false);
         }
 
         @Override
         public void onViewRecycled(@NonNull AlbumDownloadHolder holder) {
-            holder.thumbnailView.setPostImage(null, 0);
+            holder.thumbnailView.setType(null);
+            holder.cancelLoad(holder.thumbnailView);
             setItemChecked(holder, false, false);
         }
 
@@ -308,27 +306,47 @@ public class AlbumDownloadController
 
     private class AlbumDownloadHolder
             extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            implements ImageLoadable {
         private final ImageView checkbox;
-        private final PostImageThumbnailView thumbnailView;
+        private final ShapeablePostImageView thumbnailView;
+        private Call thumbnailCall;
+        private HttpUrl lastHttpUrl;
 
         public AlbumDownloadHolder(View itemView) {
             super(itemView);
-            itemView.getLayoutParams().height = recyclerView.getRealSpanWidth();
             checkbox = itemView.findViewById(R.id.checkbox);
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
-            thumbnailView.setOnClickListener(this);
+            thumbnailView.setOnClickListener(v -> {
+                AlbumDownloadItem item = items.get(getAdapterPosition());
+                item.checked = !item.checked;
+                updateAllChecked();
+                updateTitle();
+                updateDownloadIcon();
+                setItemChecked(this, item.checked, true);
+            });
         }
 
         @Override
-        public void onClick(View v) {
-            int adapterPosition = getAdapterPosition();
-            AlbumDownloadItem item = items.get(adapterPosition);
-            item.checked = !item.checked;
-            updateAllChecked();
-            updateTitle();
-            updateDownloadIcon();
-            setItemChecked(this, item.checked, true);
+        public HttpUrl getLastHttpUrl() {
+            return lastHttpUrl;
+        }
+
+        @Override
+        public void setLastHttpUrl(HttpUrl url) {
+            lastHttpUrl = url;
+        }
+
+        public Call getImageCall() {
+            return thumbnailCall;
+        }
+
+        public void setImageCall(Call imageCall) {
+            this.thumbnailCall = imageCall;
+        }
+
+        @Override
+        public float getMaxImageSize() {
+            return recyclerView.getMeasuredSpanWidth();
         }
     }
 

@@ -232,7 +232,7 @@ public class ReplyLayout
 
         more = replyInputLayout.findViewById(R.id.more);
         attach = replyInputLayout.findViewById(R.id.attach);
-        ConstraintLayout submit = replyInputLayout.findViewById(R.id.submit);
+        FrameLayout submit = replyInputLayout.findViewById(R.id.submit);
         spacer = replyInputLayout.findViewById(R.id.spacer);
         reencodeImage = replyInputLayout.findViewById(R.id.reencode);
         spoiler = replyInputLayout.findViewById(R.id.spoiler);
