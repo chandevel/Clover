@@ -42,12 +42,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class IntegerSettingView
-        extends SettingView
-        implements View.OnClickListener {
+        extends SettingView {
     private final Setting<Integer> setting;
     private final String dialogTitle;
     private final int minimumValue;
     private final int maximumValue;
+    private final String appendBottomDescription;
 
     private final float SEEK_BAR_MAX = 2500;
     private boolean useTextDialog = false;
@@ -57,9 +57,10 @@ public class IntegerSettingView
             Setting<Integer> setting,
             int name,
             int dialogTitle,
+            String appendBottomDescription,
             Pair<Integer, Integer> limits
     ) {
-        this(controller, setting, getString(name), getString(dialogTitle), limits);
+        this(controller, setting, getString(name), getString(dialogTitle), appendBottomDescription, limits);
     }
 
     public IntegerSettingView(
@@ -67,6 +68,7 @@ public class IntegerSettingView
             Setting<Integer> setting,
             String name,
             String dialogTitle,
+            String appendBottomDescription,
             Pair<Integer, Integer> limits
     ) {
         super(settingsController, name);
@@ -74,6 +76,7 @@ public class IntegerSettingView
         this.dialogTitle = dialogTitle;
         minimumValue = limits.first;
         maximumValue = limits.second;
+        this.appendBottomDescription = appendBottomDescription == null ? "" : appendBottomDescription;
 
         // if every progress bar range increment wouldn't allow for single steps, use a text entry dialog instead
         if (convertProgressToRange(1) - minimumValue > 1) {
@@ -85,16 +88,15 @@ public class IntegerSettingView
     public void setView(View view) {
         super.setView(view);
         if (view == null) return;
-        view.setOnClickListener(this);
+        view.setOnClickListener(this::createEditView);
     }
 
     @Override
     public String getBottomDescription() {
-        return setting.get() != null ? setting.get().toString() : "";
+        return setting.get() != null ? setting.get().toString() + appendBottomDescription : "";
     }
 
-    @Override
-    public void onClick(View v) {
+    public void createEditView(View v) {
         LinearLayout container = new LinearLayout(v.getContext());
         updatePaddings(container, dp(24), dp(24), dp(24), 0);
 

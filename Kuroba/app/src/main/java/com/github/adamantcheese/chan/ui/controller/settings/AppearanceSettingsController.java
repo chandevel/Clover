@@ -161,6 +161,7 @@ public class AppearanceSettingsController
                     ChanSettings.thumbnailSize,
                     R.string.setting_thumbnail_scale,
                     R.string.empty,
+                    "%",
                     new Pair<>(50, 200)
             )));
 
@@ -168,6 +169,7 @@ public class AppearanceSettingsController
                     ChanSettings.fontSize,
                     R.string.setting_font_size,
                     R.string.empty,
+                    "sp",
                     new Pair<>(10, 19)
             )));
 

@@ -288,6 +288,7 @@ public class BehaviourSettingsController
                     ChanSettings.proxyPort,
                     R.string.setting_proxy_port,
                     R.string.setting_proxy_port,
+                    null,
                     new Pair<>(0, 0xFFFF)
             ));
 
