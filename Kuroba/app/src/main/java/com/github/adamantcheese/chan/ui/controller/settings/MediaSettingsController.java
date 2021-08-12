@@ -71,6 +71,8 @@ public class MediaSettingsController
     private LinkSettingView saveLocation;
     private ListSettingView<MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<MediaAutoLoadMode> videoAutoLoadView;
+    private BooleanSettingView autoLoadThreadImageSetting;
+    private IntegerSettingView fileCacheSetting;
 
     private final MediaSettingsControllerPresenter presenter;
     private final RuntimePermissionsHelper runtimePermissionsHelper;
@@ -128,6 +130,8 @@ public class MediaSettingsController
             updateAlbumThreadFolderSetting();
         } else if (item == videoDefaultMutedSetting) {
             headsetDefaultMutedSetting.setEnabled(ChanSettings.videoDefaultMuted.get());
+        } else if (item == autoLoadThreadImageSetting) {
+            notifyItemChanged(fileCacheSetting);
         }
     }
 
@@ -233,19 +237,29 @@ public class MediaSettingsController
             setupMediaLoadTypesSetting(loading);
             setupImagePreloadStrategySetting(loading);
 
-            requiresRestart.add(loading.add(new BooleanSettingView(this,
+            autoLoadThreadImageSetting = loading.add(new BooleanSettingView(this,
                     ChanSettings.autoLoadThreadImages,
                     R.string.setting_auto_load_thread_images,
                     R.string.setting_auto_load_thread_images_description
-            )));
+            ));
+            requiresRestart.add(autoLoadThreadImageSetting);
 
-            requiresRestart.add(loading.add(new IntegerSettingView(this,
+            fileCacheSetting = loading.add(new IntegerSettingView(this,
                     ChanSettings.fileCacheSize,
                     "File cache size",
-                    "File cache size\n(x2 if prefetch enabled)",
-                    "MB",
+                    "File cache size",
+                    null,
                     new Pair<>(100, 2000)
-            )));
+            ) {
+                @Override
+                public String getBottomDescription() {
+                    boolean prefetchOn = ChanSettings.autoLoadThreadImages.get();
+                    return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (setting.get() == null
+                            ? "Unknown!"
+                            : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
+                }
+            });
+            requiresRestart.add(fileCacheSetting);
 
             groups.add(loading);
         }

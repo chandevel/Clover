@@ -69,7 +69,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 54;
+    private static final int DATABASE_VERSION = 55;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -584,6 +584,10 @@ public class DatabaseHelper
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 54", e);
             }
+        }
+
+        if (oldVersion < 55) {
+            ChanSettings.watchBackgroundInterval.reset();
         }
     }
 

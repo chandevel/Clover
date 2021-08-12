@@ -67,6 +67,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item quantity="one">%d type</item>
         <item quantity="other">%d types</item>
     </plurals>
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 
     <string name="empty" />
     <string name="cancel">Cancel</string>
@@ -107,7 +115,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="update_install_download_failed">Download failed</string>
     <string name="update_install_download_failed_description">Reason: %1$s</string>
 
-    <string name="minutes">%d minutes</string>
     <string name="card_stats">%1$dR %2$dI</string>
     <string name="action_reload">Reload</string>
     <string name="action_pin">Bookmark</string>
@@ -384,7 +391,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
-    <string name="setting_watch_background_timeout_description">The interval between updates when placed in the background</string>
     <string name="setting_thread_page_limit_notify">Last page notifications</string>
     <string name="setting_thread_page_limit_notify_description">Notify when threads hit the last page</string>
     <string name="setting_watch_notify_mode">Notify about</string>
@@ -508,7 +514,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_video_auto_loop">Enable automatic video-looping</string>
     <string name="setting_video_auto_loop_description">Automatically loop video content</string>
     <string name="setting_auto_load_thread_images">Enable media pre-fetching</string>
-    <string name="setting_auto_load_thread_images_description">Instead of loading thumbnails, pre-loads full size images into the file cache when thumbnails should be displayed and uses them for thumbnail display. Tapping a thumbnail will load the full size image directly from the cache.</string>
+    <string name="setting_auto_load_thread_images_description">In addition to loading thumbnails, full-size images will be downloaded and scaled and replace thumbnails, if successful. This will also cache the full-size image and load it directly from cache.</string>
     <string name="save_location_screen">Save location</string>
     <string name="save_location_storage_permission_required_title">Storage permission required</string>
     <string name="save_location_storage_permission_required">
@@ -671,7 +677,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason: %s</string>
     <string name="image_saver_no_write_permission">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
-    <string name="media_settings_image_click_preload_strategy_description">When opening up an image pager, determines what image(s) should be preloaded next.</string>
+    <string name="media_settings_image_click_preload_strategy_description">Inside of image pagers, preload:</string>
     <string name="setting_image_viewer_gestures">Image Viewer gestures</string>
     <string name="setting_image_viewer_gestures_description">Adds ability to use gestures to close (swipe-up) and save (swipe-bottom) an image/gif/webm when viewing them in gallery</string>
 

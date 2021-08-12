@@ -19,21 +19,19 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 import android.widget.Switch;
 
+import androidx.core.util.Pair;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
+import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static java.util.concurrent.TimeUnit.HOURS;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class WatchSettingsController
@@ -97,31 +95,28 @@ public class WatchSettingsController
                 R.string.setting_watch_enable_background_description
         ));
 
-        //@formatter:off
-        long[] timeouts = new long[]{
-                MINUTES.toMillis(2),
-                MINUTES.toMillis(5),
-                MINUTES.toMillis(10),
-                MINUTES.toMillis(15),
-                MINUTES.toMillis(30),
-                MINUTES.toMillis(45),
-                HOURS.toMillis(1),
-                HOURS.toMillis(2)};
-        //@formatter:on
-
-        List<Item<Integer>> timeoutsItems = new ArrayList<>(timeouts.length);
-        for (long timeout : timeouts) {
-            String name = getString(R.string.minutes, (int) MILLISECONDS.toMinutes(timeout));
-            timeoutsItems.add(new Item<>(name, (int) timeout));
-        }
-        backgroundTimeout = settings.add(new ListSettingView<Integer>(this,
+        backgroundTimeout = settings.add(new IntegerSettingView(this,
                 ChanSettings.watchBackgroundInterval,
                 R.string.setting_watch_background_timeout,
-                timeoutsItems
+                R.string.empty,
+                null,
+                // 1 min to 24 hr
+                new Pair<>(1, 1440)
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.setting_watch_background_timeout_description) + "\n\n" + selected.name;
+                Integer curSetting = setting.get();
+                if (curSetting == null) {
+                    return "Unknown!";
+                } else if (curSetting >= 60) {
+                    int hours = (int) MINUTES.toHours(curSetting);
+                    int leftOverMinutes = (int) (curSetting - HOURS.toMinutes(hours));
+                    return getQuantityString(R.plurals.hours, hours) + (leftOverMinutes == 0
+                            ? ""
+                            : getQuantityString(R.plurals.minutes, leftOverMinutes));
+                } else {
+                    return getQuantityString(R.plurals.minutes, curSetting);
+                }
             }
         });
 

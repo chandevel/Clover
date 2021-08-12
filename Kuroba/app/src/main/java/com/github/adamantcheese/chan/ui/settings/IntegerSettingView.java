@@ -43,13 +43,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class IntegerSettingView
         extends SettingView {
-    private final Setting<Integer> setting;
+    protected final Setting<Integer> setting;
     private final String dialogTitle;
     private final int minimumValue;
     private final int maximumValue;
     private final String appendBottomDescription;
 
-    private final float SEEK_BAR_MAX = 2500;
+    private final float SEEK_BAR_MAX = 1000;
     private boolean useTextDialog = false;
 
     public IntegerSettingView(
@@ -105,6 +105,7 @@ public class IntegerSettingView
         if (!useTextDialog) {
             final SeekBar rangeSlider = new SeekBar(v.getContext());
             rangeSlider.setMax((int) SEEK_BAR_MAX);
+            rangeSlider.setKeyProgressIncrement(1);
             rangeSlider.setProgress(convertRangeToProgress(setting.get()));
             rangeSlider.setLayoutParams(new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f));
             container.addView(rangeSlider);

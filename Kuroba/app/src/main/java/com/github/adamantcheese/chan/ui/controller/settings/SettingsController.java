@@ -124,16 +124,20 @@ public abstract class SettingsController
     }
 
     public void onPreferenceChange(SettingView item) {
-        for (SettingsGroup group : displayList) {
-            if (group.displayList.contains(item)) {
-                view.post(() -> groupRecycler.getAdapter().notifyItemChanged(displayList.indexOf(group), item));
-            }
-        }
+        notifyItemChanged(item);
 
         if (requiresUiRefresh.contains(item)) {
             postToEventBus(new RefreshUIMessage(SETTINGS_REFRESH_REQUEST));
         } else if (requiresRestart.contains(item)) {
             needRestart = true;
+        }
+    }
+
+    public void notifyItemChanged(SettingView item) {
+        for (SettingsGroup group : displayList) {
+            if (group.displayList.contains(item)) {
+                view.post(() -> groupRecycler.getAdapter().notifyItemChanged(displayList.indexOf(group), item));
+            }
         }
     }
 
@@ -222,13 +226,19 @@ public abstract class SettingsController
         ) {
             if (payloads.isEmpty()) {
                 super.onBindViewHolder(holder, position, payloads);
-            } else if (payloads.size() == 1 && payloads.get(0) instanceof SettingView) {
-                final SettingView settingView = (SettingView) payloads.get(0);
-                // called when a preference changes
-                SettingsGroup group = displayList.get(position);
-                RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
-                holder.itemView.post(() -> settingViewRecycler.getAdapter()
-                        .notifyItemChanged(group.displayList.indexOf(settingView), new Object()));
+            } else {
+                for (Object p : payloads) {
+                    if (!(p instanceof SettingView)) {
+                        onBindViewHolder(holder, position);
+                        continue;
+                    }
+                    final SettingView settingView = (SettingView) p;
+                    // called when a preference changes
+                    SettingsGroup group = displayList.get(position);
+                    RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
+                    holder.itemView.post(() -> settingViewRecycler.getAdapter()
+                            .notifyItemChanged(group.displayList.indexOf(settingView), new Object()));
+                }
             }
         }
 
@@ -297,7 +307,7 @@ public abstract class SettingsController
         ) {
             if (payloads.isEmpty()) {
                 super.onBindViewHolder(holder, position, payloads);
-            } else if (payloads.size() == 1) {
+            } else {
                 // called when a preference changes
                 SettingView settingView = group.displayList.get(position);
                 setDescriptionText(holder.itemView,

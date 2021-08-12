@@ -51,6 +51,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -132,9 +133,9 @@ public class ChanSettings {
 
     public enum ImageClickPreloadStrategy
             implements OptionSettingItem {
-        PreloadNext("Preload next image"),
-        PreloadPrevious("Preload previous image"),
-        PreloadBoth("Preload next and previous images"),
+        PreloadNext("Next image"),
+        PreloadPrevious("Previous image"),
+        PreloadBoth("Next and previous images"),
         PreloadNeither("Do not preload any images");
 
         String name;
@@ -145,7 +146,7 @@ public class ChanSettings {
 
         @Override
         public String getKey() {
-            return name;
+            return name().toLowerCase();
         }
     }
 
@@ -162,7 +163,7 @@ public class ChanSettings {
 
         @Override
         public String getKey() {
-            return type.name().toLowerCase();
+            return name().toLowerCase();
         }
     }
     //endregion
@@ -327,7 +328,27 @@ public class ChanSettings {
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
             watchBackground.addCallback(new EventBusCallback<>(watchBackground));
             watchBackgroundInterval =
-                    new IntegerSetting(p, "preference_watch_background_interval", (int) MINUTES.toMillis(15));
+                    new IntegerSetting(p, "preference_watch_background_interval", 15) {
+                        @Override
+                        public Integer get() {
+                            return (int) MILLISECONDS.toMinutes(super.get());
+                        }
+
+                        @Override
+                        public void set(Integer value) {
+                            super.set((int) MINUTES.toMillis(value));
+                        }
+
+                        @Override
+                        public void setSync(Integer value) {
+                            super.setSync((int) MINUTES.toMillis(value));
+                        }
+
+                        @Override
+                        public void setSyncNoCheck(Integer value) {
+                            super.setSyncNoCheck((int) MINUTES.toMillis(value));
+                        }
+                    };
             watchBackgroundInterval.addCallback(new EventBusCallback<>(watchBackgroundInterval));
             removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
