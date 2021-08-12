@@ -416,10 +416,13 @@ public class PostCell
 
                 @Override
                 public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                    // ensure that the start and end are in the right order, in case the selection start/end are flipped
-                    int start = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
-                    int end = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
-                    CharSequence selection = comment.getText().subSequence(start, end);
+                    CharSequence selection = "Error getting selection!";
+                    try {
+                        // ensure that the start and end are in the right order, in case the selection start/end are flipped
+                        int start = Math.min(comment.getSelectionEnd(), comment.getSelectionStart());
+                        int end = Math.max(comment.getSelectionEnd(), comment.getSelectionStart());
+                        selection = comment.getText().subSequence(start, end);
+                    } catch (Exception ignored) {}
                     if (item == quoteMenuItem) {
                         callback.onPostSelectionQuoted(post, selection);
                         processed = true;
