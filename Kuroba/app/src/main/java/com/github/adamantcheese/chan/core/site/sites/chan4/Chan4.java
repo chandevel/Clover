@@ -94,7 +94,7 @@ public class Chan4
             if (loadable.isThreadMode()) {
                 String url = (loadable.board.workSafe ? bSafe : b).newBuilder()
                         .addPathSegment(loadable.boardCode)
-                        .addPathSegment("/thread/")
+                        .addPathSegment("thread")
                         .addPathSegment(String.valueOf(loadable.no))
                         .build()
                         .toString();
