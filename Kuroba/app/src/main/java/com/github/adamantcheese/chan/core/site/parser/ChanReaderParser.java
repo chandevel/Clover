@@ -81,8 +81,8 @@ public class ChanReaderParser
     public ChanReaderParser(Loadable loadable, @NonNull List<Post> cachedPosts, @Nullable ChanReader reader) {
         inject(this);
 
-        // Copy the loadable and cached list. The cached array may changed/cleared by other threads.
-        this.loadable = loadable.clone();
+        // Copy the cached list. The cached array may changed/cleared by other threads.
+        this.loadable = loadable;
         cached = new ArrayList<>(cachedPosts);
         this.reader = reader == null ? this.loadable.site.chanReader() : reader;
 
