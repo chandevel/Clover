@@ -131,7 +131,7 @@ android {
             // Different app ids for different flavors so that the users are able to install both
             // of them without deleting anything
             applicationIdSuffix ".dev"
-            versionNameSuffix "-${getCommitHash().substring(0, 7)}"
+            versionNameSuffix "-${getCommitHash().substring(0, 8)}"
 
             // The same as in stable flavor
             manifestPlaceholders = [
