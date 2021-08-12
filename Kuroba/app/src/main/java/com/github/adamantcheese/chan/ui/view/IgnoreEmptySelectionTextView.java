@@ -7,13 +7,13 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import static android.os.Build.VERSION;
 import static android.os.Build.VERSION_CODES;
 
-@SuppressLint("AppCompatCustomView")
 public class IgnoreEmptySelectionTextView
-        extends TextView {
+        extends AppCompatTextView {
     public IgnoreEmptySelectionTextView(Context context) {
         super(context);
     }

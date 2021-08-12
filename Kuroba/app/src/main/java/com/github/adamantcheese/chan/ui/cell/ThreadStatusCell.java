@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -38,10 +39,8 @@ import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-@SuppressLint("AppCompatCustomView")
 public class ThreadStatusCell
-        extends TextView
-        implements View.OnClickListener {
+        extends AppCompatTextView {
     private static final int UPDATE_INTERVAL = 1000;
     private static final int MESSAGE_INVALIDATE = 1;
 
@@ -105,7 +104,10 @@ public class ThreadStatusCell
             update();
         }
 
-        setOnClickListener(this);
+        setOnClickListener(v -> {
+            callback.onListStatusClicked();
+            setError(null);
+        });
     }
 
     public void setCallback(Callback callback) {
@@ -196,12 +198,6 @@ public class ThreadStatusCell
         } else {
             unschedule();
         }
-    }
-
-    @Override
-    public void onClick(View v) {
-        callback.onListStatusClicked();
-        setError(null);
     }
 
     public interface Callback {
