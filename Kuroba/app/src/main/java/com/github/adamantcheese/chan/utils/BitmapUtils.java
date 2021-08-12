@@ -110,6 +110,8 @@ public class BitmapUtils {
             script.setInput(input);
             script.forEach(output);
             output.copyTo(newBitmap);
+            input.destroy();
+            output.destroy();
         }
 
         File tempFile = null;
@@ -188,8 +190,8 @@ public class BitmapUtils {
      */
     @NonNull
     public static Pair<Integer, Integer> getImageDims(File file) {
-        try {
-            Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+        try (FileInputStream fileStream = new FileInputStream(file)) {
+            Bitmap bitmap = BitmapFactory.decodeStream(fileStream);
             return new Pair<>(bitmap.getWidth(), bitmap.getHeight());
         } catch (Exception e) {
             return new Pair<>(-1, -1);
