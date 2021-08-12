@@ -37,8 +37,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class StringSettingView
-        extends SettingView
-        implements View.OnClickListener {
+        extends SettingView {
     private final Setting<String> setting;
     private final String dialogTitle;
     private final String subTitle;
@@ -66,7 +65,7 @@ public class StringSettingView
     public void setView(View view) {
         super.setView(view);
         if (view == null) return;
-        view.setOnClickListener(this);
+        view.setOnClickListener(this::createEditView);
     }
 
     @Override
@@ -74,8 +73,7 @@ public class StringSettingView
         return setting.get().length() > 0 ? setting.get() : "\" \"";
     }
 
-    @Override
-    public void onClick(View v) {
+    public void createEditView(View v) {
         LinearLayout container = new LinearLayout(v.getContext());
         updatePaddings(container, dp(24), dp(24), dp(8), 0);
 

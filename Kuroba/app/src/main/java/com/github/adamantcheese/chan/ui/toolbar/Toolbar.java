@@ -46,7 +46,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class Toolbar
         extends LinearLayout
-        implements View.OnClickListener, ToolbarPresenter.Callback, ToolbarContainer.Callback {
+        implements ToolbarPresenter.Callback, ToolbarContainer.Callback {
     public static final int TOOLBAR_COLLAPSE_HIDE = 1000000;
     public static final int TOOLBAR_COLLAPSE_SHOW = -1000000;
 
@@ -101,7 +101,7 @@ public class Toolbar
         addView(leftButtonContainer, WRAP_CONTENT, MATCH_PARENT);
 
         arrowMenuView = new ImageView(getContext());
-        arrowMenuView.setOnClickListener(this);
+        arrowMenuView.setOnClickListener(v -> callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f));
         arrowMenuView.setFocusable(true);
         arrowMenuView.setScaleType(ImageView.ScaleType.CENTER);
         arrowMenuDrawable = new ArrowMenuDrawable();
@@ -247,13 +247,6 @@ public class Toolbar
 
     public void setCallback(ToolbarCallback callback) {
         this.callback = callback;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == arrowMenuView) {
-            callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
-        }
     }
 
     public ArrowMenuDrawable getArrowMenuDrawable() {

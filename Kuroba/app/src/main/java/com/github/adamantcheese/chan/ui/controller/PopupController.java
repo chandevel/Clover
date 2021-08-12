@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -27,8 +26,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 
 public class PopupController
-        extends Controller
-        implements View.OnClickListener {
+        extends Controller {
     private FrameLayout container;
 
     public PopupController(Context context) {
@@ -41,7 +39,7 @@ public class PopupController
 
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.layout_controller_popup, null);
         FrameLayout topView = view.findViewById(R.id.top_view);
-        topView.setOnClickListener(this);
+        topView.setOnClickListener(v -> dismiss());
         container = view.findViewById(R.id.container);
     }
 
@@ -49,11 +47,6 @@ public class PopupController
         addChildController(childController);
         childController.attachToParentView(container);
         childController.onShow();
-    }
-
-    @Override
-    public void onClick(View v) {
-        dismiss();
     }
 
     public void dismiss() {

@@ -43,10 +43,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SaveLocationController
         extends Controller
-        implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback, View.OnClickListener {
+        implements FileWatcher.FileWatcherCallback, FilesAdapter.Callback, FilesLayout.Callback {
     private FilesLayout filesLayout;
-    private FloatingActionButton setButton;
-    private FloatingActionButton addButton;
     private RuntimePermissionsHelper runtimePermissionsHelper;
     private FileWatcher fileWatcher;
     private final SaveLocationControllerCallback callback;
@@ -66,25 +64,13 @@ public class SaveLocationController
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_save_location, null);
         filesLayout = view.findViewById(R.id.files_layout);
         filesLayout.setCallback(this);
-        setButton = view.findViewById(R.id.set_button);
-        setButton.setOnClickListener(this);
-        addButton = view.findViewById(R.id.add_button);
-        addButton.setOnClickListener(this);
-
-        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
-        if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            initialize();
-        } else {
-            requestPermission();
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == setButton) {
+        FloatingActionButton setButton = view.findViewById(R.id.set_button);
+        setButton.setOnClickListener(v -> {
             onDirectoryChosen();
             navigationController.popController();
-        } else if (v == addButton) {
+        });
+        FloatingActionButton addButton = view.findViewById(R.id.add_button);
+        addButton.setOnClickListener(v -> {
             final NewFolderLayout dialogView =
                     (NewFolderLayout) LayoutInflater.from(v.getContext()).inflate(R.layout.layout_folder_add, null);
 
@@ -94,6 +80,13 @@ public class SaveLocationController
                     .setNegativeButton(R.string.cancel, null)
                     .create()
                     .show();
+        });
+
+        runtimePermissionsHelper = ((StartActivity) context).getRuntimePermissionsHelper();
+        if (runtimePermissionsHelper.hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            initialize();
+        } else {
+            requestPermission();
         }
     }
 

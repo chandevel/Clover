@@ -159,9 +159,9 @@ public class BrowseController
         overflowBuilder.withSubItem(OverflowMenuId.ARCHIVE, R.string.thread_view_local_archive, this::openArchive)
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
+                .withSubItem(R.string.board_info, this::showBoardInfo)
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.getPresenter().scrollTo(0, false))
                 .withSubItem(R.string.action_scroll_to_bottom, () -> threadLayout.getPresenter().scrollTo(-1, false))
-                .withSubItem(R.string.board_info, this::showBoardInfo)
                 .build()
                 .build();
 

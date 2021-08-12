@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -68,15 +67,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class FilterLayout
-        extends LinearLayout
-        implements View.OnClickListener {
+        extends LinearLayout {
     private TextView typeText;
     private TextView boardsSelector;
     private TextView pattern;
     private TextView patternPreview;
     private TextView patternPreviewStatus;
     private CheckBox enabled;
-    private ImageView help;
     private TextView actionText;
     private LinearLayout colorContainer;
     private View colorPreview;
@@ -147,7 +144,7 @@ public class FilterLayout
         });
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
         enabled = findViewById(R.id.enabled);
-        help = findViewById(R.id.help);
+        ImageView help = findViewById(R.id.help);
         colorContainer = findViewById(R.id.color_container);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
@@ -160,11 +157,11 @@ public class FilterLayout
         boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
         actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
 
-        colorContainer.setOnClickListener(this);
-        help.setOnClickListener(this);
-        typeText.setOnClickListener(this);
-        boardsSelector.setOnClickListener(this);
-        actionText.setOnClickListener(this);
+        colorContainer.setOnClickListener(this::onColorClicked);
+        help.setOnClickListener(this::onHelpClicked);
+        typeText.setOnClickListener(this::onTypesClicked);
+        boardsSelector.setOnClickListener(this::onBoardsClicked);
+        actionText.setOnClickListener(this::onActionsClicked);
     }
 
     public void setFilter(Filter filter) {
@@ -193,163 +190,167 @@ public class FilterLayout
         return filter;
     }
 
-    @SuppressLint("SetTextI18n")
-    @Override
-    public void onClick(View v) {
-        if (v == typeText) {
-            @SuppressWarnings("unchecked")
-            final SelectLayout<FilterType> selectLayout =
-                    (SelectLayout<FilterType>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+    private void onTypesClicked(View v) {
+        @SuppressWarnings("unchecked")
+        final SelectLayout<FilterType> selectLayout =
+                (SelectLayout<FilterType>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
 
-            List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
-            for (FilterType filterType : FilterType.values()) {
-                String name = FilterType.filterTypeName(filterType);
-                boolean checked = filter.hasFilter(filterType);
+        List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
+        for (FilterType filterType : FilterType.values()) {
+            String name = FilterType.filterTypeName(filterType);
+            boolean checked = filter.hasFilter(filterType);
 
-                items.add(new SelectLayout.SelectItem<>(filterType, filterType.flag, name, null, name, checked));
-            }
-
-            selectLayout.setItems(items);
-
-            getDefaultAlertBuilder(getContext()).setView(selectLayout)
-                    .setPositiveButton(R.string.ok, (dialog, which) -> {
-                        List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
-                        int flags = 0;
-                        for (SelectLayout.SelectItem<FilterType> item : items12) {
-                            if (item.checked) {
-                                flags |= item.item.flag;
-                            }
-                        }
-
-                        filter.type = flags;
-                        updateFilterType();
-                        updatePatternPreview();
-                    })
-                    .show();
-        } else if (v == boardsSelector) {
-            @SuppressWarnings("unchecked")
-            final SelectLayout<Board> selectLayout =
-                    (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
-
-            List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
-
-            Boards allSavedBoards = new Boards();
-            for (BoardRepository.SiteBoards item : boardManager.getSavedBoardsObservable().get()) {
-                allSavedBoards.addAll(item.boards);
-            }
-
-            for (Board board : allSavedBoards) {
-                String name = board.getFormattedName();
-                boolean checked = filterEngine.matchesBoard(filter, board);
-
-                items.add(new SelectLayout.SelectItem<>(board, board.id, name, "", name, checked));
-            }
-
-            selectLayout.setItems(items);
-
-            getDefaultAlertBuilder(getContext()).setView(selectLayout)
-                    .setPositiveButton(R.string.ok, (dialog, which) -> {
-                        List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
-                        boolean all = selectLayout.areAllChecked();
-                        Boards boardList = new Boards(items1.size());
-                        if (!all) {
-                            for (SelectLayout.SelectItem<Board> item : items1) {
-                                if (item.checked) {
-                                    boardList.add(item.item);
-                                }
-                            }
-                            if (boardList.isEmpty()) {
-                                all = true;
-                            }
-                        }
-
-                        filterEngine.saveBoardsToFilter(boardList, all, filter);
-
-                        updateBoardsSummary();
-                    })
-                    .show();
-        } else if (v == actionText) {
-            List<FloatingMenuItem<FilterAction>> menuItems = new ArrayList<>(6);
-
-            for (FilterAction action : FilterAction.values()) {
-                menuItems.add(new FloatingMenuItem<>(action, FilterAction.actionName(action)));
-            }
-
-            FloatingMenu<FilterAction> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
-            menu.setAnchorGravity(Gravity.LEFT, (int) -dp(5), (int) -dp(5));
-            menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
-                @Override
-                public void onFloatingMenuItemClicked(
-                        FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item
-                ) {
-                    filter.action = item.getId().id;
-                    updateFilterAction();
-                }
-            });
-            menu.show();
-        } else if (v == help) {
-            SpannableStringBuilder message =
-                    (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
-                            HtmlCompat.FROM_HTML_MODE_LEGACY
-                    );
-            TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
-            for (TypefaceSpan span : typefaceSpans) {
-                if (span.getFamily().equals("monospace")) {
-                    int start = message.getSpanStart(span);
-                    int end = message.getSpanEnd(span);
-                    message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
-                }
-            }
-
-            StyleSpan[] styleSpans = message.getSpans(0, message.length(), StyleSpan.class);
-            for (StyleSpan span : styleSpans) {
-                if (span.getStyle() == Typeface.ITALIC) {
-                    int start = message.getSpanStart(span);
-                    int end = message.getSpanEnd(span);
-                    message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
-                }
-            }
-
-            getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_help_title)
-                    .setMessage(message)
-                    .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
-                    .setPositiveButton(R.string.close, null)
-                    .show();
-        } else if (v == colorContainer) {
-            View colorPickerView = LayoutInflater.from(getContext()).inflate(R.layout.layout_color_pick, null);
-            ColorPickerView colorView = colorPickerView.findViewById(R.id.color_picker);
-            SeekBar alphaBar = colorPickerView.findViewById(R.id.alpha_picker);
-            TextView percent = colorPickerView.findViewById(R.id.progress);
-            alphaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    colorView.setColor(Color.argb(progress,
-                            Color.red(colorView.getColor()),
-                            Color.green(colorView.getColor()),
-                            Color.blue(colorView.getColor())
-                    ));
-                    percent.setText((int) ((progress / (float) seekBar.getMax()) * 100) + "%");
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {}
-            });
-            colorView.setColor(filter.color);
-            alphaBar.setProgress(Color.alpha(filter.color));
-            percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
-
-            getDefaultAlertBuilder(getContext())
-                    .setView(colorPickerView)
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.ok, (dialog1, which) -> {
-                        filter.color = colorView.getColor();
-                        updateFilterAction();
-                    })
-                    .show();
+            items.add(new SelectLayout.SelectItem<>(filterType, filterType.flag, name, null, name, checked));
         }
+
+        selectLayout.setItems(items);
+
+        getDefaultAlertBuilder(getContext()).setView(selectLayout)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
+                    int flags = 0;
+                    for (SelectLayout.SelectItem<FilterType> item : items12) {
+                        if (item.checked) {
+                            flags |= item.item.flag;
+                        }
+                    }
+
+                    filter.type = flags;
+                    updateFilterType();
+                    updatePatternPreview();
+                })
+                .show();
+    }
+
+    private void onBoardsClicked(View v) {
+        @SuppressWarnings("unchecked")
+        final SelectLayout<Board> selectLayout =
+                (SelectLayout<Board>) LayoutInflater.from(getContext()).inflate(R.layout.layout_select, null);
+
+        List<SelectLayout.SelectItem<Board>> items = new ArrayList<>();
+
+        Boards allSavedBoards = new Boards();
+        for (BoardRepository.SiteBoards item : boardManager.getSavedBoardsObservable().get()) {
+            allSavedBoards.addAll(item.boards);
+        }
+
+        for (Board board : allSavedBoards) {
+            String name = board.getFormattedName();
+            boolean checked = filterEngine.matchesBoard(filter, board);
+
+            items.add(new SelectLayout.SelectItem<>(board, board.id, name, "", name, checked));
+        }
+
+        selectLayout.setItems(items);
+
+        getDefaultAlertBuilder(getContext()).setView(selectLayout)
+                .setPositiveButton(R.string.ok, (dialog, which) -> {
+                    List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
+                    boolean all = selectLayout.areAllChecked();
+                    Boards boardList = new Boards(items1.size());
+                    if (!all) {
+                        for (SelectLayout.SelectItem<Board> item : items1) {
+                            if (item.checked) {
+                                boardList.add(item.item);
+                            }
+                        }
+                        if (boardList.isEmpty()) {
+                            all = true;
+                        }
+                    }
+
+                    filterEngine.saveBoardsToFilter(boardList, all, filter);
+
+                    updateBoardsSummary();
+                })
+                .show();
+    }
+
+    private void onActionsClicked(View v) {
+        List<FloatingMenuItem<FilterAction>> menuItems = new ArrayList<>(6);
+
+        for (FilterAction action : FilterAction.values()) {
+            menuItems.add(new FloatingMenuItem<>(action, FilterAction.actionName(action)));
+        }
+
+        FloatingMenu<FilterAction> menu = new FloatingMenu<>(v.getContext(), v, menuItems);
+        menu.setAnchorGravity(Gravity.LEFT, (int) -dp(5), (int) -dp(5));
+        menu.setCallback(new FloatingMenu.ClickCallback<FilterAction>() {
+            @Override
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item
+            ) {
+                filter.action = item.getId().id;
+                updateFilterAction();
+            }
+        });
+        menu.show();
+    }
+
+    private void onHelpClicked(View v) {
+        SpannableStringBuilder message =
+                (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
+                        HtmlCompat.FROM_HTML_MODE_LEGACY
+                );
+        TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
+        for (TypefaceSpan span : typefaceSpans) {
+            if (span.getFamily().equals("monospace")) {
+                int start = message.getSpanStart(span);
+                int end = message.getSpanEnd(span);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
+            }
+        }
+
+        StyleSpan[] styleSpans = message.getSpans(0, message.length(), StyleSpan.class);
+        for (StyleSpan span : styleSpans) {
+            if (span.getStyle() == Typeface.ITALIC) {
+                int start = message.getSpanStart(span);
+                int end = message.getSpanEnd(span);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
+            }
+        }
+
+        getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_help_title)
+                .setMessage(message)
+                .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
+                .setPositiveButton(R.string.close, null)
+                .show();
+    }
+
+    private void onColorClicked(View v) {
+        View colorPickerView = LayoutInflater.from(getContext()).inflate(R.layout.layout_color_pick, null);
+        ColorPickerView colorView = colorPickerView.findViewById(R.id.color_picker);
+        SeekBar alphaBar = colorPickerView.findViewById(R.id.alpha_picker);
+        TextView percent = colorPickerView.findViewById(R.id.progress);
+        alphaBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                colorView.setColor(Color.argb(progress,
+                        Color.red(colorView.getColor()),
+                        Color.green(colorView.getColor()),
+                        Color.blue(colorView.getColor())
+                ));
+                percent.setText((int) ((progress / (float) seekBar.getMax()) * 100) + "%");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+        colorView.setColor(filter.color);
+        alphaBar.setProgress(Color.alpha(filter.color));
+        percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
+
+        getDefaultAlertBuilder(getContext())
+                .setView(colorPickerView)
+                .setNegativeButton(R.string.cancel, null)
+                .setPositiveButton(R.string.ok, (dialog1, which) -> {
+                    filter.color = colorView.getColor();
+                    updateFilterAction();
+                })
+                .show();
     }
 
     private void updateFilterValidity() {

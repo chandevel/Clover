@@ -31,8 +31,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ListSettingView<T>
-        extends SettingView
-        implements View.OnClickListener {
+        extends SettingView {
     public final List<Item<T>> items;
     public Item<T> selected;
 
@@ -79,11 +78,10 @@ public class ListSettingView<T>
     public void setView(View view) {
         super.setView(view);
         if (view == null) return;
-        view.setOnClickListener(this);
+        view.setOnClickListener(this::createEditView);
     }
 
-    @Override
-    public void onClick(View v) {
+    public void createEditView(View v) {
         List<FloatingMenuItem<T>> menuItems = new ArrayList<>(items.size());
         for (Item<T> item : items) {
             if (item.enabled) {

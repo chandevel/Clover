@@ -62,7 +62,7 @@ public class SearchLayout
         searchView = new EditText(getContext());
         searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
         searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        searchView.setHint(getString(R.string.search_hint));
+        searchView.setHint(context.getString(R.string.search_hint));
         searchView.setHintTextColor(getAttrColor(getContext(), android.R.attr.textColorHint));
         searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColorPrimary));
         searchView.setMaxLines(1);

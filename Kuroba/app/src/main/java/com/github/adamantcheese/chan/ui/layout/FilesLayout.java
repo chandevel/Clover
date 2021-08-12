@@ -41,7 +41,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class FilesLayout
         extends LinearLayout
-        implements FilesAdapter.Callback, View.OnClickListener {
+        implements FilesAdapter.Callback {
     private ViewGroup backLayout;
     private ImageView backImage;
     private TextView backText;
@@ -76,7 +76,10 @@ public class FilesLayout
         backText = backLayout.findViewById(R.id.back_text);
         recyclerView = findViewById(R.id.recycler);
 
-        backLayout.setOnClickListener(this);
+        backLayout.setOnClickListener(v -> {
+            currentHistory.clickedItem = null;
+            callback.onBackClicked();
+        });
     }
 
     public void initialize() {
@@ -125,14 +128,6 @@ public class FilesLayout
     public void onFileItemClicked(FileWatcher.FileItem fileItem) {
         currentHistory.clickedItem = fileItem;
         callback.onFileItemClicked(fileItem);
-    }
-
-    @Override
-    public void onClick(View view) {
-        if (view == backLayout) {
-            currentHistory.clickedItem = null;
-            callback.onBackClicked();
-        }
     }
 
     private static class FileItemHistory {

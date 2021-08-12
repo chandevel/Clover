@@ -41,7 +41,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class SelectLayout<T>
         extends LinearLayout
-        implements SearchLayout.SearchLayoutCallback, View.OnClickListener {
+        implements SearchLayout.SearchLayoutCallback {
     private RecyclerView recyclerView;
     private Button checkAllButton;
 
@@ -74,7 +74,14 @@ public class SelectLayout<T>
         searchLayout.setCallback(this);
 
         checkAllButton = findViewById(R.id.select_all);
-        checkAllButton.setOnClickListener(this);
+        checkAllButton.setOnClickListener(v -> {
+            for (SelectItem<T> item : items) {
+                item.checked = !allChecked;
+            }
+
+            updateAllSelected();
+            recyclerView.getAdapter().notifyDataSetChanged();
+        });
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
@@ -93,18 +100,6 @@ public class SelectLayout<T>
 
     public List<SelectItem<T>> getItems() {
         return items;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == checkAllButton) {
-            for (SelectItem<T> item : items) {
-                item.checked = !allChecked;
-            }
-
-            updateAllSelected();
-            recyclerView.getAdapter().notifyDataSetChanged();
-        }
     }
 
     public boolean areAllChecked() {

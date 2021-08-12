@@ -57,7 +57,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class BoardSetupController
         extends Controller
-        implements View.OnClickListener, BoardSetupPresenter.PresenterCallback {
+        implements BoardSetupPresenter.PresenterCallback {
     @Inject
     BoardSetupPresenter presenter;
 
@@ -128,7 +128,7 @@ public class BoardSetupController
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(savedBoardsRecycler);
 
-        add.setOnClickListener(this);
+        add.setOnClickListener(v -> presenter.addClicked());
         crossfadeView.toggle(false, false);
 
         // Presenter
@@ -143,13 +143,6 @@ public class BoardSetupController
 
     public void setSite(Site site) {
         this.site = site;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == add) {
-            presenter.addClicked();
-        }
     }
 
     @Override

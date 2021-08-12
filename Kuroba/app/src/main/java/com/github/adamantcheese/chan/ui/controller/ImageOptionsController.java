@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -37,7 +36,6 @@ import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.Bitmap.CompressFormat.PNG;
@@ -51,8 +49,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindowSize;
 
 public class ImageOptionsController
         extends BaseFloatingController
-        implements View.OnClickListener, ImageReencodingPresenter.ImageReencodingPresenterCallback,
-                   RadioGroup.OnCheckedChangeListener {
+        implements ImageReencodingPresenter.ImageReencodingPresenterCallback, RadioGroup.OnCheckedChangeListener {
 
     private final ImageReencodingPresenter presenter;
     private final ImageOptionsControllerCallback callback;
@@ -184,9 +181,14 @@ public class ImageOptionsController
             fixExif.setVisibility(GONE);
         }
 
-        viewHolder.setOnClickListener(this);
-        cancel.setOnClickListener(this);
-        ok.setOnClickListener(this);
+        viewHolder.setOnClickListener(v -> onBack());
+        cancel.setOnClickListener(v -> onBack());
+        ok.setOnClickListener(v -> presenter.applyImageOptions(new ImageReencodingPresenter.ImageOptions(fixExif.isChecked(),
+                changeImageChecksum.isChecked(),
+                quality.getProgress(),
+                reduce.getProgress(),
+                blur.isChecked()
+        )));
         radioGroup.setOnCheckedChangeListener(this);
 
         radioGroup.check(imageFormat == PNG ? R.id.reencode_image_as_png : R.id.reencode_image_as_jpeg);
@@ -207,8 +209,6 @@ public class ImageOptionsController
             params.height = WRAP_CONTENT;
             container.setLayoutParams(params);
         });
-        cancel.setOnClickListener(this);
-        ok.setOnClickListener(this);
 
         presenter.loadImagePreview();
     }
@@ -218,23 +218,6 @@ public class ImageOptionsController
         callback.onImageOptionsComplete();
         stopPresenting();
         return true;
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == cancel || v == viewHolder) {
-            BackgroundUtils.runOnMainThread(() -> {
-                stopPresenting();
-                callback.onImageOptionsComplete();
-            });
-        } else if (v == ok) {
-            presenter.applyImageOptions(new ImageReencodingPresenter.ImageOptions(fixExif.isChecked(),
-                    changeImageChecksum.isChecked(),
-                    quality.getProgress(),
-                    reduce.getProgress(),
-                    blur.isChecked()
-            ));
-        }
     }
 
     @Override

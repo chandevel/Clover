@@ -68,7 +68,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
 public class FiltersController
         extends Controller
-        implements ToolbarNavigationController.ToolbarSearchCallback, View.OnClickListener {
+        implements ToolbarNavigationController.ToolbarSearchCallback {
     enum MenuId {
         SEARCH,
         DEBUG
@@ -163,10 +163,36 @@ public class FiltersController
         attached = true;
 
         add = view.findViewById(R.id.add);
-        add.setOnClickListener(this);
+        add.setOnClickListener(v -> {
+            Filter f = new Filter();
+            //add to the end of the filter list
+            f.order = adapter.getItemCount();
+            showFilterDialog(f);
+        });
 
         enable = view.findViewById(R.id.enable);
-        enable.setOnClickListener(this);
+        enable.setOnClickListener(v -> {
+            if (!locked) {
+                FloatingActionButton enableButton = (FloatingActionButton) v;
+                locked = true;
+                //if every filter is disabled, enable all of them and set the drawable to be an x
+                //if every filter is enabled, disable all of them and set the drawable to be a checkmark
+                //if some filters are enabled, disable them and set the drawable to be a checkmark
+                List<Filter> enabledFilters = filterEngine.getEnabledFilters();
+                List<Filter> allFilters = filterEngine.getAllFilters();
+                if (enabledFilters.isEmpty()) {
+                    setFilters(allFilters, true);
+                    enableButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
+                } else if (enabledFilters.size() == allFilters.size()) {
+                    setFilters(allFilters, false);
+                    enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+                } else {
+                    setFilters(enabledFilters, false);
+                    enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+                }
+                postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
+            }
+        });
     }
 
     @Override
@@ -200,35 +226,6 @@ public class FiltersController
     public void onDestroy() {
         super.onDestroy();
         databaseFilterManager.updateFilters(adapter.sourceList);
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == add) {
-            Filter f = new Filter();
-            //add to the end of the filter list
-            f.order = adapter.getItemCount();
-            showFilterDialog(f);
-        } else if (v == enable && !locked) {
-            FloatingActionButton enableButton = (FloatingActionButton) v;
-            locked = true;
-            //if every filter is disabled, enable all of them and set the drawable to be an x
-            //if every filter is enabled, disable all of them and set the drawable to be a checkmark
-            //if some filters are enabled, disable them and set the drawable to be a checkmark
-            List<Filter> enabledFilters = filterEngine.getEnabledFilters();
-            List<Filter> allFilters = filterEngine.getAllFilters();
-            if (enabledFilters.isEmpty()) {
-                setFilters(allFilters, true);
-                enableButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
-            } else if (enabledFilters.size() == allFilters.size()) {
-                setFilters(allFilters, false);
-                enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
-            } else {
-                setFilters(enabledFilters, false);
-                enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
-            }
-            postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
-        }
     }
 
     private void setFilters(List<Filter> filters, boolean enabled) {
@@ -402,8 +399,7 @@ public class FiltersController
     }
 
     private class FilterHolder
-            extends RecyclerView.ViewHolder
-            implements View.OnClickListener {
+            extends RecyclerView.ViewHolder {
         private final TextView text;
         private final TextView subtext;
 
@@ -422,15 +418,12 @@ public class FiltersController
                 return false;
             });
 
-            itemView.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            int position = getAdapterPosition();
-            if (!locked && position >= 0 && position < adapter.getItemCount() && v == itemView) {
-                showFilterDialog(adapter.displayList.get(position));
-            }
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (!locked && position >= 0 && position < adapter.getItemCount() && v == itemView) {
+                    showFilterDialog(adapter.displayList.get(position));
+                }
+            });
         }
     }
 }

@@ -90,7 +90,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
 public class ThreadLayout
         extends CoordinatorLayout
         implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback,
-                   RemovedPostsHelper.RemovedPostsCallbacks, View.OnClickListener,
+                   RemovedPostsHelper.RemovedPostsCallbacks,
                    ThreadListLayout.ThreadListLayoutCallback, ImageOptionsController.ImageOptionsControllerCallback {
     private enum Visible {
         EMPTY,
@@ -165,33 +165,26 @@ public class ThreadLayout
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
         errorText.setTypeface(ThemeHelper.getTheme().mainFont);
-        errorRetryButton.setOnClickListener(this);
+        errorRetryButton.setOnClickListener(v -> {
+            if (!archiveButton) {
+                presenter.requestData();
+            } else {
+                presenter.showArchives(presenter.getLoadable(), presenter.getLoadable().no);
+            }
+        });
 
         // Setup
         replyButtonEnabled = ChanSettings.enableReplyFab.get();
         if (!replyButtonEnabled) {
             removeFromParentView(replyButton);
         } else {
-            replyButton.setOnClickListener(this);
+            replyButton.setOnClickListener(v -> threadListLayout.openReply(true));
             replyButton.setToolbar(getToolbar());
         }
     }
 
     public void destroy() {
         presenter.unbindLoadable();
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v == errorRetryButton) {
-            if (!archiveButton) {
-                presenter.requestData();
-            } else {
-                presenter.showArchives(presenter.getLoadable(), presenter.getLoadable().no);
-            }
-        } else if (v == replyButton) {
-            threadListLayout.openReply(true);
-        }
     }
 
     public boolean onBack() {
