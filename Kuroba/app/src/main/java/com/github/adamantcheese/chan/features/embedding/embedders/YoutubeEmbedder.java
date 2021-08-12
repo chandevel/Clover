@@ -27,7 +27,7 @@ public class YoutubeEmbedder
         implements Embedder {
     // Group 1 is the video id, Group 2 is any parameters after the ID
     private static final Pattern YOUTUBE_LINK_PATTERN = Pattern.compile(
-            "https?://(?:youtu\\.be/|[\\w.]*youtube[\\w.]*/.*?(?:v=|\\bembed/|\\bv/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
+            "https?://(?:youtu\\.be/|\\w+\\.youtube\\.\\w+/.*?(?:v=|\\bembed/|\\bv/|\\bshorts/))([\\w\\-]{11})([^\\s]*)(?:/|\\b)");
     // All the relevant information is hidden away in a var called ytInitialPlayerResponse; we can snag that JSON and use it
     private static final Pattern API_PARAMS =
             Pattern.compile("ytInitialPlayerResponse\\s*=\\s*(\\{.+?\\})\\s*;(?:\\s*v)?");
