@@ -22,10 +22,6 @@ import java.util.List;
 public abstract class ImageSearch {
     public static final List<ImageSearch> engines = new ArrayList<>();
 
-    public int getId() {
-        return engines.indexOf(this);
-    }
-
     public abstract String getName();
 
     public abstract String getUrl(String imageUrl);
@@ -73,7 +69,7 @@ public abstract class ImageSearch {
 
         engines.add(new ImageSearch() {
             public String getName() {
-                return "WAIT";
+                return "trace.moe";
             }
 
             public String getUrl(String imageUrl) {

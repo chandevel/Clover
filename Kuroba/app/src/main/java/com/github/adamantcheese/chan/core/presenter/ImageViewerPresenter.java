@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -535,40 +534,29 @@ public class ImageViewerPresenter
 
     public void showImageSearchOptions(NavigationItem navigation) {
         List<FloatingMenuItem<Integer>> items = new ArrayList<>();
-        for (ImageSearch imageSearch : ImageSearch.engines) {
-            items.add(new FloatingMenuItem<>(imageSearch.getId(), imageSearch.getName()));
+        List<ImageSearch> engines = ImageSearch.engines;
+        for (int i = 0; i < engines.size(); i++) {
+            ImageSearch imageSearch = engines.get(i);
+            items.add(new FloatingMenuItem<>(i, imageSearch.getName()));
         }
         ToolbarMenuItem overflowMenuItem = navigation.findOverflow();
         FloatingMenu<Integer> menu = new FloatingMenu<>(context, overflowMenuItem.getView(), items);
         menu.setCallback(new FloatingMenu.ClickCallback<Integer>() {
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
-                for (ImageSearch imageSearch : ImageSearch.engines) {
-                    if (item.getId() == imageSearch.getId()) {
-                        final HttpUrl searchImageUrl = getSearchImageUrl(getCurrentPostImage());
-                        if (searchImageUrl == null) {
-                            Logger.e(this, "onFloatingMenuItemClicked() searchImageUrl == null");
-                            break;
-                        }
-
-                        openLinkInBrowser(context, imageSearch.getUrl(searchImageUrl.toString()));
-                        break;
-                    }
+                ImageSearch selected = ImageSearch.engines.get(item.getId());
+                PostImage currentImage = getCurrentPostImage();
+                HttpUrl url =
+                        currentImage.type == PostImage.Type.MOVIE ? currentImage.thumbnailUrl : currentImage.imageUrl;
+                String searchImageUrl = url == null ? null : url.toString();
+                if (searchImageUrl == null) {
+                    Logger.e(this, "onFloatingMenuItemClicked() searchImageUrl == null");
+                } else {
+                    openLinkInBrowser(context, selected.getUrl(searchImageUrl));
                 }
             }
         });
         menu.show();
-    }
-
-    /**
-     * Send thumbnail image of movie posts because none of the image search providers support movies (such as webm) directly
-     *
-     * @param postImage the post image
-     * @return url of an image to be searched
-     */
-    @Nullable
-    private HttpUrl getSearchImageUrl(final PostImage postImage) {
-        return postImage.type == PostImage.Type.MOVIE ? postImage.thumbnailUrl : postImage.imageUrl;
     }
 
     private enum SwipeDirection {
