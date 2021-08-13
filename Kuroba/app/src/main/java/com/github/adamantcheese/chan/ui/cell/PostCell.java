@@ -453,10 +453,14 @@ public class PostCell
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
 
             if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
-                headerWrapper.setOnLongClickListener(v -> {
-                    callback.onPostNoClicked(post);
-                    return true;
-                });
+                if (ChanSettings.shortTapPostCellQuote.get()) {
+                    headerWrapper.setOnClickListener(v -> callback.onPostNoClicked(post));
+                } else {
+                    headerWrapper.setOnLongClickListener(v -> {
+                        callback.onPostNoClicked(post);
+                        return true;
+                    });
+                }
             }
         } else {
             comment.setOnTouchListener(null);

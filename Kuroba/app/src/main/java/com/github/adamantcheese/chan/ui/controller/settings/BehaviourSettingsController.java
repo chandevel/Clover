@@ -227,6 +227,12 @@ public class BehaviourSettingsController
                     R.string.setting_share_url_description
             ));
 
+            requiresUiRefresh.add(new BooleanSettingView(this,
+                    ChanSettings.shortTapPostCellQuote,
+                    "Tap post cell header to quote",
+                    "Instead of long-pressing to quote, use a regular tap to quote"
+            ));
+
             //this is also in Appearance settings
             post.add(new BooleanSettingView(this,
                     ChanSettings.enableEmoji,

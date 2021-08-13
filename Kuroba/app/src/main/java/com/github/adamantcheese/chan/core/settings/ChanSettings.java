@@ -260,6 +260,7 @@ public class ChanSettings {
     public static final BooleanSetting volumeKeysScrolling;
     public static final BooleanSetting enableLongPressURLCopy;
     public static final BooleanSetting shareUrl;
+    public static final BooleanSetting shortTapPostCellQuote;
 
     // Other options
     public static final BooleanSetting fullUserRotationEnable;
@@ -444,6 +445,7 @@ public class ChanSettings {
             volumeKeysScrolling = new BooleanSetting(p, "preference_volume_key_scrolling", false);
             enableLongPressURLCopy = new BooleanSetting(p, "long_press_image_url_copy", true);
             shareUrl = new BooleanSetting(p, "preference_image_share_url", false);
+            shortTapPostCellQuote = new BooleanSetting(p, "preference_short_tap_post_cell_quote", false);
 
             // Other options
             fullUserRotationEnable = new BooleanSetting(p, "full_user_rotation_enable", true);
