@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository.ResourceBitmap;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
@@ -727,6 +728,7 @@ public class ThreadListLayout
     private final RecyclerView.ItemDecoration SANTA = new HatItemDecoration(BitmapRepository.xmasHat);
 
     private void party() {
+        if (PersistableChanState.noFunAllowed.get()) return;
         if (showingThread.getLoadable().site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
@@ -736,6 +738,7 @@ public class ThreadListLayout
     }
 
     private void santa() {
+        if (PersistableChanState.noFunAllowed.get()) return;
         if (showingThread.getLoadable().site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DAY_OF_MONTH) == 25) {
