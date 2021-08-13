@@ -29,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
@@ -79,7 +78,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.GregorianCalendar;
@@ -90,10 +88,6 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
-
-import okhttp3.Call;
-import okhttp3.Request;
-import okhttp3.Response;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY;
@@ -133,7 +127,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 
 public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
@@ -1137,55 +1130,8 @@ public class ThreadPresenter
         text.append("Posted: ").append(PostHelper.getLocalDate(post));
 
         for (PostImage image : post.images) {
-            text.append("\n\nFilename: ").append(image.filename).append(".").append(image.extension);
-            if ("webm".equals(image.extension.toLowerCase())) {
-                // check webms for extra titles, async
-                // this is a super simple example of what the embedding engine does, basically
-                String checking = "\nChecking for metadata titles…";
-                text.append(checking);
-                Call call = NetUtils.applicationClient.newCall(new Request.Builder().url(image.imageUrl).build());
-                call.enqueue(new NetUtilsClasses.IgnoreFailureCallback() {
-                    @Override
-                    public void onResponse(@NonNull Call call, @NonNull Response response)
-                            throws IOException {
-                        int index = text.toString().indexOf(checking);
-                        String replaceText = ""; // clears out text if nothing found
-
-                        byte[] bytes = new byte[2048];
-                        response.body().source().read(bytes);
-                        response.close();
-                        for (int i = 0; i < bytes.length - 1; i++) {
-                            if (((bytes[i] & 0xFF) << 8 | bytes[i + 1] & 0xFF) == 0x7ba9) {
-                                byte len = (byte) (bytes[i + 2] ^ 0x80);
-                                // i is the position of the length bytes, which are 2 bytes
-                                // 1 after that is the actual string start
-                                replaceText = "\nMetadata title: " + new String(bytes, i + 2 + 1, len);
-                                break;
-                            }
-                        }
-                        text.replace(index, index + checking.length(), replaceText);
-                        // update on main thread, this is an OkHttp thread
-                        BackgroundUtils.runOnMainThread(() -> infoText.setText(text));
-                    }
-                });
-                dialog.setOnDismissListener(dialog1 -> call.cancel());
-            }
-            if (image.isInlined) {
-                text.append("\nLinked file");
-            } else {
-                text.append("\nDimensions: ")
-                        .append(Integer.toString(image.imageWidth))
-                        .append("x")
-                        .append(Integer.toString(image.imageHeight));
-            }
-
-            if (image.size > 0) {
-                text.append("\nSize: ").append(getReadableFileSize(image.size));
-            }
-
-            if (image.spoiler() && !image.isInlined) { //all linked files are spoilered, don't say that
-                text.append("\nSpoilered");
-            }
+            text.append("\n\n");
+            PostUtils.generatePostImageSummaryAndSetTextViewWithUpdates(image, text, dialog, infoText);
         }
         infoText.setText(text);
 
@@ -1195,10 +1141,13 @@ public class ThreadPresenter
         for (PostLinkable linkable : linkables) {
             //skip SPOILER linkables, they aren't useful to display
             if (linkable.type == PostLinkable.Type.SPOILER) continue;
-            CharSequence key = post.comment.subSequence(post.comment.getSpanStart(linkable), post.comment.getSpanEnd(linkable));
+            CharSequence key =
+                    post.comment.subSequence(post.comment.getSpanStart(linkable), post.comment.getSpanEnd(linkable));
             String value = linkable.value.toString();
             //need to trim off starting spaces for certain media links if embedded
-            String trimmedUrl = ((key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.subSequence(2, key.length()) : key).toString();
+            String trimmedUrl = ((key.charAt(0) == ' ' && key.charAt(1) == ' ')
+                    ? key.subSequence(2, key.length())
+                    : key).toString();
             boolean speciallyProcessed = false;
             // context doesn't matter here
             for (Embedder e : EmbeddingEngine.getInstance().getEmbedders()) {
