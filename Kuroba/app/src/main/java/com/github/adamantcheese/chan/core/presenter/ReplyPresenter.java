@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -190,7 +191,7 @@ public class ReplyPresenter
             callback.openCommentEqnButton(moreOpen);
             callback.openCommentMathButton(moreOpen);
         }
-        if (loadable.site instanceof Chan4 && (loadable.boardCode.equals("jp") || loadable.boardCode.equals("vip"))) {
+        if (loadable.site instanceof Chan4 && StringUtils.isAnyIgnoreCase(loadable.boardCode, "jp", "vip")) {
             callback.openCommentSJISButton(moreOpen);
         }
         if (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty()) {

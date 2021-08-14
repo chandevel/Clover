@@ -89,6 +89,7 @@ public class StringUtils {
     }
 
     public static boolean isAnyIgnoreCase(String s, String... strings) {
+        if (s == null) return false;
         for (String str : strings) {
             if (s.equalsIgnoreCase(str)) {
                 return true;

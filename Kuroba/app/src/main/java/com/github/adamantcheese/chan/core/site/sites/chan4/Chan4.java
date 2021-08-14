@@ -52,6 +52,7 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -296,10 +297,10 @@ public class Chan4
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            // due to an issue with posting and certain things returning incorrect cookie domains
-            // and OkHttp's cookie jar expecting the same domain as the request URL, this does not use
-            // syssafe like other methods
-            return sys.newBuilder().addPathSegment(loadable.boardCode).addPathSegment("post").build();
+            return (loadable.board.workSafe ? sysSafe : sys).newBuilder()
+                    .addPathSegment(loadable.boardCode)
+                    .addPathSegment("post")
+                    .build();
         }
 
         @Override
@@ -312,8 +313,7 @@ public class Chan4
 
         @Override
         public HttpUrl report(Post post) {
-            // see comment on reply
-            return sys.newBuilder()
+            return (post.board.workSafe ? sysSafe : sys).newBuilder()
                     .addPathSegment(post.board.code)
                     .addPathSegment("imgboard.php")
                     .addQueryParameter("mode", "report")
@@ -381,7 +381,11 @@ public class Chan4
             NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
                     Collections.singletonList(createCookieParsingInterceptor(c -> {
                         // in the event of a pass being already used, these will be immediately expired and you will be logged out
-                        if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                        // due to a 4chan bug, posting on a worksafe board and getting this error will not correctly
+                        // log-out a user; working around it is impossible due to okhttp's cookie parsing requiring
+                        // a cookie's domain to match the request if the domain if the "domain" field of the cookie exists
+                        // all 4chan cookies return a domain; they probably shouldn't but I can't do anything about that
+                        if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                             List<Cookie> out = new ArrayList<>();
                             Collections.addAll(out,
                                     NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),
@@ -444,7 +448,7 @@ public class Chan4
                 // for these two specific cookies, upon login set their expiration to never expire
                 // 4chan defaults to 1 day, but an expired cookie value technically still works
                 // also copy them to both 4chan.org and 4channel.org because hiro's real good at auth
-                if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                     List<Cookie> out = new ArrayList<>();
                     Collections.addAll(out,
                             NetUtils.rebuildCookie(c, sys.topPrivateDomain()).expiresAt(Long.MAX_VALUE).build(),
@@ -465,7 +469,7 @@ public class Chan4
                     ),
                     Collections.singletonList(createCookieParsingInterceptor(c -> {
                         // same as login, but expire both cookies
-                        if ("pass_id".equals(c.name()) || "pass_enabled".equals(c.name())) {
+                        if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                             List<Cookie> out = new ArrayList<>();
                             Collections.addAll(out,
                                     NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),

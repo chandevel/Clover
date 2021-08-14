@@ -971,7 +971,7 @@ public class ReplyLayout
                     );
                 }
                 // jp and vip [sjis]
-                if (is4chan && (threadLoadable.boardCode.equals("jp") || threadLoadable.boardCode.equals("vip"))) {
+                if (is4chan && StringUtils.isAnyIgnoreCase(threadLoadable.boardCode, "jp", "vip")) {
                     sjisMenuItem = otherMods.add(Menu.NONE,
                             R.id.reply_selection_action_sjis,
                             4,
