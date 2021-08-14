@@ -45,7 +45,7 @@ import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.History;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
+import com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
@@ -356,9 +356,11 @@ public class DrawerController
     private void onHeaderClickedInternal(boolean all) {
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
-            openMessage(getString(R.string.drawer_pins_cleared,
-                    getQuantityString(R.plurals.bookmark, pins.size())
-            ), v -> watchManager.addAll(pins), getString(R.string.undo));
+            openMessage(
+                    getString(R.string.drawer_pins_cleared, getQuantityString(R.plurals.bookmark, pins.size())),
+                    v -> watchManager.addAll(pins),
+                    getString(R.string.undo)
+            );
         } else {
             int text;
             synchronized (watchManager.getAllPins()) {
@@ -484,12 +486,14 @@ public class DrawerController
     @Subscribe(sticky = true)
     public void onEvent(SettingNotification notification) {
         if (settings == null) return;
-        SettingNotification type = EventBus.getDefault().getStickyEvent(SettingNotification.class);
+        if (notification == null) {
+            notification = EventBus.getDefault().getStickyEvent(SettingNotification.class);
+        }
 
         ImageView notificationIcon = settings.findViewById(R.id.setting_notification_icon);
-        if (type != SettingNotification.Default) {
+        if (notification.hasActiveTypes()) {
             notificationIcon.setVisibility(VISIBLE);
-            notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(type.getNotificationIconTintColor())));
+            notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(notification.getColor())));
         } else {
             notificationIcon.setVisibility(GONE);
         }

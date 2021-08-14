@@ -21,7 +21,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
+import com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -33,7 +33,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class LinkSettingView
         extends SettingView {
-    public SettingNotification settingNotificationType = SettingNotification.Default;
+    public SettingNotification forType = new SettingNotification();
     private final SettingViewOnClickListener clickListener;
     private String description;
 
@@ -62,8 +62,17 @@ public class LinkSettingView
     }
 
     @Subscribe(sticky = true)
-    public void onNotificationsChanged(SettingNotification newType) {
-        updateSettingNotificationIcon(newType);
+    public void onNotificationsChanged(SettingNotification notification) {
+        if (view == null) return;
+        ImageView notificationIcon = view.findViewById(R.id.setting_notification_icon);
+        if (notificationIcon == null) return; // no notification icon for this view
+
+        if (notification.contains(forType)) { // only if it matches; an unassigned forType ie default will never match
+            notificationIcon.setVisibility(VISIBLE);
+            notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(forType.getColor())));
+        } else {
+            notificationIcon.setVisibility(GONE);
+        }
     }
 
     @Override
@@ -78,30 +87,6 @@ public class LinkSettingView
     public void setDescription(String description) {
         this.description = description;
         settingsController.onPreferenceChange(this);
-    }
-
-    protected void updateSettingNotificationIcon(SettingNotification settingNotification) {
-        if (view == null) return;
-        ImageView notificationIcon = view.findViewById(R.id.setting_notification_icon);
-        if (notificationIcon == null) return; // no notification icon for this view
-
-        notificationIcon.setVisibility(VISIBLE);
-        switch (settingNotification) {
-            case Default:
-                notificationIcon.setVisibility(GONE);
-                break;
-            case ApkUpdate:
-            case CrashLog:
-                if (settingNotification == settingNotificationType) {
-                    notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotification.getNotificationIconTintColor())));
-                } else {
-                    notificationIcon.setVisibility(GONE);
-                }
-                break;
-            case Both:
-                notificationIcon.setImageTintList(ColorStateList.valueOf(getRes().getColor(settingNotificationType.getNotificationIconTintColor())));
-                break;
-        }
     }
 
     public interface SettingViewOnClickListener {

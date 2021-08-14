@@ -45,6 +45,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,9 @@ import javax.inject.Inject;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_LIGHT;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_PEEK;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_SOUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
@@ -70,9 +74,11 @@ public class WatchNotification
 
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
-    private final int NOTIFICATION_LIGHT = 0x1;
-    private final int NOTIFICATION_SOUND = 0x2;
-    private final int NOTIFICATION_PEEK = 0x4;
+    enum NOTIFICATION_ITEMS {
+        NOTIFICATION_LIGHT,
+        NOTIFICATION_SOUND,
+        NOTIFICATION_PEEK
+    }
 
     @Inject
     WatchManager watchManager;
@@ -165,7 +171,7 @@ public class WatchNotification
         List<Pin> newPostPins = new ArrayList<>();
         List<Pin> newQuotePins = new ArrayList<>();
 
-        int flags = 0;
+        BitSet flags = new BitSet(NOTIFICATION_ITEMS.values().length);
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
@@ -180,7 +186,9 @@ public class WatchNotification
                     unviewedPosts.addAll(watcher.getUnviewedQuotes());
                     listQuoting.addAll(watcher.getUnviewedQuotes());
                     if (watcher.getWereNewQuotes()) {
-                        flags |= NOTIFICATION_LIGHT | NOTIFICATION_PEEK | NOTIFICATION_SOUND;
+                        flags.set(NOTIFICATION_LIGHT.ordinal());
+                        flags.set(NOTIFICATION_PEEK.ordinal());
+                        flags.set(NOTIFICATION_SOUND.ordinal());
                     }
                     if (pin.getNewQuoteCount() > 0) {
                         newQuotePins.add(pin);
@@ -189,13 +197,15 @@ public class WatchNotification
                     unviewedPosts.addAll(watcher.getUnviewedPosts());
                     listQuoting.addAll(watcher.getUnviewedQuotes());
                     if (watcher.getWereNewPosts()) {
-                        flags |= NOTIFICATION_LIGHT;
+                        flags.set(NOTIFICATION_LIGHT.ordinal());
                         if (!soundQuotesOnly) {
-                            flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
+                            flags.set(NOTIFICATION_PEEK.ordinal());
+                            flags.set(NOTIFICATION_SOUND.ordinal());
                         }
                     }
                     if (watcher.getWereNewQuotes()) {
-                        flags |= NOTIFICATION_PEEK | NOTIFICATION_SOUND;
+                        flags.set(NOTIFICATION_PEEK.ordinal());
+                        flags.set(NOTIFICATION_SOUND.ordinal());
                     }
                     if (pin.getNewQuoteCount() > 0) {
                         newQuotePins.add(pin);
@@ -207,12 +217,12 @@ public class WatchNotification
         }
 
         if (BackgroundUtils.isInForeground()) {
-            flags &= ~(NOTIFICATION_LIGHT);
-            flags &= ~(NOTIFICATION_SOUND);
+            flags.clear(NOTIFICATION_LIGHT.ordinal());
+            flags.clear(NOTIFICATION_SOUND.ordinal());
         }
 
         if (!ChanSettings.watchPeek.get()) {
-            flags &= ~(NOTIFICATION_PEEK);
+            flags.clear(NOTIFICATION_PEEK.ordinal());
         }
 
         return setupNotificationTextFields(pinCount,
@@ -232,7 +242,7 @@ public class WatchNotification
             Set<Post> unviewedPosts,
             Set<Post> listQuoting,
             boolean notifyQuotesOnly,
-            int flags
+            BitSet flags
     ) {
         String message;
         Set<Post> postsForExpandedLines;
@@ -313,7 +323,7 @@ public class WatchNotification
     private Notification buildNotification(
             String title,
             List<CharSequence> expandedLines,
-            int flags,
+            BitSet flags,
             boolean alertIcon,
             boolean alertIconOverride,
             Pin target,
@@ -335,11 +345,11 @@ public class WatchNotification
             builder.setContentIntent(pendingIntent);
 
             //setup lights, sound, and peek
-            if ((flags & NOTIFICATION_SOUND) != 0 || (flags & NOTIFICATION_PEEK) != 0) {
+            if (flags.get(NOTIFICATION_SOUND.ordinal()) || flags.get(NOTIFICATION_PEEK.ordinal())) {
                 builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
             }
 
-            if ((flags & NOTIFICATION_LIGHT) != 0) {
+            if (flags.get(NOTIFICATION_LIGHT.ordinal())) {
                 builder.setLights(0xff91e466, 1000, 1000);
             }
 

@@ -31,7 +31,6 @@ import androidx.core.content.FileProvider;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
@@ -53,6 +52,7 @@ import static com.github.adamantcheese.chan.BuildConfig.UPDATE_API_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
 import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
 import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -219,12 +219,12 @@ public class UpdateManager {
 
     private void notifyNewApkUpdate() {
         PersistableChanState.hasNewApkUpdate.setSync(true);
-        SettingsNotificationManager.postNotification(SettingNotification.ApkUpdate);
+        SettingNotificationManager.postNotification(APK_UPDATE);
     }
 
     private void cancelApkUpdateNotification() {
         PersistableChanState.hasNewApkUpdate.setSync(false);
-        SettingsNotificationManager.cancelNotification(SettingNotification.ApkUpdate);
+        SettingNotificationManager.cancelNotification(APK_UPDATE);
     }
 
     private void failedUpdate(boolean manual) {

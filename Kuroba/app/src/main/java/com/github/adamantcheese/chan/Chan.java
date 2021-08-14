@@ -28,8 +28,7 @@ import com.github.adamantcheese.chan.core.di.ManagerModule;
 import com.github.adamantcheese.chan.core.di.RepositoryModule;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
+import com.github.adamantcheese.chan.core.manager.SettingNotificationManager;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
@@ -55,6 +54,7 @@ import javax.inject.Inject;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isEmulator;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.lang.Thread.currentThread;
@@ -185,10 +185,10 @@ public class Chan
             System.exit(999);
         });
 
-        SettingsNotificationManager.postNotification(SettingNotification.Default);
+        SettingNotificationManager.postNotification(null);
         if (ChanSettings.collectCrashLogs.get()) {
             if (reportManager.countCrashLogs() > 0) {
-                SettingsNotificationManager.postNotification(SettingNotification.CrashLog);
+                SettingNotificationManager.postNotification(CRASH_LOG);
             }
         }
     }

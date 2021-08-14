@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.manager.SettingsNotificationManager.SettingNotification;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
@@ -43,6 +42,8 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
 
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
@@ -168,7 +169,7 @@ public class MainSettingsController
                 "Tap to check for updates",
                 (v, sv) -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
         );
-        updateSettingView.settingNotificationType = SettingNotification.ApkUpdate;
+        updateSettingView.forType.addType(APK_UPDATE);
         about.add(updateSettingView);
 
         LinkSettingView reportSettingView = new LinkSettingView(this,
@@ -176,7 +177,7 @@ public class MainSettingsController
                 R.string.settings_report_description,
                 (v, sv) -> onReportSettingClick()
         );
-        reportSettingView.settingNotificationType = SettingNotification.CrashLog;
+        reportSettingView.forType.addType(CRASH_LOG);
         about.add(reportSettingView);
 
         about.add(collectCrashLogsSettingView = new BooleanSettingView(this,

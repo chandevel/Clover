@@ -23,6 +23,10 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
+/**
+ * This class doesn't use BitSet as it is saved in the database and using ordinals for database saving is a bad idea.
+ * If the order of these ever changes, everything will be messed up.
+ */
 public enum FilterType {
     TRIPCODE(0x1),
     NAME(0x2),
