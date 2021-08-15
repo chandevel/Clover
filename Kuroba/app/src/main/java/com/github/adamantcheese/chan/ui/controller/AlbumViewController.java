@@ -228,7 +228,7 @@ public class AlbumViewController
 
             public AlbumItemCellHolder(View view) {
                 super(view);
-                this.thumbnailView = view.findViewById(R.id.thumbnail_view);
+                this.thumbnailView = (ShapeablePostImageView) view;
 
                 itemView.setOnLongClickListener(v -> {
                     if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
