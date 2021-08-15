@@ -196,6 +196,7 @@ public class ChanSettings {
     public static final IntegerSetting albumGridSpanCountLandscape;
     public static final BooleanSetting useStaggeredCatalogGrid;
     public static final BooleanSetting useStaggeredAlbumGrid;
+    public static final BooleanSetting flipPostCells;
     public static final BooleanSetting neverHideToolbar;
     public static final BooleanSetting alwaysShowPostOptions;
     public static final BooleanSetting enableReplyFab;
@@ -328,28 +329,27 @@ public class ChanSettings {
             watchEnabled.addCallback(new EventBusCallback<>(watchEnabled));
             watchBackground = new BooleanSetting(p, "preference_watch_background_enabled", false);
             watchBackground.addCallback(new EventBusCallback<>(watchBackground));
-            watchBackgroundInterval =
-                    new IntegerSetting(p, "preference_watch_background_interval", 15) {
-                        @Override
-                        public Integer get() {
-                            return (int) MILLISECONDS.toMinutes(super.get());
-                        }
+            watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", 15) {
+                @Override
+                public Integer get() {
+                    return (int) MILLISECONDS.toMinutes(super.get());
+                }
 
-                        @Override
-                        public void set(Integer value) {
-                            super.set((int) MINUTES.toMillis(value));
-                        }
+                @Override
+                public void set(Integer value) {
+                    super.set((int) MINUTES.toMillis(value));
+                }
 
-                        @Override
-                        public void setSync(Integer value) {
-                            super.setSync((int) MINUTES.toMillis(value));
-                        }
+                @Override
+                public void setSync(Integer value) {
+                    super.setSync((int) MINUTES.toMillis(value));
+                }
 
-                        @Override
-                        public void setSyncNoCheck(Integer value) {
-                            super.setSyncNoCheck((int) MINUTES.toMillis(value));
-                        }
-                    };
+                @Override
+                public void setSyncNoCheck(Integer value) {
+                    super.setSyncNoCheck((int) MINUTES.toMillis(value));
+                }
+            };
             watchBackgroundInterval.addCallback(new EventBusCallback<>(watchBackgroundInterval));
             removeWatchedFromCatalog = new BooleanSetting(p, "remove_catalog_watch", false);
             watchLastPageNotify = new BooleanSetting(p, "preference_watch_last_page_notify", false);
@@ -379,6 +379,7 @@ public class ChanSettings {
             albumGridSpanCountLandscape = new IntegerSetting(p, "preference_album_grid_span_count_landscape", 0);
             useStaggeredCatalogGrid = new BooleanSetting(p, "use_staggered_catalog_grid", false);
             useStaggeredAlbumGrid = new BooleanSetting(p, "use_staggered_album_grid", false);
+            flipPostCells = new BooleanSetting(p, "flip_post_cells", false);
             neverHideToolbar = new BooleanSetting(p, "preference_never_hide_toolbar", false);
             alwaysShowPostOptions = new BooleanSetting(p, "preference_always_show_post_options", false);
             enableReplyFab = new BooleanSetting(p, "preference_enable_reply_fab", true);

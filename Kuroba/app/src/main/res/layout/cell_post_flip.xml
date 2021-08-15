@@ -23,23 +23,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     tools:background="?backcolor"
     tools:layout_height="300dp">
 
-    <View
-        android:id="@+id/filter_match_color"
-        android:layout_width="5dp"
-        android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:background="@color/md_green_800"
-        tools:visibility="visible" />
-
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:layout_height="match_parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/thumbnail_views"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
@@ -51,8 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:layout_toRightOf="@+id/thumbnail_views"
+            android:layout_alignParentLeft="true"
+            android:layout_toLeftOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background">
 
             <TextView
@@ -76,7 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="match_parent"
             android:layout_alignWithParentIfMissing="true"
             android:layout_below="@id/header_wrapper"
-            android:layout_toRightOf="@+id/thumbnail_views">
+            android:layout_toLeftOf="@+id/thumbnail_views">
 
             <com.github.adamantcheese.chan.ui.view.IgnoreEmptySelectionTextView
                 android:id="@+id/comment"
@@ -130,12 +123,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignWithParentIfMissing="true"
+            android:layout_toLeftOf="@id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:padding="6dp"
             android:src="@drawable/ic_fluent_more_vertical_24_filled"
             app:tint="?android:textColorSecondary" />
 
     </RelativeLayout>
+
+    <View
+        android:id="@+id/filter_match_color"
+        android:layout_width="5dp"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:background="@color/md_green_800"
+        tools:visibility="visible" />
 
 </com.github.adamantcheese.chan.ui.cell.PostCell>

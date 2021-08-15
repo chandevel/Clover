@@ -79,6 +79,7 @@ import okhttp3.HttpUrl;
 import static android.text.TextUtils.isEmpty;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.RelativeLayout.BELOW;
+import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE.OTHER;
@@ -154,9 +155,10 @@ public class PostCell
         detailsSizePx = sp(getContext(), textSizeSp - 4);
 
         thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(getContext(), 2));
-        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins((int) paddingPx,
+        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(
+                (!isInEditMode() && ChanSettings.flipPostCells.get()) ? 0 : (int) paddingPx,
                 (int) paddingPx,
-                0,
+                (!isInEditMode() && ChanSettings.flipPostCells.get()) ? (int) paddingPx : 0,
                 (int) paddingPx
         );
 
@@ -188,10 +190,10 @@ public class PostCell
         }
 
         comment.setTextSize(textSizeSp);
-        updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx);
+        updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx / 4);
 
         replies.setTextSize(textSizeSp);
-        updatePaddings(replies, paddingPx, paddingPx, paddingPx / 2, paddingPx);
+        updatePaddings(replies, paddingPx, paddingPx, paddingPx / 4, paddingPx);
         replies.setOnClickListener(v -> {
             if (replies.getVisibility() != VISIBLE || !threadMode) {
                 return;
@@ -325,7 +327,8 @@ public class PostCell
                 .append(ChanSettings.addDubs.get() ? (dubs.length() > 0 ? " " : "") : "")
                 .append(ChanSettings.postFullDate.get()
                         ? PostHelper.getLocalDate(post)
-                        : DateUtils.getRelativeTimeSpanString(SECONDS.toMillis(post.time),
+                        : DateUtils.getRelativeTimeSpanString(
+                                SECONDS.toMillis(post.time),
                                 System.currentTimeMillis(),
                                 DateUtils.SECOND_IN_MILLIS,
                                 0
@@ -503,19 +506,33 @@ public class PostCell
     // matches cell_post's declarations, and adjustments from those declarations
     private static final RelativeLayout.LayoutParams DEFAULT_BODY_PARAMS =
             new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+    private static final RelativeLayout.LayoutParams DEFAULT_FLIP_BODY_PARAMS =
+            new RelativeLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
     private static final RelativeLayout.LayoutParams SHIFT_LEFT_PARAMS;
-    private static final RelativeLayout.LayoutParams SHIFT_BELOW_PARAMS;
+    private static final RelativeLayout.LayoutParams SHIFT_RIGHT_PARAMS;
+    private static final RelativeLayout.LayoutParams SHIFT_LEFT_BELOW_PARAMS;
+    private static final RelativeLayout.LayoutParams SHIFT_RIGHT_BELOW_PARAMS;
 
     static {
         DEFAULT_BODY_PARAMS.alignWithParent = true;
         DEFAULT_BODY_PARAMS.addRule(BELOW, R.id.header_wrapper);
         DEFAULT_BODY_PARAMS.addRule(RIGHT_OF, R.id.thumbnail_views);
 
+        DEFAULT_FLIP_BODY_PARAMS.alignWithParent = true;
+        DEFAULT_FLIP_BODY_PARAMS.addRule(BELOW, R.id.header_wrapper);
+        DEFAULT_FLIP_BODY_PARAMS.addRule(LEFT_OF, R.id.thumbnail_views);
+
         SHIFT_LEFT_PARAMS = new RelativeLayout.LayoutParams(DEFAULT_BODY_PARAMS);
         SHIFT_LEFT_PARAMS.removeRule(RIGHT_OF);
 
-        SHIFT_BELOW_PARAMS = new RelativeLayout.LayoutParams(SHIFT_LEFT_PARAMS);
-        SHIFT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
+        SHIFT_RIGHT_PARAMS = new RelativeLayout.LayoutParams(DEFAULT_FLIP_BODY_PARAMS);
+        SHIFT_RIGHT_PARAMS.removeRule(LEFT_OF);
+
+        SHIFT_LEFT_BELOW_PARAMS = new RelativeLayout.LayoutParams(SHIFT_LEFT_PARAMS);
+        SHIFT_LEFT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
+
+        SHIFT_RIGHT_BELOW_PARAMS = new RelativeLayout.LayoutParams(SHIFT_RIGHT_PARAMS);
+        SHIFT_RIGHT_BELOW_PARAMS.addRule(BELOW, R.id.thumbnail_views);
     }
 
     public void doShiftPostFormatting() {
@@ -523,15 +540,17 @@ public class PostCell
         int thumbnailViewsHeight = thumbnailViews.getVisibility() == VISIBLE ? thumbnailViews.getHeight() : 0;
         int headerHeight = headerWrapper.getHeight();
         int wrapHeight = headerHeight + comment.getHeight();
-        boolean shiftLeftThumb = headerHeight > thumbnailViewsHeight;
+        boolean shiftSideOfThumb = headerHeight > thumbnailViewsHeight;
         boolean shiftBelowThumb = wrapHeight > 2 * thumbnailViewsHeight;
         boolean shift = post != null && (post.images.size() == 1 || (post.images.size() > 1
                 && headerHeight > thumbnailViewsHeight / 2));
         if (shift) {
-            if (!shiftLeftThumb && shiftBelowThumb) {
-                bodyWrapper.setLayoutParams(SHIFT_BELOW_PARAMS);
-            } else if (shiftLeftThumb) {
-                bodyWrapper.setLayoutParams(SHIFT_LEFT_PARAMS);
+            if (!shiftSideOfThumb && shiftBelowThumb) {
+                bodyWrapper.setLayoutParams(ChanSettings.flipPostCells.get()
+                        ? SHIFT_RIGHT_BELOW_PARAMS
+                        : SHIFT_LEFT_BELOW_PARAMS);
+            } else if (shiftSideOfThumb) {
+                bodyWrapper.setLayoutParams(ChanSettings.flipPostCells.get() ? SHIFT_RIGHT_PARAMS : SHIFT_LEFT_PARAMS);
             }
         }
     }
@@ -563,7 +582,9 @@ public class PostCell
                 shifter.removeListener();
                 shifter = null;
             }
-            bodyWrapper.setLayoutParams(DEFAULT_BODY_PARAMS);
+            bodyWrapper.setLayoutParams(ChanSettings.flipPostCells.get()
+                    ? DEFAULT_FLIP_BODY_PARAMS
+                    : DEFAULT_BODY_PARAMS);
         }
         icons.clear();
         headerWrapper.setOnLongClickListener(null);

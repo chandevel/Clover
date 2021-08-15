@@ -76,19 +76,23 @@ public class AppearanceSettingsController
 
             setupGridColumnsSetting(layout);
 
-            requiresUiRefresh.add(layout.add(new BooleanSettingView(
-                    this,
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.useStaggeredCatalogGrid,
                     "Use staggered catalog grid",
                     "Staggers catalog mode grid instead of everything being inline"
             )));
 
-            layout.add(new BooleanSettingView(
-                    this,
+            layout.add(new BooleanSettingView(this,
                     ChanSettings.useStaggeredAlbumGrid,
                     "Use staggered album grid",
                     "Staggers album view/download grid instead of everything being inline"
             ));
+
+            requiresUiRefresh.add(layout.add(new BooleanSettingView(this,
+                    ChanSettings.flipPostCells,
+                    "Flip post cells",
+                    "Flips post cells to be right-to-left"
+            )));
 
             requiresRestart.add(layout.add(new BooleanSettingView(this,
                     ChanSettings.neverHideToolbar,

@@ -51,6 +51,8 @@ import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB_STAGGER;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -60,7 +62,9 @@ public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     enum CellType {
         TYPE_POST,
+        TYPE_POST_FLIP,
         TYPE_POST_STUB,
+        TYPE_POST_FLIP_STUB,
         TYPE_CARD,
         TYPE_CARD_STUB,
         TYPE_CARD_STAGGER,
@@ -152,7 +156,12 @@ public class PostAdapter
                 postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.cell_post, parent, false);
                 return new PostViewHolder(postCell);
+            case TYPE_POST_FLIP:
+                postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.cell_post_flip, parent, false);
+                return new PostViewHolder(postCell);
             case TYPE_POST_STUB:
+            case TYPE_POST_FLIP_STUB:
                 postCell = (PostCellInterface) LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.cell_post_stub, parent, false);
                 return new PostViewHolder(postCell);
@@ -189,9 +198,11 @@ public class PostAdapter
         CellType cellType = CellType.values()[getItemViewType(position)];
         switch (cellType) {
             case TYPE_POST:
+            case TYPE_POST_FLIP:
             case TYPE_CARD:
             case TYPE_CARD_STAGGER:
             case TYPE_POST_STUB:
+            case TYPE_POST_FLIP_STUB:
             case TYPE_CARD_STUB:
             case TYPE_CARD_STUB_STAGGER:
                 PostViewHolder postViewHolder = (PostViewHolder) holder;
@@ -200,6 +211,7 @@ public class PostAdapter
 
                 switch (cellType) {
                     case TYPE_POST:
+                    case TYPE_POST_FLIP:
                     case TYPE_CARD:
                     case TYPE_CARD_STAGGER:
                         // apply embedding
@@ -215,6 +227,7 @@ public class PostAdapter
                         }
                         break;
                     case TYPE_POST_STUB:
+                    case TYPE_POST_FLIP_STUB:
                     case TYPE_CARD_STUB:
                     case TYPE_CARD_STUB_STAGGER:
                         if (postAdapterCallback != null) {
@@ -253,8 +266,9 @@ public class PostAdapter
         }
         CellType cellType = CellType.values()[holder.getItemViewType()];
         switch (cellType) {
-            case TYPE_CARD:
             case TYPE_POST:
+            case TYPE_POST_FLIP:
+            case TYPE_CARD:
             case TYPE_CARD_STAGGER:
                 doSetPost((PostViewHolder) holder, displayList.get(position), true);
                 break;
@@ -262,8 +276,9 @@ public class PostAdapter
                 String error = payloads.get(0) == null ? null : (String) payloads.get(0);
                 ((ThreadStatusCell) holder.itemView).setError(error);
                 break;
-            case TYPE_CARD_STUB:
             case TYPE_POST_STUB:
+            case TYPE_POST_FLIP_STUB:
+            case TYPE_CARD_STUB:
             case TYPE_CARD_STUB_STAGGER:
             default:
                 super.onBindViewHolder(holder, position, payloads);
@@ -273,7 +288,7 @@ public class PostAdapter
 
     @Override
     public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
-        if (holder.getItemViewType() == TYPE_POST.ordinal()) {
+        if (holder.getItemViewType() == TYPE_POST.ordinal() || holder.getItemViewType() == TYPE_POST_FLIP.ordinal()) {
             //this is a hack to make sure text is selectable
             holder.itemView.findViewById(R.id.comment).setEnabled(false);
             holder.itemView.findViewById(R.id.comment).setEnabled(true);
@@ -284,6 +299,7 @@ public class PostAdapter
     public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
         switch (CellType.values()[holder.getItemViewType()]) {
             case TYPE_POST:
+            case TYPE_POST_FLIP:
             case TYPE_CARD:
             case TYPE_CARD_STAGGER:
                 holder.itemView.findViewById(R.id.embed_spinner).setVisibility(View.VISIBLE);
@@ -294,6 +310,7 @@ public class PostAdapter
                 }
                 //noinspection fallthrough
             case TYPE_POST_STUB:
+            case TYPE_POST_FLIP_STUB:
             case TYPE_CARD_STUB:
             case TYPE_CARD_STUB_STAGGER:
                 ((PostCellInterface) holder.itemView).unsetPost();
@@ -328,13 +345,17 @@ public class PostAdapter
         } else {
             Post post = displayList.get(position);
             if (post.filterStub) {
-                return postViewMode == LIST
-                        ? TYPE_POST_STUB.ordinal()
-                        : (postViewMode == STAGGER ? TYPE_CARD_STUB_STAGGER.ordinal() : TYPE_CARD_STUB.ordinal());
+                if (postViewMode == LIST) {
+                    return ChanSettings.flipPostCells.get() ? TYPE_POST_FLIP_STUB.ordinal() : TYPE_POST_STUB.ordinal();
+                } else {
+                    return postViewMode == STAGGER ? TYPE_CARD_STUB_STAGGER.ordinal() : TYPE_CARD_STUB.ordinal();
+                }
             } else {
-                return postViewMode == LIST
-                        ? TYPE_POST.ordinal()
-                        : (postViewMode == STAGGER ? TYPE_CARD_STAGGER.ordinal() : TYPE_CARD.ordinal());
+                if (postViewMode == LIST) {
+                    return ChanSettings.flipPostCells.get() ? TYPE_POST_FLIP.ordinal() : TYPE_POST.ordinal();
+                } else {
+                    return postViewMode == STAGGER ? TYPE_CARD_STAGGER.ordinal() : TYPE_CARD.ordinal();
+                }
             }
         }
     }
