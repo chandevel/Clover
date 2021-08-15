@@ -18,4 +18,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <bool name="is_tablet">true</bool>
 
     <dimen name="cell_post_thumbnail_size">100dp</dimen>
+    <dimen name="stagger_cell_thumbnail_max_size">300dp</dimen>
 </resources>

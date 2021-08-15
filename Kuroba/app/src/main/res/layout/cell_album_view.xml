@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:layout_centerVertical="true"
     android:layout_margin="1dp"
-    android:adjustViewBounds="true"
+    android:minHeight="@dimen/cell_post_thumbnail_size"
     app:shapeAppearanceOverlay="@style/roundedImageViewCorners"
     tools:layout_height="@dimen/cell_post_thumbnail_size"
     tools:layout_width="@dimen/cell_post_thumbnail_size" />

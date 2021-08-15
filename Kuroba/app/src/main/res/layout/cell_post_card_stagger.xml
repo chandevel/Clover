@@ -41,8 +41,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintDimensionRatio="16:13"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                app:layout_constraintHeight_max="@dimen/stagger_cell_thumbnail_max_size"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />
 
@@ -81,7 +82,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/icons"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
-            android:layout_marginBottom="4dp"
+            android:layout_margin="4dp"
             app:layout_constraintBottom_toBottomOf="@id/thumbnail_holder"
             app:layout_constraintRight_toRightOf="@id/thumbnail_holder" />
 

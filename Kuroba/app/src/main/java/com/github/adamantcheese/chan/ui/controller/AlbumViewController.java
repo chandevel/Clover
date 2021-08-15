@@ -32,8 +32,8 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.skydoves.balloon.ArrowOrientation;
@@ -44,6 +44,7 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
@@ -187,6 +188,15 @@ public class AlbumViewController
         @Override
         public void onBindViewHolder(@NonNull AlbumItemCellHolder holder, int position) {
             holder.postImage = postImages.get(position);
+            // if stagger, adjust view bounds; otherwise force 1:1 ratio
+            if (ChanSettings.useStaggeredAlbumGrid.get()) {
+                holder.thumbnailView.setAdjustViewBounds(true);
+                holder.thumbnailView.getLayoutParams().height = WRAP_CONTENT;
+            } else {
+                holder.thumbnailView.setAdjustViewBounds(false);
+                holder.thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                holder.thumbnailView.getLayoutParams().height = recyclerView.getMeasuredSpanWidth();
+            }
             holder.thumbnailView.setType(holder.postImage);
             holder.loadPostImage(holder.postImage, holder.thumbnailView);
         }

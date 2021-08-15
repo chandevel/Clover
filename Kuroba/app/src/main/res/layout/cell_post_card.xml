@@ -89,7 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/icons"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_marginBottom="4dp"
+                android:layout_margin="4dp"
                 app:layout_constraintBottom_toBottomOf="@id/thumbnail_holder"
                 app:layout_constraintRight_toRightOf="@id/thumbnail_holder" />
 

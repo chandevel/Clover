@@ -586,7 +586,6 @@ public class PostCell
             ShapeablePostImageView thumbnailView = new ShapeablePostImageView(c);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
             thumbnailView.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(dp(c, 2)).build());
-            thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             return new PostImageViewHolder(thumbnailView);
         }
 

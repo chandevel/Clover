@@ -35,8 +35,8 @@ import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
@@ -55,6 +55,7 @@ import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -281,6 +282,15 @@ public class AlbumDownloadController
         @Override
         public void onBindViewHolder(@NonNull AlbumDownloadHolder holder, int position) {
             AlbumDownloadItem item = items.get(position);
+            // if stagger, adjust view bounds; otherwise force 1:1 ratio
+            if (ChanSettings.useStaggeredAlbumGrid.get()) {
+                holder.thumbnailView.setAdjustViewBounds(true);
+                holder.thumbnailView.getLayoutParams().height = MATCH_PARENT;
+            } else {
+                holder.thumbnailView.setAdjustViewBounds(false);
+                holder.thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                holder.thumbnailView.getLayoutParams().height = recyclerView.getMeasuredSpanWidth();
+            }
             holder.thumbnailView.setType(item.postImage);
             holder.loadPostImage(item.postImage, holder.thumbnailView);
             setItemChecked(holder, item.checked, false);
