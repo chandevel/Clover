@@ -43,12 +43,15 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
@@ -66,7 +69,6 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -122,8 +124,7 @@ public class ThemeSettingsController
         public void onThumbnailClicked(PostImage postImage, ImageView thumbnail) {
             ImageViewerNavigationController imagerViewer = new ImageViewerNavigationController(context);
             presentController(imagerViewer, false);
-            imagerViewer.showImages(
-                    Collections.singletonList(postImage),
+            imagerViewer.showImages(Collections.singletonList(postImage),
                     0,
                     dummyLoadable,
                     new ImageViewerController.ImageViewerCallback() {
@@ -461,6 +462,12 @@ public class ThemeSettingsController
                     .no(234567890)
                     .opId(123456789)
                     .posterId("TeStId2+")
+                    .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,
+                            HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "icon.png"),
+                            new NetUtilsClasses.PassthroughBitmapResult(),
+                            "test",
+                            "Test icon"
+                    ))
                     .idColor(0xFF471D0A)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
                     .comment(
