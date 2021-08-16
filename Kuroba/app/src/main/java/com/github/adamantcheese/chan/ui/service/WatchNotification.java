@@ -57,9 +57,9 @@ import javax.inject.Inject;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_LIGHT;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_PEEK;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NOTIFICATION_ITEMS.NOTIFICATION_SOUND;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_LIGHT;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_PEEK;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_SOUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
@@ -74,7 +74,7 @@ public class WatchNotification
 
     private static final Pattern SHORTEN_NO_PATTERN = Pattern.compile(">>\\d+(?=\\d{3})(\\d{3})");
 
-    enum NOTIFICATION_ITEMS {
+    enum NotificationStyle {
         NOTIFICATION_LIGHT,
         NOTIFICATION_SOUND,
         NOTIFICATION_PEEK
@@ -171,7 +171,7 @@ public class WatchNotification
         List<Pin> newPostPins = new ArrayList<>();
         List<Pin> newQuotePins = new ArrayList<>();
 
-        BitSet flags = new BitSet(NOTIFICATION_ITEMS.values().length);
+        BitSet flags = new BitSet(NotificationStyle.values().length);
 
         for (Pin pin : watchManager.getWatchingPins()) {
             WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);

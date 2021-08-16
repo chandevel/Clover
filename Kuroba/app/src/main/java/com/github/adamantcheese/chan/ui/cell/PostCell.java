@@ -82,7 +82,7 @@ import static android.widget.RelativeLayout.BELOW;
 import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE.OTHER;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;

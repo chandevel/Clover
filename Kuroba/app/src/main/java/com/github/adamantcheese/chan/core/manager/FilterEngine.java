@@ -225,11 +225,11 @@ public class FilterEngine {
         String flagCode = "";
         if (post.httpIcons != null) {
             for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.type == SiteEndpoints.ICON_TYPE.COUNTRY_FLAG) {
+                if (icon.type == SiteEndpoints.IconType.COUNTRY_FLAG) {
                     flagCode = icon.code;
                     break;
                 }
-                if (icon.type == SiteEndpoints.ICON_TYPE.BOARD_FLAG) {
+                if (icon.type == SiteEndpoints.IconType.BOARD_FLAG) {
                     flagCode = icon.code;
                     break;
                 }

@@ -9,7 +9,7 @@ import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
@@ -286,8 +286,9 @@ public class FutabaChanReader
 
         if (countryCode != null && countryDescription != null) {
             Pair<HttpUrl, PassthroughBitmapResult> resultPair =
-                    endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.COUNTRY_FLAG,
+                    endpoints.icon(IconType.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(
+                    IconType.COUNTRY_FLAG,
                     resultPair.first,
                     resultPair.second,
                     countryCode,
@@ -296,10 +297,12 @@ public class FutabaChanReader
         }
 
         if (boardFlagCode != null && boardFlagDescription != null) {
-            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(ICON_TYPE.BOARD_FLAG,
+            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(
+                    IconType.BOARD_FLAG,
                     makeArgument("board_code", builder.board.code, "board_flag_code", boardFlagCode)
             );
-            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.BOARD_FLAG,
+            builder.addHttpIcon(new PostHttpIcon(
+                    IconType.BOARD_FLAG,
                     resultPair.first,
                     resultPair.second,
                     boardFlagCode,
@@ -308,8 +311,9 @@ public class FutabaChanReader
         }
 
         if (since4pass != 0) {
-            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(ICON_TYPE.SINCE4PASS, null);
-            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.SINCE4PASS,
+            Pair<HttpUrl, PassthroughBitmapResult> resultPair = endpoints.icon(IconType.SINCE4PASS, null);
+            builder.addHttpIcon(new PostHttpIcon(
+                    IconType.SINCE4PASS,
                     resultPair.first,
                     resultPair.second,
                     "since4pass",

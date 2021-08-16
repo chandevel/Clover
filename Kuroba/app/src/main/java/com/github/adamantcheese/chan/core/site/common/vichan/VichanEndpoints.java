@@ -65,10 +65,10 @@ public class VichanEndpoints
     }
 
     @Override
-    public Pair<HttpUrl, PassthroughBitmapResult> icon(ICON_TYPE icon, Map<String, String> arg) {
+    public Pair<HttpUrl, PassthroughBitmapResult> icon(IconType icon, Map<String, String> arg) {
         CommonSite.SimpleHttpUrl stat = root.builder().s("static");
 
-        if (icon == ICON_TYPE.COUNTRY_FLAG) {
+        if (icon == IconType.COUNTRY_FLAG) {
             stat.s("flags").s(arg.get("country_code").toLowerCase(Locale.ENGLISH) + ".png");
         }
 

@@ -208,7 +208,7 @@ public class Chan4
         }
 
         @Override
-        public Pair<HttpUrl, PassthroughBitmapResult> icon(ICON_TYPE icon, Map<String, String> arg) {
+        public Pair<HttpUrl, PassthroughBitmapResult> icon(IconType icon, Map<String, String> arg) {
             HttpUrl.Builder iconBuilder = s.newBuilder().addPathSegment("image");
 
             switch (icon) {

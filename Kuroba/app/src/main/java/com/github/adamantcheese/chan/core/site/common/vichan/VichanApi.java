@@ -11,7 +11,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints.ICON_TYPE;
+import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
@@ -275,8 +275,9 @@ public class VichanApi
 
         if (countryCode != null && countryDescription != null) {
             Pair<HttpUrl, PassthroughBitmapResult> resultPair =
-                    endpoints.icon(ICON_TYPE.COUNTRY_FLAG, makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(ICON_TYPE.COUNTRY_FLAG,
+                    endpoints.icon(IconType.COUNTRY_FLAG, makeArgument("country_code", countryCode));
+            builder.addHttpIcon(new PostHttpIcon(
+                    IconType.COUNTRY_FLAG,
                     resultPair.first,
                     resultPair.second,
                     countryCode,

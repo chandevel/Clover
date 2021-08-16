@@ -23,14 +23,14 @@ import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import okhttp3.HttpUrl;
 
 public class PostHttpIcon {
-    public final SiteEndpoints.ICON_TYPE type;
+    public final SiteEndpoints.IconType type;
     public final HttpUrl url;
     public final PassthroughBitmapResult bitmapResult;
     public final String code;
     public final String description;
 
     public PostHttpIcon(
-            SiteEndpoints.ICON_TYPE type,
+            SiteEndpoints.IconType type,
             HttpUrl url,
             NetUtilsClasses.PassthroughBitmapResult result,
             String code,

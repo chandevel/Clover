@@ -342,7 +342,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public Pair<HttpUrl, PassthroughBitmapResult> icon(ICON_TYPE icon, Map<String, String> arg) {
+        public Pair<HttpUrl, PassthroughBitmapResult> icon(IconType icon, Map<String, String> arg) {
             return null;
         }
 
