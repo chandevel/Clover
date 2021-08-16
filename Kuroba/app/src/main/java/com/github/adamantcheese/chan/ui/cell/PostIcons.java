@@ -19,11 +19,9 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 
+import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -39,13 +37,20 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class PostIcons
         extends View {
+
     enum FlagType {
-        STICKY_FLAG,
-        CLOSED_FLAG,
-        DELETED_FLAG,
-        ARCHIVED_FLAG,
-        HTTP_ICONS_FLAG_TEXT,
-        HTTP_ICONS_FLAG_NO_TEXT
+        STICKY_FLAG(BitmapRepository.stickyIcon),
+        CLOSED_FLAG(BitmapRepository.closedIcon),
+        DELETED_FLAG(BitmapRepository.trashIcon),
+        ARCHIVED_FLAG(BitmapRepository.archivedIcon),
+        HTTP_ICONS_FLAG_TEXT(null),
+        HTTP_ICONS_FLAG_NO_TEXT(null);
+
+        Bitmap forFlag;
+
+        FlagType(Bitmap bitmap) {
+            forFlag = bitmap;
+        }
     }
 
     private final BitSet iconFlags = new BitSet(FlagType.values().length);
@@ -56,7 +61,7 @@ public class PostIcons
     private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect textRect = new Rect();
 
-    private final Set<PostIconsHttpIcon> httpIcons = new HashSet<>();
+    private final List<PostIconsHttpIcon> httpIcons = new ArrayList<>();
 
     public PostIcons(Context context) {
         this(context, null);
@@ -81,7 +86,7 @@ public class PostIcons
         setForFlag(DELETED_FLAG, post.deleted.get());
         setForFlag(ARCHIVED_FLAG, post.isArchived());
         setHttpIcons(post.httpIcons, displayText);
-        setVisibility(hasAnyContent() ? VISIBLE : GONE);
+        setVisibility(iconFlags.cardinality() != 0 ? VISIBLE : GONE);
         requestLayout();
     }
 
@@ -89,24 +94,27 @@ public class PostIcons
         iconFlags.set(icon.ordinal(), enable);
     }
 
-    private void setHttpIcons(List<PostHttpIcon> icons, boolean displayText) {
-        boolean hasIcons = icons != null && !icons.isEmpty();
-        setForFlag(displayText ? HTTP_ICONS_FLAG_TEXT : HTTP_ICONS_FLAG_NO_TEXT, hasIcons);
-        if (!hasIcons) return;
-        // de-dupe based on description and request those
-        for (PostHttpIcon icon : icons) {
+    private void setHttpIcons(List<PostHttpIcon> newIcons, boolean displayText) {
+        boolean hasNewIcons = !(newIcons == null || newIcons.isEmpty());
+        setForFlag(displayText ? HTTP_ICONS_FLAG_TEXT : HTTP_ICONS_FLAG_NO_TEXT, hasNewIcons);
+        if (!hasNewIcons) {
+            clearHttpRequests();
+            return;
+        }
+        // if already set, don't re-request stuff; use clear() first
+        if (!httpIcons.isEmpty()) return;
+        for (PostHttpIcon icon : newIcons) {
             httpIcons.add(new PostIconsHttpIcon(icon));
         }
-        for (PostIconsHttpIcon icon : httpIcons) {
-            icon.doRequest();
-        }
-    }
-
-    private boolean hasAnyContent() {
-        return iconFlags.cardinality() != 0;
     }
 
     public void clear() {
+        clearHttpRequests();
+        iconFlags.clear();
+        setVisibility(GONE);
+    }
+
+    private void clearHttpRequests() {
         for (PostIconsHttpIcon httpIcon : httpIcons) {
             if (httpIcon.request != null) {
                 httpIcon.request.cancel();
@@ -115,8 +123,6 @@ public class PostIcons
             httpIcon.bitmap = null;
         }
         httpIcons.clear();
-        iconFlags.clear();
-        setVisibility(GONE);
     }
 
     @Override
@@ -127,7 +133,7 @@ public class PostIcons
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
         int returnedWidth = drawOrMeasure(null);
-        int returnedHeight = hasAnyContent() ? getLayoutParams().height : 0;
+        int returnedHeight = iconFlags.cardinality() != 0 ? getLayoutParams().height : 0;
 
         switch (widthMode) {
             case MeasureSpec.EXACTLY:
@@ -161,52 +167,47 @@ public class PostIcons
 
     /**
      * Draw to the given canvas, if provided, and return the EXACT width of this view, excluding padding
+     *
      * @param canvas An optional canvas to draw to
      * @return The exact width of this view, excluding padding
      */
     private int drawOrMeasure(Canvas canvas) {
         int width = 0;
-        if (hasAnyContent()) {
+        if (iconFlags.cardinality() != 0) {
             if (canvas != null) {
                 canvas.save();
                 canvas.translate(getPaddingLeft(), getPaddingTop());
             }
 
-            if (getFlagEnabled(STICKY_FLAG)) {
-                width += drawBitmap(canvas, BitmapRepository.stickyIcon, width);
-            }
+            for (FlagType f : FlagType.values()) {
+                if (!iconFlags.get(f.ordinal())) continue;
+                switch (f) {
+                    case STICKY_FLAG:
+                    case CLOSED_FLAG:
+                    case DELETED_FLAG:
+                    case ARCHIVED_FLAG:
+                        width += drawBitmap(canvas, f.forFlag, width);
+                        break;
+                    case HTTP_ICONS_FLAG_TEXT:
+                    case HTTP_ICONS_FLAG_NO_TEXT:
+                        for (PostIconsHttpIcon httpIcon : httpIcons) {
+                            width += drawBitmap(canvas, httpIcon.bitmap, width);
 
-            if (getFlagEnabled(CLOSED_FLAG)) {
-                width += drawBitmap(canvas, BitmapRepository.closedIcon, width);
-            }
-
-            if (getFlagEnabled(DELETED_FLAG)) {
-                width += drawBitmap(canvas, BitmapRepository.trashIcon, width);
-            }
-
-            if (getFlagEnabled(ARCHIVED_FLAG)) {
-                width += drawBitmap(canvas, BitmapRepository.archivedIcon, width);
-            }
-
-            if (getFlagEnabled(HTTP_ICONS_FLAG_TEXT) || getFlagEnabled(HTTP_ICONS_FLAG_NO_TEXT)) {
-                for (PostIconsHttpIcon httpIcon : httpIcons) {
-                    if (httpIcon.bitmap != null) {
-                        width += drawBitmap(canvas, httpIcon.bitmap, width);
-
-                        if (getFlagEnabled(HTTP_ICONS_FLAG_TEXT)) {
-                            textPaint.setTextSize(getLayoutParams().height);
-                            textPaint.getTextBounds(httpIcon.icon.description,
-                                    0,
-                                    httpIcon.icon.description.length(),
-                                    textRect
-                            );
-                            if (canvas != null) {
-                                float y = getLayoutParams().height / 2f - textRect.exactCenterY();
-                                canvas.drawText(httpIcon.icon.description, width, y, textPaint);
+                            if (f == HTTP_ICONS_FLAG_TEXT) {
+                                textPaint.setTextSize(getLayoutParams().height);
+                                textPaint.getTextBounds(httpIcon.icon.description,
+                                        0,
+                                        httpIcon.icon.description.length(),
+                                        textRect
+                                );
+                                if (canvas != null) {
+                                    float y = getLayoutParams().height / 2f - textRect.exactCenterY();
+                                    canvas.drawText(httpIcon.icon.description, width, y, textPaint);
+                                }
+                                width += textRect.width() + spacing;
                             }
-                            width += textRect.width() + spacing;
                         }
-                    }
+                        break;
                 }
             }
 
@@ -222,11 +223,8 @@ public class PostIcons
         return width;
     }
 
-    private boolean getFlagEnabled(FlagType icon) {
-        return iconFlags.get(icon.ordinal());
-    }
-
     private float drawBitmap(Canvas canvas, Bitmap bitmap, int offset) {
+        if (bitmap == null) return 0;
         float scaledWidth = (getLayoutParams().height / (float) bitmap.getHeight()) * bitmap.getWidth();
         if (canvas != null) {
             drawRect.set(offset, 0f, offset + scaledWidth, getLayoutParams().height);
@@ -243,14 +241,6 @@ public class PostIcons
 
         PostIconsHttpIcon(PostHttpIcon icon) {
             this.icon = icon;
-        }
-
-        public void doRequest() {
-            if (bitmap != null) {
-                invalidate();
-                return;
-            }
-            if (request != null) return;
             request = NetUtils.makeBitmapRequest(icon.url,
                     icon.bitmapResult.setPassthrough(new NetUtilsClasses.BitmapResult() {
                         @Override
@@ -270,19 +260,6 @@ public class PostIcons
                         }
                     })
             );
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PostIconsHttpIcon that = (PostIconsHttpIcon) o;
-            return Objects.equals(icon.description, that.icon.description);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(icon.description);
         }
     }
 }
