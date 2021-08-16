@@ -144,8 +144,13 @@ public class NetUtilsClasses {
             implements BitmapResult {
         protected BitmapResult passthrough;
 
-        public void setPassthrough(BitmapResult passthrough) {
+        /**
+         * Set a passthrough and return this BitmapResult
+         * @param passthrough The passthrough to set for this result
+         */
+        public BitmapResult setPassthrough(BitmapResult passthrough) {
             this.passthrough = passthrough;
+            return this;
         }
 
         @Override
@@ -175,7 +180,6 @@ public class NetUtilsClasses {
             this.dims = dims;
         }
 
-        @SuppressWarnings("ConstantConditions") // all of the pairs will be non-null
         @Override
         public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
             try {

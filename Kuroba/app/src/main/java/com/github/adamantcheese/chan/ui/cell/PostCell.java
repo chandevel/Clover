@@ -166,7 +166,7 @@ public class PostCell
         updatePaddings(title, paddingPx, dp(getContext(), 24), paddingPx, paddingPx / 2);
 
         icons.getLayoutParams().height = (int) sp(getContext(), textSizeSp);
-        updatePaddings(icons, paddingPx, dp(getContext(), 24), 0, 0);
+        updatePaddings(icons, paddingPx, 0, 0, 0);
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
