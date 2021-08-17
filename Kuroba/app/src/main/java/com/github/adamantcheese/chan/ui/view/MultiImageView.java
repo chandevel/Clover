@@ -57,6 +57,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
@@ -537,12 +538,7 @@ public class MultiImageView
 
             exoPlayer.addAnalyticsListener(new AnalyticsListener() {
                 @Override
-                public void onAudioDecoderInitialized(
-                        @NonNull EventTime eventTime,
-                        @NonNull String decoderName,
-                        long initializedTimestampMs,
-                        long initializationDurationMs
-                ) {
+                public void onAudioEnabled(@NonNull EventTime eventTime, @NonNull DecoderCounters decoderCounters) {
                     callback.onAudioLoaded(MultiImageView.this);
                 }
             });
