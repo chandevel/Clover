@@ -16,7 +16,7 @@ object CancellableToast {
     }
 
     @JvmStatic
-    fun showToast(context: Context, message: String) {
+    fun showToast(context: Context, message: String?) {
         showToast(context, message, Toast.LENGTH_SHORT)
     }
 
@@ -31,7 +31,7 @@ object CancellableToast {
     }
 
     @JvmStatic
-    fun showToast(context: Context, message: String, duration: Int) {
+    fun showToast(context: Context, message: String?, duration: Int) {
         if (BackgroundUtils.isInForeground()) {
             BackgroundUtils.runOnMainThread {
                 showToastInternal(context, message, duration)
@@ -40,7 +40,7 @@ object CancellableToast {
     }
 
     @Synchronized
-    private fun showToastInternal(context: Context, message: String, duration: Int) {
+    private fun showToastInternal(context: Context, message: String?, duration: Int) {
         cleanup()
         toast = Toast.makeText(context, message, duration).apply { show() }
     }

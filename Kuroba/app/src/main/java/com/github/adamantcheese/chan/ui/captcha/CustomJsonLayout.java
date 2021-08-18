@@ -23,7 +23,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.concurrent.TimeUnit;
@@ -31,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class CustomJsonLayout
@@ -44,6 +44,7 @@ public class CustomJsonLayout
     private SiteAuthentication authentication;
     private Call captchaCall;
     private ParsedJsonStruct currentStruct;
+    private boolean internalRefresh;
 
     private ConstraintLayout wrapper;
     private ImageView bg;
@@ -101,7 +102,7 @@ public class CustomJsonLayout
         }
 
         if (currentStruct != null && System.currentTimeMillis() / 1000L < currentStruct.cdUntil) {
-            CancellableToast.showToast(getContext(), "You have to wait before refreshing!");
+            showToast(getContext(), "You have to wait before refreshing!");
             return;
         }
 
@@ -132,26 +133,28 @@ public class CustomJsonLayout
                                 break;
                             case "img":
                                 byte[] fgData = Base64.decode(input.nextString(), Base64.DEFAULT);
-                                struct.fg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
+                                struct.origFg = BitmapFactory.decodeByteArray(fgData, 0, fgData.length);
                                 // resize to wrapping view draw area, capped at 4x image size
                                 int viewWidth =
                                         wrapper.getWidth() - wrapper.getPaddingLeft() - wrapper.getPaddingRight();
-                                struct.fg = Bitmap.createScaledBitmap(struct.fg,
-                                        Math.min(viewWidth, struct.fg.getWidth() * 4),
-                                        (int) (Math.min(viewWidth, struct.fg.getWidth() * 4) * (
-                                                (float) struct.fg.getHeight() / (float) struct.fg.getWidth())),
-                                        true
+                                struct.scale = Math.min(viewWidth / (float) struct.origFg.getWidth(), 4.0f);
+                                int cappedWidth = (int) (struct.origFg.getWidth() * struct.scale);
+                                float fgAspectRatio = struct.origFg.getWidth() / (float) struct.origFg.getHeight();
+                                struct.fg = Bitmap.createScaledBitmap(struct.origFg,
+                                        cappedWidth,
+                                        (int) (cappedWidth / fgAspectRatio),
+                                        false
                                 );
                                 break;
                             case "bg":
                                 byte[] bgData = Base64.decode(input.nextString(), Base64.DEFAULT);
-                                struct.bg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
+                                struct.origBg = BitmapFactory.decodeByteArray(bgData, 0, bgData.length);
                                 // resize to match foreground image height
-                                struct.bg = Bitmap.createScaledBitmap(struct.bg,
-                                        (int) (struct.fg.getHeight() * ((float) struct.bg.getWidth() / (float) struct.bg
-                                                .getHeight())),
+                                float bgAspectRatio = struct.origBg.getWidth() / (float) struct.origBg.getHeight();
+                                struct.bg = Bitmap.createScaledBitmap(struct.origBg,
+                                        (int) (struct.fg.getHeight() * bgAspectRatio),
                                         struct.fg.getHeight(),
-                                        true
+                                        false
                                 );
                                 break;
                             case "error":
@@ -175,7 +178,10 @@ public class CustomJsonLayout
                     }
                     input.endObject();
                     if (error != null) {
-                        throw new Exception(error + ": " + cd + "s left.");
+                        internalRefresh = true;
+                        handler.removeCallbacks(RESET_RUNNABLE);
+                        handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(cd + 1));
+                        throw new Exception(error + ": " + cd + "s left. This will automatically refresh.");
                     }
                     return struct;
                 },
@@ -185,16 +191,23 @@ public class CustomJsonLayout
 
     @Override
     public void hardReset() {
+        internalRefresh = true;
         reset();
     }
 
     @Override
     public void onFailure(Exception e) {
+        if (internalRefresh) {
+            showToast(getContext(), e.getMessage());
+            internalRefresh = false;
+            return;
+        }
         hideKeyboard(input);
         callback.onAuthenticationFailed(e);
     }
 
     private final Runnable RESET_RUNNABLE = () -> {
+        internalRefresh = true;
         currentStruct = null;
         verify.setOnClickListener(null);
         slider.setOnSeekBarChangeListener(null);
@@ -205,6 +218,7 @@ public class CustomJsonLayout
 
     @Override
     public void onSuccess(ParsedJsonStruct result) {
+        internalRefresh = false;
         currentStruct = result;
 
         if ("noop".equals(currentStruct.challenge)) {
@@ -244,12 +258,10 @@ public class CustomJsonLayout
 
         if (currentStruct.bg != null) {
             slider.setVisibility(VISIBLE);
-            slider.setMax(currentStruct.fg.getWidth() / 2);
-            slider.setProgress(slider.getMax() / 2);
             slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    bg.setTranslationX(progress - slider.getMax() / 2f);
+                    bg.setTranslationX((progress - slider.getMax() / 2f) * currentStruct.scale);
                 }
 
                 @Override
@@ -280,7 +292,10 @@ public class CustomJsonLayout
         public String challenge;
         public int ttl;
         public long cdUntil;
-        public Bitmap fg;
-        public Bitmap bg;
+        public Bitmap origFg;
+        public Bitmap origBg;
+        public float scale;
+        public Bitmap fg; // foreground image, always appears if an image appears
+        public Bitmap bg; // background image, appears if there's a slider
     }
 }
