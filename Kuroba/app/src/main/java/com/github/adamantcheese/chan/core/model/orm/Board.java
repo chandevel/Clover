@@ -310,8 +310,8 @@ public class Board
         if (board.getClass() != Board.class) return false;
         Board b = (Board) board;
         return siteId == b.siteId && code.equals(b.code) && bumpLimit == b.bumpLimit && imageLimit == b.imageLimit
-                && cooldownImages == b.cooldownImages && boardFlags.equals(b.boardFlags)
-                && countryFlags == b.countryFlags;
+                && description.equals(b.description) && cooldownImages == b.cooldownImages
+                && boardFlags.equals(b.boardFlags) && countryFlags == b.countryFlags;
     }
 
     @Override
