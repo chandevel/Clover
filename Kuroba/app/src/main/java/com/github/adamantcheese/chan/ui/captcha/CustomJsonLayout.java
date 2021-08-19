@@ -14,6 +14,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -48,6 +49,7 @@ public class CustomJsonLayout
     private ParsedJsonStruct currentStruct;
     private boolean internalRefresh;
 
+    private TextView topText;
     private ConstraintLayout wrapper;
     private ImageView bg;
     private ImageView fg;
@@ -70,6 +72,7 @@ public class CustomJsonLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
+        topText = findViewById(R.id.top_text);
         wrapper = findViewById(R.id.wrapper);
         bg = findViewById(R.id.bg);
         fg = findViewById(R.id.fg);
@@ -115,6 +118,7 @@ public class CustomJsonLayout
 
         bg.setImageBitmap(null);
         fg.setImageBitmap(null);
+        slider.setVisibility(GONE);
         slider.setProgress(slider.getMax() / 2);
         input.setText(null);
 
@@ -199,6 +203,7 @@ public class CustomJsonLayout
 
     @Override
     public void onFailure(Exception e) {
+        topText.setText("Wait for a refresh!\nHard-refresh to check status.");
         if (internalRefresh) {
             showToast(getContext(), e.getMessage());
             internalRefresh = false;
@@ -259,6 +264,7 @@ public class CustomJsonLayout
         });
 
         if (currentStruct.bg != null) {
+            topText.setText("Slide the slider so the images line up.\n Then enter the text below.");
             slider.setVisibility(VISIBLE);
             slider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -275,6 +281,7 @@ public class CustomJsonLayout
             // TODO autosolve
             //slider.setProgress(tryAutoSolve());
         } else {
+            topText.setText("Enter the text below.");
             slider.setVisibility(GONE);
             slider.setOnSeekBarChangeListener(null);
         }

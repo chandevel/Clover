@@ -9,12 +9,13 @@
     android:paddingVertical="8dp">
 
     <TextView
+        android:id="@+id/top_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="8dp"
-        android:text="Slide the slider so the images line up.\n Then enter the text below."
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        tools:text="Enter the text below." />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
