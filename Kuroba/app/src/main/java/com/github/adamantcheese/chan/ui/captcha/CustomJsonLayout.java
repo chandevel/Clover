@@ -3,6 +3,8 @@ package com.github.adamantcheese.chan.ui.captcha;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -270,6 +272,8 @@ public class CustomJsonLayout
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {}
             });
+            // TODO autosolve
+            //slider.setProgress(tryAutoSolve());
         } else {
             slider.setVisibility(GONE);
             slider.setOnSeekBarChangeListener(null);
@@ -286,6 +290,37 @@ public class CustomJsonLayout
             captchaCall = null;
         }
         handler.removeCallbacks(RESET_RUNNABLE);
+    }
+
+    private int tryAutoSolve() {
+        Bitmap fgSizedBitmap = currentStruct.origFg.copy(currentStruct.origFg.getConfig(), true);
+        Canvas temp = new Canvas(fgSizedBitmap);
+        int bestProgress = 0;
+        float bestBlackRatio = 0;
+        for (int i = 0; i <= 50; i++) {
+            temp.drawBitmap(currentStruct.origBg, i - 25, 0, null);
+            temp.drawBitmap(currentStruct.origFg, 0, 0, null);
+            int[] pixels = new int[fgSizedBitmap.getByteCount()];
+            fgSizedBitmap.getPixels(pixels,
+                    0,
+                    fgSizedBitmap.getWidth(),
+                    0,
+                    0,
+                    fgSizedBitmap.getWidth(),
+                    fgSizedBitmap.getHeight()
+            );
+            int blackPixels = 0;
+            for (int j = fgSizedBitmap.getWidth(); j < pixels.length - fgSizedBitmap.getWidth(); j++) {
+                if (pixels[j] == Color.BLACK && pixels[j - fgSizedBitmap.getWidth()] == Color.BLACK
+                        && pixels[j + fgSizedBitmap.getWidth()] == Color.BLACK && pixels[j + 1] == Color.BLACK
+                        && pixels[j - 1] == Color.BLACK) blackPixels++;
+            }
+            if (blackPixels / (float) pixels.length > bestBlackRatio) {
+                bestProgress = i;
+                bestBlackRatio = blackPixels / (float) pixels.length;
+            }
+        }
+        return bestProgress;
     }
 
     protected static class ParsedJsonStruct {
