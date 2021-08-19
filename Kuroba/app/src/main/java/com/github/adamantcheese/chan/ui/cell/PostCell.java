@@ -190,7 +190,6 @@ public class PostCell
         }
 
         comment.setTextSize(textSizeSp);
-        updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx / 4);
 
         replies.setTextSize(textSizeSp);
         updatePaddings(replies, paddingPx, paddingPx, paddingPx / 4, paddingPx);
@@ -476,6 +475,9 @@ public class PostCell
             headerWrapper.setLongClickable(false);
         }
 
+        int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
+        float paddingPx = dp(getContext(), textSizeSp - 7);
+
         if ((!threadMode && post.getReplies() > 0) || (post.repliesFrom.size() > 0)) {
             replies.setVisibility(VISIBLE);
 
@@ -497,8 +499,10 @@ public class PostCell
                 }
             }
 
+            updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx / 4);
             replies.setText(text);
         } else {
+            updatePaddings(comment, paddingPx, paddingPx, paddingPx / 2, paddingPx);
             replies.setVisibility(GONE);
         }
     }
