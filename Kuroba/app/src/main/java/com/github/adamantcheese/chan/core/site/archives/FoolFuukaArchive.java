@@ -7,6 +7,7 @@ import android.util.JsonToken;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
+
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
 
 /**
  * A site that uses FoolFuuka as the backend.
@@ -245,6 +248,7 @@ public class FoolFuukaArchive
             super();
             this.domain = domain;
             addDefaultRules();
+            rule(tagRule("span").cssClass("greentext").foregroundColor(R.attr.post_inline_quote_color, true));
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
             Pattern compiledPattern = Pattern.compile(
@@ -268,7 +272,7 @@ public class FoolFuukaArchive
             // deepest nodes are processed first
             // in this case, we just want to return the text that has already been processed inside of this "greentext" node
             // otherwise duplicate PostLinkables will be generated
-            if (element.getElementsByTag("span").hasClass("greentext") && element.childrenSize() > 0) {
+            if (element.getElementsByTag("span").hasClass("greentext") && element.getAllElements().size() > 1) {
                 return text;
             }
             return super.handleTag(callback, theme, post, tag, text, element);
