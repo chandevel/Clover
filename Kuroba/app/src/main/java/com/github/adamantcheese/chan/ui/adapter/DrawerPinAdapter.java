@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
@@ -159,10 +160,12 @@ public class DrawerPinAdapter
             holder.watchCountText.setVisibility(GONE);
         }
 
+        int backColor = getAttrColor(context, R.attr.backcolor);
+        int highlightColor = getAttrColor(context, R.attr.highlight_color);
         if (pin.shouldHighlight.get()) {
-            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_color));
+            holder.itemView.setBackgroundColor(ColorUtils.compositeColors(highlightColor, backColor));
         } else {
-            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+            holder.itemView.setBackgroundColor(backColor);
         }
     }
 

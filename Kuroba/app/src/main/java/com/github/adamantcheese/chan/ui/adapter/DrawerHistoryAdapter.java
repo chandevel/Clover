@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.ColorUtils;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
@@ -111,10 +112,12 @@ public class DrawerHistoryAdapter
                     history.loadable.board.name
             ));
 
+            int backColor = getAttrColor(context, R.attr.backcolor);
+            int highlightColor = getAttrColor(context, R.attr.highlight_color);
             if (history.shouldHighlight.get()) {
-                holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_color));
+                holder.itemView.setBackgroundColor(ColorUtils.compositeColors(highlightColor, backColor));
             } else {
-                holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+                holder.itemView.setBackgroundColor(backColor);
             }
         } else {
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call
