@@ -160,9 +160,9 @@ public class DrawerPinAdapter
         }
 
         if (pin.shouldHighlight.get()) {
-            holder.itemView.setBackground(new ColorDrawable(getAttrColor(context, R.attr.highlight_color)));
+            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_color));
         } else {
-            holder.itemView.setBackground(getAttrDrawable(context, R.drawable.ripple_item_background));
+            holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
         }
     }
 

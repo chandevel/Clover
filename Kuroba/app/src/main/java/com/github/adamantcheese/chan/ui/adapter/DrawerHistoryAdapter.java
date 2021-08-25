@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.text.SpannableString;
 import android.text.style.StyleSpan;
@@ -86,6 +87,7 @@ public class DrawerHistoryAdapter
 
     @Override
     public void onBindViewHolder(HistoryCell holder, int position) {
+        Context context = holder.itemView.getContext();
         History history = historyList.get(position);
         if (history != LOADING && history != NO_HISTORY) {
             if (!StringUtils.containsIgnoreCase(history.loadable.title, searchQuery)) {
@@ -110,13 +112,9 @@ public class DrawerHistoryAdapter
             ));
 
             if (history.shouldHighlight.get()) {
-                holder.itemView.setBackground(new ColorDrawable(getAttrColor(holder.itemView.getContext(),
-                        R.attr.highlight_color
-                )));
+                holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.highlight_color));
             } else {
-                holder.itemView.setBackground(getAttrDrawable(holder.itemView.getContext(),
-                        R.drawable.ripple_item_background
-                ));
+                holder.itemView.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
             }
         } else {
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call

@@ -20,58 +20,66 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_width="match_parent"
     android:layout_height="56dp"
     android:animateLayoutChanges="true"
-    android:background="@drawable/ripple_item_background"
-    tools:background="?backcolor">
-
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/thumb"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="4dp"
-        android:padding="4dp"
-        app:shapeAppearanceOverlay="@style/roundedImageViewRound"
-        tools:src="@drawable/sticky_icon" />
+    android:background="?backcolor">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical"
-        android:padding="8dp">
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textSize="15sp"
-            tools:text="@string/lorem_ipsum" />
-
-        <TextView
-            android:id="@+id/thread_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textColor="?android:textColorSecondary"
-            android:textSize="12sp"
-            tools:text="137R / 54I / 37P / Page 6" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/watch_count"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginRight="4dp"
         android:background="@drawable/ripple_item_background"
-        android:gravity="center"
-        android:minWidth="32dp"
-        android:padding="4dp"
-        android:textSize="16sp"
-        tools:ignore="HardcodedText"
-        tools:text="128"
-        tools:textColor="@color/md_light_blue_400" />
+        android:orientation="horizontal">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/thumb"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="4dp"
+            android:padding="4dp"
+            android:scaleType="centerCrop"
+            app:shapeAppearanceOverlay="@style/roundedImageViewRound"
+            tools:src="@drawable/sticky_icon" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textSize="15sp"
+                tools:text="@string/lorem_ipsum" />
+
+            <TextView
+                android:id="@+id/thread_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                tools:text="137R / 54I / 37P / Page 6" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/watch_count"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="4dp"
+            android:background="@drawable/ripple_item_background"
+            android:gravity="center"
+            android:minWidth="32dp"
+            android:padding="4dp"
+            android:textSize="16sp"
+            tools:ignore="HardcodedText"
+            tools:text="128"
+            tools:textColor="@color/md_light_blue_400" />
+
+    </LinearLayout>
 
 </LinearLayout>
