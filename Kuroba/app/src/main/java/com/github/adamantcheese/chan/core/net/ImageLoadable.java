@@ -81,10 +81,14 @@ public interface ImageLoadable {
                 if (doStandardActions(source)) return;
                 // for a chained load, this means that the last successful load will remain
                 if (getLastHttpUrl() != null) return;
-                setLastHttpUrl(null);
+                setLastHttpUrl(null); // fail, nullify the last url
                 Bitmap res = BitmapRepository.paddedError;
                 // if this has an error code associated with it, draw it up all fancy-like
                 if (e instanceof NetUtilsClasses.HttpCodeException) {
+                    if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
+                        // for this case, never try and load again and treat it as though it loaded fully
+                        setLastHttpUrl(source);
+                    }
                     String code = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
                     res = res.copy(BitmapRepository.paddedError.getConfig(), true);
                     Canvas temp = new Canvas(res);
@@ -119,7 +123,7 @@ public interface ImageLoadable {
             @Override
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 if (doStandardActions(source)) return;
-                // only on a success do we save the last URL
+                // success, save the last url as good
                 // for a chained load, this means that the last successful load will remain
                 setLastHttpUrl(url);
                 if (callback != null) {
