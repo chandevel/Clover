@@ -27,6 +27,7 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.ProgressResponseBody.ProgressListener;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderParser;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -53,6 +54,7 @@ public class ChanThreadLoader {
     private static final int[] WATCH_TIMEOUTS = {10, 15, 20, 30, 60, 90, 120, 180, 240, 300, 600, 1800, 3600};
 
     private final List<ResponseResult<ChanThread>> listeners = new CopyOnWriteArrayList<>();
+    private final List<ProgressListener> progressListeners = new CopyOnWriteArrayList<>();
 
     @NonNull
     private final Loadable loadable;
@@ -81,6 +83,14 @@ public class ChanThreadLoader {
      */
     public void addListener(ResponseResult<ChanThread> listener) {
         listeners.add(listener);
+    }
+
+    public void addProgressListener(ProgressListener listener) {
+        progressListeners.add(listener);
+    }
+
+    public void removeProgressListener(ProgressListener listener) {
+        progressListeners.remove(listener);
     }
 
     /**
@@ -197,21 +207,31 @@ public class ChanThreadLoader {
             }
         }
 
-        return NetUtils.makeJsonRequest(getChanUrl(loadable), new ResponseResult<ChanLoaderResponse>() {
-            @Override
-            public void onFailure(Exception e) {
-                notifyAboutError(e);
-            }
+        return NetUtils.makeJsonRequest(
+                getChanUrl(loadable),
+                new ResponseResult<ChanLoaderResponse>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        notifyAboutError(e);
+                    }
 
-            @Override
-            public void onSuccess(ChanLoaderResponse result) {
-                if (result.posts.isEmpty()) {
-                    notifyAboutError(new Exception("No posts in thread!"));
-                } else {
-                    onResponseInternal(result);
+                    @Override
+                    public void onSuccess(ChanLoaderResponse result) {
+                        if (result.posts.isEmpty()) {
+                            notifyAboutError(new Exception("No posts in thread!"));
+                        } else {
+                            onResponseInternal(result);
+                        }
+                    }
+                },
+                new ChanReaderParser(loadable, cachedClones, null),
+                null,
+                (source, bytesRead, contentLength, start, done) -> {
+                    for (ProgressListener listener : progressListeners) {
+                        listener.onDownloadProgress(source, bytesRead, contentLength, start, done);
+                    }
                 }
-            }
-        }, new ChanReaderParser(loadable, cachedClones, null), null);
+        );
         // TODO for cached thread loading, use a cacheControl with maxStale set so it loads a cached response
     }
 

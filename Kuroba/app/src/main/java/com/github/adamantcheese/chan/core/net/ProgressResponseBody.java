@@ -68,7 +68,7 @@ public class ProgressResponseBody
                             totalBytesRead,
                             responseBody.contentLength(),
                             firstRead,
-                            bytesRead == -1
+                            totalBytesRead == responseBody.contentLength()
                     ));
                 }
                 return bytesRead;

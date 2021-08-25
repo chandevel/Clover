@@ -460,17 +460,18 @@ public class NetUtils {
             @NonNull final Converter<T, JsonReader> reader,
             @Nullable final CacheControl cacheControl
     ) {
-        return makeJsonRequest(url, result, reader, cacheControl, 0);
+        return makeJsonRequest(url, result, reader, cacheControl, null);
     }
 
     /**
-     * Request some JSON, with a timeout.
+     * Request some JSON, with a timeout. Optional progress listener.
      *
-     * @param url          The request URL.
-     * @param result       The callback for this call.
-     * @param cacheControl Set cache parameters for this request
-     * @param timeoutMs    Optional timeout in milliseconds
-     * @param <T>          Your type
+     * @param url              The request URL.
+     * @param result           The callback for this call.
+     * @param cacheControl     Set cache parameters for this request
+     * @param progressListener Optional progress listener.
+     * @param timeoutMs        Optional timeout in milliseconds
+     * @param <T>              Your type
      * @return An enqueued JSON call. WILL RUN RESULT ON BACKGROUND OKHTTP THREAD!
      */
     public static <T> Call makeJsonRequest(
@@ -478,16 +479,37 @@ public class NetUtils {
             @NonNull final ResponseResult<T> result,
             @NonNull final Converter<T, JsonReader> reader,
             @Nullable final CacheControl cacheControl,
+            @Nullable final ProgressResponseBody.ProgressListener progressListener,
             int timeoutMs
     ) {
         return makeRequest(applicationClient,
                 url,
                 new ChainConverter<>(reader).chain(JSON_CONVERTER),
                 result,
-                null,
+                progressListener,
                 cacheControl,
                 timeoutMs
         );
+    }
+
+    /**
+     * Request some JSON, no timeout. Optional progress listener.
+     *
+     * @param url              The request URL.
+     * @param result           The callback for this call
+     * @param cacheControl     Set cache parameters for this request
+     * @param progressListener Optional progress listener.
+     * @param <T>              Your type
+     * @return An enqueued JSON call. WILL RUN RESULT ON BACKGROUND OKHTTP THREAD!
+     */
+    public static <T> Call makeJsonRequest(
+            @NonNull final HttpUrl url,
+            @NonNull final ResponseResult<T> result,
+            @NonNull final Converter<T, JsonReader> reader,
+            @Nullable final CacheControl cacheControl,
+            @Nullable final ProgressResponseBody.ProgressListener progressListener
+    ) {
+        return makeJsonRequest(url, result, reader, cacheControl, progressListener, 0);
     }
 
     /**

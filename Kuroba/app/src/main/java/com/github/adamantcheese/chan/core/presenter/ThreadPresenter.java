@@ -51,6 +51,7 @@ import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.ProgressResponseBody;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
@@ -88,6 +89,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
+
+import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY;
@@ -131,7 +134,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
-                   ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback {
+                   ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback, ProgressResponseBody.ProgressListener {
     //region Private Variables
     @Inject
     private WatchManager watchManager;
@@ -178,6 +181,7 @@ public class ThreadPresenter
             DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
             chanLoader = ChanLoaderManager.obtain(loadable, this);
+            chanLoader.addProgressListener(this);
             threadPresenterCallback.showLoading();
 
             if (chanLoader.getThread() == null) {
@@ -191,12 +195,18 @@ public class ThreadPresenter
     public synchronized void unbindLoadable() {
         if (isBound()) {
             chanLoader.clearTimer();
+            chanLoader.removeProgressListener(this);
             ChanLoaderManager.release(chanLoader, this);
             chanLoader = null;
             loadable = null;
 
             threadPresenterCallback.showLoading();
         }
+    }
+
+    @Override
+    public void onDownloadProgress(HttpUrl source, long bytesRead, long contentLength, boolean start, boolean done) {
+        threadPresenterCallback.onDownloadProgress(source, bytesRead, contentLength, start, done);
     }
 
     public void updateDatabaseLoadable() {
@@ -1276,7 +1286,7 @@ public class ThreadPresenter
         return copyMenu;
     }
 
-    public interface ThreadPresenterCallback {
+    public interface ThreadPresenterCallback extends ProgressResponseBody.ProgressListener {
         void showPosts(ChanThread thread, PostsFilter filter);
 
         void postClicked(Post post);

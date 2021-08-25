@@ -74,6 +74,8 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import okhttp3.HttpUrl;
+
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -90,8 +92,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentV
 public class ThreadLayout
         extends CoordinatorLayout
         implements ThreadPresenter.ThreadPresenterCallback, PostPopupHelper.PostPopupHelperCallback,
-                   RemovedPostsHelper.RemovedPostsCallbacks,
-                   ThreadListLayout.ThreadListLayoutCallback, ImageOptionsController.ImageOptionsControllerCallback {
+                   RemovedPostsHelper.RemovedPostsCallbacks, ThreadListLayout.ThreadListLayoutCallback,
+                   ImageOptionsController.ImageOptionsControllerCallback {
     private enum Visible {
         EMPTY,
         LOADING,
@@ -737,6 +739,11 @@ public class ThreadLayout
                 .create();
 
         alertDialog.show();
+    }
+
+    @Override
+    public void onDownloadProgress(HttpUrl source, long bytesRead, long contentLength, boolean start, boolean done) {
+        // todo set progress here
     }
 
     @Override
