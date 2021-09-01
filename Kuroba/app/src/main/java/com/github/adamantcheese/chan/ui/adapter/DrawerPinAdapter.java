@@ -135,9 +135,11 @@ public class DrawerPinAdapter
                 summary = PostHelper.prependIcon(context, summary, BitmapRepository.stickyIcon, sp(16));
             }
 
+            holder.title.getLayoutParams().height = WRAP_CONTENT;
             holder.threadInfo.setVisibility(VISIBLE);
             holder.threadInfo.setText(summary);
         } else {
+            holder.title.getLayoutParams().height = MATCH_PARENT;
             holder.threadInfo.setVisibility(GONE);
             holder.title.setText(String.format("/%s/ - %s", pin.loadable.boardCode, holder.title.getText()));
         }
