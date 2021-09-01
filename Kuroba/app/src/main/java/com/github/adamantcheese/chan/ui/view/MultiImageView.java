@@ -359,9 +359,8 @@ public class MultiImageView
 
     private void onThumbnailBitmap(Bitmap bitmap) {
         if (!hasContent || mode == Mode.LOWRES) {
-            ShapeablePostImageView thumbnail = new ShapeablePostImageView(getContext());
-            thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER); // in this case, we don't want CENTER_CROP
-            thumbnail.setType(postImage);
+            ImageView thumbnail = new ImageView(getContext());
+            thumbnail.setScaleType(ImageView.ScaleType.FIT_CENTER);
             thumbnail.setImageBitmap(bitmap);
             thumbnail.setOnClickListener(null);
             thumbnail.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));

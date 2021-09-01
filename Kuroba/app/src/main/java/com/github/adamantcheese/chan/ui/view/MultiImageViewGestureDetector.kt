@@ -3,6 +3,7 @@ package com.github.adamantcheese.chan.ui.view
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.View
+import android.widget.ImageView
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils.dp
 import com.google.android.exoplayer2.ui.PlayerView
@@ -128,7 +129,7 @@ class MultiImageViewGestureDetector(
                 return false
             }
         } else {
-            if (activeView is ShapeablePostImageView) {
+            if (activeView is ImageView) {
                 // Current image is thumbnail, we can't use swipe-to-save gesture
                 callbacks.onSwipeToCloseImage()
             } else {
