@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
@@ -37,22 +36,20 @@ import com.github.adamantcheese.chan.features.gesture_editor.AttachSide;
 import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
 import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
-import com.github.adamantcheese.chan.ui.controller.WebViewController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.StringLimitCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.THREAD_HIDES_CLEARED;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
@@ -68,8 +65,8 @@ public class BehaviourSettingsController
     DatabaseHideManager hideManager;
 
     private BooleanSettingView proxyEnabledSetting;
-    private StringSettingView proxyAddressSetting;
-    private IntegerSettingView proxyPortSetting;
+    private PrimitiveSettingView<String> proxyAddressSetting;
+    private PrimitiveSettingView<Integer> proxyPortSetting;
     private ListSettingView<ProxyMode> proxyTypeSetting;
 
     public BehaviourSettingsController(Context context) {
@@ -160,14 +157,15 @@ public class BehaviourSettingsController
                     R.string.settings_captcha_setup_description,
                     (v, sv) -> navigationController.pushController(new SitesSetupController(context))
             ));
-            general.add(new LinkSettingView(this,
+            // was mainly used for 4chan
+            /*general.add(new LinkSettingView(this,
                     "Google Login",
                     "Sign into Google to grab your cookies, for Captcha ease.",
                     (v, sv) -> navigationController.pushController(new WebViewController(context,
                             "Google Login",
                             HttpUrl.get("https://accounts.google.com")
                     ))
-            ));
+            ));*/
 
             general.add(new LinkSettingView(this, R.string.setting_clear_thread_hides, R.string.empty, (v, sv) -> {
                 // TODO: don't do this here.
@@ -189,11 +187,12 @@ public class BehaviourSettingsController
                     R.string.empty
             ));
 
-            reply.add(new StringSettingView(this,
+            reply.add(new PrimitiveSettingView<>(this,
                     ChanSettings.postDefaultName,
                     R.string.setting_post_default_name,
                     R.string.setting_post_default_name,
-                    R.string.empty
+                    null,
+                    new StringLimitCallback()
             ));
 
             reply.add(new BooleanSettingView(this,
@@ -283,19 +282,30 @@ public class BehaviourSettingsController
                     R.string.empty
             ));
 
-            proxyAddressSetting = proxy.add(new StringSettingView(this,
+            proxyAddressSetting = proxy.add(new PrimitiveSettingView<>(this,
                     ChanSettings.proxyAddress,
                     R.string.setting_proxy_address,
                     R.string.setting_proxy_address,
-                    R.string.empty
+                    null,
+                    new StringLimitCallback()
             ));
 
-            proxyPortSetting = proxy.add(new IntegerSettingView(this,
+            proxyPortSetting = proxy.add(new PrimitiveSettingView<>(this,
                     ChanSettings.proxyPort,
                     R.string.setting_proxy_port,
                     R.string.setting_proxy_port,
                     null,
-                    new Pair<>(0, 0xFFFF)
+                    new IntegerLimitCallback() {
+                        @Override
+                        public Integer getMinimumLimit() {
+                            return 0;
+                        }
+
+                        @Override
+                        public Integer getMaximumLimit() {
+                            return 0xFFFF;
+                        }
+                    }
             ));
 
             List<ListSettingView.Item<ProxyMode>> proxyTypes = new ArrayList<>();

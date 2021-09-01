@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -136,10 +135,7 @@ public class WakeManager {
                     ChanSettings.watchBackgroundInterval.get(),
                     pendingIntent
             );
-            Logger.i(this,
-                    "Started background alarm with an interval of "
-                            + MILLISECONDS.toMinutes(ChanSettings.watchBackgroundInterval.get()) + " minutes"
-            );
+            Logger.i(this, "Started background alarm with an interval of " + ChanSettings.watchBackgroundInterval);
             alarmRunning = true;
         }
     }

@@ -391,6 +391,7 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_watch_enable_background">Enable in background</string>
     <string name="setting_watch_enable_background_description">Watch bookmarks when app is in the background</string>
     <string name="setting_watch_background_timeout">Background update interval</string>
+    <string name="setting_watch_background_timeout_dialog">Update interval, in minutes</string>
     <string name="setting_thread_page_limit_notify">Last page notifications</string>
     <string name="setting_thread_page_limit_notify_description">Notify when threads hit the last page</string>
     <string name="setting_watch_notify_mode">Notify about</string>

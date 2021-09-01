@@ -23,4 +23,13 @@ public class LongSetting
     public LongSetting(SettingProvider<Object> settingProvider, String key, Long def) {
         super(settingProvider, key, def);
     }
+
+    @Override
+    public Long convertStringToSettingType(String s) {
+        try {
+            return Long.parseLong(s);
+        } catch (Exception e) {
+            return getDefault();
+        }
+    }
 }

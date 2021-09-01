@@ -43,6 +43,10 @@ public abstract class Setting<T> {
         return cached;
     }
 
+    public T getForDisplay() {
+        return get();
+    }
+
     public void set(T value) {
         if (!value.equals(get())) {
             settingProvider.putValue(key, value);
@@ -50,6 +54,8 @@ public abstract class Setting<T> {
             onValueChanged();
         }
     }
+
+    public abstract T convertStringToSettingType(String s);
 
     public void setSync(T value) {
         if (!value.equals(get())) {

@@ -31,9 +31,10 @@ import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
+import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
-import com.github.adamantcheese.chan.ui.settings.StringSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.StringLimitCallback;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 
 import java.util.ArrayList;
@@ -116,11 +117,11 @@ public class SiteSetupController
                     break;
                 case STRING:
                     // Turn the SiteSetting for a string setting into a proper setting with a name and input
-                    generated = new StringSettingView(this,
+                    generated = new PrimitiveSettingView<>(this,
                             (StringSetting) setting.setting,
                             setting.name,
                             setting.name,
-                            null
+                            null, new StringLimitCallback()
                     );
                     break;
                 case BOOLEAN:

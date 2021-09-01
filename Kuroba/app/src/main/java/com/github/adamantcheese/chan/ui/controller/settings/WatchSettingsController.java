@@ -19,19 +19,19 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 import android.content.Context;
 import android.widget.Switch;
 
-import androidx.core.util.Pair;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LongLimitCallback;
+import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static java.util.concurrent.TimeUnit.HOURS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class WatchSettingsController
@@ -95,27 +95,35 @@ public class WatchSettingsController
                 R.string.setting_watch_enable_background_description
         ));
 
-        backgroundTimeout = settings.add(new IntegerSettingView(this,
+        backgroundTimeout = settings.add(new PrimitiveSettingView<Long>(this,
                 ChanSettings.watchBackgroundInterval,
                 R.string.setting_watch_background_timeout,
-                R.string.empty,
+                R.string.setting_watch_background_timeout_dialog,
                 null,
                 // 1 min to 24 hr
-                new Pair<>(1, 1440)
+                new LongLimitCallback() {
+                    @Override
+                    public Long getMinimumLimit() {
+                        return 1L;
+                    }
+
+                    @Override
+                    public Long getMaximumLimit() {
+                        return 1440L;
+                    }
+                }
         ) {
             @Override
             public String getBottomDescription() {
-                Integer curSetting = setting.get();
-                if (curSetting == null) {
-                    return "Unknown!";
-                } else if (curSetting >= 60) {
-                    int hours = (int) MINUTES.toHours(curSetting);
-                    int leftOverMinutes = (int) (curSetting - HOURS.toMinutes(hours));
+                int curSettingMinutes = (int) MILLISECONDS.toMinutes(setting.get());
+                if (curSettingMinutes >= 60) {
+                    int hours = (int) MINUTES.toHours(curSettingMinutes);
+                    int leftOverMinutes = (int) (curSettingMinutes - HOURS.toMinutes(hours));
                     return getQuantityString(R.plurals.hours, hours) + (leftOverMinutes == 0
                             ? ""
-                            : getQuantityString(R.plurals.minutes, leftOverMinutes));
+                            : " " + getQuantityString(R.plurals.minutes, leftOverMinutes));
                 } else {
-                    return getQuantityString(R.plurals.minutes, curSetting);
+                    return getQuantityString(R.plurals.minutes, curSettingMinutes);
                 }
             }
         });

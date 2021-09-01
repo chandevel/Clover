@@ -23,4 +23,13 @@ public class IntegerSetting
     public IntegerSetting(SettingProvider<Object> settingProvider, String key, Integer def) {
         super(settingProvider, key, def);
     }
+
+    @Override
+    public Integer convertStringToSettingType(String s) {
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return getDefault();
+        }
+    }
 }

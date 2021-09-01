@@ -24,6 +24,11 @@ public class BooleanSetting
         super(settingProvider, key, def);
     }
 
+    @Override
+    public Boolean convertStringToSettingType(String s) {
+        return Boolean.parseBoolean(s);
+    }
+
     public void toggle() {
         set(!get());
     }

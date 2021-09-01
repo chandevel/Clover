@@ -21,7 +21,6 @@ import android.content.Context;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -36,10 +35,11 @@ import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SaveL
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
+import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -72,7 +72,7 @@ public class MediaSettingsController
     private ListSettingView<MediaAutoLoadMode> imageAutoLoadView;
     private ListSettingView<MediaAutoLoadMode> videoAutoLoadView;
     private BooleanSettingView autoLoadThreadImageSetting;
-    private IntegerSettingView fileCacheSetting;
+    private PrimitiveSettingView<Integer> fileCacheSetting;
 
     private final MediaSettingsControllerPresenter presenter;
     private final RuntimePermissionsHelper runtimePermissionsHelper;
@@ -244,19 +244,30 @@ public class MediaSettingsController
             ));
             requiresRestart.add(autoLoadThreadImageSetting);
 
-            fileCacheSetting = loading.add(new IntegerSettingView(this,
+            fileCacheSetting = loading.add(new PrimitiveSettingView<Integer>(this,
                     ChanSettings.fileCacheSize,
                     "File cache size",
                     "File cache size",
                     null,
-                    new Pair<>(100, 2000)
+                    new IntegerLimitCallback() {
+                        @Override
+                        public Integer getMinimumLimit() {
+                            return 100;
+                        }
+
+                        @Override
+                        public Integer getMaximumLimit() {
+                            return 2000;
+                        }
+                    }
             ) {
                 @Override
                 public String getBottomDescription() {
                     boolean prefetchOn = ChanSettings.autoLoadThreadImages.get();
-                    return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (setting.get() == null
-                            ? "Unknown!"
-                            : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
+                    return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (
+                            setting.get() == null
+                                    ? "Unknown!"
+                                    : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
                 }
             });
             requiresRestart.add(fileCacheSetting);

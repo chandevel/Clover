@@ -18,16 +18,15 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
 
-import androidx.core.util.Pair;
-
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.IntegerSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
+import com.github.adamantcheese.chan.ui.settings.SeekbarSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -161,20 +160,40 @@ public class AppearanceSettingsController
         {
             SettingsGroup post = new SettingsGroup(R.string.settings_group_post);
 
-            requiresUiRefresh.add(post.add(new IntegerSettingView(this,
+            requiresUiRefresh.add(post.add(new SeekbarSettingView(this,
                     ChanSettings.thumbnailSize,
                     R.string.setting_thumbnail_scale,
                     R.string.empty,
                     "%",
-                    new Pair<>(50, 200)
+                    new IntegerLimitCallback() {
+                        @Override
+                        public Integer getMinimumLimit() {
+                            return 50;
+                        }
+
+                        @Override
+                        public Integer getMaximumLimit() {
+                            return 200;
+                        }
+                    }
             )));
 
-            requiresUiRefresh.add(post.add(new IntegerSettingView(this,
+            requiresUiRefresh.add(post.add(new SeekbarSettingView(this,
                     ChanSettings.fontSize,
                     R.string.setting_font_size,
                     R.string.empty,
                     "sp",
-                    new Pair<>(10, 19)
+                    new IntegerLimitCallback() {
+                        @Override
+                        public Integer getMinimumLimit() {
+                            return 10;
+                        }
+
+                        @Override
+                        public Integer getMaximumLimit() {
+                            return 19;
+                        }
+                    }
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,

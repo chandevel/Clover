@@ -61,6 +61,16 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     }
 
     @Override
+    public T convertStringToSettingType(String s) {
+        for (T item : items) {
+            if (item.getKey().equals(s)) {
+                return item;
+            }
+        }
+        return getDefault();
+    }
+
+    @Override
     public void setSync(T value) {
         if (!value.equals(get())) {
             settingProvider.putValueSync(key, value.getKey());

@@ -20,6 +20,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -51,7 +53,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
@@ -332,22 +333,18 @@ public class ChanSettings {
             watchBackgroundInterval = new IntegerSetting(p, "preference_watch_background_interval", 15) {
                 @Override
                 public Integer get() {
-                    return (int) MILLISECONDS.toMinutes(super.get());
+                    return (int) MINUTES.toMillis(super.get());
                 }
 
                 @Override
-                public void set(Integer value) {
-                    super.set((int) MINUTES.toMillis(value));
+                public Integer getForDisplay() {
+                    return super.get();
                 }
 
+                @NonNull
                 @Override
-                public void setSync(Integer value) {
-                    super.setSync((int) MINUTES.toMillis(value));
-                }
-
-                @Override
-                public void setSyncNoCheck(Integer value) {
-                    super.setSyncNoCheck((int) MINUTES.toMillis(value));
+                public String toString() {
+                    return super.get() + " minutes";
                 }
             };
             watchBackgroundInterval.addCallback(new EventBusCallback<>(watchBackgroundInterval));

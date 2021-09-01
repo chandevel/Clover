@@ -24,4 +24,9 @@ public class StringSetting
     public StringSetting(SettingProvider<Object> settingProvider, String key, String def) {
         super(settingProvider, key, def == null ? "" : def);
     }
+
+    @Override
+    public String convertStringToSettingType(String s) {
+        return s == null ? "" : s;
+    }
 }
