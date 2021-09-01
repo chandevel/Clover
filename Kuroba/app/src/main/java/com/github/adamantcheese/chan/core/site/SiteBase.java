@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site;
 
 import androidx.annotation.Nullable;
+import androidx.core.graphics.ColorUtils;
 
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -91,7 +92,7 @@ public abstract class SiteBase
 
     @Override
     public List<SiteSetting<?>> settings() {
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 
     public void initializeSettings() {

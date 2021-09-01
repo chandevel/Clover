@@ -142,7 +142,7 @@ public class FilterEngine {
             return DatabaseUtils.runTask(databaseFilterManager.getFilters());
         } catch (Exception e) {
             Logger.wtf(this, "Couldn't get all filters for some reason.");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 
