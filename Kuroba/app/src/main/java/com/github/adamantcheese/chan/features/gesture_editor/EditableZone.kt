@@ -17,9 +17,9 @@ class EditableZone {
     private var isResizing = false
     private var zoneOriginToTouchPosDeltaWhenMoving = PointF(0f, 0f)
 
-    private val zoneDefaultWidth = dp(32f).toFloat()
-    private val zoneDefaultHeight = dp(32f).toFloat()
-    private val handleSize = dp(16f).toFloat()
+    private val zoneDefaultWidth = dp(32f)
+    private val zoneDefaultHeight = dp(32f)
+    private val handleSize = dp(16f)
     private val zone = ScreenRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MAXIMUM_SIZE)
     private val handle = ScreenRectF(0f, 0f, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE, MINIMUM_SIZE)
 
@@ -229,9 +229,9 @@ class EditableZone {
     )
 
     companion object {
-        val MINIMUM_SIZE = dp(16f).toFloat()
+        val MINIMUM_SIZE = dp(16f)
 
         // Android limitation
-        val MAXIMUM_SIZE = dp(200f).toFloat()
+        val MAXIMUM_SIZE = dp(200f)
     }
 }

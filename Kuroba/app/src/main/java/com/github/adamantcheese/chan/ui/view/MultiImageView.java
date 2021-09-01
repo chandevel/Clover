@@ -95,7 +95,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class MultiImageView
         extends FrameLayout
-        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallbacks, LifecycleObserver,
+        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallback, LifecycleObserver,
                    ProgressResponseBody.ProgressListener {
 
     public enum Mode {

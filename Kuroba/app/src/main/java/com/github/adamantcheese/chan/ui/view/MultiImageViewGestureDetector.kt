@@ -16,32 +16,32 @@ import kotlin.math.abs
  * ThumbnailView, BigImageView, GifImageView and PlayerView.
  * */
 class MultiImageViewGestureDetector(
-        private val callbacks: MultiImageViewGestureDetectorCallbacks
+        private val callback: MultiImageViewGestureDetectorCallback
 ) : SimpleOnGestureListener() {
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-        val activeView = callbacks.getActiveView()
+        val activeView = callback.getActiveView()
         if (activeView is PlayerView && !ChanSettings.neverShowWebmControls.get()) {
             if (activeView.player != null) {
                 if (activeView.isControllerVisible) {
                     activeView.useController = false
-                    callbacks.setClickHandler(true)
+                    callback.setClickHandler(true)
                 } else {
                     activeView.useController = true
                     activeView.showController()
-                    callbacks.setClickHandler(false)
-                    callbacks.checkImmersive()
+                    callback.setClickHandler(false)
+                    callback.checkImmersive()
                 }
                 return true
             }
         }
 
-        callbacks.onTap()
+        callback.onTap()
         return true
     }
 
     override fun onDoubleTap(e: MotionEvent?): Boolean {
-        val activeView = callbacks.getActiveView()
+        val activeView = callback.getActiveView()
         if (activeView is GifImageView) {
             val gifImageViewDrawable = activeView.drawable as GifDrawable
             if (gifImageViewDrawable.isPlaying) {
@@ -53,7 +53,7 @@ class MultiImageViewGestureDetector(
         }
 
         if (activeView is PlayerView) {
-            callbacks.togglePlayState()
+            callback.togglePlayState()
             return true
         }
 
@@ -93,9 +93,9 @@ class MultiImageViewGestureDetector(
         // If either any view, other than the big image view, is visible (thumbnail, gif or video) OR
         // big image is visible and the viewport is touching image bottom then use
         // close-to-swipe gesture
-        val activeView = callbacks.getActiveView()
+        val activeView = callback.getActiveView()
         if (activeView !is CustomScaleImageView || activeView.imageViewportTouchSide.isTouchingBottom) {
-            callbacks.onSwipeToCloseImage()
+            callback.onSwipeToCloseImage()
             return true
         }
 
@@ -103,7 +103,7 @@ class MultiImageViewGestureDetector(
     }
 
     private fun onSwipedBottom(): Boolean {
-        val activeView = callbacks.getActiveView()
+        val activeView = callback.getActiveView()
         if (activeView is CustomScaleImageView) {
             val imageViewportTouchSide = activeView.imageViewportTouchSide
 
@@ -121,7 +121,7 @@ class MultiImageViewGestureDetector(
                 // We are zoomed in and the viewport is touching either top or bottom of an
                 // image. We don't want to use swipe-to-save image gesture, we want to use
                 // swipe-to-close gesture instead.
-                callbacks.onSwipeToCloseImage()
+                callback.onSwipeToCloseImage()
                 return true
             } else {
                 // We are zoomed in and the viewport is not touching neither top nor bottom of
@@ -131,7 +131,7 @@ class MultiImageViewGestureDetector(
         } else {
             if (activeView is ImageView) {
                 // Current image is thumbnail, we can't use swipe-to-save gesture
-                callbacks.onSwipeToCloseImage()
+                callback.onSwipeToCloseImage()
             } else {
                 // Current image is either a video or a gif, it's safe to use swipe-to-save gesture
                 swipeToSaveOrClose()
@@ -145,17 +145,17 @@ class MultiImageViewGestureDetector(
      * If already saved, then swipe-to-close gesture will be used instead of swipe-to-save
      * */
     private fun swipeToSaveOrClose() {
-        if (callbacks.isImageAlreadySaved()) {
+        if (callback.isImageAlreadySaved()) {
             // Image already saved, we can't use swipe-to-save image gesture but we
             // can use swipe-to-close image instead
-            callbacks.onSwipeToCloseImage()
+            callback.onSwipeToCloseImage()
         } else {
-            callbacks.onSwipeToSaveImage()
-            callbacks.setImageAlreadySaved()
+            callback.onSwipeToSaveImage()
+            callback.setImageAlreadySaved()
         }
     }
 
-    interface MultiImageViewGestureDetectorCallbacks {
+    interface MultiImageViewGestureDetectorCallback {
         fun getActiveView(): View?
         fun isImageAlreadySaved(): Boolean
         fun setImageAlreadySaved()
@@ -168,8 +168,8 @@ class MultiImageViewGestureDetector(
     }
 
     companion object {
-        private val FLING_DIFF_Y_THRESHOLD = dp(100f).toFloat()
-        private val FLING_VELOCITY_Y_THRESHOLD = dp(300f).toFloat()
-        private val FLING_DIST_X_THRESHOLD = dp(75f).toFloat()
+        private val FLING_DIFF_Y_THRESHOLD = dp(100f)
+        private val FLING_VELOCITY_Y_THRESHOLD = dp(300f)
+        private val FLING_DIST_X_THRESHOLD = dp(75f)
     }
 }
