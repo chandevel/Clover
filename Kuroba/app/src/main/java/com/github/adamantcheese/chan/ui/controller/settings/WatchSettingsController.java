@@ -24,6 +24,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LongLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
@@ -95,21 +96,21 @@ public class WatchSettingsController
                 R.string.setting_watch_enable_background_description
         ));
 
-        backgroundTimeout = settings.add(new PrimitiveSettingView<Long>(this,
+        backgroundTimeout = settings.add(new PrimitiveSettingView<Integer>(this,
                 ChanSettings.watchBackgroundInterval,
                 R.string.setting_watch_background_timeout,
                 R.string.setting_watch_background_timeout_dialog,
                 null,
                 // 1 min to 24 hr
-                new LongLimitCallback() {
+                new IntegerLimitCallback() {
                     @Override
-                    public Long getMinimumLimit() {
-                        return 1L;
+                    public Integer getMinimumLimit() {
+                        return 1;
                     }
 
                     @Override
-                    public Long getMaximumLimit() {
-                        return 1440L;
+                    public Integer getMaximumLimit() {
+                        return 1440;
                     }
                 }
         ) {
