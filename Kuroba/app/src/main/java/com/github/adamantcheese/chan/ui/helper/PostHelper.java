@@ -41,7 +41,7 @@ public class PostHelper {
             @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, float height
     ) {
         int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
-        SpannableString string = new SpannableString("  " + total);
+        SpannableString string = new SpannableString(TextUtils.concat("  ", total));
         ImageSpan imageSpan = new ImageSpan(context, bitmap);
         imageSpan.getDrawable().setBounds(0, 0, width, (int) height);
         string.setSpan(imageSpan, 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
