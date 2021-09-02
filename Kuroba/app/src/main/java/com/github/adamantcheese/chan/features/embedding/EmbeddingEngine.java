@@ -9,7 +9,6 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.LruCache;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ComponentActivity;
@@ -43,7 +42,6 @@ import com.github.adamantcheese.chan.features.embedding.embedders.VimeoEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.VocarooEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.YoutubeEmbedder;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -570,34 +568,34 @@ public class EmbeddingEngine
 
     public void clearCache() {
         videoTitleDurCache.evictAll();
-        cacheFile.delete();
+        CACHE_FILE.delete();
     }
 
-    private static final Type lruType = new TypeToken<Map<String, EmbedResult>>() {}.getType();
-    private static final File cacheFile = new File(getCacheDir(), "video_title_cache.json");
+    private static final Type LRU_TYPE = new TypeToken<Map<String, EmbedResult>>() {}.getType();
+    private static final File CACHE_FILE = new File(getCacheDir(), "video_title_cache.json");
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
-        try (FileReader reader = new FileReader(cacheFile)) {
+        try (FileReader reader = new FileReader(CACHE_FILE)) {
             //restore parsed media title stuff
-            Map<String, EmbedResult> titles = AppModule.gson.fromJson(reader, lruType);
+            Map<String, EmbedResult> titles = AppModule.gson.fromJson(reader, LRU_TYPE);
             //reconstruct
             videoTitleDurCache = new LruCache<>(CACHE_SIZE);
             for (Map.Entry<String, EmbedResult> entry : titles.entrySet()) {
                 videoTitleDurCache.put(entry.getKey(), entry.getValue());
             }
         } catch (Exception e) {
-            cacheFile.delete(); // bad file probably
+            CACHE_FILE.delete(); // bad file probably
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     public void onStop() {
         //store parsed media title stuff, extra prevention of unneeded API calls
-        try (FileWriter writer = new FileWriter(cacheFile)) {
-            AppModule.gson.toJson(videoTitleDurCache.snapshot(), lruType, writer);
+        try (FileWriter writer = new FileWriter(CACHE_FILE)) {
+            AppModule.gson.toJson(videoTitleDurCache.snapshot(), LRU_TYPE, writer);
         } catch (Exception e) {
-            cacheFile.delete();
+            CACHE_FILE.delete();
         }
     }
 

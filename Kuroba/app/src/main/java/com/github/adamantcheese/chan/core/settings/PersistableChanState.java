@@ -22,8 +22,6 @@ public class PersistableChanState {
     public static LongSetting updateCheckTime;
     public static StringSetting previousDevHash;
 
-    public static StringSetting filterWatchIgnored;
-
     public static BooleanSetting noFunAllowed;
 
     public static BooleanSetting experimentalRoundedIDSpans;
@@ -37,8 +35,6 @@ public class PersistableChanState {
             previousVersion = new IntegerSetting(p, "previous_version", BuildConfig.VERSION_CODE);
             updateCheckTime = new LongSetting(p, "update_check_time", 0L);
             previousDevHash = new StringSetting(p, "previous_dev_hash", BuildConfig.COMMIT_HASH);
-
-            filterWatchIgnored = new StringSetting(p, "filter_watch_last_ignored_set", "");
 
             noFunAllowed = new BooleanSetting(p, "no_fun_allowed", false);
             experimentalRoundedIDSpans = new BooleanSetting(p, "experimental_rounded_id_spans", false);
