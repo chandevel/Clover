@@ -78,11 +78,6 @@ public class RecyclerUtils {
             public int getIntrinsicHeight() {
                 return (int) dp(context, 1);
             }
-
-            @Override
-            public int getIntrinsicWidth() {
-                return (int) dp(context, 1);
-            }
         };
 
         return new RecyclerView.ItemDecoration() {
@@ -99,11 +94,11 @@ public class RecyclerUtils {
 
                         float dividerTop, dividerBottom;
                         if (shouldShowDivider.showDividerTop()) {
-                            dividerTop = child.getTop() - params.topMargin;
-                            dividerBottom = dividerTop - dp(1);
+                            dividerBottom = child.getTop() - params.topMargin;
+                            dividerTop = dividerBottom - divider.getIntrinsicHeight();
                         } else {
                             dividerTop = child.getBottom() + params.bottomMargin;
-                            dividerBottom = dividerTop + dp(1);
+                            dividerBottom = dividerTop + divider.getIntrinsicHeight();
                         }
 
                         divider.setBounds((int) paddingPx,
@@ -124,14 +119,10 @@ public class RecyclerUtils {
                     @NonNull RecyclerView.State state
             ) {
                 super.getItemOffsets(outRect, view, parent, state);
-                if (shouldShowDivider.shouldShowDivider(parent.getAdapter().getItemCount(),
-                        parent.getChildAdapterPosition(view)
-                )) {
-                    if (shouldShowDivider.showDividerTop()) {
-                        outRect.bottom = (int) dp(1);
-                    } else {
-                        outRect.top = (int) dp(1);
-                    }
+                if (shouldShowDivider.showDividerTop()) {
+                    outRect.bottom = divider.getIntrinsicHeight();
+                } else {
+                    outRect.top = divider.getIntrinsicHeight();
                 }
             }
         };
