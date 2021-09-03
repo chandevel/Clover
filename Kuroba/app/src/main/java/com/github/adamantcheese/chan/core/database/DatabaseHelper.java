@@ -149,14 +149,14 @@ public class DatabaseHelper
     @Override
     public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource) {
         try {
-            createTables(connectionSource);
+            createTables();
         } catch (SQLException e) {
             Logger.e(this, "Error creating db", e);
             throw new RuntimeException(e);
         }
     }
 
-    public void createTables(ConnectionSource connectionSource)
+    public void createTables()
             throws SQLException {
         TableUtils.createTable(connectionSource, Pin.class);
         TableUtils.createTable(connectionSource, Loadable.class);
@@ -167,7 +167,7 @@ public class DatabaseHelper
         TableUtils.createTable(connectionSource, SiteModel.class);
     }
 
-    public void dropTables(ConnectionSource connectionSource)
+    public void dropTables()
             throws SQLException {
         TableUtils.dropTable(connectionSource, Pin.class, true);
         TableUtils.dropTable(connectionSource, Loadable.class, true);
@@ -176,6 +176,16 @@ public class DatabaseHelper
         TableUtils.dropTable(connectionSource, PostHide.class, true);
         TableUtils.dropTable(connectionSource, Filter.class, true);
         TableUtils.dropTable(connectionSource, SiteModel.class, true);
+    }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        try {
+            dropTables();
+            createTables();
+        } catch (Exception e) {
+            super.onDowngrade(db, oldVersion, newVersion);
+        }
     }
 
     /**

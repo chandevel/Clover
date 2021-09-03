@@ -153,10 +153,8 @@ constructor(
         }
 
         // recreate tables from scratch, because we need to reset database IDs as well
-        databaseHelper.connectionSource.use { cs ->
-            databaseHelper.dropTables(cs)
-            databaseHelper.createTables(cs)
-        }
+        databaseHelper.dropTables()
+        databaseHelper.createTables()
 
         for (exportedBoard in appSettings.exportedBoards) {
             databaseHelper.boardDao.createIfNotExists(Board(
