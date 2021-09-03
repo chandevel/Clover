@@ -44,7 +44,6 @@ import java.util.List;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
@@ -182,19 +181,16 @@ public class AlbumViewController
         @Override
         public AlbumItemCellHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             return new AlbumItemCellHolder(LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.cell_album_view, parent, false));
+                    .inflate(ChanSettings.useStaggeredAlbumGrid.get()
+                            ? R.layout.cell_album_view_stagger
+                            : R.layout.cell_album_view, parent, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull AlbumItemCellHolder holder, int position) {
             holder.postImage = postImages.get(position);
-            // if stagger, adjust view bounds; otherwise force 1:1 ratio
-            if (ChanSettings.useStaggeredAlbumGrid.get()) {
-                holder.thumbnailView.setAdjustViewBounds(true);
-                holder.thumbnailView.getLayoutParams().height = WRAP_CONTENT;
-            } else {
-                holder.thumbnailView.setAdjustViewBounds(false);
-                holder.thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            // if not stagger force 1:1 ratio
+            if (!ChanSettings.useStaggeredAlbumGrid.get()) {
                 holder.thumbnailView.getLayoutParams().height = recyclerView.getMeasuredSpanWidth();
             }
             holder.thumbnailView.setType(holder.postImage);
