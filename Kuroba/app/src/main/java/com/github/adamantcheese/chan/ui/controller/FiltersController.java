@@ -171,6 +171,7 @@ public class FiltersController
         });
 
         enable = view.findViewById(R.id.enable);
+        setEnableButtonState();
         enable.setOnClickListener(v -> {
             if (!locked) {
                 FloatingActionButton enableButton = (FloatingActionButton) v;
@@ -243,11 +244,7 @@ public class FiltersController
         final AlertDialog alertDialog =
                 getDefaultAlertBuilder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
                     filterEngine.createOrUpdateFilter(layout.getFilter());
-                    if (filterEngine.getEnabledFilters().isEmpty()) {
-                        enable.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
-                    } else {
-                        enable.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
-                    }
+                    setEnableButtonState();
                     postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
                     adapter.reload();
                 }).show();
@@ -259,6 +256,7 @@ public class FiltersController
     private void deleteFilter(Filter filter) {
         Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
+        setEnableButtonState();
         postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         adapter.reload();
 
@@ -267,9 +265,18 @@ public class FiltersController
                 R.string.undo,
                 v -> {
                     filterEngine.createOrUpdateFilter(clone);
+                    setEnableButtonState();
                     adapter.reload();
                 }
         );
+    }
+
+    private void setEnableButtonState() {
+        if (filterEngine.getEnabledFilters().isEmpty()) {
+            enable.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+        } else {
+            enable.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
+        }
     }
 
     @Override
