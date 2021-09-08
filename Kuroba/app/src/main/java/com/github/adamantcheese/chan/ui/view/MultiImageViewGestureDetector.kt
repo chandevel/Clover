@@ -129,7 +129,7 @@ class MultiImageViewGestureDetector(
                 return false
             }
         } else {
-            if (activeView is ImageView) {
+            if (activeView is ImageView && activeView !is GifImageView) {
                 // Current image is thumbnail, we can't use swipe-to-save gesture
                 callback.onSwipeToCloseImage()
             } else {
