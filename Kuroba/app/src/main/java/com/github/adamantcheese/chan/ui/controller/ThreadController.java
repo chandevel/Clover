@@ -28,6 +28,7 @@ import android.widget.ImageView;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
@@ -252,7 +253,7 @@ public abstract class ThreadController
 
         Filter filter = new Filter();
         filter.type = type.flag;
-        filter.pattern = '/' + (filterText == null ? "" : filterText) + '/';
+        filter.pattern = '/' + FilterEngine.escapeRegex(filterText == null ? "" : filterText) + '/';
 
         filtersController.showFilterDialog(filter);
     }
