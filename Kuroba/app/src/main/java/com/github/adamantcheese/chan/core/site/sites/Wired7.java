@@ -76,16 +76,14 @@ public class Wired7
                 Board.fromSiteNameCode(this, "Random", "b"),
                 Board.fromSiteNameCode(this, "Hentai", "h"),
                 Board.fromSiteNameCode(this, "Humanidad", "hum"),
-                Board.fromSiteNameCode(this, "Internacional/Random", "i"),
-                Board.fromSiteNameCode(this, "Política", "pol"),
-                Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
                 Board.fromSiteNameCode(this, "Anime", "a"),
-                Board.fromSiteNameCode(this, "Cultura Japonesa", "jp"),
+                Board.fromSiteNameCode(this, "Japón", "jp"),
                 Board.fromSiteNameCode(this, "Música y Audio", "mu"),
                 Board.fromSiteNameCode(this, "Tecnología", "tech"),
                 Board.fromSiteNameCode(this, "Videojuegos y Gaming", "v"),
-                Board.fromSiteNameCode(this, "Medios Visuales", "vis"),
+                Board.fromSiteNameCode(this, "Visuales", "vis"),
                 Board.fromSiteNameCode(this, "Paranormal", "x"),
+                Board.fromSiteNameCode(this, "Wired-7 Metaboard", "meta"),
                 Board.fromSiteNameCode(this, "Lain", "lain")
         );
 
