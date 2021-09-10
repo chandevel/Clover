@@ -69,7 +69,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 55;
+    private static final int DATABASE_VERSION = 56;
 
     // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
     // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
@@ -598,6 +598,22 @@ public class DatabaseHelper
 
         if (oldVersion < 55) {
             ChanSettings.watchBackgroundInterval.reset();
+        }
+
+        if (oldVersion < 56) {
+            try {
+                //remove wired-7 boards that don't exist anymore
+                Where<Board, Integer> where = getBoardDao().queryBuilder().where();
+                where.and(where.eq("site", 6), where.or(where.eq("value", "i"), where.eq("value", "pol")));
+                List<Board> toRemove = where.query();
+                for (Board b : toRemove) {
+                    if (b != null) {
+                        deleteBoard(b);
+                    }
+                }
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 42");
+            }
         }
     }
 
