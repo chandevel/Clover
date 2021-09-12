@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.theme.Highlightable;
 import com.j256.ormlite.stmt.DeleteBuilder;

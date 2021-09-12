@@ -18,8 +18,6 @@ package com.github.adamantcheese.chan.ui.controller;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -161,8 +159,6 @@ public class DrawerController
     };
     private final ItemTouchHelper drawerTouchHelper = new ItemTouchHelper(drawerItemTouchHelperCallback);
 
-    private final Handler handler = new Handler(Looper.getMainLooper());
-
     @Inject
     WatchManager watchManager;
 
@@ -192,7 +188,7 @@ public class DrawerController
                 AndroidUtils.getBaseToolTip(context)
                         .setPreferenceName("DrawerPinHistoryHint")
                         .setArrowOrientation(ArrowOrientation.TOP)
-                        .setText("Tap to view history/bookmarks")
+                        .setText("Tap to view history/bookmarks\nLong tap to toggle history")
                         .build()
                         .showAlignBottom(view.findViewById(R.id.history_pin_mode_toggle));
             }
@@ -210,12 +206,29 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
-        view.findViewById(R.id.history_pin_mode_toggle).setOnClickListener(v -> {
-            togglePinHistoryMode((ImageView) v);
+        ImageView pinHistoryToggle = view.findViewById(R.id.history_pin_mode_toggle);
+        pinHistoryToggle.setOnClickListener(v -> {
+            togglePinHistoryMode(pinHistoryToggle);
             ((SearchLayout) buttonSearchSwitch.findViewById(R.id.searchview)).setText("");
             ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
             buttonSearchSwitch.toggle(true, true);
             inViewMode = true;
+        });
+        pinHistoryToggle.setOnLongClickListener(v -> {
+            ChanSettings.showHistory.toggle();
+            if (!ChanSettings.showHistory.get())
+                DatabaseUtils.runTask(instance(DatabaseLoadableManager.class).clearHistory());
+            showToast(context, "Toggled history " + (ChanSettings.showHistory.get() ? "on!" : "off!"));
+            if (pinMode) {
+                ImageView historyVisibility = view.findViewById(R.id.history_visiblity);
+                historyVisibility.setImageResource(ChanSettings.showHistory.get()
+                        ? R.drawable.ic_fluent_eye_show_16_filled
+                        : R.drawable.ic_fluent_eye_off_16_filled);
+            } else {
+                recyclerView.setAdapter(null);
+                recyclerView.setAdapter(new DrawerHistoryAdapter(this));
+            }
+            return true;
         });
 
         buttonSearchSwitch = view.findViewById(R.id.header);
@@ -278,7 +291,6 @@ public class DrawerController
     public void onDestroy() {
         drawerTouchHelper.attachToRecyclerView(null);
         recyclerView.setAdapter(null);
-        handler.removeCallbacksAndMessages(null);
         EventBus.getDefault().unregister(this);
         super.onDestroy();
     }
@@ -356,8 +368,7 @@ public class DrawerController
     private void onHeaderClickedInternal(boolean all) {
         final List<Pin> pins = watchManager.clearPins(all);
         if (!pins.isEmpty()) {
-            openMessage(
-                    getString(R.string.drawer_pins_cleared, getQuantityString(R.plurals.bookmark, pins.size())),
+            openMessage(getString(R.string.drawer_pins_cleared, getQuantityString(R.plurals.bookmark, pins.size())),
                     v -> watchManager.addAll(pins),
                     getString(R.string.undo)
             );
@@ -374,13 +385,15 @@ public class DrawerController
     }
 
     private void togglePinHistoryMode(ImageView toggleView) {
+        TextView headerText = buttonSearchSwitch.findViewById(R.id.header_text);
+        ImageView historyVisibility = view.findViewById(R.id.history_visiblity);
         if (pinMode) {
             // swap to history mode
             pinMode = false;
             recyclerView.setAdapter(null);
             toggleView.setImageResource(R.drawable.ic_fluent_bookmark_24_filled);
-            ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_history);
-            handler.removeCallbacksAndMessages(null);
+            historyVisibility.setVisibility(GONE);
+            headerText.setText(R.string.drawer_history);
             synchronized (watchManager.getAllPins()) {
                 for (Pin p : watchManager.getAllPins()) {
                     p.shouldHighlight.set(false); // clear all highlights
@@ -392,7 +405,12 @@ public class DrawerController
             pinMode = true;
             recyclerView.setAdapter(null);
             toggleView.setImageResource(R.drawable.ic_fluent_history_24_filled);
-            ((TextView) buttonSearchSwitch.findViewById(R.id.header_text)).setText(R.string.drawer_pinned);
+
+            historyVisibility.setVisibility(VISIBLE);
+            historyVisibility.setImageResource(ChanSettings.showHistory.get()
+                    ? R.drawable.ic_fluent_eye_show_16_filled
+                    : R.drawable.ic_fluent_eye_off_16_filled);
+            headerText.setText(R.string.drawer_pinned);
 
             recyclerView.setAdapter(new DrawerPinAdapter(this));
         }

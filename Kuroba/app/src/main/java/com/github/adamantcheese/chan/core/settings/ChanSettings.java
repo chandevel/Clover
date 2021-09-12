@@ -241,6 +241,7 @@ public class ChanSettings {
     // Set elsewhere in the application
     public static final OptionsSetting<PostViewMode> boardViewMode;
     public static final OptionsSetting<PostsOrder> boardOrder;
+    public static final BooleanSetting showHistory;
     //endregion
 
     //region BEHAVIOUR
@@ -422,6 +423,7 @@ public class ChanSettings {
             boardViewMode =
                     new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
             boardOrder = new OptionsSetting<>(p, "preference_board_order", PostsOrder.class, PostsOrder.BUMP);
+            showHistory = new BooleanSetting(p, "preference_show_history", true);
             //endregion
 
             //region BEHAVIOUR
