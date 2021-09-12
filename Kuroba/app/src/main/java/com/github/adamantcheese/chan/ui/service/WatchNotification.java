@@ -173,44 +173,46 @@ public class WatchNotification
 
         BitSet flags = new BitSet(NotificationStyle.values().length);
 
-        for (Pin pin : watchManager.getWatchingPins()) {
-            WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
-            if (watcher == null || pin.isError || pin.archived) {
-                continue;
-            }
+        synchronized (watchManager.getAllPins()) {
+            for (Pin pin : watchManager.getWatchingPins()) {
+                WatchManager.PinWatcher watcher = watchManager.getPinWatcher(pin);
+                if (watcher == null || pin.isError || pin.archived) {
+                    continue;
+                }
 
-            if (pin.watching) {
-                pinCount++;
+                if (pin.watching) {
+                    pinCount++;
 
-                if (notifyQuotesOnly) {
-                    unviewedPosts.addAll(watcher.getUnviewedQuotes());
-                    listQuoting.addAll(watcher.getUnviewedQuotes());
-                    if (watcher.getWereNewQuotes()) {
-                        flags.set(NOTIFICATION_LIGHT.ordinal());
-                        flags.set(NOTIFICATION_PEEK.ordinal());
-                        flags.set(NOTIFICATION_SOUND.ordinal());
-                    }
-                    if (pin.getNewQuoteCount() > 0) {
-                        newQuotePins.add(pin);
-                    }
-                } else {
-                    unviewedPosts.addAll(watcher.getUnviewedPosts());
-                    listQuoting.addAll(watcher.getUnviewedQuotes());
-                    if (watcher.getWereNewPosts()) {
-                        flags.set(NOTIFICATION_LIGHT.ordinal());
-                        if (!soundQuotesOnly) {
+                    if (notifyQuotesOnly) {
+                        unviewedPosts.addAll(watcher.getUnviewedQuotes());
+                        listQuoting.addAll(watcher.getUnviewedQuotes());
+                        if (watcher.getWereNewQuotes()) {
+                            flags.set(NOTIFICATION_LIGHT.ordinal());
                             flags.set(NOTIFICATION_PEEK.ordinal());
                             flags.set(NOTIFICATION_SOUND.ordinal());
                         }
-                    }
-                    if (watcher.getWereNewQuotes()) {
-                        flags.set(NOTIFICATION_PEEK.ordinal());
-                        flags.set(NOTIFICATION_SOUND.ordinal());
-                    }
-                    if (pin.getNewQuoteCount() > 0) {
-                        newQuotePins.add(pin);
-                    } else if (pin.getNewPostCount() > 0) {
-                        newPostPins.add(pin);
+                        if (pin.getNewQuoteCount() > 0) {
+                            newQuotePins.add(pin);
+                        }
+                    } else {
+                        unviewedPosts.addAll(watcher.getUnviewedPosts());
+                        listQuoting.addAll(watcher.getUnviewedQuotes());
+                        if (watcher.getWereNewPosts()) {
+                            flags.set(NOTIFICATION_LIGHT.ordinal());
+                            if (!soundQuotesOnly) {
+                                flags.set(NOTIFICATION_PEEK.ordinal());
+                                flags.set(NOTIFICATION_SOUND.ordinal());
+                            }
+                        }
+                        if (watcher.getWereNewQuotes()) {
+                            flags.set(NOTIFICATION_PEEK.ordinal());
+                            flags.set(NOTIFICATION_SOUND.ordinal());
+                        }
+                        if (pin.getNewQuoteCount() > 0) {
+                            newQuotePins.add(pin);
+                        } else if (pin.getNewPostCount() > 0) {
+                            newPostPins.add(pin);
+                        }
                     }
                 }
             }
@@ -329,60 +331,59 @@ public class WatchNotification
             Pin target,
             boolean hasWatchPins
     ) {
-        synchronized (this) {
-            NotificationCompat.Builder builder =
-                    new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
-            builder.setContentTitle(title).setContentText(TextUtils.join(", ", expandedLines)).setOngoing(true);
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(this, alertIcon ? NOTIFICATION_ID_ALERT_STR : NOTIFICATION_ID_STR);
+        builder.setContentTitle(title).setContentText(TextUtils.join(", ", expandedLines)).setOngoing(true);
 
-            //setup launch action, add pin if there's only one thread watching
-            Intent intent = new Intent(this, StartActivity.class);
-            intent.setAction(Intent.ACTION_MAIN)
-                    .addCategory(Intent.CATEGORY_LAUNCHER)
-                    .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP
-                            | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
-                    .putExtra("pin_id", target != null ? target.id : -1);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(pendingIntent);
+        //setup launch action, add pin if there's only one thread watching
+        Intent intent = new Intent(this, StartActivity.class);
+        intent.setAction(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_LAUNCHER)
+                .setFlags(
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
+                                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                .putExtra("pin_id", target != null ? target.id : -1);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
 
-            //setup lights, sound, and peek
-            if (flags.get(NOTIFICATION_SOUND.ordinal()) || flags.get(NOTIFICATION_PEEK.ordinal())) {
-                builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
-            }
-
-            if (flags.get(NOTIFICATION_LIGHT.ordinal())) {
-                builder.setLights(0xff91e466, 1000, 1000);
-            }
-
-            //set the alert icon if necessary
-            //if the last notification was an alert, continue it having that icon until it goes to zero
-            //also keep the priority so it shows up in the status bar
-            if (alertIcon || alertIconOverride) {
-                builder.setSmallIcon(R.drawable.ic_stat_notify_alert).setPriority(NotificationCompat.PRIORITY_HIGH);
-            } else {
-                builder.setSmallIcon(R.drawable.ic_stat_notify).setPriority(NotificationCompat.PRIORITY_MIN);
-            }
-
-            if (hasWatchPins) {
-                //setup the pause watch button
-                Intent pauseWatching = new Intent(this, WatchNotification.class);
-                pauseWatching.putExtra(PAUSE_PINS_KEY, true);
-                PendingIntent pauseWatchIntent =
-                        PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
-                builder.addAction(R.drawable.ic_fluent_pause_24_filled,
-                        getString(R.string.watch_pause_pins),
-                        pauseWatchIntent
-                );
-            }
-
-            //setup the display in the notification
-            NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-            for (CharSequence line : expandedLines) {
-                style.addLine(line);
-            }
-            style.setBigContentTitle(title);
-            builder.setStyle(style);
-
-            return builder.build();
+        //setup lights, sound, and peek
+        if (flags.get(NOTIFICATION_SOUND.ordinal()) || flags.get(NOTIFICATION_PEEK.ordinal())) {
+            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         }
+
+        if (flags.get(NOTIFICATION_LIGHT.ordinal())) {
+            builder.setLights(0xff91e466, 1000, 1000);
+        }
+
+        //set the alert icon if necessary
+        //if the last notification was an alert, continue it having that icon until it goes to zero
+        //also keep the priority so it shows up in the status bar
+        if (alertIcon || alertIconOverride) {
+            builder.setSmallIcon(R.drawable.ic_stat_notify_alert).setPriority(NotificationCompat.PRIORITY_HIGH);
+        } else {
+            builder.setSmallIcon(R.drawable.ic_stat_notify).setPriority(NotificationCompat.PRIORITY_MIN);
+        }
+
+        if (hasWatchPins) {
+            //setup the pause watch button
+            Intent pauseWatching = new Intent(this, WatchNotification.class);
+            pauseWatching.putExtra(PAUSE_PINS_KEY, true);
+            PendingIntent pauseWatchIntent =
+                    PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
+            builder.addAction(R.drawable.ic_fluent_pause_24_filled,
+                    getString(R.string.watch_pause_pins),
+                    pauseWatchIntent
+            );
+        }
+
+        //setup the display in the notification
+        NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
+        for (CharSequence line : expandedLines) {
+            style.addLine(line);
+        }
+        style.setBigContentTitle(title);
+        builder.setStyle(style);
+
+        return builder.build();
     }
 }
