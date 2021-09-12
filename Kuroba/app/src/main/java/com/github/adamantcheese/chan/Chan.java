@@ -258,7 +258,6 @@ public class Chan
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
         BackgroundUtils.cleanup();
-        NetUtils.cleanup();
         CancellableToast.cleanup();
     }
 

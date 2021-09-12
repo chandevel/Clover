@@ -15,7 +15,6 @@ import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -23,9 +22,7 @@ import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Cookie;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
@@ -146,6 +143,7 @@ public class NetUtilsClasses {
 
         /**
          * Set a passthrough and return this BitmapResult
+         *
          * @param passthrough The passthrough to set for this result
          */
         public BitmapResult setPassthrough(BitmapResult passthrough) {
@@ -296,6 +294,7 @@ public class NetUtilsClasses {
             implements Call {
 
         private final Request request;
+        private boolean cancelled;
         private boolean executed;
 
         public NullCall(HttpUrl url) {
@@ -303,7 +302,9 @@ public class NetUtilsClasses {
         }
 
         @Override
-        public void cancel() {}
+        public void cancel() {
+            cancelled = true;
+        }
 
         @SuppressWarnings("MethodDoesntCallSuperMethod")
         @NotNull
@@ -327,6 +328,10 @@ public class NetUtilsClasses {
         @NotNull
         @Override
         public Response execute() {
+            if (cancelled) return new Response.Builder().code(418)
+                    .body(new EmptyResponseBody())
+                    .protocol(Protocol.HTTP_1_1)
+                    .build();
             executed = true;
             return new Response.Builder().code(200)
                     .request(request)
@@ -338,7 +343,7 @@ public class NetUtilsClasses {
 
         @Override
         public boolean isCanceled() {
-            return false;
+            return cancelled;
         }
 
         @Override

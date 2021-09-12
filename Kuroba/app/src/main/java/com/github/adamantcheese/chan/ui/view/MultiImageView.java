@@ -375,15 +375,15 @@ public class MultiImageView
             request = null;
         }
 
-        if ("Canceled".equals(e.getMessage()) || e instanceof StreamResetException) {
-            return;
-        }
+        if (NetUtils.isCancelledException(e)) return;
 
         if (e instanceof NetUtilsClasses.HttpCodeException) {
             if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
                 onNotFoundError();
+                return;
             }
         }
+
         onError(e);
     }
 
