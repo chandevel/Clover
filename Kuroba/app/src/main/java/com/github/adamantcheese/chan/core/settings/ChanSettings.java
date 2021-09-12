@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -239,7 +240,7 @@ public class ChanSettings {
 
     // Set elsewhere in the application
     public static final OptionsSetting<PostViewMode> boardViewMode;
-    public static final StringSetting boardOrder;
+    public static final OptionsSetting<PostsOrder> boardOrder;
     //endregion
 
     //region BEHAVIOUR
@@ -420,7 +421,7 @@ public class ChanSettings {
             //Elsewhere
             boardViewMode =
                     new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
-            boardOrder = new StringSetting(p, "preference_board_order", PostsFilter.Order.BUMP.name().toLowerCase());
+            boardOrder = new OptionsSetting<>(p, "preference_board_order", PostsOrder.class, PostsOrder.BUMP);
             //endregion
 
             //region BEHAVIOUR

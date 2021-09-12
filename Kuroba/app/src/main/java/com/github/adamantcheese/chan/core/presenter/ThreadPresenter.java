@@ -153,7 +153,7 @@ public class ThreadPresenter
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
-    private PostsFilter.Order order = PostsFilter.Order.BUMP;
+    private PostsFilter.PostsOrder postsOrder = PostsFilter.PostsOrder.BUMP;
     private final Context context;
     private List<FloatingMenuItem<PostOptions>> filterMenu;
     private List<FloatingMenuItem<PostOptions>> copyMenu;
@@ -270,9 +270,9 @@ public class ThreadPresenter
         }
     }
 
-    public void setOrder(PostsFilter.Order order) {
-        if (this.order != order) {
-            this.order = order;
+    public void setOrder(PostsFilter.PostsOrder postsOrder) {
+        if (this.postsOrder != postsOrder) {
+            this.postsOrder = postsOrder;
             if (isBound() && chanLoader.getThread() != null) {
                 scrollTo(0, false);
                 showPosts();
@@ -1192,7 +1192,7 @@ public class ThreadPresenter
 
     private void showPosts() {
         if (chanLoader != null && chanLoader.getThread() != null) {
-            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(order, searchQuery));
+            threadPresenterCallback.showPosts(chanLoader.getThread(), new PostsFilter(postsOrder, searchQuery));
         }
     }
 

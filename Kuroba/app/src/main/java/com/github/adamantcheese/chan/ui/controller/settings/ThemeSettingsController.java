@@ -80,6 +80,7 @@ import java.util.List;
 import okhttp3.HttpUrl;
 
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
@@ -541,7 +542,7 @@ public class ThemeSettingsController
                     return true;
                 }
             };
-            adapter.setThread(thread, new PostsFilter(PostsFilter.Order.BUMP, null));
+            adapter.setThread(thread, new PostsFilter(BUMP, null));
             adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
             holder.recyclerView.setAdapter(adapter);
             holder.accentText.setOnClickListener((v) -> showAccentColorPicker());

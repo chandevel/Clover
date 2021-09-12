@@ -36,7 +36,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
@@ -88,7 +89,7 @@ public class BrowseController
 
         // Initialization
         threadLayout.setPostViewMode(ChanSettings.boardViewMode.get());
-        threadLayout.getPresenter().setOrder(Order.find(ChanSettings.boardOrder.get()));
+        threadLayout.getPresenter().setOrder(ChanSettings.boardOrder.get());
 
         // Navigation
         initNavigation();
@@ -214,9 +215,8 @@ public class BrowseController
 
         ChanSettings.boardViewMode.set(postViewMode);
 
-        int viewModeText = postViewMode == PostViewMode.LIST
-                ? R.string.action_switch_catalog
-                : R.string.action_switch_board;
+        int viewModeText =
+                postViewMode == PostViewMode.LIST ? R.string.action_switch_catalog : R.string.action_switch_board;
         navigation.findSubItem(OverflowMenuId.VIEW_MODE).text = getString(viewModeText);
 
         threadLayout.setPostViewMode(postViewMode);
@@ -224,43 +224,18 @@ public class BrowseController
 
     private void handleSorting(ToolbarMenuItem item) {
         final ThreadPresenter presenter = threadLayout.getPresenter();
-        List<FloatingMenuItem<Order>> items = new ArrayList<>();
-        for (Order order : Order.values()) {
-            int nameId = 0;
-            switch (order) {
-                case BUMP:
-                    nameId = R.string.order_bump;
-                    break;
-                case REPLY:
-                    nameId = R.string.order_reply;
-                    break;
-                case IMAGE:
-                    nameId = R.string.order_image;
-                    break;
-                case NEWEST:
-                    nameId = R.string.order_newest;
-                    break;
-                case OLDEST:
-                    nameId = R.string.order_oldest;
-                    break;
-                case MODIFIED:
-                    nameId = R.string.order_modified;
-                    break;
-                case ACTIVITY:
-                    nameId = R.string.order_activity;
-                    break;
-            }
-
-            String name = getString(nameId);
-            if (order == Order.find(ChanSettings.boardOrder.get())) {
+        List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
+        for (PostsFilter.PostsOrder postsOrder : PostsOrder.values()) {
+            String name = getString(postsOrder.displayIdRes);
+            if (postsOrder == ChanSettings.boardOrder.get()) {
                 name = "\u2713 " + name; // Checkmark
             }
 
-            items.add(new FloatingMenuItem<>(order, name));
+            items.add(new FloatingMenuItem<>(postsOrder, name));
         }
         ToolbarMenuItem overflow = navigation.findOverflow();
         View anchor = (item != null ? item : overflow).getView();
-        FloatingMenu<Order> menu;
+        FloatingMenu<PostsFilter.PostsOrder> menu;
         if (anchor != null) {
             menu = new FloatingMenu<>(context, anchor, items);
         } else {
@@ -268,12 +243,15 @@ public class BrowseController
             menu = new FloatingMenu<>(context, view, items);
         }
 
-        menu.setCallback(new FloatingMenu.ClickCallback<Order>() {
+        menu.setCallback(new FloatingMenu.ClickCallback<PostsFilter.PostsOrder>() {
             @Override
-            public void onFloatingMenuItemClicked(FloatingMenu<Order> menu, FloatingMenuItem<Order> item) {
-                Order order = item.getId();
-                ChanSettings.boardOrder.set(order.name().toLowerCase());
-                presenter.setOrder(order);
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<PostsFilter.PostsOrder> menu,
+                    FloatingMenuItem<PostsFilter.PostsOrder> item
+            ) {
+                PostsFilter.PostsOrder postsOrder = item.getId();
+                ChanSettings.boardOrder.set(postsOrder);
+                presenter.setOrder(postsOrder);
             }
         });
         menu.show();

@@ -52,7 +52,7 @@ import okhttp3.HttpUrl;
 
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.Order.isNotBumpOrder;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -250,7 +250,7 @@ public class CardPostCell
         String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
         if (!ChanSettings.neverShowPages.get()) {
             ChanPage p = PageRepository.getPage(post);
-            if (p != null && isNotBumpOrder(ChanSettings.boardOrder.get())) {
+            if (p != null && ChanSettings.boardOrder.get() != BUMP) {
                 status += " Pg " + p.page;
             }
         }

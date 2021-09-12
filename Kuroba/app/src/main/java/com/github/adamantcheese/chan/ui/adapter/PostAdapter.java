@@ -55,6 +55,7 @@ import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.*;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
@@ -92,7 +93,7 @@ public class PostAdapter
     private int highlightedNo = -1;
     private String highlightedTripcode;
     public int lastSeenIndicatorPosition = Integer.MIN_VALUE;
-    private PostsFilter currentFilter = new PostsFilter(PostsFilter.Order.BUMP, null);
+    private PostsFilter currentFilter = new PostsFilter(BUMP, null);
 
     private ChanSettings.PostViewMode postViewMode = LIST;
     private boolean compact = false;
@@ -315,7 +316,7 @@ public class PostAdapter
         this.loadable = thread.getLoadable();
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
-        currentFilter = newFilter == null ? new PostsFilter(PostsFilter.Order.BUMP, null) : newFilter;
+        currentFilter = newFilter == null ? new PostsFilter(BUMP, null) : newFilter;
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
@@ -396,7 +397,7 @@ public class PostAdapter
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         // also don't show the status view if there's a search query going
-        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.getQuery()) && loadable != null
+        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.query) && loadable != null
                 && loadable.isThreadMode();
     }
 

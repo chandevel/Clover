@@ -18,6 +18,9 @@ package com.github.adamantcheese.chan.ui.adapter;
 
 import android.text.TextUtils;
 
+import androidx.annotation.StringRes;
+
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.ChanThread;
@@ -26,6 +29,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
@@ -33,55 +37,54 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 
 public class PostsFilter {
-    private static final Comparator<Post> IMAGE_COMPARATOR = (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount();
 
-    private static final Comparator<Post> REPLY_COMPARATOR = (lhs, rhs) -> rhs.getReplies() - lhs.getReplies();
+    public enum PostsOrder
+            implements OptionSettingItem {
+        BUMP(R.string.order_bump, (lhs, rhs) -> 0),
+        REPLY(R.string.order_reply, (lhs, rhs) -> rhs.getReplies() - lhs.getReplies()),
+        IMAGE(R.string.order_image, (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount()),
+        NEWEST(R.string.order_newest, (lhs, rhs) -> (int) (rhs.time - lhs.time)),
+        OLDEST(R.string.order_oldest, (lhs, rhs) -> (int) (lhs.time - rhs.time)),
+        MODIFIED(R.string.order_modified, (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified())),
+        ACTIVITY(R.string.order_activity, (lhs, rhs) -> {
+            long currentTimeSeconds = System.currentTimeMillis() / 1000L;
 
-    private static final Comparator<Post> NEWEST_COMPARATOR = (lhs, rhs) -> (int) (rhs.time - lhs.time);
+            //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
+            long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0
+                    ? lhs.getReplies()
+                    : Float.MIN_NORMAL));
+            long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0
+                    ? rhs.getReplies()
+                    : Float.MIN_NORMAL));
 
-    private static final Comparator<Post> OLDEST_COMPARATOR = (lhs, rhs) -> (int) (lhs.time - rhs.time);
+            return Long.compare(score1, score2);
+        });
 
-    private static final Comparator<Post> MODIFIED_COMPARATOR =
-            (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified());
+        public final Comparator<Post> postComparator;
+        @StringRes
+        public final int displayIdRes;
 
-    private static final Comparator<Post> THREAD_ACTIVITY_COMPARATOR = (lhs, rhs) -> {
-        long currentTimeSeconds = System.currentTimeMillis() / 1000L;
+        PostsOrder(@StringRes int displayId, Comparator<Post> c) {
+            postComparator = c;
+            displayIdRes = displayId;
+        }
 
-        //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
-        long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0
-                ? lhs.getReplies()
-                : Float.MIN_NORMAL));
-        long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0
-                ? rhs.getReplies()
-                : Float.MIN_NORMAL));
+        @Override
+        public String getKey() {
+            return name().toLowerCase();
+        }
+    }
 
-        return Long.compare(score1, score2);
-    };
+    public final PostsOrder postsOrder;
+    public final String query;
 
-    private final Order order;
-    private final String query;
-
-    public PostsFilter(Order order, String query) {
-        this.order = order;
+    public PostsFilter(PostsOrder postsOrder, String query) {
+        this.postsOrder = postsOrder;
         this.query = query;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        PostsFilter that = (PostsFilter) o;
-        return order == that.order && Objects.equals(query, that.query);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(order, query);
     }
 
     /**
@@ -94,28 +97,7 @@ public class PostsFilter {
         List<Post> posts = new ArrayList<>(thread.getPosts());
 
         // Process order
-        if (order != PostsFilter.Order.BUMP) {
-            switch (order) {
-                case IMAGE:
-                    Collections.sort(posts, IMAGE_COMPARATOR);
-                    break;
-                case REPLY:
-                    Collections.sort(posts, REPLY_COMPARATOR);
-                    break;
-                case NEWEST:
-                    Collections.sort(posts, NEWEST_COMPARATOR);
-                    break;
-                case OLDEST:
-                    Collections.sort(posts, OLDEST_COMPARATOR);
-                    break;
-                case MODIFIED:
-                    Collections.sort(posts, MODIFIED_COMPARATOR);
-                    break;
-                case ACTIVITY:
-                    Collections.sort(posts, THREAD_ACTIVITY_COMPARATOR);
-                    break;
-            }
-        }
+        Collections.sort(posts, postsOrder.postComparator);
 
         // Process search
         if (!TextUtils.isEmpty(query)) {
@@ -162,33 +144,5 @@ public class PostsFilter {
                 thread.getLoadable().siteId,
                 thread.getLoadable().boardCode
         );
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public enum Order {
-        BUMP,
-        REPLY,
-        IMAGE,
-        NEWEST,
-        OLDEST,
-        MODIFIED,
-        ACTIVITY;
-
-        public static Order find(String name) {
-            for (Order mode : Order.values()) {
-                if (mode.name().toLowerCase().equals(name)) {
-                    return mode;
-                }
-            }
-            return null;
-        }
-
-        public static boolean isNotBumpOrder(String orderString) {
-            Order o = find(orderString);
-            return !BUMP.equals(o);
-        }
     }
 }
