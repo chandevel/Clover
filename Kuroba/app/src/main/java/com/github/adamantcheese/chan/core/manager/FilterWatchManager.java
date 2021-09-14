@@ -124,7 +124,7 @@ public class FilterWatchManager
 
     private void populateFilterLoaders() {
         for (Map.Entry<ChanThreadLoader, CatalogLoader> entry : filterLoaders.entrySet()) {
-            ChanLoaderManager.release(entry.getKey(), entry.getValue());
+            entry.getKey().removeListener(entry.getValue());
         }
         filterLoaders.clear();
         //get a set of boards to background load
@@ -142,7 +142,8 @@ public class FilterWatchManager
 
         for (Board b : boards) {
             CatalogLoader backgroundLoader = new CatalogLoader();
-            ChanThreadLoader catalogLoader = ChanLoaderManager.obtain(Loadable.forCatalog(b), backgroundLoader);
+            ChanThreadLoader catalogLoader = new ChanThreadLoader(Loadable.forCatalog(b));
+            catalogLoader.addListener(backgroundLoader);
             filterLoaders.put(catalogLoader, backgroundLoader);
         }
     }
