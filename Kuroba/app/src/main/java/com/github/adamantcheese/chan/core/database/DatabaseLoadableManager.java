@@ -102,10 +102,7 @@ public class DatabaseLoadableManager {
 
         // refresh contents
         helper.getLoadableDao().refresh(loadable);
-        loadable.site = siteRepository.forId(loadable.siteId);
-        loadable.board = loadable.site.board(loadable.boardCode);
-        loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
-        helper.getLoadableDao().update(loadable);
+        updateLoadableFields(loadable);
         return loadable;
     }
 
@@ -127,12 +124,17 @@ public class DatabaseLoadableManager {
                 helper.getLoadableDao().create(loadable);
             }
 
-            result.site = siteRepository.forId(result.siteId);
-            result.board = result.site.board(result.boardCode);
-            result.lastLoadDate = GregorianCalendar.getInstance().getTime();
-            helper.getLoadableDao().update(result);
+            updateLoadableFields(result);
             return result;
         };
+    }
+
+    private void updateLoadableFields(Loadable loadable)
+            throws SQLException {
+        loadable.site = siteRepository.forId(loadable.siteId);
+        loadable.board = loadable.site.board(loadable.boardCode);
+        loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+        helper.getLoadableDao().update(loadable);
     }
 
     public Callable<List<Loadable>> getLoadables(Site site) {
