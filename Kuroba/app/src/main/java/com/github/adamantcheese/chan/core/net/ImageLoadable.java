@@ -3,48 +3,29 @@ package com.github.adamantcheese.chan.core.net;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Typeface;
-import android.text.TextPaint;
-import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
-import static android.graphics.Color.BLUE;
-import static android.graphics.Color.CYAN;
-import static android.graphics.Color.GREEN;
-import static android.graphics.Color.MAGENTA;
-import static android.graphics.Color.RED;
-import static android.graphics.Color.YELLOW;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-
 /**
  * A simple image loader that loads an image into an image view
  */
 public interface ImageLoadable {
-    int[] RAINBOW_COLORS =
-            {RED, 0xFF7F00, YELLOW, 0x7FFF00, GREEN, 0x00FF7F, CYAN, 0x007FFF, BLUE, 0x7F00FF, MAGENTA, 0xFF007F};
-
     /**
      * Set an arbitrary URL for the provided image view. Also adds a callback for when a load finishes.
      * Note that all arguments are null-safe, but you won't get anything if you don't have a URL to set or an imageview
@@ -58,21 +39,19 @@ public interface ImageLoadable {
     default void loadUrl(
             @Nullable HttpUrl url, @Nullable ImageView imageView, @Nullable ResponseResult<Void> callback
     ) {
-        if (url == null || imageView == null || (getLastHttpUrl() != null && url.equals(getLastHttpUrl())))
-            return; //nothing to do!
-        // setup a loading drawable if this is a first time load (ie no existing image)
-        // todo maybe use a LayerListDrawable to combine the loading image with the thumbnail for full-size loads?
-        if (getLastHttpUrl() == null) {
-            CircularProgressDrawable loading = new CircularProgressDrawable(imageView.getContext());
-            if (AndroidUtils.isAprilFoolsDay()) {
-                loading.setColorSchemeColors(RAINBOW_COLORS);
+        if (url == null || imageView == null) return;
+
+        // in progress check, in case of a re-bind without recycling
+        if (getImageCall() != null) {
+            if (getImageCall().request().url().equals(url)) {
+                return;
             } else {
-                loading.setColorSchemeColors(getAttrColor(imageView.getContext(), R.attr.colorAccent));
+                cancelLoad(imageView); // cancel before set again
             }
-            loading.start();
-            loading.setStyle(CircularProgressDrawable.LARGE);
-            imageView.setImageDrawable(loading);
         }
+
+        // completed load check
+        if (getLastHttpUrl() != null && url.equals(getLastHttpUrl())) return;
 
         // request the image
         Call imageCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
@@ -89,28 +68,9 @@ public interface ImageLoadable {
                         // for this case, never try and load again and treat it as though it loaded fully
                         setLastHttpUrl(source);
                     }
-                    String code = String.valueOf(((NetUtilsClasses.HttpCodeException) e).code);
-                    res = res.copy(BitmapRepository.paddedError.getConfig(), true);
-                    Canvas temp = new Canvas(res);
-                    RectF bounds = new RectF(0, 0, temp.getWidth(), temp.getHeight());
-
-                    TextPaint errorTextPaint = new TextPaint();
-                    errorTextPaint.setAntiAlias(true);
-                    errorTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
-                    errorTextPaint.setTextAlign(Paint.Align.CENTER);
-                    errorTextPaint.setTextSize(sp(imageView.getContext(), 24));
-                    errorTextPaint.setColor(0xFFDD3333);
-
-                    TextPaint errorBorderTextPaint = new TextPaint(errorTextPaint);
-                    errorBorderTextPaint.setStyle(Paint.Style.STROKE);
-                    errorBorderTextPaint.setStrokeWidth(sp(imageView.getContext(), 3));
-                    errorBorderTextPaint.setColor(0xFFFFFFFF);
-
-                    float textHeight = errorTextPaint.descent() - errorTextPaint.ascent();
-                    float textOffset = (textHeight / 2) - errorTextPaint.descent();
-
-                    temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorBorderTextPaint);
-                    temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorTextPaint);
+                    res = BitmapUtils.makeHttpCodeExceptionBitmap(imageView.getContext(),
+                            (NetUtilsClasses.HttpCodeException) e
+                    );
                 } else {
                     Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(url), e);
                 }
@@ -129,17 +89,24 @@ public interface ImageLoadable {
                 if (callback != null) {
                     callback.onSuccess(null);
                 }
-                // if not from cache, fade the view out then in
+
+                // if not from cache, fade the view in; if set, fade out first
                 if (!fromCache) {
-                    ViewPropertyAnimator fadeOut =
-                            imageView.animate().setInterpolator(new AccelerateInterpolator(2f)).alpha(0f);
-                    fadeOut.setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            imageView.setImageBitmap(bitmap);
-                            imageView.animate().setInterpolator(new DecelerateInterpolator(2f)).alpha(1f);
-                        }
-                    });
+                    if (imageView.getDrawable() != null) {
+                        imageView.animate()
+                                .setInterpolator(new AccelerateInterpolator(2f))
+                                .alpha(0f)
+                                .setListener(new AnimatorListenerAdapter() {
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        imageView.setImageBitmap(bitmap);
+                                        imageView.animate().setInterpolator(new DecelerateInterpolator(2f)).alpha(1f);
+                                    }
+                                });
+                    } else {
+                        imageView.setImageBitmap(bitmap);
+                        imageView.animate().setInterpolator(new DecelerateInterpolator(2f)).alpha(1f);
+                    }
                 } else {
                     imageView.setImageBitmap(bitmap);
                     imageView.setAlpha(1f);
@@ -155,13 +122,6 @@ public interface ImageLoadable {
                 if (!source.equals(url)) return true; // sanity check, don't load incorrect images into the view
                 setImageCall(null); // set afterwards, otherwise image loading might mess up
                 return false;
-            }
-        }, (int) getMaxImageSize(), (int) getMaxImageSize(), (source, bytesRead, contentLength, start, done) -> {
-            if (imageView.getDrawable() instanceof CircularProgressDrawable) {
-                CircularProgressDrawable loading = (CircularProgressDrawable) imageView.getDrawable();
-                if (start) loading.stop();
-                loading.setProgressRotation(0.75f);
-                loading.setStartEndTrim(0f, Math.min(1f, (float) bytesRead / contentLength));
             }
         });
         setImageCall(imageCall);
@@ -184,31 +144,16 @@ public interface ImageLoadable {
      * @param imageView The image view to load into.
      */
     default void loadPostImage(PostImage postImage, ImageView imageView) {
-        if (ChanSettings.shouldUseFullSizeImage(postImage)) {
-            HttpUrl secondLoadUrl = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
-            if (getLastHttpUrl() == null) {
-                // nothing loaded yet, do a full load
-                loadUrl(postImage.getThumbnailUrl(), imageView, new ResponseResult<Void>() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        // just try and load the bigger image outright
-                        loadUrl(secondLoadUrl, imageView);
-                    }
-
-                    @Override
-                    public void onSuccess(Void result) {
-                        loadUrl(secondLoadUrl, imageView);
-                    }
-                });
-            } else if (getLastHttpUrl().equals(postImage.getThumbnailUrl())) {
-                // thumbnail loaded, load the second url
-                loadUrl(secondLoadUrl, imageView);
-            }
-        } else {
-            if (getLastHttpUrl() == null) {
-                loadUrl(postImage.getThumbnailUrl(), imageView);
-            }
+        HttpUrl loadUrl = postImage.getThumbnailUrl();
+        HttpUrl secondUrl = postImage.spoiler() ? postImage.getThumbnailUrl() : postImage.imageUrl;
+        if (ChanSettings.shouldUseFullSizeImage(postImage) && NetUtils.isCached(secondUrl)) {
+            loadUrl = secondUrl;
         }
+        loadUrl(loadUrl, imageView, (NoFailResponseResult<Void>) result -> {
+            if (ChanSettings.shouldUseFullSizeImage(postImage)) {
+                loadUrl(secondUrl, imageView);
+            }
+        });
     }
 
     /**
@@ -219,6 +164,7 @@ public interface ImageLoadable {
     default void cancelLoad(ImageView imageView) {
         imageView.animate().cancel();
         imageView.setImageBitmap(null);
+        imageView.setAlpha(0f);
         setLastHttpUrl(null);
         if (getImageCall() != null) {
             getImageCall().cancel();

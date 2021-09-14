@@ -8,7 +8,17 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 
+import static android.graphics.Color.BLUE;
+import static android.graphics.Color.CYAN;
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.MAGENTA;
+import static android.graphics.Color.RED;
+import static android.graphics.Color.YELLOW;
+
 public class AnimationUtils {
+
+    public static final int[] RAINBOW_COLORS =
+            {RED, 0xFF7F00, YELLOW, 0x7FFF00, GREEN, 0x00FF7F, CYAN, 0x007FFF, BLUE, 0x7F00FF, MAGENTA, 0xFF007F};
 
     public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
         ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);

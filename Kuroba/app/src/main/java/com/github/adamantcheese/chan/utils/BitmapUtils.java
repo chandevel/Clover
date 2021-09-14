@@ -6,10 +6,14 @@ import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.media.MediaMetadataRetriever;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
 import android.renderscript.ScriptIntrinsicBlur;
+import android.text.TextPaint;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -18,6 +22,7 @@ import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.google.common.io.Files;
@@ -38,6 +43,7 @@ import static android.graphics.Bitmap.CompressFormat.WEBP;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.repository.BitmapRepository.rs;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class BitmapUtils {
     private static final String TAG = "BitmapUtils";
@@ -202,8 +208,8 @@ public class BitmapUtils {
      * Decode the given byte data into a Bitmap, scaling it if necessary.
      *
      * @param data      bytes to decode
-     * @param maxWidth  the max width of the image
-     * @param maxHeight the max height of the image
+     * @param maxWidth  the max width of the image, 0 to leave as-is
+     * @param maxHeight the max height of the image, 0 to leave as-is
      * @return a bitmap, scaled to the max width and height if needed
      */
     public static Bitmap decode(InputStream data, float maxWidth, float maxHeight) {
@@ -233,7 +239,9 @@ public class BitmapUtils {
         return bitmap;
     }
 
-    private static float getResizedDimension(float maxPrimary, float maxSecondary, float actualPrimary, float actualSecondary) {
+    private static float getResizedDimension(
+            float maxPrimary, float maxSecondary, float actualPrimary, float actualSecondary
+    ) {
         // If no dominant value at all, just return the actual.
         if (maxPrimary == 0 && maxSecondary == 0) {
             return actualPrimary;
@@ -252,6 +260,14 @@ public class BitmapUtils {
         return maxPrimary * ratio > maxSecondary ? (int) (maxSecondary / ratio) : maxPrimary;
     }
 
+    /**
+     * Decode the given byte data into a Bitmap, scaling it if necessary.
+     *
+     * @param file      file to decode
+     * @param maxWidth  the max width of the image, 0 to leave as-is
+     * @param maxHeight the max height of the image, 0 to leave as-is
+     * @return a bitmap, scaled to the max width and height if needed
+     */
     public static Bitmap decodeFile(File file, float maxWidth, float maxHeight) {
         try (FileInputStream fis = new FileInputStream(file)) {
             return BitmapUtils.decode(fis, maxWidth, maxHeight);
@@ -279,7 +295,9 @@ public class BitmapUtils {
         }
     }
 
-    private static Bitmap decodeFilePreviewImage(final File file, float maxWidth, float maxHeight, boolean addAudioIcon) {
+    private static Bitmap decodeFilePreviewImage(
+            final File file, float maxWidth, float maxHeight, boolean addAudioIcon
+    ) {
         Bitmap result = BitmapRepository.paddedError;
         try {
             // Decode normally, scaling if necessary
@@ -322,5 +340,32 @@ public class BitmapUtils {
 
     public interface ImageDecoderCallback {
         void onImageBitmap(Bitmap bitmap);
+    }
+
+    public static Bitmap makeHttpCodeExceptionBitmap(Context c, NetUtilsClasses.HttpCodeException e) {
+        String code = String.valueOf(e.code);
+        Bitmap res = BitmapRepository.paddedError.copy(BitmapRepository.paddedError.getConfig(), true);
+        Canvas temp = new Canvas(res);
+        RectF bounds = new RectF(0, 0, temp.getWidth(), temp.getHeight());
+
+        TextPaint errorTextPaint = new TextPaint();
+        errorTextPaint.setAntiAlias(true);
+        errorTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        errorTextPaint.setTextAlign(Paint.Align.CENTER);
+        errorTextPaint.setTextSize(sp(c, 24));
+        errorTextPaint.setColor(0xFFDD3333);
+
+        TextPaint errorBorderTextPaint = new TextPaint(errorTextPaint);
+        errorBorderTextPaint.setStyle(Paint.Style.STROKE);
+        errorBorderTextPaint.setStrokeWidth(sp(c, 3));
+        errorBorderTextPaint.setColor(0xFFFFFFFF);
+
+        float textHeight = errorTextPaint.descent() - errorTextPaint.ascent();
+        float textOffset = (textHeight / 2) - errorTextPaint.descent();
+
+        temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorBorderTextPaint);
+        temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorTextPaint);
+
+        return res;
     }
 }
