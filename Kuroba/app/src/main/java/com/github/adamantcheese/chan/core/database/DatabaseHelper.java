@@ -71,16 +71,6 @@ public class DatabaseHelper
     private static final String DATABASE_NAME = "ChanDB";
     private static final int DATABASE_VERSION = 56;
 
-    // All of these are NOT instantiated in the constructor because it is possible that they are failed to be created before an upgrade
-    // Therefore they are instantiated upon request instead; this doesn't guarantee a lack of exceptions however
-    private Dao<Pin, Integer> pinDao;
-    private Dao<Loadable, Integer> loadableDao;
-    private Dao<SavedReply, Integer> savedDao;
-    private Dao<Board, Integer> boardsDao;
-    private Dao<PostHide, Integer> postHideDao;
-    private Dao<Filter, Integer> filterDao;
-    private Dao<SiteModel, Integer> siteDao;
-
     public DatabaseHelper() {
         super(getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -95,55 +85,31 @@ public class DatabaseHelper
     }
 
     public Dao<Pin, Integer> getPinDao() {
-        if (pinDao == null) {
-            pinDao = getDaoForClass(Pin.class);
-        }
-        return pinDao;
+        return getDaoForClass(Pin.class);
     }
 
     public Dao<Loadable, Integer> getLoadableDao() {
-        if (loadableDao == null) {
-            loadableDao = getDaoForClass(Loadable.class);
-            try {
-                loadableDao.setObjectCache(true);
-            } catch (SQLException ignored) {}
-        }
-        return loadableDao;
+        return getDaoForClass(Loadable.class);
     }
 
     public Dao<SavedReply, Integer> getSavedReplyDao() {
-        if (savedDao == null) {
-            savedDao = getDaoForClass(SavedReply.class);
-        }
-        return savedDao;
+        return getDaoForClass(SavedReply.class);
     }
 
     public Dao<Board, Integer> getBoardDao() {
-        if (boardsDao == null) {
-            boardsDao = getDaoForClass(Board.class);
-        }
-        return boardsDao;
+        return getDaoForClass(Board.class);
     }
 
     public Dao<PostHide, Integer> getPostHideDao() {
-        if (postHideDao == null) {
-            postHideDao = getDaoForClass(PostHide.class);
-        }
-        return postHideDao;
+        return getDaoForClass(PostHide.class);
     }
 
     public Dao<Filter, Integer> getFilterDao() {
-        if (filterDao == null) {
-            filterDao = getDaoForClass(Filter.class);
-        }
-        return filterDao;
+        return getDaoForClass(Filter.class);
     }
 
     public Dao<SiteModel, Integer> getSiteModelDao() {
-        if (siteDao == null) {
-            siteDao = getDaoForClass(SiteModel.class);
-        }
-        return siteDao;
+        return getDaoForClass(SiteModel.class);
     }
 
     @Override
