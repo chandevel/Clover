@@ -30,7 +30,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
  */
 public class NavigationItem {
     public String title = "";
-    public String subtitle = "";
+    public CharSequence subtitle = "";
 
     public boolean hasBack = true;
     public boolean hasDrawer;

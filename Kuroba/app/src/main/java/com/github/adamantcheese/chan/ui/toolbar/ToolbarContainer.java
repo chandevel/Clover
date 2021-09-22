@@ -24,7 +24,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
@@ -143,37 +142,18 @@ public class ToolbarContainer
     }
 
     public void update(NavigationItem item) {
-        // TODO
-        View view = viewForItem(item);
-        if (view != null) {
-            TextView titleView = view.findViewById(R.id.title);
-            if (titleView != null) {
-                titleView.setText(item.title);
-            }
+        ItemView viewForItem = null;
 
-            if (!isEmpty(item.subtitle)) {
-                TextView subtitleView = view.findViewById(R.id.subtitle);
-                if (subtitleView != null) {
-                    subtitleView.setText(item.subtitle);
-                }
-            }
-        }
-    }
-
-    public View viewForItem(NavigationItem item) {
-        ItemView itemView = itemViewForItem(item);
-        return itemView == null ? null : itemView.view;
-    }
-
-    private ItemView itemViewForItem(NavigationItem item) {
         if (currentView != null && item == currentView.item) {
-            return currentView;
+            viewForItem = currentView;
         } else if (previousView != null && item == previousView.item) {
-            return previousView;
+            viewForItem = previousView;
         } else if (transitionView != null && item == transitionView.item) {
-            return transitionView;
-        } else {
-            return null;
+            viewForItem = transitionView;
+        }
+
+        if (viewForItem != null) {
+            viewForItem.updateNavigationView();
         }
     }
 
@@ -393,11 +373,12 @@ public class ToolbarContainer
 
     private void removeItem(@NonNull ItemView item) {
         if (item == null) return;
-        item.remove();
+        item.detach();
         removeView(item.view);
     }
 
     private class ItemView {
+        final Theme theme;
         final View view;
         final NavigationItem item;
 
@@ -405,8 +386,9 @@ public class ToolbarContainer
         private ToolbarMenuView menuView;
 
         public ItemView(NavigationItem item, Theme theme) {
-            this.view = createNavigationItemView(item, theme);
+            this.theme = theme;
             this.item = item;
+            this.view = createNavigationView();
         }
 
         public void attach() {
@@ -415,19 +397,33 @@ public class ToolbarContainer
             }
         }
 
-        public void remove() {
+        public void detach() {
             if (menuView != null) {
                 menuView.detach();
             }
         }
 
-        private LinearLayout createNavigationItemView(final NavigationItem item, Theme theme) {
-            return item.search ? createSearchLayout(item) : createNavigationLayout(item, theme);
+        private void updateNavigationView() {
+            if (!item.search) {
+                detach();
+                createOrUpdateNavLayout(true);
+                attach();
+            }
+        }
+
+        private View createNavigationView() {
+            return item.search ? createSearchLayout() : createOrUpdateNavLayout(false);
         }
 
         @NonNull
-        private LinearLayout createNavigationLayout(NavigationItem item, Theme theme) {
-            LinearLayout menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
+        private View createOrUpdateNavLayout(boolean update) {
+            if (update && view == null) throw new IllegalStateException("Attempting to update null view!");
+            LinearLayout menu;
+            if (update) {
+                menu = (LinearLayout) view;
+            } else {
+                menu = (LinearLayout) inflate(getContext(), R.layout.toolbar_menu, null);
+            }
             ConstraintLayout titleContainer = menu.findViewById(R.id.title_container);
 
             // Title
@@ -436,36 +432,40 @@ public class ToolbarContainer
             titleView.setText(item.title);
 
             // Middle title with arrow and callback
+            ImageView dropdown = menu.findViewById(R.id.dropdown);
             if (item.middleMenu != null) {
-                ImageView dropdown = menu.findViewById(R.id.dropdown);
                 dropdown.setVisibility(VISIBLE);
                 titleContainer.setOnClickListener(v -> item.middleMenu.show(titleView));
                 titleContainer.setBackground(getAttrDrawable(getContext(), R.attr.selectableItemBackground));
+            } else {
+                dropdown.setVisibility(GONE);
+                titleContainer.setOnClickListener(null);
+                titleContainer.setBackground(null);
             }
 
             // Possible subtitle.
             TextView subtitleView = menu.findViewById(R.id.subtitle);
             if (!isEmpty(item.subtitle)) {
-                ViewGroup.LayoutParams titleParams = titleView.getLayoutParams();
-                titleParams.height = WRAP_CONTENT;
-                titleView.setLayoutParams(titleParams);
                 subtitleView.setText(item.subtitle);
+                subtitleView.setVisibility(VISIBLE);
                 ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = R.id.parent;
                 updatePaddings(titleView, -1, -1, dp(5f), -1);
             } else {
-                ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = 0;
                 subtitleView.setVisibility(GONE);
+                ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = 0;
+                updatePaddings(titleView, -1, -1, 0, -1);
             }
 
             // Possible view shown at the right side.
+            removeFromParentView(item.rightView);
             if (item.rightView != null) {
-                removeFromParentView(item.rightView);
                 item.rightView.setPadding(0, 0, (int) dp(16), 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
                 menu.addView(item.rightView, lp);
             }
 
             // Possible menu with items.
+            removeFromParentView(menuView);
             if (item.menu != null) {
                 menuView = new ToolbarMenuView(getContext());
 
@@ -477,7 +477,7 @@ public class ToolbarContainer
         }
 
         @NonNull
-        private LinearLayout createSearchLayout(NavigationItem item) {
+        private View createSearchLayout() {
             SearchLayout searchLayout = new SearchLayout(getContext());
             searchLayout.setCallback(entered -> callback.searchInput(entered));
 

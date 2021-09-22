@@ -751,6 +751,11 @@ public class ThreadLayout
         return threadListLayout.getGridWidth();
     }
 
+    @Override
+    public void updateSubtitle(CharSequence summary) {
+        callback.updateSubtitle(summary);
+    }
+
     public interface ThreadLayoutCallback {
         void showThread(Loadable threadLoadable);
 
@@ -777,5 +782,7 @@ public class ThreadLayout
         boolean threadBackPressed();
 
         boolean isViewingCatalog();
+
+        default void updateSubtitle(CharSequence summary) {}
     }
 }

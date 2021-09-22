@@ -207,6 +207,7 @@ public class ChanSettings {
     public static final BooleanSetting reverseDrawer;
     public static final BooleanSetting useImmersiveModeForGallery;
     public static final BooleanSetting moveSortToToolbar;
+    public static final BooleanSetting statusCellAsSubtitle;
     public static final BooleanSetting neverShowPages;
 
     //Post
@@ -387,6 +388,7 @@ public class ChanSettings {
             reverseDrawer = new BooleanSetting(p, "reverse_drawer", false);
             useImmersiveModeForGallery = new BooleanSetting(p, "use_immersive_mode_for_gallery", false);
             moveSortToToolbar = new BooleanSetting(p, "move_sort_to_toolbar", false);
+            statusCellAsSubtitle = new BooleanSetting(p, "status_cell_info_as_subtitle", false);
             neverShowPages = new BooleanSetting(p, "never_show_page_number", false);
 
             // Post

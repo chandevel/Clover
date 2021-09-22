@@ -326,7 +326,6 @@ public class ThreadPresenter
                 chanLoader.clearTimer();
             }
         } else {
-            Logger.e(this, "onChanLoaderData when not bound!");
             return;
         }
 
@@ -381,6 +380,8 @@ public class ThreadPresenter
         }
 
         updateDatabaseLoadable();
+
+        threadPresenterCallback.updateSubtitle(result.summarize(false));
     }
 
     @Override
@@ -1376,5 +1377,7 @@ public class ThreadPresenter
         void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
 
         int getGridWidth();
+
+        void updateSubtitle(CharSequence summary);
     }
 }

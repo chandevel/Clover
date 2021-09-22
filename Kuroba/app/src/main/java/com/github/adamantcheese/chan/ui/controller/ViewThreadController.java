@@ -321,6 +321,11 @@ public class ViewThreadController
         updateLeftPaneHighlighting(loadable);
     }
 
+    public void updateSubtitle(CharSequence summary) {
+        navigation.subtitle = ChanSettings.statusCellAsSubtitle.get() ? summary : null;
+        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+    }
+
     @Override
     public void onNavItemSet() {
         if (navigation.search) return; // bit of a hack to ignore the search change

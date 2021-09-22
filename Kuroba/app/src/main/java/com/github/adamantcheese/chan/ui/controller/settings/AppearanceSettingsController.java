@@ -22,12 +22,12 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.SeekbarSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -146,6 +146,12 @@ public class AppearanceSettingsController
                     R.string.setting_move_sort_to_toolbar,
                     R.string.setting_move_sort_to_toolbar_description
             )));
+
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.statusCellAsSubtitle,
+                    "Show thread info as thread subtitle",
+                    "Shows thread counts from the thread status cell under the title of the thread in the toolbar as well"
+            ));
 
             layout.add(new BooleanSettingView(this,
                     ChanSettings.neverShowPages,
