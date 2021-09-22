@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.net;
 
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.style.URLSpan;
 import android.util.JsonReader;
 import android.util.MalformedJsonException;
 
@@ -35,9 +36,11 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.BuildConfig.APP_LABEL;
+import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
 import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
 import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
+import static com.github.adamantcheese.chan.core.settings.PersistableChanState.previousDevHash;
 
 public class UpdateApiParser
         implements NetUtilsClasses.Converter<UpdateApiResponse, JsonReader> {
@@ -50,7 +53,14 @@ public class UpdateApiParser
             throws Exception {
         UpdateApiResponse response = new UpdateApiResponse();
         if (DEV_BUILD) {
-            response.body = SpannableStringBuilder.valueOf("New dev build; see commits!");
+            SpannableStringBuilder b = SpannableStringBuilder.valueOf("New dev build; see commits!");
+            b.setSpan(
+                    new URLSpan(GITHUB_ENDPOINT + "/compare/" + previousDevHash.get() + "..." + COMMIT_HASH),
+                    0,
+                    b.length(),
+                    0
+            );
+            response.body = b;
         } else {
             response.body = HtmlCompat.fromHtml(
                     "Changelog:\r\nSee the release on Github for details!\r\n"

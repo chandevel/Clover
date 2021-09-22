@@ -23,6 +23,8 @@ import android.net.Uri;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -208,6 +210,7 @@ public class UpdateManager {
                         .create();
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.show();
+                ((TextView) dialog.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
             }
             notifyNewApkUpdate();
             return true;
