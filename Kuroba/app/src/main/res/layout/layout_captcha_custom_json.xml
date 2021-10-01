@@ -6,22 +6,21 @@
     android:layout_height="match_parent"
     android:background="?backcolor"
     android:orientation="vertical"
-    android:paddingVertical="8dp">
+    android:paddingHorizontal="32dp">
 
     <TextView
         android:id="@+id/top_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="8dp"
         android:gravity="center"
-        android:padding="8dp"
         android:textSize="18sp"
         tools:text="Enter the text below." />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/wrapper"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:layout_width="0dp"
@@ -59,8 +58,8 @@
     <SeekBar
         android:id="@+id/slider"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="8dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="24dp"
         android:max="50"
         android:progress="25"
         android:visibility="gone"
