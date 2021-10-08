@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -51,8 +52,8 @@ public class VimeoEmbedder
     @Override
     public NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter() {
         return input -> {
-            String title = "Vimeo Link";
-            String duration = "";
+            String title = null;
+            String duration = null;
             HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
             HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
 
@@ -85,6 +86,8 @@ public class VimeoEmbedder
                 }
             }
             input.endObject();
+
+            if (title == null) throw new EmbedNoTitleException();
 
             return new EmbedResult(title,
                     duration,

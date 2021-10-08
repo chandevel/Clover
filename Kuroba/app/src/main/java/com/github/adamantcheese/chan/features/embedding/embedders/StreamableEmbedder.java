@@ -7,13 +7,13 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import kotlin.random.Random;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
@@ -84,7 +84,7 @@ public class StreamableEmbedder
             HttpUrl thumbnailUrl = null;
             long size = -1L;
 
-            String title = "titleMissing" + Random.Default.nextDouble();
+            String title = null;
             double duration = Double.NaN;
 
             input.beginObject(); // JSON start
@@ -137,6 +137,8 @@ public class StreamableEmbedder
                 }
             }
             input.endObject();
+
+            if (title == null) throw new EmbedNoTitleException();
 
             return new EmbedResult(
                     title,

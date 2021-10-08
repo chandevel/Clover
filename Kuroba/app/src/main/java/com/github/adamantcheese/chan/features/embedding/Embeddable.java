@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.features.embedding;
 
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
 
@@ -19,12 +20,12 @@ public abstract class Embeddable {
     /**
      * @return The text that should be embedded for this implementation.
      */
-    public abstract SpannableStringBuilder getEmbeddableText();
+    public abstract Spanned getEmbeddableText();
 
     /**
      * @param text The text that should be stored for this implementation.
      */
-    public abstract void setEmbeddableText(SpannableStringBuilder text);
+    public abstract void setEmbeddableText(Spanned text);
 
     /**
      * If your embeddable deals with extra embedded images, they will be provided by the embedding engine with this method.

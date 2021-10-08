@@ -5,6 +5,7 @@ import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -76,9 +77,9 @@ public class YoutubeEmbedder
     public EmbedResult convert(Response response)
             throws Exception {
         return new NetUtilsClasses.ChainConverter<EmbedResult, JsonReader>(input -> {
-            String url = response.request().url().toString();
-            String title = "Title missing";
-            String duration = "[?:??]";
+            HttpUrl url = response.request().url();
+            String title = null;
+            String duration = null;
             input.beginObject();
             while (input.hasNext()) {
                 if ("videoDetails".equals(input.nextName())) {
@@ -108,8 +109,13 @@ public class YoutubeEmbedder
             }
             input.endObject();
 
-            duration += url.contains("autoplay") ? "[AUTOPLAY]" : "";
-            duration += url.contains("loop") ? "[LOOP]" : "";
+            if (title == null) throw new EmbedNoTitleException(url);
+
+            if (duration != null) {
+                String urlString = url.toString();
+                duration += urlString.contains("autoplay") ? "[AUTOPLAY]" : "";
+                duration += urlString.contains("loop") ? "[LOOP]" : "";
+            }
 
             return new EmbedResult(title, duration, null);
         }).chain(input -> {

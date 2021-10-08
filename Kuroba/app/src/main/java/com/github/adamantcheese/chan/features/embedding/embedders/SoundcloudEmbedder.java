@@ -7,6 +7,7 @@ import android.util.JsonToken;
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -67,8 +68,8 @@ public class SoundcloudEmbedder
         }
 
         // process the JSON
-        String artist = "";
-        String title = "";
+        String artist = null;
+        String title = null;
         String duration = null;
         HttpUrl artworkURL = null;
 
@@ -127,6 +128,8 @@ public class SoundcloudEmbedder
         }
         reader.endObject();
         reader.endArray();
+
+        if (title == null || artist == null) throw new EmbedNoTitleException(sourceURL);
 
         return new EmbedResult(
                 (artist + title).isEmpty()

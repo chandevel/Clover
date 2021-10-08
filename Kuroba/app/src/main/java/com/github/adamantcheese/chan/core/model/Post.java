@@ -17,7 +17,12 @@
 package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.SpannedString;
+import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
@@ -56,7 +61,7 @@ public class Post
 
     public final String name;
 
-    public final SpannableStringBuilder comment;
+    public final Spanned comment;
 
     public final String subject;
 
@@ -142,7 +147,7 @@ public class Post
 
         subject = builder.subject;
         name = builder.name;
-        comment = builder.comment;
+        comment = new SpannedString(builder.comment);
         tripcode = builder.tripcode;
 
         time = builder.unixTimestampSeconds;
@@ -423,13 +428,13 @@ public class Post
     }
 
     @Override
-    public SpannableStringBuilder getEmbeddableText() {
+    public Spanned getEmbeddableText() {
         return comment;
     }
 
     @MainThread
     @Override
-    public void setEmbeddableText(SpannableStringBuilder text) {
+    public void setEmbeddableText(Spanned text) {
         try {
             synchronized (comment) {
                 Field c = Post.class.getField("comment");
@@ -469,7 +474,7 @@ public class Post
 
         public String subject = "";
         public String name = "";
-        public SpannableStringBuilder comment = new SpannableStringBuilder("");
+        public Spannable comment = new SpannableString("");
         public String tripcode = "";
 
         public long unixTimestampSeconds = -1L;
@@ -573,12 +578,7 @@ public class Post
             return this;
         }
 
-        public Builder comment(SpannableStringBuilder comment) {
-            this.comment = comment;
-            return this;
-        }
-
-        public Builder comment(String comment) {
+        public Builder comment(CharSequence comment) {
             this.comment = new SpannableStringBuilder(comment);
             return this;
         }
@@ -725,7 +725,7 @@ public class Post
         }
 
         public Post build() {
-            if (board == null || no < 0 || opId < 0 || unixTimestampSeconds < 0 || comment == null) {
+            if (board == null || no < 0 || opId < 0 || unixTimestampSeconds < 0) {
                 throw new IllegalArgumentException("Post data not complete");
             }
 

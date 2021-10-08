@@ -7,6 +7,7 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -68,7 +69,7 @@ public class ClypEmbedder
     @Override
     public NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter() {
         return input -> {
-            String title = "titleMissing" + Random.Default.nextDouble();
+            String title = null;
             double duration = Double.NaN;
 
             HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
@@ -96,6 +97,8 @@ public class ClypEmbedder
                 }
             }
             input.endObject();
+
+            if (title == null) throw new EmbedNoTitleException();
 
             return new EmbedResult(
                     title,
