@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.HttpUrlType;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.DummySite;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.http.Reply;
@@ -96,8 +97,8 @@ public class Loadable
     @DatabaseField
     public int lastLoaded = -1;
 
-    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd HH:mm:ss")
-    public Date lastLoadDate = GregorianCalendar.getInstance().getTime();
+    @DatabaseField(canBeNull = false, dataType = DataType.DATE_STRING, format = "yyyy-MM-dd HH:mm:ss", defaultValue = "1970-01-01 00:00:01")
+    public Date lastLoadDate;
 
     @DatabaseField(persisterClass = HttpUrlType.class)
     public HttpUrl thumbnailUrl;
@@ -111,6 +112,9 @@ public class Loadable
      * Constructs an empty loadable. The mode is INVALID.
      */
     protected Loadable() {
+        if (ChanSettings.showHistory.get()) {
+            lastLoadDate = GregorianCalendar.getInstance().getTime();
+        }
     }
 
     public static Loadable importLoadable(

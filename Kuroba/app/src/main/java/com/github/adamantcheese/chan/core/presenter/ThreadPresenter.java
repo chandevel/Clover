@@ -171,13 +171,11 @@ public class ThreadPresenter
 
     public synchronized void bindLoadable(Loadable loadable) {
         if (!loadable.equals(this.loadable)) {
-            if (isBound()) {
-                unbindLoadable();
-            }
+            unbindLoadable();
 
             this.loadable = loadable;
 
-            loadable.lastLoadDate = GregorianCalendar.getInstance().getTime();
+            loadable.lastLoadDate = ChanSettings.showHistory.get() ? GregorianCalendar.getInstance().getTime() : loadable.lastLoadDate;
             DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
             chanLoader = ChanLoaderManager.obtain(loadable, this);
