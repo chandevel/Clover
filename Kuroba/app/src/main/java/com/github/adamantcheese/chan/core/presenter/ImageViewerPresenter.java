@@ -55,6 +55,7 @@ import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
 import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 
@@ -545,14 +546,10 @@ public class ImageViewerPresenter
             @Override
             public void onFloatingMenuItemClicked(FloatingMenu<Integer> menu, FloatingMenuItem<Integer> item) {
                 ImageSearch selected = ImageSearch.engines.get(item.getId());
-                PostImage currentImage = getCurrentPostImage();
-                HttpUrl url =
-                        currentImage.type == PostImage.Type.MOVIE ? currentImage.thumbnailUrl : currentImage.imageUrl;
-                String searchImageUrl = url == null ? null : url.toString();
-                if (searchImageUrl == null) {
-                    Logger.e(this, "onFloatingMenuItemClicked() searchImageUrl == null");
-                } else {
-                    openLinkInBrowser(context, selected.getUrl(searchImageUrl));
+                try {
+                    openLinkInBrowser(context, selected.getUrl(getCurrentPostImage()));
+                } catch (Exception e) {
+                    showToast(context, "Couldn't create search url!");
                 }
             }
         });

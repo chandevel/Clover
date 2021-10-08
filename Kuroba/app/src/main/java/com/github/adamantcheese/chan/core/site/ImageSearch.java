@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import com.github.adamantcheese.chan.core.model.PostImage;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public abstract class ImageSearch {
 
     public abstract String getName();
 
-    public abstract String getUrl(String imageUrl);
+    public abstract String getUrl(PostImage image);
 
     static {
         engines.add(new ImageSearch() {
@@ -32,8 +34,8 @@ public abstract class ImageSearch {
                 return "Google";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://www.google.com/searchbyimage?image_url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://www.google.com/searchbyimage?image_url=" + image.getSearchUrl();
             }
         });
 
@@ -42,8 +44,8 @@ public abstract class ImageSearch {
                 return "iqdb";
             }
 
-            public String getUrl(String imageUrl) {
-                return "http://iqdb.org/?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "http://iqdb.org/?url=" + image.getSearchUrl();
             }
         });
 
@@ -52,8 +54,8 @@ public abstract class ImageSearch {
                 return "SauceNao";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://saucenao.com/search.php?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://saucenao.com/search.php?url=" + image.getSearchUrl();
             }
         });
 
@@ -62,8 +64,8 @@ public abstract class ImageSearch {
                 return "TinEye";
             }
 
-            public String getUrl(String imageUrl) {
-                return "http://tineye.com/search/?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "http://tineye.com/search/?url=" + image.getSearchUrl();
             }
         });
 
@@ -72,8 +74,20 @@ public abstract class ImageSearch {
                 return "trace.moe";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://trace.moe/?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://trace.moe/?url=" + image.getSearchUrl();
+            }
+        });
+
+        engines.add(new ImageSearch() {
+            public String getName() {
+                return "Pixiv";
+            }
+
+            public String getUrl(PostImage image) {
+                return "https://www.pixiv.net/member_illust.php?mode=medium&illust_id=" + image.filename.substring(0,
+                        image.filename.lastIndexOf('_')
+                );
             }
         });
 
@@ -82,8 +96,8 @@ public abstract class ImageSearch {
                 return "Yandex";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://yandex.com/images/search?rpt=imageview&url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://yandex.com/images/search?rpt=imageview&url=" + image.getSearchUrl();
             }
         });
 
@@ -92,10 +106,10 @@ public abstract class ImageSearch {
                 return "Bing";
             }
 
-            public String getUrl(String imageUrl) {
+            public String getUrl(PostImage image) {
                 return "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl:"
-                        + imageUrl + "&idpbck=1&selectedindex=0&id=" + imageUrl + "&ccid=EgN4f83z&mediaurl=" + imageUrl
-                        + "&exph=1080&expw=1920&vt=2&sim=11";
+                        + image.getSearchUrl() + "&idpbck=1&selectedindex=0&id=" + image.getSearchUrl()
+                        + "&ccid=EgN4f83z&mediaurl=" + image.getSearchUrl() + "&exph=1080&expw=1920&vt=2&sim=11";
             }
         });
 
@@ -104,8 +118,8 @@ public abstract class ImageSearch {
                 return "Derpibooru";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://derpibooru.org/search/reverse?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://derpibooru.org/search/reverse?url=" + image.getSearchUrl();
             }
         });
 
@@ -114,8 +128,8 @@ public abstract class ImageSearch {
                 return "Furbooru";
             }
 
-            public String getUrl(String imageUrl) {
-                return "https://furbooru.org/search/reverse?url=" + imageUrl;
+            public String getUrl(PostImage image) {
+                return "https://furbooru.org/search/reverse?url=" + image.getSearchUrl();
             }
         });
     }

@@ -117,6 +117,10 @@ public class PostImage {
         }
     }
 
+    public HttpUrl getSearchUrl() {
+        return type == MOVIE ? thumbnailUrl : imageUrl;
+    }
+
     public boolean spoiler() {
         return spoiler || hidden;
     }

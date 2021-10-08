@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -57,7 +58,7 @@ public class ImagePickDelegate {
     private static final long MAX_FILE_SIZE = 50 * MB;
     private static final String DEFAULT_FILE_NAME = "file";
 
-    private final Activity activity;
+    private final AppCompatActivity activity;
     private ImagePickCallback callback;
     private Uri uri;
     private String fileName = "";
@@ -66,7 +67,7 @@ public class ImagePickDelegate {
     @Nullable
     private Call cancelableDownload;
 
-    public ImagePickDelegate(Activity activity) {
+    public ImagePickDelegate(AppCompatActivity activity) {
         this.activity = activity;
     }
 
