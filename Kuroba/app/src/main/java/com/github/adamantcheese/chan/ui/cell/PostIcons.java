@@ -81,10 +81,10 @@ public class PostIcons
     }
 
     public void set(Post post, boolean displayText) {
-        setForFlag(STICKY_FLAG, post.isSticky());
-        setForFlag(CLOSED_FLAG, post.isClosed());
-        setForFlag(DELETED_FLAG, post.deleted.get());
-        setForFlag(ARCHIVED_FLAG, post.isArchived());
+        setForFlag(STICKY_FLAG, post.sticky);
+        setForFlag(CLOSED_FLAG, post.closed);
+        setForFlag(DELETED_FLAG, post.deleted);
+        setForFlag(ARCHIVED_FLAG, post.archived);
         setHttpIcons(post.httpIcons, displayText);
         setVisibility(iconFlags.cardinality() != 0 ? VISIBLE : GONE);
         requestLayout();

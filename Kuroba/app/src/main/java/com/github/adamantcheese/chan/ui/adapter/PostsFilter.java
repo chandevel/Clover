@@ -45,20 +45,20 @@ public class PostsFilter {
     public enum PostsOrder
             implements OptionSettingItem {
         BUMP(R.string.order_bump, (lhs, rhs) -> 0),
-        REPLY(R.string.order_reply, (lhs, rhs) -> rhs.getReplies() - lhs.getReplies()),
-        IMAGE(R.string.order_image, (lhs, rhs) -> rhs.getImagesCount() - lhs.getImagesCount()),
+        REPLY(R.string.order_reply, (lhs, rhs) -> rhs.replies - lhs.replies),
+        IMAGE(R.string.order_image, (lhs, rhs) -> rhs.imagesCount - lhs.imagesCount),
         NEWEST(R.string.order_newest, (lhs, rhs) -> (int) (rhs.time - lhs.time)),
         OLDEST(R.string.order_oldest, (lhs, rhs) -> (int) (lhs.time - rhs.time)),
-        MODIFIED(R.string.order_modified, (lhs, rhs) -> (int) (rhs.getLastModified() - lhs.getLastModified())),
+        MODIFIED(R.string.order_modified, (lhs, rhs) -> (int) (rhs.lastModified - lhs.lastModified)),
         ACTIVITY(R.string.order_activity, (lhs, rhs) -> {
             long currentTimeSeconds = System.currentTimeMillis() / 1000L;
 
             //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
-            long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.getReplies() != 0
-                    ? lhs.getReplies()
+            long score1 = (long) ((currentTimeSeconds - lhs.time) / (lhs.replies != 0
+                    ? lhs.replies
                     : Float.MIN_NORMAL));
-            long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.getReplies() != 0
-                    ? rhs.getReplies()
+            long score2 = (long) ((currentTimeSeconds - rhs.time) / (rhs.replies != 0
+                    ? rhs.replies
                     : Float.MIN_NORMAL));
 
             return Long.compare(score1, score2);
@@ -104,16 +104,16 @@ public class PostsFilter {
             boolean add;
             Iterator<Post> i = posts.iterator();
             while (i.hasNext()) {
-                Post item = i.next();
+                Post post = i.next();
                 add = false;
-                if (StringUtils.containsIgnoreCase(item.comment, query)) {
+                if (StringUtils.containsIgnoreCase(post.comment, query)) {
                     add = true;
-                } else if (StringUtils.containsIgnoreCase(item.subject, query)) {
+                } else if (StringUtils.containsIgnoreCase(post.subject, query)) {
                     add = true;
-                } else if (StringUtils.containsIgnoreCase(item.name, query)) {
+                } else if (StringUtils.containsIgnoreCase(post.name, query)) {
                     add = true;
-                } else if (!item.images.isEmpty()) {
-                    for (PostImage image : item.images) {
+                } else if (!post.images.isEmpty()) {
+                    for (PostImage image : post.images) {
                         if (StringUtils.containsIgnoreCase(image.filename, query)) {
                             add = true;
                         }

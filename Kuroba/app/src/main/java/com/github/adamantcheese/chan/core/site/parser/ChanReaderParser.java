@@ -194,7 +194,7 @@ public class ChanReaderParser
             // If there's a cached post but it's not in the list received from the server, mark it as deleted
             if (loadable.isThreadMode()) {
                 for (Post cachedPost : cachedPosts) {
-                    cachedPost.deleted.set(!serverPostsByNo.containsKey(cachedPost.no));
+                    cachedPost.deleted = !serverPostsByNo.containsKey(cachedPost.no);
                 }
             }
 

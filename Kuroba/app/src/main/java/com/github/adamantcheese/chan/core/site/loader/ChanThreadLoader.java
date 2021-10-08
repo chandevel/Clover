@@ -265,16 +265,15 @@ public class ChanThreadLoader {
             // This is done on the main thread to avoid race conditions.
             Post realOp = thread.getOp();
             if (response.op != null) {
-                realOp.setClosed(response.op.closed);
-                realOp.setArchived(response.op.archived);
-                realOp.setSticky(response.op.sticky);
-                realOp.setReplies(response.op.replies);
-                realOp.setImagesCount(response.op.imagesCount);
-                realOp.setUniqueIps(response.op.uniqueIps);
-                realOp.setLastModified(response.op.lastModified);
-
-                thread.setClosed(realOp.isClosed());
-                thread.setArchived(realOp.isArchived());
+                realOp.closed = response.op.closed;
+                realOp.archived = response.op.archived;
+                realOp.sticky = response.op.sticky;
+                realOp.replies = response.op.replies;
+                realOp.imagesCount = response.op.imagesCount;
+                realOp.uniqueIps = response.op.uniqueIps;
+                realOp.lastModified = response.op.lastModified;
+                thread.setClosed(realOp.closed);
+                thread.setArchived(realOp.archived);
             } else {
                 Logger.e(this, "Thread has no op!");
             }
@@ -288,7 +287,7 @@ public class ChanThreadLoader {
         }
 
         for (Post post : localThread.getPosts()) {
-            post.setTitle(loadable.title);
+            post.title = loadable.title;
         }
 
         lastLoadTime = System.currentTimeMillis();
@@ -297,7 +296,7 @@ public class ChanThreadLoader {
         if (postCount > lastPostCount) {
             // fresh posts, reset timer to minimum 10 seconds, or if sticky 30
             lastPostCount = postCount;
-            currentTimeout = localThread.getOp().isSticky() ? 3 : 0;
+            currentTimeout = localThread.getOp().sticky ? 3 : 0;
         } else {
             // no new posts, increase timer; if -1, this becomes 0 in the case of a fresh load
             currentTimeout = Math.min(currentTimeout + 1, WATCH_TIMEOUTS.length - 1);

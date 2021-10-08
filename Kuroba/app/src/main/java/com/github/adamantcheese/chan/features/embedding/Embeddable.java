@@ -20,7 +20,7 @@ public abstract class Embeddable {
     /**
      * @return The text that should be embedded for this implementation.
      */
-    public abstract Spanned getEmbeddableText();
+    public abstract CharSequence getEmbeddableText();
 
     /**
      * @param text The text that should be stored for this implementation.

@@ -268,10 +268,10 @@ public class WatchNotification
         List<CharSequence> expandedLines = new ArrayList<>();
         for (Post postForExpandedLine : finalPosts) {
             SpannableStringBuilder prefix;
-            if (postForExpandedLine.getTitle().length() <= 6) {
-                prefix = new SpannableStringBuilder(postForExpandedLine.getTitle());
+            if (postForExpandedLine.title.length() <= 6) {
+                prefix = new SpannableStringBuilder(postForExpandedLine.title);
             } else {
-                prefix = new SpannableStringBuilder(postForExpandedLine.getTitle().subSequence(0, 6));
+                prefix = new SpannableStringBuilder(postForExpandedLine.title.subSequence(0, 6));
             }
 
             SpannableStringBuilder comment =

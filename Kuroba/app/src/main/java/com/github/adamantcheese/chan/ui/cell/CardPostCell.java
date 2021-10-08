@@ -247,7 +247,7 @@ public class CardPostCell
             comment.setMaxLines(ChanSettings.getBoardColumnCount() == 1 ? 20 : 10);
         }
 
-        String status = getString(R.string.card_stats, post.getReplies(), post.getImagesCount());
+        String status = getString(R.string.card_stats, post.replies, post.imagesCount);
         if (!ChanSettings.neverShowPages.get()) {
             ChanPage p = PageRepository.getPage(post);
             if (p != null && ChanSettings.boardOrder.get() != BUMP) {

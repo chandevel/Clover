@@ -21,6 +21,7 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.TextPaint;
+import android.text.TextUtils;
 import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
@@ -422,7 +423,7 @@ public class ReplyPresenter
     }
 
     public void quote(Post post, boolean withText) {
-        handleQuote(post, withText ? post.comment.toString() : null);
+        quote(post, withText ? post.comment : "");
     }
 
     public void quote(Post post, CharSequence text) {
@@ -444,7 +445,7 @@ public class ReplyPresenter
             insert.append(">>").append(post.no).append("\n");
         }
 
-        if (textQuote != null) {
+        if (!TextUtils.isEmpty(textQuote)) {
             textQuote = textQuote.replace(CommentParser.EXIF_INFO_STRING, "").trim();
             String[] lines = textQuote.split("\n+");
             // matches for >>123, >>123 (text), >>>/fit/123

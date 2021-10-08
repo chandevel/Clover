@@ -862,8 +862,8 @@ public class WatchManager
         @Override
         public void onSuccess(ChanThread thread) {
             if (thread.getOp() != null) {
-                lastReplyCount = thread.getOp().getReplies();
-                pin.isSticky = thread.getOp().isSticky();
+                lastReplyCount = thread.getOp().replies;
+                pin.isSticky = thread.getOp().sticky;
             } else {
                 lastReplyCount = -1;
                 pin.isSticky = false;

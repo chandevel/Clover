@@ -22,7 +22,6 @@ import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
-import android.text.TextUtils;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.MainThread;
@@ -31,10 +30,8 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.Embeddable;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,10 +41,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * Contains all data needed to represent a single post.<br>
- * All {@code final} fields are thread-safe.
- */
 public class Post
         extends Embeddable
         implements Comparable<Post>, Cloneable {
@@ -60,8 +53,6 @@ public class Post
     public final boolean isOP;
 
     public final String name;
-
-    public final Spanned comment;
 
     public final String subject;
 
@@ -108,24 +99,21 @@ public class Post
     public final CharSequence nameTripcodeIdCapcodeSpan;
 
     /**
-     * This post has been deleted (the server isn't sending it anymore).
-     */
-    public final AtomicBoolean deleted = new AtomicBoolean(false);
-
-    /**
      * These post numbers replied to this post.
      */
     public final List<Integer> repliesFrom = new CopyOnWriteArrayList<>();
 
     // These members may only mutate on the main thread.
-    private boolean sticky;
-    private boolean closed;
-    private boolean archived;
-    private int replies;
-    private int imagesCount;
-    private int uniqueIps;
-    private long lastModified;
-    private String title = "";
+    public Spanned comment;
+    public boolean sticky;
+    public boolean closed;
+    public boolean archived;
+    public boolean deleted;
+    public int replies;
+    public int imagesCount;
+    public int uniqueIps;
+    public long lastModified;
+    public String title = "";
 
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
@@ -180,122 +168,34 @@ public class Post
         repliesTo = Collections.unmodifiableSet(builder.repliesToNos);
     }
 
-    @AnyThread
-    public boolean isSticky() {
-        return sticky;
-    }
-
-    @MainThread
-    public void setSticky(boolean sticky) {
-        this.sticky = sticky;
-    }
-
-    @MainThread
-    public boolean isClosed() {
-        return closed;
-    }
-
-    @MainThread
-    public void setClosed(boolean closed) {
-        this.closed = closed;
-    }
-
-    @MainThread
-    public boolean isArchived() {
-        return archived;
-    }
-
-    @MainThread
-    public void setArchived(boolean archived) {
-        this.archived = archived;
-    }
-
-    @MainThread
-    public int getReplies() {
-        return replies;
-    }
-
-    @MainThread
-    public void setReplies(int replies) {
-        this.replies = replies;
-    }
-
-    @MainThread
-    public int getImagesCount() {
-        return imagesCount;
-    }
-
-    @MainThread
-    public void setImagesCount(int imagesCount) {
-        this.imagesCount = imagesCount;
-    }
-
-    @MainThread
-    public int getUniqueIps() {
-        return uniqueIps;
-    }
-
-    @MainThread
-    public void setUniqueIps(int uniqueIps) {
-        this.uniqueIps = uniqueIps;
-    }
-
-    @MainThread
-    public long getLastModified() {
-        return lastModified;
-    }
-
-    @MainThread
-    public void setLastModified(long lastModified) {
-        this.lastModified = lastModified;
-    }
-
-    @MainThread
-    public String getTitle() {
-        return title;
-    }
-
-    @MainThread
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     /**
      * Return the first image, or {@code null} if post has no images.
      *
      * @return the first image, or {@code null}
      */
-    @MainThread
     public PostImage image() {
         return images.isEmpty() ? null : images.get(0);
     }
 
-    @MainThread
     public boolean hasFilterParameters() {
         return filterRemove || filterHighlightedColor != 0 || filterReplies || filterStub;
     }
 
-    @MainThread
     public List<PostLinkable> getLinkables() {
-        synchronized (comment) {
-            List<PostLinkable> linkables = new ArrayList<>();
-            Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
-            return linkables;
-        }
+        List<PostLinkable> linkables = new ArrayList<>();
+        Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
+        return linkables;
     }
 
-    @MainThread
     public List<PostLinkable> getQuoteLinkables() {
-        synchronized (comment) {
-            List<PostLinkable> linkables = getLinkables();
-            List<PostLinkable> ret = new ArrayList<>();
-            for (PostLinkable l : linkables) {
-                if (l.type == PostLinkable.Type.QUOTE) {
-                    ret.add(l);
-                }
+        List<PostLinkable> linkables = getLinkables();
+        List<PostLinkable> ret = new ArrayList<>();
+        for (PostLinkable l : linkables) {
+            if (l.type == PostLinkable.Type.QUOTE) {
+                ret.add(l);
             }
-            return ret;
         }
+        return ret;
     }
 
     @Override
@@ -331,7 +231,7 @@ public class Post
                 && Objects.equals(capcode, post.capcode)
                 && Objects.equals(httpIcons, post.httpIcons)
                 && Objects.equals(repliesTo, post.repliesTo)
-                && Objects.equals(deleted.get(), post.deleted.get())
+                && Objects.equals(deleted, post.deleted)
                 && Objects.equals(repliesFrom, post.repliesFrom)
                 && Objects.equals(title, post.title)
                 && Objects.equals(embedComplete.get(), post.embedComplete.get()
@@ -365,7 +265,7 @@ public class Post
                 filterOnlyOP,
                 filterSaved,
                 repliesTo,
-                deleted.get(),
+                deleted,
                 repliesFrom,
                 sticky,
                 closed,
@@ -421,30 +321,20 @@ public class Post
                 .repliesTo(repliesTo)
                 .build();
         clone.repliesFrom.addAll(repliesFrom);
-        clone.setTitle(getTitle());
-        clone.deleted.set(deleted.get());
+        clone.title = title;
+        clone.deleted = deleted;
         clone.embedComplete.set(embedComplete.get());
         return clone;
     }
 
     @Override
-    public Spanned getEmbeddableText() {
+    public CharSequence getEmbeddableText() {
         return comment;
     }
 
-    @MainThread
     @Override
     public void setEmbeddableText(Spanned text) {
-        try {
-            synchronized (comment) {
-                Field c = Post.class.getField("comment");
-                c.setAccessible(true);
-                c.set(this, text);
-                c.setAccessible(false);
-            }
-        } catch (Exception e) {
-            Logger.d(this, "Failed to set new comment!");
-        }
+        comment = text;
     }
 
     @Override

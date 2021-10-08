@@ -237,13 +237,13 @@ public class DatabaseHideManager {
                 .opId(childPost.opId)
                 .no(childPost.no)
                 .op(childPost.isOP)
-                .replies(childPost.getReplies())
-                .images(childPost.getImagesCount())
-                .uniqueIps(childPost.getUniqueIps())
-                .sticky(childPost.isSticky())
-                .archived(childPost.isArchived())
-                .lastModified(childPost.getLastModified())
-                .closed(childPost.isClosed())
+                .replies(childPost.replies)
+                .images(childPost.imagesCount)
+                .uniqueIps(childPost.uniqueIps)
+                .sticky(childPost.sticky)
+                .archived(childPost.archived)
+                .lastModified(childPost.lastModified)
+                .closed(childPost.closed)
                 .subject(childPost.subject)
                 .name(childPost.name)
                 .comment(childPost.comment)
@@ -267,8 +267,8 @@ public class DatabaseHideManager {
         // reassign these, as they are only otherwise set elsewhere but should remain as-is
         n.repliesFrom.addAll(childPost.repliesFrom);
         n.embedComplete.set(childPost.embedComplete.get());
-        n.deleted.set(childPost.deleted.get());
-        n.setTitle(childPost.getTitle());
+        n.deleted = childPost.deleted;
+        n.title = childPost.title;
         return n;
     }
 

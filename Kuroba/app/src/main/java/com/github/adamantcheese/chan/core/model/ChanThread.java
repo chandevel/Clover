@@ -107,17 +107,17 @@ public class ChanThread {
             return null;
         }
         SpannableStringBuilder builder = new SpannableStringBuilder();
-        boolean hasReplies = op.getReplies() >= 0 || posts.size() - 1 > 0;
-        boolean hasImages = op.getImagesCount() >= 0 || getImagesCount() > 0;
-        boolean hasUniqueIps = op.getUniqueIps() >= 0;
+        boolean hasReplies = op.replies >= 0 || posts.size() - 1 > 0;
+        boolean hasImages = op.imagesCount >= 0 || getImagesCount() > 0;
+        boolean hasUniqueIps = op.uniqueIps >= 0;
         String separator = " / ";
         int style = extraStyling ? Typeface.BOLD_ITALIC : Typeface.ITALIC;
 
         if (hasReplies) {
             boolean hasBumpLimit = loadable.board.bumpLimit > 0;
             SpannableString replies =
-                    new SpannableString((op.getReplies() >= 0 ? op.getReplies() : posts.size() - 1) + "R");
-            if (hasBumpLimit && op.getReplies() >= loadable.board.bumpLimit) {
+                    new SpannableString((op.replies >= 0 ? op.replies : posts.size() - 1) + "R");
+            if (hasBumpLimit && op.replies >= loadable.board.bumpLimit) {
                 replies.setSpan(new StyleSpan(style), 0, replies.length(), 0);
                 if (extraStyling) {
                     replies.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
@@ -132,8 +132,8 @@ public class ChanThread {
         if (hasImages) {
             boolean hasImageLimit = loadable.board.imageLimit > 0;
             SpannableString images =
-                    new SpannableString((op.getImagesCount() >= 0 ? op.getImagesCount() : getImagesCount()) + "I");
-            if (hasImageLimit && op.getImagesCount() >= loadable.board.imageLimit) {
+                    new SpannableString((op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I");
+            if (hasImageLimit && op.imagesCount >= loadable.board.imageLimit) {
                 images.setSpan(new StyleSpan(style), 0, images.length(), 0);
                 if (extraStyling) {
                     images.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
@@ -146,7 +146,7 @@ public class ChanThread {
         }
 
         if (hasUniqueIps) {
-            String ips = op.getUniqueIps() + "P";
+            String ips = op.uniqueIps + "P";
             builder.append(hasReplies || hasImages ? separator : "").append(ips);
         }
 

@@ -69,7 +69,7 @@ public class RemovedPostsController
         for (int i = 0, removedPostsSize = removedPosts.size(); i < removedPostsSize; i++) {
             Post post = removedPosts.get(i);
             if (post == null) continue;
-            removedPostsArray[i] = new RemovedPost(post.images, post.no, post.comment.toString(), false);
+            removedPostsArray[i] = new RemovedPost(post.images, post.no, post.comment, false);
         }
 
         getAdapter().clear();
@@ -89,10 +89,10 @@ public class RemovedPostsController
     public static class RemovedPost {
         public final List<PostImage> images;
         public final int postNo;
-        public final String comment;
+        public final CharSequence comment;
         public boolean checked;
 
-        public RemovedPost(List<PostImage> images, int postNo, String comment, boolean checked) {
+        public RemovedPost(List<PostImage> images, int postNo, CharSequence comment, boolean checked) {
             this.images = images;
             this.postNo = postNo;
             this.comment = comment;

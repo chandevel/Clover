@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.MalformedJsonException;
 import android.view.LayoutInflater;
@@ -556,7 +557,7 @@ public class ThreadPresenter
             // otherwise add all images
             if (viewMode != PostViewMode.LIST) {
                 if (post.image() == null) continue;
-                if (!post.deleted.get() || post.image().isInlined || NetUtils.isCached(post.image().imageUrl)) {
+                if (!post.deleted || post.image().isInlined || NetUtils.isCached(post.image().imageUrl)) {
                     //deleted posts always have 404'd images, but let it through if the file exists in cache
                     images.add(post.image());
                     if (post.image().equals(postImage)) {
@@ -565,7 +566,7 @@ public class ThreadPresenter
                 }
             } else {
                 for (PostImage image : post.images) {
-                    if (!post.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+                    if (!post.deleted || image.isInlined || NetUtils.isCached(image.imageUrl)) {
                         //deleted posts always have 404'd images, but let it through if the file exists in cache
                         images.add(image);
                         if (image.equals(postImage)) {

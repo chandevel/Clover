@@ -478,18 +478,18 @@ public class PostCell
         int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
         float paddingPx = dp(getContext(), textSizeSp - 7);
 
-        if ((!threadMode && post.getReplies() > 0) || (post.repliesFrom.size() > 0)) {
+        if ((!threadMode && post.replies > 0) || (post.repliesFrom.size() > 0)) {
             replies.setVisibility(VISIBLE);
 
-            int replyCount = threadMode ? post.repliesFrom.size() : post.getReplies();
+            int replyCount = threadMode ? post.repliesFrom.size() : post.replies;
             SpannableStringBuilder text = new SpannableStringBuilder();
             text.append(getQuantityString(R.plurals.reply, replyCount));
             if (replyCount > 7 && loadable.isThreadMode()) {
                 text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
             }
 
-            if (!threadMode && post.getImagesCount() > 0) {
-                text.append(", ").append(getQuantityString(R.plurals.image, post.getImagesCount()));
+            if (!threadMode && post.imagesCount > 0) {
+                text.append(", ").append(getQuantityString(R.plurals.image, post.imagesCount));
             }
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
@@ -622,7 +622,7 @@ public class PostCell
 
             final Post internalPost = post;
             holder.thumbnailView.setOnClickListener(v -> {
-                if (!internalPost.deleted.get() || image.isInlined || NetUtils.isCached(image.imageUrl)) {
+                if (!internalPost.deleted || image.isInlined || NetUtils.isCached(image.imageUrl)) {
                     callback.onThumbnailClicked(image, holder.thumbnailView);
                 }
             });
