@@ -38,14 +38,12 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ChanThread {
-    private final Loadable loadable;
+    public final Loadable loadable;
     // Unmodifiable list of posts. We need it to make this class "thread-safe" (it's actually
     // still not fully thread-safe because Loadable and the Post classes are not thread-safe but
     // there is no easy way to fix them right now) and to avoid copying the whole list of posts
     // every time it is needed somewhere.
     private List<Post> posts;
-    private boolean closed = false;
-    private boolean archived = false;
 
     public ChanThread(Loadable loadable, List<Post> posts) {
         this.loadable = loadable;
@@ -61,19 +59,11 @@ public class ChanThread {
     }
 
     public synchronized boolean isClosed() {
-        return closed;
+        return !posts.isEmpty() && getOp().closed;
     }
 
     public synchronized boolean isArchived() {
-        return archived;
-    }
-
-    public synchronized void setClosed(boolean closed) {
-        this.closed = closed;
-    }
-
-    public synchronized void setArchived(boolean archived) {
-        this.archived = archived;
+        return !posts.isEmpty() && getOp().archived;
     }
 
     public synchronized List<Post> getPosts() {
@@ -88,24 +78,11 @@ public class ChanThread {
      * Not safe! Only use for read-only operations!
      */
     public synchronized Post getOp() {
-        return posts.get(0);
-    }
-
-    /**
-     * For now it is like this because there are a lot of places that will have to be changed to make
-     * this safe
-     */
-    public Loadable getLoadable() {
-        return loadable;
+        return posts.isEmpty() ? null : posts.get(0);
     }
 
     public SpannableStringBuilder summarize(boolean extraStyling) {
-        Post op;
-        try {
-            op = getOp();
-        } catch (Exception e) {
-            return null;
-        }
+        Post op = getOp();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean hasReplies = op.replies >= 0 || posts.size() - 1 > 0;
         boolean hasImages = op.imagesCount >= 0 || getImagesCount() > 0;

@@ -126,13 +126,13 @@ public class PostsFilter {
         }
 
         //Filter out any bookmarked threads from the catalog
-        if (ChanSettings.removeWatchedFromCatalog.get() && thread.getLoadable().isCatalogMode()) {
+        if (ChanSettings.removeWatchedFromCatalog.get() && thread.loadable.isCatalogMode()) {
             Iterator<Post> i = posts.iterator();
             List<Pin> pins = new ArrayList<>(instance(WatchManager.class).getAllPins());
             while (i.hasNext()) {
                 Post item = i.next();
                 for (Pin pin : pins) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.getLoadable().board, item.no, "", false))) {
+                    if (pin.loadable.equals(Loadable.forThread(thread.loadable.board, item.no, "", false))) {
                         i.remove();
                     }
                 }
@@ -141,8 +141,8 @@ public class PostsFilter {
 
         // Process hidden by filter and post/thread hiding
         return instance(DatabaseHideManager.class).filterHiddenPosts(posts,
-                thread.getLoadable().siteId,
-                thread.getLoadable().boardCode
+                thread.loadable.siteId,
+                thread.loadable.boardCode
         );
     }
 }

@@ -270,7 +270,7 @@ public class ReplyPresenter
                 if (originatingLoadable.isThreadMode()) {
                     ChanThread thread = callback.getThread();
                     //ensure that the thread's loadable matches the one from the original reply, in case the user navigated away
-                    if (thread != null && thread.getLoadable() == originatingLoadable) {
+                    if (thread != null && thread.loadable == originatingLoadable) {
                         // we know the OP, we're in the thread
                         if (thread.getOp().image() != null) {
                             originatingLoadable.thumbnailUrl = thread.getOp().image().getThumbnailUrl();

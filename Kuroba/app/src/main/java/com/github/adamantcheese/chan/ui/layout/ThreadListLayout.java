@@ -109,8 +109,8 @@ public class ThreadListLayout
             if (showingThread != null) {
                 RecyclerViewPosition indexTop = RecyclerUtils.getIndexAndTop(recyclerView);
 
-                showingThread.getLoadable().listViewIndex = indexTop.index;
-                showingThread.getLoadable().listViewTop = indexTop.top;
+                showingThread.loadable.listViewIndex = indexTop.index;
+                showingThread.loadable.listViewTop = indexTop.top;
 
                 if (!recyclerView.canScrollVertically(1)) {
                     // As requested by the RecyclerView, make sure that the adapter isn't changed
@@ -118,7 +118,7 @@ public class ThreadListLayout
                     recyclerView.post(() -> ThreadListLayout.this.callback.onListScrolledToBottom());
                 }
 
-                if (!(showingThread.getLoadable().site instanceof ExternalSiteArchive)) {
+                if (!(showingThread.loadable.site instanceof ExternalSiteArchive)) {
                     callback.updateDatabaseLoadable();
                 }
             }
@@ -286,13 +286,13 @@ public class ThreadListLayout
     public void showPosts(ChanThread thread, PostsFilter filter, boolean initial) {
         showingThread = thread;
         if (initial) {
-            reply.getPresenter().bindLoadable(thread.getLoadable());
+            reply.getPresenter().bindLoadable(thread.loadable);
             RecyclerView.LayoutManager prevManager = recyclerView.getLayoutManager();
             recyclerView.setLayoutManager(null);
             recyclerView.setLayoutManager(prevManager);
 
-            int index = thread.getLoadable().listViewIndex;
-            int top = thread.getLoadable().listViewTop;
+            int index = thread.loadable.listViewIndex;
+            int top = thread.loadable.listViewTop;
 
             switch (postViewMode) {
                 case LIST:
@@ -475,7 +475,7 @@ public class ThreadListLayout
         postAdapter.cleanup();
         reply.cleanup();
         openReply(false);
-        if (showingThread.getLoadable().isThreadMode()) {
+        if (showingThread.loadable.isThreadMode()) {
             openSearch(false);
         }
         showPosts(new ChanThread(Loadable.emptyLoadable(), Collections.emptyList()), null, false);
@@ -729,7 +729,7 @@ public class ThreadListLayout
 
     private void party() {
         if (PersistableChanState.noFunAllowed.get()) return;
-        if (showingThread.getLoadable().site instanceof Chan4) {
+        if (showingThread.loadable.site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("America/New_York"));
             if (calendar.get(Calendar.MONTH) == Calendar.OCTOBER && calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 recyclerView.addItemDecoration(PARTY);
@@ -739,7 +739,7 @@ public class ThreadListLayout
 
     private void santa() {
         if (PersistableChanState.noFunAllowed.get()) return;
-        if (showingThread.getLoadable().site instanceof Chan4) {
+        if (showingThread.loadable.site instanceof Chan4) {
             Calendar calendar = Calendar.getInstance();
             if (calendar.get(Calendar.MONTH) == Calendar.DECEMBER && calendar.get(Calendar.DAY_OF_MONTH) == 25) {
                 recyclerView.addItemDecoration(SANTA);

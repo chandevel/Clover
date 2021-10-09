@@ -152,13 +152,13 @@ public class FilterWatchManager
             implements NetUtilsClasses.ResponseResult<ChanThread> {
         @Override
         public void onSuccess(ChanThread result) {
-            Logger.d(this, "onChanLoaderData() for /" + result.getLoadable().boardCode + "/");
+            Logger.d(this, "onChanLoaderData() for /" + result.loadable.boardCode + "/");
             for (Post p : result.getPosts()) {
                 CatalogPost catalogPost = new CatalogPost(p);
                 //make pins for the necessary stuff
                 if (p.filterWatch && !ignoredPosts.contains(catalogPost)) {
                     final Loadable pinLoadable =
-                            Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.getLoadable()));
+                            Loadable.forThread(p.board, p.no, PostHelper.getTitle(p, result.loadable));
                     pinLoadable.thumbnailUrl = p.image() == null ? null : p.image().getThumbnailUrl();
                     BackgroundUtils.runOnMainThread(() -> watchManager.createPin(pinLoadable));
                     ignoredPosts.add(catalogPost);

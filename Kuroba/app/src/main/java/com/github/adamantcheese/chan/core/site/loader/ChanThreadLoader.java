@@ -272,8 +272,6 @@ public class ChanThreadLoader {
                 realOp.imagesCount = response.op.imagesCount;
                 realOp.uniqueIps = response.op.uniqueIps;
                 realOp.lastModified = response.op.lastModified;
-                thread.setClosed(realOp.closed);
-                thread.setArchived(realOp.archived);
             } else {
                 Logger.e(this, "Thread has no op!");
             }

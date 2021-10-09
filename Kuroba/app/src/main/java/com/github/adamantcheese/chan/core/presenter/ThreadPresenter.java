@@ -136,7 +136,6 @@ public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
                    ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback, ProgressResponseBody.ProgressListener {
-    //region Private Variables
     @Inject
     private WatchManager watchManager;
 
@@ -156,9 +155,6 @@ public class ThreadPresenter
     private String searchQuery;
     private PostsFilter.PostsOrder postsOrder = PostsFilter.PostsOrder.BUMP;
     private final Context context;
-    private List<FloatingMenuItem<PostOptions>> filterMenu;
-    private List<FloatingMenuItem<PostOptions>> copyMenu;
-    //endregion
 
     public ThreadPresenter(Context context, ThreadPresenterCallback callback) {
         this.context = context;
@@ -171,7 +167,7 @@ public class ThreadPresenter
     }
 
     public synchronized void bindLoadable(Loadable loadable) {
-        if (!loadable.equals(this.loadable)) {
+        if (loadable != this.loadable) {
             unbindLoadable();
 
             this.loadable = loadable;
@@ -329,7 +325,7 @@ public class ThreadPresenter
         }
 
         //allow for search refreshes inside the catalog
-        if (result.getLoadable().isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
+        if (result.loadable.isCatalogMode() && !TextUtils.isEmpty(searchQuery)) {
             onSearchEntered(searchQuery);
         } else {
             showPosts();
@@ -358,7 +354,7 @@ public class ThreadPresenter
                 loadable.lastViewed = loadable.lastLoaded;
             }
 
-            if (loadable.no == result.getLoadable().no) {
+            if (loadable.no == result.loadable.no) {
                 threadPresenterCallback.showNewPostsSnackbar(loadable, more);
             }
         }
@@ -590,9 +586,6 @@ public class ThreadPresenter
 
         boolean isSaved = databaseSavedReplyManager.isSaved(post.board, post.no);
 
-        copyMenu = populateCopyMenuOptions(post);
-        filterMenu = populateFilterMenuOptions(post);
-
         if (loadable.isCatalogMode() && watchManager.getPinByLoadable(Loadable.forThread(post.board,
                 post.no,
                 PostHelper.getTitle(post, loadable),
@@ -649,6 +642,7 @@ public class ThreadPresenter
         //if the filter menu only has a single option we place just that option in the root menu
         //in some cases a post will have nothing in it to filter (for example a post with no text and an image
         //that is removed by a filter), in such cases there is no filter menu option.
+        List<FloatingMenuItem<PostOptions>> filterMenu = populateFilterMenuOptions(post);
         if (filterMenu.size() > 1) {
             extraMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER, R.string.post_filter));
         } else if (filterMenu.size() == 1) {
@@ -679,7 +673,7 @@ public class ThreadPresenter
                 showPostInfo(post);
                 break;
             case POST_OPTION_COPY:
-                showSubMenuOptions(anchor, post, inPopup, copyMenu);
+                showSubMenuOptions(anchor, post, inPopup, populateCopyMenuOptions(post));
                 break;
             case POST_OPTION_COPY_POST_LINK:
                 setClipboardContent("Post link", String.format(Locale.ENGLISH, ">>%d", post.no));
@@ -716,7 +710,7 @@ public class ThreadPresenter
                 threadPresenterCallback.highlightPostTripcode(post.tripcode);
                 break;
             case POST_OPTION_FILTER:
-                showSubMenuOptions(anchor, post, inPopup, filterMenu);
+                showSubMenuOptions(anchor, post, inPopup, populateFilterMenuOptions(post));
                 break;
             case POST_OPTION_FILTER_SUBJECT:
                 threadPresenterCallback.filterPostSubject(post.subject);
@@ -803,7 +797,7 @@ public class ThreadPresenter
 
                 boolean hide = id == POST_OPTION_HIDE;
 
-                if (chanLoader.getThread().getLoadable().mode == Loadable.Mode.CATALOG) {
+                if (chanLoader.getLoadable().mode == Loadable.Mode.CATALOG) {
                     threadPresenterCallback.hideThread(post, post.no, hide);
                 } else {
                     if (post.repliesFrom.isEmpty()) {

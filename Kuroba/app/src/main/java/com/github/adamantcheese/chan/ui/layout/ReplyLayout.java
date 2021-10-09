@@ -697,7 +697,7 @@ public class ReplyLayout
         //      if loadable doesn't match the one passed in, show toast
         return newThread
                 ? !callback.isViewingCatalog()
-                : !callback.getThread().getLoadable().databaseEquals(newLoadable);
+                : !callback.getThread().loadable.equals(newLoadable);
     }
 
     private void postComplete(boolean newThread, Loadable newLoadable) {
@@ -925,7 +925,7 @@ public class ReplyLayout
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (callback.getThread() == null) return true;
-                Loadable threadLoadable = callback.getThread().getLoadable();
+                Loadable threadLoadable = callback.getThread().loadable;
                 boolean is4chan = threadLoadable.board.site instanceof Chan4;
                 //menu item cleanup, these aren't needed for this
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -1024,7 +1024,7 @@ public class ReplyLayout
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 if (callback.getThread() == null) return true;
-                Loadable threadLoadable = callback.getThread().getLoadable();
+                Loadable threadLoadable = callback.getThread().loadable;
                 sageMenuItem = menu.add(Menu.NONE, R.id.options_selection_action_sage, 1, R.string.options_button_sage);
                 if (threadLoadable.board.site instanceof Chan4) {
                     passMenuItem =

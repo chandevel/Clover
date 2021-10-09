@@ -233,14 +233,14 @@ public class ThreadLayout
 
     @Override
     public void showPosts(ChanThread thread, PostsFilter filter) {
-        if (replyButton.getVisibility() != VISIBLE && !(thread.getLoadable().site instanceof ExternalSiteArchive)) {
+        if (replyButton.getVisibility() != VISIBLE && !(thread.loadable.site instanceof ExternalSiteArchive)) {
             replyButton.show();
         }
 
         threadListLayout.showPosts(thread, filter, visible != Visible.THREAD);
 
         switchVisible(Visible.THREAD);
-        callback.onShowPosts(thread.getLoadable());
+        callback.onShowPosts(thread.loadable);
     }
 
     @Override

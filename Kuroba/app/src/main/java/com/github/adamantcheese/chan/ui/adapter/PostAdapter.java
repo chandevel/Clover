@@ -313,7 +313,7 @@ public class PostAdapter
     public void setThread(ChanThread thread, PostsFilter newFilter) {
         BackgroundUtils.ensureMainThread();
 
-        this.loadable = thread.getLoadable();
+        this.loadable = thread.loadable;
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
         currentFilter = newFilter == null ? new PostsFilter(BUMP, null) : newFilter;
