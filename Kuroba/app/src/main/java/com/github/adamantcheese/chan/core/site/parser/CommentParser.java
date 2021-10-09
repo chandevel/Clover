@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import android.graphics.Typeface;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -70,7 +71,22 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BLOCK_LINE_BREAK;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BOLD;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.CHOMP;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.CODE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_CSS;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.ITALICIZE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NEWLINE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NULL;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SIZE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SPOILER;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SRC;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.STRIKETHROUGH;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.UNDERLINE;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -104,84 +120,57 @@ public class CommentParser {
 
     public CommentParser() {
         // Required tags.
-        rule(tagRule("p"));
-        rule(tagRule("div"));
-        rule(tagRule("br").just("\n"));
+        rule(new StyleRule("p").style(BLOCK_LINE_BREAK));
+        rule(new StyleRule("div").style(BLOCK_LINE_BREAK));
+        rule(new StyleRule("br").style(NEWLINE));
     }
 
     public CommentParser addDefaultRules() {
-        rule(tagRule("a").action(this::handleAnchor));
+        rule(new StyleRule("a").style(this::handleAnchor));
 
-        rule(tagRule("span").cssClass("deadlink")
-                .foregroundColor(R.attr.post_quote_color, true)
-                .strikeThrough()
-                .action(this::handleDead));
-        rule(tagRule("span").cssClass("spoiler").spoiler());
-        rule(tagRule("span").cssClass("fortune").bold().cssStyleInFront());
-        rule(tagRule("span").cssClass("abbr").nullify());
-        rule(tagRule("span").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
-        rule(tagRule("span").cssClass("sjis").action(this::handleSJIS));
-        rule(tagRule("span")); // this allows inline styled elements to be processed
+        rule(new StyleRule("span").cssClass("deadlink")
+                .style(QUOTE_COLOR)
+                .style(STRIKETHROUGH)
+                .style(this::handleDead));
+        rule(new StyleRule("span").cssClass("spoiler").style(SPOILER));
+        rule(new StyleRule("span").cssClass("fortune")
+                .style(INLINE_CSS)
+                .style(BOLD)); // css needs to be applied first here
+        rule(new StyleRule("span").cssClass("abbr").style(NULL));
+        rule(new StyleRule("span").cssClass("quote").style(INLINE_QUOTE_COLOR));
+        rule(new StyleRule("span").cssClass("sjis").style(this::handleSJIS));
+        rule(new StyleRule("span")); // this allows inline styled elements to be processed
 
-        rule(tagRule("table").action(this::handleTable));
+        rule(new StyleRule("table").style(this::handleTable));
 
-        rule(tagRule("s").spoiler());
+        rule(new StyleRule("s").style(SPOILER));
 
-        rule(tagRule("strong").bold());
-        rule(tagRule("b").bold());
+        rule(new StyleRule("strong").style(BOLD));
+        rule(new StyleRule("b").style(BOLD));
 
-        rule(tagRule("strike").strikeThrough());
+        rule(new StyleRule("strike").style(STRIKETHROUGH));
 
-        rule(tagRule("i").italic());
-        rule(tagRule("em").italic());
+        rule(new StyleRule("i").style(ITALICIZE));
+        rule(new StyleRule("em").style(ITALICIZE));
 
-        rule(tagRule("u").underline());
+        rule(new StyleRule("u").style(UNDERLINE));
 
-        rule(tagRule("font").applyFontRules());
+        rule(new StyleRule("font").style(COLOR).style(SIZE));
 
-        rule(tagRule("pre").cssClass("prettyprint").code().trimEndWhitespace());
+        rule(new StyleRule("pre").cssClass("prettyprint").style(CODE).style(CHOMP));
 
-        // replaces img tags with an attached image, and any alt-text will become a spoilered text item
-        rule(tagRule("img").action((theme, callback, post, text, element) -> {
-            try {
-                SpannableString ret = new SpannableString(text);
-                if (element.hasAttr("alt")) {
-                    String alt = element.attr("alt");
-                    if (!alt.isEmpty()) {
-                        ret = new SpannableString(alt + " ");
-                        ret.setSpan(new PostLinkable(theme, alt, Type.SPOILER),
-                                0,
-                                alt.length(),
-                                (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
-                        );
-                    }
-                }
-                HttpUrl src = HttpUrl.get(element.attr("src"));
-                PostImage i = new PostImage.Builder().imageUrl(src)
-                        .thumbnailUrl(src)
-                        .spoilerThumbnailUrl(src)
-                        .filename(Files.getNameWithoutExtension(src.toString()))
-                        .extension(Files.getFileExtension(src.toString()))
-                        .build();
-                if (post.images.size() < 5 && !post.images.contains(i)) {
-                    post.images(Collections.singletonList(i));
-                }
-                return ret;
-            } catch (Exception e) {
-                return text;
-            }
-        }));
+        rule(new StyleRule("img").style(this::handleImage));
 
         // replaces iframes with the associated src url text
-        rule(tagRule("iframe").action((theme, callback, post, text, element) -> element.attr("src")));
+        rule(new StyleRule("iframe").style(SRC));
         return this;
     }
 
     public void rule(StyleRule rule) {
-        List<StyleRule> list = rules.get(rule.tag());
+        List<StyleRule> list = rules.get(rule.tag);
         if (list == null) {
             list = new ArrayList<>(3);
-            rules.put(rule.tag(), list);
+            rules.put(rule.tag, list);
         }
 
         list.add(rule);
@@ -217,22 +206,24 @@ public class CommentParser {
     ) {
         List<StyleRule> rules = this.rules.get(tag);
         if (rules != null) {
+            // two passes, first for stuff with classes and then everything else
             for (int i = 0; i < 2; i++) {
-                boolean highPriority = i == 0;
+                boolean firstPass = i == 0;
                 for (StyleRule rule : rules) {
-                    if (rule.highPriority() == highPriority && rule.applies(element)) {
-                        return rule.apply(theme, callback, post, text, element);
+                    if (!rule.applies(element)) continue;
+                    if (rule.hasClasses() == firstPass) {
+                        return rule.apply(theme, callback, post, new SpannableString(text), element);
                     }
                 }
             }
         }
 
-        // Unknown tag, return the text;
+        // Unknown tag, return the text
         return text;
     }
 
-    private CharSequence handleAnchor(
-            @NonNull Theme theme, PostParser.Callback callback, Post.Builder post, CharSequence text, Element anchor
+    private Spannable handleAnchor(
+            Element anchor, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
     ) {
         Link handlerLink = null;
         try {
@@ -249,6 +240,39 @@ public class CommentParser {
         }
 
         return spannableStringBuilder.length() > 0 ? spannableStringBuilder : null;
+    }
+
+    // replaces img tags with an attached image, and any alt-text will become a spoilered text item
+    private Spannable handleImage(
+            Element image, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    ) {
+        try {
+            SpannableString ret = new SpannableString(text);
+            if (image.hasAttr("alt")) {
+                String alt = image.attr("alt");
+                if (!alt.isEmpty()) {
+                    ret = new SpannableString(alt + " ");
+                    ret.setSpan(new PostLinkable(theme, alt, Type.SPOILER),
+                            0,
+                            alt.length(),
+                            (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                    );
+                }
+            }
+            HttpUrl src = HttpUrl.get(image.attr("src"));
+            PostImage i = new PostImage.Builder().imageUrl(src)
+                    .thumbnailUrl(src)
+                    .spoilerThumbnailUrl(src)
+                    .filename(Files.getNameWithoutExtension(src.toString()))
+                    .extension(Files.getFileExtension(src.toString()))
+                    .build();
+            if (post.images.size() < 5 && !post.images.contains(i)) {
+                post.images(Collections.singletonList(i));
+            }
+            return ret;
+        } catch (Exception e) {
+            return text;
+        }
     }
 
     private void addReply(
@@ -300,8 +324,8 @@ public class CommentParser {
     }
 
     // This is used on /p/ for exif data.
-    public CharSequence handleTable(
-            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element table
+    public Spannable handleTable(
+            Element table, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
     ) {
         SpannableStringBuilder parts = new SpannableStringBuilder();
         Elements tableRows = table.getElementsByTag("tr");
@@ -343,8 +367,8 @@ public class CommentParser {
         );
     }
 
-    public CharSequence handleSJIS(
-            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
+    public Spannable handleSJIS(
+            Element sjis, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
     ) {
         if (submona == null) {
             submona = Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf");
@@ -372,29 +396,24 @@ public class CommentParser {
         );
     }
 
-    public CharSequence handleDead(
-            Theme theme, PostParser.Callback callback, Post.Builder builder, CharSequence text, Element deadlink
+    public Spannable handleDead(
+            Element deadlink, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
     ) {
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
-            if (!(builder.board.site instanceof Chan4)) return text; //4chan only
+            if (!(post.board.site instanceof Chan4)) return text; //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
-            List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(builder.board);
+            List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(post.board);
             if (!boards.isEmpty()) {
-                PostLinkable newLinkable = new PostLinkable(theme,
+                PostLinkable newLinkable = new PostLinkable(
+                        theme,
                         // if the deadlink is in an external archive, set a resolve link
                         // if the deadlink is in any other site, we don't have enough info to properly link to stuff, so
                         // we assume that deadlinks in an OP are previous threads
                         // and any deadlinks in other posts are deleted posts in the same thread
-                        builder.board.site instanceof ExternalSiteArchive
-                                ? new ResolveLink(builder.board.site,
-                                builder.board.code,
-                                postNo
-                        )
-                                : new ThreadLink(builder.board.code,
-                                        builder.op ? postNo : builder.opId,
-                                        builder.op ? -1 : postNo
-                                ),
+                        post.board.site instanceof ExternalSiteArchive
+                                ? new ResolveLink(post.board.site, post.board.code, postNo)
+                                : new ThreadLink(post.board.code, post.op ? postNo : post.opId, post.op ? -1 : postNo),
                         Type.ARCHIVE
                 );
                 text = span(text, newLinkable);
@@ -404,8 +423,7 @@ public class CommentParser {
         return text;
     }
 
-    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback)
-            throws Exception {
+    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
@@ -424,7 +442,7 @@ public class CommentParser {
             String postNo = externalMatcher.group(3);
             int postId = postNo == null ? -1 : Integer.parseInt(postNo);
 
-            if (board.equals(post.board.code) && callback.isInternal(postId)) {
+            if (post.board.code.equals(board) && callback.isInternal(postId)) {
                 //link to post in same thread with post number (>>post); usually this is a almost fully qualified link
                 t = Type.QUOTE;
                 value = postId;

@@ -7,7 +7,6 @@ import android.util.JsonToken;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -19,6 +18,7 @@ import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.tagRule;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
 
 /**
  * A site that uses FoolFuuka as the backend.
@@ -248,7 +248,7 @@ public class FoolFuukaArchive
             super();
             this.domain = domain;
             addDefaultRules();
-            rule(tagRule("span").cssClass("greentext").foregroundColor(R.attr.post_inline_quote_color, true));
+            rule(new StyleRule("span").cssClass("greentext").style(INLINE_QUOTE_COLOR));
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
             Pattern compiledPattern = Pattern.compile(

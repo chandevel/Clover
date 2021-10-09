@@ -16,12 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
 import java.util.regex.Pattern;
+
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
 
 public class VichanCommentParser
         extends CommentParser {
@@ -29,7 +30,7 @@ public class VichanCommentParser
         super();
         addDefaultRules();
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
-        rule(StyleRule.tagRule("p").cssClass("quote").foregroundColor(R.attr.post_inline_quote_color, true));
+        rule(new StyleRule("p").cssClass("quote").style(INLINE_QUOTE_COLOR));
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.core.site.archives;
 
 import android.util.JsonReader;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
@@ -232,7 +234,7 @@ public class AyaseArchive
         @Override
         public CharSequence handleTag(
                 PostParser.Callback callback,
-                Theme theme,
+                @NonNull Theme theme,
                 Post.Builder post,
                 String tag,
                 CharSequence text,

@@ -16,10 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.MONOSPACE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.STRIKETHROUGH;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class TaimabaCommentParser
@@ -27,8 +29,8 @@ public class TaimabaCommentParser
     public TaimabaCommentParser() {
         super();
         addDefaultRules();
-        rule(StyleRule.tagRule("strike").strikeThrough());
-        rule(StyleRule.tagRule("pre").monospace());
-        rule(StyleRule.tagRule("blockquote").cssClass("unkfunc").foregroundColor(R.attr.post_inline_quote_color, true));
+        rule(new StyleRule("strike").style(STRIKETHROUGH));
+        rule(new StyleRule("pre").style(MONOSPACE));
+        rule(new StyleRule("blockquote").cssClass("unkfunc").style(INLINE_QUOTE_COLOR));
     }
 }
