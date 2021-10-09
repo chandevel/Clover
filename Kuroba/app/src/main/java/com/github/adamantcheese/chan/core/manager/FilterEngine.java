@@ -324,6 +324,9 @@ public class FilterEngine {
             if (flagsGroup.contains("i")) {
                 flags |= Pattern.CASE_INSENSITIVE;
             }
+            if (flagsGroup.contains("m")) {
+                flags |= Pattern.MULTILINE;
+            }
             if (extraPatternFlags != 0) {
                 flags |= extraPatternFlags;
             }

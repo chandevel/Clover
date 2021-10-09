@@ -235,8 +235,8 @@ If the pattern matches, then the post can be hidden, removed, highlighted, or au
     2. Quoting your pattern with <tt>\"</tt> (like <tt>\"foo bar\"</tt>) will match the text exactly.
     <i>foo bar</i> will match, but <i>foo</i> will not.<br>
     <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example. You can use <tt>/^>ImPlYiNg/<b>i</b></tt> to make the regex case insensitive.
-    You can use Regex101 for more comprehensive explanations of your regular expressions, or as a playground for figuring out an expression. Use Javascript to test.<br>
+    3. Regular expressions. <tt>/^>implying/</tt> for example. You can add <tt>/regex/i</tt> for case insensitivity and <tt>/regex/m</tt> for regex multiline mode.
+    You can use Regex101 for more comprehensive explanations of your regular expressions, or as a playground for figuring out an expression. Use Java 8 to test.<br>
 </p>
 <br>
 Actions do the following:<br>
