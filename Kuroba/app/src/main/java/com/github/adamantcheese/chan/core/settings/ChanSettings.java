@@ -34,7 +34,6 @@ import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
-import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;

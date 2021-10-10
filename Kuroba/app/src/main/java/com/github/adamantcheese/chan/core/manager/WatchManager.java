@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.text.SpannableStringBuilder;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -819,7 +818,6 @@ public class WatchManager
         }
 
         /**
-         *
          * @param fromBackground was this update called from a background state
          * @return true if a data call was requested
          */

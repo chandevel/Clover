@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
 

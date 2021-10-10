@@ -276,8 +276,7 @@ public class VichanApi
         if (countryCode != null && countryDescription != null) {
             Pair<HttpUrl, PassthroughBitmapResult> resultPair =
                     endpoints.icon(IconType.COUNTRY_FLAG, makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(
-                    IconType.COUNTRY_FLAG,
+            builder.addHttpIcon(new PostHttpIcon(IconType.COUNTRY_FLAG,
                     resultPair.first,
                     resultPair.second,
                     countryCode,

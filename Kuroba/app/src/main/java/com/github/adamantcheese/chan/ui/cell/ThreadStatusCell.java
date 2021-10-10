@@ -21,8 +21,6 @@ import android.content.Context;
 import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;

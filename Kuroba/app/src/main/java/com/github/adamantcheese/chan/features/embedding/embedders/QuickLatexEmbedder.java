@@ -2,7 +2,7 @@ package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.LruCache;
@@ -42,6 +42,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class QuickLatexEmbedder
         extends VoidEmbedder {
@@ -194,12 +195,7 @@ public class QuickLatexEmbedder
                         startIndex = TextUtils.indexOf(comment, rawMath, startIndex);
                         if (startIndex < 0) break;
 
-                        SpannableStringBuilder replacement = new SpannableStringBuilder(" ");
-                        replacement.setSpan(new ImageSpan(getAppContext(), bitmap),
-                                0,
-                                1,
-                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                        );
+                        SpannedString replacement = span(" ", new ImageSpan(getAppContext(), bitmap));
                         // this will be removed before invalidation
                         generatedLinkables.add(new PostLinkable(theme, rawMath, PostLinkable.Type.EMBED_TEMP));
 

@@ -24,11 +24,10 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
-import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LongLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static java.util.concurrent.TimeUnit.HOURS;

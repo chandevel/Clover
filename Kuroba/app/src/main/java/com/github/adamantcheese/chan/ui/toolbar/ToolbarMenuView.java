@@ -79,7 +79,7 @@ public class ToolbarMenuView
             imageView.setVisibility(item.visible ? VISIBLE : GONE);
 
             imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
-            updatePaddings(imageView, dp(10f), dp(10f), 0 , 0);
+            updatePaddings(imageView, dp(10f), dp(10f), 0, 0);
 
             imageView.setImageDrawable(item.drawable);
             imageView.setBackgroundResource(R.drawable.ripple_item_background);

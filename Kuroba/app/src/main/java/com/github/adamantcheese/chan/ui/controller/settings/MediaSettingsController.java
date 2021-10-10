@@ -35,13 +35,13 @@ import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SaveL
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;

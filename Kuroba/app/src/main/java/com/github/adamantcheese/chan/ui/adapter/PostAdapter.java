@@ -55,7 +55,7 @@ import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.*;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 

@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.presenter;
 
 import android.content.Context;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.MalformedJsonException;
 import android.view.LayoutInflater;
@@ -135,7 +134,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
                    PostCellInterface.PostCellCallback, ThreadStatusCell.Callback,
-                   ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback, ProgressResponseBody.ProgressListener {
+                   ThreadListLayout.ThreadListLayoutPresenterCallback, ArchivesLayout.Callback,
+                   ProgressResponseBody.ProgressListener {
     @Inject
     private WatchManager watchManager;
 
@@ -172,7 +172,8 @@ public class ThreadPresenter
 
             this.loadable = loadable;
 
-            loadable.lastLoadDate = ChanSettings.showHistory.get() ? GregorianCalendar.getInstance().getTime() : loadable.lastLoadDate;
+            loadable.lastLoadDate =
+                    ChanSettings.showHistory.get() ? GregorianCalendar.getInstance().getTime() : loadable.lastLoadDate;
             DatabaseUtils.runTaskAsync(databaseLoadableManager.updateLoadable(loadable, false));
 
             chanLoader = ChanLoaderManager.obtain(loadable, this);
@@ -1280,7 +1281,8 @@ public class ThreadPresenter
         return copyMenu;
     }
 
-    public interface ThreadPresenterCallback extends ProgressResponseBody.ProgressListener {
+    public interface ThreadPresenterCallback
+            extends ProgressResponseBody.ProgressListener {
         void showPosts(ChanThread thread, PostsFilter filter);
 
         void postClicked(Post post);

@@ -74,6 +74,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BLOCK_LINE_BREAK;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BOLD;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.CHOMP;
@@ -268,7 +269,7 @@ public class CommentParser {
                 String alt = image.attr("alt");
                 if (!alt.isEmpty()) {
                     Spannable tmp = new SpannableString(alt + " ");
-                    tmp.setSpan(new PostLinkable(theme, alt, Type.SPOILER), 0, alt.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    tmp.setSpan(new PostLinkable(theme, alt, Type.SPOILER), 0, alt.length(), SPAN_INCLUSIVE_EXCLUSIVE);
                     ret.append(tmp);
                 }
             }
@@ -407,15 +408,17 @@ public class CommentParser {
             int postNo = Integer.parseInt(deadlink.text().substring(2));
             List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(post.board);
             if (!boards.isEmpty()) {
+                Site forThisSite = post.board.site;
+                String forThisBoard = post.board.code;
                 PostLinkable newLinkable = new PostLinkable(
                         theme,
                         // if the deadlink is in an external archive, set a resolve link
                         // if the deadlink is in any other site, we don't have enough info to properly link to stuff, so
                         // we assume that deadlinks in an OP are previous threads
                         // and any deadlinks in other posts are deleted posts in the same thread
-                        post.board.site instanceof ExternalSiteArchive
-                                ? new ResolveLink(post.board.site, post.board.code, postNo)
-                                : new ThreadLink(post.board.code, post.op ? postNo : post.opId, post.op ? -1 : postNo),
+                        forThisSite instanceof ExternalSiteArchive
+                                ? new ResolveLink(forThisSite, forThisBoard, postNo)
+                                : new ThreadLink(forThisBoard, post.op ? postNo : post.opId, post.op ? -1 : postNo),
                         Type.ARCHIVE
                 );
                 return span(text, newLinkable, new StrikethroughSpan());

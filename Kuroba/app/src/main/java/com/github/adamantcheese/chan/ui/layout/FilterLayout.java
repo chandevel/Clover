@@ -206,21 +206,19 @@ public class FilterLayout
 
         selectLayout.setItems(items);
 
-        getDefaultAlertBuilder(getContext()).setView(selectLayout)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
-                    int flags = 0;
-                    for (SelectLayout.SelectItem<FilterType> item : items12) {
-                        if (item.checked) {
-                            flags |= item.item.flag;
-                        }
-                    }
+        getDefaultAlertBuilder(getContext()).setView(selectLayout).setPositiveButton(R.string.ok, (dialog, which) -> {
+            List<SelectLayout.SelectItem<FilterType>> items12 = selectLayout.getItems();
+            int flags = 0;
+            for (SelectLayout.SelectItem<FilterType> item : items12) {
+                if (item.checked) {
+                    flags |= item.item.flag;
+                }
+            }
 
-                    filter.type = flags;
-                    updateFilterType();
-                    updatePatternPreview();
-                })
-                .show();
+            filter.type = flags;
+            updateFilterType();
+            updatePatternPreview();
+        }).show();
     }
 
     private void onBoardsClicked(View v) {
@@ -244,27 +242,25 @@ public class FilterLayout
 
         selectLayout.setItems(items);
 
-        getDefaultAlertBuilder(getContext()).setView(selectLayout)
-                .setPositiveButton(R.string.ok, (dialog, which) -> {
-                    List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
-                    boolean all = selectLayout.areAllChecked();
-                    Boards boardList = new Boards(items1.size());
-                    if (!all) {
-                        for (SelectLayout.SelectItem<Board> item : items1) {
-                            if (item.checked) {
-                                boardList.add(item.item);
-                            }
-                        }
-                        if (boardList.isEmpty()) {
-                            all = true;
-                        }
+        getDefaultAlertBuilder(getContext()).setView(selectLayout).setPositiveButton(R.string.ok, (dialog, which) -> {
+            List<SelectLayout.SelectItem<Board>> items1 = selectLayout.getItems();
+            boolean all = selectLayout.areAllChecked();
+            Boards boardList = new Boards(items1.size());
+            if (!all) {
+                for (SelectLayout.SelectItem<Board> item : items1) {
+                    if (item.checked) {
+                        boardList.add(item.item);
                     }
+                }
+                if (boardList.isEmpty()) {
+                    all = true;
+                }
+            }
 
-                    filterEngine.saveBoardsToFilter(boardList, all, filter);
+            filterEngine.saveBoardsToFilter(boardList, all, filter);
 
-                    updateBoardsSummary();
-                })
-                .show();
+            updateBoardsSummary();
+        }).show();
     }
 
     private void onActionsClicked(View v) {
@@ -289,16 +285,19 @@ public class FilterLayout
     }
 
     private void onHelpClicked(View v) {
-        SpannableStringBuilder message =
-                (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
-                        HtmlCompat.FROM_HTML_MODE_LEGACY
-                );
+        SpannableStringBuilder message = (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
+                HtmlCompat.FROM_HTML_MODE_LEGACY
+        );
         TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
         for (TypefaceSpan span : typefaceSpans) {
             if (span.getFamily().equals("monospace")) {
                 int start = message.getSpanStart(span);
                 int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000),
+                        start,
+                        end,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                );
             }
         }
 
@@ -307,7 +306,11 @@ public class FilterLayout
             if (span.getStyle() == Typeface.ITALIC) {
                 int start = message.getSpanStart(span);
                 int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000),
+                        start,
+                        end,
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                );
             }
         }
 
@@ -344,8 +347,7 @@ public class FilterLayout
         alphaBar.setProgress(Color.alpha(filter.color));
         percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
 
-        getDefaultAlertBuilder(getContext())
-                .setView(colorPickerView)
+        getDefaultAlertBuilder(getContext()).setView(colorPickerView)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog1, which) -> {
                     filter.color = colorView.getColor();

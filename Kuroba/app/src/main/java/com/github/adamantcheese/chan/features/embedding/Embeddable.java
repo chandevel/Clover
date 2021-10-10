@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.features.embedding;
 
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 import com.github.adamantcheese.chan.core.model.PostImage;

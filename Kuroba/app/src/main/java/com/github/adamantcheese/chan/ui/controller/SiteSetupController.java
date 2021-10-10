@@ -117,11 +117,13 @@ public class SiteSetupController
                     break;
                 case STRING:
                     // Turn the SiteSetting for a string setting into a proper setting with a name and input
-                    generated = new PrimitiveSettingView<>(this,
+                    generated = new PrimitiveSettingView<>(
+                            this,
                             (StringSetting) setting.setting,
                             setting.name,
                             setting.name,
-                            null, new StringLimitCallback()
+                            null,
+                            new StringLimitCallback()
                     );
                     break;
                 case BOOLEAN:

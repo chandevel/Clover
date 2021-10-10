@@ -14,7 +14,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import kotlin.random.Random;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;

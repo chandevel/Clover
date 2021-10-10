@@ -38,12 +38,12 @@ import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesCo
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView;
 import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.StringLimitCallback;
 
 import java.util.ArrayList;

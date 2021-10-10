@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.net;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -44,6 +45,7 @@ public class ProgressResponseBody
         return responseBody.contentLength();
     }
 
+    @NonNull
     @Override
     public BufferedSource source() {
         if (bufferedSource == null) {
@@ -57,14 +59,15 @@ public class ProgressResponseBody
             long totalBytesRead = 0L;
 
             @Override
-            public long read(Buffer sink, long byteCount)
+            public long read(@NonNull Buffer sink, long byteCount)
                     throws IOException {
                 long bytesRead = super.read(sink, byteCount);
                 boolean firstRead = totalBytesRead == 0L;
                 // read() returns the number of bytes read, or -1 if this source is exhausted.
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 if (progressListener != null) {
-                    BackgroundUtils.runOnMainThread(() -> progressListener.onDownloadProgress(sourceUrl,
+                    BackgroundUtils.runOnMainThread(() -> progressListener.onDownloadProgress(
+                            sourceUrl,
                             totalBytesRead,
                             responseBody.contentLength(),
                             firstRead,

@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site;
 
 import androidx.annotation.Nullable;
-import androidx.core.graphics.ColorUtils;
 
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -28,7 +27,6 @@ import com.github.adamantcheese.chan.core.settings.provider.JsonSettingsProvider
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

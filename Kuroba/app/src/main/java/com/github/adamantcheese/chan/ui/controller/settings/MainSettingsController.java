@@ -17,9 +17,6 @@
 package com.github.adamantcheese.chan.ui.controller.settings;
 
 import android.content.Context;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ImageSpan;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -28,9 +25,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;

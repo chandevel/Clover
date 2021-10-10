@@ -61,9 +61,7 @@ public class CodeBackgroundSpan
         canvas.drawRect(
                 lineMatchesSpanned ? left : newLeft,
                 top,
-                lineMatchesSpanned
-                        ? right
-                        : newLeft + workPaint.measureText(spanned, 0, spanned.length()),
+                lineMatchesSpanned ? right : newLeft + workPaint.measureText(spanned, 0, spanned.length()),
                 bottom,
                 workPaint
         );

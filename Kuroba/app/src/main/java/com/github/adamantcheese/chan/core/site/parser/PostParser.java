@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;

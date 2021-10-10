@@ -78,7 +78,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-import okhttp3.internal.http2.StreamResetException;
 import okio.Buffer;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;

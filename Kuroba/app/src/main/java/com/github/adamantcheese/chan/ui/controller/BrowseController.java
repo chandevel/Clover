@@ -246,8 +246,7 @@ public class BrowseController
         menu.setCallback(new FloatingMenu.ClickCallback<PostsFilter.PostsOrder>() {
             @Override
             public void onFloatingMenuItemClicked(
-                    FloatingMenu<PostsFilter.PostsOrder> menu,
-                    FloatingMenuItem<PostsFilter.PostsOrder> item
+                    FloatingMenu<PostsFilter.PostsOrder> menu, FloatingMenuItem<PostsFilter.PostsOrder> item
             ) {
                 PostsFilter.PostsOrder postsOrder = item.getId();
                 ChanSettings.boardOrder.set(postsOrder);

@@ -14,12 +14,12 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 

@@ -8,10 +8,10 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;

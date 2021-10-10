@@ -29,7 +29,6 @@ import com.github.adamantcheese.chan.core.di.RepositoryModule;
 import com.github.adamantcheese.chan.core.manager.BoardManager;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.manager.SettingNotificationManager;
-import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;

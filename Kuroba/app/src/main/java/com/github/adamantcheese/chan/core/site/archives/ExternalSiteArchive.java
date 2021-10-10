@@ -14,11 +14,11 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 
 import java.util.List;

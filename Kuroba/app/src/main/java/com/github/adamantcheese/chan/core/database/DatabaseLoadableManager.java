@@ -133,7 +133,8 @@ public class DatabaseLoadableManager {
             throws SQLException {
         loadable.site = siteRepository.forId(loadable.siteId);
         loadable.board = loadable.site.board(loadable.boardCode);
-        loadable.lastLoadDate = ChanSettings.showHistory.get() ? GregorianCalendar.getInstance().getTime() : loadable.lastLoadDate;
+        loadable.lastLoadDate =
+                ChanSettings.showHistory.get() ? GregorianCalendar.getInstance().getTime() : loadable.lastLoadDate;
         helper.getLoadableDao().update(loadable);
     }
 

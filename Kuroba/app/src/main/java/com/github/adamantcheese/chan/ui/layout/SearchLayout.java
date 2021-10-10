@@ -37,7 +37,6 @@ import com.github.adamantcheese.chan.R;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestKeyboardFocus;
 

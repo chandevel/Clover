@@ -23,8 +23,6 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.SpannedString;
 
-import androidx.annotation.AnyThread;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -39,7 +37,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Post
         extends Embeddable

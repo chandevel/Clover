@@ -40,7 +40,7 @@ import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.*;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -144,9 +144,7 @@ public class PostRepliesController
             }
         };
         recyclerView.setAdapter(adapter);
-        adapter.setThread(new ChanThread(loadable, displayingData.posts),
-                new PostsFilter(BUMP, null)
-        );
+        adapter.setThread(new ChanThread(loadable, displayingData.posts), new PostsFilter(BUMP, null));
         adapter.lastSeenIndicatorPosition = Integer.MIN_VALUE; //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         layoutManager.scrollToPositionWithOffset(data.position.index, data.position.top);
