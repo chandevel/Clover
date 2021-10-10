@@ -9,9 +9,11 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;
@@ -49,7 +51,7 @@ public class AyaseArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new PostParser(new AyaseCommentParser(domain));
+                parser = new PostParser(new AyaseCommentAction(domain));
             }
             return parser;
         }
@@ -218,11 +220,10 @@ public class AyaseArchive
         }
     }
 
-    private static class AyaseCommentParser
-            extends CommentParser {
-        public AyaseCommentParser(String domain) {
+    private static class AyaseCommentAction
+            extends ChanCommentAction {
+        public AyaseCommentAction(String domain) {
             super();
-            addDefaultRules();
             throw new NotImplementedError();
             /*// matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
@@ -235,8 +236,12 @@ public class AyaseArchive
 
         @NonNull
         @Override
-        public SpannedString handleTag(
-                Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
+        public SpannedString style(
+                @NonNull Element element,
+                @NonNull Spanned text,
+                @NonNull Theme theme,
+                @NonNull Post.Builder post,
+                @NonNull Callback callback
         ) {
             throw new NotImplementedError(); // this likely can be fully removed and not overridden
             /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
@@ -247,7 +252,7 @@ public class AyaseArchive
             if (element.getElementsByTag("span").hasClass("greentext") && element.childrenSize() > 0) {
                 return text;
             }
-            return super.handleTag(callback, theme, post, tag, text, element);*/
+            return super.style(callback, theme, post, tag, text, element);*/
         }
 
         @Override
@@ -271,7 +276,7 @@ public class AyaseArchive
             }
 
             @Override
-            public CommentParser.ThreadLink resolveToThreadLink(CommentParser.ResolveLink source, JsonReader reader) {
+            public ThreadLink resolveToThreadLink(ResolveLink source, JsonReader reader) {
                 throw new NotImplementedError();
                 /*try {
                     reader.beginObject(); //begin JSON

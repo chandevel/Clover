@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -26,8 +26,8 @@ public class DvachPostParser
 
     private final Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
 
-    public DvachPostParser(CommentParser commentParser) {
-        super(commentParser);
+    public DvachPostParser(ChanCommentAction chanCommentAction) {
+        super(chanCommentAction);
     }
 
     @Override

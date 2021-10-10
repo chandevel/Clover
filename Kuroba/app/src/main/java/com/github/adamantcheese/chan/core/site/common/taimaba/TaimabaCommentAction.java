@@ -16,15 +16,14 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
 
-public class TaimabaCommentParser
-        extends CommentParser {
-    public TaimabaCommentParser() {
+public class TaimabaCommentAction
+        extends ChanCommentAction {
+    public TaimabaCommentAction() {
         super();
-        addDefaultRules();
         mapTagToRule("blockquote", "unkfunc", INLINE_QUOTE_COLOR);
     }
 }

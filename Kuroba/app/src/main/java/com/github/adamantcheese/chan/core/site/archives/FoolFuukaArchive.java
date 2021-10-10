@@ -15,11 +15,11 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
 
 /**
  * A site that uses FoolFuuka as the backend.
@@ -55,7 +55,7 @@ public class FoolFuukaArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new PostParser(new FoolFuukaCommentParser(domain));
+                parser = new PostParser(new FoolFuukaCommentAction(domain));
             }
             return parser;
         }
@@ -241,14 +241,13 @@ public class FoolFuukaArchive
         }
     }
 
-    private static class FoolFuukaCommentParser
-            extends CommentParser {
+    private static class FoolFuukaCommentAction
+            extends ChanCommentAction {
         private final String domain;
 
-        public FoolFuukaCommentParser(String domain) {
+        public FoolFuukaCommentAction(String domain) {
             super();
             this.domain = domain;
-            addDefaultRules();
             mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR);
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
@@ -261,8 +260,12 @@ public class FoolFuukaArchive
 
         @NonNull
         @Override
-        public SpannedString handleTag(
-                Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
+        public SpannedString style(
+                @NonNull Element element,
+                @NonNull Spanned text,
+                @NonNull Theme theme,
+                @NonNull Post.Builder post,
+                @NonNull Callback callback
         ) {
             // for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
             // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
@@ -272,7 +275,7 @@ public class FoolFuukaArchive
             if (element.getElementsByTag("span").hasClass("greentext") && element.getAllElements().size() > 1) {
                 return new SpannedString(text);
             }
-            return super.handleTag(callback, theme, post, text, element);
+            return super.style(element, text, theme, post, callback);
         }
 
         @Override

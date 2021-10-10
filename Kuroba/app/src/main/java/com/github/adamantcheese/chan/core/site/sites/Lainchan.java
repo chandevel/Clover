@@ -23,7 +23,7 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 
 import okhttp3.HttpUrl;
@@ -98,6 +98,6 @@ public class Lainchan
             }
         });
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser());
+        setParserWithAction(new VichanCommentAction());
     }
 }

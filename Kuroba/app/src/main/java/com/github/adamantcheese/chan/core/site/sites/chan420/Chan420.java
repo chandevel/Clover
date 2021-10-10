@@ -26,7 +26,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaActions;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
-import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentParser;
+import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentAction;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -110,6 +110,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParser(new TaimabaCommentParser());
+        setParserWithAction(new TaimabaCommentAction());
     }
 }

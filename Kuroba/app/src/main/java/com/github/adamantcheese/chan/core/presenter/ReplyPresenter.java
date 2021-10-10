@@ -47,7 +47,7 @@ import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
@@ -445,7 +445,7 @@ public class ReplyPresenter
         }
 
         if (!TextUtils.isEmpty(textQuote)) {
-            textQuote = textQuote.replace(CommentParser.EXIF_INFO_STRING, "").trim();
+            textQuote = textQuote.replace(ChanCommentAction.EXIF_INFO_STRING, "").trim();
             String[] lines = textQuote.split("\n+");
             // matches for >>123, >>123 (text), >>>/fit/123
             final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");

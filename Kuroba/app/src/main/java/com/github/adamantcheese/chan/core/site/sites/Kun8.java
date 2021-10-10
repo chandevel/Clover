@@ -10,7 +10,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentParser;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
@@ -146,6 +146,6 @@ public class Kun8
         });
 
         setApi(new VichanApi(this));
-        setParser(new VichanCommentParser());
+        setParserWithAction(new VichanCommentAction());
     }
 }

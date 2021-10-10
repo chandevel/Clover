@@ -17,7 +17,7 @@ import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -75,8 +75,8 @@ public class Dvach
     }
 
     @Override
-    public void setParser(CommentParser commentParser) {
-        this.postParser = new DvachPostParser(commentParser);
+    public void setParserWithAction(ChanCommentAction chanCommentAction) {
+        this.postParser = new DvachPostParser(chanCommentAction);
     }
 
     public Dvach() {
@@ -213,6 +213,6 @@ public class Dvach
         });
 
         setApi(new DvachApi(this));
-        setParser(new DvachCommentParser());
+        setParserWithAction(new DvachCommentAction());
     }
 }

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.github.adamantcheese.chan.core.site.parser;
+package com.github.adamantcheese.chan.core.site.parser.style.comment;
 
 import android.graphics.Typeface;
 import android.text.Spannable;
@@ -27,13 +27,10 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-import android.util.JsonReader;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
@@ -42,16 +39,11 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveEndpoints;
-import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveSiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
-import com.github.adamantcheese.chan.core.site.parser.StyleRule.StyleAction;
+import com.github.adamantcheese.chan.core.site.parser.style.ChainStyleAction;
+import com.github.adamantcheese.chan.core.site.parser.style.StyleAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
@@ -75,22 +67,22 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 
 import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BLOCK_LINE_BREAK;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.BOLD;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.CHOMP;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.CODE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.COLOR;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_CSS;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.ITALICIZE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.MONOSPACE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NEWLINE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NULL;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SIZE;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SPOILER;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SRC;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.STRIKETHROUGH;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.UNDERLINE;
+import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_COLOR_ATTR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_SIZE_ATTR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.INLINE_CSS;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BLOCK_LINE_BREAK;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BOLD;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.CHOMP;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.CODE;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.ITALICIZE;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.MONOSPACE;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.NEWLINE;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.NULLIFY;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.SPOILER;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.SRC_ATTR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.STRIKETHROUGH;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.UNDERLINE;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -99,8 +91,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
-@AnyThread
-public class CommentParser {
+/**
+ * This style action handles generic HTML and applies the appropriate rules to it when elements are passed in for styling.
+ * This has specific rules for chan boards (see the "handle" methods) that make display a bit nicer or functional,
+ * as well a bunch of default styling actions that are applied.
+ */
+public class ChanCommentAction
+        implements StyleAction {
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
@@ -120,23 +117,21 @@ public class CommentParser {
 
     // Two maps of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
     // Maps an element tag to a map of css classes to style rules; ie more specific from just the tag
-    private final Map<String, Map<String, StyleRule>> specificRules = new HashMap<>();
+    private final Map<String, Map<String, ChainStyleAction>> specificRules = new HashMap<>();
     // Maps an element tag to a rule; ie the style always applies to the tag
-    private final Map<String, StyleRule> wildcardRules = new HashMap<>();
+    private final Map<String, ChainStyleAction> wildcardRules = new HashMap<>();
 
     private static Typeface submona;
 
-    public CommentParser() {
+    public ChanCommentAction() {
         // required newline rules
         mapTagToRule("p", BLOCK_LINE_BREAK);
         mapTagToRule("div", BLOCK_LINE_BREAK);
         mapTagToRule("br", NEWLINE);
-    }
 
-    public CommentParser addDefaultRules() {
         // text modifying
-        mapTagToRule("span", "abbr", NULL);
-        mapTagToRule("iframe", SRC);
+        mapTagToRule("span", "abbr", NULLIFY);
+        mapTagToRule("iframe", SRC_ATTR);
 
         // simple text
         mapTagToRule("strong", BOLD);
@@ -145,7 +140,7 @@ public class CommentParser {
         mapTagToRule("i", ITALICIZE);
         mapTagToRule("em", ITALICIZE);
         mapTagToRule("u", UNDERLINE);
-        mapTagToRule("font", COLOR, SIZE);
+        mapTagToRule("font", CSS_COLOR_ATTR, CSS_SIZE_ATTR);
 
         // complex text
         mapTagToRule("span", INLINE_CSS);
@@ -161,17 +156,15 @@ public class CommentParser {
         mapTagToRule("span", "sjis", (sjis, text, theme, post, callback) -> handleSJIS(text, theme));
         mapTagToRule("table", this::handleTable);
         mapTagToRule("img", (image, text, theme, post, callback) -> handleImage(image, text, theme, post));
-
-        return this;
     }
 
     public void mapTagToRule(String tag, StyleAction... rules) {
-        StyleRule ruleForTag = wildcardRules.get(tag);
+        ChainStyleAction ruleForTag = wildcardRules.get(tag);
         if (ruleForTag == null) {
-            ruleForTag = new StyleRule();
+            ruleForTag = new ChainStyleAction();
             Collections.addAll(ruleForTag.actions, rules);
         } else {
-            StyleRule concat = new StyleRule();
+            ChainStyleAction concat = new ChainStyleAction();
             concat.actions.addAll(ruleForTag.actions);
             Collections.addAll(concat.actions, rules);
             ruleForTag = concat;
@@ -180,18 +173,18 @@ public class CommentParser {
     }
 
     public void mapTagToRule(String tag, String cssClass, StyleAction... rules) {
-        Map<String, StyleRule> classMap = specificRules.get(tag);
+        Map<String, ChainStyleAction> classMap = specificRules.get(tag);
         if (classMap == null) {
             classMap = new HashMap<>();
             specificRules.put(tag, classMap);
         }
 
-        StyleRule specificForTag = classMap.get(cssClass);
+        ChainStyleAction specificForTag = classMap.get(cssClass);
         if (specificForTag == null) {
-            specificForTag = new StyleRule();
+            specificForTag = new ChainStyleAction();
             Collections.addAll(specificForTag.actions, rules);
         } else {
-            StyleRule concat = new StyleRule();
+            ChainStyleAction concat = new ChainStyleAction();
             concat.actions.addAll(specificForTag.actions);
             Collections.addAll(concat.actions, rules);
             specificForTag = concat;
@@ -220,30 +213,38 @@ public class CommentParser {
     }
 
     @NonNull
-    public SpannedString handleTag(
-            Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
+    public SpannedString style(
+            @NonNull Element element,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
-        Map<String, StyleRule> specificsForTag = specificRules.get(element.normalName());
-        StyleRule specificForTagClass = null;
+        Map<String, ChainStyleAction> specificsForTag = specificRules.get(element.normalName());
+        ChainStyleAction specificForTagClass = null;
         if (specificsForTag != null) {
             for (String n : element.classNames()) {
                 specificForTagClass = specificsForTag.get(n);
                 if (specificForTagClass != null) break;
             }
         }
-        StyleRule wildcardForTag = wildcardRules.get(element.normalName());
+        ChainStyleAction wildcardForTag = wildcardRules.get(element.normalName());
 
-        Spanned result = text; // default no matches
         if (specificForTagClass != null) {
-            result = specificForTagClass.apply(element, text, theme, post, callback);
-        } else if (wildcardForTag != null) {
-            result = wildcardForTag.apply(element, text, theme, post, callback);
+            return specificForTagClass.style(element, text, theme, post, callback);
         }
-        return new SpannedString(result);
+        if (wildcardForTag != null) {
+            return wildcardForTag.style(element, text, theme, post, callback);
+        }
+        return new SpannedString(text);
     }
 
     private SpannedString handleAnchor(
-            Element anchor, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
+            @NonNull Element anchor,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
         Link handlerLink = null;
         try {
@@ -261,7 +262,7 @@ public class CommentParser {
 
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
     private SpannedString handleImage(
-            Element image, Spanned text, @NonNull Theme theme, Post.Builder post
+            @NonNull Element image, @NonNull Spanned text, @NonNull Theme theme, @NonNull Post.Builder post
     ) {
         try {
             SpannableStringBuilder ret = new SpannableStringBuilder(text);
@@ -290,7 +291,7 @@ public class CommentParser {
     }
 
     private SpannedString addReply(
-            @NonNull Theme theme, Callback callback, Post.Builder post, Link handlerLink
+            @NonNull Theme theme, @NonNull Callback callback, @NonNull Post.Builder post, @NonNull Link handlerLink
     ) {
         if (handlerLink.type == Type.THREAD && !handlerLink.key.toString().contains(EXTERN_THREAD_LINK_SUFFIX)) {
             handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
@@ -330,8 +331,13 @@ public class CommentParser {
     }
 
     // This is used on /p/ for exif data.
+    @NonNull
     public SpannedString handleTable(
-            Element table, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
+            @NonNull Element table,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
         SpannableStringBuilder parts = new SpannableStringBuilder();
         Elements tableRows = table.getElementsByTag("tr");
@@ -355,7 +361,8 @@ public class CommentParser {
         }
 
         // Overrides the text (possibly) parsed by child nodes.
-        return span(EXIF_INFO_STRING,
+        return span(
+                EXIF_INFO_STRING,
                 new PostLinkable(theme, new Object(), Type.OTHER) {
                     @Override
                     public void onClick(@NonNull View widget) {
@@ -372,12 +379,13 @@ public class CommentParser {
     }
 
     public SpannedString handleSJIS(
-            Spanned text, @NonNull Theme theme
+            @NonNull Spanned text, @NonNull Theme theme
     ) {
         if (submona == null) {
             submona = Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf");
         }
-        return span("[SJIS art available. Click here to view.]",
+        return span(
+                "[SJIS art available. Click here to view.]",
                 new CustomTypefaceSpan("", submona),
                 new PostLinkable(theme, new Object(), Type.OTHER) {
                     @Override
@@ -399,8 +407,13 @@ public class CommentParser {
         );
     }
 
+    @NonNull
     public SpannedString handleDead(
-            Element deadlink, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
+            @NonNull Element deadlink,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
@@ -428,7 +441,9 @@ public class CommentParser {
         return new SpannedString(text);
     }
 
-    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, Callback callback) {
+    public Link matchAnchor(
+            @NonNull Post.Builder post, @NonNull CharSequence text, @NonNull Element anchor, @NonNull Callback callback
+    ) {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
@@ -499,96 +514,6 @@ public class CommentParser {
             }
         }
 
-        Link link = new Link();
-        link.type = t;
-        link.key = text;
-        link.value = value;
-        return link;
-    }
-
-    public static class Link {
-        public Type type;
-        public CharSequence key;
-        public Object value;
-    }
-
-    /**
-     * A board, thread, and postId combination to identify a thread.
-     * Used for ExternalSiteArchives.
-     */
-    public static class ThreadLink {
-        public String boardCode;
-        public int threadId;
-        public int postId;
-
-        public ThreadLink(String boardCode, int threadId, int postId) {
-            this.boardCode = boardCode;
-            this.threadId = threadId;
-            this.postId = postId;
-        }
-    }
-
-    /**
-     * Resolve a board and postId to a ThreadLink.
-     * Used for ExternalSiteArchives.
-     */
-    public static class ResolveLink {
-        public Board board;
-        public int postId;
-
-        public ResolveLink(Site site, String boardCode, int postId) {
-            this.board = Board.fromSiteNameCode(site, "", boardCode);
-            this.postId = postId;
-        }
-
-        public void resolve(@NonNull ResolveCallback callback, @NonNull ResolveParser parser) {
-            NetUtils.makeJsonRequest(((ArchiveEndpoints) board.site.endpoints()).resolvePost(board.code, postId),
-                    new NetUtilsClasses.MainThreadResponseResult<>(new ResponseResult<ThreadLink>() {
-                        @Override
-                        public void onFailure(Exception e) {
-                            callback.onProcessed(null);
-                        }
-
-                        @Override
-                        public void onSuccess(ThreadLink result) {
-                            callback.onProcessed(result);
-                        }
-                    }),
-                    parser,
-                    NetUtilsClasses.NO_CACHE,
-                    null,
-                    5000
-            );
-        }
-
-        public interface ResolveCallback {
-            void onProcessed(@Nullable ThreadLink result);
-        }
-
-        public static class ResolveParser
-                implements NetUtilsClasses.Converter<ThreadLink, JsonReader> {
-            private final ResolveLink sourceLink;
-
-            public ResolveParser(ResolveLink source) {
-                sourceLink = source;
-            }
-
-            @Override
-            public ThreadLink convert(JsonReader reader) {
-                return ((ArchiveSiteUrlHandler) sourceLink.board.site.resolvable()).resolveToThreadLink(sourceLink,
-                        reader
-                );
-            }
-        }
-    }
-
-    public static class SearchLink {
-        public String board;
-        public String search;
-
-        public SearchLink(String board, String search) {
-            this.board = board;
-            this.search = search;
-        }
+        return new Link(t, text, value);
     }
 }

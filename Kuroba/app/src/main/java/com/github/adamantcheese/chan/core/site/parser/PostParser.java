@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -63,7 +64,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class PostParser {
-    private final CommentParser commentParser;
+    private final ChanCommentAction chanCommentAction;
     @Inject
     private FilterEngine filterEngine;
 
@@ -78,8 +79,14 @@ public class PostParser {
     private final Pattern codePattern = Pattern.compile("`(.+)`");
     private final Pattern strikePattern = Pattern.compile("~~(.+)~~");
 
-    public PostParser(CommentParser commentParser) {
-        this.commentParser = commentParser;
+    /**
+     * Construct a new post parser, with the given action for styling parsed comments.
+     *
+     * @param chanCommentAction The action that describes how to style post comments.
+     *                          A generic ChanCommentAction is generally fine.
+     */
+    public PostParser(ChanCommentAction chanCommentAction) {
+        this.chanCommentAction = chanCommentAction;
         inject(this);
     }
 
@@ -198,7 +205,8 @@ public class PostParser {
             String comment = post.comment.toString().replace("<wbr>", "");
             // modifiers for HTML
             if (ChanSettings.parseExtraQuotes.get()) {
-                comment = extraQuotePattern.matcher(comment).replaceAll(commentParser.createQuoteElementString(post));
+                comment =
+                        extraQuotePattern.matcher(comment).replaceAll(chanCommentAction.createQuoteElementString(post));
             }
             if (ChanSettings.parseExtraSpoilers.get()) {
                 comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
@@ -235,7 +243,7 @@ public class PostParser {
                 // Recursively call parseNode with the nodes of the element
                 allInnerText.append(parseNode(theme, post, callback, innerNode));
             }
-            return commentParser.handleTag(callback, theme, post, allInnerText, (Element) node);
+            return chanCommentAction.style((Element) node, allInnerText, theme, post, callback);
         } else {
             Logger.e(this, "Unknown node instance: " + node.getClass().getName());
             return new SpannedString(""); // ?

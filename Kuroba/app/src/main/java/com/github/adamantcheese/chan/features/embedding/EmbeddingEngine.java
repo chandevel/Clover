@@ -29,7 +29,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NullCall;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
 import com.github.adamantcheese.chan.features.embedding.embedders.BandcampEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.ClypEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;

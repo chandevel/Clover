@@ -17,17 +17,16 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 
 import java.util.regex.Pattern;
 
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
 
-public class VichanCommentParser
-        extends CommentParser {
-    public VichanCommentParser() {
+public class VichanCommentAction
+        extends ChanCommentAction {
+    public VichanCommentAction() {
         super();
-        addDefaultRules();
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
         mapTagToRule("p", "quote", INLINE_QUOTE_COLOR);
     }

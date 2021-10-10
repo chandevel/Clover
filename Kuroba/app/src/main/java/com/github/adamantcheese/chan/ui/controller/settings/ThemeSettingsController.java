@@ -52,7 +52,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
@@ -398,7 +398,7 @@ public class ThemeSettingsController
             false,
             false
     ));
-    final PostParser postParser = new PostParser(new CommentParser().addDefaultRules());
+    final PostParser postParser = new PostParser(new ChanCommentAction());
 
     private class ThemePostsAdapter
             extends RecyclerView.Adapter<ThemePostsAdapter.ThemePreviewHolder> {

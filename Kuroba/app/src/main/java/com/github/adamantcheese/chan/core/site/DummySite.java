@@ -22,7 +22,7 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.CommentParser;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
 import java.util.Collections;
@@ -174,7 +174,7 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new PostParser(new CommentParser().addDefaultRules());
+            private final PostParser postParser = new PostParser(new ChanCommentAction());
 
             @Override
             public PostParser getParser() {
