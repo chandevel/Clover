@@ -22,6 +22,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.StyleSpan;
@@ -297,7 +298,7 @@ public class FilterLayout
             if (span.getFamily().equals("monospace")) {
                 int start = message.getSpanStart(span);
                 int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             }
         }
 
@@ -306,7 +307,7 @@ public class FilterLayout
             if (span.getStyle() == Typeface.ITALIC) {
                 int start = message.getSpanStart(span);
                 int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, 0);
+                message.setSpan(new BackgroundColorSpanHashed(0x22000000), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             }
         }
 

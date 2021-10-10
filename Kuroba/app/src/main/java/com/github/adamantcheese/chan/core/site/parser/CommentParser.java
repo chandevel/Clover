@@ -21,8 +21,10 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.JsonReader;
@@ -48,6 +50,8 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveEndpoints;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive.ArchiveSiteUrlHandler;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.StyleRule.StyleAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
@@ -61,7 +65,6 @@ import org.jsoup.select.Elements;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -79,9 +82,9 @@ import static com.github.adamantcheese.chan.core.site.parser.StyleRule.COLOR;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_CSS;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.INLINE_QUOTE_COLOR;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.ITALICIZE;
+import static com.github.adamantcheese.chan.core.site.parser.StyleRule.MONOSPACE;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NEWLINE;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.NULL;
-import static com.github.adamantcheese.chan.core.site.parser.StyleRule.QUOTE_COLOR;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SIZE;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SPOILER;
 import static com.github.adamantcheese.chan.core.site.parser.StyleRule.SRC;
@@ -93,6 +96,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 @AnyThread
 public class CommentParser {
@@ -113,67 +117,85 @@ public class CommentParser {
     // A pattern matching any board search links
     private final Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
 
-    // The list of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
-    private final Map<String, List<StyleRule>> rules = new HashMap<>();
+    // Two maps of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
+    // Maps an element tag to a map of css classes to style rules; ie more specific from just the tag
+    private final Map<String, Map<String, StyleRule>> specificRules = new HashMap<>();
+    // Maps an element tag to a rule; ie the style always applies to the tag
+    private final Map<String, StyleRule> wildcardRules = new HashMap<>();
 
     private static Typeface submona;
 
     public CommentParser() {
-        // Required tags.
-        rule(new StyleRule("p").style(BLOCK_LINE_BREAK));
-        rule(new StyleRule("div").style(BLOCK_LINE_BREAK));
-        rule(new StyleRule("br").style(NEWLINE));
+        // required newline rules
+        mapTagToRule("p", BLOCK_LINE_BREAK);
+        mapTagToRule("div", BLOCK_LINE_BREAK);
+        mapTagToRule("br", NEWLINE);
     }
 
     public CommentParser addDefaultRules() {
-        rule(new StyleRule("a").style(this::handleAnchor));
+        // text modifying
+        mapTagToRule("span", "abbr", NULL);
+        mapTagToRule("iframe", SRC);
 
-        rule(new StyleRule("span").cssClass("deadlink")
-                .style(QUOTE_COLOR)
-                .style(STRIKETHROUGH)
-                .style(this::handleDead));
-        rule(new StyleRule("span").cssClass("spoiler").style(SPOILER));
-        rule(new StyleRule("span").cssClass("fortune")
-                .style(INLINE_CSS)
-                .style(BOLD)); // css needs to be applied first here
-        rule(new StyleRule("span").cssClass("abbr").style(NULL));
-        rule(new StyleRule("span").cssClass("quote").style(INLINE_QUOTE_COLOR));
-        rule(new StyleRule("span").cssClass("sjis").style(this::handleSJIS));
-        rule(new StyleRule("span")); // this allows inline styled elements to be processed
+        // simple text
+        mapTagToRule("strong", BOLD);
+        mapTagToRule("b", BOLD);
+        mapTagToRule("strike", STRIKETHROUGH);
+        mapTagToRule("i", ITALICIZE);
+        mapTagToRule("em", ITALICIZE);
+        mapTagToRule("u", UNDERLINE);
+        mapTagToRule("font", COLOR, SIZE);
 
-        rule(new StyleRule("table").style(this::handleTable));
+        // complex text
+        mapTagToRule("span", INLINE_CSS);
+        mapTagToRule("span", "quote", INLINE_QUOTE_COLOR);
+        mapTagToRule("pre", MONOSPACE);
+        mapTagToRule("pre", "prettyprint", CODE, CHOMP);
+        mapTagToRule("span", "spoiler", SPOILER);
+        mapTagToRule("s", SPOILER);
 
-        rule(new StyleRule("s").style(SPOILER));
+        // functional text
+        mapTagToRule("a", this::handleAnchor);
+        mapTagToRule("span", "deadlink", this::handleDead);
+        mapTagToRule("span", "sjis", (sjis, text, theme, post, callback) -> handleSJIS(text, theme));
+        mapTagToRule("table", this::handleTable);
+        mapTagToRule("img", (image, text, theme, post, callback) -> handleImage(image, text, theme, post));
 
-        rule(new StyleRule("strong").style(BOLD));
-        rule(new StyleRule("b").style(BOLD));
-
-        rule(new StyleRule("strike").style(STRIKETHROUGH));
-
-        rule(new StyleRule("i").style(ITALICIZE));
-        rule(new StyleRule("em").style(ITALICIZE));
-
-        rule(new StyleRule("u").style(UNDERLINE));
-
-        rule(new StyleRule("font").style(COLOR).style(SIZE));
-
-        rule(new StyleRule("pre").cssClass("prettyprint").style(CODE).style(CHOMP));
-
-        rule(new StyleRule("img").style(this::handleImage));
-
-        // replaces iframes with the associated src url text
-        rule(new StyleRule("iframe").style(SRC));
         return this;
     }
 
-    public void rule(StyleRule rule) {
-        List<StyleRule> list = rules.get(rule.tag);
-        if (list == null) {
-            list = new ArrayList<>(3);
-            rules.put(rule.tag, list);
+    public void mapTagToRule(String tag, StyleAction... rules) {
+        StyleRule ruleForTag = wildcardRules.get(tag);
+        if (ruleForTag == null) {
+            ruleForTag = new StyleRule();
+            Collections.addAll(ruleForTag.actions, rules);
+        } else {
+            StyleRule concat = new StyleRule();
+            concat.actions.addAll(ruleForTag.actions);
+            Collections.addAll(concat.actions, rules);
+            ruleForTag = concat;
+        }
+        wildcardRules.put(tag, ruleForTag);
+    }
+
+    public void mapTagToRule(String tag, String cssClass, StyleAction... rules) {
+        Map<String, StyleRule> classMap = specificRules.get(tag);
+        if (classMap == null) {
+            classMap = new HashMap<>();
+            specificRules.put(tag, classMap);
         }
 
-        list.add(rule);
+        StyleRule specificForTag = classMap.get(cssClass);
+        if (specificForTag == null) {
+            specificForTag = new StyleRule();
+            Collections.addAll(specificForTag.actions, rules);
+        } else {
+            StyleRule concat = new StyleRule();
+            concat.actions.addAll(specificForTag.actions);
+            Collections.addAll(concat.actions, rules);
+            specificForTag = concat;
+        }
+        classMap.put(cssClass, specificForTag);
     }
 
     /**
@@ -196,34 +218,31 @@ public class CommentParser {
         return "<a href=\"/" + post.board.code + "/thread/" + post.opId + "#p$1\">&gt;&gt;$1</a>";
     }
 
-    public CharSequence handleTag(
-            PostParser.Callback callback,
-            @NonNull Theme theme,
-            Post.Builder post,
-            String tag,
-            CharSequence text,
-            Element element
+    @NonNull
+    public SpannedString handleTag(
+            Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
     ) {
-        List<StyleRule> rules = this.rules.get(tag);
-        if (rules != null) {
-            // two passes, first for stuff with classes and then everything else
-            for (int i = 0; i < 2; i++) {
-                boolean firstPass = i == 0;
-                for (StyleRule rule : rules) {
-                    if (!rule.applies(element)) continue;
-                    if (rule.hasClasses() == firstPass) {
-                        return rule.apply(theme, callback, post, new SpannableString(text), element);
-                    }
-                }
+        Map<String, StyleRule> specificsForTag = specificRules.get(element.normalName());
+        StyleRule specificForTagClass = null;
+        if (specificsForTag != null) {
+            for (String n : element.classNames()) {
+                specificForTagClass = specificsForTag.get(n);
+                if (specificForTagClass != null) break;
             }
         }
+        StyleRule wildcardForTag = wildcardRules.get(element.normalName());
 
-        // Unknown tag, return the text
-        return text;
+        Spanned result = text; // default no matches
+        if (specificForTagClass != null) {
+            result = specificForTagClass.apply(element, text, theme, post, callback);
+        } else if (wildcardForTag != null) {
+            result = wildcardForTag.apply(element, text, theme, post, callback);
+        }
+        return new SpannedString(result);
     }
 
-    private Spannable handleAnchor(
-            Element anchor, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    private SpannedString handleAnchor(
+            Element anchor, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
     ) {
         Link handlerLink = null;
         try {
@@ -231,32 +250,26 @@ public class CommentParser {
         } catch (Exception e) {
             Logger.w(this, "Failed to parse an element, leaving as plain text.");
         }
-        SpannableStringBuilder spannableStringBuilder = new SpannableStringBuilder();
 
         if (handlerLink != null) {
-            addReply(theme, callback, post, handlerLink, spannableStringBuilder);
+            return addReply(theme, callback, post, handlerLink);
         } else {
-            spannableStringBuilder.append(text);
+            return new SpannedString(text);
         }
-
-        return spannableStringBuilder.length() > 0 ? spannableStringBuilder : null;
     }
 
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
-    private Spannable handleImage(
-            Element image, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    private SpannedString handleImage(
+            Element image, Spanned text, @NonNull Theme theme, Post.Builder post
     ) {
         try {
-            SpannableString ret = new SpannableString(text);
+            SpannableStringBuilder ret = new SpannableStringBuilder(text);
             if (image.hasAttr("alt")) {
                 String alt = image.attr("alt");
                 if (!alt.isEmpty()) {
-                    ret = new SpannableString(alt + " ");
-                    ret.setSpan(new PostLinkable(theme, alt, Type.SPOILER),
-                            0,
-                            alt.length(),
-                            (1000 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
-                    );
+                    Spannable tmp = new SpannableString(alt + " ");
+                    tmp.setSpan(new PostLinkable(theme, alt, Type.SPOILER), 0, alt.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    ret.append(tmp);
                 }
             }
             HttpUrl src = HttpUrl.get(image.attr("src"));
@@ -269,18 +282,14 @@ public class CommentParser {
             if (post.images.size() < 5 && !post.images.contains(i)) {
                 post.images(Collections.singletonList(i));
             }
-            return ret;
+            return new SpannedString(ret);
         } catch (Exception e) {
-            return text;
+            return new SpannedString(text);
         }
     }
 
-    private void addReply(
-            @NonNull Theme theme,
-            PostParser.Callback callback,
-            Post.Builder post,
-            Link handlerLink,
-            SpannableStringBuilder spannableStringBuilder
+    private SpannedString addReply(
+            @NonNull Theme theme, Callback callback, Post.Builder post, Link handlerLink
     ) {
         if (handlerLink.type == Type.THREAD && !handlerLink.key.toString().contains(EXTERN_THREAD_LINK_SUFFIX)) {
             handlerLink.key = TextUtils.concat(handlerLink.key, EXTERN_THREAD_LINK_SUFFIX);
@@ -316,32 +325,26 @@ public class CommentParser {
             }
         }
 
-        SpannableString res = new SpannableString(handlerLink.key);
-        PostLinkable pl = new PostLinkable(theme, handlerLink.value, handlerLink.type);
-        res.setSpan(pl, 0, res.length(), (250 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY);
-
-        spannableStringBuilder.append(res);
+        return span(handlerLink.key, new PostLinkable(theme, handlerLink.value, handlerLink.type));
     }
 
     // This is used on /p/ for exif data.
-    public Spannable handleTable(
-            Element table, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    public SpannedString handleTable(
+            Element table, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
     ) {
         SpannableStringBuilder parts = new SpannableStringBuilder();
         Elements tableRows = table.getElementsByTag("tr");
         for (int i = 0; i < tableRows.size(); i++) {
             Element tableRow = tableRows.get(i);
-            if (tableRow.text().length() > 0) {
+            if (!tableRow.text().isEmpty()) {
                 Elements tableDatas = tableRow.getElementsByTag("td");
                 for (int j = 0; j < tableDatas.size(); j++) {
                     Element tableData = tableDatas.get(j);
 
-                    SpannableString tableDataPart = new SpannableString(tableData.text());
-                    if (tableData.getElementsByTag("b").size() > 0) {
-                        tableDataPart = span(tableDataPart, new StyleSpan(Typeface.BOLD), new UnderlineSpan());
+                    if (tableData.getElementsByTag("b").size()
+                            > 0) { // if it has a bold element, the entire thing is bold; should only bold the necessary part
+                        parts.append(span(tableData.text(), new StyleSpan(Typeface.BOLD), new UnderlineSpan()));
                     }
-
-                    parts.append(tableDataPart);
 
                     if (j < tableDatas.size() - 1) parts.append(": ");
                 }
@@ -367,15 +370,14 @@ public class CommentParser {
         );
     }
 
-    public Spannable handleSJIS(
-            Element sjis, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    public SpannedString handleSJIS(
+            Spanned text, @NonNull Theme theme
     ) {
         if (submona == null) {
             submona = Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf");
         }
-        SpannableStringBuilder sjisArt = new SpannableStringBuilder(text);
-        sjisArt.setSpan(new CustomTypefaceSpan("", submona), 0, sjisArt.length(), 0);
         return span("[SJIS art available. Click here to view.]",
+                new CustomTypefaceSpan("", submona),
                 new PostLinkable(theme, new Object(), Type.OTHER) {
                     @Override
                     public void onClick(@NonNull View widget) {
@@ -383,7 +385,7 @@ public class CommentParser {
                         sjisView.setMovementMethod(new ScrollingMovementMethod());
                         sjisView.setHorizontallyScrolling(true);
                         updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
-                        sjisView.setText(sjisArt);
+                        sjisView.setText(text);
                         AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setView(sjisView)
                                 .setPositiveButton(R.string.close, null)
                                 .create();
@@ -396,12 +398,12 @@ public class CommentParser {
         );
     }
 
-    public Spannable handleDead(
-            Element deadlink, Spannable text, @NonNull Theme theme, Post.Builder post, PostParser.Callback callback
+    public SpannedString handleDead(
+            Element deadlink, Spanned text, @NonNull Theme theme, Post.Builder post, Callback callback
     ) {
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
-            if (!(post.board.site instanceof Chan4)) return text; //4chan only
+            if (!(post.board.site instanceof Chan4)) return new SpannedString(text); //4chan only
             int postNo = Integer.parseInt(deadlink.text().substring(2));
             List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(post.board);
             if (!boards.isEmpty()) {
@@ -416,14 +418,14 @@ public class CommentParser {
                                 : new ThreadLink(post.board.code, post.op ? postNo : post.opId, post.op ? -1 : postNo),
                         Type.ARCHIVE
                 );
-                text = span(text, newLinkable);
+                return span(text, newLinkable, new StrikethroughSpan());
             }
         } catch (Exception ignored) {
         }
-        return text;
+        return new SpannedString(text);
     }
 
-    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, PostParser.Callback callback) {
+    public Link matchAnchor(Post.Builder post, CharSequence text, Element anchor, Callback callback) {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno
         //hacky fix for 4chan having two domains but the same API
@@ -499,26 +501,6 @@ public class CommentParser {
         link.key = text;
         link.value = value;
         return link;
-    }
-
-    public SpannableString span(CharSequence text, Object... additionalSpans) {
-        SpannableString result = new SpannableString(text);
-        int l = result.length();
-
-        if (additionalSpans != null && additionalSpans.length > 0) {
-            for (int i = 0; i < additionalSpans.length; i++) {
-                Object additionalSpan = additionalSpans[i];
-                if (additionalSpan != null) {
-                    result.setSpan(additionalSpan,
-                            0,
-                            l,
-                            ((500 / (i + 1) << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
-                    );
-                }
-            }
-        }
-
-        return result;
     }
 
     public static class Link {

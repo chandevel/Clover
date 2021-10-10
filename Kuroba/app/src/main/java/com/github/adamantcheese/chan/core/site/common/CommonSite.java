@@ -174,7 +174,7 @@ public abstract class CommonSite
     }
 
     public void setParser(CommentParser commentParser) {
-        postParser = new DefaultPostParser(commentParser);
+        postParser = new PostParser(commentParser);
     }
 
     /*

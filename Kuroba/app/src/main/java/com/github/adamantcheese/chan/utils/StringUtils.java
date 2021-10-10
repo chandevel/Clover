@@ -1,7 +1,9 @@
 package com.github.adamantcheese.chan.utils;
 
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
@@ -289,5 +291,15 @@ public class StringUtils {
             lastIdx++;
         }
         return str.subSequence(0, lastIdx);
+    }
+
+    public static SpannedString span(CharSequence text, Object... spans) {
+        SpannableString ret = new SpannableString(text);
+        if (spans == null || spans.length == 0) return new SpannedString(ret);
+        for (Object span : spans) {
+            if (span == null) continue;
+            ret.setSpan(span, 0, text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+        }
+        return new SpannedString(ret);
     }
 }

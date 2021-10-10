@@ -769,7 +769,7 @@ public class WatchManager
             PageRepository.addListener(this);
         }
 
-        public SpannableStringBuilder getSummary() {
+        public CharSequence getSummary() {
             return chanLoader != null && chanLoader.getThread() != null ? chanLoader.getThread().summarize(true) : null;
         }
 

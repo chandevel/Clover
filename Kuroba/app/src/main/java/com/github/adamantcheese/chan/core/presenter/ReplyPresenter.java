@@ -20,6 +20,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
@@ -73,6 +74,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ReplyPresenter
@@ -305,8 +307,8 @@ public class ReplyPresenter
         } else if (replyResponse.requireAuthentication) {
             switchPage(Page.AUTHENTICATION);
         } else {
-            SpannableStringBuilder errorMessage = new SpannableStringBuilder(getString(R.string.reply_error));
-            int prefixLen = errorMessage.length();
+            SpannableStringBuilder errorMessage =
+                    new SpannableStringBuilder(span(getString(R.string.reply_error), new StyleSpan(Typeface.BOLD)));
             if (replyResponse.errorMessage != null) {
                 SpannableStringBuilder error =
                         new SpannableStringBuilder(HtmlCompat.fromHtml(replyResponse.errorMessage,
@@ -328,14 +330,11 @@ public class ReplyPresenter
                             ds.setUnderlineText(true);
                             ds.setFakeBoldText(true);
                         }
-                    }, error.getSpanStart(s), error.getSpanEnd(s), 0);
+                    }, error.getSpanStart(s), error.getSpanEnd(s), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                     error.removeSpan(s);
                 }
-                errorMessage.clear();
-                errorMessage.append(getString(R.string.reply_error)).append(": ").append(error);
-                prefixLen += 1;
+                errorMessage.append(": ").append(error);
             }
-            errorMessage.setSpan(new StyleSpan(Typeface.BOLD), 0, prefixLen, 0);
 
             Logger.e(this, "onPostComplete error", errorMessage);
             switchPage(Page.INPUT);

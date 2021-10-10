@@ -1,15 +1,17 @@
 package com.github.adamantcheese.chan.core.site.archives;
 
+import android.text.Spanned;
+import android.text.SpannedString;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Element;
@@ -47,7 +49,7 @@ public class AyaseArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new DefaultPostParser(new AyaseCommentParser(domain));
+                parser = new PostParser(new AyaseCommentParser(domain));
             }
             return parser;
         }
@@ -231,14 +233,10 @@ public class AyaseArchive
             setFullQuotePattern(compiledPattern);*/
         }
 
+        @NonNull
         @Override
-        public CharSequence handleTag(
-                PostParser.Callback callback,
-                @NonNull Theme theme,
-                Post.Builder post,
-                String tag,
-                CharSequence text,
-                Element element
+        public SpannedString handleTag(
+                Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
         ) {
             throw new NotImplementedError(); // this likely can be fully removed and not overridden
             /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not

@@ -125,7 +125,7 @@ public class DrawerPinAdapter
             if (summary == null) {
                 summary = new SpannableStringBuilder(pin.loadable.board.getFormattedName());
             } else {
-                summary = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - " + summary);
+                summary = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - ").append(summary);
             }
 
             if (pin.archived) {

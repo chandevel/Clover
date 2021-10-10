@@ -2,6 +2,7 @@ package com.github.adamantcheese.chan.ui.cell;
 
 import android.text.Layout;
 import android.text.Spannable;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
@@ -94,7 +95,7 @@ public class PostViewMovementMethod
 
                     cleanHighlightSpannable(buffer);
                 } else if (action == MotionEvent.ACTION_DOWN) {
-                    buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(linkable1), buffer.getSpanEnd(linkable1), 0);
+                    buffer.setSpan(BACKGROUND_SPAN, buffer.getSpanStart(linkable1), buffer.getSpanEnd(linkable1), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                 } else {
                     cleanHighlightSpannable(buffer);
                 }

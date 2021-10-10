@@ -16,7 +16,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapR
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.http.LoginRequest;
@@ -24,7 +24,6 @@ import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -175,7 +174,7 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new DefaultPostParser(new CommentParser().addDefaultRules());
+            private final PostParser postParser = new PostParser(new CommentParser().addDefaultRules());
 
             @Override
             public PostParser getParser() {

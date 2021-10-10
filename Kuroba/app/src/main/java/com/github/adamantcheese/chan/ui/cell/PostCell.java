@@ -22,8 +22,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
@@ -95,6 +95,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class PostCell
@@ -155,8 +156,8 @@ public class PostCell
         detailsSizePx = sp(getContext(), textSizeSp - 4);
 
         thumbnailViews.addItemDecoration(new DPSpacingItemDecoration(getContext(), 2));
-        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins(
-                (!isInEditMode() && ChanSettings.flipPostCells.get()) ? 0 : (int) paddingPx,
+        ((MarginLayoutParams) thumbnailViews.getLayoutParams()).setMargins((!isInEditMode()
+                        && ChanSettings.flipPostCells.get()) ? 0 : (int) paddingPx,
                 (int) paddingPx,
                 (!isInEditMode() && ChanSettings.flipPostCells.get()) ? (int) paddingPx : 0,
                 (int) paddingPx
@@ -326,16 +327,15 @@ public class PostCell
                 .append(ChanSettings.addDubs.get() ? (dubs.length() > 0 ? " " : "") : "")
                 .append(ChanSettings.postFullDate.get()
                         ? PostHelper.getLocalDate(post)
-                        : DateUtils.getRelativeTimeSpanString(
-                                SECONDS.toMillis(post.time),
+                        : DateUtils.getRelativeTimeSpanString(SECONDS.toMillis(post.time),
                                 System.currentTimeMillis(),
                                 DateUtils.SECOND_IN_MILLIS,
                                 0
                         ));
-        date.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, date.length(), 0);
-        date.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, date.length(), 0);
-
-        titleParts.append(date);
+        titleParts.append(span(date,
+                new ForegroundColorSpanHashed(detailsColor),
+                new AbsoluteSizeSpanHashed((int) detailsSizePx)
+        ));
 
         for (PostImage image : post.images) {
             if (ChanSettings.textOnly.get()) continue;
@@ -347,10 +347,11 @@ public class PostCell
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
                 SpannableStringBuilder fileInfo = new SpannableStringBuilder().append("\n")
                         .append(applySearchSpans(theme, filename, callback.getSearchQuery()));
-                fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new UnderlineSpan(), 0, fileInfo.length(), 0);
-                titleParts.append(fileInfo);
+                titleParts.append(span(fileInfo,
+                        new ForegroundColorSpanHashed(detailsColor),
+                        new AbsoluteSizeSpanHashed((int) detailsSizePx),
+                        new UnderlineSpan()
+                ));
             }
 
             if (ChanSettings.postFileInfo.get()) {
@@ -359,9 +360,10 @@ public class PostCell
                 fileInfo.append(image.extension.toUpperCase());
                 fileInfo.append(image.isInlined ? "" : " " + getReadableFileSize(image.size));
                 fileInfo.append(image.isInlined ? "" : " " + image.imageWidth + "x" + image.imageHeight);
-                fileInfo.setSpan(new ForegroundColorSpanHashed(detailsColor), 0, fileInfo.length(), 0);
-                fileInfo.setSpan(new AbsoluteSizeSpanHashed((int) detailsSizePx), 0, fileInfo.length(), 0);
-                titleParts.append(fileInfo);
+                titleParts.append(span(fileInfo,
+                        new ForegroundColorSpanHashed(detailsColor),
+                        new AbsoluteSizeSpanHashed((int) detailsSizePx)
+                ));
             }
         }
 
@@ -482,11 +484,8 @@ public class PostCell
             replies.setVisibility(VISIBLE);
 
             int replyCount = threadMode ? post.repliesFrom.size() : post.replies;
-            SpannableStringBuilder text = new SpannableStringBuilder();
-            text.append(getQuantityString(R.plurals.reply, replyCount));
-            if (replyCount > 7 && loadable.isThreadMode()) {
-                text.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), 0);
-            }
+            SpannableStringBuilder text =
+                    new SpannableStringBuilder().append(getQuantityString(R.plurals.reply, replyCount));
 
             if (!threadMode && post.imagesCount > 0) {
                 text.append(", ").append(getQuantityString(R.plurals.image, post.imagesCount));
@@ -562,7 +561,7 @@ public class PostCell
     private final String[] dubTexts =
             {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
 
-    private SpannableString getRepeatDigits(int no) {
+    private SpannedString getRepeatDigits(int no) {
         CharSequence number = new StringBuilder().append(no).reverse();
         char init = number.charAt(0);
         int count = 1;
@@ -574,9 +573,7 @@ public class PostCell
                 break;
             }
         }
-        SpannableString s = new SpannableString(dubTexts[count - 1]);
-        s.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), 0);
-        return s;
+        return span(dubTexts[count - 1], new StyleSpan(Typeface.BOLD));
     }
 
     @Override

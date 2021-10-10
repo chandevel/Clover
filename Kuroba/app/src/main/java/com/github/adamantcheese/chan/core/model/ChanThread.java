@@ -17,8 +17,8 @@
 package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Typeface;
-import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
+import android.text.SpannedString;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
@@ -36,6 +36,7 @@ import java.util.List;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class ChanThread {
     public final Loadable loadable;
@@ -81,43 +82,31 @@ public class ChanThread {
         return posts.isEmpty() ? null : posts.get(0);
     }
 
-    public SpannableStringBuilder summarize(boolean extraStyling) {
+    public CharSequence summarize(boolean extraStyling) {
         Post op = getOp();
         SpannableStringBuilder builder = new SpannableStringBuilder();
         boolean hasReplies = op.replies >= 0 || posts.size() - 1 > 0;
         boolean hasImages = op.imagesCount >= 0 || getImagesCount() > 0;
         boolean hasUniqueIps = op.uniqueIps >= 0;
         String separator = " / ";
-        int style = extraStyling ? Typeface.BOLD_ITALIC : Typeface.ITALIC;
+        Object styleSpan = new StyleSpan(extraStyling ? Typeface.BOLD_ITALIC : Typeface.ITALIC);
+        int themeTextColor = getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor);
+        Object[] extraSpans = {new ForegroundColorSpanHashed(themeTextColor), new UnderlineSpan()};
 
         if (hasReplies) {
             boolean hasBumpLimit = loadable.board.bumpLimit > 0;
-            SpannableString replies =
-                    new SpannableString((op.replies >= 0 ? op.replies : posts.size() - 1) + "R");
+            SpannedString replies = new SpannedString((op.replies >= 0 ? op.replies : posts.size() - 1) + "R");
             if (hasBumpLimit && op.replies >= loadable.board.bumpLimit) {
-                replies.setSpan(new StyleSpan(style), 0, replies.length(), 0);
-                if (extraStyling) {
-                    replies.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                            android.R.attr.textColor
-                    )), 0, replies.length(), 0);
-                    replies.setSpan(new UnderlineSpan(), 0, replies.length(), 0);
-                }
+                replies = span(replies, styleSpan, extraStyling ? extraSpans : null);
             }
             builder.append(replies);
         }
 
         if (hasImages) {
             boolean hasImageLimit = loadable.board.imageLimit > 0;
-            SpannableString images =
-                    new SpannableString((op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I");
+            SpannedString images = new SpannedString((op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I");
             if (hasImageLimit && op.imagesCount >= loadable.board.imageLimit) {
-                images.setSpan(new StyleSpan(style), 0, images.length(), 0);
-                if (extraStyling) {
-                    images.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                            android.R.attr.textColor
-                    )), 0, images.length(), 0);
-                    images.setSpan(new UnderlineSpan(), 0, images.length(), 0);
-                }
+                images = span(images, styleSpan, extraStyling ? extraSpans : null);
             }
             builder.append(hasReplies ? separator : "").append(images);
         }
@@ -129,15 +118,9 @@ public class ChanThread {
 
         CommonDataStructs.ChanPage p = PageRepository.getPage(op);
         if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
-            SpannableString page = new SpannableString(String.valueOf(p.page));
+            SpannedString page = new SpannedString(String.valueOf(p.page));
             if (p.page >= loadable.board.pages) {
-                page.setSpan(new StyleSpan(style), 0, page.length(), 0);
-                if (extraStyling) {
-                    page.setSpan(new ForegroundColorSpanHashed(getAttrColor(ThemeHelper.getTheme().resValue,
-                            android.R.attr.textColor
-                    )), 0, page.length(), 0);
-                    page.setSpan(new UnderlineSpan(), 0, page.length(), 0);
-                }
+                page = span(page, styleSpan, extraStyling ? extraSpans : null);
             }
             builder.append(hasReplies || hasImages || hasUniqueIps ? separator : "")
                     .append(getString(R.string.thread_page_no))

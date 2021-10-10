@@ -27,7 +27,6 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
 import android.text.Editable;
-import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
@@ -106,6 +105,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class ReplyLayout
         extends LoadView
@@ -664,15 +664,14 @@ public class ReplyLayout
             fadeOutPair.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    SpannableString done;
+                    String done;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
                             && !PersistableChanState.noFunAllowed.get()) {
-                        done = new SpannableString("\uD83D\uDE29\uD83D\uDC4C");
+                        done = "\uD83D\uDE29\uD83D\uDC4C";
                     } else {
-                        done = new SpannableString("✓");
+                        done = "✓";
                     }
-                    done.setSpan(new AbsoluteSizeSpan(36, true), 0, done.length(), 0);
-                    currentProgress.setText(done);
+                    currentProgress.setText(span(done, new AbsoluteSizeSpan(36, true)));
                 }
             });
 

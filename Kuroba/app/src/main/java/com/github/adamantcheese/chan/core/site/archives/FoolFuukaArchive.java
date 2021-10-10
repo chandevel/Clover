@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.site.archives;
 
+import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
@@ -12,13 +14,12 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.common.DefaultPostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.StyleRule;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
@@ -54,7 +55,7 @@ public class FoolFuukaArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new DefaultPostParser(new FoolFuukaCommentParser(domain));
+                parser = new PostParser(new FoolFuukaCommentParser(domain));
             }
             return parser;
         }
@@ -248,7 +249,7 @@ public class FoolFuukaArchive
             super();
             this.domain = domain;
             addDefaultRules();
-            rule(new StyleRule("span").cssClass("greentext").style(INLINE_QUOTE_COLOR));
+            mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR);
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
             Pattern compiledPattern = Pattern.compile(
@@ -258,14 +259,10 @@ public class FoolFuukaArchive
             setFullQuotePattern(compiledPattern);
         }
 
+        @NonNull
         @Override
-        public CharSequence handleTag(
-                PostParser.Callback callback,
-                @NonNull Theme theme,
-                Post.Builder post,
-                String tag,
-                CharSequence text,
-                Element element
+        public SpannedString handleTag(
+                Callback callback, @NonNull Theme theme, Post.Builder post, Spanned text, Element element
         ) {
             // for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
             // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
@@ -273,9 +270,9 @@ public class FoolFuukaArchive
             // in this case, we just want to return the text that has already been processed inside of this "greentext" node
             // otherwise duplicate PostLinkables will be generated
             if (element.getElementsByTag("span").hasClass("greentext") && element.getAllElements().size() > 1) {
-                return text;
+                return new SpannedString(text);
             }
-            return super.handleTag(callback, theme, post, tag, text, element);
+            return super.handleTag(callback, theme, post, text, element);
         }
 
         @Override

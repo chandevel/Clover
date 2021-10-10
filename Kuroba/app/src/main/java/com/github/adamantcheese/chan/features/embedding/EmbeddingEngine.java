@@ -324,12 +324,10 @@ public class EmbeddingEngine
                 }
             } catch (Exception ignored) {}
 
-            //priority is 0 by default which is maximum above all else; higher priority is like higher layers, i.e. 2 is above 1, 3 is above 2, etc.
-            //we use 500 here for to go below post linkables, but above everything else basically
             comment.setSpan(pl,
                     link.getBeginIndex(),
                     link.getEndIndex(),
-                    ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY) | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE
             );
             generated.add(pl);
         }
@@ -538,8 +536,7 @@ public class EmbeddingEngine
                 replacement.setSpan(siteIcon,
                         0,
                         1,
-                        ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
-                                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                 );
 
                 // Set the linkable to be the entire length, including the icon
@@ -547,8 +544,7 @@ public class EmbeddingEngine
                 replacement.setSpan(pl,
                         0,
                         replacement.length(),
-                        ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
-                                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                 );
 
                 // replace the proper section of the comment with the link

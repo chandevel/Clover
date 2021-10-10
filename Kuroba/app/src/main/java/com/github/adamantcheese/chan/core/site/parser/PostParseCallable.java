@@ -22,6 +22,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.List;
@@ -62,7 +63,7 @@ class PostParseCallable
         // needed for "Apply to own posts" to work correctly
         postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.no));
 
-        return reader.getParser().parse(theme, postBuilder, filters, new PostParser.Callback() {
+        return reader.getParser().parse(theme, postBuilder, filters, new Callback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(postBuilder.board, postNo);

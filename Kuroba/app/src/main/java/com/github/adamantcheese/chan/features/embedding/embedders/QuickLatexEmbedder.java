@@ -198,14 +198,10 @@ public class QuickLatexEmbedder
                         replacement.setSpan(new ImageSpan(getAppContext(), bitmap),
                                 0,
                                 1,
-                                ((500 << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY)
-                                        | Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                                Spanned.SPAN_INCLUSIVE_EXCLUSIVE
                         );
                         // this will be removed before invalidation
-                        generatedLinkables.add(new PostLinkable(theme,
-                                rawMath,
-                                PostLinkable.Type.EMBED_TEMP
-                        ));
+                        generatedLinkables.add(new PostLinkable(theme, rawMath, PostLinkable.Type.EMBED_TEMP));
 
                         // replace the proper section of the comment
                         comment.replace(startIndex, startIndex + rawMath.length(), replacement);

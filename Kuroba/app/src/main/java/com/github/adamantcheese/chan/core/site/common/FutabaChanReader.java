@@ -32,7 +32,7 @@ public class FutabaChanReader
 
     public FutabaChanReader() {
         CommentParser commentParser = new CommentParser().addDefaultRules();
-        this.postParser = new DefaultPostParser(commentParser);
+        this.postParser = new PostParser(commentParser);
     }
 
     @Override

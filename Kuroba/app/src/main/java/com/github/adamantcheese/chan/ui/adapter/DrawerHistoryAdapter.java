@@ -1,8 +1,6 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.text.SpannableString;
 import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +43,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell>
@@ -123,10 +122,9 @@ public class DrawerHistoryAdapter
             // all this constructs a "Loading" screen, rather than using a CrossfadeView, as the views will crossfade on a notifyDataSetChanged call
             holder.itemView.getLayoutParams().height = MATCH_PARENT;
             holder.thumbnail.setVisibility(View.GONE);
-            SpannableString s =
-                    new SpannableString(getString(history == LOADING ? R.string.loading : R.string.no_history));
-            s.setSpan(new StyleSpan(BOLD), 0, s.length(), 0);
-            holder.text.setText(s);
+            holder.text.setText(span(getString(history == LOADING ? R.string.loading : R.string.no_history),
+                    new StyleSpan(BOLD)
+            ));
             holder.text.setGravity(CENTER_VERTICAL | CENTER_HORIZONTAL);
             holder.text.getLayoutParams().height = MATCH_PARENT;
             updatePaddings(holder.text, -1, -1, dp(holder.text.getContext(), 0), -1);
