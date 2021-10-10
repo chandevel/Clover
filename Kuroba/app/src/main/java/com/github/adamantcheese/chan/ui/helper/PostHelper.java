@@ -18,34 +18,31 @@ package com.github.adamantcheese.chan.ui.helper;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.style.ImageSpan;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class PostHelper {
     public static CharSequence prependIcon(
             @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, float height
     ) {
+        CenteringImageSpan imageSpan = new CenteringImageSpan(context, bitmap);
         int width = (int) (height / (bitmap.getHeight() / (float) bitmap.getWidth()));
-        SpannableString string = new SpannableString(TextUtils.concat("  ", total));
-        ImageSpan imageSpan = new ImageSpan(context, bitmap);
         imageSpan.getDrawable().setBounds(0, 0, width, (int) height);
-        string.setSpan(imageSpan, 0, 1, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-        return string;
+        return TextUtils.concat(span(" ", imageSpan), " ", total);
     }
 
     public static String getTitle(@Nullable Post post, @NonNull Loadable loadable) {

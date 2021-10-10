@@ -5,10 +5,8 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.SpannedString;
 import android.text.TextUtils;
-import android.text.style.ImageSpan;
 import android.util.LruCache;
 
 import androidx.annotation.NonNull;
@@ -42,6 +40,7 @@ import com.github.adamantcheese.chan.features.embedding.embedders.StreamableEmbe
 import com.github.adamantcheese.chan.features.embedding.embedders.VimeoEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.VocarooEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.YoutubeEmbedder;
+import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -76,9 +75,11 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
+import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class EmbeddingEngine
         implements LifecycleObserver {
@@ -324,11 +325,7 @@ public class EmbeddingEngine
                 }
             } catch (Exception ignored) {}
 
-            comment.setSpan(pl,
-                    link.getBeginIndex(),
-                    link.getEndIndex(),
-                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-            );
+            comment.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), SPAN_INCLUSIVE_EXCLUSIVE);
             generated.add(pl);
         }
         return generated;
@@ -524,31 +521,22 @@ public class EmbeddingEngine
                 if (index < 0) break;
 
                 // Generate a fresh replacement string (in case of repeats)
-                SpannableStringBuilder replacement = new SpannableStringBuilder(
-                        "  " + parseResult.title + (!TextUtils.isEmpty(parseResult.duration) ? " "
-                                + parseResult.duration : ""));
-
-                // Set the icon span for the linkable
-                ImageSpan siteIcon = new ImageSpan(getAppContext(), icon);
+                SpannableStringBuilder replacement = new SpannableStringBuilder();
+                CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
                 float height = sp(ChanSettings.fontSize.get());
                 int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
                 siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
-                replacement.setSpan(siteIcon,
-                        0,
-                        1,
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                );
+
+                replacement.append(span(" ", siteIcon))
+                        .append(" ")
+                        .append(parseResult.title)
+                        .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration);
 
                 // Set the linkable to be the entire length, including the icon
                 PostLinkable pl = new PostLinkable(theme, URL, PostLinkable.Type.EMBED_REPLACE_LINK);
-                replacement.setSpan(pl,
-                        0,
-                        replacement.length(),
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
-                );
 
                 // replace the proper section of the comment with the link
-                commentCopy.replace(index, index + URL.length(), replacement);
+                commentCopy.replace(index, index + URL.length(), span(replacement, pl));
                 generatedLinkables.add(pl);
 
                 // if linking is enabled, add in any processed inlines
