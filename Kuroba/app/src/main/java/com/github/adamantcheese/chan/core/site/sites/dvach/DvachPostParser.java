@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -22,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DvachPostParser
-        extends PostParser {
+        extends VichanPostParser {
 
     private final Pattern colorPattern = Pattern.compile("color:rgb\\((\\d+),(\\d+),(\\d+)\\);");
 

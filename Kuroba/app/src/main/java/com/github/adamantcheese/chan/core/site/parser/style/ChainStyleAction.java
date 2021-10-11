@@ -29,6 +29,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.nodes.Element;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +39,14 @@ import java.util.List;
 public class ChainStyleAction
         implements StyleAction {
     public final List<StyleAction> actions = new JavaUtils.NoDeleteArrayList<>();
+
+    public ChainStyleAction(StyleAction... actions) {
+        Collections.addAll(this.actions, actions);
+    }
+
+    public ChainStyleAction(List<StyleAction> actions) {
+        this.actions.addAll(actions);
+    }
 
     @NonNull
     @Override
@@ -49,8 +58,6 @@ public class ChainStyleAction
             @NonNull Callback callback
     ) {
         SpannedString result = new SpannedString(text);
-        // inline CSS is always applied, but if it is already added then someone specified the order for it
-        if (!actions.contains(CSSActions.INLINE_CSS)) actions.add(CSSActions.INLINE_CSS);
         for (StyleAction styleAction : actions) {
             try {
                 result = styleAction.style(element, result, theme, post, callback);

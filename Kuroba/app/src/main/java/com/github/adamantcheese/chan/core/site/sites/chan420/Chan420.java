@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaActions;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentAction;
 import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.Collections;
@@ -110,6 +111,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParserWithAction(new TaimabaCommentAction());
+        setParser(new VichanPostParser(new TaimabaCommentAction()));
     }
 }

@@ -206,7 +206,7 @@ public class PostParser {
             // modifiers for HTML
             if (ChanSettings.parseExtraQuotes.get()) {
                 comment =
-                        extraQuotePattern.matcher(comment).replaceAll(chanCommentAction.createQuoteElementString(post));
+                        extraQuotePattern.matcher(comment).replaceAll(createQuoteElementString(post));
             }
             if (ChanSettings.parseExtraSpoilers.get()) {
                 comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
@@ -287,6 +287,10 @@ public class PostParser {
                 }
             }
         }
+    }
+
+    public String createQuoteElementString(Post.Builder post) {
+        return "<a href=\"/" + post.board.code + "/thread/" + post.opId + "#p$1\">&gt;&gt;$1</a>";
     }
 
     public interface Callback {

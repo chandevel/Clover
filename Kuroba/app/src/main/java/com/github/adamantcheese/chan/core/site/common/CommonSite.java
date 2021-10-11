@@ -139,7 +139,7 @@ public abstract class CommonSite
      *
      * @param icon The favicon for this site; be sure that this is a singleton for efficiency.
      */
-    public void setIcon(SiteIcon icon) {
+    public final void setIcon(SiteIcon icon) {
         this.icon = icon;
         icon.get(ico -> {});
     }
@@ -153,28 +153,28 @@ public abstract class CommonSite
         Collections.addAll(staticBoards, boards);
     }
 
-    public void setConfig(CommonConfig config) {
+    public final void setConfig(CommonConfig config) {
         this.config = config;
     }
 
-    public void setResolvable(CommonSiteUrlHandler resolvable) {
+    public final void setResolvable(CommonSiteUrlHandler resolvable) {
         this.resolvable = resolvable;
     }
 
-    public void setEndpoints(CommonEndpoints endpoints) {
+    public final void setEndpoints(CommonEndpoints endpoints) {
         this.endpoints = endpoints;
     }
 
-    public void setActions(CommonActions actions) {
+    public final void setActions(CommonActions actions) {
         this.actions = actions;
     }
 
-    public void setApi(CommonApi api) {
+    public final void setApi(CommonApi api) {
         this.api = api;
     }
 
-    public void setParserWithAction(ChanCommentAction chanCommentAction) {
-        postParser = new PostParser(chanCommentAction);
+    public final void setParser(PostParser parser) {
+        postParser = parser;
     }
 
     /*

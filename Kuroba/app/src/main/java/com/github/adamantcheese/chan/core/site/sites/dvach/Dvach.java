@@ -17,7 +17,6 @@ import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
@@ -72,11 +71,6 @@ public class Dvach
                 new SiteSetting<>("Captcha type", OPTIONS, captchaType, Arrays.asList("Javascript", "Noscript", null));
         settings.add(captchaSetting);
         return settings;
-    }
-
-    @Override
-    public void setParserWithAction(ChanCommentAction chanCommentAction) {
-        this.postParser = new DvachPostParser(chanCommentAction);
     }
 
     public Dvach() {
@@ -213,6 +207,6 @@ public class Dvach
         });
 
         setApi(new DvachApi(this));
-        setParserWithAction(new DvachCommentAction());
+        setParser(new DvachPostParser(new DvachCommentAction()));
     }
 }

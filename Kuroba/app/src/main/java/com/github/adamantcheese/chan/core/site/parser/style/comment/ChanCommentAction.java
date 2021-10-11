@@ -42,8 +42,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
-import com.github.adamantcheese.chan.core.site.parser.style.ChainStyleAction;
-import com.github.adamantcheese.chan.core.site.parser.style.StyleAction;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
@@ -58,31 +57,20 @@ import org.jsoup.select.Elements;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
 import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
-import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_COLOR_ATTR;
-import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_SIZE_ATTR;
-import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.INLINE_CSS;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BLOCK_LINE_BREAK;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BOLD;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.CHOMP;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.CODE;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.ITALICIZE;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.MONOSPACE;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.NEWLINE;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.NULLIFY;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.SPOILER;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.SRC_ATTR;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.STRIKETHROUGH;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.UNDERLINE;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -92,12 +80,11 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 /**
- * This style action handles generic HTML and applies the appropriate rules to it when elements are passed in for styling.
  * This has specific rules for chan boards (see the "handle" methods) that make display a bit nicer or functional,
  * as well a bunch of default styling actions that are applied.
  */
 public class ChanCommentAction
-        implements StyleAction {
+        extends HtmlAction {
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";
@@ -115,35 +102,16 @@ public class ChanCommentAction
     // A pattern matching any board search links
     private final Pattern boardSearchPattern = Pattern.compile("//boards\\.4chan.*?\\.org/(.*?)/catalog#s=(.*)");
 
-    // Two maps of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
-    // Maps an element tag to a map of css classes to style rules; ie more specific from just the tag
-    private final Map<String, Map<String, ChainStyleAction>> specificRules = new HashMap<>();
-    // Maps an element tag to a rule; ie the style always applies to the tag
-    private final Map<String, ChainStyleAction> wildcardRules = new HashMap<>();
-
     private static Typeface submona;
 
     public ChanCommentAction() {
-        // required newline rules
-        mapTagToRule("p", BLOCK_LINE_BREAK);
-        mapTagToRule("div", BLOCK_LINE_BREAK);
-        mapTagToRule("br", NEWLINE);
+        super();
 
         // text modifying
         mapTagToRule("span", "abbr", NULLIFY);
         mapTagToRule("iframe", SRC_ATTR);
 
-        // simple text
-        mapTagToRule("strong", BOLD);
-        mapTagToRule("b", BOLD);
-        mapTagToRule("strike", STRIKETHROUGH);
-        mapTagToRule("i", ITALICIZE);
-        mapTagToRule("em", ITALICIZE);
-        mapTagToRule("u", UNDERLINE);
-        mapTagToRule("font", CSS_COLOR_ATTR, CSS_SIZE_ATTR);
-
         // complex text
-        mapTagToRule("span", INLINE_CSS);
         mapTagToRule("span", "quote", INLINE_QUOTE_COLOR);
         mapTagToRule("pre", MONOSPACE);
         mapTagToRule("pre", "prettyprint", CODE, CHOMP);
@@ -153,43 +121,9 @@ public class ChanCommentAction
         // functional text
         mapTagToRule("a", this::handleAnchor);
         mapTagToRule("span", "deadlink", this::handleDead);
-        mapTagToRule("span", "sjis", (sjis, text, theme, post, callback) -> handleSJIS(text, theme));
+        mapTagToRule("span", "sjis", this::handleSJIS);
         mapTagToRule("table", this::handleTable);
-        mapTagToRule("img", (image, text, theme, post, callback) -> handleImage(image, text, theme, post));
-    }
-
-    public void mapTagToRule(String tag, StyleAction... rules) {
-        ChainStyleAction ruleForTag = wildcardRules.get(tag);
-        if (ruleForTag == null) {
-            ruleForTag = new ChainStyleAction();
-            Collections.addAll(ruleForTag.actions, rules);
-        } else {
-            ChainStyleAction concat = new ChainStyleAction();
-            concat.actions.addAll(ruleForTag.actions);
-            Collections.addAll(concat.actions, rules);
-            ruleForTag = concat;
-        }
-        wildcardRules.put(tag, ruleForTag);
-    }
-
-    public void mapTagToRule(String tag, String cssClass, StyleAction... rules) {
-        Map<String, ChainStyleAction> classMap = specificRules.get(tag);
-        if (classMap == null) {
-            classMap = new HashMap<>();
-            specificRules.put(tag, classMap);
-        }
-
-        ChainStyleAction specificForTag = classMap.get(cssClass);
-        if (specificForTag == null) {
-            specificForTag = new ChainStyleAction();
-            Collections.addAll(specificForTag.actions, rules);
-        } else {
-            ChainStyleAction concat = new ChainStyleAction();
-            concat.actions.addAll(specificForTag.actions);
-            Collections.addAll(concat.actions, rules);
-            specificForTag = concat;
-        }
-        classMap.put(cssClass, specificForTag);
+        mapTagToRule("img", this::handleImage);
     }
 
     /**
@@ -208,37 +142,7 @@ public class ChanCommentAction
         this.fullQuotePattern = fullQuotePattern;
     }
 
-    public String createQuoteElementString(Post.Builder post) {
-        return "<a href=\"/" + post.board.code + "/thread/" + post.opId + "#p$1\">&gt;&gt;$1</a>";
-    }
-
     @NonNull
-    public SpannedString style(
-            @NonNull Element element,
-            @NonNull Spanned text,
-            @NonNull Theme theme,
-            @NonNull Post.Builder post,
-            @NonNull Callback callback
-    ) {
-        Map<String, ChainStyleAction> specificsForTag = specificRules.get(element.normalName());
-        ChainStyleAction specificForTagClass = null;
-        if (specificsForTag != null) {
-            for (String n : element.classNames()) {
-                specificForTagClass = specificsForTag.get(n);
-                if (specificForTagClass != null) break;
-            }
-        }
-        ChainStyleAction wildcardForTag = wildcardRules.get(element.normalName());
-
-        if (specificForTagClass != null) {
-            return specificForTagClass.style(element, text, theme, post, callback);
-        }
-        if (wildcardForTag != null) {
-            return wildcardForTag.style(element, text, theme, post, callback);
-        }
-        return new SpannedString(text);
-    }
-
     private SpannedString handleAnchor(
             @NonNull Element anchor,
             @NonNull Spanned text,
@@ -248,7 +152,7 @@ public class ChanCommentAction
     ) {
         Link handlerLink = null;
         try {
-            handlerLink = matchAnchor(post, text, anchor, callback);
+            handlerLink = matchAnchor(anchor, text, post, callback);
         } catch (Exception e) {
             Logger.w(this, "Failed to parse an element, leaving as plain text.");
         }
@@ -261,8 +165,13 @@ public class ChanCommentAction
     }
 
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
+    @NonNull
     private SpannedString handleImage(
-            @NonNull Element image, @NonNull Spanned text, @NonNull Theme theme, @NonNull Post.Builder post
+            @NonNull Element image,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
         try {
             SpannableStringBuilder ret = new SpannableStringBuilder(text);
@@ -378,8 +287,13 @@ public class ChanCommentAction
         );
     }
 
+    @NonNull
     public SpannedString handleSJIS(
-            @NonNull Spanned text, @NonNull Theme theme
+            @NonNull Element sjis,
+            @NonNull Spanned text,
+            @NonNull Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull Callback callback
     ) {
         if (submona == null) {
             submona = Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf");
@@ -441,8 +355,9 @@ public class ChanCommentAction
         return new SpannedString(text);
     }
 
+    @NonNull
     public Link matchAnchor(
-            @NonNull Post.Builder post, @NonNull CharSequence text, @NonNull Element anchor, @NonNull Callback callback
+            @NonNull Element anchor, @NonNull Spanned text, @NonNull Post.Builder post, @NonNull Callback callback
     ) {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno

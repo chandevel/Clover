@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 
 import okhttp3.HttpUrl;
 
@@ -92,6 +93,6 @@ public class Sushichan
             }
         });
         setApi(new VichanApi(this));
-        setParserWithAction(new VichanCommentAction());
+        setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

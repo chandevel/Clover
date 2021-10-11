@@ -51,7 +51,12 @@ public class AyaseArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new PostParser(new AyaseCommentAction(domain));
+                parser = new PostParser(new AyaseCommentAction(domain)) {
+                    @Override
+                    public String createQuoteElementString(Post.Builder post) {
+                        return "$0"; // return the input
+                    }
+                };
             }
             return parser;
         }
@@ -253,11 +258,6 @@ public class AyaseArchive
                 return text;
             }
             return super.style(callback, theme, post, tag, text, element);*/
-        }
-
-        @Override
-        public String createQuoteElementString(Post.Builder post) {
-            return "$0"; // return the input
         }
     }
 

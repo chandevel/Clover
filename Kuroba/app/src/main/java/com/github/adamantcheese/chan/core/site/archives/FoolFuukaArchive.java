@@ -55,7 +55,13 @@ public class FoolFuukaArchive
         @Override
         public PostParser getParser() {
             if (parser == null) {
-                parser = new PostParser(new FoolFuukaCommentAction(domain));
+                parser = new PostParser(new FoolFuukaCommentAction(domain)) {
+                    @Override
+                    public String createQuoteElementString(Post.Builder post) {
+                        return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code
+                                + "/thread/" + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
+                    }
+                };
             }
             return parser;
         }
@@ -243,11 +249,9 @@ public class FoolFuukaArchive
 
     private static class FoolFuukaCommentAction
             extends ChanCommentAction {
-        private final String domain;
 
         public FoolFuukaCommentAction(String domain) {
             super();
-            this.domain = domain;
             mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR);
             // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
             // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
@@ -276,12 +280,6 @@ public class FoolFuukaArchive
                 return new SpannedString(text);
             }
             return super.style(element, text, theme, post, callback);
-        }
-
-        @Override
-        public String createQuoteElementString(Post.Builder post) {
-            return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code + "/thread/"
-                    + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
         }
     }
 

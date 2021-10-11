@@ -30,9 +30,4 @@ public class VichanCommentAction
         setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
         mapTagToRule("p", "quote", INLINE_QUOTE_COLOR);
     }
-
-    @Override
-    public String createQuoteElementString(Post.Builder post) {
-        return "<a href=\"/" + post.board.code + "/res/" + post.opId + ".html#$1\">&gt;&gt;$1</a>";
-    }
 }

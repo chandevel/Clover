@@ -26,6 +26,7 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
@@ -99,7 +100,7 @@ public class Wired7
         setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
-        setParserWithAction(new VichanCommentAction());
+        setParser(new VichanPostParser(new VichanCommentAction()));
     }
 
     private static class Wired7Actions
