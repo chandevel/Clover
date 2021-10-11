@@ -903,29 +903,23 @@ public class ThreadPresenter
                     showArchives(constructed, opPostPair.postId);
                 } else if (linkable.value instanceof ResolveLink) {
                     ResolveLink toResolve = (ResolveLink) linkable.value;
-                    if (toResolve.board.site instanceof ExternalSiteArchive) {
-                        showToast(context, "Calling archive API, just a moment!");
-                        toResolve.resolve((threadLink) -> {
-                            if (threadLink != null) {
-                                Loadable constructed = Loadable.forThread(
-                                        Board.fromSiteNameCode(toResolve.board.site,
-                                                threadLink.boardCode,
-                                                threadLink.boardCode
-                                        ),
-                                        threadLink.threadId,
-                                        "",
-                                        false
-                                );
-                                showArchives(constructed, threadLink.postId);
-                            } else {
-                                showToast(context, "Failed to resolve thread external post link!");
-                            }
-                        }, new ResolveLink.ResolveParser(toResolve));
-                    } else {
-                        // for any dead links that aren't in an archive, assume that they're a link to a previous thread OP
-                        Loadable constructed = Loadable.forThread(toResolve.board, toResolve.postId, "", false);
-                        showArchives(constructed, toResolve.postId);
-                    }
+                    showToast(context, "Calling archive API, just a moment!");
+                    toResolve.resolve((threadLink) -> {
+                        if (threadLink != null) {
+                            Loadable constructed = Loadable.forThread(
+                                    Board.fromSiteNameCode(toResolve.site,
+                                            threadLink.boardCode,
+                                            threadLink.boardCode
+                                    ),
+                                    threadLink.threadId,
+                                    "",
+                                    false
+                            );
+                            showArchives(constructed, threadLink.postId);
+                        } else {
+                            showToast(context, "Failed to resolve thread external post link!");
+                        }
+                    }, toResolve);
                 }
                 break;
             case JAVASCRIPT:

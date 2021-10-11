@@ -343,7 +343,7 @@ public class FoolFuukaArchive
                     while (reader.hasNext()) {
                         String name = reader.nextName();
                         if ("thread_num".equals(name)) { // we only care about the thread number, everything else we have
-                            return new ThreadLink(source.board.code, reader.nextInt(), source.postId);
+                            return new ThreadLink(source.boardCode, reader.nextInt(), source.postId);
                         } else {
                             reader.skipValue();
                         }

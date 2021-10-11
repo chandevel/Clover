@@ -344,7 +344,7 @@ public class ChanCommentAction
                         // we assume that deadlinks in an OP are previous threads
                         // and any deadlinks in other posts are deleted posts in the same thread
                         forThisSite instanceof ExternalSiteArchive
-                                ? new ResolveLink(forThisSite, forThisBoard, postNo)
+                                ? new ResolveLink((ExternalSiteArchive) forThisSite, forThisBoard, postNo)
                                 : new ThreadLink(forThisBoard, post.op ? postNo : post.opId, post.op ? -1 : postNo),
                         Type.ARCHIVE
                 );
@@ -388,7 +388,7 @@ public class ChanCommentAction
                 value = new ThreadLink(board, threadId, postId);
                 if (href.contains("post") && post.board.site instanceof ExternalSiteArchive) {
                     // this is an archive post link that needs to be resolved into a threadlink
-                    value = new ResolveLink(post.board.site, board, threadId);
+                    value = new ResolveLink((ExternalSiteArchive) post.board.site, board, threadId);
                 }
             }
         } else {
