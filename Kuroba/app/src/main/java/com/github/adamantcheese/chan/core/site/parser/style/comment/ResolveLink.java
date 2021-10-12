@@ -22,7 +22,7 @@ public class ResolveLink {
         this.postId = postId;
     }
 
-    public void resolve(@NonNull ResolveCallback callback, @NonNull ResolveLink sourceLink) {
+    public void resolve(@NonNull ResolveLink sourceLink, @NonNull ResolveCallback callback) {
         NetUtils.makeJsonRequest(
                 site.endpoints().resolvePost(boardCode, postId),
                 new NetUtilsClasses.MainThreadResponseResult<>(new NetUtilsClasses.ResponseResult<ThreadLink>() {

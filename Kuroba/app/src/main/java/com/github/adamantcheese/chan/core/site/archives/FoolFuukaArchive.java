@@ -202,7 +202,10 @@ public class FoolFuukaArchive
                                         } catch (Exception e) {
                                             // some weird archives use this one
                                             try {
-                                                imageBuilder.imageUrl(HttpUrl.get("https://" + domain + value));
+                                                imageBuilder.imageUrl(new HttpUrl.Builder().scheme("https")
+                                                        .host(domain)
+                                                        .addPathSegment(value)
+                                                        .build());
                                             } catch (Exception ignored) {}
                                         }
                                     }
@@ -288,11 +291,15 @@ public class FoolFuukaArchive
         return new ArchiveSiteUrlHandler() {
             @Override
             public String desktopUrl(Loadable loadable, int postNo) {
+                HttpUrl.Builder url =
+                        new HttpUrl.Builder().scheme("https").host(domain).addPathSegment(loadable.boardCode);
                 if (loadable.isThreadMode()) {
-                    return "https://" + domain + "/" + loadable.boardCode + "/thread/" + loadable.no + (postNo > 0 ? "#"
-                            + postNo : "");
+                    return url.addPathSegment("thread")
+                            .addPathSegment(String.valueOf(loadable.no))
+                            .fragment(postNo > 0 ? String.valueOf(postNo) : null)
+                            .toString();
                 } else {
-                    return "https://" + domain + "/" + loadable.boardCode;
+                    return url.toString();
                 }
             }
 
@@ -360,13 +367,28 @@ public class FoolFuukaArchive
         return new ArchiveEndpoints() {
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return HttpUrl.get("https://" + domain + "/_/api/chan/thread/?board=" + loadable.boardCode + "&num="
-                        + loadable.no);
+                return new HttpUrl.Builder().scheme("https")
+                        .host(domain)
+                        .addPathSegment("_")
+                        .addPathSegment("api")
+                        .addPathSegment("chan")
+                        .addPathSegment("thread")
+                        .addQueryParameter("board", loadable.boardCode)
+                        .addQueryParameter("num", String.valueOf(loadable.no))
+                        .build();
             }
 
             @Override
             public HttpUrl resolvePost(String boardCode, int postNo) {
-                return HttpUrl.get("https://" + domain + "/_/api/chan/post/?board=" + boardCode + "&num=" + postNo);
+                return new HttpUrl.Builder().scheme("https")
+                        .host(domain)
+                        .addPathSegment("_")
+                        .addPathSegment("api")
+                        .addPathSegment("chan")
+                        .addPathSegment("post")
+                        .addQueryParameter("board", boardCode)
+                        .addQueryParameter("num", String.valueOf(postNo))
+                        .build();
             }
         };
     }

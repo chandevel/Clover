@@ -533,7 +533,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public PostParser getParser() {
+        public final PostParser getParser() {
             return site.postParser;
         }
     }

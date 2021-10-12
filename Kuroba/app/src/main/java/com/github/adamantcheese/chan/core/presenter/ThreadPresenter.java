@@ -904,7 +904,7 @@ public class ThreadPresenter
                 } else if (linkable.value instanceof ResolveLink) {
                     ResolveLink toResolve = (ResolveLink) linkable.value;
                     showToast(context, "Calling archive API, just a moment!");
-                    toResolve.resolve((threadLink) -> {
+                    toResolve.resolve(toResolve, (threadLink) -> {
                         if (threadLink != null) {
                             Loadable constructed = Loadable.forThread(
                                     Board.fromSiteNameCode(toResolve.site,
@@ -919,7 +919,7 @@ public class ThreadPresenter
                         } else {
                             showToast(context, "Failed to resolve thread external post link!");
                         }
-                    }, toResolve);
+                    });
                 }
                 break;
             case JAVASCRIPT:
