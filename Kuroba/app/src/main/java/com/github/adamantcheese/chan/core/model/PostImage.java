@@ -25,6 +25,8 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
+import org.jsoup.parser.Parser;
+
 import java.util.Objects;
 
 import okhttp3.HttpUrl;
@@ -182,7 +184,7 @@ public class PostImage {
                 throw new NullPointerException("imageUrl must not be null!");
             }
 
-            this.imageUrl = HttpUrl.parse(imageUrl.toString().replace("http://", "https://"));
+            this.imageUrl = HttpUrl.parse(imageUrl.toString()).newBuilder().scheme("https").build();
             return this;
         }
 
@@ -194,7 +196,7 @@ public class PostImage {
          * @param filename The filename of the file that was actually uploaded, not the one assigned by the server
          */
         public Builder filename(String filename) {
-            this.filename = filename;
+            this.filename = Parser.unescapeEntities(filename, false);
             return this;
         }
 

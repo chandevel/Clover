@@ -56,7 +56,7 @@ public class PixivEmbedder
                     new PostImage.Builder().serverFilename(serverName)
                             .thumbnailUrl(HttpUrl.get(generatedURL))
                             .imageUrl(HttpUrl.get(fullsizeUrl)) // this isn't the "source" as it's always a JPG, but it's good enough
-                            .filename(Parser.unescapeEntities(input.select("a>h1").get(0).html(), false))
+                            .filename(input.select("a>h1").get(0).html())
                             .extension(Files.getFileExtension(fullsizeUrl))
                             .isInlined()
                             .build()

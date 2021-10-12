@@ -8,8 +8,6 @@ import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 
-import org.jsoup.parser.Parser;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -226,7 +224,7 @@ public class DvachApi
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(Parser.unescapeEntities(fileName, false))
+                    .filename(fileName)
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)

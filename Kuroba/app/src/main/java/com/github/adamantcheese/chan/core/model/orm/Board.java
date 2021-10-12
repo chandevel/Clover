@@ -26,6 +26,8 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import org.jsoup.parser.Parser;
+
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -223,6 +225,10 @@ public class Board
             b.append(" \u2013 ").append(name);
         }
         return b.toString();
+    }
+
+    public void setDescription(@NonNull String description) {
+        this.description = Parser.unescapeEntities(description, false);
     }
 
     public boolean hasMissingInfo() {

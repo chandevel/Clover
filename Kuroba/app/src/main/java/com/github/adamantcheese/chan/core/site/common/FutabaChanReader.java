@@ -15,8 +15,6 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
-import org.jsoup.parser.Parser;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -246,7 +244,7 @@ public class FutabaChanReader
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(Parser.unescapeEntities(fileDeleted ? "file_deleted" : fileName, false))
+                    .filename(fileDeleted ? "file_deleted" : fileName)
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
@@ -370,7 +368,7 @@ public class FutabaChanReader
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(Parser.unescapeEntities(fileName, false))
+                    .filename(fileName)
                     .extension(fileExt)
                     .imageWidth(fileWidth)
                     .imageHeight(fileHeight)
