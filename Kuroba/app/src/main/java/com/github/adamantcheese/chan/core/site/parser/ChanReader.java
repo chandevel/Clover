@@ -20,6 +20,10 @@ import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 
+/**
+ * Specifies methods to load threads or catalogs, as well as read posts from JSON.
+ * Additionally supplies information about how to further process the parsed items with a parser and style actions.
+ */
 public interface ChanReader {
     PostParser getParser();
 

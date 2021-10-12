@@ -357,11 +357,11 @@ public class ViewThreadController
         // Drawer hint
         View drawer = null;
         if (navigationController.parentController instanceof DrawerController) {
-            drawer = ((DrawerController) navigationController.parentController).view.findViewById(R.id.drawer);
+            drawer = navigationController.parentController.view.findViewById(R.id.drawer);
         } else if (doubleNavigationController != null) {
             Controller doubleNav = (Controller) doubleNavigationController;
             if (doubleNav.parentController instanceof DrawerController) {
-                drawer = ((DrawerController) doubleNav.parentController).view.findViewById(R.id.drawer);
+                drawer = doubleNav.parentController.view.findViewById(R.id.drawer);
             }
         }
         if (drawer == null) return;

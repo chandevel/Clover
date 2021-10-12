@@ -102,6 +102,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getBaseToolTip;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
@@ -354,15 +355,14 @@ public class ReplyLayout
 
         spoiler.setTag(false);
         spoiler.setOnClickListener(v -> {
-            if ((boolean) spoiler.getTag()) {
-                // unspoiler
-                spoiler.setTag(false);
-                spoiler.setImageResource(R.drawable.ic_fluent_eye_show_24_filled);
-            } else {
-                // spoiler
-                spoiler.setTag(true);
-                spoiler.setImageResource(R.drawable.ic_fluent_eye_hide_24_filled);
-            }
+            boolean isSpoilered = (boolean) spoiler.getTag();
+            spoiler.setTag(!isSpoilered);
+            setSpoilerIcon();
+            getBaseToolTip(getContext()).setPreferenceName("Post" + (isSpoilered ? "Un" : "") + "Spoiler")
+                    .setArrowOrientation(ArrowOrientation.RIGHT)
+                    .setText("Image will post " + (isSpoilered ? "un" : "") + "spoilered.")
+                    .build()
+                    .showAlignLeft(spoiler);
         });
 
         // Inflate captcha layout
@@ -694,9 +694,7 @@ public class ReplyLayout
         //      if not viewing catalog, show toast
         // if not new thread
         //      if loadable doesn't match the one passed in, show toast
-        return newThread
-                ? !callback.isViewingCatalog()
-                : !callback.getThread().loadable.equals(newLoadable);
+        return newThread ? !callback.isViewingCatalog() : !callback.getThread().loadable.equals(newLoadable);
     }
 
     private void postComplete(boolean newThread, Loadable newLoadable) {
