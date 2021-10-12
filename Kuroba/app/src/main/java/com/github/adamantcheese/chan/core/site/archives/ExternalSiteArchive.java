@@ -16,6 +16,7 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
@@ -198,14 +199,11 @@ public abstract class ExternalSiteArchive
     public abstract static class ExternalArchiveChanReader
             implements ChanReader {
         @Override
-        public abstract PostParser getParser();
-
-        @Override
         public abstract void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
                 throws Exception;
 
         @Override
-        public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) {
+        public final void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue) {
             // external archives don't support catalogs
         }
 

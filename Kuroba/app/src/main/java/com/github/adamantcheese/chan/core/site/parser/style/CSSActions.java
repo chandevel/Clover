@@ -2,11 +2,13 @@ package com.github.adamantcheese.chan.core.site.parser.style;
 
 import android.graphics.Color;
 import android.text.SpannedString;
+import android.text.TextUtils;
 
 import androidx.core.graphics.ColorUtils;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.RelativeSizeSpanHashed;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -82,7 +84,17 @@ public class CSSActions {
         }
     };
 
-    public static final StyleAction CSS_COLOR_ATTR = (element, text, theme, post, callback) -> {
+    public static final StyleAction CSS_COLOR_ATTR_FG = (element, text, theme, post, callback) -> {
+        int colorInt = getColorFromAttr(element);
+        return span(text, colorInt == 0 ? null : new ForegroundColorSpanHashed(colorInt));
+    };
+
+    public static final StyleAction CSS_COLOR_ATTR_BG = (element, text, theme, post, callback) -> {
+        int colorInt = getColorFromAttr(element);
+        return span(text, colorInt == 0 ? null : new BackgroundColorSpanHashed(colorInt));
+    };
+
+    private static int getColorFromAttr(Element element) {
         String color = element.attr("color");
         int colorInt;
         if (StringUtils.startsWithAny(color, "rgb", "rgba")) {
@@ -105,12 +117,13 @@ public class CSSActions {
         } else {
             colorInt = Color.parseColor(color);
         }
-        return span(text, color.isEmpty() ? null : new ForegroundColorSpanHashed(colorInt));
-    };
+        return colorInt;
+    }
 
     public static final StyleAction INLINE_CSS = (element, text, theme, post, callback) -> {
         String style = element.attr("style");
         style = style.replace(" ", "");
+        if (TextUtils.isEmpty(style)) return new SpannedString(text);
         String[] styles = style.split(";");
         Element temp = new Element(element.tagName());
         for (String s : styles) {
@@ -126,7 +139,7 @@ public class CSSActions {
             try {
                 switch (a.getKey()) {
                     case "color":
-                        text = CSS_COLOR_ATTR.style(temp, text, theme, post, callback);
+                        text = CSS_COLOR_ATTR_FG.style(temp, text, theme, post, callback);
                         break;
                     case "font-weight":
                         text = BOLD.style(temp, text, theme, post, callback);

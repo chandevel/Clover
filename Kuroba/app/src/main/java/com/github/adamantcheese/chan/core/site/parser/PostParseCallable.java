@@ -63,7 +63,7 @@ class PostParseCallable
         // needed for "Apply to own posts" to work correctly
         postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.no));
 
-        return reader.getParser().parse(theme, postBuilder, filters, new Callback() {
+        return reader.getParser().parse(postBuilder, theme, reader.getElementAction(), filters, new Callback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(postBuilder.board, postNo);

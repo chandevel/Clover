@@ -18,8 +18,12 @@ package com.github.adamantcheese.chan.core.site.parser;
 
 import android.util.JsonReader;
 
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
+
 public interface ChanReader {
     PostParser getParser();
+
+    HtmlElementAction getElementAction();
 
     void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception;

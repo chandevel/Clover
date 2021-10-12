@@ -93,6 +93,6 @@ public class Sushichan
             }
         });
         setApi(new VichanApi(this));
-        setParser(new VichanPostParser(new VichanCommentAction()));
+        setParser(new VichanPostParser());
     }
 }

@@ -100,7 +100,7 @@ public class Wired7
         setEndpoints(new VichanEndpoints(this, "https://wired-7.org", "https://wired-7.org"));
         setActions(new Wired7Actions(this));
         setApi(new VichanApi(this));
-        setParser(new VichanPostParser(new VichanCommentAction()));
+        setParser(new VichanPostParser());
     }
 
     private static class Wired7Actions

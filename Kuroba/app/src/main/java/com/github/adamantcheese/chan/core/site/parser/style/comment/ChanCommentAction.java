@@ -42,7 +42,7 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlAction;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
@@ -84,7 +84,7 @@ import static com.github.adamantcheese.chan.utils.StringUtils.span;
  * as well a bunch of default styling actions that are applied.
  */
 public class ChanCommentAction
-        extends HtmlAction {
+        extends HtmlElementAction {
     private static final String SAVED_REPLY_SELF_SUFFIX = " (Me)";
     private static final String SAVED_REPLY_OTHER_SUFFIX = " (You)";
     private static final String OP_REPLY_SUFFIX = " (OP)";

@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 
 import java.util.regex.Pattern;

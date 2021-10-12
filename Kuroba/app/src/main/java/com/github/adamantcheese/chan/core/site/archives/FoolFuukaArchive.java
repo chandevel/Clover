@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
@@ -50,20 +51,23 @@ public class FoolFuukaArchive
     private class FoolFuukaReader
             extends ExternalArchiveChanReader {
 
-        private PostParser parser;
+        private final PostParser parser = new PostParser() {
+            @Override
+            public String createQuoteElementString(Post.Builder post) {
+                return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code + "/thread/"
+                        + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
+            }
+        };
+        private final HtmlElementAction elementAction = new FoolFuukaCommentAction(domain);
 
         @Override
         public PostParser getParser() {
-            if (parser == null) {
-                parser = new PostParser(new FoolFuukaCommentAction(domain)) {
-                    @Override
-                    public String createQuoteElementString(Post.Builder post) {
-                        return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code
-                                + "/thread/" + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
-                    }
-                };
-            }
             return parser;
+        }
+
+        @Override
+        public HtmlElementAction getElementAction() {
+            return elementAction;
         }
 
         @Override

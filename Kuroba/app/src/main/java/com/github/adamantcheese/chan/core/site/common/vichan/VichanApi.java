@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,8 +30,15 @@ import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument
 
 public class VichanApi
         extends CommonSite.CommonApi {
+    private final HtmlElementAction elementAction = new VichanCommentAction();
+
     public VichanApi(CommonSite commonSite) {
         super(commonSite);
+    }
+
+    @Override
+    public HtmlElementAction getElementAction() {
+        return elementAction;
     }
 
     @Override

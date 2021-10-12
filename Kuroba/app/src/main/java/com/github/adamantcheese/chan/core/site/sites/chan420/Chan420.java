@@ -111,6 +111,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParser(new VichanPostParser(new TaimabaCommentAction()));
+        setParser(new VichanPostParser());
     }
 }

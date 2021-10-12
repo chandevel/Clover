@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_COLOR_ATTR;
+import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_COLOR_ATTR_FG;
 import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_SIZE_ATTR;
 import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.INLINE_CSS;
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BLOCK_LINE_BREAK;
@@ -26,9 +26,9 @@ import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleAc
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.UNDERLINE;
 
 /**
- * This style action handles generic HTML and applies the appropriate rules to it when elements are passed in for styling.
+ * This style action handles one HTML element and applies the appropriate rules to it when passed in for styling.
  */
-public class HtmlAction
+public class HtmlElementAction
         implements StyleAction {
     // Two maps of rules for this parser, mapping an HTML tag to a list of StyleRules that need to be applied for that tag
     // Maps an element tag to a map of css classes to style rules; ie more specific from just the tag
@@ -36,7 +36,7 @@ public class HtmlAction
     // Maps an element tag to a rule; ie the style always applies to the tag
     private final Map<String, ChainStyleAction> wildcardRules = new HashMap<>();
 
-    public HtmlAction() {
+    public HtmlElementAction() {
         // required newline rules
         mapTagToRule("p", BLOCK_LINE_BREAK);
         mapTagToRule("div", BLOCK_LINE_BREAK);
@@ -49,7 +49,7 @@ public class HtmlAction
         mapTagToRule("i", ITALICIZE);
         mapTagToRule("em", ITALICIZE);
         mapTagToRule("u", UNDERLINE);
-        mapTagToRule("font", CSS_COLOR_ATTR, CSS_SIZE_ATTR);
+        mapTagToRule("font", CSS_COLOR_ATTR_FG, CSS_SIZE_ATTR);
     }
 
     public void mapTagToRule(String tag, StyleAction... rules) {
@@ -107,7 +107,7 @@ public class HtmlAction
             if (!actionToTake.actions.contains(INLINE_CSS)) actionToTake.actions.add(INLINE_CSS);
             return actionToTake.style(element, text, theme, post, callback);
         } else {
-            return new SpannedString(text);
+            return INLINE_CSS.style(element, text, theme, post, callback);
         }
     }
 }

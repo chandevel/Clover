@@ -22,8 +22,9 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 
 import java.util.Collections;
 import java.util.List;
@@ -174,11 +175,17 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new PostParser(new ChanCommentAction());
+            private final PostParser postParser = new PostParser();
+            private final HtmlElementAction elementAction = new ChanCommentAction();
 
             @Override
             public PostParser getParser() {
                 return postParser;
+            }
+
+            @Override
+            public HtmlElementAction getElementAction() {
+                return elementAction;
             }
 
             @Override

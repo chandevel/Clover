@@ -11,6 +11,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
@@ -46,19 +47,22 @@ public class AyaseArchive
     private class AyaseReader
             extends ExternalArchiveChanReader {
 
-        private PostParser parser;
+        private final PostParser parser = new PostParser() {
+            @Override
+            public String createQuoteElementString(Post.Builder post) {
+                return "$0"; // return the input
+            }
+        };
+        private final HtmlElementAction elementAction = new AyaseCommentAction(domain);
 
         @Override
         public PostParser getParser() {
-            if (parser == null) {
-                parser = new PostParser(new AyaseCommentAction(domain)) {
-                    @Override
-                    public String createQuoteElementString(Post.Builder post) {
-                        return "$0"; // return the input
-                    }
-                };
-            }
             return parser;
+        }
+
+        @Override
+        public HtmlElementAction getElementAction() {
+            return elementAction;
         }
 
         @Override

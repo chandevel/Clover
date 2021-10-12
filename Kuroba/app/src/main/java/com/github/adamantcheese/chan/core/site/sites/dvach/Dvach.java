@@ -207,6 +207,6 @@ public class Dvach
         });
 
         setApi(new DvachApi(this));
-        setParser(new DvachPostParser(new DvachCommentAction()));
+        setParser(new DvachPostParser());
     }
 }

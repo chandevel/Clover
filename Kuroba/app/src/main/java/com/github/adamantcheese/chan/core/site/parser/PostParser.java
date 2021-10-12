@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import android.os.Build;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.SpannedString;
 import android.text.TextPaint;
@@ -33,24 +34,19 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlDocumentAction;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.RoundedBackgroundSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
-import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
 
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -64,7 +60,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class PostParser {
-    private final ChanCommentAction chanCommentAction;
     @Inject
     private FilterEngine filterEngine;
 
@@ -82,15 +77,14 @@ public class PostParser {
     /**
      * Construct a new post parser, with the given action for styling parsed comments.
      *
-     * @param chanCommentAction The action that describes how to style post comments.
-     *                          A generic ChanCommentAction is generally fine.
      */
-    public PostParser(ChanCommentAction chanCommentAction) {
-        this.chanCommentAction = chanCommentAction;
+    public PostParser() {
         inject(this);
     }
 
-    public Post parse(@NonNull Theme theme, Post.Builder builder, List<Filter> filters, Callback callback) {
+    public Post parse(
+            Post.Builder builder, @NonNull Theme theme, HtmlElementAction elementAction, List<Filter> filters, Callback callback
+    ) {
         if (!TextUtils.isEmpty(builder.name)) {
             builder.name = Parser.unescapeEntities(builder.name, false);
         }
@@ -100,7 +94,7 @@ public class PostParser {
         }
 
         parseInfoSpans(theme, builder);
-        builder.comment = parseComment(theme, builder, callback);
+        builder.comment = new SpannableString(parseComment(theme, builder, callback, elementAction));
 
         // process any removed posts, and remove any linkables/spans attached
         for (PostLinkable l : builder.getLinkables()) {
@@ -154,8 +148,7 @@ public class PostParser {
         }
 
         if (!TextUtils.isEmpty(builder.tripcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(
-                    builder.tripcode,
+            nameTripcodeIdCapcodeSpan.append(span(builder.tripcode,
                     new ForegroundColorSpanHashed(theme.nameColor),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
@@ -173,8 +166,7 @@ public class PostParser {
             } else {
                 idBackgroundSpan = new BackgroundColorSpanHashed(builder.idColor);
             }
-            nameTripcodeIdCapcodeSpan.append(span(
-                    "  " + builder.posterId + "  ",
+            nameTripcodeIdCapcodeSpan.append(span("  " + builder.posterId + "  ",
                     new ForegroundColorSpanHashed(getContrastColor(builder.idColor)),
                     idBackgroundSpan,
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
@@ -182,8 +174,7 @@ public class PostParser {
         }
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(
-                    StringUtils.caseAndSpace(builder.moderatorCapcode, null),
+            nameTripcodeIdCapcodeSpan.append(span(StringUtils.caseAndSpace(builder.moderatorCapcode, null),
                     new ForegroundColorSpanHashed(getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent)),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
@@ -198,73 +189,28 @@ public class PostParser {
         }
     }
 
-    private SpannableStringBuilder parseComment(@NonNull Theme theme, Post.Builder post, Callback callback) {
-        SpannableStringBuilder total = new SpannableStringBuilder("");
-
-        try {
-            String comment = post.comment.toString().replace("<wbr>", "");
-            // modifiers for HTML
-            if (ChanSettings.parseExtraQuotes.get()) {
-                comment =
-                        extraQuotePattern.matcher(comment).replaceAll(createQuoteElementString(post));
-            }
-            if (ChanSettings.parseExtraSpoilers.get()) {
-                comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
-            }
-            if (ChanSettings.mildMarkdown.get()) {
-                comment = boldPattern.matcher(comment).replaceAll("<b>$1</b>");
-                comment = italicPattern.matcher(comment).replaceAll("<i>$1</i>");
-                comment = codePattern.matcher(comment).replaceAll("<pre class=\"prettyprint\">$1</pre>");
-                comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
-            }
-
-            for (Node node : Jsoup.parseBodyFragment(comment).body().childNodes()) {
-                total.append(parseNode(theme, post, callback, node));
-            }
-        } catch (Exception e) {
-            Logger.e(this, "Error parsing comment html", e);
+    private SpannedString parseComment(@NonNull Theme theme, Post.Builder post, Callback callback, HtmlElementAction elementAction) {
+        String comment = post.comment.toString().replace("<wbr>", "");
+        // modifiers for HTML
+        if (ChanSettings.parseExtraQuotes.get()) {
+            comment = extraQuotePattern.matcher(comment).replaceAll(createQuoteElementString(post));
+        }
+        if (ChanSettings.parseExtraSpoilers.get()) {
+            comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
+        }
+        if (ChanSettings.mildMarkdown.get()) {
+            comment = boldPattern.matcher(comment).replaceAll("<b>$1</b>");
+            comment = italicPattern.matcher(comment).replaceAll("<i>$1</i>");
+            comment = codePattern.matcher(comment).replaceAll("<pre class=\"prettyprint\">$1</pre>");
+            comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
         }
 
-        return total;
-    }
-
-    private SpannedString parseNode(@NonNull Theme theme, Post.Builder post, Callback callback, Node node) {
-        if (node instanceof TextNode) {
-            String text = ((TextNode) node).getWholeText();
-            if (ChanSettings.enableEmoji.get() && !( //emoji parse disable for [code] and [eqn]
-                    (node.parent() instanceof Element && (((Element) node.parent()).hasClass("prettyprint")))
-                            || text.startsWith("[eqn]"))) {
-                text = processEmojiMath(text);
-            }
-            return new SpannedString(text);
-        } else if (node instanceof Element) {
-            SpannableStringBuilder allInnerText = new SpannableStringBuilder();
-            for (Node innerNode : node.childNodes()) {
-                // Recursively call parseNode with the nodes of the element
-                allInnerText.append(parseNode(theme, post, callback, innerNode));
-            }
-            return chanCommentAction.style((Element) node, allInnerText, theme, post, callback);
-        } else {
-            Logger.e(this, "Unknown node instance: " + node.getClass().getName());
-            return new SpannedString(""); // ?
-        }
-    }
-
-    // Modified from 3.20 of Regular Expressions Cookbook, 2nd Edition
-    // find that bad boy on LibGen, it's good stuff
-    private final Pattern MATH_PATTERN = Pattern.compile("\\[(math|eqn)].*?\\[/\\1]");
-
-    private String processEmojiMath(String text) {
-        StringBuilder rebuilder = new StringBuilder();
-        Matcher regexMatcher = MATH_PATTERN.matcher(text);
-        int lastIndex = 0;
-        while (regexMatcher.find()) {
-            rebuilder.append(EmojiParser.parseToUnicode(text.substring(lastIndex, regexMatcher.start())));
-            rebuilder.append(regexMatcher.group());
-            lastIndex = regexMatcher.end();
-        }
-        rebuilder.append(EmojiParser.parseToUnicode(text.substring(lastIndex)));
-        return rebuilder.toString();
+        return new HtmlDocumentAction(elementAction).style(Jsoup.parseBodyFragment(comment),
+                null,
+                theme,
+                post,
+                callback
+        );
     }
 
     private void processPostFilter(List<Filter> filters, Post.Builder post) {

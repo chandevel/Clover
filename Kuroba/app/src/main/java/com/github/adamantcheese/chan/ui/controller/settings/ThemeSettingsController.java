@@ -52,8 +52,9 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
+import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
@@ -398,7 +399,8 @@ public class ThemeSettingsController
             false,
             false
     ));
-    final PostParser postParser = new PostParser(new ChanCommentAction());
+    final PostParser postParser = new PostParser();
+    final HtmlElementAction elementAction = new ChanCommentAction();
 
     private class ThemePostsAdapter
             extends RecyclerView.Adapter<ThemePostsAdapter.ThemePreviewHolder> {
@@ -498,9 +500,9 @@ public class ThemeSettingsController
             //endregion
 
             List<Post> posts = new ArrayList<>();
-            posts.add(postParser.parse(holder.theme, builder1, filters, parserCallback));
-            posts.add(postParser.parse(holder.theme, builder2, filters, parserCallback));
-            posts.add(postParser.parse(holder.theme, builder3, filters, parserCallback));
+            posts.add(postParser.parse(builder1, holder.theme, elementAction, filters, parserCallback));
+            posts.add(postParser.parse(builder2, holder.theme, elementAction, filters, parserCallback));
+            posts.add(postParser.parse(builder3, holder.theme, elementAction, filters, parserCallback));
             posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
             ChanThread thread = new ChanThread(dummyLoadable, posts);
 
