@@ -51,8 +51,14 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.common.io.Files;
 
+import org.jsoup.internal.StringUtil;
+import org.jsoup.nodes.CDataNode;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
+import org.jsoup.select.NodeTraversor;
+import org.jsoup.select.NodeVisitor;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -144,7 +150,7 @@ public class ChanCommentAction
 
     @NonNull
     private SpannedString handleAnchor(
-            @NonNull Element anchor,
+            @NonNull Node anchor,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
@@ -167,7 +173,7 @@ public class ChanCommentAction
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
     @NonNull
     private SpannedString handleImage(
-            @NonNull Element image,
+            @NonNull Node image,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
@@ -242,14 +248,14 @@ public class ChanCommentAction
     // This is used on /p/ for exif data.
     @NonNull
     public SpannedString handleTable(
-            @NonNull Element table,
+            @NonNull Node table,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
             @NonNull Callback callback
     ) {
         SpannableStringBuilder parts = new SpannableStringBuilder();
-        Elements tableRows = table.getElementsByTag("tr");
+        Elements tableRows = ((Element) table).getElementsByTag("tr");
         for (int i = 0; i < tableRows.size(); i++) {
             Element tableRow = tableRows.get(i);
             if (!tableRow.text().isEmpty()) {
@@ -289,7 +295,7 @@ public class ChanCommentAction
 
     @NonNull
     public SpannedString handleSJIS(
-            @NonNull Element sjis,
+            @NonNull Node sjis,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
@@ -323,7 +329,7 @@ public class ChanCommentAction
 
     @NonNull
     public SpannedString handleDead(
-            @NonNull Element deadlink,
+            @NonNull Node deadlink,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
@@ -332,7 +338,7 @@ public class ChanCommentAction
         //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
         try {
             if (!(post.board.site instanceof Chan4)) return new SpannedString(text); //4chan only
-            int postNo = Integer.parseInt(deadlink.text().substring(2));
+            int postNo = Integer.parseInt(((Element) deadlink).text().substring(2));
             List<ExternalSiteArchive> boards = ArchivesManager.getInstance().archivesForBoard(post.board);
             if (!boards.isEmpty()) {
                 Site forThisSite = post.board.site;
@@ -357,7 +363,7 @@ public class ChanCommentAction
 
     @NonNull
     public Link matchAnchor(
-            @NonNull Element anchor, @NonNull Spanned text, @NonNull Post.Builder post, @NonNull Callback callback
+            @NonNull Node anchor, @NonNull Spanned text, @NonNull Post.Builder post, @NonNull Callback callback
     ) {
         String href = anchor.attr("href");
         //gets us something like /board/ or /thread/postno#quoteno

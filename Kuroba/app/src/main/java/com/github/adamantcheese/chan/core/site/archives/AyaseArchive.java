@@ -17,7 +17,7 @@ import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import java.util.List;
 
@@ -246,7 +246,7 @@ public class AyaseArchive
         @NonNull
         @Override
         public SpannedString style(
-                @NonNull Element element,
+                @NonNull Node node,
                 @NonNull Spanned text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,

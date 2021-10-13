@@ -16,6 +16,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BOLD;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -94,7 +95,7 @@ public class CSSActions {
         return span(text, colorInt == 0 ? null : new BackgroundColorSpanHashed(colorInt));
     };
 
-    private static int getColorFromAttr(Element element) {
+    private static int getColorFromAttr(Node element) {
         String color = element.attr("color");
         int colorInt;
         if (StringUtils.startsWithAny(color, "rgb", "rgba")) {
@@ -125,7 +126,7 @@ public class CSSActions {
         style = style.replace(" ", "");
         if (TextUtils.isEmpty(style)) return new SpannedString(text);
         String[] styles = style.split(";");
-        Element temp = new Element(element.tagName());
+        Element temp = new Element(element.nodeName());
         for (String s : styles) {
             String[] rule = s.split(":");
             if (rule.length != 2) {

@@ -9,11 +9,14 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_COLOR_ATTR_FG;
 import static com.github.adamantcheese.chan.core.site.parser.style.CSSActions.CSS_SIZE_ATTR;
@@ -85,21 +88,21 @@ public class HtmlElementAction
     @NonNull
     @Override
     public SpannedString style(
-            @NonNull Element element,
+            @NonNull Node element,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
             @NonNull PostParser.Callback callback
     ) {
-        Map<String, ChainStyleAction> specificsForTag = specificRules.get(element.normalName());
+        Map<String, ChainStyleAction> specificsForTag = specificRules.get(element.nodeName());
         ChainStyleAction specificForTagClass = null;
         if (specificsForTag != null) {
-            for (String n : element.classNames()) {
+            for (String n : classNames(element)) {
                 specificForTagClass = specificsForTag.get(n);
                 if (specificForTagClass != null) break;
             }
         }
-        ChainStyleAction wildcardForTag = wildcardRules.get(element.normalName());
+        ChainStyleAction wildcardForTag = wildcardRules.get(element.nodeName());
         ChainStyleAction actionToTake = specificForTagClass != null ? specificForTagClass : wildcardForTag;
 
         // add in the inline CSS action if it isn't already in the chain
@@ -109,6 +112,16 @@ public class HtmlElementAction
         } else {
             return INLINE_CSS.style(element, text, theme, post, callback);
         }
+    }
+
+    private static final Pattern classSplit = Pattern.compile("\\s+");
+
+    // copied from Element, but this works with nodes too
+    private Set<String> classNames(Node node) {
+        String[] names = classSplit.split(node.attr("class").trim());
+        Set<String> classNames = new LinkedHashSet<>(Arrays.asList(names));
+        classNames.remove(""); // if classNames() was empty, would include an empty class
+        return classNames;
     }
 }
 

@@ -25,6 +25,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import java.util.Collections;
 import java.util.List;
@@ -272,7 +273,7 @@ public class FoolFuukaArchive
         @NonNull
         @Override
         public SpannedString style(
-                @NonNull Element element,
+                @NonNull Node node,
                 @NonNull Spanned text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
@@ -283,10 +284,10 @@ public class FoolFuukaArchive
             // deepest nodes are processed first
             // in this case, we just want to return the text that has already been processed inside of this "greentext" node
             // otherwise duplicate PostLinkables will be generated
-            if (element.getElementsByTag("span").hasClass("greentext") && element.getAllElements().size() > 1) {
+            if (((Element) node).getElementsByTag("span").hasClass("greentext") && node.childNodeSize() > 1) {
                 return new SpannedString(text);
             }
-            return super.style(element, text, theme, post, callback);
+            return super.style(node, text, theme, post, callback);
         }
     }
 

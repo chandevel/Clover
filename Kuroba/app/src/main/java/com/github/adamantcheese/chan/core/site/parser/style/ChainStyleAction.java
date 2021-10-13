@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.JavaUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ public class ChainStyleAction
     @NonNull
     @Override
     public SpannedString style(
-            @NonNull Element element,
+            @NonNull Node node,
             @NonNull Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
@@ -60,7 +60,7 @@ public class ChainStyleAction
         SpannedString result = new SpannedString(text);
         for (StyleAction styleAction : actions) {
             try {
-                result = styleAction.style(element, result, theme, post, callback);
+                result = styleAction.style(node, result, theme, post, callback);
             } catch (Exception e) {
                 Logger.v(this, "Failed style action", e);
             }

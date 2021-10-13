@@ -14,7 +14,6 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.vdurmont.emoji.EmojiParser;
 
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
@@ -24,6 +23,7 @@ import java.util.regex.Pattern;
 
 /**
  * This style action handles an entire HTML document tree of elements and applies the appropriate rules to it when passed in for styling.
+ * You can technically pass in any node to have it return styled text however.
  */
 public class HtmlDocumentAction
         implements StyleAction {
@@ -36,16 +36,13 @@ public class HtmlDocumentAction
     @NonNull
     @Override
     public SpannedString style(
-            @NonNull Element element,
+            @NonNull Node node,
             @Nullable Spanned text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
             @NonNull PostParser.Callback callback
     ) {
-        if (!(element instanceof Document)) {
-            throw new IllegalArgumentException("Passed in non-document element!");
-        }
-        return processGenericNode(element, theme, post, callback);
+        return processGenericNode(node, theme, post, callback);
     }
 
     private SpannedString processGenericNode(
@@ -77,7 +74,7 @@ public class HtmlDocumentAction
             allInnerText.append(processGenericNode(innerNode, theme, post, callback));
         }
 
-        return elementAction.style((Element) node, allInnerText, theme, post, callback);
+        return elementAction.style(node, allInnerText, theme, post, callback);
     }
 
     private SpannedString processTextNode(TextNode node) {
