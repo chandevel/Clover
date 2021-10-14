@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.SavedReply;
+import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteActions;
@@ -64,6 +65,8 @@ import java.io.File;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import okhttp3.Call;
 
 import static com.github.adamantcheese.chan.Chan.instance;
 import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.FORCED_ANONYMOUS;
@@ -92,6 +95,7 @@ public class ReplyPresenter
     private final ReplyPresenterCallback callback;
     private Loadable loadable;
     private Reply draft;
+    private Call replyCall;
 
     private Page page = Page.INPUT;
     private boolean moreOpen;
@@ -357,6 +361,9 @@ public class ReplyPresenter
         String errorMessage = getString(R.string.reply_error);
         if (exception != null) {
             String message = exception.getMessage();
+            if (NetUtils.isCancelledException(exception)) {
+                message = "Cancelled submission!";
+            }
             if (message != null) {
                 errorMessage = getString(R.string.reply_error_message, message);
             }
@@ -518,8 +525,15 @@ public class ReplyPresenter
     }
 
     private void makeSubmitCall() {
-        loadable.site.actions().post(loadable, this);
+        replyCall = loadable.site.actions().post(loadable, this);
         switchPage(Page.LOADING);
+    }
+
+    public void cancelReply() {
+        if (replyCall != null) {
+            replyCall.cancel();
+            replyCall = null;
+        }
     }
 
     public void switchPage(Page page) {

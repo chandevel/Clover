@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
@@ -142,14 +143,11 @@ public class Dvach
             }
 
             @Override
-            public void post(Loadable loadableWithDraft, final PostListener postListener) {
-                NetUtils.makeHttpCall(
-                        new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener),
-                                loadableWithDraft
-                        ),
-                        Collections.emptyList(),
-                        postListener
-                );
+            public Call post(Loadable loadableWithDraft, final PostListener postListener) {
+                return NetUtils.makeHttpCall(new DvachReplyCall(
+                        new NetUtilsClasses.MainThreadResponseResult<>(postListener),
+                        loadableWithDraft
+                ), Collections.emptyList(), postListener, true);
             }
 
             @Override

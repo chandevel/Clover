@@ -67,6 +67,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.random.Random;
+import okhttp3.Call;
 import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -377,8 +378,10 @@ public class Chan4
         }
 
         @Override
-        public void post(Loadable loadableWithDraft, final PostListener postListener) {
-            NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener), loadableWithDraft),
+        public Call post(Loadable loadableWithDraft, final PostListener postListener) {
+            return NetUtils.makeHttpCall(new Chan4ReplyCall(new MainThreadResponseResult<>(postListener),
+                            loadableWithDraft
+                    ),
                     Collections.singletonList(createCookieParsingInterceptor(c -> {
                         // in the event of a pass being already used, these will be immediately expired and you will be logged out
                         // due to a 4chan bug, posting on a worksafe board and getting this error will not correctly
@@ -396,7 +399,8 @@ public class Chan4
                             return Collections.singletonList(c);
                         }
                     })),
-                    postListener
+                    postListener,
+                    true
             );
         }
 

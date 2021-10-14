@@ -125,6 +125,7 @@ public class ReplyLayout
     private View progressLayout;
     private ProgressBar progressBar;
     private TextView currentProgress;
+    private ImageView cancelButton;
 
     // Reply views:
     private View replyInputLayout;
@@ -239,6 +240,7 @@ public class ReplyLayout
         progressLayout = LayoutInflater.from(getContext()).inflate(R.layout.layout_reply_progress, this, false);
         progressBar = progressLayout.findViewById(R.id.progress_bar);
         currentProgress = progressLayout.findViewById(R.id.current_progress);
+        cancelButton = progressLayout.findViewById(R.id.cancel_button);
 
         topDivider = replyInputLayout.findViewById(R.id.top_div);
         botDivider = replyInputLayout.findViewById(R.id.bot_div);
@@ -364,6 +366,8 @@ public class ReplyLayout
                     .build()
                     .showAlignLeft(spoiler);
         });
+
+        cancelButton.setOnClickListener(v -> presenter.cancelReply());
 
         // Inflate captcha layout
         captchaContainer =

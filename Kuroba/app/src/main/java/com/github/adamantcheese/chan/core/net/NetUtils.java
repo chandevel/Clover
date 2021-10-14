@@ -162,18 +162,23 @@ public class NetUtils {
                 }
             };
 
-    public static void makeHttpCall(HttpCall<?> httpCall) {
-        makeHttpCall(httpCall, Collections.emptyList(), null);
+    public static Call makeHttpCall(HttpCall<?> httpCall) {
+        return makeHttpCall(httpCall, Collections.emptyList(), null, true);
     }
 
-    public static void makeHttpCall(HttpCall<?> httpCall, List<Interceptor> extraInterceptors) {
-        makeHttpCall(httpCall, extraInterceptors, null);
+    public static Call makeHttpCall(HttpCall<?> httpCall, boolean enqueue) {
+        return makeHttpCall(httpCall, Collections.emptyList(), null, enqueue);
     }
 
-    public static void makeHttpCall(
+    public static Call makeHttpCall(HttpCall<?> httpCall, List<Interceptor> extraInterceptors) {
+        return makeHttpCall(httpCall, extraInterceptors, null, true);
+    }
+
+    public static Call makeHttpCall(
             HttpCall<?> httpCall,
             List<Interceptor> extraInterceptors,
-            @Nullable ProgressRequestBody.ProgressRequestListener progressListener
+            @Nullable ProgressRequestBody.ProgressRequestListener progressListener,
+            boolean enqueue
     ) {
         Request.Builder requestBuilder = new Request.Builder();
         httpCall.setup(requestBuilder, progressListener);
@@ -186,7 +191,11 @@ public class NetUtils {
         for (Interceptor i : extraInterceptors) {
             client = client.newBuilder().addInterceptor(i).build();
         }
-        client.newCall(requestBuilder.build()).enqueue(httpCall);
+        Call call = client.newCall(requestBuilder.build());
+        if (enqueue) {
+            call.enqueue(httpCall);
+        }
+        return call;
     }
 
     /**

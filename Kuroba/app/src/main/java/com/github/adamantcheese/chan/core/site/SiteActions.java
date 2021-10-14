@@ -29,12 +29,14 @@ import com.github.adamantcheese.chan.core.site.http.LoginRequest;
 import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
+import okhttp3.Call;
+
 public interface SiteActions {
     void boards(NetUtilsClasses.ResponseResult<Boards> boardsListener);
 
     void pages(Board board, NetUtilsClasses.ResponseResult<ChanPages> pagesListener);
 
-    void post(Loadable loadableWithDraft, PostListener postListener);
+    Call post(Loadable loadableWithDraft, PostListener postListener);
 
     interface PostListener
             extends NetUtilsClasses.ResponseResult<ReplyResponse>, ProgressRequestBody.ProgressRequestListener {}

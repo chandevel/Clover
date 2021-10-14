@@ -21,21 +21,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:clickable="true"
     android:focusable="true">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="8dp"
-        android:indeterminate="true" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center">
 
-    <TextView
-        android:id="@+id/current_progress"
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="8dp"
+            android:indeterminate="true" />
+
+        <TextView
+            android:id="@+id/current_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:alpha="0"
+            android:gravity="center"
+            tools:alpha="1"
+            tools:text="100" />
+    </FrameLayout>
+
+    <ImageView
+        android:id="@+id/cancel_button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:alpha="0"
-        tools:alpha="1"
-        tools:text="100" />
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical|right"
+        android:padding="32dp"
+        android:src="@drawable/ic_fluent_dismiss_24_filled" />
+
 
 </FrameLayout>

@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
 
@@ -415,7 +416,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public void post(Loadable loadableWithDraft, PostListener postListener) {
+        public Call post(Loadable loadableWithDraft, PostListener postListener) {
             MultipartHttpCall<ReplyResponse> call =
                     new MultipartHttpCall<ReplyResponse>(new MainThreadResponseResult<>(postListener)) {
                         @Override
@@ -426,6 +427,7 @@ public abstract class CommonSite
 
             call.url(site.endpoints().reply(loadableWithDraft));
 
+            Call returnCall = NetUtils.makeHttpCall(call, false);
             prepare(call, loadableWithDraft, new ResponseResult<Void>() {
                 @Override
                 public void onFailure(Exception e) {}
@@ -433,9 +435,10 @@ public abstract class CommonSite
                 @Override
                 public void onSuccess(Void result) {
                     setupPost(loadableWithDraft, call);
-                    NetUtils.makeHttpCall(call);
+                    returnCall.enqueue(call);
                 }
             });
+            return returnCall;
         }
 
         public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {

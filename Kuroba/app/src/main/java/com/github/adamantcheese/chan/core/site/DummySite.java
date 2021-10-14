@@ -12,6 +12,7 @@ import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
@@ -40,6 +42,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
  */
 public class DummySite
         implements Site {
+
+    private final HttpUrl dummyUrl = HttpUrl.get("https://www.example.com");
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {}
@@ -108,8 +112,6 @@ public class DummySite
     @Override
     public SiteEndpoints endpoints() {
         return new SiteEndpoints() {
-            private final HttpUrl dummyUrl = HttpUrl.get("https://www.example.com");
-
             @Override
             public HttpUrl catalog(Board board) {
                 return dummyUrl;
@@ -209,7 +211,9 @@ public class DummySite
             public void pages(Board board, ResponseResult<ChanPages> pagesListener) {}
 
             @Override
-            public void post(Loadable loadableWithDraft, PostListener postListener) {}
+            public Call post(
+                    Loadable loadableWithDraft, PostListener postListener
+            ) { return new NetUtilsClasses.NullCall(dummyUrl);}
 
             @Override
             public boolean postRequiresAuthentication(Loadable loadableWithDraft) { return false; }
