@@ -9,6 +9,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.common.io.Files;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +63,7 @@ public class DlsiteEmbedder
             String duration = "";
             String serverFilename = "";
             String imageFilename = "";
+            String fileExtension = "jpg";
             HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
 
             input.beginObject();
@@ -76,8 +78,9 @@ public class DlsiteEmbedder
                             break;
                         case "work_image":
                             String thumbLocation = input.nextString();
+                            fileExtension = Files.getFileExtension(thumbLocation);
                             sourceUrl = HttpUrl.get("https:" + thumbLocation);
-                            imageFilename = thumbLocation.substring(thumbLocation.lastIndexOf("/") + 1, thumbLocation.lastIndexOf("/") + 18);
+                            imageFilename = thumbLocation.substring(thumbLocation.lastIndexOf("/") + 1, thumbLocation.lastIndexOf('.'));
                             break;
                         default:
                             input.skipValue();
@@ -94,7 +97,7 @@ public class DlsiteEmbedder
                             .thumbnailUrl(sourceUrl)
                             .imageUrl(sourceUrl)
                             .filename(imageFilename)
-                            .extension("jpg")
+                            .extension(fileExtension)
                             .isInlined()
                             .build()
             );
