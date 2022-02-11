@@ -37,6 +37,7 @@ import com.github.adamantcheese.chan.features.embedding.embedders.DlsiteEmbedder
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.PixivEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.QuickLatexEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.RjcodeEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.SoundcloudEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.StreamableEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.VimeoEmbedder;
@@ -106,6 +107,7 @@ public class EmbeddingEngine
         embedders.add(new VimeoEmbedder());
         embedders.add(new PixivEmbedder());
         embedders.add(new DlsiteEmbedder());
+        embedders.add(new RjcodeEmbedder());
 
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
@@ -490,7 +492,10 @@ public class EmbeddingEngine
             String URL,
             Bitmap iconBitmap
     ) {
-        return new Pair<>(new NullCall(HttpUrl.get(URL)), new IgnoreFailureCallback() {
+        // in case of embed replacement where the replaced text isn't in the form of a link,
+        // a dummy URL needs to be used otherwise okhttp3 will crash because it looks for a valid link
+        String dummyURL = "http://example.com";
+        return new Pair<>(new NullCall(HttpUrl.get(URL.startsWith("http") ? URL : dummyURL)), new IgnoreFailureCallback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
                 performStandardEmbedding(theme,
