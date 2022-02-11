@@ -33,6 +33,7 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.CommentParser.ThreadLink;
 import com.github.adamantcheese.chan.features.embedding.embedders.BandcampEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.ClypEmbedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.DlsiteEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.PixivEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.QuickLatexEmbedder;
@@ -104,6 +105,7 @@ public class EmbeddingEngine
         embedders.add(new BandcampEmbedder());
         embedders.add(new VimeoEmbedder());
         embedders.add(new PixivEmbedder());
+        embedders.add(new DlsiteEmbedder());
 
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
