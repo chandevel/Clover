@@ -19,7 +19,7 @@ public class DlsiteEmbedder
         extends JsonEmbedder {
 
     private final Pattern DLSITE_PATTERN =
-            Pattern.compile("(?:http|www|dlsite)[^>\\s]+[rR][jJ](\\d{6})\\.html");
+            Pattern.compile("(?:http|www|dlsite)[^>\\s]+[rR][jJ](\\d{6})(?:\\.html)?");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
