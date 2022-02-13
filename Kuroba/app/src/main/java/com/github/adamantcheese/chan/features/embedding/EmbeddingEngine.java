@@ -494,7 +494,7 @@ public class EmbeddingEngine
     ) {
         // in case of embed replacement where the replaced text isn't in the form of a link,
         // a dummy URL needs to be used otherwise okhttp3 will crash because it looks for a valid link
-        String dummyURL = "http://example.com";
+        String dummyURL = "https://example.com";
         return new Pair<>(new NullCall(HttpUrl.get(URL.startsWith("http") ? URL : dummyURL)), new IgnoreFailureCallback() {
             @Override
             public void onResponse(@NonNull Call call, @NonNull Response response) {
