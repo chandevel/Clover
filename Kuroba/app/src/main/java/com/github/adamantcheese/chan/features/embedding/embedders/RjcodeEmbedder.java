@@ -22,7 +22,7 @@ public class RjcodeEmbedder
     // Matches strings of the form RJ123456. Does not match if the string is
     // preceded by a "/", since that is handled by DlsiteEmbedder instead.
     private final Pattern RJCODE_PATTERN =
-            Pattern.compile("\\w*(?<!\\/)[rR][jJ](\\d{6})(?![^ .,?!:;)\\n])");
+            Pattern.compile("\\w*(?<!\\/)[rR][jJ](\\d{6})(?![^ .,?!:;)\\]'\"\\-=+_/\\n])");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
