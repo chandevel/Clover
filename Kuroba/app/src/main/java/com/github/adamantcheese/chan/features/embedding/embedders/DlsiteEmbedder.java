@@ -19,12 +19,13 @@ import okhttp3.HttpUrl;
 public class DlsiteEmbedder
         extends JsonEmbedder {
 
+    // This pattern matches either links in the form of https://dlsite.com/.../rj******, or rjcodes in the form of rj****** where * is a digit
     private final Pattern DLSITE_PATTERN =
-            Pattern.compile("https?://(?:www\\.)?dlsite\\.com.+[rR][jJ](\\d{6})(?:\\.html)?");
+            Pattern.compile("https?://(?:www\\.)?dlsite\\.com.+?[rR][jJ](\\d{6})(?:\\.html)?|(?<!/)[rR][jJ](\\d{6})(?![^ .,?!:;)\\]'\"\\-=+_/\\n])");
 
     @Override
     public boolean shouldEmbed(CharSequence comment) {
-        return StringUtils.containsAny(comment, "dlsite");
+        return StringUtils.containsAny(comment, "dlsite", "RJ", "rj", "Rj", "rJ");
     }
 
     @Override
@@ -39,7 +40,13 @@ public class DlsiteEmbedder
 
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
-        return HttpUrl.get("https://www.dlsite.com/maniax/product/info/ajax?product_id=RJ" + matcher.group(1));
+        // Since the match can either be a link or an rjcode, need to find the correct group
+        // Group 1 indicates a https://dlsite.com/.../rj****** match, group 2 indicates an rjcode match
+        // Neither matching shouldn't ever happen but just in case, it defaults to 000000 which does nothing
+        String rjcode = "000000";
+        if (matcher.group(1) == null) rjcode = matcher.group(2);
+        else if (matcher.group(2) == null) rjcode = matcher.group(1);
+        return HttpUrl.get("https://www.dlsite.com/maniax/product/info/ajax?product_id=RJ" + rjcode);
     }
 
     /* There's a ton of info returned in the API, only what matters is listed

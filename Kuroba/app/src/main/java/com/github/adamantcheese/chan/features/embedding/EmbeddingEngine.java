@@ -37,7 +37,6 @@ import com.github.adamantcheese.chan.features.embedding.embedders.DlsiteEmbedder
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.PixivEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.QuickLatexEmbedder;
-import com.github.adamantcheese.chan.features.embedding.embedders.RjcodeEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.SoundcloudEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.StreamableEmbedder;
 import com.github.adamantcheese.chan.features.embedding.embedders.VimeoEmbedder;
@@ -107,7 +106,6 @@ public class EmbeddingEngine
         embedders.add(new VimeoEmbedder());
         embedders.add(new PixivEmbedder());
         embedders.add(new DlsiteEmbedder());
-        embedders.add(new RjcodeEmbedder());
 
         // Special embedders
         embedders.add(new QuickLatexEmbedder());
