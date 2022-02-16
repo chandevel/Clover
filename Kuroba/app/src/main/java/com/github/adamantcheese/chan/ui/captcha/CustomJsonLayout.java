@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.InputFilter;
 import android.util.AttributeSet;
 import android.util.Base64;
 import android.view.KeyEvent;
@@ -78,6 +79,11 @@ public class CustomJsonLayout
         fg = findViewById(R.id.fg);
         slider = findViewById(R.id.slider);
         input = findViewById(R.id.captcha_input);
+        InputFilter[] editFilters = input.getFilters();
+        InputFilter[] newFilters = new InputFilter[editFilters.length + 1];
+        System.arraycopy(editFilters, 0, newFilters, 0, editFilters.length);
+        newFilters[editFilters.length] = new InputFilter.AllCaps();
+        input.setFilters(newFilters);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
                     || actionId == EditorInfo.IME_ACTION_DONE) {
