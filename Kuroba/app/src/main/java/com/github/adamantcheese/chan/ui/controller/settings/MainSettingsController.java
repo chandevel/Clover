@@ -16,6 +16,19 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 
 import com.github.adamantcheese.chan.BuildConfig;
@@ -26,6 +39,7 @@ import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.ReportManager;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
 import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
@@ -37,13 +51,8 @@ import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
-import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import kotlin.random.Random;
+import pl.droidsonroids.gif.GifImageView;
 
 public class MainSettingsController
         extends SettingsController {
@@ -162,7 +171,14 @@ public class MainSettingsController
         LinkSettingView updateSettingView = new LinkSettingView(this,
                 BuildConfig.APP_LABEL + " " + BuildConfig.VERSION_NAME,
                 "Tap to check for updates",
-                (v, sv) -> ((StartActivity) context).getUpdateManager().manualUpdateCheck()
+                (v, sv) -> {
+                    ((StartActivity) context).getUpdateManager().manualUpdateCheck();
+                    if (PersistableChanState.noFunAllowed.get()) return;
+                    showToast(context, "Shoutouts to  nnuudev and BlueClover!");
+                    for (int i = 0; i < 10; i++) {
+                        addPony(i);
+                    }
+                }
         );
         updateSettingView.forType.addType(APK_UPDATE);
         about.add(updateSettingView);
@@ -214,8 +230,8 @@ public class MainSettingsController
 
         if (crashLogsCount > 0) {
             getDefaultAlertBuilder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
-                    crashLogsCount
-            ))
+                            crashLogsCount
+                    ))
                     .setMessage(R.string.settings_report_suggest_sending_logs)
                     .setPositiveButton(R.string.settings_report_review_button_text,
                             (dialog, which) -> navigationController.pushController(new ReviewCrashLogsController(context))
@@ -237,5 +253,41 @@ public class MainSettingsController
 
     private void openReportProblemController() {
         navigationController.pushController(new ReportProblemController(context));
+    }
+
+    private final int[] PONIES =
+            {R.drawable.trotcycle_berry_right, R.drawable.trotcycle_berry_left, R.drawable.trotcycle_pinkiepie_right_n_n, R.drawable.trotcycle_pinkiepie_left_n_n};
+    private final boolean[] FACING_LEFT = {false, true, false, true};
+
+    private void addPony(int i) {
+        final GifImageView iv = new GifImageView(context);
+        int picked = Random.Default.nextInt(PONIES.length);
+        iv.setImageResource(PONIES[picked]);
+        iv.setX(FACING_LEFT[picked]
+                ? navigationController.view.getWidth() + 100
+                : -iv.getDrawable().getIntrinsicWidth() - 100);
+        iv.setY(navigationController.view.getHeight() - iv.getDrawable().getIntrinsicHeight());
+        navigationController.view.addView(iv);
+        iv.getLayoutParams().width = WRAP_CONTENT;
+        iv.getLayoutParams().height = WRAP_CONTENT;
+        iv.setLayoutParams(iv.getLayoutParams());
+
+        ValueAnimator animator = ValueAnimator.ofFloat(FACING_LEFT[picked]
+                        ? navigationController.view.getWidth() + 100
+                        : -iv.getDrawable().getIntrinsicWidth() - 100,
+                FACING_LEFT[picked]
+                        ? -iv.getDrawable().getIntrinsicWidth() - 100
+                        : navigationController.view.getWidth() + 100
+        );
+        animator.setDuration(7500);
+        animator.addUpdateListener(animation -> iv.setX((float) animation.getAnimatedValue()));
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                navigationController.view.removeView(iv);
+            }
+        });
+        animator.setStartDelay((long) Random.Default.nextInt(1, 4) * i * 250);
+        animator.start();
     }
 }
