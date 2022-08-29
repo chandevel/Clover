@@ -222,7 +222,7 @@ public class DrawerController
             if (pinMode) {
                 ImageView historyVisibility = view.findViewById(R.id.history_visiblity);
                 historyVisibility.setImageResource(ChanSettings.showHistory.get()
-                        ? R.drawable.ic_fluent_eye_show_16_filled
+                        ? R.drawable.ic_fluent_eye_16_filled
                         : R.drawable.ic_fluent_eye_off_16_filled);
             } else {
                 recyclerView.setAdapter(null);
@@ -408,7 +408,7 @@ public class DrawerController
 
             historyVisibility.setVisibility(VISIBLE);
             historyVisibility.setImageResource(ChanSettings.showHistory.get()
-                    ? R.drawable.ic_fluent_eye_show_16_filled
+                    ? R.drawable.ic_fluent_eye_16_filled
                     : R.drawable.ic_fluent_eye_off_16_filled);
             headerText.setText(R.string.drawer_pinned);
 

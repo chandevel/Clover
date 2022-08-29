@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
-import android.text.SpannedString;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
@@ -95,7 +94,7 @@ public class ChanThread {
 
         if (hasReplies) {
             boolean hasBumpLimit = loadable.board.bumpLimit > 0;
-            SpannedString replies = new SpannedString((op.replies >= 0 ? op.replies : posts.size() - 1) + "R");
+            CharSequence replies = (op.replies >= 0 ? op.replies : posts.size() - 1) + "R";
             if (hasBumpLimit && op.replies >= loadable.board.bumpLimit) {
                 replies = span(replies, styleSpan, extraStyling ? extraSpans : null);
             }
@@ -104,7 +103,7 @@ public class ChanThread {
 
         if (hasImages) {
             boolean hasImageLimit = loadable.board.imageLimit > 0;
-            SpannedString images = new SpannedString((op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I");
+            CharSequence images = (op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I";
             if (hasImageLimit && op.imagesCount >= loadable.board.imageLimit) {
                 images = span(images, styleSpan, extraStyling ? extraSpans : null);
             }
@@ -118,7 +117,7 @@ public class ChanThread {
 
         CommonDataStructs.ChanPage p = PageRepository.getPage(op);
         if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
-            SpannedString page = new SpannedString(String.valueOf(p.page));
+            CharSequence page = String.valueOf(p.page);
             if (p.page >= loadable.board.pages) {
                 page = span(page, styleSpan, extraStyling ? extraSpans : null);
             }

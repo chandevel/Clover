@@ -186,7 +186,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="wrap_content"
                     android:layout_gravity="top|right"
                     android:layout_margin="4dp"
-                    android:src="@drawable/ic_fluent_eye_show_16_filled"
+                    android:src="@drawable/ic_fluent_eye_16_filled"
                     app:tint="?attr/themeDrawableColor" />
             </FrameLayout>
 

@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import com.github.adamantcheese.chan.core.settings.ChanSettings
 import com.github.adamantcheese.chan.utils.AndroidUtils.dp
-import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import pl.droidsonroids.gif.GifDrawable
 import pl.droidsonroids.gif.GifImageView
 import kotlin.math.abs
@@ -21,9 +21,9 @@ class MultiImageViewGestureDetector(
 
     override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
         val activeView = callback.getActiveView()
-        if (activeView is PlayerView && !ChanSettings.neverShowWebmControls.get()) {
+        if (activeView is StyledPlayerView && !ChanSettings.neverShowWebmControls.get()) {
             if (activeView.player != null) {
-                if (activeView.isControllerVisible) {
+                if (activeView.isControllerFullyVisible) {
                     activeView.useController = false
                     callback.setClickHandler(true)
                 } else {
@@ -52,7 +52,7 @@ class MultiImageViewGestureDetector(
             return true
         }
 
-        if (activeView is PlayerView) {
+        if (activeView is StyledPlayerView) {
             callback.togglePlayState()
             return true
         }

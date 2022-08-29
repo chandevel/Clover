@@ -356,7 +356,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     android:layout_height="36dp"
                     android:background="@drawable/ripple_item_background"
                     android:padding="6dp"
-                    android:src="@drawable/ic_fluent_eye_show_24_filled"
+                    android:src="@drawable/ic_fluent_eye_24_filled"
                     android:visibility="gone"
                     app:tint="?attr/themeDrawableColor"
                     tools:visibility="visible" />

@@ -148,6 +148,9 @@ public class ThemeHelper {
         }
     }
 
+    /**
+     * @return The current theme being used by the application
+     */
     @NonNull
     public static Theme getTheme() {
         return isNightTheme ? themeNight : themeDay;

@@ -1,5 +1,20 @@
 package com.github.adamantcheese.chan.core.net;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
+import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BackgroundThreadResponseResult;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ChainConverter;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static java.lang.Runtime.getRuntime;
+import static okhttp3.Protocol.HTTP_1_1;
+import static okhttp3.Protocol.HTTP_2;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
@@ -53,21 +68,6 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.internal.http2.StreamResetException;
 import okhttp3.logging.HttpLoggingInterceptor;
-
-import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
-import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BackgroundThreadResponseResult;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ChainConverter;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static java.lang.Runtime.getRuntime;
-import static okhttp3.Protocol.HTTP_1_1;
-import static okhttp3.Protocol.HTTP_2;
 
 public class NetUtils {
     public static final String USER_AGENT = BuildConfig.APP_LABEL + "/" + BuildConfig.VERSION_NAME;

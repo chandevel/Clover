@@ -16,6 +16,16 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONVERTER;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -53,16 +63,16 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.PostUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MergingMediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
 import com.google.android.exoplayer2.upstream.cache.SimpleCache;
@@ -81,16 +91,6 @@ import okhttp3.HttpUrl;
 import okio.Buffer;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageView;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BUFFER_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class MultiImageView
         extends FrameLayout
@@ -114,7 +114,7 @@ public class MultiImageView
     private Mode mode = Mode.UNLOADED;
     private Call thumbnailRequest;
     private Call request;
-    private SimpleExoPlayer exoPlayer;
+    private ExoPlayer exoPlayer;
 
     private boolean hasContent = false;
     private boolean requestedBackgroundOpacity = ChanSettings.useOpaqueBackgrounds.get();
@@ -211,7 +211,7 @@ public class MultiImageView
                 ret = findView(GifImageView.class);
                 break;
             case VIDEO:
-                ret = findView(PlayerView.class);
+                ret = findView(StyledPlayerView.class);
                 break;
             case WEBVIEW:
                 ret = findView(WebView.class);
@@ -487,7 +487,8 @@ public class MultiImageView
     private static final ProgressiveMediaSource.Factory MEDIA_FACTORY;
 
     static {
-        OkHttpDataSource.Factory okHttpFactory = new OkHttpDataSource.Factory(NetUtils.applicationClient);
+        OkHttpDataSource.Factory okHttpFactory =
+                new OkHttpDataSource.Factory((Call.Factory) NetUtils.applicationClient);
         okHttpFactory.setUserAgent(NetUtils.USER_AGENT);
         okHttpFactory.setCacheControl(NetUtilsClasses.ONE_DAY_CACHE);
         CacheDataSource.Factory cacheFactory = new CacheDataSource.Factory();
@@ -502,8 +503,8 @@ public class MultiImageView
 
     private void setVideo() {
         if (!hasContent || mode == Mode.VIDEO) {
-            PlayerView exoVideoView = new PlayerView(getContext());
-            exoPlayer = new SimpleExoPlayer.Builder(getContext()).build();
+            StyledPlayerView exoVideoView = new StyledPlayerView(getContext());
+            exoPlayer = new ExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
 
             try {
@@ -544,7 +545,7 @@ public class MultiImageView
             exoVideoView.setOnTouchListener((view, motionEvent) -> gestureDetector.onTouchEvent(motionEvent));
             exoVideoView.setUseController(false);
             exoVideoView.setControllerHideOnTouch(false);
-            exoVideoView.setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING);
+            exoVideoView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
             exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
             NetUtils.makeBitmapRequest(
@@ -711,8 +712,8 @@ public class MultiImageView
             for (int i = getChildCount() - 1; i >= 0; i--) {
                 View child = getChildAt(i);
                 if (child != view) {
-                    if (child instanceof PlayerView) {
-                        ((PlayerView) child).getPlayer().release();
+                    if (child instanceof StyledPlayerView) {
+                        ((StyledPlayerView) child).getPlayer().release();
                     } else if (child instanceof WebView) {
                         ((WebView) child).destroy();
                     }
@@ -724,7 +725,7 @@ public class MultiImageView
 
             if (!alreadyAttached) {
                 addView(view, 0, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
-                if (view instanceof PlayerView) {
+                if (view instanceof StyledPlayerView) {
                     addView(exoClickHandler);
                 }
             }

@@ -773,9 +773,9 @@ public class ReplyLayout
 
     private void setSpoilerIcon() {
         if ((boolean) spoiler.getTag()) {
-            spoiler.setImageResource(R.drawable.ic_fluent_eye_hide_24_filled);
+            spoiler.setImageResource(R.drawable.ic_fluent_eye_off_24_filled);
         } else {
-            spoiler.setImageResource(R.drawable.ic_fluent_eye_show_24_filled);
+            spoiler.setImageResource(R.drawable.ic_fluent_eye_24_filled);
         }
     }
 
