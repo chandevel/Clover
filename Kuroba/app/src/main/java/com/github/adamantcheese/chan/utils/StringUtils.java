@@ -3,12 +3,12 @@ package com.github.adamantcheese.chan.utils;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Base64;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
@@ -128,8 +128,7 @@ public class StringUtils {
     }
 
     public static String parseEmojiToAscii(String input) {
-        return EmojiParser.parseFromUnicode(
-                input,
+        return EmojiParser.parseFromUnicode(input,
                 e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
                         + ": "
         );
@@ -255,11 +254,10 @@ public class StringUtils {
             Matcher searchMatch = search.matcher(sourceCopy);
             // apply new spans
             while (searchMatch.find()) {
-                sourceCopy.setSpan(
-                        new SearchHighlightSpan(theme),
+                sourceCopy.setSpan(new SearchHighlightSpan(theme),
                         searchMatch.toMatchResult().start(),
                         searchMatch.toMatchResult().end(),
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        makeSpanOptions(DEFAULT_PRIORITY)
                 );
             }
         }
@@ -267,9 +265,10 @@ public class StringUtils {
     }
 
     // Copied from Apache Commons Lang 3
-    public static CharSequence chomp(final CharSequence str) {
+    @NonNull
+    public static CharSequence chomp(@Nullable CharSequence str) {
         if (str == null || str.length() == 0) {
-            return str;
+            return "";
         }
 
         if (str.length() == 1) {
@@ -293,13 +292,35 @@ public class StringUtils {
         return str.subSequence(0, lastIdx);
     }
 
-    public static SpannedString span(CharSequence text, Object... spans) {
+    public static final byte RENDER_ABOVE_ELSE = (byte) 95;
+    public static final byte DEFAULT_PRIORITY = (byte) 127;
+    public static final byte RENDER_BELOW_ELSE = (byte) 159;
+
+    public static SpannableString span(CharSequence text, Object... spans) {
+        return spanWithPriority(text, DEFAULT_PRIORITY, spans);
+    }
+
+    /**
+     * @param text     The text to style.
+     * @param priority The priority to make for span flags. Higher priorities render first, lower priorities render last.
+     * @param spans    All the spans to apply to the text.
+     * @return A styled string.
+     */
+    public static SpannableString spanWithPriority(CharSequence text, byte priority, Object... spans) {
         SpannableString ret = new SpannableString(text);
-        if (spans == null || spans.length == 0) return new SpannedString(ret);
+        if (spans == null || spans.length == 0) return ret;
         for (Object span : spans) {
             if (span == null) continue;
-            ret.setSpan(span, 0, text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            ret.setSpan(span, 0, text.length(), makeSpanOptions(priority));
         }
-        return new SpannedString(ret);
+        return ret;
+    }
+
+    /**
+     * @param priority The priority to make for span flags. Higher priorities render first, lower priorities render last.
+     * @return The flags set up for setSpan.
+     */
+    public static int makeSpanOptions(byte priority) {
+        return (priority << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY | Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
     }
 }

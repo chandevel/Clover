@@ -352,7 +352,7 @@ public class FiltersController
                 subText.append(getQuantityString(R.plurals.board, size));
             }
 
-            subText.append(" \u2013 ").append(FilterAction.actionName(FilterAction.forId(filter.action)));
+            subText.append(" \u2013 ").append(FilterAction.actionName(FilterAction.values()[filter.action]));
 
             holder.subtext.setText(subText.toString());
         }

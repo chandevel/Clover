@@ -16,8 +16,25 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.HIDE;
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.REMOVE;
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
+import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
+import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
+import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
+import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
+import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
+import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
+import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
+import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.BOARD_FLAG;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.COUNTRY_FLAG;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+
 import android.text.Spannable;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
@@ -25,7 +42,6 @@ import android.widget.Toast;
 import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -36,12 +52,12 @@ import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
 import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,55 +69,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
-import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
-import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
-import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
-import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
-import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-
 public class FilterEngine {
     public enum FilterAction {
-        HIDE(0),
-        COLOR(1),
-        REMOVE(2),
-        WATCH(3);
+        HIDE,
+        COLOR,
+        REMOVE,
+        WATCH;
 
-        public final int id;
-
-        FilterAction(int id) {
-            this.id = id;
-        }
-
-        public static FilterAction forId(int id) {
-            return enums[id];
-        }
-
-        private static final FilterAction[] enums = new FilterAction[4];
-
-        static {
-            for (FilterAction type : values()) {
-                enums[type.id] = type;
-            }
-        }
-
-        public static String actionName(FilterEngine.FilterAction action) {
-            switch (action) {
-                case HIDE:
-                    return getString(R.string.filter_hide);
-                case COLOR:
-                    return getString(R.string.filter_color);
-                case REMOVE:
-                    return getString(R.string.filter_remove);
-                case WATCH:
-                    return getString(R.string.filter_watch);
-            }
-            return null;
+        public static String actionName(FilterAction action) {
+            return StringUtils.caseAndSpace(action.name() + " post", null);
         }
     }
 
@@ -130,7 +106,7 @@ public class FilterEngine {
         List<Filter> enabled = new ArrayList<>();
         for (Filter filter : filters) {
             if (filter.enabled) {
-                enabled.add(filter);
+                enabled.add(filter.clone());
             }
         }
         Collections.sort(enabled, (o1, o2) -> o1.order - o2.order);
@@ -149,7 +125,7 @@ public class FilterEngine {
     public List<Filter> getEnabledWatchFilters() {
         List<Filter> watchFilters = new ArrayList<>();
         for (Filter f : getEnabledFilters()) {
-            if (f.action == FilterAction.WATCH.id) {
+            if (f.action == WATCH.ordinal()) {
                 watchFilters.add(f);
             }
         }
@@ -203,18 +179,18 @@ public class FilterEngine {
         if (filter.applyToSaved && !post.isSavedReply) return false;
 
         if (matches(filter, TRIPCODE, post.tripcode, false)) return true;
-        if (matches(filter, NAME, post.name, false)) return true;
+        if (matches(filter, NAME, post.getName(), false)) return true;
         if (matches(filter, COMMENT, post.comment, false)) return true;
         if (matches(filter, ID, post.posterId, false)) return true;
-        if (matches(filter, SUBJECT, post.subject, false)) return true;
+        if (matches(filter, SUBJECT, post.getSubject(), false)) return true;
         for (PostImage image : post.images) {
             if (matches(filter, IMAGE, image.fileHash, false)) {
                 //for filtering image hashes, we don't want to apply the post-level filter unless the user set it as such
                 //this takes care of it at an image level, either flagging it to be hidden, which applies a
                 //custom spoiler image, or removes the image from the post entirely since this is a Post.Builder instance
-                if (filter.action == FilterAction.HIDE.id) {
+                if (filter.action == HIDE.ordinal()) {
                     image.hidden = true;
-                } else if (filter.action == FilterAction.REMOVE.id) {
+                } else if (filter.action == REMOVE.ordinal()) {
                     post.images.remove(image);
                 }
                 return ChanSettings.applyImageFilterToPost.get();
@@ -225,11 +201,11 @@ public class FilterEngine {
         String flagCode = "";
         if (post.httpIcons != null) {
             for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.type == SiteEndpoints.IconType.COUNTRY_FLAG) {
+                if (icon.type == COUNTRY_FLAG) {
                     flagCode = icon.code;
                     break;
                 }
-                if (icon.type == SiteEndpoints.IconType.BOARD_FLAG) {
+                if (icon.type == BOARD_FLAG) {
                     flagCode = icon.code;
                     break;
                 }
@@ -283,7 +259,7 @@ public class FilterEngine {
                             new FilterHighlightSpan(ThemeHelper.getTheme()),
                             result.start(),
                             result.end(),
-                            Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                            makeSpanOptions(DEFAULT_PRIORITY)
                     );
                     final String filterPattern = filter.pattern;
                     ((Spannable) text).setSpan(new PostLinkable(ThemeHelper.getTheme(), new Object(), Type.OTHER) {
@@ -291,7 +267,7 @@ public class FilterEngine {
                         public void onClick(@NonNull View widget) {
                             showToast(getAppContext(), "Matching filter: " + filterPattern, Toast.LENGTH_LONG);
                         }
-                    }, result.start(), result.end(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    }, result.start(), result.end(), makeSpanOptions(DEFAULT_PRIORITY));
                 }
                 return true;
             } else {
@@ -303,7 +279,7 @@ public class FilterEngine {
         }
     }
 
-    private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/(i?)$");
+    private static final Pattern isRegexPattern = Pattern.compile("^/(.*)/([mi]*)?$");
     private static final Pattern filterFilthyPattern = Pattern.compile("([.^$*+?()\\]\\[{}\\\\|-])");
     // an escaped \ and an escaped *, to replace an escaped * from escapeRegex
     private static final Pattern wildcardPattern = Pattern.compile("\\\\\\*");

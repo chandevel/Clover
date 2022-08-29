@@ -16,13 +16,24 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.COLOR;
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.style.StyleSpan;
@@ -58,14 +69,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 public class FilterLayout
         extends LinearLayout {
@@ -277,7 +280,7 @@ public class FilterLayout
             public void onFloatingMenuItemClicked(
                     FloatingMenu<FilterAction> menu, FloatingMenuItem<FilterAction> item
             ) {
-                filter.action = item.getId().id;
+                filter.action = item.getId().ordinal();
                 updateFilterAction();
             }
         });
@@ -296,7 +299,7 @@ public class FilterLayout
                 message.setSpan(new BackgroundColorSpanHashed(0x22000000),
                         start,
                         end,
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        makeSpanOptions(DEFAULT_PRIORITY)
                 );
             }
         }
@@ -309,7 +312,7 @@ public class FilterLayout
                 message.setSpan(new BackgroundColorSpanHashed(0x22000000),
                         start,
                         end,
-                        Spanned.SPAN_INCLUSIVE_EXCLUSIVE
+                        makeSpanOptions(DEFAULT_PRIORITY)
                 );
             }
         }
@@ -382,7 +385,7 @@ public class FilterLayout
         applyToReplies.setChecked(filter.applyToReplies);
         onlyOnOP.setChecked(filter.onlyOnOP);
         applyToSaved.setChecked(filter.applyToSaved);
-        if (filter.action == FilterAction.WATCH.id) {
+        if (filter.action == WATCH.ordinal()) {
             applyToReplies.setEnabled(false);
             onlyOnOP.setChecked(true);
             onlyOnOP.setEnabled(false);
@@ -391,14 +394,14 @@ public class FilterLayout
     }
 
     private void updateFilterAction() {
-        FilterAction action = FilterAction.forId(filter.action);
+        FilterAction action = FilterAction.values()[filter.action];
         actionText.setText(FilterAction.actionName(action));
-        colorContainer.setVisibility(action == FilterAction.COLOR ? VISIBLE : GONE);
+        colorContainer.setVisibility(action == COLOR ? VISIBLE : GONE);
         if (filter.color == 0) {
             filter.color = 0xffff0000;
         }
         colorPreview.setBackgroundColor(filter.color);
-        if (filter.action != FilterAction.WATCH.id) {
+        if (filter.action != WATCH.ordinal()) {
             applyToReplies.setEnabled(true);
             onlyOnOP.setEnabled(true);
             onlyOnOP.setChecked(false);

@@ -212,10 +212,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_boards">Boards</string>
     <string name="filter_types">Types</string>
     <string name="filter_all">All</string>
-    <string name="filter_hide">Hide post</string>
-    <string name="filter_color">Highlight post</string>
-    <string name="filter_remove">Remove post</string>
-    <string name="filter_watch">Watch post</string>
     <string name="filter_invalid_pattern">Invalid pattern</string>
 
     <string name="filter_preview">Test your filter</string>
