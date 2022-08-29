@@ -16,9 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.AUDIO_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.SWF_THUMB_URL;
+
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -61,13 +63,13 @@ public class TaimabaEndpoints
     public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
         switch (arg.get("ext")) {
             case "swf":
-                return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
+                return SWF_THUMB_URL;
             case "mp3":
             case "m4a":
             case "ogg":
             case "flac":
             case "wav":
-                return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
+                return AUDIO_THUMB_URL;
             default:
                 return sys.builder().s(post.board.code).s("thumb").s(arg.get("tim") + "s.jpg").url();
         }

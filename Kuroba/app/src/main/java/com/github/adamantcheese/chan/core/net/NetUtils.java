@@ -35,6 +35,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
+import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -70,7 +71,7 @@ import okhttp3.internal.http2.StreamResetException;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 public class NetUtils {
-    public static final String USER_AGENT = BuildConfig.APP_LABEL + "/" + BuildConfig.VERSION_NAME;
+    public static final String USER_AGENT = BuildConfigUtils.VERSION;
 
     public static final int MB = 1024 * 1024;
     // The OkHttpClient installed cache, used for all requests

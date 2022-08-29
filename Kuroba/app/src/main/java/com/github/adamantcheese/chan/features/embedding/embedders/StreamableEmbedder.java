@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.features.embedding.embedders;
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -16,6 +15,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class StreamableEmbedder
@@ -80,7 +80,7 @@ public class StreamableEmbedder
     public NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter() {
         return input -> {
             String serverFilename = "";
-            HttpUrl mp4Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
+            HttpUrl mp4Url = INTERNAL_SPOILER_THUMB_URL;
             HttpUrl thumbnailUrl = null;
             long size = -1L;
 

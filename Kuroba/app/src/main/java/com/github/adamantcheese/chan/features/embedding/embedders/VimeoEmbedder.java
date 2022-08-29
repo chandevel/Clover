@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.features.embedding.embedders;
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
@@ -19,6 +18,7 @@ import java.util.regex.Pattern;
 import okhttp3.HttpUrl;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
@@ -54,8 +54,8 @@ public class VimeoEmbedder
         return input -> {
             String title = null;
             String duration = null;
-            HttpUrl thumbnailUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
-            HttpUrl sourceUrl = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png");
+            HttpUrl thumbnailUrl = INTERNAL_SPOILER_THUMB_URL;
+            HttpUrl sourceUrl = INTERNAL_SPOILER_THUMB_URL;
 
             input.beginObject();
             while (input.hasNext()) {

@@ -1,10 +1,11 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
@@ -137,8 +138,7 @@ public class SoundcloudEmbedder
                         : title + " | " + artist,
                 duration,
                 new PostImage.Builder().serverFilename(title)
-                        .thumbnailUrl(artworkURL == null ? HttpUrl.get(
-                                BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png") : artworkURL)
+                        .thumbnailUrl(artworkURL == null ? INTERNAL_SPOILER_THUMB_URL : artworkURL)
                         .imageUrl(sourceURL)
                         .filename(title)
                         .extension("iframe")

@@ -22,8 +22,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
@@ -561,7 +561,7 @@ public class PostCell
     private final String[] dubTexts =
             {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
 
-    private SpannedString getRepeatDigits(int no) {
+    private SpannableString getRepeatDigits(int no) {
         CharSequence number = new StringBuilder().append(no).reverse();
         char init = number.charAt(0);
         int count = 1;

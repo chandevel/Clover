@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.utils;
 
-import android.text.SpannableStringBuilder;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -85,16 +84,14 @@ public class PostUtils {
      * @param existingText Any existing text; if null, a new spannable string builder will be used.
      * @param dialog       The dialog we're pumping this info into
      * @param textView     An optional text view to write into
-     * @return The constructed text, or null
      */
-    @NonNull
-    public static SpannableStringBuilder generatePostImageSummaryAndSetTextViewWithUpdates(
+    public static void generatePostImageSummaryAndSetTextViewWithUpdates(
             @NonNull PostImage image,
-            @Nullable SpannableStringBuilder existingText,
+            @Nullable CharSequence existingText,
             @NonNull AlertDialog dialog,
             @Nullable TextView textView
     ) {
-        SpannableStringBuilder text = existingText == null ? new SpannableStringBuilder() : existingText;
+        StringBuilder text = new StringBuilder(existingText == null ? "" : existingText);
         text.append("Filename: ").append(image.filename).append(".").append(image.extension);
         if ("webm".equals(image.extension.toLowerCase())) {
             // check webms for extra titles, async
@@ -160,6 +157,5 @@ public class PostUtils {
         }
 
         dialog.setMessage(text);
-        return text;
     }
 }

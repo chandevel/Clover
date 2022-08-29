@@ -78,7 +78,7 @@ public class VocarooEmbedder
                                 new EmbedResult("Vocaroo attached! ♫",
                                         "",
                                         new PostImage.Builder().serverFilename(id)
-                                                .thumbnailUrl(HttpUrl.parse(
+                                                .thumbnailUrl(HttpUrl.get(
                                                         "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
                                                 .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
                                                 .filename("Vocaroo " + id)

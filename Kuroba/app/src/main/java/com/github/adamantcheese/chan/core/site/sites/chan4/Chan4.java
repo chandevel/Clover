@@ -16,10 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import static com.github.adamantcheese.chan.core.net.NetUtils.createCookieParsingInterceptor;
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CUSTOM;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.SWF_THUMB_URL;
+
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -72,12 +78,6 @@ import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.core.net.NetUtils.createCookieParsingInterceptor;
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
-import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CUSTOM;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class Chan4
         extends SiteBase {
@@ -202,7 +202,7 @@ public class Chan4
                 return image.build();
             } else {
                 if ("swf".equals(arg.get("ext"))) {
-                    return HttpUrl.parse(BuildConfig.RESOURCES_ENDPOINT + "swf_thumb.png");
+                    return SWF_THUMB_URL;
                 }
                 return t.newBuilder().addPathSegment(post.board.code).addPathSegment(arg.get("tim") + "s.jpg").build();
             }

@@ -2,6 +2,8 @@ package com.github.adamantcheese.chan.core.site.archives;
 
 import android.text.Spanned;
 import android.text.SpannedString;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.ARCHIVE_MISSING_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.DEFAULT_SPOILER_IMAGE_URL;
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
@@ -177,8 +179,7 @@ public class FoolFuukaArchive
                             switch (mediaKey) {
                                 case "spoiler":
                                     imageBuilder.spoiler(reader.nextInt() == 1);
-                                    imageBuilder.spoilerThumbnailUrl(HttpUrl.get(
-                                            BuildConfig.RESOURCES_ENDPOINT + "default_spoiler.png"));
+                                    imageBuilder.spoilerThumbnailUrl(DEFAULT_SPOILER_IMAGE_URL);
                                     break;
                                 case "media_w":
                                     imageBuilder.imageWidth(reader.nextInt());
@@ -219,8 +220,7 @@ public class FoolFuukaArchive
                                     if (reader.peek() == JsonToken.NULL) {
                                         reader.nextNull();
                                         if (imageBuilder.hasImageUrl()) break;
-                                        imageBuilder.imageUrl(HttpUrl.get(
-                                                BuildConfig.RESOURCES_ENDPOINT + "archive_missing.png"));
+                                        imageBuilder.imageUrl(ARCHIVE_MISSING_THUMB_URL);
                                     } else {
                                         imageBuilder.imageUrl(HttpUrl.get(reader.nextString()));
                                     }
@@ -231,8 +231,7 @@ public class FoolFuukaArchive
                                 case "thumb_link":
                                     if (reader.peek() == JsonToken.NULL) {
                                         reader.nextNull();
-                                        imageBuilder.thumbnailUrl(HttpUrl.get(
-                                                BuildConfig.RESOURCES_ENDPOINT + "archive_missing.png"));
+                                        imageBuilder.thumbnailUrl(ARCHIVE_MISSING_THUMB_URL);
                                     } else {
                                         imageBuilder.thumbnailUrl(HttpUrl.get(reader.nextString()));
                                     }

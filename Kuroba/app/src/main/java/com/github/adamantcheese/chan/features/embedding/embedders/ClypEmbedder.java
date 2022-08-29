@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.AUDIO_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class ClypEmbedder
@@ -71,7 +72,7 @@ public class ClypEmbedder
             String title = null;
             double duration = Double.NaN;
 
-            HttpUrl mp3Url = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "audio_thumb.png");
+            HttpUrl mp3Url = AUDIO_THUMB_URL;
             String fileId = "";
 
             input.beginObject();

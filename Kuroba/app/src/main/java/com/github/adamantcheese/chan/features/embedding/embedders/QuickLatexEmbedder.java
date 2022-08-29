@@ -2,7 +2,6 @@ package com.github.adamantcheese.chan.features.embedding.embedders;
 
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
-import android.text.SpannedString;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
 import android.util.LruCache;
@@ -195,7 +194,7 @@ public class QuickLatexEmbedder
                         startIndex = TextUtils.indexOf(comment, rawMath, startIndex);
                         if (startIndex < 0) break;
 
-                        SpannedString replacement = span(" ", new ImageSpan(getAppContext(), bitmap));
+                        CharSequence replacement = span(" ", new ImageSpan(getAppContext(), bitmap));
                         // this will be removed before invalidation
                         generatedLinkables.add(new PostLinkable(theme, rawMath, PostLinkable.Type.EMBED_TEMP));
 

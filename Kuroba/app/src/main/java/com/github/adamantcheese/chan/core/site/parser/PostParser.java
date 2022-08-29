@@ -69,6 +69,7 @@ public class PostParser {
     // otherwise match @num and #num
     private final Pattern extraQuotePattern = Pattern.compile("(?<!(?:: ?))(?<![/\\\"l&])[@#](\\d+)(?!;)");
     private final Pattern extraSpoilerPattern = Pattern.compile("\\[spoiler\\](.*?)\\[/spoiler\\]");
+    private final Pattern discordSpoilerPatten = Pattern.compile("\\|\\|(.*?)\\|\\|");
     private final Pattern boldPattern = Pattern.compile("\\*\\*(.+)\\*\\*");
     private final Pattern italicPattern = Pattern.compile("\\*(.+)\\*");
     private final Pattern codePattern = Pattern.compile("`(.+)`");
@@ -197,6 +198,7 @@ public class PostParser {
         }
         if (ChanSettings.parseExtraSpoilers.get()) {
             comment = extraSpoilerPattern.matcher(comment).replaceAll("<s>$1</s>");
+            comment = discordSpoilerPatten.matcher(comment).replaceAll("<s>$1</s>");
         }
         if (ChanSettings.mildMarkdown.get()) {
             comment = boldPattern.matcher(comment).replaceAll("<b>$1</b>");

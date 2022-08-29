@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.features.embedding;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.os.Handler;
@@ -347,7 +348,6 @@ public class EmbeddingEngine
             Matcher matcher = IMAGE_URL_PATTERN.matcher(linkable.value.toString());
             if (matcher.matches()) {
                 boolean noThumbnail = StringUtils.endsWithAny(linkable.value.toString(), noThumbLinkSuffixes);
-                String spoilerThumbnail = BuildConfig.RESOURCES_ENDPOINT + "internal_spoiler.png";
 
                 HttpUrl imageUrl = HttpUrl.parse((String) linkable.value);
                 // ignore saucenao links, not actual images
@@ -357,8 +357,8 @@ public class EmbeddingEngine
 
                 PostImage inlinedImage = new PostImage.Builder().serverFilename(matcher.group(1))
                         //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
-                        .thumbnailUrl(HttpUrl.parse(noThumbnail ? spoilerThumbnail : (String) linkable.value))
-                        .spoilerThumbnailUrl(HttpUrl.parse(spoilerThumbnail))
+                        .thumbnailUrl(noThumbnail ? INTERNAL_SPOILER_THUMB_URL : HttpUrl.get((String) linkable.value))
+                        .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
                         .imageUrl(imageUrl)
                         .filename(matcher.group(1))
                         .extension(matcher.group(2))

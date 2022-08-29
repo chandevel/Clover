@@ -218,7 +218,8 @@ public class DeveloperSettingsController
         roundedIdTest.setText("Use rounded background span for IDs");
         roundedIdTest.setTextColor(getAttrColor(context, android.R.attr.textColor));
         roundedIdTest.setChecked(PersistableChanState.experimentalRoundedIDSpans.get());
-        roundedIdTest.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.experimentalRoundedIDSpans.toggle());
+        roundedIdTest.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.experimentalRoundedIDSpans
+                .toggle());
         wrapper.addView(roundedIdTest);
 
         ScrollView scrollView = new ScrollView(context);

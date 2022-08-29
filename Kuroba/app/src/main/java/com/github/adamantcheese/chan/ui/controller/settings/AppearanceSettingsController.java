@@ -296,7 +296,7 @@ public class AppearanceSettingsController
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,
                     ChanSettings.parseExtraSpoilers,
                     "Convert spoiler tags",
-                    "Attempt to parse [spoiler] tags on boards that don't support spoilers as regular spoiler tags"
+                    "Parse ||spoiler|| and [spoiler] tags, even if a board doesn't support them"
             )));
 
             requiresUiRefresh.add(post.add(new BooleanSettingView(this,

@@ -518,7 +518,7 @@ public class ChanSettings {
 
             //region DEVELOPER
             debugFilters = new BooleanSetting(p, "debug_filters", false);
-            crashOnWrongThread = new BooleanSetting(p, "crash_on_wrong_thread", true);
+            crashOnWrongThread = new BooleanSetting(p, "crash_on_wrong_thread", BuildConfig.DEV_BUILD);
             verboseLogs = new BooleanSetting(p, "verbose_logs", false);
             //endregion
 

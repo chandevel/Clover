@@ -16,12 +16,19 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.DELETED_IMAGE_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.HIDE_THUMB_URL;
+
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -30,12 +37,6 @@ import org.jsoup.parser.Parser;
 import java.util.Objects;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
 
 public class PostImage {
     public enum Type {
@@ -114,7 +115,7 @@ public class PostImage {
             if (!hidden) {
                 return spoilerThumbnailUrl;
             } else {
-                return HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "hide_thumb.png");
+                return HIDE_THUMB_URL;
             }
         }
     }
@@ -141,8 +142,6 @@ public class PostImage {
     }
 
     public static final class Builder {
-        private final HttpUrl DELETED_IMAGE_URL = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "file_deleted.png");
-
         private String serverFilename;
         private HttpUrl thumbnailUrl;
         private HttpUrl spoilerThumbnailUrl;
@@ -184,7 +183,7 @@ public class PostImage {
                 throw new NullPointerException("imageUrl must not be null!");
             }
 
-            this.imageUrl = HttpUrl.parse(imageUrl.toString()).newBuilder().scheme("https").build();
+            this.imageUrl = HttpUrl.get(imageUrl.toString()).newBuilder().scheme("https").build();
             return this;
         }
 
@@ -258,9 +257,9 @@ public class PostImage {
             if (imageUrl == null) throw new NullPointerException("imageUrl must not be null!");
 
             if (deleted) {
-                this.thumbnailUrl = DELETED_IMAGE_URL;
-                this.spoilerThumbnailUrl = DELETED_IMAGE_URL;
-                this.imageUrl = DELETED_IMAGE_URL;
+                this.thumbnailUrl = DELETED_IMAGE_THUMB_URL;
+                this.spoilerThumbnailUrl = DELETED_IMAGE_THUMB_URL;
+                this.imageUrl = DELETED_IMAGE_THUMB_URL;
                 this.serverFilename = "file_deleted";
                 this.filename = "file_deleted";
                 this.extension = "png";
