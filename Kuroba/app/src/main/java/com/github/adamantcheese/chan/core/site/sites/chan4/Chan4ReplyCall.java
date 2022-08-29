@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
-import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -29,7 +28,6 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonReplyHttpCall;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -61,11 +59,7 @@ public class Chan4ReplyCall
             formBuilder.addFormDataPart("sub", reply.subject);
         }
 
-        formBuilder.addFormDataPart(
-                "com",
-                reply.comment + (AndroidUtils.isAprilFoolsDay() ?
-                        "\n\nSent from my " + Build.MANUFACTURER + " - " + Build.MODEL : "")
-        );
+        formBuilder.addFormDataPart("com", reply.comment);
 
         if (reply.token != null && reply.token.token != null) {
             if (reply.token.challenge != null) {
