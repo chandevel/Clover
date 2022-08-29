@@ -743,6 +743,7 @@ Don't have a 4chan Pass?<br>
     <string name="options_button_sage">Sage</string>
     <string name="options_button_pass">Since4Pass</string>
     <string name="options_button_fortune">Fortune</string>
+    <string name="options_button_dice">Dice</string>
 
     <string name="apply_image_filter_to_post">Apply image hash filters to posts</string>
     <string name="apply_image_filter_to_post_description">Applies image hash filtering to posts themselves as opposed to images</string>

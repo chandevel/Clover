@@ -28,4 +28,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <item name="options_selection_action_sage" type="id" />
     <item name="options_selection_action_pass" type="id" />
     <item name="options_selection_action_fortune" type="id" />
+    <item name="options_selection_action_dice" type="id" />
 </resources>

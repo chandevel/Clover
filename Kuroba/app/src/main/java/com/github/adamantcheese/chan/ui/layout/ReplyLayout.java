@@ -16,6 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getBaseToolTip;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -96,17 +107,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getBaseToolTip;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class ReplyLayout
         extends LoadView
@@ -1021,6 +1021,7 @@ public class ReplyLayout
             private MenuItem sageMenuItem;
             private MenuItem passMenuItem;
             private MenuItem fortuneMenuItem;
+            private MenuItem diceMenuItem;
 
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -1037,6 +1038,13 @@ public class ReplyLayout
                                 R.string.options_button_fortune
                         );
                     }
+                    if (threadLoadable.boardCode.equals("tg") || threadLoadable.boardCode.equals("qst")) {
+                        diceMenuItem = menu.add(Menu.NONE,
+                                R.id.options_selection_action_dice,
+                                4,
+                                R.string.options_button_dice
+                        );
+                    }
                 }
                 return true;
             }
@@ -1050,11 +1058,13 @@ public class ReplyLayout
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
                 String currentText = options.getText() == null ? "" : options.getText().toString();
                 if (item == sageMenuItem) {
-                    options.setText(String.format("%ssage", currentText));
+                    options.setText(String.format("%s sage", currentText));
                 } else if (item == passMenuItem) {
-                    options.setText(String.format("%ssince4pass", currentText));
+                    options.setText(String.format("%s since4pass", currentText));
                 } else if (item == fortuneMenuItem) {
-                    options.setText(String.format("%sfortune", currentText));
+                    options.setText(String.format("%s fortune", currentText));
+                } else if (item == diceMenuItem) {
+                    options.setText(String.format("%s dice+", currentText));
                 }
 
                 return true;
