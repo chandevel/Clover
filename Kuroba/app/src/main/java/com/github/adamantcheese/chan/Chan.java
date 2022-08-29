@@ -16,10 +16,17 @@
  */
 package com.github.adamantcheese.chan;
 
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isEmulator;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static java.lang.Thread.currentThread;
+
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
@@ -53,15 +60,11 @@ import javax.inject.Inject;
 import io.reactivex.exceptions.UndeliverableException;
 import io.reactivex.plugins.RxJavaPlugins;
 
-import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isEmulator;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static java.lang.Thread.currentThread;
-
 public class Chan
         extends Application
         implements DefaultActivityLifecycleCallbacks {
     private int activityForegroundCounter = 0;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Inject
     SiteRepository siteRepository;
@@ -95,6 +98,11 @@ public class Chan
                 throw e;
             }
         }
+    }
+
+    private void postEventBusOneSecondMessage() {
+        EventBus.getDefault().post("TICK");
+        handler.postDelayed(this::postEventBusOneSecondMessage, 1000);
     }
 
     @Override
@@ -237,6 +245,7 @@ public class Chan
 
         if (getApplicationInForeground() != lastForeground) {
             postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
+            postEventBusOneSecondMessage();
         }
     }
 
@@ -251,6 +260,7 @@ public class Chan
 
         if (getApplicationInForeground() != lastForeground) {
             postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
+            handler.removeCallbacks(this::postEventBusOneSecondMessage);
         }
     }
 
@@ -258,6 +268,7 @@ public class Chan
     public void onActivityDestroyed(@NonNull Activity activity) {
         BackgroundUtils.cleanup();
         CancellableToast.cleanup();
+        handler.removeCallbacks(this::postEventBusOneSecondMessage);
     }
 
     public static class ForegroundChangedMessage {

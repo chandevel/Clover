@@ -31,16 +31,15 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.concurrent.TimeUnit;
 
 public class GenericWebViewAuthenticationLayout
         extends WebView
         implements AuthenticationLayoutInterface {
-    public static final int CHECK_INTERVAL = 500;
     private static final long RECAPTCHA_TOKEN_LIVE_TIME = TimeUnit.MINUTES.toMillis(2);
-
-    private final Handler handler = new Handler();
-    private boolean attachedToWindow = false;
 
     private AuthenticationLayoutCallback callback;
     private SiteAuthentication authentication;
@@ -90,7 +89,8 @@ public class GenericWebViewAuthenticationLayout
     public void hardReset() {
     }
 
-    private void checkText() {
+    @Subscribe
+    private void onSystemTick(String tick) {
         loadUrl("javascript:WebInterface.onAllText(document.documentElement.textContent)");
     }
 
@@ -124,44 +124,24 @@ public class GenericWebViewAuthenticationLayout
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-
-        attachedToWindow = true;
-        handler.postDelayed(checkTextRunnable, CHECK_INTERVAL);
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
-        attachedToWindow = false;
-        handler.removeCallbacks(checkTextRunnable);
+        EventBus.getDefault().unregister(this);
     }
 
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-
-        handler.removeCallbacks(checkTextRunnable);
-
         if (hasWindowFocus) {
-            handler.postDelayed(checkTextRunnable, CHECK_INTERVAL);
+            EventBus.getDefault().register(this);
+        } else {
+            EventBus.getDefault().unregister(this);
         }
     }
-
-    private final Runnable checkTextRunnable = new Runnable() {
-        @Override
-        public void run() {
-            checkText();
-            reschedule();
-        }
-
-        private void reschedule() {
-            handler.removeCallbacks(checkTextRunnable);
-            if (attachedToWindow && hasWindowFocus()) {
-                handler.postDelayed(checkTextRunnable, CHECK_INTERVAL);
-            }
-        }
-    };
 
     public static class WebInterface {
         private final GenericWebViewAuthenticationLayout layout;

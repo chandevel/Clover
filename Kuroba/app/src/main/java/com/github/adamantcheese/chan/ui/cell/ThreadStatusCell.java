@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.cell;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Handler;
 import android.text.SpannableStringBuilder;
 import android.util.AttributeSet;
 
@@ -37,27 +36,14 @@ import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 public class ThreadStatusCell
         extends AppCompatTextView {
-    private static final int UPDATE_INTERVAL = 1000;
-    private static final int MESSAGE_INVALIDATE = 1;
-
     private Callback callback;
 
-    private boolean running = false;
-
     private String error;
-    private final Handler handler = new Handler(msg -> {
-        if (msg.what == MESSAGE_INVALIDATE) {
-            if (running && update()) {
-                schedule();
-            }
-
-            return true;
-        } else {
-            return false;
-        }
-    });
 
     public ThreadStatusCell(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -115,25 +101,18 @@ public class ThreadStatusCell
     public void setError(String error) {
         this.error = error;
         update();
-        if (error == null) {
-            schedule();
-        }
     }
 
     @SuppressLint("SetTextI18n")
-    public boolean update() {
+    public void update() {
         if (error != null) {
             setText(error + "\n" + getContext().getString(R.string.thread_refresh_bar_inactive));
-            return false;
         } else {
             ChanThread chanThread = callback.getChanThread();
             if (chanThread == null) {
-                // Recyclerview not clearing immediately or view didn't receive
-                // onDetachedFromWindow.
-                return false;
+                // Recyclerview not clearing immediately or view didn't receive onDetachedFromWindow.
+                return;
             }
-
-            boolean update = false;
 
             SpannableStringBuilder builder = new SpannableStringBuilder();
 
@@ -152,50 +131,28 @@ public class ThreadStatusCell
                 } else {
                     builder.append(getContext().getString(R.string.thread_refresh_countdown, time));
                 }
-                update = true;
             }
 
             builder.append('\n').append(chanThread.summarize(false));
             setText(builder);
-
-            return update;
         }
     }
 
-    private void schedule() {
-        running = true;
-        if (!handler.hasMessages(MESSAGE_INVALIDATE)) {
-            handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_INVALIDATE), UPDATE_INTERVAL);
-        }
-    }
-
-    private void unschedule() {
-        running = false;
-        handler.removeMessages(MESSAGE_INVALIDATE);
+    @Subscribe
+    public void onSystemTick(String tick) {
+        update();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        schedule();
+        EventBus.getDefault().register(this);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        unschedule();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (hasWindowFocus) {
-            if (update()) {
-                schedule();
-            }
-        } else {
-            unschedule();
-        }
+        EventBus.getDefault().unregister(this);
     }
 
     public interface Callback {
