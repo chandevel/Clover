@@ -1,5 +1,9 @@
 package com.github.adamantcheese.chan.core.net;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.concurrent.TimeUnit.DAYS;
+
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
@@ -16,7 +20,6 @@ import org.jsoup.nodes.Document;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -33,8 +36,6 @@ import okio.Buffer;
 import okio.BufferedSource;
 import okio.Okio;
 import okio.Timeout;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This class contains a listing of a bunch of other classes that are used in various helper methods.
@@ -55,10 +56,17 @@ public class NetUtilsClasses {
         public OkHttpClient getHttpRedirectClient() {
             return newBuilder().addInterceptor(new HttpEquivRefreshInterceptor()).build();
         }
+
+        public OkHttpClient getCloudflareClient(Context context) {
+            return newBuilder().addInterceptor(new CloudflareInterceptor(context)).build();
+        }
     }
 
     public static final CacheControl NO_CACHE = new CacheControl.Builder().noStore().build();
-    public static final CacheControl ONE_DAY_CACHE = new CacheControl.Builder().maxAge(1, TimeUnit.DAYS).build();
+    public static final CacheControl ONE_DAY_CACHE =
+            new CacheControl.Builder().maxAge(1, DAYS).maxStale(1, DAYS).build();
+    public static final CacheControl ONE_YEAR_CACHE =
+            new CacheControl.Builder().maxAge(365, DAYS).maxStale(365, DAYS).build();
 
     /**
      * A wrapper sidestepping an OkHttp callback that only returns what we care about.
@@ -75,6 +83,12 @@ public class NetUtilsClasses {
             extends ResponseResult<T> {
         @Override
         default void onFailure(Exception e) {}
+    }
+
+    public interface NullResponseResult<T>
+            extends NoFailResponseResult<T> {
+        @Override
+        default void onSuccess(T result) {}
     }
 
     /**
@@ -277,13 +291,24 @@ public class NetUtilsClasses {
     public static class HttpCodeException
             extends Exception {
         public int code;
+        public boolean hadData;
 
         public HttpCodeException(Response response) {
-            this.code = response.code();
+            code = response.code();
+            try {
+                hadData = response.body().bytes().length != 0;
+            } catch (Exception e) {
+                hadData = false;
+            }
         }
 
         public boolean isServerErrorNotFound() {
             return code == 404;
+        }
+
+        @Override
+        public String getMessage() {
+            return HttpStatusCodesKt.getCODE_MAP_TO_NAME().get(code) + (hadData ? " with data" : "");
         }
     }
 

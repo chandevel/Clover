@@ -10,6 +10,7 @@ import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVER
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_YEAR_CACHE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.lang.Runtime.getRuntime;
 import static okhttp3.Protocol.HTTP_1_1;
@@ -26,7 +27,6 @@ import androidx.core.util.Pair;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.OkHttpClientWithUtils;
@@ -126,6 +126,19 @@ public class NetUtils {
             expiredList.add(rebuildCookie(c).expiresAt(0).build());
         }
         NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
+        NetUtils.applicationClient.cookieJar().loadForRequest(url);
+    }
+
+    public static void clearCookies(HttpUrl url, List<String> cookieNames) {
+        List<Cookie> cookieList = NetUtils.applicationClient.cookieJar().loadForRequest(url);
+        List<Cookie> expiredList = new ArrayList<>();
+        for (Cookie c : cookieList) {
+            if (cookieNames.contains(c.name())) {
+                expiredList.add(rebuildCookie(c).expiresAt(0).build());
+            }
+        }
+        NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
+        NetUtils.applicationClient.cookieJar().loadForRequest(url);
     }
 
     // TODO remove this in the future when OkHttp updates, since Cookie will have a builder method then
@@ -328,7 +341,7 @@ public class NetUtils {
         }).build();
         Call call = client.newCall(new Request.Builder().url(url)
                 .addHeader("Referer", url.toString())
-                .cacheControl(new CacheControl.Builder().maxStale(365, TimeUnit.DAYS).build())
+                .cacheControl(ONE_YEAR_CACHE)
                 .build());
         Callback callback = new Callback() {
             @Override

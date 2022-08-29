@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.js"></script>
+    <script src="https://github.com/AUTOMATIC1111/4chan-captcha-solver/raw/slaveowner/4chan-captcha-solver.user.js" defer></script>
+    <!--<script src="https://git.coom.tech/araragi/JKCS/raw/branch/master/dist/main.js" defer></script>-->
+    <script>function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));}
+    </script>
+</head>
+<body>
+<div id="quickReply" class="extPanel reply" data-trackpos="QR-position" style="right: 0px; top: 10%;">
+    <form name="qrPost" action="https://sys.4chan.org/b/post" method="post" enctype="multipart/form-data">
+        <div id="qrForm">
+            <div id="qrCaptchaContainer" class="t-qr-root" style="position: relative;">
+                <input
+                        id="t-resp"
+                        name="t-response"
+                        placeholder="Type the CAPTCHA here"
+                        autocomplete="off"
+                        type="text"
+                        style="width: 160px; box-sizing: border-box; text-transform: uppercase; font-size: 11px; height: 18px; margin: 0px; padding: 0px 2px; font-family: monospace; vertical-align: middle;"
+                />
+                <button id="t-help" type="button"
+                        style="font-size: 11px; padding: 0px; width: 20px; box-sizing: border-box; margin: 0px 0px 0px 6px; vertical-align: middle; height: 18px;"
+                        data-tip="Help" tabindex="-1">?
+                </button>
+                <div id="t-cnt"
+                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 229px;">
+                    <div
+                            id="t-bg"
+                            style="
+                            width: 100%;
+                            height: 100%;
+                            position: absolute;
+                            background-repeat: no-repeat;
+                            background-position: 0px top;
+							background-image: url('data:image/png;base64,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');
+							"
+                    ></div>
+                    <div
+                            id="t-fg"
+                            style="
+                            width: 100%;
+                            height: 100%;
+                            position: absolute;
+                            background-repeat: no-repeat;
+                            background-position: left top;
+							background-image: url('data:image/png;base64,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');
+							"
+                    ></div>
+                </div>
+                <input id="t-slider" autocomplete="off" type="range"
+                       style="width: 100%; box-sizing: border-box; margin: 0px; transition: box-shadow 10s ease-out 0s; position: relative;"
+                       min="0" max="100"/>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html> 

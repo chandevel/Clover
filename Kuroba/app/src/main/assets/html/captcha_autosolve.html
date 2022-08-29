@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.js"></script>
+    <script src="https://github.com/AUTOMATIC1111/4chan-captcha-solver/raw/slaveowner/4chan-captcha-solver.user.js" defer></script>
+    <!--<script src="https://git.coom.tech/araragi/JKCS/raw/branch/master/dist/main.js" defer></script>-->
+    <script>function sleep(ms) {
+		return new Promise(resolve => setTimeout(resolve, ms));}
+    </script>
+</head>
+<body>
+<div id="quickReply" class="extPanel reply" data-trackpos="QR-position" style="right: 0px; top: 10%;">
+    <form name="qrPost" action="https://sys.4chan.org/b/post" method="post" enctype="multipart/form-data">
+        <div id="qrForm">
+            <div id="qrCaptchaContainer" class="t-qr-root" style="position: relative;">
+                <input
+                        id="t-resp"
+                        name="t-response"
+                        placeholder="Type the CAPTCHA here"
+                        autocomplete="off"
+                        type="text"
+                        style="width: 160px; box-sizing: border-box; text-transform: uppercase; font-size: 11px; height: 18px; margin: 0px; padding: 0px 2px; font-family: monospace; vertical-align: middle;"
+                />
+                <button id="t-help" type="button"
+                        style="font-size: 11px; padding: 0px; width: 20px; box-sizing: border-box; margin: 0px 0px 0px 6px; vertical-align: middle; height: 18px;"
+                        data-tip="Help" tabindex="-1">?
+                </button>
+                <div id="t-cnt"
+                     style="height: 80px; margin-top: 2px; position: relative; display: block; width: 229px;">
+                    <div
+                            id="t-bg"
+                            style="
+                            width: 100%;
+                            height: 100%;
+                            position: absolute;
+                            background-repeat: no-repeat;
+                            background-position: 0px top;"
+                    ></div>
+                    <div
+                            id="t-fg"
+                            style="
+                            width: 100%;
+                            height: 100%;
+                            position: absolute;
+                            background-repeat: no-repeat;
+                            background-position: left top;"
+                    ></div>
+                </div>
+                <input id="t-slider" autocomplete="off" type="range"
+                       style="width: 100%; box-sizing: border-box; margin: 0px; transition: box-shadow 10s ease-out 0s; position: relative;"
+                       min="0" max="100"/>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html> 

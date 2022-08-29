@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.adamantcheese.chan.ui.captcha.Chan4CustomJasonlayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="?backcolor"
     android:orientation="vertical"
-    android:paddingHorizontal="32dp">
+    android:paddingHorizontal="40dp">
 
     <TextView
         android:id="@+id/top_text"
@@ -18,41 +18,29 @@
         tools:text="Enter the text below." />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/wrapper"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="80dp">
 
         <ImageView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="#eeeeee"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:id="@+id/color_match"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@color/md_grey_200" />
 
         <ImageView
             android:id="@+id/bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/bg" />
+            android:scaleType="matrix"
+            tools:src="@drawable/bg"
+            tools:translationX="-35dp" />
 
         <ImageView
             android:id="@+id/fg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:src="@drawable/fg"
-            tools:translationX="21dp" />
+            android:scaleType="matrix"
+            tools:src="@drawable/fg" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <SeekBar
@@ -60,25 +48,28 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="24dp"
-        android:max="50"
-        android:progress="25"
+        android:max="100"
+        android:progress="1"
         android:visibility="gone"
         tools:visibility="visible" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/captcha_input_container"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_weight="5">
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/autosolve"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/captcha_input"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center"
                 android:hint="@string/reply_captcha_text"
                 android:imeOptions="actionDone"
@@ -87,17 +78,30 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <Button
+            android:id="@+id/autosolve"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:background="@drawable/ripple_item_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/verify"
+            app:layout_constraintStart_toEndOf="@id/captcha_input_container"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Solve" />
+
         <ImageView
             android:id="@+id/verify"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:background="@drawable/ripple_item_background"
             android:padding="18dp"
             android:src="@drawable/ic_fluent_send_24_filled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:tint="?attr/themeDrawableColor" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-</com.github.adamantcheese.chan.ui.captcha.CustomJsonLayout>
+</com.github.adamantcheese.chan.ui.captcha.Chan4CustomJasonlayout>

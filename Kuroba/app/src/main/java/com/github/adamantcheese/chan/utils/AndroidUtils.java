@@ -16,6 +16,17 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import static android.content.Context.AUDIO_SERVICE;
+import static android.content.Context.CLIPBOARD_SERVICE;
+import static android.content.Context.INPUT_METHOD_SERVICE;
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
+import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
@@ -48,6 +59,8 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.CookieManager;
+import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -60,6 +73,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
 
@@ -69,17 +83,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
-import static android.content.Context.AUDIO_SERVICE;
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.NOTIFICATION_SERVICE;
-import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 public class AndroidUtils {
     private static final String CHAN_STATE_PREFS_NAME = "chan_state";
@@ -554,5 +557,31 @@ public class AndroidUtils {
 
     public static Snackbar buildCommonSnackbar(View view, int message, int actionResId, View.OnClickListener action) {
         return buildCommonSnackbar(view, getString(message), actionResId, action);
+    }
+
+    public static boolean supportsWebView() {
+        try {
+            CookieManager.getInstance();
+        } catch (Exception e) {
+            return false;
+        }
+        return application.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WEBVIEW);
+    }
+
+    public static boolean removeViewChildrenWithClass(ViewGroup root, Class<? extends View> c) {
+        boolean removedSomething = false;
+        for (int i = root.getChildCount() - 1; i >= 0; i--) {
+            View child = root.getChildAt(i);
+            if (c.isInstance(child)) {
+                removedSomething = true;
+                root.removeView(child);
+                if (child instanceof StyledPlayerView) {
+                    ((StyledPlayerView) child).getPlayer().release();
+                } else if (child instanceof WebView) {
+                    ((WebView) child).destroy();
+                }
+            }
+        }
+        return removedSomething;
     }
 }

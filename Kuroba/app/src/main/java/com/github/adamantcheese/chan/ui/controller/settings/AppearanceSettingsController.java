@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
@@ -34,10 +38,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AppearanceSettingsController
         extends SettingsController {
@@ -127,6 +127,18 @@ public class AppearanceSettingsController
                     ChanSettings.captchaOnBottom,
                     "Bottom captcha",
                     "Makes the JS captcha float to the bottom of the screen"
+            ));
+
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.captchaMatchColors,
+                    "Match captcha color",
+                    "Match the captcha's background color to the current theme"
+            ));
+
+            layout.add(new BooleanSettingView(this,
+                    ChanSettings.captchaInvertColors,
+                    "Invert captcha color",
+                    "Change from black text on white to white text on black"
             ));
 
             requiresRestart.add(layout.add(new BooleanSettingView(this,
