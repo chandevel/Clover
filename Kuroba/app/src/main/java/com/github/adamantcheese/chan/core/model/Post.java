@@ -343,6 +343,11 @@ public class Post
         }
     }
 
+    @SuppressWarnings("unused")
+    public String threadUrl() {
+        return board.site.resolvable().desktopUrl(Loadable.forThread(board, opId, title, false), no);
+    }
+
     @SuppressWarnings("UnusedReturnValue")
     public static final class Builder
             implements Cloneable {
@@ -359,8 +364,8 @@ public class Post
         public boolean archived;
         public long lastModified = -1L;
 
-        public String subject = "";
-        public String name = "";
+        private String subject = "";
+        private String name = "";
         public Spannable comment = new SpannableString("");
         public String tripcode = "";
 
@@ -452,8 +457,12 @@ public class Post
         }
 
         public Builder subject(String subject) {
-            this.subject = subject;
+            this.subject = Parser.unescapeEntities(subject, false);
             return this;
+        }
+
+        public String getSubject() {
+            return subject;
         }
 
         public Builder name(String name) {
@@ -462,11 +471,16 @@ public class Post
             } else {
                 this.name = name;
             }
+            this.name = Parser.unescapeEntities(this.name, false);
             return this;
         }
 
+        public String getName() {
+            return name;
+        }
+
         public Builder comment(CharSequence comment) {
-            this.comment = new SpannableStringBuilder(comment);
+            this.comment = new SpannableString(comment);
             return this;
         }
 
@@ -571,6 +585,10 @@ public class Post
             List<PostLinkable> linkables = new ArrayList<>();
             Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
             return linkables;
+        }
+
+        public String threadUrl() {
+            return board.site.resolvable().desktopUrl(Loadable.forThread(board, opId, "", false), no);
         }
 
         @SuppressWarnings("MethodDoesntCallSuperMethod")

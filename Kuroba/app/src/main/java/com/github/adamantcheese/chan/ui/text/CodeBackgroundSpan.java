@@ -10,20 +10,16 @@ import android.text.style.TypefaceSpan;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class CodeBackgroundSpan
         extends TypefaceSpan
         implements LineBackgroundSpan {
     private final int color;
 
-    public CodeBackgroundSpan(Theme theme) {
+    public CodeBackgroundSpan(int color) {
         super("monospace");
-        this.color = getAttrColor(theme.resValue, R.attr.backcolor_secondary);
+        this.color = color;
     }
 
     @Override
@@ -51,9 +47,9 @@ public class CodeBackgroundSpan
         int spanEnd = lineText.getSpanEnd(this); // where this span ends on this line
         CharSequence preText = lineText.subSequence(0, spanStart); // the text that is before this span
         CharSequence spanned = lineText.subSequence(spanStart, spanEnd); // the text spanned in this line
-        float preSpannedWidth = paint.measureText(preText, 0, preText.length());
-        float newLeft = left + preSpannedWidth;
-        boolean lineMatchesSpanned = TextUtils.equals(StringUtils.chomp(spanned), StringUtils.chomp(lineText));
+        float preSpannedWidth = paint.measureText(preText, 0, preText.length()); // the width of the text before the span
+        float newLeft = left + preSpannedWidth; // the starting point of the span on the line
+        boolean lineMatchesSpanned = TextUtils.equals(StringUtils.chomp(spanned), StringUtils.chomp(lineText)); // does the span fill the whole line?
 
         // draw background
         // if the text (minus any end newlines) matches exactly, set the background to the entire line

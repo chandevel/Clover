@@ -48,6 +48,7 @@ import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 
 import javax.inject.Inject;
 
@@ -168,18 +169,15 @@ public class MainSettingsController
     private void setupAboutGroup() {
         SettingsGroup about = new SettingsGroup(R.string.settings_group_about);
 
-        LinkSettingView updateSettingView = new LinkSettingView(this,
-                BuildConfig.APP_LABEL + " " + BuildConfig.VERSION_NAME,
-                "Tap to check for updates",
-                (v, sv) -> {
+        LinkSettingView updateSettingView =
+                new LinkSettingView(this, BuildConfigUtils.VERSION, "Tap to check for updates", (v, sv) -> {
                     ((StartActivity) context).getUpdateManager().manualUpdateCheck();
                     if (PersistableChanState.noFunAllowed.get()) return;
                     showToast(context, "Shoutouts to  nnuudev and BlueClover!");
                     for (int i = 0; i < 10; i++) {
                         addPony(i);
                     }
-                }
-        );
+                });
         updateSettingView.forType.addType(APK_UPDATE);
         about.add(updateSettingView);
 

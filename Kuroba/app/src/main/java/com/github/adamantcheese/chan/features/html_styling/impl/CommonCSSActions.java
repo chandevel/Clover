@@ -1,12 +1,18 @@
-package com.github.adamantcheese.chan.core.site.parser.style;
+package com.github.adamantcheese.chan.features.html_styling.impl;
+
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.BOLD;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.graphics.Color;
-import android.text.SpannedString;
 import android.text.TextUtils;
 
 import androidx.core.graphics.ColorUtils;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
+import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -18,20 +24,19 @@ import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.BOLD;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
-
-public class CSSActions {
-    public static final StyleAction CSS_SIZE_ATTR = (element, text, theme, post, callback) -> {
+/**
+ * A bunch of common CSS style actions, taking into account the "style" attribute.
+ * Also the "font" tag uses the same styling actions.
+ */
+public class CommonCSSActions {
+    private static final StyleAction CSS_SIZE_ATTR = (element, text) -> {
         String size = element.attr("size");
         boolean relative = StringUtils.containsAny(size, "+", "-");
         int sz = (relative ? 3 : 0) + Integer.parseInt(size);
         return span(text, new RelativeSizeSpanHashed(sz / 3f));
     };
 
-    private static final StyleAction CSS_FONT_SIZE_ATTR = (element, text, theme, post, callback) -> {
+    private static final StyleAction CSS_FONT_SIZE_ATTR = (element, text) -> {
         // for all rules, cap to range 25% - 175%
         String size = element.attr("font-size");
         if (size.contains("%")) {
@@ -39,17 +44,16 @@ public class CSSActions {
                     Math.max(Math.min(Float.parseFloat(size.substring(0, size.indexOf("%"))) / 100f, 1.75f), 0.25f);
             return span(text, new RelativeSizeSpanHashed(scale));
         } else if (size.contains("px")) {
-            int sizePx = (int) Math.max(Math.min(
-                    dp(Float.parseFloat(size.substring(0, size.indexOf("px")))),
+            int sizePx = (int) Math.max(Math.min(dp(Float.parseFloat(size.substring(0, size.indexOf("px")))),
                     sp(ChanSettings.fontSize.get()) * 1.75f
             ), sp(ChanSettings.fontSize.get()) * 0.25f);
             return span(text, new AbsoluteSizeSpanHashed(sizePx));
         } else if (size.contains("pt")) {
             // 1pt = 1.33px
-            int sizeDP = (int) Math.max(Math.min(
-                    dp((Float.parseFloat(size.substring(0, size.indexOf("pt"))) * 4f) / 3f),
-                    sp(ChanSettings.fontSize.get()) * 1.75f
-            ), sp(ChanSettings.fontSize.get()) * 0.25f);
+            int sizeDP =
+                    (int) Math.max(Math.min(dp((Float.parseFloat(size.substring(0, size.indexOf("pt"))) * 4f) / 3f),
+                            sp(ChanSettings.fontSize.get()) * 1.75f
+                    ), sp(ChanSettings.fontSize.get()) * 0.25f);
             return span(text, new AbsoluteSizeSpanHashed(sizeDP));
         } else {
             float scale = 1f;
@@ -66,7 +70,8 @@ public class CSSActions {
                     scale -= scalarUnit;
                     break;
                 case "medium":
-                    scale = 1f; //100%
+                default:
+                    //100%
                     break;
                 case "large":
                 case "larger":
@@ -78,19 +83,17 @@ public class CSSActions {
                 case "xx-large":
                     scale += 3 * scalarUnit; // 175%
                     break;
-                default:
-                    break;
             }
             return span(text, new RelativeSizeSpanHashed(scale));
         }
     };
 
-    public static final StyleAction CSS_COLOR_ATTR_FG = (element, text, theme, post, callback) -> {
+    private static final StyleAction CSS_COLOR_ATTR_FG = (element, text) -> {
         int colorInt = getColorFromAttr(element);
         return span(text, colorInt == 0 ? null : new ForegroundColorSpanHashed(colorInt));
     };
 
-    public static final StyleAction CSS_COLOR_ATTR_BG = (element, text, theme, post, callback) -> {
+    private static final StyleAction CSS_COLOR_ATTR_BG = (element, text) -> {
         int colorInt = getColorFromAttr(element);
         return span(text, colorInt == 0 ? null : new BackgroundColorSpanHashed(colorInt));
     };
@@ -121,10 +124,12 @@ public class CSSActions {
         return colorInt;
     }
 
-    public static final StyleAction INLINE_CSS = (element, text, theme, post, callback) -> {
+    public static final StyleAction FONT = new ChainStyleAction(CSS_SIZE_ATTR).chain(CSS_COLOR_ATTR_FG);
+
+    public static final StyleAction INLINE_CSS = (element, text) -> {
         String style = element.attr("style");
         style = style.replace(" ", "");
-        if (TextUtils.isEmpty(style)) return new SpannedString(text);
+        if (TextUtils.isEmpty(style)) return text == null ? "" : text;
         String[] styles = style.split(";");
         Element temp = new Element(element.nodeName());
         for (String s : styles) {
@@ -140,13 +145,13 @@ public class CSSActions {
             try {
                 switch (a.getKey()) {
                     case "color":
-                        text = CSS_COLOR_ATTR_FG.style(temp, text, theme, post, callback);
+                        text = CSS_COLOR_ATTR_FG.style(temp, text);
                         break;
                     case "font-weight":
-                        text = BOLD.style(temp, text, theme, post, callback);
+                        text = BOLD.style(temp, text);
                         break;
                     case "font-size":
-                        text = CSS_FONT_SIZE_ATTR.style(temp, text, theme, post, callback);
+                        text = CSS_FONT_SIZE_ATTR.style(temp, text);
                         break;
                     default:
                         break; // ignore anything else
@@ -155,6 +160,6 @@ public class CSSActions {
                 Logger.d("INLINE_CSS", "Failed to apply style " + a);
             }
         }
-        return new SpannedString(text);
+        return text == null ? "" : text;
     };
 }

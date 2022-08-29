@@ -56,7 +56,7 @@ public class Lainchan
 
     public Lainchan() {
         setName("Lainchan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://lainchan.org/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://lainchan.org/favicon.ico")));
     }
 
     @Override
@@ -99,6 +99,6 @@ public class Lainchan
             }
         });
         setApi(new VichanApi(this));
-        setParser(new VichanPostParser());
+        setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

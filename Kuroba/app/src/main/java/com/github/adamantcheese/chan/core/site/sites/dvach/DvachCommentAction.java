@@ -1,9 +1,9 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.STRIKETHROUGH;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.UNDERLINE;
 
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.STRIKETHROUGH;
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.UNDERLINE;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
 
 public class DvachCommentAction
         extends VichanCommentAction {

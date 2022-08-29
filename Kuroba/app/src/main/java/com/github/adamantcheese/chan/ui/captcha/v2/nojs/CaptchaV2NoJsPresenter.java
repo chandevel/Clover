@@ -16,12 +16,19 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -34,10 +41,6 @@ import okhttp3.MultipartBody;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class CaptchaV2NoJsPresenter {
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
@@ -197,16 +200,16 @@ public class CaptchaV2NoJsPresenter {
             throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(URLEncoder.encode("c", "utf-8"));
-        sb.append("=");
-        sb.append(URLEncoder.encode(prevCaptchaV2NoJsInfo.cParameter, "utf-8"));
-        sb.append("&");
+        sb.append(URLEncoder.encode("c", "utf-8"))
+                .append("=")
+                .append(URLEncoder.encode(prevCaptchaV2NoJsInfo.cParameter, "utf-8"))
+                .append("&");
 
         for (Integer selectedImageId : selectedIds) {
-            sb.append(URLEncoder.encode("response", "utf-8"));
-            sb.append("=");
-            sb.append(URLEncoder.encode(String.valueOf(selectedImageId), "utf-8"));
-            sb.append("&");
+            sb.append(URLEncoder.encode("response", "utf-8"))
+                    .append("=")
+                    .append(URLEncoder.encode(String.valueOf(selectedImageId), "utf-8"))
+                    .append("&");
         }
 
         String resultBody;
@@ -233,23 +236,12 @@ public class CaptchaV2NoJsPresenter {
                 return null;
             }
 
-            ResponseBody body = response.body();
-            if (body == null) {
-                if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(new IOException("Captcha response body is empty (null)"));
-                }
+            Document captchaPage = Jsoup.parse(response.body().string(), response.request().url().toString());
+            Elements prefilled = captchaPage.select(".fbc-verification-token");
 
-                return null;
-            }
-
-            String bodyString = body.string();
-            if (!bodyString.contains("reCAPTCHA challenge")) {
-                throw new IllegalStateException("Response body does not contain \"reCAPTCHA challenge\" string");
-            }
-
-            if (bodyString.contains("fbc-verification-token")) {
+            if (!prefilled.isEmpty()) {
                 // got the token
-                String verificationToken = parser.parseVerificationToken(bodyString);
+                String verificationToken = prefilled.text();
                 Logger.d(this, "Got the verification token");
 
                 if (callbacks != null) {
@@ -259,7 +251,7 @@ public class CaptchaV2NoJsPresenter {
                 return null;
             } else {
                 // got the challenge
-                CaptchaV2NoJsInfo captchaV2NoJsInfo = parser.parseHtml(bodyString, siteKey);
+                CaptchaV2NoJsInfo captchaV2NoJsInfo = parser.parseDocument(captchaPage);
                 Logger.d(this, "Got new challenge");
 
                 if (callbacks != null) {

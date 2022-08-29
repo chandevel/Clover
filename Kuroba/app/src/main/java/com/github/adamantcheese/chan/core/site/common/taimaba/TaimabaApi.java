@@ -12,7 +12,6 @@ import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,15 +24,8 @@ import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument
 
 public class TaimabaApi
         extends CommonSite.CommonApi {
-    private final HtmlElementAction elementAction = new TaimabaCommentAction();
-
     public TaimabaApi(CommonSite commonSite) {
         super(commonSite);
-    }
-
-    @Override
-    public HtmlElementAction getElementAction() {
-        return elementAction;
     }
 
     @Override

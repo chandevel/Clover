@@ -63,7 +63,7 @@ public class Chan420
 
     public Chan420() {
         setName("420Chan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://420chan.org/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://420chan.org/favicon.ico")));
     }
 
     @Override
@@ -111,6 +111,6 @@ public class Chan420
             }
         });
         setApi(new TaimabaApi(this));
-        setParser(new VichanPostParser());
+        setParser(new VichanPostParser(new TaimabaCommentAction()));
     }
 }

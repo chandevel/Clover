@@ -71,8 +71,6 @@ public class ChanReaderParser
     private final List<Post> cached;
     private final ChanReader reader;
 
-    private final List<Filter> filters;
-
     /**
      * @param loadable    The loadable associated with this parser
      * @param cachedPosts A list of cached posts; may be an empty list for no cached post processing
@@ -85,15 +83,6 @@ public class ChanReaderParser
         this.loadable = loadable;
         cached = new ArrayList<>(cachedPosts);
         this.reader = reader == null ? this.loadable.site.chanReader() : reader;
-
-        filters = new ArrayList<>();
-        List<Filter> enabledFilters = filterEngine.getEnabledFilters();
-        for (Filter filter : enabledFilters) {
-            if (filterEngine.matchesBoard(filter, this.loadable.board)) {
-                // copy the filter because it will get used on other threads
-                filters.add(filter.clone());
-            }
-        }
     }
 
     @Override
@@ -152,10 +141,9 @@ public class ChanReaderParser
         final Theme currentTheme = ThemeHelper.getTheme();
 
         for (Post.Builder post : toParse) {
-            tasks.add(new PostParseCallable(filters,
-                    databaseSavedReplyManager,
+            tasks.add(new PostParseCallable(databaseSavedReplyManager,
                     post,
-                    reader,
+                    reader.getParser(),
                     removedPosts,
                     internalNums,
                     currentTheme

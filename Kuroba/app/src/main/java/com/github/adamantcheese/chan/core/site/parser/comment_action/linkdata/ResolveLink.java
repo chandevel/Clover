@@ -1,10 +1,12 @@
-package com.github.adamantcheese.chan.core.site.parser.style.comment;
+package com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 
 /**
@@ -22,18 +24,20 @@ public class ResolveLink {
         this.postId = postId;
     }
 
-    public void resolve(@NonNull ResolveLink sourceLink, @NonNull ResolveCallback callback) {
+    public void resolve(
+            @NonNull ResolveLink sourceLink, @NonNull NoFailResponseResult<ThreadLink> callback
+    ) {
         NetUtils.makeJsonRequest(
                 site.endpoints().resolvePost(boardCode, postId),
-                new NetUtilsClasses.MainThreadResponseResult<>(new NetUtilsClasses.ResponseResult<ThreadLink>() {
+                new MainThreadResponseResult<>(new ResponseResult<ThreadLink>() {
                     @Override
                     public void onFailure(Exception e) {
-                        callback.onProcessed(null);
+                        callback.onSuccess(null);
                     }
 
                     @Override
                     public void onSuccess(ThreadLink result) {
-                        callback.onProcessed(result);
+                        callback.onSuccess(result);
                     }
                 }),
                 input -> sourceLink.site.resolvable().resolveToThreadLink(sourceLink, input),
@@ -41,9 +45,5 @@ public class ResolveLink {
                 null,
                 5000
         );
-    }
-
-    public interface ResolveCallback {
-        void onProcessed(@Nullable ThreadLink result);
     }
 }

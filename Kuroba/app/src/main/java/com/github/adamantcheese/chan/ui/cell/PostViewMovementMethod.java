@@ -1,5 +1,8 @@
 package com.github.adamantcheese.chan.ui.cell;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -16,8 +19,6 @@ import com.github.adamantcheese.chan.core.model.PostLinkable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
-import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
 
 /**
  * A MovementMethod that searches for PostLinkables.<br>
@@ -100,7 +101,7 @@ public class PostViewMovementMethod
                             BACKGROUND_SPAN,
                             buffer.getSpanStart(linkable1),
                             buffer.getSpanEnd(linkable1),
-                            SPAN_INCLUSIVE_EXCLUSIVE
+                            makeSpanOptions(DEFAULT_PRIORITY)
                     );
                 } else {
                     cleanHighlightSpannable(buffer);

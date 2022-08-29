@@ -16,10 +16,18 @@
  */
 package com.github.adamantcheese.chan.core.site.parser;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.os.Build;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
-import android.text.SpannedString;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.view.View;
@@ -28,14 +36,16 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlDocumentAction;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -43,25 +53,18 @@ import com.github.adamantcheese.chan.ui.text.RoundedBackgroundSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import org.jsoup.Jsoup;
-import org.jsoup.parser.Parser;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import static android.text.Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
-
 public class PostParser {
     @Inject
     private FilterEngine filterEngine;
+
+    private final ChanCommentAction elementAction;
+    private List<Filter> filters;
 
     // All of these have one matching group associated with the text they need to work
     // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
@@ -77,49 +80,53 @@ public class PostParser {
 
     /**
      * Construct a new post parser, with the given action for styling parsed comments.
-     *
      */
-    public PostParser() {
+    public PostParser(ChanCommentAction elementAction) {
+        this.elementAction = elementAction;
         inject(this);
     }
 
+    public PostParser withFilters(Filter... filters) {
+        this.filters = Arrays.asList(filters);
+        return this;
+    }
+
     public Post parse(
-            Post.Builder builder, @NonNull Theme theme, HtmlElementAction elementAction, List<Filter> filters, Callback callback
+            Post.Builder builder, @NonNull Theme theme, Callback callback
     ) {
-        if (!TextUtils.isEmpty(builder.name)) {
-            builder.name = Parser.unescapeEntities(builder.name, false);
-        }
-
-        if (!TextUtils.isEmpty(builder.subject)) {
-            builder.subject = Parser.unescapeEntities(builder.subject, false);
-        }
-
+        // needed for "Apply to own posts" to work correctly
+        builder.isSavedReply(callback.isSaved(builder.no));
         parseInfoSpans(theme, builder);
-        builder.comment = new SpannableString(parseComment(theme, builder, callback, elementAction));
+        builder.comment = new SpannableString(parseComment(builder, theme, callback));
 
         // process any removed posts, and remove any linkables/spans attached
         for (PostLinkable l : builder.getLinkables()) {
             if (l.type == Type.QUOTE) {
                 if (callback.isRemoved((int) l.value)) {
                     builder.repliesToNos.remove((int) l.value);
-                    builder.comment.setSpan(new PostLinkable(theme, new Object(), Type.OTHER) {
-                        @Override
-                        public void onClick(@NonNull View widget) {
-                            showToast(widget.getContext(), "This post has been removed.");
-                        }
+                    builder.comment.setSpan(
+                            new PostLinkable(theme, new Object(), Type.OTHER) {
+                                @Override
+                                public void onClick(@NonNull View widget) {
+                                    showToast(widget.getContext(), "This post has been removed.");
+                                }
 
-                        @Override
-                        public void updateDrawState(@NonNull TextPaint textPaint) {
-                            super.updateDrawState(textPaint);
-                            textPaint.setStrikeThruText(true);
-                        }
-                    }, builder.comment.getSpanStart(l), builder.comment.getSpanEnd(l), SPAN_INCLUSIVE_EXCLUSIVE);
+                                @Override
+                                public void updateDrawState(@NonNull TextPaint textPaint) {
+                                    super.updateDrawState(textPaint);
+                                    textPaint.setStrikeThruText(true);
+                                }
+                            },
+                            builder.comment.getSpanStart(l),
+                            builder.comment.getSpanEnd(l),
+                            makeSpanOptions(DEFAULT_PRIORITY)
+                    );
                     builder.comment.removeSpan(l);
                 }
             }
         }
 
-        processPostFilter(filters, builder);
+        processPostFilter(builder);
 
         return builder.build();
     }
@@ -142,9 +149,9 @@ public class PostParser {
             builder.tripcode("");
         }
 
-        if (!TextUtils.isEmpty(builder.name) && (!builder.name.equals(defaultName)
+        if (!TextUtils.isEmpty(builder.getName()) && (!builder.getName().equals(defaultName)
                 || ChanSettings.showAnonymousName.get())) {
-            nameTripcodeIdCapcodeSpan.append(span(builder.name, new ForegroundColorSpanHashed(theme.nameColor)))
+            nameTripcodeIdCapcodeSpan.append(span(builder.getName(), new ForegroundColorSpanHashed(theme.nameColor)))
                     .append("  ");
         }
 
@@ -181,17 +188,19 @@ public class PostParser {
             )).append("  ");
         }
 
-        if (!TextUtils.isEmpty(builder.subject)) {
+        if (!TextUtils.isEmpty(builder.getSubject())) {
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
             Object foregroundSpan = builder.filterStub ? null : new ForegroundColorSpanHashed(theme.subjectColor);
-            builder.spans(span(builder.subject, foregroundSpan), nameTripcodeIdCapcodeSpan);
+            builder.spans(span(builder.getSubject(), foregroundSpan), nameTripcodeIdCapcodeSpan);
         } else {
             builder.spans(null, nameTripcodeIdCapcodeSpan);
         }
     }
 
-    private SpannedString parseComment(@NonNull Theme theme, Post.Builder post, Callback callback, HtmlElementAction elementAction) {
-        String comment = post.comment.toString().replace("<wbr>", "");
+    private CharSequence parseComment(
+            Post.Builder post, @NonNull Theme theme, Callback callback
+    ) {
+        String comment = post.comment.toString();
         // modifiers for HTML
         if (ChanSettings.parseExtraQuotes.get()) {
             comment = extraQuotePattern.matcher(comment).replaceAll(createQuoteElementString(post));
@@ -207,19 +216,16 @@ public class PostParser {
             comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
         }
 
-        return new HtmlDocumentAction(elementAction).style(Jsoup.parseBodyFragment(comment),
-                null,
-                theme,
-                post,
-                callback
-        );
+        return new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, callback),
+                CommonStyleActions.getDefaultTextStylingAction(theme)
+        ).style(comment, post.threadUrl());
     }
 
-    private void processPostFilter(List<Filter> filters, Post.Builder post) {
+    private void processPostFilter(Post.Builder post) {
+        if (filters == null) filters = filterEngine.getEnabledFilters();
         for (Filter f : filters) {
-            FilterEngine.FilterAction action = FilterEngine.FilterAction.forId(f.action);
-            if (filterEngine.matches(f, post)) {
-                switch (action) {
+            if (filterEngine.matchesBoard(f, post.board) && filterEngine.matches(f, post)) {
+                switch (FilterAction.values()[f.action]) {
                     case COLOR:
                         post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
                         break;

@@ -13,8 +13,7 @@ import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,17 +26,11 @@ import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument
 
 public class FutabaChanReader
         implements ChanReader {
-    private final PostParser postParser = new PostParser();
-    private final HtmlElementAction elementAction = new ChanCommentAction();
+    private final PostParser postParser = new PostParser(new ChanCommentAction());
 
     @Override
     public PostParser getParser() {
         return postParser;
-    }
-
-    @Override
-    public HtmlElementAction getElementAction() {
-        return elementAction;
     }
 
     @Override

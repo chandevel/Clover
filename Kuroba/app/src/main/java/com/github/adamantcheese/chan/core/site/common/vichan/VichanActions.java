@@ -86,7 +86,7 @@ public class VichanActions
     public void prepare(
             MultipartHttpCall<ReplyResponse> call, Loadable loadable, NetUtilsClasses.ResponseResult<Void> callback
     ) {
-        VichanAntispam antispam = new VichanAntispam(HttpUrl.parse(loadable.desktopUrl()));
+        VichanAntispam antispam = new VichanAntispam(HttpUrl.get(loadable.desktopUrl()));
         antispam.addDefaultIgnoreFields();
         antispam.get(new ResponseResult<Map<String, String>>() {
             @Override

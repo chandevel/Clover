@@ -16,17 +16,24 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.INLINE_QUOTE_COLOR;
 
-import java.util.regex.Pattern;
-
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
+import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 
 public class VichanCommentAction
         extends ChanCommentAction {
-    public VichanCommentAction() {
-        super();
-        setFullQuotePattern(Pattern.compile("/(\\w+)/\\w+/(\\d+)\\.html#(\\d+)"));
-        mapTagToRule("p", "quote", INLINE_QUOTE_COLOR);
+
+    @Override
+    public HtmlTagAction addSpecificActions(
+            Theme theme, Post.Builder post, PostParser.Callback callback
+    ) {
+        HtmlTagAction base = super.addSpecificActions(theme, post, callback);
+        HtmlTagAction newAction = new HtmlTagAction(false);
+        newAction.mapTagToRule("p", "quote", INLINE_QUOTE_COLOR.with(theme));
+        return base.mergeWith(newAction);
     }
 }

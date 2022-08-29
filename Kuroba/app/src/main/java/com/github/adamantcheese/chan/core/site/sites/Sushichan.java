@@ -56,7 +56,7 @@ public class Sushichan
 
     public Sushichan() {
         setName("Sushichan");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://sushigirl.us/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://sushigirl.us/favicon.ico")));
     }
 
     @Override
@@ -93,6 +93,6 @@ public class Sushichan
             }
         });
         setApi(new VichanApi(this));
-        setParser(new VichanPostParser());
+        setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

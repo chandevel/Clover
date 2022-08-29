@@ -16,9 +16,24 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
+import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.COLOR;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.TEST_POST_ICON_URL;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.TEST_POST_IMAGE_URL;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,11 +50,9 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -53,8 +66,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.cell.PostCell;
@@ -74,23 +86,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import okhttp3.HttpUrl;
-
-import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
-import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class ThemeSettingsController
         extends Controller {
@@ -172,9 +170,11 @@ public class ThemeSettingsController
         @Override
         public void onPostLinkableClicked(Post post, PostLinkable linkable) {
             switch (linkable.type) {
+                case QUOTE:
+                    showToast(context, "Clicked on quote " + linkable.value + "!");
+                    break;
                 case LINK:
-                case EMBED_AUTO_LINK:
-                case EMBED_REPLACE_LINK:
+                case EMBED_TEMP:
                     if (ChanSettings.openLinkBrowser.get()) {
                         AndroidUtils.openLink((String) linkable.value);
                     } else {
@@ -274,7 +274,7 @@ public class ThemeSettingsController
                 done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
                         R.attr.colorAccent
                 )));
-                wrapper.setBackgroundColor(getAttrColor(currentTheme.resValue, R.attr.backcolor));
+                wrapper.setBackgroundColor(AndroidUtils.getThemeAttrColor(currentTheme, R.attr.backcolor));
             }
         });
 
@@ -387,21 +387,6 @@ public class ThemeSettingsController
         pager.setCurrentItem(i, false);
     }
 
-    final List<Filter> filters = Collections.singletonList(new Filter(true,
-            FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
-            "test",
-            true,
-            "",
-            FilterEngine.FilterAction.COLOR.id,
-            Color.RED & 0x50FFFFFF,
-            false,
-            0,
-            false,
-            false
-    ));
-    final PostParser postParser = new PostParser();
-    final HtmlElementAction elementAction = new ChanCommentAction();
-
     private class ThemePostsAdapter
             extends RecyclerView.Adapter<ThemePostsAdapter.ThemePreviewHolder> {
         public ThemePostsAdapter() {
@@ -433,77 +418,30 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onViewRecycled(
-                @NonNull ThemePreviewHolder holder
-        ) {
+        public void onViewRecycled(@NonNull ThemePreviewHolder holder) {
             holder.recyclerView.setAdapter(null);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ThemePostsAdapter.ThemePreviewHolder holder, int position) {
-            //region POST BUILDERS
-            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
-                    .no(123456789)
-                    .opId(123456789)
-                    .posterId("TeStId++")
-                    .idColor(0xFF317CD3)
-                    .op(true)
-                    .replies(1)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
-                    .subject("Lorem ipsum")
-                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
-                            + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
-                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
-                            + "<span class=\"quote\">&gt;This is a inline quoted quote. "
-                            + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a></span><br>"
-                            + "<span class=\"quote\">&gt;This is a inline quoted quote that is marked. "
-                            + "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a></span><br>"
-                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
-
-            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
-                    .no(234567890)
-                    .opId(123456789)
-                    .posterId("TeStId2+")
-                    .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,
-                            HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "icon.png"),
-                            new NetUtilsClasses.PassthroughBitmapResult(),
-                            "test",
-                            "Test icon"
-                    ))
-                    .idColor(0xFF471D0A)
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
-                    .comment(
-                            "This is a spacer post for seeing the divider color; below is a link for embed testing:<br>"
-                                    + "https://www.youtube.com/watch?v=dQw4w9WgXcQ");
-
-            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
-                    .no(345678901)
-                    .opId(123456789)
-                    .name("W.T. Snacks")
-                    .tripcode("!TcT.PTG1.2")
-                    .posterId("TeStId3+")
-                    .idColor(0xFFEAE189)
-                    .moderatorCapcode("Mod")
-                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
-                    .comment(
-                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
-                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
-                                    + "This post is highlighted.<br>"
-                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>"
-                                    + "This text has search highlighting applied.")
-                    .images(Collections.singletonList(new PostImage.Builder().imageUrl(HttpUrl.get(
-                            BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
-                            .thumbnailUrl(HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png"))
-                            .filename("new_icon_512")
-                            .extension("png")
-                            .build()));
-            //endregion
-
+            PostParser postParser = new PostParser(new ChanCommentAction()).withFilters(new Filter(true,
+                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
+                    "testing",
+                    true,
+                    "",
+                    COLOR.ordinal(),
+                    getAttrColor(holder.itemView.getContext(), R.attr.colorAccent) & 0x7FFFFFFF,
+                    false,
+                    0,
+                    false,
+                    false
+            ));
             List<Post> posts = new ArrayList<>();
-            posts.add(postParser.parse(builder1, holder.theme, elementAction, filters, parserCallback));
-            posts.add(postParser.parse(builder2, holder.theme, elementAction, filters, parserCallback));
-            posts.add(postParser.parse(builder3, holder.theme, elementAction, filters, parserCallback));
-            posts.get(0).repliesFrom.add(posts.get(posts.size() - 1).no); // add reply to first post point to last post
+            for (Post.Builder builder : generatePosts()) {
+                posts.add(postParser.parse(builder, holder.theme, parserCallback));
+            }
+            posts.get(0).repliesFrom.add(posts.get(2).no); // add reply to first post pointing to last post
+            posts.get(3).deleted = true; // mark as deleted
             ChanThread thread = new ChanThread(dummyLoadable, posts);
 
             for (Post p : thread.getPosts()) {
@@ -544,7 +482,7 @@ public class ThemeSettingsController
                 }
             };
             adapter.setThread(thread, new PostsFilter(BUMP, null));
-            adapter.highlightPostNo(posts.get(posts.size() - 1).no); // highlight last post
+            adapter.highlightPostNo(posts.get(2).no); // highlight third post
             holder.recyclerView.setAdapter(adapter);
             holder.accentText.setOnClickListener((v) -> showAccentColorPicker());
 
@@ -610,6 +548,81 @@ public class ThemeSettingsController
             }).build().build();
             holder.toolbar.setNavigationItem(false, true, item, holder.theme);
             holder.toolbar.setOnClickListener(colorClick);
+        }
+
+        @NonNull
+        private List<Post.Builder> generatePosts() {
+            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
+                    .no(123456789)
+                    .opId(123456789)
+                    .posterId("TeStId++")
+                    .idColor(0xFF317CD3)
+                    .op(true)
+                    .replies(1)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
+                    .subject("Lorem ipsum")
+                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
+                            + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
+                            + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
+                            + "<span class=\"quote\">&gt;This is a inline quoted quote. "
+                            + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a></span><br>"
+                            + "<span class=\"quote\">&gt;This is a inline quoted quote that is marked. "
+                            + "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a></span><br>"
+                            + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
+
+            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
+                    .no(234567890)
+                    .opId(123456789)
+                    .posterId("TeStId2+")
+                    .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,
+                            TEST_POST_ICON_URL,
+                            new NetUtilsClasses.PassthroughBitmapResult(),
+                            "test",
+                            "Test icon"
+                    ))
+                    .idColor(0xFF471D0A)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(30)))
+                    .comment(
+                            "This is a spacer post for seeing the divider color; below are links for embed testing:<br>"
+                                    + "https://www.youtube.com/watch?v=dQw4w9WgXcQ<br>"
+                                    + "<span class=\"spoiler\">https://www.youtube.com/watch?v=dQw4w9WgXcQ</span>");
+
+            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
+                    .no(345678901)
+                    .opId(123456789)
+                    .name("W.T. Snacks")
+                    .tripcode("!TcT.PTG1.2")
+                    .posterId("TeStId3+")
+                    .idColor(0xFFEAE189)
+                    .moderatorCapcode("Mod")
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(15)))
+                    .comment(
+                            "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a> This link is marked.<br>"
+                                    + "<a href=\"#p111111111\" class=\"quotelink\">&gt;&gt;111111111</a><br>"
+                                    + "This post is highlighted.<br>"
+                                    + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>"
+                                    + "This text has search highlighting applied.")
+                    .images(Collections.singletonList(new PostImage.Builder().imageUrl(TEST_POST_IMAGE_URL)
+                            .thumbnailUrl(TEST_POST_IMAGE_URL)
+                            .filename("new_icon_512")
+                            .extension("png")
+                            .build()));
+
+            Post.Builder builder4 = new Post.Builder().board(Board.getDummyBoard())
+                    .no(666)
+                    .opId(123456789)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(10)))
+                    .comment("This post is deleted!<br>"
+                            + "&verbar;&verbar;This line has extra spoiler characters around it.&verbar;&verbar;");
+
+            Post.Builder builder5 = new Post.Builder().board(Board.getDummyBoard())
+                    .no(999)
+                    .opId(123456789)
+                    .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(5)))
+                    .comment(
+                            "<a href=\"#p666\" class=\"quotelink\">&gt;&gt;666</a> This post is replying to a post that is deleted!");
+
+            return Arrays.asList(builder1, builder2, builder3, builder4, builder5);
         }
 
         private class ThemePreviewHolder

@@ -1,16 +1,14 @@
 package com.github.adamantcheese.chan.core.site.archives;
 
-import android.text.Spanned;
-import android.text.SpannedString;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NO_OP;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.INLINE_QUOTE_COLOR;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.ARCHIVE_MISSING_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.DEFAULT_SPOILER_IMAGE_URL;
+
 import android.text.TextUtils;
 import android.util.JsonReader;
 import android.util.JsonToken;
 
-import androidx.annotation.NonNull;
-
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -18,24 +16,17 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.site.parser.style.CommonStyleActions.INLINE_QUOTE_COLOR;
 
 /**
  * A site that uses FoolFuuka as the backend.
@@ -54,23 +45,17 @@ public class FoolFuukaArchive
     private class FoolFuukaReader
             extends ExternalArchiveChanReader {
 
-        private final PostParser parser = new PostParser() {
+        private final PostParser parser = new PostParser(new FoolFuukaCommentAction()) {
             @Override
             public String createQuoteElementString(Post.Builder post) {
                 return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code + "/thread/"
                         + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
             }
         };
-        private final HtmlElementAction elementAction = new FoolFuukaCommentAction(domain);
 
         @Override
         public PostParser getParser() {
             return parser;
-        }
-
-        @Override
-        public HtmlElementAction getElementAction() {
-            return elementAction;
         }
 
         @Override
@@ -153,7 +138,7 @@ public class FoolFuukaArchive
                         comment = comment.replaceAll("\\n", ""); // comment contains extra newlines, remove em
                         builder.comment(comment);
 
-                        if (builder.op && TextUtils.isEmpty(builder.subject)) {
+                        if (builder.op && TextUtils.isEmpty(builder.getSubject())) {
                             if (!TextUtils.isEmpty(comment)) {
                                 queue.loadable.title = comment.subSequence(0, Math.min(comment.length(), 200)) + "";
                             } else {
@@ -256,37 +241,26 @@ public class FoolFuukaArchive
 
     private static class FoolFuukaCommentAction
             extends ChanCommentAction {
-
-        public FoolFuukaCommentAction(String domain) {
-            super();
-            mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR);
-            // matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
-            // blah can be "thread" or "post"; "thread" is just a normal thread link, but "post" is a crossthread link that needs to be resolved
-            Pattern compiledPattern = Pattern.compile(
-                    "(?:https://)?" + domain.replaceAll("\\.", "\\\\.") + "/(.*?)/(?:.*?)/(\\d*+)/?#?p?(\\d+)?/?");
-            setQuotePattern(compiledPattern);
-            // note that if an archive does NOT support a board, it will not match this as the archiver leaves things as-as
-            setFullQuotePattern(compiledPattern);
-        }
-
-        @NonNull
         @Override
-        public SpannedString style(
-                @NonNull Node node,
-                @NonNull Spanned text,
-                @NonNull Theme theme,
-                @NonNull Post.Builder post,
-                @NonNull Callback callback
+        public HtmlTagAction addSpecificActions(
+                Theme theme, Post.Builder post, PostParser.Callback callback
         ) {
+            HtmlTagAction base = super.addSpecificActions(theme, post, callback);
+            HtmlTagAction newAction = new HtmlTagAction(false);
+            newAction.mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR.with(theme));
             // for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
             // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
             // deepest nodes are processed first
             // in this case, we just want to return the text that has already been processed inside of this "greentext" node
             // otherwise duplicate PostLinkables will be generated
-            if (((Element) node).getElementsByTag("span").hasClass("greentext") && node.childNodeSize() > 1) {
-                return new SpannedString(text);
-            }
-            return super.style(node, text, theme, post, callback);
+            newAction.mapTagToRule(
+                    "span",
+                    "greentext",
+                    (node, text) -> node.childNodeSize() > 1
+                            ? NO_OP.style(node, text)
+                            : FoolFuukaCommentAction.super.style(node, text)
+            );
+            return base.mergeWith(newAction);
         }
     }
 

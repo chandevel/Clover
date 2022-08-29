@@ -16,30 +16,39 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
+import static com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsInfo.CaptchaType.UNKNOWN;
+
 import android.graphics.Bitmap;
-import android.text.SpannableString;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsInfo.CaptchaType.UNKNOWN;
-
 public class CaptchaV2NoJsInfo {
     CaptchaType captchaType = UNKNOWN;
-    @NonNull
-    List<Integer> checkboxes = new ArrayList<>();
     @Nullable
     String cParameter = null;
     @NonNull
     List<Bitmap> challengeImages = Collections.emptyList();
     @Nullable
-    SpannableString captchaTitle = null;
+    CharSequence captchaTitle = null;
 
     public CaptchaV2NoJsInfo() { }
+
+    public boolean isValid() {
+        if (captchaType == UNKNOWN) return false;
+        if (cParameter == null) return false;
+        return !challengeImages.isEmpty();
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "CaptchaV2NoJsInfo{" + "captchaType=" + captchaType + ", cParameter='" + cParameter + '\''
+                + ", challengeImages=" + challengeImages + ", captchaTitle=" + captchaTitle + '}';
+    }
 
     public enum CaptchaType {
         UNKNOWN(0, 0), // ?x?

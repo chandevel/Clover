@@ -16,10 +16,8 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 
 import java.util.List;

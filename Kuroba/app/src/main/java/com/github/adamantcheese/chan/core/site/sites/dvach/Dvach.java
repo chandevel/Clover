@@ -76,7 +76,7 @@ public class Dvach
 
     public Dvach() {
         setName("2ch.hk");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://2ch.hk/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://2ch.hk/favicon.ico")));
     }
 
     @Override
@@ -205,6 +205,6 @@ public class Dvach
         });
 
         setApi(new DvachApi(this));
-        setParser(new DvachPostParser());
+        setParser(new DvachPostParser(new DvachCommentAction()));
     }
 }

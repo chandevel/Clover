@@ -47,7 +47,7 @@ public class Kun8
 
     public Kun8() {
         setName("8kun");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.parse("https://8kun.top/static/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://8kun.top/static/favicon.ico")));
     }
 
     @Override
@@ -71,10 +71,10 @@ public class Kun8
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
-                    return HttpUrl.parse(
+                    return HttpUrl.get(
                             "https://media.8kun.top/" + "file_store/" + arg.get("tim") + "." + arg.get("ext"));
                 } else {
-                    return HttpUrl.parse("https://media.8kun.top/" + post.board.code + "/src/" + arg.get("tim") + "."
+                    return HttpUrl.get("https://media.8kun.top/" + post.board.code + "/src/" + arg.get("tim") + "."
                             + arg.get("ext"));
                 }
             }
@@ -95,12 +95,12 @@ public class Kun8
                 }
 
                 if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
-                    return HttpUrl.parse(
+                    return HttpUrl.get(
                             "https://media.8kun.top/" + "file_store/" + "thumb/" + arg.get("tim") + "." + ext);
                 } else {
                     // this is imperfect, for some reason some thumbnails are png and others are jpg randomly
                     // kinda mucks up the image viewing as well
-                    return HttpUrl.parse(
+                    return HttpUrl.get(
                             "https://media.8kun.top/" + post.board.code + "/thumb/" + arg.get("tim") + "." + ext);
                 }
             }
@@ -147,6 +147,6 @@ public class Kun8
         });
 
         setApi(new VichanApi(this));
-        setParser(new VichanPostParser());
+        setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

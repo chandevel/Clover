@@ -16,9 +16,25 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.FORCED_ANONYMOUS;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
+import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
+import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.EXIF_INFO_STRING;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
@@ -48,7 +64,6 @@ import com.github.adamantcheese.chan.core.site.SiteActions;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
@@ -67,18 +82,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.Call;
-
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.FORCED_ANONYMOUS;
-import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_IMAGE;
-import static com.github.adamantcheese.chan.core.site.Site.BoardFeature.POSTING_SPOILER;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ReplyPresenter
         implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
@@ -314,8 +317,8 @@ public class ReplyPresenter
             SpannableStringBuilder errorMessage =
                     new SpannableStringBuilder(span(getString(R.string.reply_error), new StyleSpan(Typeface.BOLD)));
             if (replyResponse.errorMessage != null) {
-                SpannableStringBuilder error =
-                        new SpannableStringBuilder(HtmlCompat.fromHtml(replyResponse.errorMessage,
+                SpannableString error =
+                        new SpannableString(HtmlCompat.fromHtml(replyResponse.errorMessage,
                                 HtmlCompat.FROM_HTML_MODE_LEGACY
                         ));
                 // update colors for url spans; unfortunately that means re-making them
@@ -334,7 +337,7 @@ public class ReplyPresenter
                             ds.setUnderlineText(true);
                             ds.setFakeBoldText(true);
                         }
-                    }, error.getSpanStart(s), error.getSpanEnd(s), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    }, error.getSpanStart(s), error.getSpanEnd(s), makeSpanOptions(DEFAULT_PRIORITY));
                     error.removeSpan(s);
                 }
                 errorMessage.append(": ").append(error);
@@ -452,7 +455,7 @@ public class ReplyPresenter
         }
 
         if (!TextUtils.isEmpty(textQuote)) {
-            textQuote = textQuote.replace(ChanCommentAction.EXIF_INFO_STRING, "").trim();
+            textQuote = textQuote.replace(EXIF_INFO_STRING, "").trim();
             String[] lines = textQuote.split("\n+");
             // matches for >>123, >>123 (text), >>>/fit/123
             final Pattern quotePattern = Pattern.compile("^>>(>/[a-z0-9]+/)?\\d+.*$");

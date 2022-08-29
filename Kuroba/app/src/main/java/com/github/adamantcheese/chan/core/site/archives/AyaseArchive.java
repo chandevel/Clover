@@ -1,21 +1,17 @@
 package com.github.adamantcheese.chan.core.site.archives;
 
-import android.text.Spanned;
-import android.text.SpannedString;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ThreadLink;
-import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 
 import org.jsoup.nodes.Node;
 
@@ -44,25 +40,19 @@ public class AyaseArchive
 
      */
 
-    private class AyaseReader
+    private static class AyaseReader
             extends ExternalArchiveChanReader {
 
-        private final PostParser parser = new PostParser() {
+        private final PostParser parser = new PostParser(new AyaseCommentAction()) {
             @Override
             public String createQuoteElementString(Post.Builder post) {
                 return "$0"; // return the input
             }
         };
-        private final HtmlElementAction elementAction = new AyaseCommentAction(domain);
 
         @Override
         public PostParser getParser() {
             return parser;
-        }
-
-        @Override
-        public HtmlElementAction getElementAction() {
-            return elementAction;
         }
 
         @Override
@@ -231,7 +221,7 @@ public class AyaseArchive
 
     private static class AyaseCommentAction
             extends ChanCommentAction {
-        public AyaseCommentAction(String domain) {
+        public AyaseCommentAction() {
             super();
             throw new NotImplementedError();
             /*// matches https://domain.tld/boardcode/blah/opNo(/#p)postNo/
@@ -245,12 +235,8 @@ public class AyaseArchive
 
         @NonNull
         @Override
-        public SpannedString style(
-                @NonNull Node node,
-                @NonNull Spanned text,
-                @NonNull Theme theme,
-                @NonNull Post.Builder post,
-                @NonNull Callback callback
+        public CharSequence style(
+                @NonNull Node node, @Nullable CharSequence text
         ) {
             throw new NotImplementedError(); // this likely can be fully removed and not overridden
             /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not

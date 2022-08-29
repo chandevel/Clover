@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -32,38 +31,23 @@ import java.util.concurrent.Callable;
 // Called concurrently to parse the post html and the filters on it belong to ChanReaderRequest
 class PostParseCallable
         implements Callable<Post> {
-    private final List<Filter> filters;
-    private final DatabaseSavedReplyManager savedReplyManager;
     private final Post.Builder postBuilder;
-    private final ChanReader reader;
-    private final List<PostHide> removedPosts;
-    private final Set<Integer> internalNos;
+    private final PostParser parser;
     private final Theme theme;
+    private final Callback callback;
 
     public PostParseCallable(
-            List<Filter> filters,
             DatabaseSavedReplyManager savedReplyManager,
             Post.Builder builder,
-            ChanReader reader,
+            PostParser parser,
             List<PostHide> removedPosts,
             Set<Integer> internalNos,
             @NonNull Theme theme
     ) {
-        this.filters = filters;
-        this.savedReplyManager = savedReplyManager;
         this.postBuilder = builder;
-        this.reader = reader;
-        this.removedPosts = removedPosts;
-        this.internalNos = internalNos;
+        this.parser = parser;
         this.theme = theme;
-    }
-
-    @Override
-    public Post call() {
-        // needed for "Apply to own posts" to work correctly
-        postBuilder.isSavedReply(savedReplyManager.isSaved(postBuilder.board, postBuilder.no));
-
-        return reader.getParser().parse(postBuilder, theme, reader.getElementAction(), filters, new Callback() {
+        callback = new Callback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(postBuilder.board, postNo);
@@ -77,6 +61,11 @@ class PostParseCallable
             public boolean isRemoved(int postNo) {
                 return removedPosts.contains(new PostHide(postBuilder.board.siteId, postBuilder.board.code, postNo));
             }
-        });
+        };
+    }
+
+    @Override
+    public Post call() {
+        return parser.parse(postBuilder, theme, callback);
     }
 }

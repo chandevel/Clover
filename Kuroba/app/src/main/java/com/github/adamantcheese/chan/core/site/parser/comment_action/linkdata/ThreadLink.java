@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.core.site.parser.style.comment;
+package com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata;
 
 /**
  * A board, thread, and postId combination to identify a thread.
