@@ -74,7 +74,7 @@ public class LoginController
 
         button.setOnClickListener((v) -> {
             authBefore();
-            if (site.actions().isLoggedIn(Loadable.emptyLoadable())) {
+            if (site.actions().isLoggedIn()) {
                 site.actions().logout(new ResponseResult<LoginResponse>() {
                     @Override
                     public void onFailure(Exception e) {
@@ -137,7 +137,7 @@ public class LoginController
         inputToken.setText(loginDetails.user);
         inputPin.setText(loginDetails.pass);
 
-        final boolean loggedIn = site.actions().isLoggedIn(Loadable.emptyLoadable());
+        boolean loggedIn = site.actions().isLoggedIn();
         if (loggedIn) {
             button.setText(R.string.setting_pass_logout);
         }

@@ -35,7 +35,7 @@ public class ArchivesLayout
     public ArchivesLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         inject(this);
-        op = Loadable.emptyLoadable();
+        op = Loadable.dummyLoadable();
     }
 
     @Override

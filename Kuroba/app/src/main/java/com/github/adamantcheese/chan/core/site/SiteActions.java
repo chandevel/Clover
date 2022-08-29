@@ -64,7 +64,7 @@ public interface SiteActions {
 
     void logout(NetUtilsClasses.ResponseResult<LoginResponse> loginListener);
 
-    boolean isLoggedIn(Loadable loadable);
+    boolean isLoggedIn();
 
     LoginRequest getLoginDetails();
 

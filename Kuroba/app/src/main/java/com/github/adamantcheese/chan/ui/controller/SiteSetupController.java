@@ -166,7 +166,7 @@ public class SiteSetupController
 
         general.add(new LinkSettingView(this, "Clear cookies for this site", "", ((v, sv) -> {
             site.actions().clearCookies();
-            setIsLoggedIn(site.actions().isLoggedIn(Loadable.emptyLoadable())); // may have changed
+            setIsLoggedIn(site.actions().isLoggedIn()); // may have changed
             CancellableToast.showToast(context, "Cleared site cookies!");
         })));
 

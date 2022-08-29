@@ -142,14 +142,14 @@ public class Loadable
         return loadable;
     }
 
-    private static Loadable emptyLoadable;
+    private static Loadable dummyLoadable;
 
-    public static Loadable emptyLoadable() {
-        if (emptyLoadable != null) return emptyLoadable;
-        emptyLoadable = new Loadable();
-        emptyLoadable.site = new DummySite();
-        emptyLoadable.board = Board.getDummyBoard();
-        return emptyLoadable;
+    public static Loadable dummyLoadable() {
+        if (dummyLoadable != null) return dummyLoadable;
+        dummyLoadable = new Loadable();
+        dummyLoadable.site = new DummySite();
+        dummyLoadable.board = Board.getDummyBoard();
+        return dummyLoadable;
     }
 
     public static Loadable forCatalog(Board board) {
@@ -202,7 +202,7 @@ public class Loadable
                 case CATALOG:
                     return boardCode.equals(other.boardCode);
                 case THREAD:
-                    return boardCode.equals(other.boardCode) && no == other.no;
+                    return boardCode.equals(other.boardCode) && no == other.no && id == other.id;
                 default:
                     throw new IllegalArgumentException();
             }
@@ -211,13 +211,14 @@ public class Loadable
         }
     }
 
-    public boolean databaseEquals(Loadable other) {
-        return this.id == other.id;
-    }
-
     @Override
     public int hashCode() {
-        return Objects.hash(mode, mode != INVALID ? boardCode : 0, mode == THREAD ? no : 0, siteId);
+        return Objects.hash(mode,
+                mode != INVALID ? boardCode : 0,
+                mode == THREAD ? no : 0,
+                siteId,
+                mode == THREAD ? id : 0
+        );
     }
 
     @Override

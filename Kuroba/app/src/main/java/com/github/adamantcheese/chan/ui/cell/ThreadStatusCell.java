@@ -93,7 +93,7 @@ public class ThreadStatusCell
                             .setUnixTimestampSeconds(System.currentTimeMillis())
                             .comment("")
                             .build());
-                    return new ChanThread(Loadable.emptyLoadable(), testPosts);
+                    return new ChanThread(Loadable.dummyLoadable(), testPosts);
                 }
 
                 @Override

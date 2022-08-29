@@ -478,7 +478,7 @@ public class ThreadListLayout
         if (showingThread.loadable.isThreadMode()) {
             openSearch(false);
         }
-        showPosts(new ChanThread(Loadable.emptyLoadable(), Collections.emptyList()), null, false);
+        showPosts(new ChanThread(Loadable.dummyLoadable(), Collections.emptyList()), null, false);
         recyclerView.removeItemDecoration(PARTY);
         recyclerView.removeItemDecoration(SANTA);
     }

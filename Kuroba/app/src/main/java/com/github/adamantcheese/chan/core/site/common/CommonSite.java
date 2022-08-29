@@ -382,11 +382,7 @@ public abstract class CommonSite
         public HttpUrl.Builder url;
 
         public SimpleHttpUrl(String from) {
-            HttpUrl res = HttpUrl.parse(from);
-            if (res == null) {
-                throw new NullPointerException();
-            }
-            url = res.newBuilder();
+            url = HttpUrl.get(from).newBuilder();
         }
 
         public SimpleHttpUrl(@NonNull HttpUrl.Builder from) {
@@ -512,7 +508,7 @@ public abstract class CommonSite
         }
 
         @Override
-        public boolean isLoggedIn(Loadable loadable) {
+        public boolean isLoggedIn() {
             return false;
         }
 

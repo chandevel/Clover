@@ -182,7 +182,7 @@ public abstract class ExternalSiteArchive
 
         @Override
         public Loadable resolveLoadable(Site site, HttpUrl url) {
-            return Loadable.emptyLoadable();
+            return Loadable.dummyLoadable();
         }
 
         /**

@@ -1,5 +1,8 @@
 package com.github.adamantcheese.chan.core.site;
 
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.JsonReader;
@@ -24,8 +27,7 @@ import com.github.adamantcheese.chan.core.site.http.LoginResponse;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.style.HtmlElementAction;
-import com.github.adamantcheese.chan.core.site.parser.style.comment.ChanCommentAction;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,16 +36,13 @@ import java.util.Map;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
-import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-
 /**
  * A dummy site, generally used internally and should not show up as user selectable in the site setup area.
  */
 public class DummySite
         implements Site {
 
-    private final HttpUrl dummyUrl = HttpUrl.get("https://www.example.com");
+    private final HttpUrl DUMMY_ROOT = HttpUrl.get("https://www.example.com");
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {}
@@ -63,8 +62,7 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(
-                getAppContext().getResources(),
+        return SiteIcon.fromDrawable(new BitmapDrawable(getAppContext().getResources(),
                 BitmapFactory.decodeResource(getAppContext().getResources(), R.drawable.trash_icon)
         ));
     }
@@ -79,17 +77,30 @@ public class DummySite
         return new SiteUrlHandler() {
             @Override
             public boolean respondsTo(@NonNull HttpUrl url) {
-                return false;
+                return DUMMY_ROOT.host().equals(url.host());
             }
 
             @Override
             public String desktopUrl(Loadable loadable, int postNo) {
-                return "https://www.example.com";
+                if (loadable.isThreadMode()) {
+                    String url = DUMMY_ROOT.newBuilder()
+                            .addPathSegment(loadable.boardCode)
+                            .addPathSegment("thread")
+                            .addPathSegment(String.valueOf(loadable.no))
+                            .build()
+                            .toString();
+                    if (postNo > 0 && loadable.no != postNo) {
+                        url += "#p" + postNo;
+                    }
+                    return url;
+                } else {
+                    return DUMMY_ROOT.newBuilder().addPathSegment(loadable.boardCode).build().toString();
+                }
             }
 
             @Override
             public Loadable resolveLoadable(Site site, HttpUrl url) {
-                return Loadable.emptyLoadable();
+                return Loadable.dummyLoadable();
             }
         };
     }
@@ -114,62 +125,73 @@ public class DummySite
         return new SiteEndpoints() {
             @Override
             public HttpUrl catalog(Board board) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("catalog.json").build();
             }
 
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder()
+                        .addPathSegment(loadable.board.code)
+                        .addPathSegment("thread")
+                        .addPathSegment(loadable.no + ".json")
+                        .build();
             }
 
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
             }
 
             @Override
             public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
             }
 
             @Override
             public Pair<HttpUrl, PassthroughBitmapResult> icon(IconType icon, Map<String, String> arg) {
-                return new Pair<>(dummyUrl, new PassthroughBitmapResult());
+                return new Pair<>(DUMMY_ROOT.newBuilder().addPathSegment("test.png").build(),
+                        new PassthroughBitmapResult()
+                );
             }
 
             @Override
             public HttpUrl boards() {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment("boards.json").build();
             }
 
             @Override
             public HttpUrl pages(Board board) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("threads.json").build();
             }
 
             @Override
             public HttpUrl archive(Board board) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("archive").build();
             }
 
             @Override
             public HttpUrl reply(Loadable thread) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(thread.boardCode).addPathSegment("post").build();
             }
 
             @Override
             public HttpUrl delete(Post post) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
             }
 
             @Override
             public HttpUrl report(Post post) {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder()
+                        .addPathSegment(post.board.code)
+                        .addPathSegment("imgboard.php")
+                        .addQueryParameter("mode", "report")
+                        .addQueryParameter("no", String.valueOf(post.no))
+                        .build();
             }
 
             @Override
             public HttpUrl login() {
-                return dummyUrl;
+                return DUMMY_ROOT.newBuilder().addPathSegment("auth").build();
             }
         };
     }
@@ -177,17 +199,11 @@ public class DummySite
     @Override
     public ChanReader chanReader() {
         return new ChanReader() {
-            private final PostParser postParser = new PostParser();
-            private final HtmlElementAction elementAction = new ChanCommentAction();
+            private final PostParser postParser = new PostParser(new ChanCommentAction());
 
             @Override
             public PostParser getParser() {
                 return postParser;
-            }
-
-            @Override
-            public HtmlElementAction getElementAction() {
-                return elementAction;
             }
 
             @Override
@@ -213,10 +229,10 @@ public class DummySite
             @Override
             public Call post(
                     Loadable loadableWithDraft, PostListener postListener
-            ) { return new NetUtilsClasses.NullCall(dummyUrl);}
+            ) {return new NetUtilsClasses.NullCall(DUMMY_ROOT);}
 
             @Override
-            public boolean postRequiresAuthentication(Loadable loadableWithDraft) { return false; }
+            public boolean postRequiresAuthentication(Loadable loadableWithDraft) {return false;}
 
             @Override
             public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
@@ -236,10 +252,10 @@ public class DummySite
             public void logout(final ResponseResult<LoginResponse> loginListener) {}
 
             @Override
-            public boolean isLoggedIn(Loadable loadable) { return false; }
+            public boolean isLoggedIn() {return false;}
 
             @Override
-            public LoginRequest getLoginDetails() { return new LoginRequest(DummySite.this, "", "", true); }
+            public LoginRequest getLoginDetails() {return new LoginRequest(DummySite.this, "", "", true);}
 
             @Override
             public void clearCookies() {}

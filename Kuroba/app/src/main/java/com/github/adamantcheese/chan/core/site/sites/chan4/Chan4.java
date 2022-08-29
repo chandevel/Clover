@@ -406,13 +406,13 @@ public class Chan4
 
         @Override
         public boolean postRequiresAuthentication(Loadable loadableWithDraft) {
-            return !isLoggedIn(loadableWithDraft);
+            return !isLoggedIn();
         }
 
         @Override
         public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
             final String CAPTCHA_KEY = "6Ldp2bsSAAAAAAJ5uyx_lx34lJeEpTLVkP5k04qc";
-            if (isLoggedIn(loadableWithDraft)) {
+            if (isLoggedIn()) {
                 return SiteAuthentication.fromNone();
             } else {
                 switch (captchaType.get()) {
@@ -488,9 +488,13 @@ public class Chan4
         }
 
         @Override
-        public boolean isLoggedIn(Loadable loadable) {
-            for (Cookie cookie : NetUtils.applicationClient.cookieJar()
-                    .loadForRequest(loadable.board.workSafe ? sysSafe : sys)) {
+        public boolean isLoggedIn() {
+            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sysSafe)) {
+                if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
+                    return true;
+                }
+            }
+            for (Cookie cookie : NetUtils.applicationClient.cookieJar().loadForRequest(sys)) {
                 if (cookie.name().equals("pass_id") && !cookie.value().isEmpty()) {
                     return true;
                 }
@@ -556,7 +560,7 @@ public class Chan4
         return "4chan";
     }
 
-    private final SiteIcon icon = SiteIcon.fromFavicon(HttpUrl.parse("https://s.4cdn.org/image/favicon.ico"));
+    private final SiteIcon icon = SiteIcon.fromFavicon(HttpUrl.get("https://s.4cdn.org/image/favicon.ico"));
 
     @Override
     public SiteIcon icon() {

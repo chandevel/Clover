@@ -402,7 +402,7 @@ public class StartActivity
 
             if (thread == null) {
                 // Make the parcel happy
-                thread = Loadable.emptyLoadable();
+                thread = Loadable.dummyLoadable();
             }
 
             outState.putParcelable(STATE_KEY, new ChanState(board.clone(), thread.clone()));
