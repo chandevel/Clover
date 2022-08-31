@@ -367,7 +367,7 @@ public class ViewThreadController
         if (drawer == null) return;
         Balloon drawerHint = AndroidUtils.getBaseToolTip(context)
                 .setPreferenceName("DrawerHint")
-                .setArrowOrientation(ArrowOrientation.LEFT)
+                .setArrowOrientation(ArrowOrientation.START)
                 .setText("Swipe right to access bookmarks and settings")
                 .build();
 

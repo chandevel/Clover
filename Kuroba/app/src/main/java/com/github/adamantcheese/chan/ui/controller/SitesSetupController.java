@@ -257,7 +257,7 @@ public class SitesSetupController
             if (boardCount == 0) {
                 hint = AndroidUtils.getBaseToolTip(context)
                         .setPreferenceName("AddBords")
-                        .setArrowOrientation(ArrowOrientation.LEFT)
+                        .setArrowOrientation(ArrowOrientation.START)
                         .setTextResource(R.string.setup_sites_add_boards_hint)
                         .build();
                 hint.showAlignRight(description);

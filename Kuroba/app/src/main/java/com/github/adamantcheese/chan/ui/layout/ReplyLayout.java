@@ -361,7 +361,7 @@ public class ReplyLayout
             spoiler.setTag(!isSpoilered);
             setSpoilerIcon();
             getBaseToolTip(getContext()).setPreferenceName("Post" + (isSpoilered ? "Un" : "") + "Spoiler")
-                    .setArrowOrientation(ArrowOrientation.RIGHT)
+                    .setArrowOrientation(ArrowOrientation.END)
                     .setText("Image will post " + (isSpoilered ? "un" : "") + "spoilered.")
                     .build()
                     .showAlignLeft(spoiler);
@@ -1117,22 +1117,22 @@ public class ReplyLayout
     private void showImageOptionHints() {
         Balloon attachHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("AttachHint")
-                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.attach_button_hint)
                 .build();
         Balloon reencodeHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReencodeHint")
-                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reencode_button_hint)
                 .build();
         Balloon filenameHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReplyFilenameRefreshHint")
-                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reply_filename_hint)
                 .build();
         Balloon spoilerHint = AndroidUtils.getBaseToolTip(getContext())
                 .setPreferenceName("ReplyImageSpoilerHint")
-                .setArrowOrientation(ArrowOrientation.RIGHT)
+                .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reply_spoiler_hint)
                 .build();
 
