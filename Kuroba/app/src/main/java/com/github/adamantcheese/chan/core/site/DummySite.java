@@ -20,18 +20,11 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapR
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.http.*;
+import com.github.adamantcheese.chan.core.site.parser.*;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -83,7 +76,8 @@ public class DummySite
             @Override
             public String desktopUrl(Loadable loadable, int postNo) {
                 if (loadable.isThreadMode()) {
-                    String url = DUMMY_ROOT.newBuilder()
+                    String url = DUMMY_ROOT
+                            .newBuilder()
                             .addPathSegment(loadable.boardCode)
                             .addPathSegment("thread")
                             .addPathSegment(String.valueOf(loadable.no))
@@ -130,7 +124,8 @@ public class DummySite
 
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return DUMMY_ROOT.newBuilder()
+                return DUMMY_ROOT
+                        .newBuilder()
                         .addPathSegment(loadable.board.code)
                         .addPathSegment("thread")
                         .addPathSegment(loadable.no + ".json")
@@ -181,7 +176,8 @@ public class DummySite
 
             @Override
             public HttpUrl report(Post post) {
-                return DUMMY_ROOT.newBuilder()
+                return DUMMY_ROOT
+                        .newBuilder()
                         .addPathSegment(post.board.code)
                         .addPathSegment("imgboard.php")
                         .addQueryParameter("mode", "report")

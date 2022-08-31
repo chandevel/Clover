@@ -16,6 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.THREAD_HIDES_CLEARED;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
@@ -31,18 +39,11 @@ import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.ProxyMode;
-import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesExclusionZonesHolder;
-import com.github.adamantcheese.chan.features.gesture_editor.AttachSide;
-import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
+import com.github.adamantcheese.chan.features.gesture_editor.*;
 import com.github.adamantcheese.chan.ui.controller.AdjustAndroid10GestureZonesController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
-import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
-import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.StringLimitCallback;
 
@@ -50,14 +51,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.THREAD_HIDES_CLEARED;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
 public class BehaviourSettingsController
         extends SettingsController {
@@ -360,9 +353,10 @@ public class BehaviourSettingsController
             return;
         }
         // dialog setup
-        getDefaultAlertBuilder(context).setTitle(screenOrientation == Configuration.ORIENTATION_PORTRAIT
-                ? R.string.setting_exclusion_zones_actions_dialog_title_portrait
-                : R.string.setting_exclusion_zones_actions_dialog_title_landscape)
+        getDefaultAlertBuilder(context)
+                .setTitle(screenOrientation == Configuration.ORIENTATION_PORTRAIT
+                        ? R.string.setting_exclusion_zones_actions_dialog_title_portrait
+                        : R.string.setting_exclusion_zones_actions_dialog_title_landscape)
                 .setAdapter(arrayAdapter, (dialog, selectedIndex) -> {
                     // zone picked
                     int orientation = arrayAdapter.getItem(selectedIndex).second;
@@ -373,7 +367,8 @@ public class BehaviourSettingsController
                             Android10GesturesExclusionZonesHolder.getZone(orientation, attachSide);
                     if (skipZone != null) {
                         // zone exists, edit or remove
-                        getDefaultAlertBuilder(context).setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
+                        getDefaultAlertBuilder(context)
+                                .setTitle(R.string.setting_exclusion_zones_edit_or_remove_zone_title)
                                 .setPositiveButton(R.string.edit,
                                         (dialog1, which) -> addEditGestureZone(attachSide,
                                                 skipZone,

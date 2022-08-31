@@ -20,10 +20,7 @@ import android.os.Environment;
 import android.os.FileObserver;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class FileWatcher {
     private static final Comparator<FileItem> FILE_COMPARATOR =

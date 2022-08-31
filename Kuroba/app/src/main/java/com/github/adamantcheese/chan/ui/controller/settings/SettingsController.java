@@ -16,13 +16,16 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.SETTINGS_REFRESH_REQUEST;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,10 +37,7 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.ui.controller.ToolbarNavigationController;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
-import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
+import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -46,15 +46,6 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.SETTINGS_REFRESH_REQUEST;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public abstract class SettingsController
         extends Controller
@@ -236,7 +227,8 @@ public abstract class SettingsController
                     // called when a preference changes
                     SettingsGroup group = displayList.get(position);
                     RecyclerView settingViewRecycler = holder.itemView.findViewById(R.id.setting_view_recycler);
-                    holder.itemView.post(() -> settingViewRecycler.getAdapter()
+                    holder.itemView.post(() -> settingViewRecycler
+                            .getAdapter()
                             .notifyItemChanged(group.displayList.indexOf(settingView), new Object()));
                 }
             }

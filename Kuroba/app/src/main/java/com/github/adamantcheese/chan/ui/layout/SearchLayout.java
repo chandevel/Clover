@@ -16,29 +16,24 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-
-import com.github.adamantcheese.chan.R;
-
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestKeyboardFocus;
+
+import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.text.*;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
+import android.widget.*;
+
+import com.github.adamantcheese.chan.R;
 
 public class SearchLayout
         extends LinearLayout {
@@ -149,7 +144,8 @@ public class SearchLayout
     }
 
     public void setThemedSearchColors() {
-        clearButton.getDrawable()
+        clearButton
+                .getDrawable()
                 .setTintList(ColorStateList.valueOf(getAttrColor(getContext(), R.attr.themeDrawableColor)));
     }
 

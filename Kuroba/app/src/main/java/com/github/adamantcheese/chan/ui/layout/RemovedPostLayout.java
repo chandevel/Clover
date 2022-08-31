@@ -2,9 +2,7 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.annotation.Nullable;
 

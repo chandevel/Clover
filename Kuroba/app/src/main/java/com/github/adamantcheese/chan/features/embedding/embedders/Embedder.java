@@ -18,11 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
+import okhttp3.*;
 
 public interface Embedder
         extends Converter<EmbedResult, Response> {

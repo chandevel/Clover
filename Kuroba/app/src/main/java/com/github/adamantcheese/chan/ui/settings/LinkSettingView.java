@@ -16,6 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.res.ColorStateList;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,11 +30,6 @@ import com.github.adamantcheese.chan.core.manager.SettingNotificationManager.Set
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 
 import org.greenrobot.eventbus.Subscribe;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class LinkSettingView
         extends SettingView {

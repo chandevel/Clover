@@ -1,16 +1,15 @@
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 
 public class SiteSetupPresenter {
     private final Callback callback;

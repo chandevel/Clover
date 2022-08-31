@@ -16,10 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.widget.ImageView;
@@ -38,9 +42,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.RecyclerUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -54,12 +56,6 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class AlbumDownloadController
         extends Controller {
@@ -89,7 +85,8 @@ public class AlbumDownloadController
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_download, null);
 
         updateTitle();
-        navigation.buildMenu()
+        navigation
+                .buildMenu()
                 .withItem(MenuId.CHECK_ALL, R.drawable.ic_fluent_select_all_off_24_filled, this::onCheckAllClicked)
                 .build();
 
@@ -139,7 +136,8 @@ public class AlbumDownloadController
                 }
             }
 
-            getDefaultAlertBuilder(context).setMessage(message)
+            getDefaultAlertBuilder(context)
+                    .setMessage(message)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> startAlbumDownloadTask(tasks))
                     .show();
@@ -147,7 +145,8 @@ public class AlbumDownloadController
     }
 
     private void startAlbumDownloadTask(List<ImageSaveTask> tasks) {
-        Disposable disposable = imageSaver.startBundledTask(context, tasks)
+        Disposable disposable = imageSaver
+                .startBundledTask(context, tasks)
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorReturnItem(ImageSaver.BundledImageSaveResult.UnknownError)
                 .subscribe(this::onResultEvent);
@@ -243,8 +242,12 @@ public class AlbumDownloadController
     private String appendAdditionalSubDirectories() {
         // save to op no appended with the first 50 characters of the subject
         // should be unique and perfectly understandable title wise
-        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(loadable.site.name()) + File.separator
-                + StringUtils.dirNameRemoveBadCharacters(loadable.boardCode) + File.separator + loadable.no + "_";
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(loadable.site.name())
+                + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(loadable.boardCode)
+                + File.separator
+                + loadable.no
+                + "_";
 
         String tempTitle = (loadable.no == 0 ? "catalog" : loadable.title);
 
@@ -275,7 +278,8 @@ public class AlbumDownloadController
         @NonNull
         @Override
         public AlbumDownloadHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new AlbumDownloadHolder(LayoutInflater.from(parent.getContext())
+            return new AlbumDownloadHolder(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.cell_album_download, parent, false));
         }
 

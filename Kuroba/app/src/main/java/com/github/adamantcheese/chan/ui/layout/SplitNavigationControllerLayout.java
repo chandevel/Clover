@@ -16,14 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class SplitNavigationControllerLayout
         extends LinearLayout {

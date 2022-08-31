@@ -103,7 +103,8 @@ public class TaimabaEndpoints
 
     @Override
     public HttpUrl report(Post post) {
-        return report.newBuilder()
+        return report
+                .newBuilder()
                 .addPathSegment("narcbot")
                 .addPathSegment("ajaxReport.jsp")
                 .addQueryParameter("postId", String.valueOf(post.no))

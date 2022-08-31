@@ -16,10 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.FrameLayout;
 
 import com.github.adamantcheese.chan.R;
@@ -28,8 +28,6 @@ import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.controller.transition.PopControllerTransition;
 import com.github.adamantcheese.chan.controller.transition.PushControllerTransition;
 import com.github.adamantcheese.chan.ui.layout.SplitNavigationControllerLayout;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class SplitNavigationController
         extends Controller

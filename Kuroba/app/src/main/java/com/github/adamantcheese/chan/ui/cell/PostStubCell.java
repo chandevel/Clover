@@ -16,13 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -36,9 +37,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class PostStubCell
         extends RelativeLayout

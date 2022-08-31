@@ -16,6 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -35,12 +41,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import kotlin.io.TextStreamsKt;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class LogsController
         extends Controller {
@@ -91,13 +91,9 @@ public class LogsController
     public static String loadLogs(int linesCount) {
         Process process;
         try {
-            process = new ProcessBuilder().command("logcat",
-                    "-v",
-                    "tag",
-                    "-t",
-                    String.valueOf(linesCount),
-                    "StrictMode:S"
-            ).start();
+            process = new ProcessBuilder()
+                    .command("logcat", "-v", "tag", "-t", String.valueOf(linesCount), "StrictMode:S")
+                    .start();
         } catch (IOException e) {
             Logger.e(TAG, "Error starting logcat", e);
             return null;

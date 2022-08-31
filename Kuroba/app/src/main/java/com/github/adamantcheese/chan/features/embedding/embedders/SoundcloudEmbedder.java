@@ -137,7 +137,8 @@ public class SoundcloudEmbedder
                         ? sourceURL.toString().substring(sourceURL.toString().lastIndexOf('=') + 1)
                         : title + " | " + artist,
                 duration,
-                new PostImage.Builder().serverFilename(title)
+                new PostImage.Builder()
+                        .serverFilename(title)
                         .thumbnailUrl(artworkURL == null ? INTERNAL_SPOILER_THUMB_URL : artworkURL)
                         .imageUrl(sourceURL)
                         .filename(title)

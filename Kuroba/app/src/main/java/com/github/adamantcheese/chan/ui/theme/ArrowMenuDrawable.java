@@ -16,18 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
+
+import android.graphics.*;
+import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 
 public class ArrowMenuDrawable
         extends Drawable {

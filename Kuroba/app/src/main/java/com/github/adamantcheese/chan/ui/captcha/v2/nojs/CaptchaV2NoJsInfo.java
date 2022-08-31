@@ -35,7 +35,7 @@ public class CaptchaV2NoJsInfo {
     @Nullable
     CharSequence captchaTitle = null;
 
-    public CaptchaV2NoJsInfo() { }
+    public CaptchaV2NoJsInfo() {}
 
     public boolean isValid() {
         if (captchaType == UNKNOWN) return false;
@@ -46,8 +46,17 @@ public class CaptchaV2NoJsInfo {
     @NonNull
     @Override
     public String toString() {
-        return "CaptchaV2NoJsInfo{" + "captchaType=" + captchaType + ", cParameter='" + cParameter + '\''
-                + ", challengeImages=" + challengeImages + ", captchaTitle=" + captchaTitle + '}';
+        return "CaptchaV2NoJsInfo{"
+                + "captchaType="
+                + captchaType
+                + ", cParameter='"
+                + cParameter
+                + '\''
+                + ", challengeImages="
+                + challengeImages
+                + ", captchaTitle="
+                + captchaTitle
+                + '}';
     }
 
     public enum CaptchaType {

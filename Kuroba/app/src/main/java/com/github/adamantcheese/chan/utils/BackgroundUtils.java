@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 import android.os.Handler;
 import android.os.Looper;
 
@@ -23,17 +25,8 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 @SuppressWarnings("unused")
 public class BackgroundUtils {

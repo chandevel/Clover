@@ -16,6 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
+import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
@@ -24,17 +35,10 @@ import android.graphics.Point;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.OneShotPreDrawListener;
@@ -54,17 +58,6 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.inject.Inject;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.BOARD;
-import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SEARCH;
-import static com.github.adamantcheese.chan.core.presenter.BoardsMenuPresenter.Item.Type.SITE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * A ViewGroup that attaches above the entire window, containing a list of boards the user can
@@ -321,13 +314,16 @@ public class BrowseBoardsFloatingMenu
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             if (viewType == SEARCH.ordinal()) {
-                return new InputViewHolder(LayoutInflater.from(parent.getContext())
+                return new InputViewHolder(LayoutInflater
+                        .from(parent.getContext())
                         .inflate(R.layout.cell_browse_input, parent, false));
             } else if (viewType == SITE.ordinal()) {
-                return new SiteViewHolder(LayoutInflater.from(parent.getContext())
+                return new SiteViewHolder(LayoutInflater
+                        .from(parent.getContext())
                         .inflate(R.layout.cell_browse_site, parent, false));
             } else if (viewType == BOARD.ordinal()) {
-                return new BoardViewHolder(LayoutInflater.from(parent.getContext())
+                return new BoardViewHolder(LayoutInflater
+                        .from(parent.getContext())
                         .inflate(R.layout.cell_browse_board, parent, false));
             } else {
                 throw new IllegalArgumentException();

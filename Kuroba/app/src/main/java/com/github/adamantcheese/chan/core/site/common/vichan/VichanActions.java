@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import static android.text.TextUtils.isEmpty;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
@@ -25,10 +27,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.Reply;
-import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.http.*;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -42,8 +41,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import okhttp3.Response;
-
-import static android.text.TextUtils.isEmpty;
 
 public class VichanActions
         extends CommonSite.CommonActions {

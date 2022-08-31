@@ -1,8 +1,6 @@
 package com.github.adamantcheese.chan.ui.text;
 
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.graphics.*;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.LineBackgroundSpan;
@@ -47,15 +45,17 @@ public class CodeBackgroundSpan
         int spanEnd = lineText.getSpanEnd(this); // where this span ends on this line
         CharSequence preText = lineText.subSequence(0, spanStart); // the text that is before this span
         CharSequence spanned = lineText.subSequence(spanStart, spanEnd); // the text spanned in this line
-        float preSpannedWidth = paint.measureText(preText, 0, preText.length()); // the width of the text before the span
+        float preSpannedWidth =
+                paint.measureText(preText, 0, preText.length()); // the width of the text before the span
         float newLeft = left + preSpannedWidth; // the starting point of the span on the line
-        boolean lineMatchesSpanned = TextUtils.equals(StringUtils.chomp(spanned), StringUtils.chomp(lineText)); // does the span fill the whole line?
+        boolean lineMatchesSpanned = TextUtils.equals(StringUtils.chomp(spanned),
+                StringUtils.chomp(lineText)
+        ); // does the span fill the whole line?
 
         // draw background
         // if the text (minus any end newlines) matches exactly, set the background to the entire line
         // otherwise highlight the appropriate area, calculating the spanned width with proper attributes
-        canvas.drawRect(
-                lineMatchesSpanned ? left : newLeft,
+        canvas.drawRect(lineMatchesSpanned ? left : newLeft,
                 top,
                 lineMatchesSpanned ? right : newLeft + workPaint.measureText(spanned, 0, spanned.length()),
                 bottom,

@@ -1,13 +1,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 public class LoadingViewController
         extends BaseFloatingController {

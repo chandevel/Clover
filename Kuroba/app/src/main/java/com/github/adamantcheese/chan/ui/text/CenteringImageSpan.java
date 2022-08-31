@@ -1,16 +1,15 @@
 package com.github.adamantcheese.chan.ui.text;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
+import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.text.style.ImageSpan;
 
 import androidx.annotation.NonNull;
 
-public class CenteringImageSpan extends ImageSpan {
+public class CenteringImageSpan
+        extends ImageSpan {
 
     public CenteringImageSpan(
             @NonNull Context context, @NonNull Bitmap bitmap
@@ -68,9 +67,12 @@ public class CenteringImageSpan extends ImageSpan {
     ) {
         Paint.FontMetricsInt metrics = paint.getFontMetricsInt();
         canvas.save();
-        canvas.translate(x,
-                bottom - getDrawable().getBounds().bottom - metrics.bottom + metrics.descent / 2f
-                        + metrics.ascent / 2f + getDrawable().getBounds().height() / 2f
+        canvas.translate(
+                x,
+                bottom - getDrawable().getBounds().bottom - metrics.bottom
+                        + metrics.descent / 2f
+                        + metrics.ascent / 2f
+                        + getDrawable().getBounds().height() / 2f
         );
         getDrawable().draw(canvas);
         canvas.restore();

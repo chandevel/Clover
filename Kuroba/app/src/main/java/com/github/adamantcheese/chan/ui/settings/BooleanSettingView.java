@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
@@ -23,8 +25,6 @@ import android.widget.Switch;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class BooleanSettingView
         extends SettingView

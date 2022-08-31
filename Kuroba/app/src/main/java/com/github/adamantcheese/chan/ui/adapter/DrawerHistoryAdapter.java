@@ -1,10 +1,18 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
+import static android.graphics.Typeface.BOLD;
+import static android.view.Gravity.*;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static androidx.recyclerview.widget.RecyclerView.NO_ID;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.content.Context;
 import android.text.style.StyleSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,24 +34,6 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static android.graphics.Typeface.BOLD;
-import static android.view.Gravity.CENTER;
-import static android.view.Gravity.CENTER_HORIZONTAL;
-import static android.view.Gravity.CENTER_VERTICAL;
-import static android.view.Gravity.START;
-import static android.view.Gravity.TOP;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static androidx.recyclerview.widget.RecyclerView.NO_ID;
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell>

@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common;
 
+import static android.text.TextUtils.isEmpty;
+
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
@@ -26,24 +28,12 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
-import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.core.site.SiteBase;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
+import com.github.adamantcheese.chan.core.site.*;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
+import com.github.adamantcheese.chan.core.site.http.*;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 
@@ -53,11 +43,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
-
-import static android.text.TextUtils.isEmpty;
+import okhttp3.*;
 
 /**
  * Your base site implementation; take a look at {@link #initialize(int, JsonSettings)} for the exact items you need to specify.
@@ -258,7 +244,8 @@ public abstract class CommonSite
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
+                return getUrl()
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(String.valueOf(loadable.no))

@@ -1,5 +1,8 @@
 package com.github.adamantcheese.chan.ui.text;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
+
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 import android.text.style.UpdateAppearance;
@@ -8,9 +11,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 public class ChanHighlightSpan
         extends CharacterStyle

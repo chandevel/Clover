@@ -28,20 +28,12 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.random.Random;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class QuickLatexEmbedder
         extends VoidEmbedder {
@@ -86,7 +78,8 @@ public class QuickLatexEmbedder
             String rawMath = linkMatcher.group(0);
             if (rawMath == null) continue;
 
-            String sanitizedMath = rawMath.replace("[math]", "$")
+            String sanitizedMath = rawMath
+                    .replace("[math]", "$")
                     .replace("[eqn]", "$$")
                     .replace("[/math]", "$")
                     .replace("[/eqn]", "$$")
@@ -162,7 +155,8 @@ public class QuickLatexEmbedder
                 "&rnd=" + Random.Default.nextDouble() * 100 +
                 "&remhost=quicklatex.com";
         //@formatter:on
-        return new Request.Builder().url("https://www.quicklatex.com/latex3.f")
+        return new Request.Builder()
+                .url("https://www.quicklatex.com/latex3.f")
                 .post(RequestBody.create(postBody, null))
                 .build();
     }

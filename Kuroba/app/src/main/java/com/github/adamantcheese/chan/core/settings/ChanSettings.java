@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.settings;
 
+import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -26,34 +30,16 @@ import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.settings.base_dir.SavedFilesBaseDirSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.Setting;
-import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
-
-import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppDir;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getScreenOrientation;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isConnected;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * This settings class is for all persistable settings that should be saved as preferences. Note that all settings in here
@@ -609,7 +595,9 @@ public class ChanSettings {
             int readAmount = inputStream.read(buffer);
 
             if (readAmount != file.length()) {
-                throw new IOException("Could not read shared prefs file readAmount != fileLength " + readAmount + ", "
+                throw new IOException("Could not read shared prefs file readAmount != fileLength "
+                        + readAmount
+                        + ", "
                         + file.length());
             }
         }

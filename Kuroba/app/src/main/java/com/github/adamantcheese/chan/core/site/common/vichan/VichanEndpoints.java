@@ -52,7 +52,8 @@ public class VichanEndpoints
 
     @Override
     public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-        return root.builder()
+        return root
+                .builder()
                 .s(post.board.code)
                 .s("thumb")
                 .s(arg.get("tim") + (arg.get("ext").equals("webm") ? ".webm" : ".png"))

@@ -16,12 +16,22 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
+import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ALL_POSTS;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getJobScheduler;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.app.job.JobInfo;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.PersistableBundle;
+import android.os.*;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -40,34 +50,12 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.service.LastPageNotification;
 import com.github.adamantcheese.chan.ui.service.WatchNotification;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Debouncer;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
-import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
-import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
-import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ALL_POSTS;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getJobScheduler;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
-import static com.github.adamantcheese.chan.utils.BackgroundUtils.isInForeground;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import java.util.*;
 
 /**
  * Manages all Pin related management.
@@ -515,7 +503,11 @@ public class WatchManager
         BackgroundUtils.ensureMainThread();
 
         Logger.vd(this,
-                "updateState watchEnabled=" + watchEnabled + " backgroundEnabled=" + backgroundEnabled + " foreground="
+                "updateState watchEnabled="
+                        + watchEnabled
+                        + " backgroundEnabled="
+                        + backgroundEnabled
+                        + " foreground="
                         + isInForeground()
         );
 
@@ -693,7 +685,8 @@ public class WatchManager
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
             Logger.d(this,
-                    waitingForPinWatchersForBackgroundUpdate.size() + " pin watchers beginning updates, started at "
+                    waitingForPinWatchersForBackgroundUpdate.size()
+                            + " pin watchers beginning updates, started at "
                             + StringUtils.getCurrentTimeDefaultLocale()
             );
             WakeManager.getInstance().manageLock(true, WatchManager.this);
@@ -946,7 +939,8 @@ public class WatchManager
 
         private void doPageNotification() {
             ChanPage page = PageRepository.getPage(chanLoader.getLoadable());
-            if (ChanSettings.watchEnabled.get() && ChanSettings.watchLastPageNotify.get()
+            if (ChanSettings.watchEnabled.get()
+                    && ChanSettings.watchLastPageNotify.get()
                     && ChanSettings.watchBackground.get()) {
                 if (page != null && page.page >= pin.loadable.board.pages && !notified) {
                     lastPageNotify(true); //schedules a job to notify the user of a last page

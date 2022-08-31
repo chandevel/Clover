@@ -16,6 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -23,11 +28,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.github.adamantcheese.chan.R;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 /**
  * The container view for the list of ToolbarMenuItems, a list of ImageViews.

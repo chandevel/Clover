@@ -32,13 +32,9 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.nfc.NdefMessage;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
+import android.nfc.*;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
+import android.view.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -50,26 +46,15 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.UpdateManager;
-import com.github.adamantcheese.chan.core.manager.WatchManager;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
+import com.github.adamantcheese.chan.core.manager.*;
+import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteResolver;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
-import com.github.adamantcheese.chan.ui.controller.BrowseController;
-import com.github.adamantcheese.chan.ui.controller.DoubleNavigationController;
-import com.github.adamantcheese.chan.ui.controller.DrawerController;
-import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
-import com.github.adamantcheese.chan.ui.controller.SplitNavigationController;
-import com.github.adamantcheese.chan.ui.controller.StyledToolbarNavigationController;
-import com.github.adamantcheese.chan.ui.controller.ThreadSlideController;
-import com.github.adamantcheese.chan.ui.controller.ViewThreadController;
+import com.github.adamantcheese.chan.ui.controller.*;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -77,9 +62,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.callback.FSAFActivityCallbacks;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.eventbus.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -207,9 +190,8 @@ public class StartActivity
                 }
                 return true;
             } else {
-                getDefaultAlertBuilder(this).setMessage(getString(R.string.open_link_not_matched,
-                                BuildConfig.APP_LABEL
-                        ))
+                getDefaultAlertBuilder(this)
+                        .setMessage(getString(R.string.open_link_not_matched, BuildConfig.APP_LABEL))
                         .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();
             }
@@ -300,7 +282,8 @@ public class StartActivity
 
         if (layoutMode == SLIDE || layoutMode == PHONE) {
             ThreadSlideController slideController = new ThreadSlideController(this);
-            slideController.setEmptyView((ViewGroup) LayoutInflater.from(this)
+            slideController.setEmptyView((ViewGroup) LayoutInflater
+                    .from(this)
                     .inflate(R.layout.layout_split_empty, null));
             mainNavigationController.pushController(slideController, false);
             slideController.setLeftController(browseController);
@@ -488,7 +471,8 @@ public class StartActivity
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        if (isAndroid10() && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits
+        if (isAndroid10()
+                && (newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK) != currentNightModeBits
                 && ThemeHelper.areDayAndNightThemesDifferent()) {
             restartApp();
         }

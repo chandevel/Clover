@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 import android.net.Uri;
 import android.widget.Toast;
@@ -23,9 +27,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.*;
 import com.github.adamantcheese.chan.core.presenter.ImportExportSettingsPresenter;
 import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -43,10 +45,6 @@ import com.github.k1rakishou.fsaf.file.ExternalFile;
 import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImportExportSettingsController
         extends SettingsController
@@ -134,7 +132,8 @@ public class ImportExportSettingsController
         String messagePartOne =
                 getString(R.string.import_or_export_warning_super_long_message_part_one, savedFilesString);
 
-        getDefaultAlertBuilder(context).setTitle(getString(R.string.import_or_export_warning))
+        getDefaultAlertBuilder(context)
+                .setTitle(getString(R.string.import_or_export_warning))
                 .setMessage(messagePartOne)
                 .setPositiveButton(R.string.ok, (dialog, which) -> {
                     dialog.dismiss();
@@ -154,7 +153,8 @@ public class ImportExportSettingsController
         int positiveButtonId = R.string.import_or_export_dialog_positive_button_text;
         int negativeButtonId = R.string.import_or_export_dialog_negative_button_text;
 
-        getDefaultAlertBuilder(context).setTitle(R.string.import_or_export_dialog_title)
+        getDefaultAlertBuilder(context)
+                .setTitle(R.string.import_or_export_dialog_title)
                 .setPositiveButton(positiveButtonId, (dialog, which) -> overwriteExisting())
                 .setNegativeButton(negativeButtonId, (dialog, which) -> createNew())
                 .create()

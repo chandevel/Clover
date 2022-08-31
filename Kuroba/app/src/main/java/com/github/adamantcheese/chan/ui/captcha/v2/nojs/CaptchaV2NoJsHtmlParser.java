@@ -49,7 +49,8 @@ public class CaptchaV2NoJsHtmlParser {
                 CaptchaV2NoJsInfo.CaptchaType.fromCheckboxesCount(captchaPage.select("input[type=checkbox]").size());
         captchaV2NoJsInfo.cParameter = captchaPage.select("input[name=c]").attr("value");
 
-        String bareTitle = captchaPage.select(".rc-imageselect-desc-no-canonical,.rc-imageselect-desc")
+        String bareTitle = captchaPage
+                .select(".rc-imageselect-desc-no-canonical,.rc-imageselect-desc")
                 .first()
                 .wholeText()
                 .replace("Select all images", "Tap all");

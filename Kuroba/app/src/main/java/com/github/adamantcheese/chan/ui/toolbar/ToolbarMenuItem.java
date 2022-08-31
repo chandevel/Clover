@@ -16,6 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -30,11 +35,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * An item for the Toolbar menu. These are ImageViews with an icon, that when pressed call

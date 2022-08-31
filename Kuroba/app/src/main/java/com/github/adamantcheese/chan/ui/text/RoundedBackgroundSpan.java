@@ -3,14 +3,10 @@ package com.github.adamantcheese.chan.ui.text;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
-import android.text.Spanned;
-import android.text.StaticLayout;
-import android.text.TextPaint;
+import android.text.*;
 import android.text.style.LineBackgroundSpan;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
+import androidx.annotation.*;
 
 @RequiresApi(api = Build.VERSION_CODES.M)
 public class RoundedBackgroundSpan

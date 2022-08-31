@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
 import android.view.View;
 
@@ -26,9 +30,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager.PinMessages;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
@@ -38,29 +40,17 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
-import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.skydoves.balloon.ArrowOrientation;
-import com.skydoves.balloon.ArrowPositionRules;
-import com.skydoves.balloon.Balloon;
+import com.skydoves.balloon.*;
 
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class ViewThreadController
         extends ThreadController
@@ -124,9 +114,10 @@ public class ViewThreadController
             );
         }
 
-        menuOverflowBuilder.withSubItem(R.string.action_search,
-                () -> ((ToolbarNavigationController) navigationController).showSearch()
-        )
+        menuOverflowBuilder
+                .withSubItem(R.string.action_search,
+                        () -> ((ToolbarNavigationController) navigationController).showSearch()
+                )
                 .withSubItem(R.string.action_reload, () -> threadLayout.getPresenter().requestData());
         if (loadable.site instanceof Chan4) { //archives are 4chan only
             menuOverflowBuilder.withSubItem(OverflowMenuId.VIEW_ARCHIVE,
@@ -134,10 +125,11 @@ public class ViewThreadController
                     () -> threadLayout.getPresenter().showArchives(loadable, loadable.no)
             );
         }
-        menuOverflowBuilder.withSubItem(OverflowMenuId.VIEW_REMOVED,
-                R.string.view_removed_posts,
-                () -> threadLayout.getPresenter().showRemovedPostsDialog()
-        )
+        menuOverflowBuilder
+                .withSubItem(OverflowMenuId.VIEW_REMOVED,
+                        R.string.view_removed_posts,
+                        () -> threadLayout.getPresenter().showRemovedPostsDialog()
+                )
                 .withSubItem(R.string.view_my_posts, this::showYourPosts)
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
@@ -229,15 +221,16 @@ public class ViewThreadController
         if (threadLoadable.site instanceof ExternalSiteArchive && !loadable.site.equals(threadLoadable.site)) {
             showThreadInternal(threadLoadable);
         } else {
-            getDefaultAlertBuilder(context).setNegativeButton(R.string.cancel, null)
+            getDefaultAlertBuilder(context)
+                    .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> showThreadInternal(threadLoadable))
                     .setTitle(!(threadLoadable.site instanceof ExternalSiteArchive)
                             ? R.string.open_thread_confirmation
                             : R.string.open_archived_thread_confirmation)
-                    .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no + (
-                            threadLoadable.markedNo != -1 && threadLoadable.markedNo != threadLoadable.no
-                                    ? " #" + threadLoadable.markedNo
-                                    : ""))
+                    .setMessage("/" + threadLoadable.boardCode + "/" + threadLoadable.no + (threadLoadable.markedNo
+                            != -1 && threadLoadable.markedNo != threadLoadable.no
+                            ? " #" + threadLoadable.markedNo
+                            : ""))
                     .show();
         }
     }
@@ -335,19 +328,22 @@ public class ViewThreadController
     }
 
     private void showHints() {
-        Balloon pinHint = AndroidUtils.getBaseToolTip(context)
+        Balloon pinHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadPinHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.thread_pin_hint)
                 .build();
-        Balloon albumHint = AndroidUtils.getBaseToolTip(context)
+        Balloon albumHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadAlbumHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.thread_album_hint)
                 .build();
-        Balloon scrollHint = AndroidUtils.getBaseToolTip(context)
+        Balloon scrollHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ThreadUpDownHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
@@ -365,7 +361,8 @@ public class ViewThreadController
             }
         }
         if (drawer == null) return;
-        Balloon drawerHint = AndroidUtils.getBaseToolTip(context)
+        Balloon drawerHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setPreferenceName("DrawerHint")
                 .setArrowOrientation(ArrowOrientation.START)
                 .setText("Swipe right to access bookmarks and settings")

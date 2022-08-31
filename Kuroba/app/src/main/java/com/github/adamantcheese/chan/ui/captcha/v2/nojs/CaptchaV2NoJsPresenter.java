@@ -36,11 +36,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class CaptchaV2NoJsPresenter {
     private static final String recaptchaUrlBase = "https://www.google.com/recaptcha/api/fallback?k=";
@@ -100,7 +96,8 @@ public class CaptchaV2NoJsPresenter {
 
                     Logger.d(CaptchaV2NoJsPresenter.this, "Verify called");
 
-                    Request request = new Request.Builder().url(recaptchaUrl)
+                    Request request = new Request.Builder()
+                            .url(recaptchaUrl)
                             .post(body)
                             .addHeader("Referer", recaptchaUrl)
                             .build();
@@ -186,7 +183,8 @@ public class CaptchaV2NoJsPresenter {
             throws IOException {
         BackgroundUtils.ensureBackgroundThread();
 
-        Request request = new Request.Builder().url(recaptchaUrlBase + siteKey)
+        Request request = new Request.Builder()
+                .url(recaptchaUrlBase + siteKey)
                 .cacheControl(NetUtilsClasses.NO_CACHE)
                 .addHeader("Referer", baseUrl)
                 .build();
@@ -200,13 +198,15 @@ public class CaptchaV2NoJsPresenter {
             throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(URLEncoder.encode("c", "utf-8"))
+        sb
+                .append(URLEncoder.encode("c", "utf-8"))
                 .append("=")
                 .append(URLEncoder.encode(prevCaptchaV2NoJsInfo.cParameter, "utf-8"))
                 .append("&");
 
         for (Integer selectedImageId : selectedIds) {
-            sb.append(URLEncoder.encode("response", "utf-8"))
+            sb
+                    .append(URLEncoder.encode("response", "utf-8"))
                     .append("=")
                     .append(URLEncoder.encode(String.valueOf(selectedImageId), "utf-8"))
                     .append("&");
@@ -229,8 +229,8 @@ public class CaptchaV2NoJsPresenter {
         try {
             if (!response.isSuccessful()) {
                 if (callbacks != null) {
-                    callbacks.onCaptchaInfoParseError(new IOException(
-                            "Bad status code for captcha request = " + response.code()));
+                    callbacks.onCaptchaInfoParseError(new IOException("Bad status code for captcha request = "
+                            + response.code()));
                 }
 
                 return null;

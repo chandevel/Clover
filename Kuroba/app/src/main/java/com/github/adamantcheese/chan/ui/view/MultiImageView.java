@@ -28,54 +28,31 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
+import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.webkit.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.*;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.ProgressResponseBody;
+import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.PostUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.Player;
+import com.github.adamantcheese.chan.utils.*;
+import com.google.android.exoplayer2.*;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.ext.okhttp.OkHttpDataSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MergingMediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.*;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor;
-import com.google.android.exoplayer2.upstream.cache.SimpleCache;
+import com.google.android.exoplayer2.upstream.cache.*;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -548,8 +525,9 @@ public class MultiImageView
             exoVideoView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
             exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
-            NetUtils.makeBitmapRequest(
-                    postImage.type == PostImage.Type.STATIC ? postImage.imageUrl : postImage.thumbnailUrl,
+            NetUtils.makeBitmapRequest(postImage.type == PostImage.Type.STATIC
+                            ? postImage.imageUrl
+                            : postImage.thumbnailUrl,
                     new BitmapResult() {
                         @Override
                         public void onBitmapFailure(
@@ -607,7 +585,8 @@ public class MultiImageView
         if (activeView instanceof CustomScaleImageView) {
             ((CustomScaleImageView) activeView).setTileBackgroundColor(newBackgroundColor);
         } else {
-            ((GifImageView) activeView).getDrawable()
+            ((GifImageView) activeView)
+                    .getDrawable()
                     .setColorFilter(new PorterDuffColorFilter(newBackgroundColor, PorterDuff.Mode.DST_OVER));
         }
 

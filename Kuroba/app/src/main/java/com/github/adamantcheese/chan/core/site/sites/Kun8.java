@@ -8,11 +8,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
+import com.github.adamantcheese.chan.core.site.common.vichan.*;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import java.util.Map;
@@ -34,7 +30,8 @@ public class Kun8
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
+                return getUrl()
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
@@ -58,7 +55,8 @@ public class Kun8
         setConfig(new CommonConfig() {
             @Override
             public boolean siteFeature(SiteFeature siteFeature) {
-                return super.siteFeature(siteFeature) || siteFeature == SiteFeature.POSTING
+                return super.siteFeature(siteFeature)
+                        || siteFeature == SiteFeature.POSTING
                         || siteFeature == SiteFeature.POST_DELETE;
             }
         });
@@ -71,10 +69,17 @@ public class Kun8
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
-                    return HttpUrl.get(
-                            "https://media.8kun.top/" + "file_store/" + arg.get("tim") + "." + arg.get("ext"));
+                    return HttpUrl.get("https://media.8kun.top/"
+                            + "file_store/"
+                            + arg.get("tim")
+                            + "."
+                            + arg.get("ext"));
                 } else {
-                    return HttpUrl.get("https://media.8kun.top/" + post.board.code + "/src/" + arg.get("tim") + "."
+                    return HttpUrl.get("https://media.8kun.top/"
+                            + post.board.code
+                            + "/src/"
+                            + arg.get("tim")
+                            + "."
                             + arg.get("ext"));
                 }
             }
@@ -95,13 +100,21 @@ public class Kun8
                 }
 
                 if (post.unixTimestampSeconds > IMAGE_CHANGE_DATE) {
-                    return HttpUrl.get(
-                            "https://media.8kun.top/" + "file_store/" + "thumb/" + arg.get("tim") + "." + ext);
+                    return HttpUrl.get("https://media.8kun.top/"
+                            + "file_store/"
+                            + "thumb/"
+                            + arg.get("tim")
+                            + "."
+                            + ext);
                 } else {
                     // this is imperfect, for some reason some thumbnails are png and others are jpg randomly
                     // kinda mucks up the image viewing as well
-                    return HttpUrl.get(
-                            "https://media.8kun.top/" + post.board.code + "/thumb/" + arg.get("tim") + "." + ext);
+                    return HttpUrl.get("https://media.8kun.top/"
+                            + post.board.code
+                            + "/thumb/"
+                            + arg.get("tim")
+                            + "."
+                            + ext);
                 }
             }
         });

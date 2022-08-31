@@ -2,16 +2,11 @@ package com.github.adamantcheese.chan.utils;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.format.DateUtils;
 import android.util.Base64;
 
-import androidx.annotation.ColorInt;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.*;
 
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
@@ -21,9 +16,7 @@ import com.vdurmont.emoji.EmojiParser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -132,7 +125,9 @@ public class StringUtils {
     public static String parseEmojiToAscii(String input) {
         return EmojiParser.parseFromUnicode(
                 input,
-                e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
+                e -> ":"
+                        + e.getEmoji().getAliases().get(0)
+                        + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
                         + ": "
         );
     }
@@ -159,12 +154,14 @@ public class StringUtils {
     }
 
     public static String getCurrentTimeDefaultLocale() {
-        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault())
+        return DateFormat
+                .getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault())
                 .format(new Date());
     }
 
     public static String getTimeDefaultLocale(long unixTime) {
-        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault())
+        return DateFormat
+                .getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.getDefault())
                 .format(new Date(unixTime));
     }
 
@@ -173,8 +170,9 @@ public class StringUtils {
             return string;
         }
 
-        return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "\u2026" + string.substring(
-                string.length() - maxLength / 2 - maxLength % 2);
+        return string.substring(0, maxLength / 2 + (maxLength % 2 - 1)) + "\u2026" + string.substring(string.length()
+                - maxLength / 2
+                - maxLength % 2);
     }
 
     public static String getShortString(int value) {

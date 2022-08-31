@@ -16,16 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+
 import android.content.Context;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListPopupWindow;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.OneShotPreDrawListener;
@@ -34,8 +29,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class FloatingMenu<T> {
     private final Context context;

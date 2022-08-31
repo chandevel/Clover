@@ -16,13 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -45,26 +52,11 @@ import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.skydoves.balloon.ArrowOrientation;
-import com.skydoves.balloon.ArrowPositionRules;
-import com.skydoves.balloon.Balloon;
+import com.skydoves.balloon.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.inject.Inject;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
 public class FiltersController
         extends Controller
@@ -100,7 +92,8 @@ public class FiltersController
             int from = viewHolder.getAdapterPosition();
             int to = target.getAdapterPosition();
 
-            if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION
+            if (from == RecyclerView.NO_POSITION
+                    || to == RecyclerView.NO_POSITION
                     || !TextUtils.isEmpty(adapter.searchQuery)) {
                 //require that no search is going on while we do the sorting
                 return false;
@@ -199,26 +192,30 @@ public class FiltersController
     @Override
     public void onNavItemSet() {
         if (navigation.search) return; // bit of a hack to ignore the search change
-        Balloon addHint = AndroidUtils.getBaseToolTip(context)
+        Balloon addHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("AddFilter")
                 .setArrowOrientation(ArrowOrientation.BOTTOM)
                 .setTextResource(R.string.filter_add_hint)
                 .build();
-        Balloon toggleHint = AndroidUtils.getBaseToolTip(context)
+        Balloon toggleHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("ToggleFilter")
                 .setArrowOrientation(ArrowOrientation.BOTTOM)
                 .setTextResource(R.string.filter_toggle_hint)
                 .build();
-        Balloon debugHint = AndroidUtils.getBaseToolTip(context)
+        Balloon debugHint = AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("DebugFilter")
                 .setArrowOrientation(ArrowOrientation.TOP)
                 .setTextResource(R.string.filter_debug_hint)
                 .build();
         // add, enable, debug
-        addHint.relayShowAlignTop(toggleHint, enable)
+        addHint
+                .relayShowAlignTop(toggleHint, enable)
                 .relayShowAlignBottom(debugHint, navigation.findItem(MenuId.DEBUG).getView());
         addHint.showAlignTop(add);
     }
@@ -319,7 +316,8 @@ public class FiltersController
         @NonNull
         @Override
         public FilterHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new FilterHolder(LayoutInflater.from(parent.getContext())
+            return new FilterHolder(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.cell_filter, parent, false));
         }
 

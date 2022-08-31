@@ -16,6 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.model.orm;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.INVALID;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
+import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
+
 import android.os.Parcel;
 import android.text.TextUtils;
 
@@ -32,18 +38,9 @@ import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.INVALID;
-import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
-import static com.github.adamantcheese.chan.utils.StringUtils.maskPostNo;
 
 /**
  * Something that can be loaded, like a board or thread.
@@ -224,9 +221,25 @@ public class Loadable
     @Override
     @NonNull
     public String toString() {
-        return "Loadable{mode=" + mode + ", board='" + boardCode + '\'' + ", no=" + maskPostNo(no) + '\''
-                + ", listViewIndex=" + listViewIndex + ", listViewTop=" + listViewTop + ", lastViewed=" + maskPostNo(
-                lastViewed) + ", lastLoaded=" + maskPostNo(lastLoaded) + ", markedNo=" + maskPostNo(markedNo) + '}';
+        return "Loadable{mode="
+                + mode
+                + ", board='"
+                + boardCode
+                + '\''
+                + ", no="
+                + maskPostNo(no)
+                + '\''
+                + ", listViewIndex="
+                + listViewIndex
+                + ", listViewTop="
+                + listViewTop
+                + ", lastViewed="
+                + maskPostNo(lastViewed)
+                + ", lastLoaded="
+                + maskPostNo(lastLoaded)
+                + ", markedNo="
+                + maskPostNo(markedNo)
+                + '}';
     }
 
     public boolean isThreadMode() {

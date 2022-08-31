@@ -1,9 +1,11 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.AUDIO_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -15,9 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.BuildConfigUtils.AUDIO_THUMB_URL;
-import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class ClypEmbedder
         extends JsonEmbedder {
@@ -103,7 +102,8 @@ public class ClypEmbedder
             return new EmbedResult(
                     title,
                     prettyPrintDateUtilsElapsedTime(duration),
-                    new PostImage.Builder().serverFilename(fileId)
+                    new PostImage.Builder()
+                            .serverFilename(fileId)
                             .thumbnailUrl(HttpUrl.get(
                                     "https://static.clyp.it/site/images/favicons/apple-touch-icon-precomposed.png"))
                             .imageUrl(mp3Url)

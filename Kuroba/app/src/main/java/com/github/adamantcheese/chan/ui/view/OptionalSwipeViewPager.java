@@ -18,9 +18,7 @@ package com.github.adamantcheese.chan.ui.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 
 import androidx.viewpager.widget.ViewPager;

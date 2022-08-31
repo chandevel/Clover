@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.Manifest;
 import android.content.Context;
 import android.widget.Toast;
@@ -34,13 +37,8 @@ import com.github.adamantcheese.chan.ui.controller.SaveLocationController;
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SaveLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.controller.settings.base_directory.SharedLocationSetupDelegate;
 import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
-import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.k1rakishou.fsaf.FileChooser;
@@ -54,9 +52,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class MediaSettingsController
         extends SettingsController
@@ -264,10 +259,10 @@ public class MediaSettingsController
                 @Override
                 public String getBottomDescription() {
                     boolean prefetchOn = ChanSettings.autoLoadThreadImages.get();
-                    return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (
-                            setting.get() == null
-                                    ? "Unknown!"
-                                    : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
+                    return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (setting.get()
+                            == null
+                            ? "Unknown!"
+                            : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
                 }
             });
             requiresRestart.add(fileCacheSetting);
@@ -289,7 +284,8 @@ public class MediaSettingsController
         ) {
             @Override
             public String getBottomDescription() {
-                return getString(R.string.media_settings_image_click_preload_strategy_description) + "\n\n"
+                return getString(R.string.media_settings_image_click_preload_strategy_description)
+                        + "\n\n"
                         + selected.name;
             }
         });

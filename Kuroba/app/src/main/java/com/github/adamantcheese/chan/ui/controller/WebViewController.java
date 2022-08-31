@@ -16,18 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AndroidRuntimeException;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 import android.widget.TextView;
 
 import com.github.adamantcheese.chan.R;
@@ -36,8 +33,6 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class WebViewController
         extends Controller {
@@ -95,7 +90,10 @@ public class WebViewController
                     } else {
                         Logger.i(
                                 WebViewController.this,
-                                consoleMessage.lineNumber() + ":" + consoleMessage.message() + " "
+                                consoleMessage.lineNumber()
+                                        + ":"
+                                        + consoleMessage.message()
+                                        + " "
                                         + consoleMessage.sourceId()
                         );
                         return super.onConsoleMessage(consoleMessage);

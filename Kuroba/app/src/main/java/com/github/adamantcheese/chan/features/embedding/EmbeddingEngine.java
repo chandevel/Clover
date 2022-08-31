@@ -19,13 +19,14 @@ import androidx.lifecycle.*;
 
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.embedders.*;
 import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
+import com.github.adamantcheese.chan.ui.text.post_linkables.EmbedderLinkLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -188,10 +189,9 @@ public class EmbeddingEngine
             InvalidateFunction invalidateFunction
     ) {
         // clear out any overlapping embed postlinkables
-        List<ParserLinkLinkable> autolinks =
-                new ArrayList<>(Arrays.asList(modifiableCopy.getSpans(0, modifiableCopy.length(), ParserLinkLinkable.class)));
-        List<EmbedderLinkLinkable> embedlinks =
-                new ArrayList<>(Arrays.asList(modifiableCopy.getSpans(0, modifiableCopy.length(), EmbedderLinkLinkable.class)));
+        ParserLinkLinkable[] autolinks = modifiableCopy.getSpans(0, modifiableCopy.length(), ParserLinkLinkable.class);
+        EmbedderLinkLinkable[] embedlinks =
+                modifiableCopy.getSpans(0, modifiableCopy.length(), EmbedderLinkLinkable.class);
 
         // remove autolinks if an embed link exists
         for (ParserLinkLinkable autolink : autolinks) {
@@ -338,10 +338,11 @@ public class EmbeddingEngine
                 int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
                 siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
 
-                replacement.append(span(" ", siteIcon))
-                           .append(" ")
-                           .append(parseResult.title)
-                           .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration);
+                replacement
+                        .append(span(" ", siteIcon))
+                        .append(" ")
+                        .append(parseResult.title)
+                        .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration);
 
                 // Set the linkable to be the entire length, including the icon
                 EmbedderLinkLinkable pl = new EmbedderLinkLinkable(theme, URL);

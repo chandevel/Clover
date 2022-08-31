@@ -274,11 +274,13 @@ public class NetUtils {
         }
         client = client.newBuilder().addNetworkInterceptor(chain -> {
             Response originalResponse = chain.proceed(chain.request());
-            return originalResponse.newBuilder()
+            return originalResponse
+                    .newBuilder()
                     .body(new ProgressResponseBody(originalResponse, progressListener))
                     .build();
         }).build();
-        Call call = client.newCall(new Request.Builder().url(url)
+        Call call = client.newCall(new Request.Builder()
+                .url(url)
                 .addHeader("Referer", url.toString())
                 .cacheControl(ONE_YEAR_CACHE)
                 .build());
@@ -557,7 +559,8 @@ public class NetUtils {
         clientBuilder.callTimeout(timeoutMs, TimeUnit.MILLISECONDS);
         clientBuilder.addNetworkInterceptor(chain -> {
             Response originalResponse = chain.proceed(chain.request());
-            return originalResponse.newBuilder()
+            return originalResponse
+                    .newBuilder()
                     .body(new ProgressResponseBody(originalResponse, progressListener))
                     .build();
         });

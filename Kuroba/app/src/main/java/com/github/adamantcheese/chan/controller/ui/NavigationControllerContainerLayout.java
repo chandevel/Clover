@@ -16,17 +16,15 @@
  */
 package com.github.adamantcheese.chan.controller.ui;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.VelocityTracker;
-import android.view.ViewConfiguration;
+import android.view.*;
 import android.widget.FrameLayout;
 import android.widget.Scroller;
 
@@ -38,13 +36,7 @@ import com.github.adamantcheese.chan.features.gesture_editor.Android10GesturesEx
 import com.github.adamantcheese.chan.features.gesture_editor.ExclusionZone;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import java.util.*;
 
 public class NavigationControllerContainerLayout
         extends FrameLayout {
@@ -133,9 +125,10 @@ public class NavigationControllerContainerLayout
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
-        if (!swipeEnabled || tracking || navigationController.isBlockingInput() || (
-                navigationController.getTop() != null && navigationController.getTop().navigation != null
-                        && !navigationController.getTop().navigation.swipeable) || getBelowTop() == null) {
+        if (!swipeEnabled || tracking || navigationController.isBlockingInput() || (navigationController.getTop()
+                != null
+                && navigationController.getTop().navigation != null
+                && !navigationController.getTop().navigation.swipeable) || getBelowTop() == null) {
             return false;
         }
 

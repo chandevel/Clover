@@ -16,12 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.content.DialogInterface;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -29,13 +34,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LimitCallback;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class SeekbarSettingView
         extends SettingView {
@@ -117,7 +115,8 @@ public class SeekbarSettingView
             settingsController.onPreferenceChange(SeekbarSettingView.this);
         };
 
-        AlertDialog dialog = getDefaultAlertBuilder(v.getContext()).setPositiveButton(R.string.ok, clickListener)
+        AlertDialog dialog = getDefaultAlertBuilder(v.getContext())
+                .setPositiveButton(R.string.ok, clickListener)
                 .setNeutralButton(R.string.default_, (d, which) -> {
                     setting.set(setting.getDefault());
                     settingsController.onPreferenceChange(SeekbarSettingView.this);

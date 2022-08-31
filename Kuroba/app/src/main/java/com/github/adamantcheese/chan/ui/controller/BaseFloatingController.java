@@ -1,13 +1,13 @@
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import com.github.adamantcheese.chan.controller.Controller;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
-import static com.github.adamantcheese.chan.utils.AnimationUtils.animateStatusBar;
 
 public abstract class BaseFloatingController
         extends Controller {

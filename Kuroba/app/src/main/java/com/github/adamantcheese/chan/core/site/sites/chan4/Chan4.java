@@ -62,14 +62,16 @@ public class Chan4
         @SuppressWarnings("ConstantConditions")
         @Override
         public boolean respondsTo(@NonNull HttpUrl url) {
-            return url.topPrivateDomain().equalsIgnoreCase(b.topPrivateDomain()) || url.topPrivateDomain()
+            return url.topPrivateDomain().equalsIgnoreCase(b.topPrivateDomain()) || url
+                    .topPrivateDomain()
                     .equalsIgnoreCase(bSafe.topPrivateDomain());
         }
 
         @Override
         public String desktopUrl(Loadable loadable, int postNo) {
             if (loadable.isThreadMode()) {
-                String url = (loadable.board.workSafe ? bSafe : b).newBuilder()
+                String url = (loadable.board.workSafe ? bSafe : b)
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("thread")
                         .addPathSegment(String.valueOf(loadable.no))
@@ -80,7 +82,8 @@ public class Chan4
                 }
                 return url;
             } else {
-                return (loadable.board.workSafe ? bSafe : b).newBuilder()
+                return (loadable.board.workSafe ? bSafe : b)
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .build()
                         .toString();
@@ -151,7 +154,8 @@ public class Chan4
 
         @Override
         public HttpUrl thread(Loadable loadable) {
-            return a.newBuilder()
+            return a
+                    .newBuilder()
                     .addPathSegment(loadable.boardCode)
                     .addPathSegment("thread")
                     .addPathSegment(loadable.no + ".json")
@@ -225,7 +229,8 @@ public class Chan4
                             );
 
                             Pattern flagPattern = Pattern.compile(
-                                    "\\.bfl-" + boardFlagCode
+                                    "\\.bfl-"
+                                            + boardFlagCode
                                             + "[\\s\\S ]*?\\{[\\s\\S ]*?background-position:.*?(\\d+)(?:px)? .*?(\\d+)(?:px)?[\\s\\S ]*?\\}",
                                     Pattern.CASE_INSENSITIVE
                             );
@@ -235,7 +240,8 @@ public class Chan4
                             Pair<Integer, Integer> origin = new Pair<>(Math.abs(Integer.parseInt(flagMatcher.group(1))),
                                     Math.abs(Integer.parseInt(flagMatcher.group(2)))
                             );
-                            return new Pair<>(iconBuilder.addPathSegment("flags.png")
+                            return new Pair<>(iconBuilder
+                                    .addPathSegment("flags.png")
                                     .encodedFragment(flagMatcher.group())
                                     .build(), new NetUtilsClasses.CroppingBitmapResult(origin, dims));
                         } catch (Exception e) {
@@ -268,7 +274,8 @@ public class Chan4
 
         @Override
         public HttpUrl archive(Board board) {
-            return (board.workSafe ? bSafe : b).newBuilder()
+            return (board.workSafe ? bSafe : b)
+                    .newBuilder()
                     .addPathSegment(board.code)
                     .addPathSegment("archive")
                     .build();
@@ -276,7 +283,8 @@ public class Chan4
 
         @Override
         public HttpUrl reply(Loadable loadable) {
-            return (loadable.board.workSafe ? sysSafe : sys).newBuilder()
+            return (loadable.board.workSafe ? sysSafe : sys)
+                    .newBuilder()
                     .addPathSegment(loadable.boardCode)
                     .addPathSegment("post")
                     .build();
@@ -284,7 +292,8 @@ public class Chan4
 
         @Override
         public HttpUrl delete(Post post) {
-            return (post.board.workSafe ? sysSafe : sys).newBuilder()
+            return (post.board.workSafe ? sysSafe : sys)
+                    .newBuilder()
                     .addPathSegment(post.board.code)
                     .addPathSegment("imgboard.php")
                     .build();
@@ -292,7 +301,8 @@ public class Chan4
 
         @Override
         public HttpUrl report(Post post) {
-            return (post.board.workSafe ? sysSafe : sys).newBuilder()
+            return (post.board.workSafe ? sysSafe : sys)
+                    .newBuilder()
                     .addPathSegment(post.board.code)
                     .addPathSegment("imgboard.php")
                     .addQueryParameter("mode", "report")
@@ -399,7 +409,8 @@ public class Chan4
                     case V2NOJS:
                         return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, b.toString());
                     case CUSTOM:
-                        HttpUrl.Builder urlBuilder = (loadableWithDraft.board.workSafe ? sysSafe : sys).newBuilder()
+                        HttpUrl.Builder urlBuilder = (loadableWithDraft.board.workSafe ? sysSafe : sys)
+                                .newBuilder()
                                 .addPathSegment("captcha")
                                 .addQueryParameter("board", loadableWithDraft.board.code);
                         if (loadableWithDraft.isThreadMode()) {

@@ -16,29 +16,16 @@
  */
 package com.github.adamantcheese.chan.utils;
 
-import static android.content.Context.AUDIO_SERVICE;
-import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
-import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.NOTIFICATION_SERVICE;
+import static android.content.Context.*;
 import static android.content.res.Configuration.ORIENTATION_LANDSCAPE;
 import static android.content.res.Configuration.ORIENTATION_PORTRAIT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Application;
-import android.app.Dialog;
-import android.app.NotificationManager;
+import android.app.*;
 import android.app.job.JobScheduler;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -47,17 +34,11 @@ import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.net.Uri;
+import android.net.*;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
@@ -81,9 +62,7 @@ import com.skydoves.balloon.Balloon;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 public class AndroidUtils {
     private static final String CHAN_STATE_PREFS_NAME = "chan_state";
@@ -520,7 +499,8 @@ public class AndroidUtils {
      * @return A hint popup that still needs additional information.
      */
     public static Balloon.Builder getBaseToolTip(Context context) {
-        return new Balloon.Builder(context).setTextSize(14f)
+        return new Balloon.Builder(context)
+                .setTextSize(14f)
                 .setPadding(10)
                 .setCornerRadius(2f)
                 .setDismissWhenClicked(true)

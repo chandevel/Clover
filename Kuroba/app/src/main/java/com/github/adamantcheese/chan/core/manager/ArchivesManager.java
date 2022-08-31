@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.util.JsonReader;
@@ -26,24 +28,16 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
-import com.github.adamantcheese.chan.core.site.archives.AyaseArchive;
-import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.archives.FoolFuukaArchive;
+import com.github.adamantcheese.chan.core.site.archives.*;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
 public class ArchivesManager
         implements NetUtilsClasses.Converter<List<ExternalSiteArchive>, JsonReader>,
@@ -156,7 +150,8 @@ public class ArchivesManager
             reader.endObject();
             Class<? extends ExternalSiteArchive> archiveClass = jsonMapping.get(software);
             if (archiveClass != null) {
-                archives.add(archiveClass.getConstructor(String.class, String.class, List.class, boolean.class)
+                archives.add(archiveClass
+                        .getConstructor(String.class, String.class, List.class, boolean.class)
                         .newInstance(domain, name, boardCodes, search));
             }
         }

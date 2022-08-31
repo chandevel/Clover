@@ -13,7 +13,8 @@ public abstract class JsonEmbedder
     @Override
     public EmbedResult convert(Response response)
             throws Exception {
-        return new NetUtilsClasses.ChainConverter<>(getInternalConverter()).chain(NetUtilsClasses.JSON_CONVERTER)
+        return new NetUtilsClasses.ChainConverter<>(getInternalConverter())
+                .chain(NetUtilsClasses.JSON_CONVERTER)
                 .convert(response);
     }
 

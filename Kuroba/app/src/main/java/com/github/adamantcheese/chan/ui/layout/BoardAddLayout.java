@@ -18,13 +18,8 @@ package com.github.adamantcheese.chan.ui.layout;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -154,7 +149,8 @@ public class BoardAddLayout
         @Override
         @NonNull
         public SuggestionCell onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new SuggestionCell(LayoutInflater.from(parent.getContext())
+            return new SuggestionCell(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.cell_board_suggestion, parent, false));
         }
 

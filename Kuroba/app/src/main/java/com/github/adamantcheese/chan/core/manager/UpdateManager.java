@@ -16,13 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_API_ENDPOINT;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
-import static com.github.adamantcheese.chan.BuildConfig.UPDATE_API_ENDPOINT;
-import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
-import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
-import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
+import static com.github.adamantcheese.chan.BuildConfig.*;
 import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NO_OP;
 import static com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction.prepare;
@@ -47,10 +41,8 @@ import androidx.core.content.FileProvider;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
-import com.github.adamantcheese.chan.core.net.UpdateApiParser;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions;
@@ -85,10 +77,12 @@ public class UpdateManager {
     public void autoUpdateCheck() {
         if (!DEV_BUILD && PersistableChanState.previousVersion.get() < VERSION_CODE) {
             // Show dialog because release updates are infrequent so it's fine
-            CharSequence text = new HtmlNodeTreeAction(CommonCSSActions.HEADER_TAG_RELATIVE_SIZE, NO_OP).style(prepare(
-                    "<h3>" + BuildConfig.APP_LABEL + " was updated to " + VERSION_NAME + ".</h3>",
-                    ""
-            ), null);
+            CharSequence text =
+                    new HtmlNodeTreeAction(CommonCSSActions.HEADER_TAG_RELATIVE_SIZE, NO_OP).style(prepare("<h3>"
+                            + BuildConfig.APP_LABEL
+                            + " was updated to "
+                            + VERSION_NAME
+                            + ".</h3>", ""), null);
             final AlertDialog dialog =
                     getDefaultAlertBuilder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(true);
@@ -144,7 +138,8 @@ public class UpdateManager {
 
                         @Override
                         public void onSuccess(UpdateApiResponse result) {
-                            if (!processUpdateApiResponse(result, manual) && manual
+                            if (!processUpdateApiResponse(result, manual)
+                                    && manual
                                     && BackgroundUtils.isInForeground()) {
                                 showToast(context,
                                         getString(R.string.update_none, BuildConfig.APP_LABEL),
@@ -195,8 +190,8 @@ public class UpdateManager {
                 boolean concat = !response.updateTitle.isEmpty();
                 CharSequence updateMessage =
                         concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
-                AlertDialog dialog = getDefaultAlertBuilder(context).setTitle(
-                                BuildConfig.APP_LABEL + " " + response.versionCodeString + " available")
+                AlertDialog dialog = getDefaultAlertBuilder(context)
+                        .setTitle(BuildConfig.APP_LABEL + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
                         .setNegativeButton(R.string.update_later, null)
                         .setPositiveButton(R.string.update_install, (dialog1, which) -> {
@@ -238,7 +233,8 @@ public class UpdateManager {
     private void failedUpdate(boolean manual) {
         Logger.e(this, "Failed to process " + (DEV_BUILD ? "dev" : "stable") + " API call for updating");
         if (manual && BackgroundUtils.isInForeground()) {
-            getDefaultAlertBuilder(context).setTitle(R.string.update_check_failed)
+            getDefaultAlertBuilder(context)
+                    .setTitle(R.string.update_check_failed)
                     .setPositiveButton(R.string.ok, null)
                     .show();
         }
@@ -270,7 +266,8 @@ public class UpdateManager {
                             updateDownloadDialog.dismiss();
                             updateDownloadDialog = null;
                         }
-                        getDefaultAlertBuilder(context).setTitle(R.string.update_install_download_failed)
+                        getDefaultAlertBuilder(context)
+                                .setTitle(R.string.update_install_download_failed)
                                 .setMessage(getString(R.string.update_install_download_failed_description,
                                         e.getMessage()
                                 ))

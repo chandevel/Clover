@@ -9,7 +9,8 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 /**
  * The Object can be a ThreadLink or a ResolveLink.
  */
-public class ArchiveLinkable extends PostLinkable<Object>{
+public class ArchiveLinkable
+        extends PostLinkable<Object> {
     public ArchiveLinkable(
             @NonNull Theme theme, Object value
     ) {

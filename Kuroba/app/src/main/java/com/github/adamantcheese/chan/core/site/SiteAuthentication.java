@@ -16,12 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA1;
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2;
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CAPTCHA2_NOJS;
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.CUSTOM_JSON;
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.GENERIC_WEBVIEW;
-import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.NONE;
+import static com.github.adamantcheese.chan.core.site.SiteAuthentication.Type.*;
 
 @SuppressWarnings("ALL")
 public class SiteAuthentication {

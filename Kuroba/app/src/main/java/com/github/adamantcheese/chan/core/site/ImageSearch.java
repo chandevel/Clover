@@ -108,8 +108,12 @@ public abstract class ImageSearch {
 
             public String getUrl(PostImage image) {
                 return "https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl:"
-                        + image.getSearchUrl() + "&idpbck=1&selectedindex=0&id=" + image.getSearchUrl()
-                        + "&ccid=EgN4f83z&mediaurl=" + image.getSearchUrl() + "&exph=1080&expw=1920&vt=2&sim=11";
+                        + image.getSearchUrl()
+                        + "&idpbck=1&selectedindex=0&id="
+                        + image.getSearchUrl()
+                        + "&ccid=EgN4f83z&mediaurl="
+                        + image.getSearchUrl()
+                        + "&exph=1080&expw=1920&vt=2&sim=11";
             }
         });
 

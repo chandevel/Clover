@@ -16,6 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -40,9 +46,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
+import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
@@ -50,17 +54,6 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 public class CardPostCell
         extends CardView
@@ -108,7 +101,8 @@ public class CardPostCell
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.set(new Post.Builder().sticky(true)
+            icons.set(new Post.Builder()
+                    .sticky(true)
                     .closed(true)
                     .archived(true)
                     .board(Board.getDummyBoard())
@@ -240,8 +234,9 @@ public class CardPostCell
         // for ellipsize to work, set maxLines equal to the proper value after a measure
         if (ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.GRID) {
             maxLinesUpdater = OneShotPreDrawListener.add(this, () -> {
-                comment.setMaxLines((int) Math.floor(
-                        (comment.getHeight() - comment.getPaddingTop() - comment.getPaddingBottom()) / (float) comment.getLineHeight()));
+                comment.setMaxLines((int) Math.floor((comment.getHeight()
+                        - comment.getPaddingTop()
+                        - comment.getPaddingBottom()) / (float) comment.getLineHeight()));
             });
         } else {
             comment.setMaxLines(ChanSettings.getBoardColumnCount() == 1 ? 20 : 10);

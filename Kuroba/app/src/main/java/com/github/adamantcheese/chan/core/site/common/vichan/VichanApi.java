@@ -1,31 +1,25 @@
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
 public class VichanApi
         extends CommonSite.CommonApi {
@@ -241,7 +235,8 @@ public class VichanApi
         // The file from between the other values.
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            PostImage image = new PostImage.Builder().serverFilename(fileId)
+            PostImage image = new PostImage.Builder()
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
@@ -347,7 +342,8 @@ public class VichanApi
 
         if (fileId != null && fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            return new PostImage.Builder().serverFilename(fileId)
+            return new PostImage.Builder()
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

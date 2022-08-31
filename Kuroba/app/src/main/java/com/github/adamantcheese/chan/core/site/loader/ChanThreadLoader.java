@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.site.loader;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -40,9 +43,6 @@ import java.util.concurrent.ScheduledFuture;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.Chan.instance;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * A ChanThreadLoader is the loader for Loadables.

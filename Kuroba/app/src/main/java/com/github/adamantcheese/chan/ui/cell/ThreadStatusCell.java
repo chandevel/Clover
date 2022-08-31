@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.SpannableStringBuilder;
@@ -31,13 +33,11 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ThreadStatusCell
         extends AppCompatTextView {
@@ -70,7 +70,8 @@ public class ThreadStatusCell
                 @Override
                 public ChanThread getChanThread() {
                     List<Post> testPosts = new ArrayList<>();
-                    testPosts.add(new Post.Builder().board(Board.getDummyBoard())
+                    testPosts.add(new Post.Builder()
+                            .board(Board.getDummyBoard())
                             .no(1)
                             .opId(1)
                             .replies(1)

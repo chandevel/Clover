@@ -6,7 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
-public class BoardLinkable extends PostLinkable<String>{
+public class BoardLinkable
+        extends PostLinkable<String> {
     public BoardLinkable(
             @NonNull Theme theme, String value
     ) {

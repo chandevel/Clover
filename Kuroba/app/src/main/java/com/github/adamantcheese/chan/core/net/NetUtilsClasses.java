@@ -366,12 +366,14 @@ public class NetUtilsClasses {
         @NotNull
         @Override
         public Response execute() {
-            if (cancelled) return new Response.Builder().code(418)
+            if (cancelled) return new Response.Builder()
+                    .code(418)
                     .body(new EmptyResponseBody())
                     .protocol(Protocol.HTTP_1_1)
                     .build();
             executed = true;
-            return new Response.Builder().code(200)
+            return new Response.Builder()
+                    .code(200)
                     .request(request)
                     .body(new EmptyResponseBody())
                     .protocol(Protocol.HTTP_1_1)

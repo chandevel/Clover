@@ -1,14 +1,14 @@
 package com.github.adamantcheese.chan.ui.view;
 
+import static android.os.Build.VERSION;
+import static android.os.Build.VERSION_CODES;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
-
-import static android.os.Build.VERSION;
-import static android.os.Build.VERSION_CODES;
 
 public class IgnoreEmptySelectionTextView
         extends AppCompatTextView {

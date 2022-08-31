@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -24,12 +26,7 @@ import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.misc.TransactionManager;
 
 import java.sql.SQLException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static com.github.adamantcheese.chan.Chan.instance;
+import java.util.concurrent.*;
 
 public class DatabaseUtils {
     // The database only allows for one connection at a time, so we use this to schedule all database operations.
@@ -71,9 +68,13 @@ public class DatabaseUtils {
             try {
                 long count = dao.countOf();
                 if (count > trigger) {
-                    dao.executeRawNoArgs(
-                            "DELETE FROM " + dao.getTableName() + " WHERE id IN (SELECT id FROM " + dao.getTableName()
-                                    + " ORDER BY id ASC LIMIT " + trim + ")");
+                    dao.executeRawNoArgs("DELETE FROM "
+                            + dao.getTableName()
+                            + " WHERE id IN (SELECT id FROM "
+                            + dao.getTableName()
+                            + " ORDER BY id ASC LIMIT "
+                            + trim
+                            + ")");
                 }
             } catch (SQLException e) {
                 Logger.e("DatabaseManager", "Error trimming table " + dao.getTableName(), e);

@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
@@ -17,12 +19,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
+import okhttp3.*;
 
 public class YoutubeEmbedder
         implements Embedder {
@@ -37,7 +34,8 @@ public class YoutubeEmbedder
     public void setup(CookieJar cookieJar) {
         List<Cookie> toAdd = new ArrayList<>();
         // this cookie has an expiration date, but we set it here to be forever basically
-        toAdd.add(new Cookie.Builder().domain("youtube.com")
+        toAdd.add(new Cookie.Builder()
+                .domain("youtube.com")
                 .path("/")
                 .secure()
                 .name("CONSENT")

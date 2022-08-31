@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -35,10 +39,6 @@ import com.github.adamantcheese.chan.ui.layout.NewFolderLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SaveLocationController
         extends Controller
@@ -73,7 +73,8 @@ public class SaveLocationController
             final NewFolderLayout dialogView =
                     (NewFolderLayout) LayoutInflater.from(v.getContext()).inflate(R.layout.layout_folder_add, null);
 
-            getDefaultAlertBuilder(v.getContext()).setView(dialogView)
+            getDefaultAlertBuilder(v.getContext())
+                    .setView(dialogView)
                     .setTitle(R.string.save_new_folder)
                     .setPositiveButton(R.string.add, (dialog, which) -> onPositionButtonClick(dialogView, dialog))
                     .setNegativeButton(R.string.cancel, null)
@@ -93,15 +94,17 @@ public class SaveLocationController
         if (!dialogView.getFolderName().matches("\\A\\w+\\z")) {
             showToast(context, "Folder must be a word, no spaces");
         } else {
-            File newDir = new File(
-                    fileWatcher.getCurrentPath().getAbsolutePath() + File.separator + dialogView.getFolderName());
+            File newDir = new File(fileWatcher.getCurrentPath().getAbsolutePath()
+                    + File.separator
+                    + dialogView.getFolderName());
 
             if (!newDir.exists() && !newDir.mkdir()) {
                 String additionalInfo = "Can write: " + newDir.canWrite() + ", isDirectory: " + newDir.isDirectory();
 
-                throw new IllegalStateException(
-                        "Could not create directory: " + newDir.getAbsolutePath() + ", additional info: "
-                                + additionalInfo);
+                throw new IllegalStateException("Could not create directory: "
+                        + newDir.getAbsolutePath()
+                        + ", additional info: "
+                        + additionalInfo);
             }
 
             fileWatcher.navigateTo(newDir);
@@ -171,8 +174,9 @@ public class SaveLocationController
     private File getExternalStorageDir() {
         File externalStorageDirectory = Environment.getExternalStorageDirectory();
         if (!externalStorageDirectory.exists()) {
-            throw new IllegalStateException(
-                    "External storage dir does not exist! " + "State = " + Environment.getExternalStorageState());
+            throw new IllegalStateException("External storage dir does not exist! "
+                    + "State = "
+                    + Environment.getExternalStorageState());
         }
 
         return externalStorageDirectory;

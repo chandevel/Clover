@@ -16,35 +16,27 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.*;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 /**
  * Loads a Captcha2 fallback url in a webview; not the same as a regular captcha2 in CaptchaLayout.

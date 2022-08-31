@@ -16,54 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.saver;
 
-import android.Manifest;
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.widget.Toast;
-
-import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
-import com.github.adamantcheese.chan.ui.service.SavingNotification;
-import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
-import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.file.AbstractFile;
-import com.github.k1rakishou.fsaf.file.DirectorySegment;
-import com.github.k1rakishou.fsaf.file.FileSegment;
-import com.github.k1rakishou.fsaf.util.FSAFUtils;
-import com.google.common.io.Files;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import io.reactivex.Scheduler;
-import io.reactivex.Single;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.processors.FlowableProcessor;
-import io.reactivex.processors.PublishProcessor;
-import io.reactivex.schedulers.Schedulers;
-import okhttp3.HttpUrl;
-
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Canceled;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.BaseDirectoryDoesNotExist;
@@ -74,6 +26,44 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.widget.Toast;
+
+import androidx.annotation.*;
+import androidx.core.content.ContextCompat;
+
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.StartActivity;
+import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.ui.helper.RuntimePermissionsHelper;
+import com.github.adamantcheese.chan.ui.service.SavingNotification;
+import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
+import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.*;
+import com.github.k1rakishou.fsaf.FileManager;
+import com.github.k1rakishou.fsaf.file.*;
+import com.github.k1rakishou.fsaf.util.FSAFUtils;
+import com.google.common.io.Files;
+
+import org.greenrobot.eventbus.*;
+
+import java.io.File;
+import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import io.reactivex.Scheduler;
+import io.reactivex.Single;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.processors.FlowableProcessor;
+import io.reactivex.processors.PublishProcessor;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.HttpUrl;
 
 public class ImageSaver {
     /**
@@ -129,7 +119,8 @@ public class ImageSaver {
                 // Unbounded queue
                 .onBackpressureBuffer(UNBOUNDED_QUEUE_MIN_CAPACITY, false, true)
                 .observeOn(workerScheduler)
-                .flatMapSingle((t) -> Single.just(t)
+                .flatMapSingle((t) -> Single
+                        .just(t)
                         .observeOn(workerScheduler)
                         .flatMap((task) -> {
                             synchronized (activeDownloads) {
@@ -152,12 +143,14 @@ public class ImageSaver {
                 .subscribe((result) -> {
                     // Do nothing
                 }, (error) -> {
-                    throw new RuntimeException(
-                            ImageSaver.this + " Uncaught exception!!! " + "workerQueue is in error state now!!! "
-                                    + "This should not happen!!!, original error = " + error.getMessage());
+                    throw new RuntimeException(ImageSaver.this
+                            + " Uncaught exception!!! "
+                            + "workerQueue is in error state now!!! "
+                            + "This should not happen!!!, original error = "
+                            + error.getMessage());
                 }, () -> {
-                    throw new RuntimeException(
-                            ImageSaver.this + " workerQueue stream has completed!!! This should not happen!!!");
+                    throw new RuntimeException(ImageSaver.this
+                            + " workerQueue stream has completed!!! This should not happen!!!");
                 });
     }
 
@@ -232,8 +225,9 @@ public class ImageSaver {
             return Single.just(true);
         }
 
-        return Single.<Boolean>create((emitter) -> requestPermission(context, emitter::onSuccess)).subscribeOn(
-                AndroidSchedulers.mainThread());
+        return Single
+                .<Boolean>create((emitter) -> requestPermission(context, emitter::onSuccess))
+                .subscribeOn(AndroidSchedulers.mainThread());
     }
 
     @Nullable
@@ -276,7 +270,9 @@ public class ImageSaver {
             if (innerDirectory == null) {
                 Logger.e(
                         this,
-                        "getSaveLocation() failed to create subdirectory (" + subFolder + ") for a base dir: "
+                        "getSaveLocation() failed to create subdirectory ("
+                                + subFolder
+                                + ") for a base dir: "
                                 + baseSaveDir.getFullPath()
                 );
             }
@@ -356,25 +352,26 @@ public class ImageSaver {
      * the album
      */
     private Single<Boolean> startBundledTaskInternal(List<ImageSaveTask> tasks) {
-        return Single.fromCallable(() -> {
-            BackgroundUtils.ensureBackgroundThread();
-            boolean allSuccess = true;
+        return Single
+                .fromCallable(() -> {
+                    BackgroundUtils.ensureBackgroundThread();
+                    boolean allSuccess = true;
 
-            for (ImageSaveTask task : tasks) {
-                PostImage postImage = task.getPostImage();
+                    for (ImageSaveTask task : tasks) {
+                        PostImage postImage = task.getPostImage();
 
-                AbstractFile saveLocation = getSaveLocation(task);
-                if (saveLocation == null) {
-                    allSuccess = false;
-                    continue;
-                }
+                        AbstractFile saveLocation = getSaveLocation(task);
+                        if (saveLocation == null) {
+                            allSuccess = false;
+                            continue;
+                        }
 
-                task.setDestination(deduplicateFile(postImage, task, saveLocation, true));
-                startTask(task);
-            }
+                        task.setDestination(deduplicateFile(postImage, task, saveLocation, true));
+                        startTask(task);
+                    }
 
-            return allSuccess;
-        })
+                    return allSuccess;
+                })
                 .subscribeOn(workerScheduler)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnEvent((event, throwable) -> updateNotification());
@@ -482,12 +479,14 @@ public class ImageSaver {
     }
 
     private boolean hasPermission(Context context) {
-        return ((StartActivity) context).getRuntimePermissionsHelper()
+        return ((StartActivity) context)
+                .getRuntimePermissionsHelper()
                 .hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     private void requestPermission(Context context, RuntimePermissionsHelper.Callback callback) {
-        ((StartActivity) context).getRuntimePermissionsHelper()
+        ((StartActivity) context)
+                .getRuntimePermissionsHelper()
                 .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
     }
 

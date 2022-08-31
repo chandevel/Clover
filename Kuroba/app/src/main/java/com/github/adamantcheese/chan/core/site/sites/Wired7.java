@@ -16,17 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.site.sites;
 
+import static android.text.TextUtils.isEmpty;
+
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanCommentAction;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
+import com.github.adamantcheese.chan.core.site.common.vichan.*;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
@@ -37,8 +35,6 @@ import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
 import okhttp3.Response;
-
-import static android.text.TextUtils.isEmpty;
 
 public class Wired7
         extends CommonSite {
@@ -55,7 +51,8 @@ public class Wired7
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
+                return getUrl()
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")

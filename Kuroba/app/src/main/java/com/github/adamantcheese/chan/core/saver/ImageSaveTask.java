@@ -16,6 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.saver;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+
 import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -41,13 +48,6 @@ import io.reactivex.Single;
 import io.reactivex.functions.Action;
 import io.reactivex.subjects.SingleSubject;
 import okhttp3.Call;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
 public class ImageSaveTask {
     @Inject
@@ -213,8 +213,13 @@ public class ImageSaveTask {
             boolean canWrite = fileManager.canWrite(destination);
 
             Logger.e(this,
-                    "Error writing to file: (" + destination.getFullPath() + "), " + "exists = " + exists
-                            + ", canWrite = " + canWrite,
+                    "Error writing to file: ("
+                            + destination.getFullPath()
+                            + "), "
+                            + "exists = "
+                            + exists
+                            + ", canWrite = "
+                            + canWrite,
                     e
             );
         }

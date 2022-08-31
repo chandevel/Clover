@@ -48,8 +48,13 @@ public class FoolFuukaArchive
         private final PostParser parser = new PostParser(new FoolFuukaCommentAction()) {
             @Override
             public String createQuoteElementString(Post.Builder post) {
-                return "<span class=\"greentext\"><a href=\"https://" + domain + "/" + post.board.code + "/thread/"
-                        + post.opId + "/#$1\">&gt;&gt;$1</a></span>";
+                return "<span class=\"greentext\"><a href=\"https://"
+                        + domain
+                        + "/"
+                        + post.board.code
+                        + "/thread/"
+                        + post.opId
+                        + "/#$1\">&gt;&gt;$1</a></span>";
             }
         };
 
@@ -193,7 +198,8 @@ public class FoolFuukaArchive
                                         } catch (Exception e) {
                                             // some weird archives use this one
                                             try {
-                                                imageBuilder.imageUrl(new HttpUrl.Builder().scheme("https")
+                                                imageBuilder.imageUrl(new HttpUrl.Builder()
+                                                        .scheme("https")
                                                         .host(domain)
                                                         .addPathSegment(value)
                                                         .build());
@@ -272,7 +278,8 @@ public class FoolFuukaArchive
                 HttpUrl.Builder url =
                         new HttpUrl.Builder().scheme("https").host(domain).addPathSegment(loadable.boardCode);
                 if (loadable.isThreadMode()) {
-                    return url.addPathSegment("thread")
+                    return url
+                            .addPathSegment("thread")
                             .addPathSegment(String.valueOf(loadable.no))
                             .fragment(postNo > 0 ? String.valueOf(postNo) : null)
                             .toString();
@@ -345,7 +352,8 @@ public class FoolFuukaArchive
         return new ArchiveEndpoints() {
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return new HttpUrl.Builder().scheme("https")
+                return new HttpUrl.Builder()
+                        .scheme("https")
                         .host(domain)
                         .addPathSegment("_")
                         .addPathSegment("api")
@@ -358,7 +366,8 @@ public class FoolFuukaArchive
 
             @Override
             public HttpUrl resolvePost(String boardCode, int postNo) {
-                return new HttpUrl.Builder().scheme("https")
+                return new HttpUrl.Builder()
+                        .scheme("https")
                         .host(domain)
                         .addPathSegment("_")
                         .addPathSegment("api")

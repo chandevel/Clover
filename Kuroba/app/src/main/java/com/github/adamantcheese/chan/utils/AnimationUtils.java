@@ -1,19 +1,12 @@
 package com.github.adamantcheese.chan.utils;
 
+import static android.graphics.Color.*;
+
 import android.animation.ValueAnimator;
 import android.graphics.Color;
 import android.view.View;
 import android.view.Window;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.view.animation.ScaleAnimation;
-
-import static android.graphics.Color.BLUE;
-import static android.graphics.Color.CYAN;
-import static android.graphics.Color.GREEN;
-import static android.graphics.Color.MAGENTA;
-import static android.graphics.Color.RED;
-import static android.graphics.Color.YELLOW;
+import android.view.animation.*;
 
 public class AnimationUtils {
 

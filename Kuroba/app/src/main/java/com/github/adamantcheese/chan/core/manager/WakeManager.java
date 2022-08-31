@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -33,13 +36,7 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import java.util.*;
 
 /**
  * Deals with background alarms specifically. No foreground stuff here.

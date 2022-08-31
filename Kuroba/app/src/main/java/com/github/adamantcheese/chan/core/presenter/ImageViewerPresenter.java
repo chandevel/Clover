@@ -16,6 +16,15 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.*;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.EMPTY_CONVERTER;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
+import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.*;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+
 import android.content.Context;
 
 import androidx.viewpager.widget.ViewPager;
@@ -28,36 +37,15 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.ImageSearch;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.MultiImageView;
+import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.EMPTY_CONVERTER;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.MediaAutoLoadMode.shouldLoadForNetworkType;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.BIGIMAGE;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.GIFIMAGE;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.LOWRES;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.VIDEO;
-import static com.github.adamantcheese.chan.ui.view.MultiImageView.Mode.WEBVIEW;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDefaultMuteState;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 
 public class ImageViewerPresenter
         implements MultiImageView.Callback, ViewPager.OnPageChangeListener {

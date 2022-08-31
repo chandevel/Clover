@@ -25,11 +25,7 @@ import com.github.adamantcheese.chan.core.site.http.HttpCall;
 
 import java.io.File;
 
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.Request;
-import okhttp3.RequestBody;
+import okhttp3.*;
 
 @SuppressWarnings("UnusedReturnValue")
 public abstract class MultipartHttpCall<T>

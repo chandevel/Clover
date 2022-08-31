@@ -19,10 +19,7 @@ package com.github.adamantcheese.chan.core.site.parser;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ChanReaderProcessingQueue {
     private final Map<Integer, Post> cachedByNo = new HashMap<>();

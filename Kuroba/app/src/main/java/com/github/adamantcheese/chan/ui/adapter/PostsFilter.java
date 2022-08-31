@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+
 import android.text.TextUtils;
 
 import androidx.annotation.StringRes;
@@ -23,22 +25,14 @@ import androidx.annotation.StringRes;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-
-import static com.github.adamantcheese.chan.Chan.instance;
+import java.util.*;
 
 public class PostsFilter {
 

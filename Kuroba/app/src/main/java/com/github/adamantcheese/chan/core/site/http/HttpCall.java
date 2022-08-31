@@ -25,10 +25,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.io.IOException;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
 /**
  * Http calls are an abstraction over a normal OkHttp call.

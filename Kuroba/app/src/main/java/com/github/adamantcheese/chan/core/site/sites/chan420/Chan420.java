@@ -24,10 +24,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
-import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaActions;
-import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaApi;
-import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaCommentAction;
-import com.github.adamantcheese.chan.core.site.common.taimaba.TaimabaEndpoints;
+import com.github.adamantcheese.chan.core.site.common.taimaba.*;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -77,7 +74,8 @@ public class Chan420
             public boolean siteFeature(SiteFeature siteFeature) {
                 //420chan doesn't support file hashes
                 return (super.siteFeature(siteFeature) && siteFeature != SiteFeature.IMAGE_FILE_HASH)
-                        || siteFeature == SiteFeature.POSTING || siteFeature == SiteFeature.POST_REPORT;
+                        || siteFeature == SiteFeature.POSTING
+                        || siteFeature == SiteFeature.POST_REPORT;
             }
         });
 

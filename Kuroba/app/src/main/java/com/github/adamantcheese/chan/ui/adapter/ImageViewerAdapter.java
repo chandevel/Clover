@@ -105,16 +105,24 @@ public class ImageViewerAdapter
         MultiImageView view = find(image);
         view.setMode(mode, center);
 
-        Balloon.Builder hintBuilder = AndroidUtils.getBaseToolTip(view.getContext())
+        Balloon.Builder hintBuilder = AndroidUtils
+                .getBaseToolTip(view.getContext())
                 .setPreferenceName(mode.name() + "HINT")
                 .setIsVisibleArrow(false);
         switch (mode) {
             case VIDEO:
-                hintBuilder.setText("Single tap for controls" + "\nDouble tap to pause/play").build().showAsDropDown(view);
+                hintBuilder
+                        .setText("Single tap for controls" + "\nDouble tap to pause/play")
+                        .build()
+                        .showAsDropDown(view);
                 break;
             case BIGIMAGE:
-                hintBuilder.setText("Two finger tap to rotate" + "\nSecond finger left of first rotates clockwise"
-                        + "\nSecond finger right of first rotates counter-clockwise").build().showAsDropDown(view);
+                hintBuilder
+                        .setText("Two finger tap to rotate"
+                                + "\nSecond finger left of first rotates clockwise"
+                                + "\nSecond finger right of first rotates counter-clockwise")
+                        .build()
+                        .showAsDropDown(view);
                 break;
             case GIFIMAGE:
                 hintBuilder.setText("Double tap to pause/play").build().showAsDropDown(view);

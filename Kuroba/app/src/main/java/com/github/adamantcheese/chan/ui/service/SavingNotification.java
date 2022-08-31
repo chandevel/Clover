@@ -16,23 +16,17 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+
+import android.app.*;
 import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.IBinder;
+import android.os.*;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 import com.github.adamantcheese.chan.R;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 
 public class SavingNotification
         extends Service {
@@ -78,10 +72,10 @@ public class SavingNotification
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
             if (extras.getBoolean(CANCEL_KEY)) {
-                startForeground(NOTIFICATION_ID,
-                        new NotificationCompat.Builder(this,
-                                NOTIFICATION_ID_STR
-                        ).setSmallIcon(R.drawable.ic_stat_notify)
+                startForeground(
+                        NOTIFICATION_ID,
+                        new NotificationCompat.Builder(this, NOTIFICATION_ID_STR)
+                                .setSmallIcon(R.drawable.ic_stat_notify)
                                 .setOngoing(true)
                                 .build()
                 );
@@ -98,7 +92,8 @@ public class SavingNotification
             }
         }
         startForeground(NOTIFICATION_ID,
-                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).setSmallIcon(R.drawable.ic_stat_notify)
+                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR)
+                        .setSmallIcon(R.drawable.ic_stat_notify)
                         .setOngoing(true)
                         .build()
         );
@@ -112,7 +107,8 @@ public class SavingNotification
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_ID_STR);
-        builder.setSmallIcon(R.drawable.ic_stat_notify)
+        builder
+                .setSmallIcon(R.drawable.ic_stat_notify)
                 .setContentTitle(getString(R.string.image_save_notification_downloading))
                 .setContentText(getString(R.string.image_save_notification_cancel))
                 .setProgress(total, done + failed, false)

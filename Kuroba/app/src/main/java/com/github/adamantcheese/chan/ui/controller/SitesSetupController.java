@@ -16,20 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.*;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.github.adamantcheese.chan.R;
@@ -42,19 +42,12 @@ import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.skydoves.balloon.ArrowOrientation;
-import com.skydoves.balloon.ArrowPositionRules;
-import com.skydoves.balloon.Balloon;
+import com.skydoves.balloon.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SitesSetupController
         extends StyledToolbarNavigationController
@@ -155,7 +148,8 @@ public class SitesSetupController
 
         crossfadeView.toggle(!sites.isEmpty(), true);
         if (!sites.isEmpty()) {
-            AndroidUtils.getBaseToolTip(context)
+            AndroidUtils
+                    .getBaseToolTip(context)
                     .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                     .setArrowOrientation(ArrowOrientation.BOTTOM)
                     .setTextResource(R.string.setup_sites_add_hint)
@@ -228,7 +222,8 @@ public class SitesSetupController
             itemView.setOnClickListener(v -> navigationController.pushController(new SiteSetupController(context,
                     site
             )));
-            removeSite.setOnClickListener(v -> getDefaultAlertBuilder(v.getContext()).setTitle(getString(R.string.delete_site_dialog_title))
+            removeSite.setOnClickListener(v -> getDefaultAlertBuilder(v.getContext())
+                    .setTitle(getString(R.string.delete_site_dialog_title))
                     .setMessage(getString(R.string.delete_site_dialog_message, site.name()))
                     .setPositiveButton(R.string.delete, (dialog, which) -> presenter.removeSite(site))
                     .setNegativeButton(R.string.cancel, (dialog, which) -> dialog.dismiss())
@@ -255,7 +250,8 @@ public class SitesSetupController
             description.setText(descriptionText);
 
             if (boardCount == 0) {
-                hint = AndroidUtils.getBaseToolTip(context)
+                hint = AndroidUtils
+                        .getBaseToolTip(context)
                         .setPreferenceName("AddBords")
                         .setArrowOrientation(ArrowOrientation.START)
                         .setTextResource(R.string.setup_sites_add_boards_hint)
@@ -287,7 +283,8 @@ public class SitesSetupController
         @NonNull
         @Override
         public NewSiteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new NewSiteViewHolder(LayoutInflater.from(parent.getContext())
+            return new NewSiteViewHolder(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.layout_site_preview, null)) {};
         }
 

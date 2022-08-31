@@ -21,17 +21,13 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
+import com.github.adamantcheese.chan.core.site.http.*;
 
 import org.jsoup.Jsoup;
 
 import java.io.IOException;
 
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class Chan4DeleteHttpCall
         extends HttpCall<DeleteResponse> {

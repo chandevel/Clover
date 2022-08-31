@@ -16,6 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.captcha.v2.js;
 
+import static android.view.View.MeasureSpec.AT_MOST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
@@ -24,12 +32,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
-import android.webkit.ConsoleMessage;
-import android.webkit.CookieManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.webkit.*;
 
 import androidx.annotation.NonNull;
 
@@ -38,9 +41,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
+import com.github.adamantcheese.chan.ui.captcha.*;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -49,14 +50,6 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.io.TextStreamsKt;
-
-import static android.view.View.MeasureSpec.AT_MOST;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 
 /**
  * Loads a Captcha2 in a custom webview.

@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.features.html_styling.impl;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions.FONT;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions.INLINE_CSS;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.*;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.CODE;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,11 +12,7 @@ import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
 
 import org.jsoup.nodes.Node;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**

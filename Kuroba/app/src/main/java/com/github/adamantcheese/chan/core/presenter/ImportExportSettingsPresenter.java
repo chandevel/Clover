@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -23,8 +25,6 @@ import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
 import com.github.k1rakishou.fsaf.file.ExternalFile;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 
 public class ImportExportSettingsPresenter {
     @Nullable

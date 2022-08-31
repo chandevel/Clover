@@ -1,34 +1,21 @@
 package com.github.adamantcheese.chan.core.repository;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
+
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
-import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
-import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
-import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabasePinManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.database.*;
+import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.site.SiteRegistry.SITE_CLASSES;
+import java.util.*;
 
 public class SiteRepository {
     private boolean initialized = false;

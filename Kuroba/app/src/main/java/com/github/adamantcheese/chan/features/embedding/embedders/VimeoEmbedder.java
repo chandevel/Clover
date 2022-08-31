@@ -1,5 +1,10 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
@@ -16,11 +21,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
-import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
-import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
 public class VimeoEmbedder
         extends JsonEmbedder {
@@ -46,7 +46,9 @@ public class VimeoEmbedder
         return HttpUrl.get("https://vimeo.com/api/oembed.json?color="
                 + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
                 R.attr.colorAccent
-        )) + "&url=" + matcher.group(0));
+        ))
+                + "&url="
+                + matcher.group(0));
     }
 
     @Override
@@ -91,7 +93,8 @@ public class VimeoEmbedder
 
             return new EmbedResult(title,
                     duration,
-                    new PostImage.Builder().serverFilename(title)
+                    new PostImage.Builder()
+                            .serverFilename(title)
                             .thumbnailUrl(thumbnailUrl)
                             .imageUrl(sourceUrl)
                             .filename(title)

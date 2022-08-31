@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
@@ -29,13 +33,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
+import java.util.*;
 
 public class ChanThread {
     public final Loadable loadable;
@@ -121,7 +119,8 @@ public class ChanThread {
             if (p.page >= loadable.board.pages) {
                 page = span(page, styleSpan, extraStyling ? extraSpans : null);
             }
-            builder.append(hasReplies || hasImages || hasUniqueIps ? separator : "")
+            builder
+                    .append(hasReplies || hasImages || hasUniqueIps ? separator : "")
                     .append(getString(R.string.thread_page_no))
                     .append(' ')
                     .append(page);

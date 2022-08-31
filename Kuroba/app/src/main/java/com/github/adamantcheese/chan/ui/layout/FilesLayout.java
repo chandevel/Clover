@@ -16,13 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,8 +35,6 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class FilesLayout
         extends LinearLayout

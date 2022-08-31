@@ -6,9 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -16,15 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class PostUtils {
 
@@ -142,7 +134,8 @@ public class PostUtils {
         if (image.isInlined) {
             text.append("\nLinked file");
         } else {
-            text.append("\nDimensions: ")
+            text
+                    .append("\nDimensions: ")
                     .append(Integer.toString(image.imageWidth))
                     .append("x")
                     .append(Integer.toString(image.imageHeight));

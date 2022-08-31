@@ -1,12 +1,12 @@
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
@@ -14,13 +14,9 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
 public class TaimabaApi
         extends CommonSite.CommonApi {
@@ -227,7 +223,8 @@ public class TaimabaApi
         // The file from between the other values.
         if (fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileName, "ext", fileExt);
-            PostImage image = new PostImage.Builder().thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+            PostImage image = new PostImage.Builder()
+                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
                     .filename(fileName)
@@ -312,7 +309,8 @@ public class TaimabaApi
 
         if (fileName != null && fileExt != null) {
             Map<String, String> args = makeArgument("tim", fileName, "ext", fileExt);
-            return new PostImage.Builder().thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
+            return new PostImage.Builder()
+                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
                     .filename(fileName)

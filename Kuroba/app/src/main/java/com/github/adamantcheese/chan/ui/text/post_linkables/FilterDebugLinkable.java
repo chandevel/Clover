@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.ui.text.post_linkables;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 import android.text.TextPaint;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -11,7 +10,8 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
-public class FilterDebugLinkable extends PostLinkable<String>{
+public class FilterDebugLinkable
+        extends PostLinkable<String> {
 
     private final int accentColor;
 

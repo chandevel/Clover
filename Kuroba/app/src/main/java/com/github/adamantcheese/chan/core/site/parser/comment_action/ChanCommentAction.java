@@ -23,11 +23,7 @@ import static com.github.adamantcheese.chan.features.html_styling.impl.CommonSty
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.CODE;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.INLINE_QUOTE_COLOR;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.SPOILER;
-import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.CHAN_ANCHOR;
-import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.DEADLINK;
-import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.IMAGE;
-import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.SJIS;
-import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.TABLE;
+import static com.github.adamantcheese.chan.features.html_styling.impl.PostThemedStyleActions.*;
 
 import androidx.annotation.CallSuper;
 

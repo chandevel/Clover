@@ -1,20 +1,16 @@
 package com.github.adamantcheese.chan.core.repository;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
+
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Typeface;
+import android.graphics.*;
 import android.renderscript.RenderScript;
 import android.text.TextPaint;
 import android.util.TypedValue;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,9 +90,9 @@ public class BitmapRepository {
     private static final Map<Integer, Bitmap> exceptionMap = new HashMap<>();
 
     public static Bitmap getHttpExceptionBitmap(Context c, Exception e) {
-        if(!(e instanceof NetUtilsClasses.HttpCodeException)) return paddedError;
+        if (!(e instanceof NetUtilsClasses.HttpCodeException)) return paddedError;
         NetUtilsClasses.HttpCodeException httpException = (NetUtilsClasses.HttpCodeException) e;
-        if(exceptionMap.containsKey(httpException.code)) return exceptionMap.get(httpException.code);
+        if (exceptionMap.containsKey(httpException.code)) return exceptionMap.get(httpException.code);
 
         String code = String.valueOf(httpException.code);
         Bitmap res = BitmapRepository.paddedError.copy(BitmapRepository.paddedError.getConfig(), true);

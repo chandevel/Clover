@@ -16,13 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.theme;
 
+import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.*;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Typeface;
+import android.graphics.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,22 +36,6 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLACK;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BLUE_GREY;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.BROWN;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.DARK_TEAL;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREEN;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.GREY;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.INDIGO;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.LIGHT_BLUE_GREY;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.ORANGE;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.RED;
-import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.TAN;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class ThemeHelper {
     private static boolean initialized = false;

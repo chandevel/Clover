@@ -16,12 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.site.http;
 
+import static kotlin.random.Random.Default;
+
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 
 import java.io.File;
-
-import static kotlin.random.Random.Default;
 
 /**
  * The data needed to send a reply.

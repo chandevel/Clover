@@ -16,13 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import static android.graphics.Color.*;
+import static android.graphics.Paint.ANTI_ALIAS_FLAG;
+import static android.graphics.Shader.TileMode.REPEAT;
+
 import android.content.Context;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.SweepGradient;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,20 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
-
-import static android.graphics.Color.BLUE;
-import static android.graphics.Color.CYAN;
-import static android.graphics.Color.GREEN;
-import static android.graphics.Color.MAGENTA;
-import static android.graphics.Color.RED;
-import static android.graphics.Color.YELLOW;
-import static android.graphics.Color.alpha;
-import static android.graphics.Color.argb;
-import static android.graphics.Color.blue;
-import static android.graphics.Color.green;
-import static android.graphics.Color.red;
-import static android.graphics.Paint.ANTI_ALIAS_FLAG;
-import static android.graphics.Shader.TileMode.REPEAT;
 
 public class ColorPickerView
         extends View {

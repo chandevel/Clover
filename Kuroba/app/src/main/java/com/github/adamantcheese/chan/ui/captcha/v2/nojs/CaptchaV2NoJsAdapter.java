@@ -1,22 +1,17 @@
 package com.github.adamantcheese.chan.ui.captcha.v2.nojs;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
+
 import android.graphics.Bitmap;
-import android.view.HapticFeedbackConstants;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
+import android.view.*;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.utils.AnimationUtils.animateViewScale;
 
 public class CaptchaV2NoJsAdapter
         extends BaseAdapter {
@@ -26,7 +21,7 @@ public class CaptchaV2NoJsAdapter
 
     private final List<ImageChallengeInfo> imageList = new ArrayList<>();
 
-    public CaptchaV2NoJsAdapter() { }
+    public CaptchaV2NoJsAdapter() {}
 
     public void setImages(List<Bitmap> imageList) {
         cleanUpImages();
@@ -56,7 +51,8 @@ public class CaptchaV2NoJsAdapter
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         if (convertView == null) {
-            convertView = LayoutInflater.from(parent.getContext())
+            convertView = LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.layout_captcha_challenge_image, parent, false);
 
             ImageView imageView = convertView.findViewById(R.id.captcha_challenge_image);

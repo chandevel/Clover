@@ -23,20 +23,13 @@ import com.github.adamantcheese.chan.core.repository.SiteRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.ui.theme.Highlightable;
-import com.j256.ormlite.stmt.DeleteBuilder;
-import com.j256.ormlite.stmt.QueryBuilder;
-import com.j256.ormlite.stmt.UpdateBuilder;
+import com.j256.ormlite.stmt.*;
 import com.j256.ormlite.support.DatabaseConnection;
 
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class DatabaseLoadableManager {
@@ -109,7 +102,8 @@ public class DatabaseLoadableManager {
     private Callable<Loadable> getLoadable(final Loadable loadable) {
         return () -> {
             QueryBuilder<Loadable, Integer> builder = helper.getLoadableDao().queryBuilder();
-            List<Loadable> results = builder.where()
+            List<Loadable> results = builder
+                    .where()
                     .eq("site", loadable.siteId)
                     .and()
                     .eq("mode", loadable.mode)
@@ -176,7 +170,8 @@ public class DatabaseLoadableManager {
             oneMonthAgo.add(Calendar.MONTH, -1);
 
             DeleteBuilder<Loadable, Integer> builder = helper.getLoadableDao().deleteBuilder();
-            builder.where()
+            builder
+                    .where()
                     .lt("lastLoadDate", oneMonthAgo.getTime())
                     .and()
                     .notIn("id", helper.getPinDao().queryBuilder().selectColumns("loadable_id"));
@@ -207,7 +202,8 @@ public class DatabaseLoadableManager {
     public Callable<List<History>> getHistory() {
         return () -> {
             List<History> history = new ArrayList<>();
-            for (Loadable l : helper.getLoadableDao()
+            for (Loadable l : helper
+                    .getLoadableDao()
                     .queryBuilder()
                     .orderBy("lastLoadDate", false)
                     .limit(HISTORY_LIMIT)

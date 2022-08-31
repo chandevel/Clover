@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,9 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -39,8 +39,6 @@ import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.LoadView;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
-
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 
 public class PostRepliesController
         extends BaseFloatingController {
@@ -104,7 +102,8 @@ public class PostRepliesController
     public void displayData(Loadable loadable, final PostPopupHelper.RepliesData data) {
         displayingData = data;
 
-        View dataView = LayoutInflater.from(context)
+        View dataView = LayoutInflater
+                .from(context)
                 .inflate(ChanSettings.repliesButtonsBottom.get()
                         ? R.layout.layout_post_replies_bottombuttons
                         : R.layout.layout_post_replies_topbuttons, null);

@@ -96,9 +96,7 @@ public class QuoteLinkable
     }
 
     private boolean shouldDrawDashedUnderline() {
-        return callback != null
-                && callback.allowsDashedUnderlines()
-                && value == markedNo;
+        return callback != null && callback.allowsDashedUnderlines() && value == markedNo;
     }
 
     public interface PostLinkableCallback {

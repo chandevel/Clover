@@ -16,12 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
-import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
-import com.github.adamantcheese.chan.core.database.DatabaseHelper;
-import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
-import com.github.adamantcheese.chan.core.repository.BoardRepository;
-import com.github.adamantcheese.chan.core.repository.ImportExportRepository;
-import com.github.adamantcheese.chan.core.repository.SiteRepository;
+import com.github.adamantcheese.chan.core.database.*;
+import com.github.adamantcheese.chan.core.repository.*;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 

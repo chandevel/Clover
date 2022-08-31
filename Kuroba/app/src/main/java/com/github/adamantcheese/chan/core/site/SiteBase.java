@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.manager.BoardManager;
@@ -31,8 +33,6 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 
 public abstract class SiteBase
         implements Site {

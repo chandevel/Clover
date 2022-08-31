@@ -1,5 +1,8 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
+import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
+
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -7,9 +10,7 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
-import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteSetting;
+import com.github.adamantcheese.chan.core.site.*;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -19,17 +20,10 @@ import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
-import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.V2JS;
 
 public class Dvach
         extends CommonSite {
@@ -46,7 +40,8 @@ public class Dvach
             if (loadable.isCatalogMode()) {
                 return getUrl().newBuilder().addPathSegment(loadable.boardCode).toString();
             } else if (loadable.isThreadMode()) {
-                return getUrl().newBuilder()
+                return getUrl()
+                        .newBuilder()
                         .addPathSegment(loadable.boardCode)
                         .addPathSegment("res")
                         .addPathSegment(loadable.no + ".html")
@@ -110,7 +105,8 @@ public class Dvach
 
             @Override
             public HttpUrl reply(Loadable loadable) {
-                return new HttpUrl.Builder().scheme("https")
+                return new HttpUrl.Builder()
+                        .scheme("https")
                         .host("2ch.hk")
                         .addPathSegment("makaba")
                         .addPathSegment("posting.fcgi")
@@ -144,10 +140,14 @@ public class Dvach
 
             @Override
             public Call post(Loadable loadableWithDraft, final PostListener postListener) {
-                return NetUtils.makeHttpCall(new DvachReplyCall(
-                        new NetUtilsClasses.MainThreadResponseResult<>(postListener),
-                        loadableWithDraft
-                ), Collections.emptyList(), postListener, true);
+                return NetUtils.makeHttpCall(
+                        new DvachReplyCall(new NetUtilsClasses.MainThreadResponseResult<>(postListener),
+                                loadableWithDraft
+                        ),
+                        Collections.emptyList(),
+                        postListener,
+                        true
+                );
             }
 
             @Override

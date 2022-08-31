@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.net;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -9,13 +11,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import okio.BufferedSource;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * This interceptor follows up http-equiv redirects when applicable.
@@ -60,7 +57,8 @@ public class HttpEquivRefreshInterceptor
                             initialResponse.close();
                             Request r = new Request.Builder().url(redirectUrl).build();
                             // double the timeout, since we're basically sending a second request
-                            return chain.withConnectTimeout(chain.connectTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
+                            return chain
+                                    .withConnectTimeout(chain.connectTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
                                     .withReadTimeout(chain.readTimeoutMillis() * 2, TimeUnit.MILLISECONDS)
                                     .withWriteTimeout(chain.writeTimeoutMillis(), TimeUnit.MILLISECONDS)
                                     .proceed(r);

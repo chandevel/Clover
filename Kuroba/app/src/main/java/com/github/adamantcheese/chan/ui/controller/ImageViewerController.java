@@ -16,23 +16,19 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+
+import android.animation.*;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.PointF;
+import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -59,20 +55,10 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.ImageViewerAdapter;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
-import com.github.adamantcheese.chan.ui.view.CustomScaleImageView;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.LoadingBar;
-import com.github.adamantcheese.chan.ui.view.MultiImageView;
-import com.github.adamantcheese.chan.ui.view.OptionalSwipeViewPager;
-import com.github.adamantcheese.chan.ui.view.TransitionImageView;
+import com.github.adamantcheese.chan.ui.toolbar.*;
+import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.PostUtils;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 
 import java.io.File;
 import java.util.List;
@@ -81,19 +67,6 @@ import java.util.Locale;
 import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
-
-import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getWindow;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
 public class ImageViewerController
         extends Controller
@@ -158,7 +131,8 @@ public class ImageViewerController
         }
         builder.withItem(MenuId.SAVE, R.drawable.ic_fluent_arrow_download_24_filled, this::saveClicked);
 
-        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow(this)
+        NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder
+                .withOverflow(this)
                 .withSubItem(R.string.action_open_browser, this::openBrowserClicked)
                 .withSubItem(R.string.action_share, () -> saveShare(true))
                 .withSubItem(R.string.action_search_image, () -> presenter.showImageSearchOptions(navigation))
@@ -318,9 +292,12 @@ public class ImageViewerController
                 ? (postForImage == null ? 0 : postForImage.no)
                 : presenter.getLoadable().no;
 
-        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName) + File.separator
-                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode) + File.separator
-                + postNoString + "_";
+        String sanitizedSubFolderName = StringUtils.dirNameRemoveBadCharacters(siteName)
+                + File.separator
+                + StringUtils.dirNameRemoveBadCharacters(presenter.getLoadable().boardCode)
+                + File.separator
+                + postNoString
+                + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
                 ? PostHelper.getTitle(postForImage, callback.getLoadable())
@@ -553,11 +530,12 @@ public class ImageViewerController
             ValueAnimator backgroundAlpha = ValueAnimator.ofFloat(1f, 0f);
             backgroundAlpha.addUpdateListener(animation -> setBackgroundAlpha((float) animation.getAnimatedValue()));
 
-            endAnimation.play(ObjectAnimator.ofFloat(previewImage,
-                    View.Y,
-                    previewImage.getTop(),
-                    previewImage.getTop() + dp(20)
-            ))
+            endAnimation
+                    .play(ObjectAnimator.ofFloat(previewImage,
+                            View.Y,
+                            previewImage.getTop(),
+                            previewImage.getTop() + dp(20)
+                    ))
                     .with(ObjectAnimator.ofFloat(previewImage, View.ALPHA, 1f, 0f))
                     .with(backgroundAlpha);
         } else {
@@ -639,9 +617,12 @@ public class ImageViewerController
         isInImmersiveMode = true;
 
         View decorView = getWindow(context).getDecorView();
-        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_IMMERSIVE
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         decorView.setOnSystemUiVisibilityChangeListener(visibility -> {
             if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0 && isInImmersiveMode) {

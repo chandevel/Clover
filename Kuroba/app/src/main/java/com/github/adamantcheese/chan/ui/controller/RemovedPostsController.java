@@ -1,9 +1,10 @@
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -17,12 +18,7 @@ import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.ui.layout.RemovedPostLayout;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
+import java.util.*;
 
 public class RemovedPostsController
         extends BaseFloatingController {
@@ -113,12 +109,15 @@ public class RemovedPostsController
             RemovedPostLayout remLayout;
 
             if (removedPost == null) {
-                throw new RuntimeException(
-                        "removedPost is null! position = " + position + ", items count = " + getCount());
+                throw new RuntimeException("removedPost is null! position = "
+                        + position
+                        + ", items count = "
+                        + getCount());
             }
 
             if (convertView == null) {
-                remLayout = (RemovedPostLayout) LayoutInflater.from(parent.getContext())
+                remLayout = (RemovedPostLayout) LayoutInflater
+                        .from(parent.getContext())
                         .inflate(R.layout.layout_removed_post, parent, false);
             } else {
                 remLayout = (RemovedPostLayout) convertView;

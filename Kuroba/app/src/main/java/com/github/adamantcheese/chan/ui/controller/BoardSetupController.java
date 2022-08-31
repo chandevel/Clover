@@ -16,20 +16,21 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,14 +47,6 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import javax.inject.Inject;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class BoardSetupController
         extends Controller
@@ -151,7 +144,8 @@ public class BoardSetupController
 
         boardAddLayout.setPresenter(presenter);
 
-        getDefaultAlertBuilder(context).setView(boardAddLayout)
+        getDefaultAlertBuilder(context)
+                .setView(boardAddLayout)
                 .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
                 .show();
@@ -202,7 +196,8 @@ public class BoardSetupController
         @NonNull
         @Override
         public SavedBoardHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            return new SavedBoardHolder(LayoutInflater.from(parent.getContext())
+            return new SavedBoardHolder(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(R.layout.cell_board, parent, false));
         }
 

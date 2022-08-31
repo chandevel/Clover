@@ -16,23 +16,17 @@
 
 package com.github.adamantcheese.chan.ui.view;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
+import android.animation.*;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.view.MotionEvent;
 
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
+import androidx.annotation.*;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
-import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
-import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
+import androidx.recyclerview.widget.RecyclerView.*;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -572,7 +566,8 @@ public class FastScroller
         boolean insideRTLorLTR = isLayoutRTL()
                 ? x <= mRecyclerViewLeftPadding + mTargetWidth / 2.0f
                 : x >= mRecyclerViewLeftPadding + mRecyclerViewWidth - mTargetWidth;
-        return insideRTLorLTR && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2.0f - mTargetWidth
+        return insideRTLorLTR
+                && y >= mVerticalThumbCenterY - mVerticalThumbHeight / 2.0f - mTargetWidth
                 && y <= mVerticalThumbCenterY + mVerticalThumbHeight / 2.0f + mTargetWidth;
     }
 

@@ -16,9 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.receiver;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import android.content.*;
 
 import com.github.adamantcheese.chan.core.manager.WakeManager;
 

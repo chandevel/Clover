@@ -1,28 +1,22 @@
 package com.github.adamantcheese.chan.core.site.common;
 
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+
 import android.util.JsonReader;
 
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
-import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
-import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.*;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
 
 public class FutabaChanReader
         implements ChanReader {
@@ -240,7 +234,8 @@ public class FutabaChanReader
             // /f/ is a strange case where the actual filename is used for the file on the server
             Map<String, String> args =
                     makeArgument("tim", "f".equals(queue.loadable.boardCode) ? fileName : fileId, "ext", fileExt);
-            PostImage image = new PostImage.Builder().serverFilename(fileId)
+            PostImage image = new PostImage.Builder()
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))
@@ -364,7 +359,8 @@ public class FutabaChanReader
         if (fileId != null && fileName != null && fileExt != null) {
             // /f/ does not allow image posts not in the OP, so no special handling is needed here
             Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            return new PostImage.Builder().serverFilename(fileId)
+            return new PostImage.Builder()
+                    .serverFilename(fileId)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

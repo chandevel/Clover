@@ -4,9 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 
 /**

@@ -35,14 +35,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.text.*;
-import android.text.style.ClickableSpan;
-import android.text.style.StyleSpan;
-import android.text.style.URLSpan;
+import android.text.style.*;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.text.HtmlCompat;
 import androidx.exifinterface.media.ExifInterface;
 
 import com.github.adamantcheese.chan.R;
@@ -67,10 +64,7 @@ import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.common.io.Files;
 
 import java.io.File;
@@ -285,7 +279,8 @@ public class ReplyPresenter
                     watchManager.createPin(originatingLoadable);
                 } else {
                     // this is a new thread, we can construct an OP for initial display
-                    Post fakeOP = new Post.Builder().subject(originatingLoadable.draft.subject)
+                    Post fakeOP = new Post.Builder()
+                            .subject(originatingLoadable.draft.subject)
                             .comment(originatingLoadable.draft.comment)
                             .board(originatingLoadable.board)
                             .no(replyResponse.postNo)
@@ -439,7 +434,8 @@ public class ReplyPresenter
 
         StringBuilder insert = new StringBuilder();
         int selectStart = callback.getSelectionStart();
-        if (selectStart - 1 >= 0 && selectStart - 1 < draft.comment.length()
+        if (selectStart - 1 >= 0
+                && selectStart - 1 < draft.comment.length()
                 && draft.comment.charAt(selectStart - 1) != '\n') {
             insert.append('\n');
         }
@@ -507,7 +503,8 @@ public class ReplyPresenter
         callback.openMessage(null);
         callback.setExpanded(false);
         callback.openSubject(loadable != null && ChanSettings.alwaysShowPostOptions.get() && loadable.isCatalogMode());
-        callback.openFlag(loadable != null && (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty())
+        callback.openFlag(loadable != null
+                && (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty())
                 && ChanSettings.alwaysShowPostOptions.get());
         callback.openCommentQuoteButton(false);
         callback.openCommentSpoilerButton(false);

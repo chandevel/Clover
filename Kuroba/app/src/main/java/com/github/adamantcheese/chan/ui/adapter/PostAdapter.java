@@ -19,15 +19,7 @@ package com.github.adamantcheese.chan.ui.adapter;
 import static android.view.View.GONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB_STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.*;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -36,9 +28,7 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -46,7 +36,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
@@ -183,7 +172,8 @@ public class PostAdapter
                 // apply embedding
                 boolean embedInProgress = false;
                 if (ChanSettings.enableEmbedding.get()) {
-                    embedInProgress = EmbeddingEngine.getInstance()
+                    embedInProgress = EmbeddingEngine
+                            .getInstance()
                             .embed(theme, post, () -> notifyItemChanged(position, new Object()));
                 }
                 // no embeds, cleanup/finalize
@@ -399,7 +389,9 @@ public class PostAdapter
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         // also don't show the status view if there's a search query going
-        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.query) && loadable != null
+        return postAdapterCallback != null
+                && TextUtils.isEmpty(currentFilter.query)
+                && loadable != null
                 && loadable.isThreadMode();
     }
 

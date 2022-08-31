@@ -19,50 +19,23 @@ package com.github.adamantcheese.chan.ui.layout;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getBaseToolTip;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.requestViewAndKeyboardFocus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
+import android.animation.*;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.style.AbsoluteSizeSpan;
 import android.util.AndroidRuntimeException;
 import android.util.AttributeSet;
-import android.view.ActionMode;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.SubMenu;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.Space;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -74,26 +47,15 @@ import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
-import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
-import com.github.adamantcheese.chan.ui.captcha.Chan4CustomJsonlayout;
-import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
-import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
+import com.github.adamantcheese.chan.ui.captcha.*;
 import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsFallbackLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsLayout;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.LoadView;
-import com.github.adamantcheese.chan.ui.view.SelectionListeningEditText;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.ui.view.*;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
 import com.skydoves.balloon.ArrowOrientation;
@@ -104,9 +66,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 
 public class ReplyLayout
         extends LoadView
@@ -292,7 +252,8 @@ public class ReplyLayout
                 public View getView(int position, View convertView, ViewGroup parent) {
                     TextView textView = (TextView) (convertView != null
                             ? convertView
-                            : LayoutInflater.from(parent.getContext())
+                            : LayoutInflater
+                                    .from(parent.getContext())
                                     .inflate(R.layout.toolbar_menu_item, parent, false));
                     textView.setText(getItem(position));
                     textView.setTypeface(ThemeHelper.getTheme().mainFont);
@@ -360,7 +321,8 @@ public class ReplyLayout
             boolean isSpoilered = (boolean) spoiler.getTag();
             spoiler.setTag(!isSpoilered);
             setSpoilerIcon();
-            getBaseToolTip(getContext()).setPreferenceName("Post" + (isSpoilered ? "Un" : "") + "Spoiler")
+            getBaseToolTip(getContext())
+                    .setPreferenceName("Post" + (isSpoilered ? "Un" : "") + "Spoiler")
                     .setArrowOrientation(ArrowOrientation.END)
                     .setText("Image will post " + (isSpoilered ? "un" : "") + "spoilered.")
                     .build()
@@ -470,7 +432,8 @@ public class ReplyLayout
         if (authenticationLayout == null) {
             switch (authentication.type) {
                 case CAPTCHA1:
-                    authenticationLayout = (LegacyCaptchaLayout) LayoutInflater.from(getContext())
+                    authenticationLayout = (LegacyCaptchaLayout) LayoutInflater
+                            .from(getContext())
                             .inflate(R.layout.layout_captcha_legacy, captchaContainer, false);
                     break;
                 case CAPTCHA2:
@@ -499,7 +462,8 @@ public class ReplyLayout
                     break;
                 case CUSTOM_JSON:
                     // specific to 4chan, may abstract in the future
-                    authenticationLayout = (Chan4CustomJsonlayout) LayoutInflater.from(getContext())
+                    authenticationLayout = (Chan4CustomJsonlayout) LayoutInflater
+                            .from(getContext())
                             .inflate(R.layout.layout_captcha_chan4_custom_json, captchaContainer, false);
                     break;
                 case GENERIC_WEBVIEW:
@@ -669,7 +633,8 @@ public class ReplyLayout
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     String done;
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                            && ChanSettings.enableEmoji.get()
                             && !PersistableChanState.noFunAllowed.get()) {
                         done = "\uD83D\uDE29\uD83D\uDC4C";
                     } else {
@@ -1115,22 +1080,26 @@ public class ReplyLayout
     }
 
     private void showImageOptionHints() {
-        Balloon attachHint = AndroidUtils.getBaseToolTip(getContext())
+        Balloon attachHint = AndroidUtils
+                .getBaseToolTip(getContext())
                 .setPreferenceName("AttachHint")
                 .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.attach_button_hint)
                 .build();
-        Balloon reencodeHint = AndroidUtils.getBaseToolTip(getContext())
+        Balloon reencodeHint = AndroidUtils
+                .getBaseToolTip(getContext())
                 .setPreferenceName("ReencodeHint")
                 .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reencode_button_hint)
                 .build();
-        Balloon filenameHint = AndroidUtils.getBaseToolTip(getContext())
+        Balloon filenameHint = AndroidUtils
+                .getBaseToolTip(getContext())
                 .setPreferenceName("ReplyFilenameRefreshHint")
                 .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reply_filename_hint)
                 .build();
-        Balloon spoilerHint = AndroidUtils.getBaseToolTip(getContext())
+        Balloon spoilerHint = AndroidUtils
+                .getBaseToolTip(getContext())
                 .setPreferenceName("ReplyImageSpoilerHint")
                 .setArrowOrientation(ArrowOrientation.END)
                 .setTextResource(R.string.reply_spoiler_hint)
@@ -1138,7 +1107,8 @@ public class ReplyLayout
 
         // attach, spoiler (if applicable), reencode, filename
         if (presenter.canPostSpoileredImages()) {
-            attachHint.relayShowAlignLeft(spoilerHint, spoiler)
+            attachHint
+                    .relayShowAlignLeft(spoilerHint, spoiler)
                     .relayShowAlignLeft(reencodeHint, reencodeImage)
                     .relayShowAlignLeft(filenameHint, filenameNew);
         } else {

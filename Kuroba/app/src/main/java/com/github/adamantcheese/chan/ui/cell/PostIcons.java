@@ -1,12 +1,11 @@
 package com.github.adamantcheese.chan.ui.cell;
 
+import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.*;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.Typeface;
+import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -19,21 +18,10 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
+import java.util.*;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.ARCHIVED_FLAG;
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.CLOSED_FLAG;
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.DELETED_FLAG;
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.HTTP_ICONS_FLAG_NO_TEXT;
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.HTTP_ICONS_FLAG_TEXT;
-import static com.github.adamantcheese.chan.ui.cell.PostIcons.FlagType.STICKY_FLAG;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class PostIcons
         extends View {

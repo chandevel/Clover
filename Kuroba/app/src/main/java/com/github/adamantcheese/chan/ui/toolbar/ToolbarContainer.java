@@ -16,34 +16,6 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.LinearInterpolator;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.layout.SearchLayout;
-import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import static android.text.TextUtils.isEmpty;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -51,6 +23,25 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
+import android.animation.*;
+import android.content.Context;
+import android.util.AttributeSet;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
+import android.widget.*;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout;
+import com.github.adamantcheese.chan.ui.theme.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The container for the views created by the toolbar for the navigation items.

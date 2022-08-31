@@ -10,7 +10,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 
 import org.jsoup.nodes.Document;
-import org.jsoup.parser.Parser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -53,7 +52,8 @@ public class PixivEmbedder
             return new EmbedResult(
                     input.select("p>img").get(0).attr("alt"),
                     "",
-                    new PostImage.Builder().serverFilename(serverName)
+                    new PostImage.Builder()
+                            .serverFilename(serverName)
                             .thumbnailUrl(HttpUrl.get(generatedURL))
                             .imageUrl(HttpUrl.get(fullsizeUrl)) // this isn't the "source" as it's always a JPG, but it's good enough
                             .filename(input.select("a>h1").get(0).html())

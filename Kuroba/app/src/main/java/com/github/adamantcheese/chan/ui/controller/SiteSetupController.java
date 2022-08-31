@@ -16,32 +16,24 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.SiteSetupPresenter;
-import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.SiteSetting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
-import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
-import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.ListSettingView;
+import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
-import com.github.adamantcheese.chan.ui.settings.PrimitiveSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.StringLimitCallback;
 import com.github.adamantcheese.chan.ui.widget.CancellableToast;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SiteSetupController
         extends SettingsController

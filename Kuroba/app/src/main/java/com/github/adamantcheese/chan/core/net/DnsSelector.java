@@ -2,9 +2,7 @@ package com.github.adamantcheese.chan.core.net;
 
 import androidx.annotation.NonNull;
 
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 

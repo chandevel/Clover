@@ -1,5 +1,8 @@
 package com.github.adamantcheese.chan.ui.helper;
 
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+
 import android.content.Context;
 
 import androidx.annotation.Nullable;
@@ -15,14 +18,7 @@ import com.github.adamantcheese.chan.ui.controller.RemovedPostsController;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import java.util.*;
 
 public class RemovedPostsHelper {
     private final Context context;

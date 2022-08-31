@@ -16,11 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
+
 import android.content.Context;
-import android.nfc.NdefMessage;
-import android.nfc.NdefRecord;
-import android.nfc.NfcAdapter;
-import android.nfc.NfcEvent;
+import android.nfc.*;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -47,11 +49,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
 
 public abstract class ThreadController
         extends Controller

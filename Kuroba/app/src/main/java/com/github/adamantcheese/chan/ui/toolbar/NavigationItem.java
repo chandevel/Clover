@@ -16,11 +16,11 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.view.View;
 
 import com.github.adamantcheese.chan.R;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 /**
  * The navigation properties for a Controller. Controls common properties that parent controllers

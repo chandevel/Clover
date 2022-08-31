@@ -16,6 +16,11 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
@@ -32,11 +37,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.utils.BitmapUtils;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDisplaySize;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImageReencodingPresenter {
     private final Context context;
@@ -115,7 +115,9 @@ public class ImageReencodingPresenter {
         public int reducePercent;
         public boolean blur;
 
-        public ImageOptions(boolean fixExif, boolean changeImageChecksum, int reencodeQuality, int reducePercent, boolean blur) {
+        public ImageOptions(
+                boolean fixExif, boolean changeImageChecksum, int reencodeQuality, int reducePercent, boolean blur
+        ) {
             this.fixExif = fixExif;
             this.changeImageChecksum = changeImageChecksum;
             this.reencodeQuality = reencodeQuality;
@@ -128,7 +130,9 @@ public class ImageReencodingPresenter {
         }
 
         public boolean areOptionsInvalid() {
-            return reencodeQuality < MIN_QUALITY || reencodeQuality > MAX_QUALITY || reducePercent < MIN_REDUCE
+            return reencodeQuality < MIN_QUALITY
+                    || reencodeQuality > MAX_QUALITY
+                    || reducePercent < MIN_REDUCE
                     || reducePercent > MAX_REDUCE;
         }
     }

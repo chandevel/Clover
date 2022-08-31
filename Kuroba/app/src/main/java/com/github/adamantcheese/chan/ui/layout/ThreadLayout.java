@@ -431,7 +431,8 @@ public class ThreadLayout
             callback.openFilterForType(FilterType.IMAGE, post.image().fileHash);
         } else {
             ListView hashList = new ListView(getContext());
-            AlertDialog dialog = getDefaultAlertBuilder(getContext()).setTitle("Select an image to filter.")
+            AlertDialog dialog = getDefaultAlertBuilder(getContext())
+                    .setTitle("Select an image to filter.")
                     .setView(hashList)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -620,7 +621,8 @@ public class ThreadLayout
         if (show != showingReplyButton && replyButtonEnabled) {
             showingReplyButton = show;
             replyButton.animate().cancel();
-            replyButton.animate()
+            replyButton
+                    .animate()
                     .setInterpolator(new DecelerateInterpolator(2f))
                     .setStartDelay(show ? 100 : 0)
                     .alpha(show ? 1f : 0f)
@@ -714,7 +716,8 @@ public class ThreadLayout
                 ? getString(R.string.thread_layout_hide_whole_chain_as_well)
                 : getString(R.string.thread_layout_remove_whole_chain_as_well);
 
-        AlertDialog alertDialog = getDefaultAlertBuilder(getContext()).setMessage(message)
+        AlertDialog alertDialog = getDefaultAlertBuilder(getContext())
+                .setMessage(message)
                 .setPositiveButton(positiveButtonText,
                         (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
                 )

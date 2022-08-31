@@ -16,26 +16,20 @@
  */
 package com.github.adamantcheese.chan.core.repository;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ThreadNoTimeModPair;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-
-import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class PageRepository {
     private static final Set<Board> requestedBoards = Collections.synchronizedSet(new HashSet<>());

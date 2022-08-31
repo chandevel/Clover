@@ -22,18 +22,10 @@ import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterActi
 import static com.github.adamantcheese.chan.core.manager.FilterType.*;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.BOARD_FLAG;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.COUNTRY_FLAG;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
-import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 
-import android.text.Spannable;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
@@ -43,8 +35,6 @@ import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.text.post_linkables.FilterDebugLinkable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -280,7 +270,8 @@ public class FilterEngine {
             } catch (PatternSyntaxException e) {
                 return null;
             }
-        } else if (rawPattern.length() >= 2 && rawPattern.charAt(0) == '"'
+        } else if (rawPattern.length() >= 2
+                && rawPattern.charAt(0) == '"'
                 && rawPattern.charAt(rawPattern.length() - 1) == '"') {
             // "matches an exact sentence"
             String text = escapeRegex(rawPattern.substring(1, rawPattern.length() - 1));
@@ -292,7 +283,8 @@ public class FilterEngine {
             for (int i = 0, wordsLength = words.length; i < wordsLength; i++) {
                 String word = words[i];
                 // Find a word (bounded by \b), replacing any * with \S*
-                text.append("(\\b")
+                text
+                        .append("(\\b")
                         .append(wildcardPattern.matcher(escapeRegex(word)).replaceAll("\\\\S*"))
                         .append("\\b)");
                 // Allow multiple words by joining them with |

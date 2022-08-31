@@ -16,20 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.captcha;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.CookieManager;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.webkit.*;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
@@ -44,8 +39,6 @@ import java.io.InputStreamReader;
 import kotlin.io.TextStreamsKt;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 public class LegacyCaptchaLayout
         extends LinearLayout

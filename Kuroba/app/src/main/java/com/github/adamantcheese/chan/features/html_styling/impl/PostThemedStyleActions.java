@@ -80,8 +80,10 @@ public class PostThemedStyleActions {
 
     @NonNull
     private static PostLinkable<?> generateLinkableForAnchor(
-            @NonNull Node anchor, Theme theme, @NonNull Post.Builder post, @NonNull
-            PostParser.PostParserCallback callback
+            @NonNull Node anchor,
+            Theme theme,
+            @NonNull Post.Builder post,
+            @NonNull PostParser.PostParserCallback callback
     ) {
         String href = anchor.attr("href");
         HttpUrl hrefUrl = HttpUrl.get(anchor.absUrl("href"));

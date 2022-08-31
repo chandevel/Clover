@@ -16,6 +16,12 @@
  */
 package com.github.adamantcheese.chan.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.view.KeyEvent;
@@ -35,12 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kotlin.jvm.functions.Function1;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 public abstract class Controller {
     private static final boolean LOG_STATES = false;

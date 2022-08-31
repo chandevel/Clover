@@ -16,24 +16,20 @@
  */
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.ProgressRequestBody;
-import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginResponse;
+import com.github.adamantcheese.chan.core.site.http.*;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import okhttp3.FormBody;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
+import okhttp3.*;
 
 public class Chan4PassHttpCall
         extends HttpCall<LoginResponse> {

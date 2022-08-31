@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -23,8 +25,6 @@ import android.view.View;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.github.adamantcheese.chan.R;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 
 public class DrawerWidthAdjustingLayout
         extends DrawerLayout {

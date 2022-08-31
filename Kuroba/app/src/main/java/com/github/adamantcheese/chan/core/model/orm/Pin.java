@@ -154,7 +154,18 @@ public class Pin
     @NonNull
     @Override
     public String toString() {
-        return "[id = " + id + ", isError = " + isError + ", isArchived = " + archived + ", watching = " + watching
-                + ", (active) = " + (!isError && !archived) + ", no = " + loadable.no + "]";
+        return "[id = "
+                + id
+                + ", isError = "
+                + isError
+                + ", isArchived = "
+                + archived
+                + ", watching = "
+                + watching
+                + ", (active) = "
+                + (!isError && !archived)
+                + ", no = "
+                + loadable.no
+                + "]";
     }
 }

@@ -16,15 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+
 import android.content.ClipData;
 import android.content.Context;
 import android.text.Spanned;
 import android.util.AttributeSet;
 
 import androidx.appcompat.widget.AppCompatEditText;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardManager;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 public class SelectionListeningEditText
         extends AppCompatEditText {

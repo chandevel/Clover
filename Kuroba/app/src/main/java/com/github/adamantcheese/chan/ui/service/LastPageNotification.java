@@ -1,9 +1,11 @@
 package com.github.adamantcheese.chan.ui.service;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
+
+import android.app.*;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
@@ -26,11 +28,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
-
 public class LastPageNotification
         extends JobService {
     public static final String PIN_ID_KEY = "pin_id";
@@ -52,7 +49,8 @@ public class LastPageNotification
                     NotificationManager.IMPORTANCE_HIGH
             );
             alert.setSound(DEFAULT_NOTIFICATION_URI,
-                    new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
                             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                             .setFlags(AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
                             .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
@@ -87,11 +85,13 @@ public class LastPageNotification
 
     public Notification getNotification(Pin pin, int pinId) {
         Intent intent = new Intent(getAppContext(), StartActivity.class);
-        intent.setAction(Intent.ACTION_MAIN)
+        intent
+                .setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 .putExtra("pin_id", pinId);
 
         PendingIntent pendingIntent =
@@ -99,7 +99,8 @@ public class LastPageNotification
         String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(new Date());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
-        builder.setSmallIcon(R.drawable.ic_stat_notify_alert)
+        builder
+                .setSmallIcon(R.drawable.ic_stat_notify_alert)
                 .setContentTitle(time + " - " + getString(R.string.thread_page_limit))
                 .setContentText(pin.loadable.title)
                 .setContentIntent(pendingIntent)

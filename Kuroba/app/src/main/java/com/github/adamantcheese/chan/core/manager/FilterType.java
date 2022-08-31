@@ -16,12 +16,12 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import com.github.adamantcheese.chan.R;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 /**
  * This class doesn't use BitSet as it is saved in the database and using ordinals for database saving is a bad idea.

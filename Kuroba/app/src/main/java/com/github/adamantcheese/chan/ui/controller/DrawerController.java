@@ -16,18 +16,29 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
+import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
+import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+import static androidx.recyclerview.widget.ItemTouchHelper.UP;
+import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.EPOCH_DATE;
+import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
+import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.text.TextUtils;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,24 +76,6 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.List;
 
 import javax.inject.Inject;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
-import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_UNLOCKED;
-import static androidx.recyclerview.widget.ItemTouchHelper.DOWN;
-import static androidx.recyclerview.widget.ItemTouchHelper.LEFT;
-import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
-import static androidx.recyclerview.widget.ItemTouchHelper.UP;
-import static com.github.adamantcheese.chan.Chan.instance;
-import static com.github.adamantcheese.chan.core.database.DatabaseLoadableManager.EPOCH_DATE;
-import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR;
-import static com.github.adamantcheese.chan.ui.controller.DrawerController.HeaderAction.CLEAR_ALL;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class DrawerController
         extends Controller
@@ -171,7 +164,8 @@ public class DrawerController
     public void onCreate() {
         super.onCreate();
 
-        view = (ViewGroup) LayoutInflater.from(context)
+        view = (ViewGroup) LayoutInflater
+                .from(context)
                 .inflate(ChanSettings.reverseDrawer.get()
                         ? R.layout.controller_navigation_drawer_reverse
                         : R.layout.controller_navigation_drawer, null);
@@ -185,7 +179,8 @@ public class DrawerController
             @Override
             public void onDrawerOpened(@NonNull View drawerView) {
                 clearAnySelectionsAndKeyboards(context);
-                AndroidUtils.getBaseToolTip(context)
+                AndroidUtils
+                        .getBaseToolTip(context)
                         .setPreferenceName("DrawerPinHistoryHint")
                         .setArrowOrientation(ArrowOrientation.TOP)
                         .setText("Tap to view history/bookmarks\nLong tap to toggle history")

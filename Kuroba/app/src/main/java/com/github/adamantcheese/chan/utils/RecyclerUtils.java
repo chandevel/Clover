@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.utils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
@@ -29,9 +32,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 
 import java.lang.reflect.Field;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class RecyclerUtils {
     private static final String TAG = "RecyclerUtils";

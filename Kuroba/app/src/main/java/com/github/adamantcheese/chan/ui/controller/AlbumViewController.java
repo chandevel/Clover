@@ -16,10 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
+
 import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -43,10 +45,6 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
 
 public class AlbumViewController
         extends Controller
@@ -82,7 +80,8 @@ public class AlbumViewController
         this.loadable = loadable;
         this.postImages = postImages;
 
-        navigation.buildMenu()
+        navigation
+                .buildMenu()
                 .withItem(MenuId.DOWNLOAD_ALBUM,
                         R.drawable.ic_fluent_table_move_below_24_filled,
                         this::downloadAlbumClicked
@@ -158,7 +157,8 @@ public class AlbumViewController
 
     @Override
     public void onNavItemSet() {
-        AndroidUtils.getBaseToolTip(context)
+        AndroidUtils
+                .getBaseToolTip(context)
                 .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
                 .setPreferenceName("DownloadAlbumHint")
                 .setArrowOrientation(ArrowOrientation.TOP)
@@ -177,7 +177,8 @@ public class AlbumViewController
         @NonNull
         @Override
         public AlbumItemCellHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new AlbumItemCellHolder(LayoutInflater.from(parent.getContext())
+            return new AlbumItemCellHolder(LayoutInflater
+                    .from(parent.getContext())
                     .inflate(ChanSettings.useStaggeredAlbumGrid.get()
                             ? R.layout.cell_album_view_stagger
                             : R.layout.cell_album_view, parent, false));

@@ -16,11 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
 import android.graphics.Color;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 
 import androidx.annotation.NonNull;
 import androidx.slidingpanelayout.widget.SlidingPaneLayout;
@@ -35,11 +38,6 @@ import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
-
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class ThreadSlideController
         extends Controller
@@ -274,11 +272,13 @@ public class ThreadSlideController
 
     @Override
     public void onSearchVisibilityChanged(boolean visible) {
-        if (leftOpen() && leftController != null
+        if (leftOpen()
+                && leftController != null
                 && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onSearchVisibilityChanged(visible);
         }
-        if (!leftOpen() && rightController != null
+        if (!leftOpen()
+                && rightController != null
                 && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onSearchVisibilityChanged(visible);
         }
@@ -286,11 +286,13 @@ public class ThreadSlideController
 
     @Override
     public void onSearchEntered(String entered) {
-        if (leftOpen() && leftController != null
+        if (leftOpen()
+                && leftController != null
                 && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onSearchEntered(entered);
         }
-        if (!leftOpen() && rightController != null
+        if (!leftOpen()
+                && rightController != null
                 && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onSearchEntered(entered);
         }
@@ -298,11 +300,13 @@ public class ThreadSlideController
 
     @Override
     public void onNavItemSet() {
-        if (leftOpen() && leftController != null
+        if (leftOpen()
+                && leftController != null
                 && leftController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) leftController).onNavItemSet();
         }
-        if (!leftOpen() && rightController != null
+        if (!leftOpen()
+                && rightController != null
                 && rightController instanceof ToolbarNavigationController.ToolbarSearchCallback) {
             ((ToolbarNavigationController.ToolbarSearchCallback) rightController).onNavItemSet();
         }

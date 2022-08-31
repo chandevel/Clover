@@ -145,12 +145,14 @@ public class PostParser {
 
         if (!TextUtils.isEmpty(builder.getName()) && (!builder.getName().equals(defaultName)
                 || ChanSettings.showAnonymousName.get())) {
-            nameTripcodeIdCapcodeSpan.append(span(builder.getName(), new ForegroundColorSpanHashed(theme.nameColor)))
+            nameTripcodeIdCapcodeSpan
+                    .append(span(builder.getName(), new ForegroundColorSpanHashed(theme.nameColor)))
                     .append("  ");
         }
 
         if (!TextUtils.isEmpty(builder.tripcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(builder.tripcode,
+            nameTripcodeIdCapcodeSpan.append(span(
+                    builder.tripcode,
                     new ForegroundColorSpanHashed(theme.nameColor),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
@@ -168,7 +170,8 @@ public class PostParser {
             } else {
                 idBackgroundSpan = new BackgroundColorSpanHashed(builder.idColor);
             }
-            nameTripcodeIdCapcodeSpan.append(span("  " + builder.posterId + "  ",
+            nameTripcodeIdCapcodeSpan.append(span(
+                    "  " + builder.posterId + "  ",
                     new ForegroundColorSpanHashed(getContrastColor(builder.idColor)),
                     idBackgroundSpan,
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
@@ -176,7 +179,8 @@ public class PostParser {
         }
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(StringUtils.caseAndSpace(builder.moderatorCapcode, null),
+            nameTripcodeIdCapcodeSpan.append(span(
+                    StringUtils.caseAndSpace(builder.moderatorCapcode, null),
                     new ForegroundColorSpanHashed(getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent)),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");

@@ -16,39 +16,28 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
+
 import com.github.adamantcheese.chan.core.di.AppModule;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.gson.reflect.TypeToken;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 
 public class FilterWatchManager
         implements WakeManager.Wakeable {
@@ -110,7 +99,9 @@ public class FilterWatchManager
             if (!filterLoaders.keySet().isEmpty()) {
                 Logger.d(
                         this,
-                        "Processing " + numBoardsChecked + " filter loaders, started at "
+                        "Processing "
+                                + numBoardsChecked
+                                + " filter loaders, started at "
                                 + StringUtils.getCurrentTimeDefaultLocale()
                 );
                 for (ChanThreadLoader loader : filterLoaders.keySet()) {
@@ -211,7 +202,8 @@ public class FilterWatchManager
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             CatalogPost that = (CatalogPost) o;
-            return Objects.equals(siteId, that.siteId) && Objects.equals(boardCode, that.boardCode)
+            return Objects.equals(siteId, that.siteId)
+                    && Objects.equals(boardCode, that.boardCode)
                     && Objects.equals(no, that.no);
         }
 

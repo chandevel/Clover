@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -25,8 +27,6 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.controller.ui.NavigationControllerContainerLayout;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
 public class StyledToolbarNavigationController
         extends ToolbarNavigationController {

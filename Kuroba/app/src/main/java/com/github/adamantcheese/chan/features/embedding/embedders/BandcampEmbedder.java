@@ -1,5 +1,9 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
+import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
+
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
@@ -18,10 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
-import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
 
 public class BandcampEmbedder
         extends HtmlEmbedder {
@@ -58,18 +58,22 @@ public class BandcampEmbedder
             int curThemeResValue = ThemeHelper.getTheme().resValue;
             try {
                 String extractedPlayer = input.select("meta[property=twitter:player]").get(0).attr("content");
-                extractedPlayer = extractedPlayer.replace("v=2/", "")
+                extractedPlayer = extractedPlayer
+                        .replace("v=2/", "")
                         .replace("notracklist=true/", "")
                         .replace("twittercard=true/", "")
                         .replaceAll("linkcol=.{6}",
                                 "linkcol=" + getRGBColorIntString(getAttrColor(curThemeResValue,
                                         android.R.attr.textColorPrimary
                                 )) + "/"
-                        ) + "bgcol=" + getRGBColorIntString(getAttrColor(curThemeResValue, R.attr.backcolor))
+                        )
+                        + "bgcol="
+                        + getRGBColorIntString(getAttrColor(curThemeResValue, R.attr.backcolor))
                         + "/minimal=true/transparent=true/";
                 HttpUrl embeddedPlayer = HttpUrl.get(extractedPlayer);
 
-                JsonReader durReader = new JsonReader(new StringReader(input.select("script[type=application/ld+json]")
+                JsonReader durReader = new JsonReader(new StringReader(input
+                        .select("script[type=application/ld+json]")
                         .get(0)
                         .html()));
                 durReader.beginObject();
@@ -117,7 +121,8 @@ public class BandcampEmbedder
                 }
                 durReader.endObject();
 
-                extra = new PostImage.Builder().serverFilename(input.title())
+                extra = new PostImage.Builder()
+                        .serverFilename(input.title())
                         .thumbnailUrl(HttpUrl.get(input.select("#tralbumArt > .popupImage").get(0).attr("href")))
                         .imageUrl(embeddedPlayer)
                         .filename(input.title())

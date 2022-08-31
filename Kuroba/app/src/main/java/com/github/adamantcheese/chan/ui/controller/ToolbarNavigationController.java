@@ -19,9 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import android.content.Context;
 import android.widget.FrameLayout;
 
-import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.controller.ControllerTransition;
-import com.github.adamantcheese.chan.controller.NavigationController;
+import com.github.adamantcheese.chan.controller.*;
 import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 

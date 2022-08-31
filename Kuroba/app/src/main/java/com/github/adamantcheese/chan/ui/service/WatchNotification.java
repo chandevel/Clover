@@ -89,7 +89,8 @@ public class WatchNotification
                     NotificationManager.IMPORTANCE_HIGH
             );
             alert.setSound(DEFAULT_NOTIFICATION_URI,
-                    new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                             .setLegacyStreamType(AudioManager.STREAM_NOTIFICATION)
                             .build()
@@ -124,7 +125,8 @@ public class WatchNotification
         setupChannel();
         //start with a blank notification, to ensure it is made within 5 seconds
         startForeground(NOTIFICATION_ID,
-                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR).setSmallIcon(R.drawable.ic_stat_notify)
+                new NotificationCompat.Builder(this, NOTIFICATION_ID_STR)
+                        .setSmallIcon(R.drawable.ic_stat_notify)
                         .setPriority(NotificationCompat.PRIORITY_MIN)
                         .setOngoing(true)
                         .build()
@@ -244,7 +246,8 @@ public class WatchNotification
         } else {
             postsForExpandedLines = unviewedPosts;
             if (listQuoting.size() > 0) {
-                message = getQuantityString(R.plurals.new_posts, unviewedPosts.size()) + ", "
+                message = getQuantityString(R.plurals.new_posts, unviewedPosts.size())
+                        + ", "
                         + getQuantityString(R.plurals.watch_new_quotes, listQuoting.size());
             } else {
                 message = getQuantityString(R.plurals.new_posts, unviewedPosts.size());
@@ -325,11 +328,13 @@ public class WatchNotification
 
         //setup launch action, add pin if there's only one thread watching
         Intent intent = new Intent(this, StartActivity.class);
-        intent.setAction(Intent.ACTION_MAIN)
+        intent
+                .setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_LAUNCHER)
-                .setFlags(
-                        Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                                | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
+                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+                        | Intent.FLAG_ACTIVITY_NEW_TASK
+                        | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 .putExtra("pin_id", target != null ? target.id : -1);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         builder.setContentIntent(pendingIntent);

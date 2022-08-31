@@ -16,10 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
 import android.os.Build;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -41,9 +45,7 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.BrowseBoardsFloatingMenu;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
-import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuSubItem;
+import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -51,16 +53,9 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import javax.inject.Inject;
-
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.GRID;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class BrowseController
         extends ThreadController
@@ -157,7 +152,8 @@ public class BrowseController
             overflowBuilder.withSubItem(R.string.action_sort, () -> handleSorting(null));
         }
 
-        overflowBuilder.withSubItem(OverflowMenuId.ARCHIVE, R.string.thread_view_local_archive, this::openArchive)
+        overflowBuilder
+                .withSubItem(OverflowMenuId.ARCHIVE, R.string.thread_view_local_archive, this::openArchive)
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.board_info, this::showBoardInfo)
@@ -395,7 +391,8 @@ public class BrowseController
 
         StringBuilder text = new StringBuilder();
 
-        text.append('/')
+        text
+                .append('/')
                 .append(board.code)
                 .append('/')
                 .append('\n')
@@ -404,7 +401,8 @@ public class BrowseController
                 .append(board.description)
                 .append('\n');
         if (!board.workSafe) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ChanSettings.enableEmoji.get()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                    && ChanSettings.enableEmoji.get()
                     && !PersistableChanState.noFunAllowed.get()) {
                 text.append("\uD83D\uDD1E");
             } else {
@@ -417,18 +415,9 @@ public class BrowseController
         text.append("Image limit: ").append(board.imageLimit).append(" images").append("\n");
         text.append("Page limit: ").append(board.pages).append("\n");
 
-        text.append("New thread cooldown: ")
-                .append(board.cooldownThreads)
-                .append(" seconds")
-                .append("\n");
-        text.append("New reply cooldown: ")
-                .append(board.cooldownReplies)
-                .append(" seconds")
-                .append("\n");
-        text.append("Image reply cooldown: ")
-                .append(board.cooldownImages)
-                .append(" seconds")
-                .append("\n");
+        text.append("New thread cooldown: ").append(board.cooldownThreads).append(" seconds").append("\n");
+        text.append("New reply cooldown: ").append(board.cooldownReplies).append(" seconds").append("\n");
+        text.append("Image reply cooldown: ").append(board.cooldownImages).append(" seconds").append("\n");
 
         dialog.setMessage(text);
         dialog.show();

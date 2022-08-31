@@ -90,7 +90,8 @@ public interface ImageLoadable {
                 // if not from cache, fade the view in; if set, fade out first
                 if (!fromCache) {
                     if (imageView.getDrawable() != null) {
-                        imageView.animate()
+                        imageView
+                                .animate()
                                 .setInterpolator(new AccelerateInterpolator(2f))
                                 .alpha(0f)
                                 .setListener(new AnimatorListenerAdapter() {

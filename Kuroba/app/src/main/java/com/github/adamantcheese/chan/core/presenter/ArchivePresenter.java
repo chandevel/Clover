@@ -16,16 +16,14 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static android.text.TextUtils.isEmpty;
+
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
-import static android.text.TextUtils.isEmpty;
+import java.util.*;
 
 public class ArchivePresenter
         implements NetUtilsClasses.ResponseResult<InternalSiteArchive> {

@@ -1,24 +1,14 @@
 package com.github.adamantcheese.chan.ui.captcha;
 
-import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import androidx.annotation.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import com.github.adamantcheese.chan.utils.*;
+
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.github.adamantcheese.chan.utils.StringUtils.centerEllipsize;
 
 public class CaptchaTokenHolder {
     private static final CaptchaTokenHolder instance = new CaptchaTokenHolder();
@@ -182,7 +172,9 @@ public class CaptchaTokenHolder {
         @NonNull
         @Override
         public String toString() {
-            return "validUntil = " + StringUtils.getTimeDefaultLocale(validUntil) + ", token = "
+            return "validUntil = "
+                    + StringUtils.getTimeDefaultLocale(validUntil)
+                    + ", token = "
                     + centerEllipsize(token, 16);
         }
     }

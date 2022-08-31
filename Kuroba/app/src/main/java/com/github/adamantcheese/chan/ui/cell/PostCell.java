@@ -16,30 +16,32 @@
  */
 package com.github.adamantcheese.chan.ui.cell;
 
+import static android.text.TextUtils.isEmpty;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static android.widget.RelativeLayout.BELOW;
+import static android.widget.RelativeLayout.LEFT_OF;
+import static android.widget.RelativeLayout.RIGHT_OF;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
+import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.graphics.Typeface;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
+import android.graphics.*;
+import android.text.*;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
-import android.view.ActionMode;
-import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -47,14 +49,10 @@ import androidx.core.view.OneShotPreDrawListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.net.ImageLoadable;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -65,9 +63,7 @@ import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
+import com.github.adamantcheese.chan.ui.view.*;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
 import java.util.ArrayList;
@@ -75,28 +71,6 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static android.text.TextUtils.isEmpty;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.widget.RelativeLayout.BELOW;
-import static android.widget.RelativeLayout.LEFT_OF;
-import static android.widget.RelativeLayout.RIGHT_OF;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
-import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
-import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class PostCell
         extends LinearLayout
@@ -171,7 +145,8 @@ public class PostCell
 
         if (isInEditMode()) {
             BitmapRepository.initialize(getContext());
-            icons.set(new Post.Builder().sticky(true)
+            icons.set(new Post.Builder()
+                    .sticky(true)
                     .closed(true)
                     .archived(true)
                     .board(Board.getDummyBoard())
@@ -320,7 +295,8 @@ public class PostCell
 
         int detailsColor = getAttrColor(getContext(), R.attr.post_details_color);
         CharSequence dubs = ChanSettings.addDubs.get() ? getRepeatDigits(post.no) : "";
-        SpannableStringBuilder date = new SpannableStringBuilder().append("No. ")
+        SpannableStringBuilder date = new SpannableStringBuilder()
+                .append("No. ")
                 .append(String.valueOf(post.no))
                 .append(" ")
                 .append(dubs)
@@ -345,7 +321,8 @@ public class PostCell
                 String filename = '\u200E' + (image.spoiler() ? (image.hidden
                         ? getString(R.string.image_hidden_filename)
                         : getString(R.string.image_spoiler_filename)) : image.filename + "." + image.extension);
-                SpannableStringBuilder fileInfo = new SpannableStringBuilder().append("\n")
+                SpannableStringBuilder fileInfo = new SpannableStringBuilder()
+                        .append("\n")
                         .append(applySearchSpans(theme, filename, callback.getSearchQuery()));
                 titleParts.append(span(fileInfo,
                         new ForegroundColorSpanHashed(detailsColor),

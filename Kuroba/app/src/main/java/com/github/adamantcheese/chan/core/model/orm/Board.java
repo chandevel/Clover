@@ -315,9 +315,14 @@ public class Board
         if (board == null) return false;
         if (board.getClass() != Board.class) return false;
         Board b = (Board) board;
-        return siteId == b.siteId && code.equals(b.code) && bumpLimit == b.bumpLimit && imageLimit == b.imageLimit
-                && description.equals(b.description) && cooldownImages == b.cooldownImages
-                && boardFlags.equals(b.boardFlags) && countryFlags == b.countryFlags;
+        return siteId == b.siteId
+                && code.equals(b.code)
+                && bumpLimit == b.bumpLimit
+                && imageLimit == b.imageLimit
+                && description.equals(b.description)
+                && cooldownImages == b.cooldownImages
+                && boardFlags.equals(b.boardFlags)
+                && countryFlags == b.countryFlags;
     }
 
     @Override

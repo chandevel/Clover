@@ -16,23 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.database;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
+
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.PostHide;
-import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.model.orm.SiteModel;
+import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.IntegerSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.LongSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.Setting;
-import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
+import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -49,20 +42,11 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okio.ByteString;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 
 public class DatabaseHelper
         extends OrmLiteSqliteOpenHelper {
@@ -219,7 +203,8 @@ public class DatabaseHelper
                         + "DROP TABLE board;\n"
                         + "CREATE TABLE board(archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe);\n"
                         + "INSERT INTO board SELECT archive,bumplimit,value,codeTags,cooldownImages,cooldownReplies,cooldownThreads,countryFlags,customSpoilers,description,id,imageLimit,mathTags,maxCommentChars,maxFileSize,maxWebmSize,key,order,pages,perPage,preuploadCaptcha,saved,site,spoilers,userIds,workSafe FROM board_backup;\n"
-                        + "DROP TABLE board_backup;\n" + "COMMIT;");
+                        + "DROP TABLE board_backup;\n"
+                        + "COMMIT;");
             } catch (SQLException e) {
                 Logger.e(this, "Error upgrading to version 30");
             }
@@ -466,8 +451,10 @@ public class DatabaseHelper
                 for (String[] res : results) {
                     Matcher m = config.matcher(res[1]); // 0 is id, 1 is the raw result
                     if (m.matches()) { // shouldn't fail
-                        getSiteModelDao().executeRawNoArgs(
-                                "UPDATE site SET classID = " + Integer.parseInt(m.group(1)) + " WHERE id = " + res[0]);
+                        getSiteModelDao().executeRawNoArgs("UPDATE site SET classID = "
+                                + Integer.parseInt(m.group(1))
+                                + " WHERE id = "
+                                + res[0]);
                     }
                 }
             } catch (Exception e) {
@@ -486,7 +473,8 @@ public class DatabaseHelper
                         + "DROP TABLE pin;\n"
                         + "CREATE TABLE pin(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type);\n"
                         + "INSERT INTO pin SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived,pin_type FROM pin_backup;\n"
-                        + "DROP TABLE pin_backup;\n" + "COMMIT;");
+                        + "DROP TABLE pin_backup;\n"
+                        + "COMMIT;");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 48");
             }
@@ -519,7 +507,8 @@ public class DatabaseHelper
                         + "DROP TABLE pin;\n"
                         + "CREATE TABLE pin(id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived);\n"
                         + "INSERT INTO pin SELECT id,loadable,watching,watchLastCount,watchNewCount,quoteLastCount,quoteNewCount,isError,order,archived FROM pin_backup;\n"
-                        + "DROP TABLE pin_backup;\n" + "COMMIT;");
+                        + "DROP TABLE pin_backup;\n"
+                        + "COMMIT;");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 48");
             }
@@ -550,8 +539,9 @@ public class DatabaseHelper
                 stream1.close();
                 ByteString out = ByteString.of(stream.toByteArray());
                 stream.close();
-                getBoardDao().executeRawNoArgs(
-                        "ALTER TABLE board ADD COLUMN boardFlags BLOB NOT NULL default x'" + out.hex() + "'");
+                getBoardDao().executeRawNoArgs("ALTER TABLE board ADD COLUMN boardFlags BLOB NOT NULL default x'"
+                        + out.hex()
+                        + "'");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 54", e);
             }
@@ -639,9 +629,12 @@ public class DatabaseHelper
 
         int deletedCountFilters = filterDelete.delete();
         if (deletedCountFilters != filterIdSet.size()) {
-            throw new IllegalStateException(
-                    "Deleted count didn't equal filterIdList.size(). (deletedCount = " + deletedCountFilters + "), "
-                            + "(filterIdSet = " + filterIdSet.size() + ")");
+            throw new IllegalStateException("Deleted count didn't equal filterIdList.size(). (deletedCount = "
+                    + deletedCountFilters
+                    + "), "
+                    + "(filterIdSet = "
+                    + filterIdSet.size()
+                    + ")");
         }
 
         //boards
@@ -667,9 +660,11 @@ public class DatabaseHelper
 
             int deletedCountLoadables = loadableDelete.delete();
             if (loadableIdSet.size() != deletedCountLoadables) {
-                throw new IllegalStateException(
-                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCountLoadables
-                                + "), (loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
+                        + deletedCountLoadables
+                        + "), (loadableIdSet = "
+                        + loadableIdSet.size()
+                        + ")");
             }
         }
 
@@ -737,9 +732,11 @@ public class DatabaseHelper
 
             int deletedCountLoadables = loadableDelete.delete();
             if (loadableIdSet.size() != deletedCountLoadables) {
-                throw new IllegalStateException(
-                        "Deleted count didn't equal loadableIdSet.size(). (deletedCount = " + deletedCountLoadables
-                                + "), (loadableIdSet = " + loadableIdSet.size() + ")");
+                throw new IllegalStateException("Deleted count didn't equal loadableIdSet.size(). (deletedCount = "
+                        + deletedCountLoadables
+                        + "), (loadableIdSet = "
+                        + loadableIdSet.size()
+                        + ")");
             }
         }
 

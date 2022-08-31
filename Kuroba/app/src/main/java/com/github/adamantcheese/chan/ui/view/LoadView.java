@@ -16,10 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.view;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
+
+import android.animation.*;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -29,8 +28,6 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * Container for a view with an ProgressBar. Toggles between the view and a

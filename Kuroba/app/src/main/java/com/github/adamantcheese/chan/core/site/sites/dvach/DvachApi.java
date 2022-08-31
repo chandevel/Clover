@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.core.site.sites.dvach;
 
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+
 import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.model.Post;
@@ -9,11 +11,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+import java.util.*;
 
 public class DvachApi
         extends CommonSite.CommonApi {
@@ -220,7 +218,8 @@ public class DvachApi
 
         if (path != null && fileName != null) {
             Map<String, String> args = makeArgument("path", path, "thumbnail", thumbnail);
-            return new PostImage.Builder().serverFilename(fileName)
+            return new PostImage.Builder()
+                    .serverFilename(fileName)
                     .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
                     .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
                     .imageUrl(endpoints.imageUrl(builder, args))

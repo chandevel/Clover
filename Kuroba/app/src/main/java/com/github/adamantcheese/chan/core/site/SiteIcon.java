@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
+
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,8 +30,6 @@ import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 public class SiteIcon {
     private HttpUrl url;

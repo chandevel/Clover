@@ -16,6 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.content.DialogInterface;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,13 +37,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.settings.primitives.Setting;
 import com.github.adamantcheese.chan.ui.controller.settings.SettingsController;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LimitCallback;
-
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 public class PrimitiveSettingView<T>
         extends SettingView {
@@ -111,8 +111,11 @@ public class PrimitiveSettingView<T>
             public void afterTextChanged(Editable s) {
                 try {
                     if (!limitCallback.isInLimit(setting.convertStringToSettingType(s.toString()))) {
-                        settingValue.setError("Valid range is " + limitCallback.getMinimumLimit() + " to "
-                                + limitCallback.getMaximumLimit() + ".");
+                        settingValue.setError("Valid range is "
+                                + limitCallback.getMinimumLimit()
+                                + " to "
+                                + limitCallback.getMaximumLimit()
+                                + ".");
                     } else {
                         settingValue.setError(null);
                     }
@@ -137,7 +140,8 @@ public class PrimitiveSettingView<T>
             settingsController.onPreferenceChange(PrimitiveSettingView.this);
         };
 
-        AlertDialog dialog = getDefaultAlertBuilder(v.getContext()).setPositiveButton(R.string.ok, clickListener)
+        AlertDialog dialog = getDefaultAlertBuilder(v.getContext())
+                .setPositiveButton(R.string.ok, clickListener)
                 .setNeutralButton(R.string.default_, (d, which) -> {
                     setting.set(setting.getDefault());
                     settingsController.onPreferenceChange(PrimitiveSettingView.this);

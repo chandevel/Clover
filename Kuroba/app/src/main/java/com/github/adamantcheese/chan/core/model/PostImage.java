@@ -16,11 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.GIF;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.IFRAME;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.MOVIE;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.OTHER;
-import static com.github.adamantcheese.chan.core.model.PostImage.Type.STATIC;
+import static com.github.adamantcheese.chan.core.model.PostImage.Type.*;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.DELETED_IMAGE_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.HIDE_THUMB_URL;
 

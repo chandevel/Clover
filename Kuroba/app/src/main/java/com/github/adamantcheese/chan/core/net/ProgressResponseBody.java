@@ -7,15 +7,8 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.io.IOException;
 
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
-import okio.ForwardingSource;
-import okio.Okio;
-import okio.Source;
+import okhttp3.*;
+import okio.*;
 
 /**
  * Used for getting the progress of a body when receiving it from the network.

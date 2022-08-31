@@ -14,7 +14,8 @@ public abstract class HtmlEmbedder
     @Override
     public EmbedResult convert(Response response)
             throws Exception {
-        return new NetUtilsClasses.ChainConverter<>(getInternalConverter()).chain(NetUtilsClasses.HTML_CONVERTER)
+        return new NetUtilsClasses.ChainConverter<>(getInternalConverter())
+                .chain(NetUtilsClasses.HTML_CONVERTER)
                 .convert(response);
     }
 

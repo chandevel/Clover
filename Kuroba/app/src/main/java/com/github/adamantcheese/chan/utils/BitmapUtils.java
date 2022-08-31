@@ -8,20 +8,13 @@ import static com.github.adamantcheese.chan.core.repository.BitmapRepository.rs;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
 
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.graphics.*;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.media.MediaMetadataRetriever;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.ScriptIntrinsicBlur;
+import android.renderscript.*;
 import android.util.Base64;
 
-import androidx.annotation.DrawableRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.*;
 import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
 
@@ -30,13 +23,7 @@ import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.google.common.io.Files;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.util.Arrays;
 
 import kotlin.random.Random;

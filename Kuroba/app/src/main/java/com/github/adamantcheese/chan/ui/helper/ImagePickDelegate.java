@@ -16,6 +16,13 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
+import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
@@ -37,21 +44,12 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.google.common.io.Files;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
-import static com.github.adamantcheese.chan.core.net.NetUtils.MB;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ImagePickDelegate {
     private static final int IMAGE_PICK_RESULT = 2;
@@ -218,7 +216,8 @@ public class ImagePickDelegate {
     }
 
     private void doFilePicked() {
-        try (FileInputStream stream = new FileInputStream(activity.getContentResolver()
+        try (FileInputStream stream = new FileInputStream(activity
+                .getContentResolver()
                 .openFileDescriptor(uri, "r")
                 .getFileDescriptor())) {
             if (stream.available() > MAX_FILE_SIZE) throw new IOException("File too large!");

@@ -1,31 +1,23 @@
 package com.davemorrissey.labs.subscaleview.decoder;
 
+import static android.content.res.AssetManager.ACCESS_RANDOM;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapRegionDecoder;
-import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.net.Uri;
 import android.text.TextUtils;
 
-import androidx.annotation.Keep;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.*;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import static android.content.res.AssetManager.ACCESS_RANDOM;
+import java.util.concurrent.locks.*;
 
 /**
  * Default implementation of {@link com.davemorrissey.labs.subscaleview.decoder.ImageRegionDecoder}
@@ -110,7 +102,7 @@ public class SkiaImageRegionDecoder
                 decoder = BitmapRegionDecoder.newInstance(inputStream, false);
             } finally {
                 if (inputStream != null) {
-                    try { inputStream.close(); } catch (Exception e) { /* Ignore */ }
+                    try {inputStream.close();} catch (Exception e) { /* Ignore */ }
                 }
             }
         } else if (source.getBufferStream() != null) {

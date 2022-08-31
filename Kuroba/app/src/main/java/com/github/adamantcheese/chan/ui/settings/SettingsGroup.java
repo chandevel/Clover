@@ -16,12 +16,12 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class SettingsGroup {
     public final String name;

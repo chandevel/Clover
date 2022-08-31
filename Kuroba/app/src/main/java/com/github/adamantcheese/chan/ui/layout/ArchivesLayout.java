@@ -1,10 +1,10 @@
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+
 import android.content.Context;
 import android.util.AttributeSet;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.ListView;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -13,8 +13,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-
-import static com.github.adamantcheese.chan.Chan.inject;
 
 public class ArchivesLayout
         extends LinearLayout {

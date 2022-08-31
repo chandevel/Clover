@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+
 import android.view.Gravity;
 import android.view.View;
 
@@ -26,9 +29,6 @@ import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 public class ListSettingView<T>
         extends SettingView {

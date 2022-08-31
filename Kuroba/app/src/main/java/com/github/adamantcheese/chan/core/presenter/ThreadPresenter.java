@@ -939,7 +939,8 @@ public class ThreadPresenter
             // skip the archive picker, re-use the same archive we're already in
             openArchive((ExternalSiteArchive) loadable.site, op, postNo);
         } else if (hasContents) {
-            AlertDialog dialog = getDefaultAlertBuilder(context).setView(dialogView)
+            AlertDialog dialog = getDefaultAlertBuilder(context)
+                    .setView(dialogView)
                     .setTitle(R.string.thread_view_external_archive)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
@@ -973,7 +974,8 @@ public class ThreadPresenter
         if (reply != null) {
             final View view = LayoutInflater.from(context).inflate(R.layout.dialog_post_delete, null);
             CheckBox checkBox = view.findViewById(R.id.image_only);
-            getDefaultAlertBuilder(context).setTitle(R.string.delete_confirm)
+            getDefaultAlertBuilder(context)
+                    .setTitle(R.string.delete_confirm)
                     .setView(view)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.delete,

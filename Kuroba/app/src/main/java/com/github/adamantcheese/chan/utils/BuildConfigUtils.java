@@ -18,9 +18,8 @@ public class BuildConfigUtils {
     public static final HttpUrl ARCHIVE_MISSING_THUMB_URL =
             HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "archive_missing.png");
     public static final HttpUrl HIDE_THUMB_URL = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "hide_thumb.png");
-    public static final HttpUrl TEST_POST_IMAGE_URL = HttpUrl.get(
-            BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png");
+    public static final HttpUrl TEST_POST_IMAGE_URL = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "new_icon_512.png");
     public static final HttpUrl TEST_POST_ICON_URL = HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "icon.png");
-    public static final HttpUrl DEFAULT_SPOILER_IMAGE_URL = HttpUrl.get(
-            BuildConfig.RESOURCES_ENDPOINT + "default_spoiler.png");
+    public static final HttpUrl DEFAULT_SPOILER_IMAGE_URL =
+            HttpUrl.get(BuildConfig.RESOURCES_ENDPOINT + "default_spoiler.png");
 }

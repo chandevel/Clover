@@ -11,14 +11,7 @@ import com.j256.ormlite.stmt.DeleteBuilder;
 import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 public class DatabaseHideManager {
@@ -157,7 +150,8 @@ public class DatabaseHideManager {
     private Map<Integer, PostHide> getHiddenPosts(int siteId, String board, List<Integer> postNoList)
             throws SQLException {
 
-        Set<PostHide> hiddenInDatabase = new HashSet<>(helper.getPostHideDao()
+        Set<PostHide> hiddenInDatabase = new HashSet<>(helper
+                .getPostHideDao()
                 .queryBuilder()
                 .where()
                 .in("no", postNoList)
@@ -232,7 +226,8 @@ public class DatabaseHideManager {
             boolean filterReplies,
             boolean filterSaved
     ) {
-        Post n = new Post.Builder().board(childPost.board)
+        Post n = new Post.Builder()
+                .board(childPost.board)
                 .posterId(childPost.id)
                 .opId(childPost.opId)
                 .no(childPost.no)
@@ -317,7 +312,8 @@ public class DatabaseHideManager {
             for (PostHide postHide : hideList) {
                 DeleteBuilder<PostHide, Integer> deleteBuilder = helper.getPostHideDao().deleteBuilder();
 
-                deleteBuilder.where()
+                deleteBuilder
+                        .where()
                         .eq("no", postHide.no)
                         .and()
                         .eq("site", postHide.site)
@@ -333,7 +329,8 @@ public class DatabaseHideManager {
 
     private boolean contains(PostHide hide)
             throws SQLException {
-        PostHide inDb = helper.getPostHideDao()
+        PostHide inDb = helper
+                .getPostHideDao()
                 .queryBuilder()
                 .where()
                 .eq("no", hide.no)

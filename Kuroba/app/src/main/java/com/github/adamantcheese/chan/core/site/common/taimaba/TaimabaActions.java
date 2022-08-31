@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan.core.site.common.taimaba;
 
+import static android.text.TextUtils.isEmpty;
+
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
@@ -30,8 +32,6 @@ import java.util.regex.Pattern;
 
 import kotlin.random.Random;
 import okhttp3.Response;
-
-import static android.text.TextUtils.isEmpty;
 
 public class TaimabaActions
         extends CommonSite.CommonActions {
