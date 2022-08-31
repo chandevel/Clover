@@ -132,7 +132,7 @@ public class DeveloperSettingsController
                 }
             }
             context.getSharedPreferences("com.skydoves.balloon", Context.MODE_PRIVATE).edit().clear().commit();
-            ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).clear();
+            ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).clearAllCookies();
             ((StartActivity) context).restartApp();
         });
         resetDbButton.setText("Reset application and restart fresh");

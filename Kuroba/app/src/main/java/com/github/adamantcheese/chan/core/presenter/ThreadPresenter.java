@@ -149,7 +149,7 @@ public class ThreadPresenter
     }
 
     public boolean isBound() {
-        return loadable != null && chanLoader != null;
+        return chanLoader != null;
     }
 
     public void requestData() {
@@ -223,14 +223,14 @@ public class ThreadPresenter
         List<PostImage> images = new ArrayList<>();
         int index = 0;
         for (int i = 0; i < posts.size(); i++) {
+            if (i == displayPosition) {
+                index = images.size();
+            }
             Post item = posts.get(i);
             for (PostImage image : item.images) {
                 if (image.type != PostImage.Type.IFRAME) {
                     images.add(image);
                 }
-            }
-            if (i == displayPosition) {
-                index = images.size();
             }
         }
 

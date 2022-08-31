@@ -3,17 +3,13 @@ package com.github.adamantcheese.chan.core.net;
 import android.webkit.CookieManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.HttpUrl;
+import okhttp3.*;
 
 public class WebviewSyncCookieManager
         implements CookieJar {
@@ -22,7 +18,7 @@ public class WebviewSyncCookieManager
 
     public WebviewSyncCookieManager(@NonNull PersistentCookieJar actualCookieJar) {
         this.actualCookieJar = actualCookieJar;
-        this.webviewCookieManager = CookieManager.getInstance();
+        webviewCookieManager = CookieManager.getInstance();
     }
 
     /**
@@ -44,26 +40,17 @@ public class WebviewSyncCookieManager
     @NonNull
     @Override
     public List<Cookie> loadForRequest(@NonNull HttpUrl url) {
-        String urlString = url.toString();
-        String cookiesString = webviewCookieManager.getCookie(urlString);
-
-        // Set to keep track of cookies; these are filtered on name alone
         Set<CustomHashCookie> toReturn = new HashSet<>();
-        for (Cookie existing : actualCookieJar.loadForRequest(url)) {
+
+        List<Cookie> okhttpCookies = actualCookieJar.loadForRequest(url);
+        for (Cookie existing : okhttpCookies) {
             toReturn.add(new CustomHashCookie(existing));
         }
 
-        if (cookiesString != null) {
-            //We can split on the ';' char as the cookie manager only returns cookies
-            //that match the url and haven't expired, so the cookie attributes aren't included
-            String[] cookieHeaders = cookiesString.split(";");
-
-            for (String header : cookieHeaders) {
-                Cookie parsed = Cookie.parse(url, header.trim());
-                if (parsed != null) {
-                    toReturn.add(new CustomHashCookie(parsed));
-                }
-            }
+        String cookiesString = webviewCookieManager.getCookie(url.toString());
+        List<Cookie> webviewCookies = cookieStringToList(url, cookiesString);
+        for (Cookie existing : webviewCookies) {
+            toReturn.add(new CustomHashCookie(existing));
         }
 
         List<Cookie> ret = new ArrayList<>();
@@ -76,9 +63,43 @@ public class WebviewSyncCookieManager
         return ret;
     }
 
-    public void clear() {
-        webviewCookieManager.removeAllCookie();
+    public void clearCookiesForUrl(HttpUrl url, @Nullable List<String> optionalNames) {
+        String cookiesString = webviewCookieManager.getCookie(url.toString());
+        List<Cookie> webviewCookies = cookieStringToList(url, cookiesString);
+        for (Cookie existing : webviewCookies) {
+            if (optionalNames == null || optionalNames.contains(existing.name())) {
+                webviewCookieManager.setCookie(url.toString(), existing.newBuilder().expiresAt(0).build().toString());
+            }
+        }
+
+        List<Cookie> okhttpCookies = actualCookieJar.loadForRequest(url);
+        List<Cookie> updatedCookies = new ArrayList<>();
+        for (Cookie cookie : okhttpCookies) {
+            if (optionalNames == null || optionalNames.contains(cookie.name())) {
+                updatedCookies.add(cookie.newBuilder().expiresAt(0).build());
+            }
+        }
+        actualCookieJar.saveFromResponse(url, updatedCookies);
+    }
+
+    public void clearAllCookies() {
+        webviewCookieManager.removeAllCookies(value -> {});
         actualCookieJar.clear();
+    }
+
+    private List<Cookie> cookieStringToList(HttpUrl baseUrl, String cookieString) {
+        if (cookieString == null) return Collections.emptyList();
+        //We can split on the ';' char as the cookie manager only returns cookies
+        //that match the url and haven't expired, so the cookie attributes aren't included
+        String[] cookieHeaders = cookieString.split(";");
+        List<Cookie> ret = new ArrayList<>();
+        for (String header : cookieHeaders) {
+            Cookie parsed = Cookie.parse(baseUrl, header.trim());
+            if (parsed != null) {
+                ret.add(parsed);
+            }
+        }
+        return ret;
     }
 
     private static class CustomHashCookie {
@@ -93,12 +114,12 @@ public class WebviewSyncCookieManager
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             CustomHashCookie that = (CustomHashCookie) o;
-            return cookie.name().equals(that.cookie.name());
+            return cookie.name().equals(that.cookie.name()) && cookie.value().equals(that.cookie.value());
         }
 
         @Override
         public int hashCode() {
-            return cookie.name().hashCode();
+            return Objects.hash(cookie.name(), cookie.value());
         }
     }
 }

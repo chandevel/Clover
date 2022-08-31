@@ -141,8 +141,8 @@ public class Kun8
 
             @Override
             public void clearCookies() {
-                NetUtils.clearCookies(ROOT);
-                NetUtils.clearCookies(HttpUrl.get("https://sys.8kun.top"));
+                NetUtils.clearAllCookies(ROOT);
+                NetUtils.clearAllCookies(HttpUrl.get("https://sys.8kun.top"));
             }
         });
 

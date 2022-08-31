@@ -3,14 +3,7 @@ package com.github.adamantcheese.chan.core.net;
 import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.IPV4_ONLY;
 import static com.github.adamantcheese.chan.core.net.DnsSelector.Mode.SYSTEM;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.BackgroundThreadResponseResult;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ChainConverter;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HTML_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.HttpCodeException;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_YEAR_CACHE;
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.lang.Runtime.getRuntime;
 import static okhttp3.Protocol.HTTP_1_1;
@@ -27,18 +20,9 @@ import androidx.core.util.Pair;
 import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.franmontiel.persistentcookiejar.cache.SetCookieCache;
 import com.franmontiel.persistentcookiejar.persistence.SharedPrefsCookiePersistor;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.BitmapResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.OkHttpClientWithUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.http.HttpCall;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.BuildConfigUtils;
-import com.github.adamantcheese.chan.utils.ExceptionCatchingInputStream;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.common.io.Files;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,27 +30,12 @@ import org.jsoup.nodes.Document;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.Triple;
 import kotlin.io.FilesKt;
-import okhttp3.Cache;
-import okhttp3.CacheControl;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Cookie;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import okhttp3.*;
 import okhttp3.internal.http2.StreamResetException;
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -81,21 +50,21 @@ public class NetUtils {
                     : (long) ChanSettings.fileCacheSize.get() * MB
     );
 
-    public static final OkHttpClientWithUtils applicationClient =
-            new OkHttpClientWithUtils(new OkHttpClient.Builder().cache(OK_HTTP_CACHE)
-                    .protocols(ChanSettings.okHttpAllowHttp2.get()
-                            ? Arrays.asList(HTTP_2, HTTP_1_1)
-                            : Collections.singletonList(HTTP_1_1))
-                    .dns(new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY))
-                    .proxy(ChanSettings.proxy)
-                    .cookieJar(new WebviewSyncCookieManager(new PersistentCookieJar(new SetCookieCache(),
-                            new SharedPrefsCookiePersistor(getAppContext())
-                    )))
-                    .addNetworkInterceptor(chain -> {
-                        // interceptor to add the User-Agent for all requests
-                        Request request = chain.request().newBuilder().header("User-Agent", USER_AGENT).build();
-                        return chain.proceed(request);
-                    }));
+    public static final OkHttpClientWithUtils applicationClient = new OkHttpClientWithUtils(new OkHttpClient.Builder()
+            .cache(OK_HTTP_CACHE)
+            .protocols(ChanSettings.okHttpAllowHttp2.get()
+                    ? Arrays.asList(HTTP_2, HTTP_1_1)
+                    : Collections.singletonList(HTTP_1_1))
+            .dns(new DnsSelector(ChanSettings.okHttpAllowIpv6.get() ? SYSTEM : IPV4_ONLY))
+            .proxy(ChanSettings.proxy)
+            .cookieJar(new WebviewSyncCookieManager(new PersistentCookieJar(new SetCookieCache(),
+                    new SharedPrefsCookiePersistor(getAppContext())
+            )))
+            .addNetworkInterceptor(chain -> {
+                // interceptor to add the User-Agent for all requests
+                Request request = chain.request().newBuilder().header("User-Agent", USER_AGENT).build();
+                return chain.proceed(request);
+            }));
 
     /**
      * @param processor The cookie processor to use for this interceptor
@@ -119,50 +88,22 @@ public class NetUtils {
         };
     }
 
-    public static void clearCookies(HttpUrl url) {
-        List<Cookie> cookieList = NetUtils.applicationClient.cookieJar().loadForRequest(url);
-        List<Cookie> expiredList = new ArrayList<>();
-        for (Cookie c : cookieList) {
-            expiredList.add(rebuildCookie(c).expiresAt(0).build());
-        }
-        NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
-        NetUtils.applicationClient.cookieJar().loadForRequest(url);
+    public static void clearAllCookies(HttpUrl url) {
+        ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).clearCookiesForUrl(url, null);
     }
 
-    public static void clearCookies(HttpUrl url, List<String> cookieNames) {
-        List<Cookie> cookieList = NetUtils.applicationClient.cookieJar().loadForRequest(url);
-        List<Cookie> expiredList = new ArrayList<>();
-        for (Cookie c : cookieList) {
-            if (cookieNames.contains(c.name())) {
-                expiredList.add(rebuildCookie(c).expiresAt(0).build());
-            }
-        }
-        NetUtils.applicationClient.cookieJar().saveFromResponse(url, expiredList);
-        NetUtils.applicationClient.cookieJar().loadForRequest(url);
+    public static void clearSpecificCookies(HttpUrl url, List<String> cookieNames) {
+        ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).clearCookiesForUrl(url, cookieNames);
     }
 
-    // TODO remove this in the future when OkHttp updates, since Cookie will have a builder method then
-    public static Cookie.Builder rebuildCookie(Cookie c) {
-        Cookie.Builder builder =
-                new Cookie.Builder().path(c.path()).name(c.name()).value(c.value()).expiresAt(c.expiresAt());
-        if (c.secure()) builder.secure();
-        if (c.httpOnly()) builder.httpOnly();
-        if (c.hostOnly()) {
-            builder.hostOnlyDomain(c.domain());
-        } else {
-            builder.domain(c.domain());
-        }
-        return builder;
-    }
-
-    public static Cookie.Builder rebuildCookie(Cookie c, String newDomain) {
-        Cookie.Builder builder = rebuildCookie(c);
+    public static Cookie changeCookieDomain(Cookie c, String newDomain) {
+        Cookie.Builder builder = c.newBuilder();
         if (c.hostOnly()) {
             builder.hostOnlyDomain(newDomain);
         } else {
             builder.domain(newDomain);
         }
-        return builder;
+        return builder.build();
     }
 
     // max 1/4 the maximum Dalvik runtime size
@@ -241,16 +182,14 @@ public class NetUtils {
             @NonNull final ResponseResult<File> result,
             @Nullable final ProgressResponseBody.ProgressListener progressListener
     ) {
-        return makeRequest(applicationClient.getHttpRedirectClient(), url, (response) -> {
-            File tempFile = new File(new File(getCacheDir(), "requested"),
-                    StringUtils.fileNameRemoveBadCharacters(filename) + "." + fileExt
-            );
-            ResponseBody body = response.body();
-            if (body == null) throw new IOException("No body!");
-            tempFile.getParentFile().mkdirs();
-            FilesKt.writeBytes(tempFile, body.bytes());
-            return tempFile;
-        }, new MainThreadResponseResult<>(result), progressListener, ONE_DAY_CACHE, 0);
+        return makeRequest(applicationClient.getHttpRedirectClient(),
+                url,
+                new NetUtilsClasses.TempFileConverter(filename, fileExt),
+                new MainThreadResponseResult<>(result),
+                progressListener,
+                ONE_DAY_CACHE,
+                0
+        );
     }
 
     /**

@@ -89,7 +89,7 @@ public class Sushichan
         setActions(new VichanActions(this) {
             @Override
             public void clearCookies() {
-                NetUtils.clearCookies(ROOT);
+                NetUtils.clearAllCookies(ROOT);
             }
         });
         setApi(new VichanApi(this));

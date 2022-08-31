@@ -180,7 +180,7 @@ public class Wired7
 
         @Override
         public void clearCookies() {
-            NetUtils.clearCookies(ROOT);
+            NetUtils.clearAllCookies(ROOT);
         }
     }
 }

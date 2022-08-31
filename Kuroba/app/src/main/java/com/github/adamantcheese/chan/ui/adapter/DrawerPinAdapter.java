@@ -20,7 +20,7 @@ import android.content.Context;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Paint;
-import android.text.SpannableStringBuilder;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -121,9 +121,9 @@ public class DrawerPinAdapter
         if (pinWatcher != null) {
             CharSequence summary = pinWatcher.getSummary();
             if (summary == null) {
-                summary = new SpannableStringBuilder(pin.loadable.board.getFormattedName());
+                summary = pin.loadable.board.getFormattedName();
             } else {
-                summary = new SpannableStringBuilder("/" + pin.loadable.boardCode + "/ - ").append(summary);
+                summary = TextUtils.concat("/", pin.loadable.boardCode, "/ - ", summary);
             }
 
             if (pin.archived) {

@@ -310,7 +310,9 @@ public class ImageViewerController
         // the right info
 
         String siteName = presenter.getLoadable().site.name();
-        Post postForImage = imageViewerCallback.getPostForPostImage(postImage);
+        ImageViewerCallback callback =
+                goPostCallback != null ? goPostCallback.goToPost(postImage) : imageViewerCallback;
+        Post postForImage = callback.getPostForPostImage(postImage);
 
         int postNoString = presenter.getLoadable().no == 0
                 ? (postForImage == null ? 0 : postForImage.no)
@@ -321,7 +323,7 @@ public class ImageViewerController
                 + postNoString + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
-                ? PostHelper.getTitle(postForImage, imageViewerCallback.getLoadable())
+                ? PostHelper.getTitle(postForImage, callback.getLoadable())
                 : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);

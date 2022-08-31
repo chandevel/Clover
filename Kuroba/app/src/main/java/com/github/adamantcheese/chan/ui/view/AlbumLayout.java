@@ -93,11 +93,16 @@ public class AlbumLayout
         super.onMeasure(widthSpec, heightSpec);
         int gridCountSetting = !isInEditMode() ? ChanSettings.getAlbumColumnCount() : 3;
         if (gridCountSetting > 0) {
-            // Set count
-            setSpanCount(gridCountSetting);
+            // Manual
+            if (getSpanCount() != gridCountSetting) {
+                setSpanCount(gridCountSetting);
+            }
         } else {
+            int newCount = Math.max(1, Math.round(getMeasuredWidth() / xmlSpanWidth));
             // Auto
-            setSpanCount(Math.max(1, Math.round(getMeasuredWidth() / xmlSpanWidth)));
+            if (getSpanCount() != newCount) {
+                setSpanCount(newCount);
+            }
         }
         measuredSpanWidth = getMeasuredWidth() / getSpanCount();
     }

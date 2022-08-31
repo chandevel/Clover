@@ -1,5 +1,6 @@
 package com.github.adamantcheese.chan.core.net;
 
+import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.DAYS;
 
@@ -11,31 +12,19 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.List;
 
-import okhttp3.CacheControl;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Cookie;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Protocol;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
-import okio.Okio;
-import okio.Timeout;
+import kotlin.io.FilesKt;
+import okhttp3.*;
+import okio.*;
 
 /**
  * This class contains a listing of a bunch of other classes that are used in various helper methods.
@@ -276,6 +265,30 @@ public class NetUtilsClasses {
         response.body().source().readAll(Okio.blackhole());
         return new Object();
     };
+
+    public static class TempFileConverter
+            implements Converter<File, Response> {
+        private final String filename;
+        private final String fileExt;
+
+        public TempFileConverter(String filename, String fileExt) {
+            this.filename = filename;
+            this.fileExt = fileExt;
+        }
+
+        @Override
+        public @Nullable File convert(Response response)
+                throws Exception {
+            File tempFile = new File(new File(getCacheDir(), "requested"),
+                    StringUtils.fileNameRemoveBadCharacters(filename) + "." + fileExt
+            );
+            ResponseBody body = response.body();
+            if (body == null) throw new IOException("No body!");
+            tempFile.getParentFile().mkdirs();
+            FilesKt.writeBytes(tempFile, body.bytes());
+            return tempFile;
+        }
+    }
 
     /**
      * A wrapper over a regular callback that ignores onFailure calls

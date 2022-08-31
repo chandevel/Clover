@@ -35,6 +35,8 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
             return chain.proceed(originalRequest)
         }
 
+        WebSettings.getDefaultUserAgent(context)
+
         val response = chain.proceed(originalRequest)
 
         // Check if Cloudflare anti-bot is on
@@ -44,8 +46,10 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
 
         try {
             response.close()
-            NetUtils.clearCookies(originalRequest.url, COOKIE_NAMES)
-            resolveWithWebView(originalRequest)
+            val oldCookie = NetUtils.applicationClient.cookieJar.loadForRequest(originalRequest.url)
+                    .firstOrNull { it.name == CF_CLEARANCE_NAME }
+            NetUtils.clearSpecificCookies(originalRequest.url, COOKIE_NAMES)
+            resolveWithWebView(originalRequest, oldCookie)
 
             return chain.proceed(originalRequest)
         }
@@ -59,7 +63,7 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun resolveWithWebView(request: Request) {
+    private fun resolveWithWebView(request: Request, oldCookie: Cookie?) {
         // We need to lock this thread until the WebView finds the challenge solution url, because
         // OkHttp doesn't support asynchronous interceptors.
         val latch = CountDownLatch(1)
@@ -82,13 +86,13 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
 
             webview.webViewClient = object : WebViewClientCompat() {
                 override fun onPageFinished(view: WebView, url: String) {
-                    fun isCloudFlareBypassed(): Boolean {
+                    fun isCloudFlareBypassed(origRequestUrl: String): Boolean {
                         return NetUtils.applicationClient.cookieJar.loadForRequest(origRequestUrl.toHttpUrl())
                                 .firstOrNull { it.name == CF_CLEARANCE_NAME }
-                                .let { it != null }
+                                .let { it != null && it != oldCookie }
                     }
 
-                    if (isCloudFlareBypassed()) {
+                    if (isCloudFlareBypassed(origRequestUrl)) {
                         cloudflareBypassed = true
                         latch.countDown()
                     }

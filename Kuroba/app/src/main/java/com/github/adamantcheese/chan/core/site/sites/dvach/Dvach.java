@@ -200,7 +200,7 @@ public class Dvach
 
             @Override
             public void clearCookies() {
-                NetUtils.clearCookies(ROOT);
+                NetUtils.clearAllCookies(ROOT);
             }
         });
 

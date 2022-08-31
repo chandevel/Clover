@@ -107,7 +107,7 @@ public class Chan420
 
             @Override
             public void clearCookies() {
-                NetUtils.clearCookies(ROOT);
+                NetUtils.clearAllCookies(ROOT);
             }
         });
         setApi(new TaimabaApi(this));

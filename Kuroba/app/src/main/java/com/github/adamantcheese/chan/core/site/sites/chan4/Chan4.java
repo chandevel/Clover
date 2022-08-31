@@ -32,30 +32,14 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponseResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
-import com.github.adamantcheese.chan.core.settings.primitives.BooleanSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionsSetting;
-import com.github.adamantcheese.chan.core.settings.primitives.StringSetting;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
+import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
-import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.SiteActions;
-import com.github.adamantcheese.chan.core.site.SiteAuthentication;
-import com.github.adamantcheese.chan.core.site.SiteBase;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.SiteIcon;
-import com.github.adamantcheese.chan.core.site.SiteSetting;
-import com.github.adamantcheese.chan.core.site.SiteUrlHandler;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
+import com.github.adamantcheese.chan.core.site.*;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
 import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
-import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginResponse;
+import com.github.adamantcheese.chan.core.site.http.*;
 import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -63,21 +47,12 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import kotlin.random.Random;
-import okhttp3.Call;
-import okhttp3.Cookie;
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class Chan4
         extends SiteBase {
@@ -394,8 +369,8 @@ public class Chan4
                         if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                             List<Cookie> out = new ArrayList<>();
                             Collections.addAll(out,
-                                    NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),
-                                    NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).build()
+                                    NetUtils.changeCookieDomain(c, sys.topPrivateDomain()),
+                                    NetUtils.changeCookieDomain(c, sysSafe.topPrivateDomain())
                             );
                             return out;
                         } else {
@@ -458,8 +433,16 @@ public class Chan4
                 if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                     List<Cookie> out = new ArrayList<>();
                     Collections.addAll(out,
-                            NetUtils.rebuildCookie(c, sys.topPrivateDomain()).expiresAt(Long.MAX_VALUE).build(),
-                            NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).expiresAt(Long.MAX_VALUE).build()
+                            NetUtils
+                                    .changeCookieDomain(c, sys.topPrivateDomain())
+                                    .newBuilder()
+                                    .expiresAt(Long.MAX_VALUE)
+                                    .build(),
+                            NetUtils
+                                    .changeCookieDomain(c, sysSafe.topPrivateDomain())
+                                    .newBuilder()
+                                    .expiresAt(Long.MAX_VALUE)
+                                    .build()
                     );
                     return out;
                 } else {
@@ -479,8 +462,8 @@ public class Chan4
                         if (StringUtils.isAnyIgnoreCase(c.name(), "pass_id", "pass_enabled")) {
                             List<Cookie> out = new ArrayList<>();
                             Collections.addAll(out,
-                                    NetUtils.rebuildCookie(c, sys.topPrivateDomain()).build(),
-                                    NetUtils.rebuildCookie(c, sysSafe.topPrivateDomain()).build()
+                                    NetUtils.changeCookieDomain(c, sys.topPrivateDomain()),
+                                    NetUtils.changeCookieDomain(c, sysSafe.topPrivateDomain())
                             );
                             return out;
                         } else {
@@ -512,10 +495,10 @@ public class Chan4
 
         @Override
         public void clearCookies() {
-            NetUtils.clearCookies(sys);
-            NetUtils.clearCookies(sysSafe);
-            NetUtils.clearCookies(b);
-            NetUtils.clearCookies(bSafe);
+            NetUtils.clearAllCookies(sys);
+            NetUtils.clearAllCookies(sysSafe);
+            NetUtils.clearAllCookies(b);
+            NetUtils.clearAllCookies(bSafe);
         }
     };
 
