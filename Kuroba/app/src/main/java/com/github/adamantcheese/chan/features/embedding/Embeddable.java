@@ -1,30 +1,27 @@
 package com.github.adamantcheese.chan.features.embedding;
 
-import android.text.Spanned;
+import android.text.*;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
 
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import okhttp3.Call;
 
-public abstract class Embeddable {
-    // a helper variable to ensure embedding is only performed once
-    public final AtomicBoolean embedComplete = new AtomicBoolean(false);
-    // all the calls that are generated for this object
-    protected final List<Call> embedCalls = new CopyOnWriteArrayList<>();
-
+public interface Embeddable {
     /**
      * @return The text that should be embedded for this implementation.
      */
-    public abstract CharSequence getEmbeddableText();
+    Spanned getEmbeddableText();
 
     /**
      * @param text The text that should be stored for this implementation.
      */
-    public abstract void setEmbeddableText(Spanned text);
+    void setEmbeddableText(Spanned text);
+
+    void addEmbedCall(Call call);
+
+    List<Call> getEmbedCalls();
 
     /**
      * If your embeddable deals with extra embedded images, they will be provided by the embedding engine with this method.
@@ -32,16 +29,35 @@ public abstract class Embeddable {
      *
      * @param images A list of extra images that should be stored in this implementation.
      */
-    public void addImageObjects(List<PostImage> images) {}
+    default void addImageObjects(List<PostImage> images) {}
 
     /**
      * Clears any embed calls; embedding engine should pick up on this and any in-flight calls will fail
      * If embedding is done, this just clears up any old references
      */
-    public void stopEmbedding() {
-        for (Call c : embedCalls) {
+    default void stopEmbedding() {
+        for (Call c : getEmbedCalls()) {
             c.cancel();
         }
-        embedCalls.clear();
+        getEmbedCalls().clear();
+    }
+
+    default void setComplete() {
+        Spannable toUpdate = new SpannableString(getEmbeddableText());
+        toUpdate.setSpan(new EmbedCompleteSpan(), 0, 0, 0);
+        setEmbeddableText(new SpannedString(toUpdate));
+    }
+
+    default void setIncomplete() {
+        Spannable toUpdate = new SpannableString(getEmbeddableText());
+        EmbedCompleteSpan[] spans = toUpdate.getSpans(0, toUpdate.length(), EmbedCompleteSpan.class);
+        for (EmbedCompleteSpan span : spans) {
+            toUpdate.removeSpan(span);
+        }
+        setEmbeddableText(new SpannedString(toUpdate));
+    }
+
+    default boolean hasCompletedEmbedding() {
+        return getEmbeddableText().getSpans(0, getEmbeddableText().length(), EmbedCompleteSpan.class).length == 1;
     }
 }

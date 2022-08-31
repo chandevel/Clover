@@ -1,12 +1,14 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
+
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
+import android.util.LruCache;
 
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -21,8 +23,6 @@ import okhttp3.Callback;
 import okhttp3.CookieJar;
 import okhttp3.HttpUrl;
 import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.addStandardEmbedCalls;
 
 public interface Embedder
         extends Converter<EmbedResult, Response> {
@@ -65,18 +65,18 @@ public interface Embedder
     /**
      * @param theme              The current theme, for post linkables (generally is ThemeHelper.getCurrentTheme())
      * @param commentCopy        A copy of the post's comment, to which spans can be attached
-     * @param generatedLinkables A list of linkables that will be added to the original post after everything is complete; pair this will adding spans to commentCopy
      * @param generatedImages    A list of images that will be added to the original post after everything is complete
+     * @param videoTitleDurCache A cache of url to video titles that can be referenced and added/removed from.
      * @return A list of pairs of call/callback that will do the embedding. A post may have more than one thing to be embedded.
      * Calls should NOT be enqueued, as the embedding engine will take care of enqueuing the appropriate call/callback pair.
      */
     default List<Pair<Call, Callback>> generateCallPairs(
             Theme theme,
             SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
+            List<PostImage> generatedImages,
+            LruCache<String, EmbedResult> videoTitleDurCache
     ) {
-        return addStandardEmbedCalls(this, theme, commentCopy, generatedLinkables, generatedImages);
+        return addStandardEmbedCalls(this, theme, commentCopy, generatedImages, videoTitleDurCache);
     }
 
     /**

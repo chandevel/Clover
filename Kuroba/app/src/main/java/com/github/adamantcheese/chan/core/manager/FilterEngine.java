@@ -19,19 +19,12 @@ package com.github.adamantcheese.chan.core.manager;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.HIDE;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.REMOVE;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
-import static com.github.adamantcheese.chan.core.manager.FilterType.COMMENT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.FILENAME;
-import static com.github.adamantcheese.chan.core.manager.FilterType.FLAG_CODE;
-import static com.github.adamantcheese.chan.core.manager.FilterType.ID;
-import static com.github.adamantcheese.chan.core.manager.FilterType.IMAGE;
-import static com.github.adamantcheese.chan.core.manager.FilterType.NAME;
-import static com.github.adamantcheese.chan.core.manager.FilterType.SUBJECT;
-import static com.github.adamantcheese.chan.core.manager.FilterType.TRIPCODE;
+import static com.github.adamantcheese.chan.core.manager.FilterType.*;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.BOARD_FLAG;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.COUNTRY_FLAG;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 
 import android.text.Spannable;
@@ -44,30 +37,19 @@ import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.ui.helper.BoardHelper;
-import com.github.adamantcheese.chan.ui.text.FilterHighlightSpan;
+import com.github.adamantcheese.chan.ui.text.post_linkables.FilterDebugLinkable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.MatchResult;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import java.util.*;
+import java.util.regex.*;
 
 public class FilterEngine {
     public enum FilterAction {
@@ -227,10 +209,14 @@ public class FilterEngine {
         return false;
     }
 
-    @AnyThread
     public boolean matches(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
-        if ((filter.type & type.flag) == 0) return false;
-        if (text == null) return false;
+        return getMatch(filter, type, text, forceCompile) != null;
+    }
+
+    @AnyThread
+    public MatchResult getMatch(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
+        if ((filter.type & type.flag) == 0) return null;
+        if (text == null) return null;
 
         Pattern pattern = null;
         if (!forceCompile) {
@@ -252,30 +238,11 @@ public class FilterEngine {
 
         if (pattern != null) {
             Matcher matcher = pattern.matcher(text);
-            if (matcher.find()) {
-                MatchResult result = matcher.toMatchResult();
-                if (text instanceof Spannable && ChanSettings.debugFilters.get()) {
-                    ((Spannable) text).setSpan(
-                            new FilterHighlightSpan(ThemeHelper.getTheme()),
-                            result.start(),
-                            result.end(),
-                            makeSpanOptions(DEFAULT_PRIORITY)
-                    );
-                    final String filterPattern = filter.pattern;
-                    ((Spannable) text).setSpan(new PostLinkable(ThemeHelper.getTheme(), new Object(), Type.OTHER) {
-                        @Override
-                        public void onClick(@NonNull View widget) {
-                            showToast(getAppContext(), "Matching filter: " + filterPattern, Toast.LENGTH_LONG);
-                        }
-                    }, result.start(), result.end(), makeSpanOptions(DEFAULT_PRIORITY));
-                }
-                return true;
-            } else {
-                return false;
-            }
+            boolean matched = matcher.find();
+            return matched ? matcher.toMatchResult() : null;
         } else {
             Logger.e(this, "Invalid pattern");
-            return false;
+            return null;
         }
     }
 

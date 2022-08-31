@@ -217,39 +217,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <![CDATA[
 Filters act on a given pattern and a place to search the pattern.<br>
 If the pattern matches, then the post can be hidden, removed, highlighted, or automatically bookmarked.<br>
-<p>
-    These filters are pattern based, and have three modes:<br>
-    <br>
-    1. The pattern <tt>foo bar</tt> will match text that has any of the words in it. It will match <i>foo</i> or <i>bar</i>, but not <i>foobar</i>.
-    Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i> and <i>foooo</i>, but not <i>foobar</i><br>
-    <br>
-    2. Quoting your pattern with <tt>\"</tt> (like <tt>\"foo bar\"</tt>) will match the text exactly.
-    <i>foo bar</i> will match, but <i>foo</i> will not.<br>
-    <br>
-    3. Regular expressions. <tt>/^>implying/</tt> for example. You can add <tt>/regex/i</tt> for case insensitivity and <tt>/regex/m</tt> for regex multiline mode.
-    You can use Regex101 for more comprehensive explanations of your regular expressions, or as a playground for figuring out an expression. Use Java 8 to test.<br>
-</p>
+These filters are pattern based, and have three modes:<br>
+<br>
+1. The pattern <tt>foo bar</tt> will match text that has any of the words in it.It will match <i>foo</i> or <i>bar</i>,
+but not <i>foobar</i>. Placing a * allows any character to be filled in: <tt>f*o</tt> will match both <i>foo</i> and
+<i>foooo</i>, but not <i>foobar</i><br>
+<br>
+2. Quoting your pattern with <tt>\"</tt> (like <tt>\"foo bar\"</tt>) will match the text exactly. <i>foo bar</i> will
+match, but <i>foo</i> will not.<br>
+<br>
+3. Regular expressions. <tt>/^>implying/</tt> for example. You can add <tt>/regex/i</tt> for case insensitivity and
+<tt>/regex/m</tt> for regex multiline mode. You can use Regex101 for more comprehensive explanations of your regular
+expressions, or as a playground for figuring out an expression. Use Java 8 to test.<br>
 <br>
 Actions do the following:<br>
 <b>Hide:</b> Replace the post with a stub. You can tap it to un-hide it.<br>
 <b>Highlight:</b> A colored bar of your choosing will appear on the left hand side of this post.<br>
 <b>Remove:</b> Remove this post. It won\'t be visible at all.<br>
-<b>Watch:</b> If you have the thread watcher enabled and background watching on, catalogs will be periodically checked based on your interval setting
-and any OP that matches the filter will be put into your bookmarks. Any catalogs loaded by the you navigating to them from the board select popup will also be checked.<br>
+<b>Watch:</b> If you have the thread watcher enabled and background watching on, catalogs will be periodically checked
+based on your interval setting and any OP that matches the filter will be put into your bookmarks. Any catalogs loaded
+by the you navigating to them from the board select popup will also be checked.<br>
 <br>
 Enabled filters have priority from top to bottom in your list. Filter precedence for actions is as follows:<br>
-<p>
-    1) Capcode or sticky<br>
-    2) OP<br>
-    3) Saved replies (your posts)<br>
-    4) Tripcode<br>
-    5) Name<br>
-    6) Comment<br>
-    7) ID<br>
-    8) Subject<br>
-    9) Flag Code<br>
-    10) Filename<br>
-</p>
+1) Capcode or sticky<br>
+2) OP<br>
+3) Saved replies (your posts)<br>
+4) Tripcode<br>
+5) Name<br>
+6) Comment<br>
+7) ID<br>
+8) Subject<br>
+9) Flag Code<br>
+10) Filename<br>
 ]]>
     </string>
     <string name="filter_tripcode">Tripcode</string>

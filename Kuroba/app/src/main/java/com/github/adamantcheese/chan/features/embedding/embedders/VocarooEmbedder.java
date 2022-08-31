@@ -1,13 +1,15 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
+
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
+import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallback;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -21,12 +23,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
+import okhttp3.*;
 
 public class VocarooEmbedder
         extends VoidEmbedder {
@@ -57,8 +54,8 @@ public class VocarooEmbedder
     public List<Pair<Call, Callback>> generateCallPairs(
             Theme theme,
             SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
+            List<PostImage> generatedImages,
+            LruCache<String, EmbedResult> videoTitleDurCache
     ) {
         List<Pair<Call, Callback>> calls = new ArrayList<>();
         if (ChanSettings.parsePostImageLinks.get()) {
@@ -71,24 +68,19 @@ public class VocarooEmbedder
                 calls.add(new Pair<>(new NetUtilsClasses.NullCall(HttpUrl.get(URL)), new IgnoreFailureCallback() {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
-                        performStandardEmbedding(theme,
-                                commentCopy,
-                                generatedLinkables,
-                                generatedImages,
-                                new EmbedResult("Vocaroo attached! ♫",
-                                        "",
-                                        new PostImage.Builder().serverFilename(id)
-                                                .thumbnailUrl(HttpUrl.get(
-                                                        "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
-                                                .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
-                                                .filename("Vocaroo " + id)
-                                                .extension("mp3")
-                                                .isInlined()
-                                                .build()
-                                ),
-                                URL,
-                                getIconBitmap()
-                        );
+                        performStandardEmbedding(theme, commentCopy, generatedImages, new EmbedResult(
+                                "Vocaroo attached! ♫",
+                                "",
+                                new PostImage.Builder()
+                                        .serverFilename(id)
+                                        .thumbnailUrl(HttpUrl.get(
+                                                "https://vocarooblog.files.wordpress.com/2020/04/robotchibi-cropped-1.png"))
+                                        .imageUrl(HttpUrl.get("https://media1.vocaroo.com/mp3/" + id))
+                                        .filename("Vocaroo " + id)
+                                        .extension("mp3")
+                                        .isInlined()
+                                        .build()
+                        ), URL, getIconBitmap());
                     }
                 }));
             }

@@ -8,8 +8,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanPostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
-import com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
@@ -21,11 +19,8 @@ public class DvachPostParser
     }
 
     @Override
-    public Post parse(Post.Builder builder, @NonNull Theme theme, Callback callback) {
-        CharSequence nameStyled = new HtmlNodeTreeAction(
-                new HtmlTagAction(true),
-                CommonStyleActions.getDefaultTextStylingAction(theme)
-        ).style(builder.getName(), null);
+    public Post parse(Post.Builder builder, @NonNull Theme theme, PostParserCallback postParserCallback) {
+        CharSequence nameStyled = HtmlNodeTreeAction.fromHtml(builder.getName(), null);
         if (nameStyled instanceof Spanned) {
             Spanned spanned = (Spanned) nameStyled;
             ForegroundColorSpanHashed[] idColorSpan =
@@ -39,6 +34,6 @@ public class DvachPostParser
         if (nameIdSplit.length > 1) {
             builder.posterId = nameIdSplit[1].trim();
         }
-        return super.parse(builder, theme, callback);
+        return super.parse(builder, theme, postParserCallback);
     }
 }

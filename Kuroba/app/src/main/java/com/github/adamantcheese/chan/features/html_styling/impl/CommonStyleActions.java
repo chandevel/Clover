@@ -1,16 +1,13 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.UnderlineSpan;
+import android.text.style.*;
 
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
@@ -41,6 +38,7 @@ public class CommonStyleActions {
     public static final StyleAction BOLD = (element, text) -> span(text, new StyleSpan(Typeface.BOLD));
     public static final StyleAction STRIKETHROUGH = (element, text) -> span(text, new StrikethroughSpan());
     public static final StyleAction MONOSPACE = (element, text) -> span(text, new TypefaceSpan("monospace"));
+    public static final StyleAction A_HREF = (element, text) -> span(text, new URLSpan(element.attr("href")));
 
     public static StyleAction EMOJI = (node, text) -> {
         String str = text == null ? "" : text.toString();
@@ -58,13 +56,13 @@ public class CommonStyleActions {
                     new BackgroundColorSpanHashed(color),
                     colorMatcher.start(),
                     colorMatcher.end(),
-                    makeSpanOptions(DEFAULT_PRIORITY)
+                    makeSpanOptions(RENDER_NORMAL)
             );
             newBuilder.setSpan(
                     new ForegroundColorSpanHashed(AndroidUtils.getContrastColor(color)),
                     colorMatcher.start(),
                     colorMatcher.end(),
-                    makeSpanOptions(DEFAULT_PRIORITY)
+                    makeSpanOptions(RENDER_NORMAL)
             );
         }
         return newBuilder;

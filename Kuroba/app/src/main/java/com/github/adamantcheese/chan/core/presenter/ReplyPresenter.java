@@ -26,7 +26,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -34,11 +34,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.TextPaint;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.style.ClickableSpan;
 import android.text.style.StyleSpan;
 import android.text.style.URLSpan;
@@ -65,6 +61,7 @@ import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
@@ -317,10 +314,7 @@ public class ReplyPresenter
             SpannableStringBuilder errorMessage =
                     new SpannableStringBuilder(span(getString(R.string.reply_error), new StyleSpan(Typeface.BOLD)));
             if (replyResponse.errorMessage != null) {
-                SpannableString error =
-                        new SpannableString(HtmlCompat.fromHtml(replyResponse.errorMessage,
-                                HtmlCompat.FROM_HTML_MODE_LEGACY
-                        ));
+                Spannable error = new SpannableString(HtmlNodeTreeAction.fromHtml(replyResponse.errorMessage, null));
                 // update colors for url spans; unfortunately that means re-making them
                 URLSpan[] spans = error.getSpans(0, error.length(), URLSpan.class);
                 for (URLSpan s : spans) {
@@ -337,7 +331,7 @@ public class ReplyPresenter
                             ds.setUnderlineText(true);
                             ds.setFakeBoldText(true);
                         }
-                    }, error.getSpanStart(s), error.getSpanEnd(s), makeSpanOptions(DEFAULT_PRIORITY));
+                    }, error.getSpanStart(s), error.getSpanEnd(s), makeSpanOptions(RENDER_NORMAL));
                     error.removeSpan(s);
                 }
                 errorMessage.append(": ").append(error);

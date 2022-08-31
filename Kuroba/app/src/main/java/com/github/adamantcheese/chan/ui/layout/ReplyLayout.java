@@ -77,7 +77,7 @@ import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder;
-import com.github.adamantcheese.chan.ui.captcha.Chan4CustomJasonlayout;
+import com.github.adamantcheese.chan.ui.captcha.Chan4CustomJsonlayout;
 import com.github.adamantcheese.chan.ui.captcha.GenericWebViewAuthenticationLayout;
 import com.github.adamantcheese.chan.ui.captcha.LegacyCaptchaLayout;
 import com.github.adamantcheese.chan.ui.captcha.v2.js.CaptchaV2JsLayout;
@@ -499,7 +499,7 @@ public class ReplyLayout
                     break;
                 case CUSTOM_JSON:
                     // specific to 4chan, may abstract in the future
-                    authenticationLayout = (Chan4CustomJasonlayout) LayoutInflater.from(getContext())
+                    authenticationLayout = (Chan4CustomJsonlayout) LayoutInflater.from(getContext())
                             .inflate(R.layout.layout_captcha_chan4_custom_json, captchaContainer, false);
                     break;
                 case GENERIC_WEBVIEW:

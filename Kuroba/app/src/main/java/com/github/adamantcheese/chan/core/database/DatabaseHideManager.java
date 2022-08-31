@@ -266,7 +266,6 @@ public class DatabaseHideManager {
                 .build();
         // reassign these, as they are only otherwise set elsewhere but should remain as-is
         n.repliesFrom.addAll(childPost.repliesFrom);
-        n.embedComplete.set(childPost.embedComplete.get());
         n.deleted = childPost.deleted;
         n.title = childPost.title;
         return n;

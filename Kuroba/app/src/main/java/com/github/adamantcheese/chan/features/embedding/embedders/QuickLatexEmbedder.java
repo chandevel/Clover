@@ -1,5 +1,12 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
+import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.STRING_CONVERTER;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
+import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.graphics.Bitmap;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -10,10 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.features.embedding.EmbedResult;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
@@ -35,13 +42,6 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.STRING_CONVERTER;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class QuickLatexEmbedder
         extends VoidEmbedder {
@@ -76,8 +76,8 @@ public class QuickLatexEmbedder
     public List<Pair<Call, Callback>> generateCallPairs(
             Theme theme,
             SpannableStringBuilder commentCopy,
-            List<PostLinkable> generatedLinkables,
-            List<PostImage> generatedImages
+            List<PostImage> generatedImages,
+            LruCache<String, EmbedResult> videoTitleDurCache
     ) {
         List<Pair<Call, Callback>> ret = new ArrayList<>();
         Set<Pair<String, String>> toReplace = new HashSet<>();
@@ -103,8 +103,7 @@ public class QuickLatexEmbedder
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         BackgroundUtils.runOnBackgroundThread(() -> {
-                            Pair<Call, Callback> ret =
-                                    generateMathSpanCalls(commentCopy, imageUrl, math.first, theme, generatedLinkables);
+                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy, imageUrl, math.first);
                             if (ret == null || ret.first == null || ret.second == null) return;
                             try {
                                 ret.second.onResponse(ret.first, ret.first.execute());
@@ -115,7 +114,8 @@ public class QuickLatexEmbedder
                 }));
             } else {
                 // need to request an image URL
-                ret.add(new Pair<>(NetUtils.applicationClient.newCall(setupMathImageUrlRequest(math.second)),
+                ret.add(new Pair<>(
+                        NetUtils.applicationClient.newCall(setupMathImageUrlRequest(math.second)),
                         new NetUtilsClasses.IgnoreFailureCallback() {
                             @Override
                             public void onResponse(@NotNull Call call, @NotNull Response response) {
@@ -132,12 +132,8 @@ public class QuickLatexEmbedder
                                         String err = matcher.group(2);
                                         if (err == null) {
                                             mathCache.put(math.first, url);
-                                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy,
-                                                    url,
-                                                    math.first,
-                                                    theme,
-                                                    generatedLinkables
-                                            );
+                                            Pair<Call, Callback> ret =
+                                                    generateMathSpanCalls(commentCopy, url, math.first);
                                             if (ret == null || ret.first == null || ret.second == null) return;
                                             ret.second.onResponse(ret.first, ret.first.execute());
                                         }
@@ -172,11 +168,7 @@ public class QuickLatexEmbedder
     }
 
     private Pair<Call, Callback> generateMathSpanCalls(
-            SpannableStringBuilder comment,
-            @NonNull HttpUrl imageUrl,
-            String rawMath,
-            Theme theme,
-            List<PostLinkable> generatedLinkables
+            SpannableStringBuilder comment, @NonNull HttpUrl imageUrl, String rawMath
     ) {
         // execute immediately, so that the invalidate function is called when all embeds are done
         // that means that we can't enqueue this request
@@ -193,15 +185,8 @@ public class QuickLatexEmbedder
                     synchronized (comment) {
                         startIndex = TextUtils.indexOf(comment, rawMath, startIndex);
                         if (startIndex < 0) break;
-
                         CharSequence replacement = span(" ", new ImageSpan(getAppContext(), bitmap));
-                        // this will be removed before invalidation
-                        generatedLinkables.add(new PostLinkable(theme, rawMath, PostLinkable.Type.EMBED_TEMP));
-
-                        // replace the proper section of the comment
                         comment.replace(startIndex, startIndex + rawMath.length(), replacement);
-
-                        // update the index to the next location
                         startIndex = startIndex + replacement.length();
                     }
                 }

@@ -9,20 +9,33 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import org.jsoup.nodes.Node;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class PostThemedStyleAction
-        extends ThemedStyleAction {
+        extends AdditionalDataStyleAction {
+    private static final String THEME_DATA = "theme";
     private static final String POST_DATA = "post";
     private static final String POST_CALLBACK_DATA = "post_callback";
 
-    public AdditionalDataStyleAction with(Theme theme, Post.Builder post, PostParser.Callback callback) {
-        Map<String, Object> data = new HashMap<>();
-        data.put(ThemedStyleAction.THEME_DATA, theme);
-        data.put(POST_DATA, post);
-        data.put(POST_CALLBACK_DATA, callback);
-        return super.with(data);
+    public AdditionalDataStyleAction with(Theme theme, Post.Builder post, PostParser.PostParserCallback callback) {
+        return new AdditionalDataStyleAction() {
+            @NonNull
+            @Override
+            protected CharSequence style(
+                    @NonNull Node node, @Nullable CharSequence text, @NonNull Map<String, Object> data
+            ) {
+                return PostThemedStyleAction.this.style(node, text, data);
+            }
+
+            @NonNull
+            @Override
+            public CharSequence style(@NonNull Node node, @Nullable CharSequence text) {
+                this.data.put(THEME_DATA, theme);
+                this.data.put(POST_DATA, post);
+                this.data.put(POST_CALLBACK_DATA, callback);
+                return super.style(node, text);
+            }
+        };
     }
 
     @NonNull
@@ -31,18 +44,19 @@ public abstract class PostThemedStyleAction
             @Nullable CharSequence text,
             @NonNull Theme theme,
             @NonNull Post.Builder post,
-            @NonNull PostParser.Callback callback
+            @NonNull PostParser.PostParserCallback callback
     );
 
     @NonNull
     @Override
     protected CharSequence style(
-            @NonNull Node node, @Nullable CharSequence text, @NonNull Theme theme
+            @NonNull Node node, @Nullable CharSequence text, @NonNull Map<String, Object> data
     ) {
+        Theme theme = (Theme) data.get(THEME_DATA);
         Post.Builder post = (Post.Builder) data.get(POST_DATA);
-        PostParser.Callback callback = (PostParser.Callback) data.get(POST_CALLBACK_DATA);
-        if (post == null || callback == null) {
-            throw new IllegalStateException("Cannot style with null post or callback! Call with() beforehand!");
+        PostParser.PostParserCallback callback = (PostParser.PostParserCallback) data.get(POST_CALLBACK_DATA);
+        if (theme == null || post == null || callback == null) {
+            throw new IllegalStateException("Cannot style with missing info! Call with() beforehand!");
         }
         return style(node, text, theme, post, callback);
     }

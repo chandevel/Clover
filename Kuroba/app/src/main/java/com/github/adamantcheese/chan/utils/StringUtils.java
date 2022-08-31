@@ -1,5 +1,7 @@
 package com.github.adamantcheese.chan.utils;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
+
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -128,7 +130,8 @@ public class StringUtils {
     }
 
     public static String parseEmojiToAscii(String input) {
-        return EmojiParser.parseFromUnicode(input,
+        return EmojiParser.parseFromUnicode(
+                input,
                 e -> ":" + e.getEmoji().getAliases().get(0) + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
                         + ": "
         );
@@ -254,10 +257,11 @@ public class StringUtils {
             Matcher searchMatch = search.matcher(sourceCopy);
             // apply new spans
             while (searchMatch.find()) {
-                sourceCopy.setSpan(new SearchHighlightSpan(theme),
+                sourceCopy.setSpan(
+                        new SearchHighlightSpan(theme),
                         searchMatch.toMatchResult().start(),
                         searchMatch.toMatchResult().end(),
-                        makeSpanOptions(DEFAULT_PRIORITY)
+                        makeSpanOptions(RENDER_NORMAL)
                 );
             }
         }
@@ -292,12 +296,22 @@ public class StringUtils {
         return str.subSequence(0, lastIdx);
     }
 
-    public static final byte RENDER_ABOVE_ELSE = (byte) 95;
-    public static final byte DEFAULT_PRIORITY = (byte) 127;
-    public static final byte RENDER_BELOW_ELSE = (byte) 159;
+    public enum RenderOrder {
+        RENDER_ABOVE_ALL((byte) 1),
+        RENDER_ABOVE_ELSE((byte) 95),
+        RENDER_NORMAL((byte) 127),
+        RENDER_BELOW_ELSE((byte) 159),
+        RENDER_BELOW_ALL((byte) 255);
+
+        public byte priority;
+
+        RenderOrder(byte priority) {
+            this.priority = priority;
+        }
+    }
 
     public static SpannableString span(CharSequence text, Object... spans) {
-        return spanWithPriority(text, DEFAULT_PRIORITY, spans);
+        return spanWithPriority(text, RENDER_NORMAL, spans);
     }
 
     /**
@@ -306,7 +320,7 @@ public class StringUtils {
      * @param spans    All the spans to apply to the text.
      * @return A styled string.
      */
-    public static SpannableString spanWithPriority(CharSequence text, byte priority, Object... spans) {
+    public static SpannableString spanWithPriority(CharSequence text, RenderOrder priority, Object... spans) {
         SpannableString ret = new SpannableString(text);
         if (spans == null || spans.length == 0) return ret;
         for (Object span : spans) {
@@ -317,10 +331,11 @@ public class StringUtils {
     }
 
     /**
-     * @param priority The priority to make for span flags. Higher priorities render first, lower priorities render last.
+     * @param order The order to make for span flags. Higher priorities render first, lower priorities render last.
      * @return The flags set up for setSpan.
      */
-    public static int makeSpanOptions(byte priority) {
-        return (priority << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY | Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
+    public static int makeSpanOptions(RenderOrder order) {
+        return (order.priority << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
+                | Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
     }
 }

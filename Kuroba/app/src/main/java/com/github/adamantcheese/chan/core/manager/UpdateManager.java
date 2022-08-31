@@ -16,12 +16,26 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
+import static com.github.adamantcheese.chan.BuildConfig.DEV_API_ENDPOINT;
+import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
+import static com.github.adamantcheese.chan.BuildConfig.UPDATE_API_ENDPOINT;
+import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
+import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
+import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
+import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NO_OP;
+import static com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction.prepare;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
+import static java.util.concurrent.TimeUnit.DAYS;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
@@ -39,6 +53,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser;
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
@@ -46,20 +62,6 @@ import java.io.File;
 
 import okhttp3.Call;
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_API_ENDPOINT;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
-import static com.github.adamantcheese.chan.BuildConfig.UPDATE_API_ENDPOINT;
-import static com.github.adamantcheese.chan.BuildConfig.UPDATE_DELAY;
-import static com.github.adamantcheese.chan.BuildConfig.VERSION_CODE;
-import static com.github.adamantcheese.chan.BuildConfig.VERSION_NAME;
-import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
-import static java.util.concurrent.TimeUnit.DAYS;
 
 /**
  * Calls the update API and downloads and requests installs of APK files.
@@ -83,7 +85,10 @@ public class UpdateManager {
     public void autoUpdateCheck() {
         if (!DEV_BUILD && PersistableChanState.previousVersion.get() < VERSION_CODE) {
             // Show dialog because release updates are infrequent so it's fine
-            Spanned text = Html.fromHtml("<h3>" + BuildConfig.APP_LABEL + " was updated to " + VERSION_NAME + ".</h3>");
+            CharSequence text = new HtmlNodeTreeAction(CommonCSSActions.HEADER_TAG_RELATIVE_SIZE, NO_OP).style(prepare(
+                    "<h3>" + BuildConfig.APP_LABEL + " was updated to " + VERSION_NAME + ".</h3>",
+                    ""
+            ), null);
             final AlertDialog dialog =
                     getDefaultAlertBuilder(context).setMessage(text).setPositiveButton(R.string.ok, null).create();
             dialog.setCanceledOnTouchOutside(true);
@@ -191,7 +196,7 @@ public class UpdateManager {
                 CharSequence updateMessage =
                         concat ? TextUtils.concat(response.updateTitle, "; ", response.body) : response.body;
                 AlertDialog dialog = getDefaultAlertBuilder(context).setTitle(
-                        BuildConfig.APP_LABEL + " " + response.versionCodeString + " available")
+                                BuildConfig.APP_LABEL + " " + response.versionCodeString + " available")
                         .setMessage(updateMessage)
                         .setNegativeButton(R.string.update_later, null)
                         .setPositiveButton(R.string.update_install, (dialog1, which) -> {

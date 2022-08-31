@@ -1,53 +1,50 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.ARCHIVE;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.BOARD;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.JAVASCRIPT;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.LINK;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.QUOTE;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SEARCH;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.SPOILER;
-import static com.github.adamantcheese.chan.core.model.PostLinkable.Type.THREAD;
+import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.STRIKETHROUGH;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.QUOTE_COLOR;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
+import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.graphics.Typeface;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
+import android.text.*;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.ArchivesManager;
+import com.github.adamantcheese.chan.core.manager.*;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.Link;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.SearchLink;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.base.PostThemedStyleAction;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 
 import org.jsoup.nodes.Element;
@@ -56,7 +53,11 @@ import org.jsoup.select.Elements;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.*;
 
+import javax.inject.Inject;
+
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 
 public class PostThemedStyleActions {
@@ -70,29 +71,17 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
-                @NonNull PostParser.Callback callback
+                @NonNull PostParser.PostParserCallback callback
         ) {
-            Link handlerLink = null;
-            try {
-                handlerLink = matchAnchor(node, text, post, callback);
-            } catch (Exception e) {
-                Logger.w(this, "Failed to parse an element, leaving as plain text.");
-            }
-
-            if (handlerLink != null) {
-                return addReply(theme, callback, post, handlerLink);
-            } else {
-                return text == null ? "" : text;
-            }
+            PostLinkable<?> linkable = generateLinkableForAnchor(node, theme, post, callback);
+            return addReply(callback, post, linkable, text);
         }
     };
 
     @NonNull
-    private static Link matchAnchor(
-            @NonNull Node anchor,
-            @Nullable CharSequence text,
-            @NonNull Post.Builder post,
-            @NonNull PostParser.Callback callback
+    private static PostLinkable<?> generateLinkableForAnchor(
+            @NonNull Node anchor, Theme theme, @NonNull Post.Builder post, @NonNull
+            PostParser.PostParserCallback callback
     ) {
         String href = anchor.attr("href");
         HttpUrl hrefUrl = HttpUrl.get(anchor.absUrl("href"));
@@ -118,78 +107,66 @@ public class PostThemedStyleActions {
             postNo = Integer.parseInt(fragment.substring(fragment.charAt(0) == 'p' ? 1 : 0));
         } catch (Exception ignored) {}
 
-        PostLinkable.Type t;
-        Object value;
-
         if (board != null && fragment.charAt(0) == 's') {
-            t = SEARCH;
-            value = new SearchLink(board, fragment.substring(2));
+            return new SearchLinkable(theme, new SearchLink(board, fragment.substring(2)));
         } else if (board != null && threadNo == -1 && postNo == -1) {
-            t = BOARD;
-            value = board;
+            return new BoardLinkable(theme, board);
         } else if (post.board.code.equals(board)) {
             if (callback.isInternal(postNo)) {
                 //link to post in same thread with post number (>>post); usually this is a almost fully qualified link
-                t = QUOTE;
-                value = postNo;
+                return new QuoteLinkable(theme, postNo);
             } else {
                 //link to post not in same thread with post number (>>post or >>>/board/post)
                 //in the case of an archive, set the type to be an archive link
-                t = post.board.site instanceof ExternalSiteArchive ? ARCHIVE : THREAD;
-                value = new ThreadLink(board, threadNo, postNo);
-                if (href.contains("post") && post.board.site instanceof ExternalSiteArchive) {
-                    // this is an archive post link that needs to be resolved into a threadlink
-                    value = new ResolveLink((ExternalSiteArchive) post.board.site, board, threadNo);
-                }
+                ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
+                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
+                        theme,
+                        href.contains("post")
+                                ? new ResolveLink((ExternalSiteArchive) post.board.site, board, threadNo)
+                                : threadLink
+                ) : new ThreadLinkable(theme, threadLink);
             }
-        } else if (href.startsWith("javascript:")) {
-            t = JAVASCRIPT;
-            value = href;
         } else {
-            t = LINK;
-            value = href;
+            return new ParserLinkLinkable(theme, href);
         }
-
-        return new Link(t, text, value);
     }
 
     @NonNull
     private static CharSequence addReply(
-            @NonNull Theme theme,
-            @NonNull PostParser.Callback callback,
+            @NonNull PostParser.PostParserCallback callback,
             @NonNull Post.Builder post,
-            @NonNull Link handlerLink
+            @NonNull PostLinkable<?> handlerLink,
+            CharSequence text
     ) {
-        if (handlerLink.type == THREAD) {
-            handlerLink.key = TextUtils.concat(handlerLink.key, " →");
+        if (handlerLink instanceof ThreadLinkable) {
+            text = TextUtils.concat(text, " →");
         }
 
-        if (handlerLink.type == ARCHIVE && (
-                (handlerLink.value instanceof ThreadLink && ((ThreadLink) handlerLink.value).postId == -1)
-                        || handlerLink.value instanceof ResolveLink)) {
-            handlerLink.key = TextUtils.concat(handlerLink.key, " →");
+        if (handlerLink instanceof ArchiveLinkable && ((handlerLink.value instanceof ThreadLink
+                && ((ThreadLink) handlerLink.value).postId == -1) || handlerLink.value instanceof ResolveLink)) {
+            text = TextUtils.concat(text, " →");
         }
 
-        if (handlerLink.type == QUOTE) {
+        if (handlerLink instanceof QuoteLinkable) {
             int postNo = (int) handlerLink.value;
             post.repliesTo(Collections.singleton(postNo));
 
             // Append (OP) when it's a reply to OP
             if (postNo == post.opId) {
-                handlerLink.key = TextUtils.concat(handlerLink.key, " (OP)");
+                text = TextUtils.concat(text, " (OP)");
             }
 
             // Append (You) when it's a reply to a saved reply, (Me) if it's a self reply
             if (callback.isSaved(postNo)) {
                 if (post.isSavedReply) {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, " (Me)");
+                    text = TextUtils.concat(text, " (Me)");
                 } else {
-                    handlerLink.key = TextUtils.concat(handlerLink.key, " (You)");
+                    text = TextUtils.concat(text, " (You)");
                 }
             }
         }
 
-        return span(handlerLink.key, new PostLinkable(theme, handlerLink.value, handlerLink.type));
+        return span(text, handlerLink);
     }
 
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
@@ -201,18 +178,19 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
-                @NonNull PostParser.Callback callback
+                @NonNull PostParser.PostParserCallback callback
         ) {
             try {
                 SpannableStringBuilder ret = new SpannableStringBuilder(text == null ? "" : text);
                 if (node.hasAttr("alt")) {
                     String alt = node.attr("alt");
                     if (!alt.isEmpty()) {
-                        ret.append(span(alt, new PostLinkable(theme, alt, SPOILER))).append(" ");
+                        ret.append(span(alt, new SpoilerLinkable(theme, alt))).append(" ");
                     }
                 }
                 HttpUrl src = HttpUrl.get(node.attr("src"));
-                PostImage i = new PostImage.Builder().imageUrl(src)
+                PostImage i = new PostImage.Builder()
+                        .imageUrl(src)
                         .thumbnailUrl(src)
                         .spoilerThumbnailUrl(src)
                         .filename(Files.getNameWithoutExtension(src.toString()))
@@ -237,40 +215,41 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
-                @NonNull PostParser.Callback callback
+                @NonNull PostParser.PostParserCallback callback
         ) {
             SpannableStringBuilder parts = new SpannableStringBuilder();
             Elements tableRows = ((Element) node).getElementsByTag("tr");
             for (int i = 0; i < tableRows.size(); i++) {
                 Element tableRow = tableRows.get(i);
-                if (!tableRow.text().isEmpty()) {
-                    Elements tableDatas = tableRow.getElementsByTag("td");
-                    for (int j = 0; j < tableDatas.size(); j++) {
-                        Element tableData = tableDatas.get(j);
+                if (tableRow.text().isEmpty()) continue;
+                Elements tableDatas = tableRow.getElementsByTag("td");
+                for (int j = 0; j < tableDatas.size(); j++) {
+                    Element tableData = tableDatas.get(j);
 
-                        if (tableData.getElementsByTag("b").size()
-                                > 0) { // if it has a bold element, the entire thing is bold; should only bold the necessary part
-                            parts.append(span(tableData.text(), new StyleSpan(Typeface.BOLD), new UnderlineSpan()));
-                        }
-
-                        if (j < tableDatas.size() - 1) parts.append(": ");
+                    if (tableData.getElementsByTag("b").size() > 0) {
+                        parts.append(span(tableData.text(), new StyleSpan(Typeface.BOLD), new UnderlineSpan()));
+                    } else {
+                        parts.append(tableData.text());
                     }
 
-                    if (i < tableRows.size() - 1) parts.append("\n");
+                    if (j < tableDatas.size() - 1) parts.append(": ");
                 }
+
+                if (i < tableRows.size() - 1) parts.append("\n");
             }
 
             // Overrides the text (possibly) parsed by child nodes.
-            return span(EXIF_INFO_STRING, new PostLinkable(theme, new Object(), PostLinkable.Type.OTHER) {
+            return span(EXIF_INFO_STRING, new PopupItemLinkable(theme, new Object()) {
                 @Override
                 public void onClick(@NonNull View widget) {
-                    AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setMessage(parts)
+                    AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
+                            .setMessage(parts)
                             .setPositiveButton(R.string.ok, null)
                             .create();
                     dialog.setCanceledOnTouchOutside(true);
                     dialog.show();
                 }
-            }, new ForegroundColorSpanHashed(AndroidUtils.getThemeAttrColor(theme, R.attr.post_inline_quote_color)));
+            });
         }
     };
 
@@ -282,14 +261,14 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
-                @NonNull PostParser.Callback callback
+                @NonNull PostParser.PostParserCallback callback
         ) {
             return span(
                     "[SJIS art available. Click here to view.]",
                     new CustomTypefaceSpan("",
                             Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf")
                     ),
-                    new PostLinkable(theme, new Object(), PostLinkable.Type.OTHER) {
+                    new PopupItemLinkable(theme, new Object()) {
                         @Override
                         public void onClick(@NonNull View widget) {
                             TextView sjisView = new TextView(widget.getContext());
@@ -297,14 +276,14 @@ public class PostThemedStyleActions {
                             sjisView.setHorizontallyScrolling(true);
                             updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
                             sjisView.setText(text);
-                            AlertDialog dialog = getDefaultAlertBuilder(widget.getContext()).setView(sjisView)
+                            AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
+                                    .setView(sjisView)
                                     .setPositiveButton(R.string.close, null)
                                     .create();
                             dialog.setCanceledOnTouchOutside(true);
                             dialog.show();
                         }
-                    },
-                    new ForegroundColorSpanHashed(AndroidUtils.getThemeAttrColor(theme, R.attr.post_inline_quote_color))
+                    }
             );
         }
     };
@@ -317,7 +296,7 @@ public class PostThemedStyleActions {
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
                 @NonNull Post.Builder post,
-                @NonNull PostParser.Callback callback
+                @NonNull PostParser.PostParserCallback callback
         ) {
             try {
                 //crossboard thread links in the OP are likely not thread links, so just let them error out on the parseInt
@@ -326,7 +305,7 @@ public class PostThemedStyleActions {
                 if (!boards.isEmpty()) {
                     Site forThisSite = post.board.site;
                     String forThisBoard = post.board.code;
-                    PostLinkable newLinkable = new PostLinkable(
+                    ArchiveLinkable newLinkable = new ArchiveLinkable(
                             theme,
                             // if the deadlink is in an external archive, set a resolve link
                             // if the deadlink is in any other site, we don't have enough info to properly link to stuff, so
@@ -334,14 +313,114 @@ public class PostThemedStyleActions {
                             // and any deadlinks in other posts are deleted posts in the same thread
                             forThisSite instanceof ExternalSiteArchive
                                     ? new ResolveLink((ExternalSiteArchive) forThisSite, forThisBoard, postNo)
-                                    : new ThreadLink(forThisBoard, post.op ? postNo : post.opId, post.op ? -1 : postNo),
-                            ARCHIVE
+                                    : new ThreadLink(forThisBoard, post.op ? postNo : post.opId, post.op ? -1 : postNo)
                     );
                     return span(text, newLinkable);
                 }
             } catch (Exception ignored) {
             }
             return new ChainStyleAction(STRIKETHROUGH).chain(QUOTE_COLOR.with(theme)).style(node, text);
+        }
+    };
+
+    // matches stuff like file.jpg or file?format=jpg&name=orig
+    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
+            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac|wav)(?:.*)",
+            Pattern.CASE_INSENSITIVE
+    );
+    private static final String[] NO_THUMB_LINK_SUFFIXES =
+            {"webm", "pdf", "mp4", "mp3", "swf", "m4a", "ogg", "flac", "wav"};
+
+    public static PostThemedStyleAction EMBED_IMAGES = new PostThemedStyleAction() {
+        @NonNull
+        @Override
+        protected CharSequence style(
+                @NonNull Node node,
+                @Nullable CharSequence text,
+                @NonNull Theme theme,
+                @NonNull Post.Builder post,
+                @NonNull PostParser.PostParserCallback callback
+        ) {
+            if (!ChanSettings.parsePostImageLinks.get()) return text == null ? "" : text;
+            if (!(text instanceof Spanned)) return text == null ? "" : text;
+            Spanned toSearch = (Spanned) text;
+            ParserLinkLinkable[] linkables = toSearch.getSpans(0, toSearch.length(), ParserLinkLinkable.class);
+            for (ParserLinkLinkable linkable : linkables) {
+                Matcher matcher = IMAGE_URL_PATTERN.matcher(linkable.value);
+                if (matcher.matches()) {
+                    boolean noThumbnail = StringUtils.endsWithAny(linkable.value, NO_THUMB_LINK_SUFFIXES);
+
+                    HttpUrl imageUrl = HttpUrl.get((String) linkable.value);
+                    // ignore saucenao links, not actual images
+                    if (imageUrl.host().equals("saucenao.com")) {
+                        continue;
+                    }
+
+                    PostImage inlinedImage = new PostImage.Builder().serverFilename(matcher.group(1))
+                            //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
+                            .thumbnailUrl(noThumbnail
+                                    ? INTERNAL_SPOILER_THUMB_URL
+                                    : HttpUrl.get((String) linkable.value))
+                            .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
+                            .imageUrl(imageUrl)
+                            .filename(matcher.group(1))
+                            .extension(matcher.group(2))
+                            .spoiler(true)
+                            .isInlined()
+                            .size(-1)
+                            .build();
+
+                    post.images(Collections.singletonList(inlinedImage));
+
+                    NetUtils.makeHeadersRequest(imageUrl, new NetUtilsClasses.ResponseResult<Headers>() {
+                        @Override
+                        public void onFailure(Exception e) {}
+
+                        @Override
+                        public void onSuccess(Headers result) {
+                            String size = result.get("Content-Length");
+                            inlinedImage.size = size == null ? 0 : Long.parseLong(size);
+                        }
+                    });
+                }
+            }
+            return text;
+        }
+    };
+
+    public static PostThemedStyleAction FILTER_DEBUG = new PostThemedStyleAction() {
+        @Inject
+        private FilterEngine filterEngine;
+
+        {
+            inject(this);
+        }
+
+        @NonNull
+        @Override
+        protected CharSequence style(
+                @NonNull Node node,
+                @Nullable CharSequence text,
+                @NonNull Theme theme,
+                @NonNull Post.Builder post,
+                @NonNull PostParser.PostParserCallback callback
+        ) {
+            if (!ChanSettings.debugFilters.get()) return text == null ? "" : text;
+            SpannableString builder = new SpannableString(text);
+            for (Filter f : filterEngine.getEnabledFilters()) {
+                if (filterEngine.matchesBoard(f, post.board)) {
+                    MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
+                    if (result != null) {
+                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern) {
+                            @Override
+                            public void onClick(@NonNull View widget) {
+                                showToast(getAppContext(), "Matching filter: " + value, Toast.LENGTH_LONG);
+                            }
+                        }, result.start(), result.end(), makeSpanOptions(RENDER_NORMAL));
+                    }
+                }
+            }
+            return builder;
         }
     };
 }

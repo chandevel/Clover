@@ -21,7 +21,7 @@ import androidx.annotation.NonNull;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
-import com.github.adamantcheese.chan.core.site.parser.PostParser.Callback;
+import com.github.adamantcheese.chan.core.site.parser.PostParser.PostParserCallback;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.List;
@@ -34,7 +34,7 @@ class PostParseCallable
     private final Post.Builder postBuilder;
     private final PostParser parser;
     private final Theme theme;
-    private final Callback callback;
+    private final PostParserCallback postParserCallback;
 
     public PostParseCallable(
             DatabaseSavedReplyManager savedReplyManager,
@@ -47,7 +47,7 @@ class PostParseCallable
         this.postBuilder = builder;
         this.parser = parser;
         this.theme = theme;
-        callback = new Callback() {
+        postParserCallback = new PostParserCallback() {
             @Override
             public boolean isSaved(int postNo) {
                 return savedReplyManager.isSaved(postBuilder.board, postNo);
@@ -66,6 +66,6 @@ class PostParseCallable
 
     @Override
     public Post call() {
-        return parser.parse(postBuilder, theme, callback);
+        return parser.parse(postBuilder, theme, postParserCallback);
     }
 }

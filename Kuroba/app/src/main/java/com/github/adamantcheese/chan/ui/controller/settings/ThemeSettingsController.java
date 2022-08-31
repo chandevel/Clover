@@ -22,11 +22,7 @@ import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BU
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.TEST_POST_ICON_URL;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.TEST_POST_IMAGE_URL;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -34,13 +30,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -54,14 +45,9 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.manager.FilterType;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
@@ -73,22 +59,19 @@ import com.github.adamantcheese.chan.ui.cell.PostCell;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerController;
 import com.github.adamantcheese.chan.ui.controller.ImageViewerNavigationController;
+import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
-import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
+import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ThemeSettingsController
         extends Controller {
@@ -168,19 +151,15 @@ public class ThemeSettingsController
         }
 
         @Override
-        public void onPostLinkableClicked(Post post, PostLinkable linkable) {
-            switch (linkable.type) {
-                case QUOTE:
-                    showToast(context, "Clicked on quote " + linkable.value + "!");
-                    break;
-                case LINK:
-                case EMBED_TEMP:
-                    if (ChanSettings.openLinkBrowser.get()) {
-                        AndroidUtils.openLink((String) linkable.value);
-                    } else {
-                        openLinkInBrowser(context, (String) linkable.value);
-                    }
-                    break;
+        public void onPostLinkableClicked(Post post, PostLinkable<?> linkable) {
+            if (linkable instanceof QuoteLinkable) {
+                showToast(context, "Clicked on quote " + linkable.value + "!");
+            } else if (linkable instanceof ParserLinkLinkable || linkable instanceof EmbedderLinkLinkable) {
+                if (ChanSettings.openLinkBrowser.get()) {
+                    AndroidUtils.openLink((String) linkable.value);
+                } else {
+                    openLinkInBrowser(context, (String) linkable.value);
+                }
             }
         }
 
@@ -191,14 +170,9 @@ public class ThemeSettingsController
         @Override
         public void onPostSelectionQuoted(Post post, CharSequence quoted) {
         }
-
-        @Override
-        public int getGridWidth() {
-            return 0;
-        }
     };
 
-    private final PostParser.Callback parserCallback = new PostParser.Callback() {
+    private final PostParser.PostParserCallback parserCallback = new PostParser.PostParserCallback() {
         @Override
         public boolean isSaved(int postNo) {
             return false;
@@ -302,7 +276,8 @@ public class ThemeSettingsController
     }
 
     private void helpClicked(ToolbarMenuItem item) {
-        final AlertDialog dialog = getDefaultAlertBuilder(context).setTitle("Help")
+        final AlertDialog dialog = getDefaultAlertBuilder(context)
+                .setTitle("Help")
                 .setMessage(R.string.setting_theme_explanation)
                 .setPositiveButton("Close", null)
                 .show();
@@ -424,7 +399,7 @@ public class ThemeSettingsController
 
         @Override
         public void onBindViewHolder(@NonNull ThemePostsAdapter.ThemePreviewHolder holder, int position) {
-            PostParser postParser = new PostParser(new ChanCommentAction()).withFilters(new Filter(true,
+            PostParser postParser = new PostParser(new ChanCommentAction()).withOverrideFilters(new Filter(true,
                     FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
                     "testing",
                     true,
@@ -445,9 +420,9 @@ public class ThemeSettingsController
             ChanThread thread = new ChanThread(dummyLoadable, posts);
 
             for (Post p : thread.getPosts()) {
-                List<PostLinkable> linkables = p.getQuoteLinkables();
-                for (PostLinkable linkable : linkables) {
-                    linkable.setMarkedNo(linkables.size() > 1 ? 123456789 : -1);
+                QuoteLinkable[] linkables = p.getQuoteLinkables();
+                for (QuoteLinkable linkable : linkables) {
+                    linkable.setMarkedNo(linkables.length > 1 ? 123456789 : -1);
                 }
             }
 
@@ -540,7 +515,8 @@ public class ThemeSettingsController
                 test.setAction(R.string.cancel, v -> test.dismiss());
                 test.show();
             }).withSubItem(R.string.test_popup, () -> {
-                AlertDialog test = getDefaultAlertBuilder(holder.itemView.getContext()).setMessage(R.string.test_popup)
+                AlertDialog test = getDefaultAlertBuilder(holder.itemView.getContext())
+                        .setMessage(R.string.test_popup)
                         .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
                         .create();
                 test.setCanceledOnTouchOutside(true);
@@ -552,7 +528,8 @@ public class ThemeSettingsController
 
         @NonNull
         private List<Post.Builder> generatePosts() {
-            Post.Builder builder1 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder1 = new Post.Builder()
+                    .board(Board.getDummyBoard())
                     .no(123456789)
                     .opId(123456789)
                     .posterId("TeStId++")
@@ -561,7 +538,8 @@ public class ThemeSettingsController
                     .replies(1)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(60)))
                     .subject("Lorem ipsum")
-                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>" + "http://example.com/<br>"
+                    .comment("<span class=\"deadlink\">&gt;&gt;987654321</span><br>"
+                            + "http://example.com/<br>"
                             + "This text is normally colored. <span class=\"spoiler\">This text is spoilered.</span><br>"
                             + "<span class=\"quote\">&gt;This text is inline quoted (greentext).</span><br>"
                             + "<span class=\"quote\">&gt;This is a inline quoted quote. "
@@ -570,7 +548,8 @@ public class ThemeSettingsController
                             + "<a href=\"#p123456789\" class=\"quotelink\">&gt;&gt;123456789</a></span><br>"
                             + "<span class=\"spoiler\">This is a spoilered link http://example.com/</span>");
 
-            Post.Builder builder2 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder2 = new Post.Builder()
+                    .board(Board.getDummyBoard())
                     .no(234567890)
                     .opId(123456789)
                     .posterId("TeStId2+")
@@ -587,7 +566,8 @@ public class ThemeSettingsController
                                     + "https://www.youtube.com/watch?v=dQw4w9WgXcQ<br>"
                                     + "<span class=\"spoiler\">https://www.youtube.com/watch?v=dQw4w9WgXcQ</span>");
 
-            Post.Builder builder3 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder3 = new Post.Builder()
+                    .board(Board.getDummyBoard())
                     .no(345678901)
                     .opId(123456789)
                     .name("W.T. Snacks")
@@ -602,25 +582,30 @@ public class ThemeSettingsController
                                     + "This post is highlighted.<br>"
                                     + "<span class=\"spoiler\">This text is spoilered in a highlighted post.</span><br>"
                                     + "This text has search highlighting applied.")
-                    .images(Collections.singletonList(new PostImage.Builder().imageUrl(TEST_POST_IMAGE_URL)
+                    .images(Collections.singletonList(new PostImage.Builder()
+                            .imageUrl(TEST_POST_IMAGE_URL)
                             .thumbnailUrl(TEST_POST_IMAGE_URL)
                             .filename("new_icon_512")
                             .extension("png")
                             .build()));
 
-            Post.Builder builder4 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder4 = new Post.Builder()
+                    .board(Board.getDummyBoard())
                     .no(666)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(10)))
                     .comment("This post is deleted!<br>"
                             + "&verbar;&verbar;This line has extra spoiler characters around it.&verbar;&verbar;");
 
-            Post.Builder builder5 = new Post.Builder().board(Board.getDummyBoard())
+            Post.Builder builder5 = new Post.Builder()
+                    .board(Board.getDummyBoard())
                     .no(999)
                     .opId(123456789)
                     .setUnixTimestampSeconds(MILLISECONDS.toSeconds(System.currentTimeMillis() - MINUTES.toMillis(5)))
                     .comment(
-                            "<a href=\"#p666\" class=\"quotelink\">&gt;&gt;666</a> This post is replying to a post that is deleted!");
+                            "<a href=\"#p666\" class=\"quotelink\">&gt;&gt;666</a> This post is replying to a post that is deleted!<br>"
+                                    + "Below is an image link to test out image embedding.<br>"
+                                    + "https://picsum.photos/512.jpg");
 
             return Arrays.asList(builder1, builder2, builder3, builder4, builder5);
         }

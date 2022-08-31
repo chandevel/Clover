@@ -29,7 +29,7 @@ public class VichanCommentAction
 
     @Override
     public HtmlTagAction addSpecificActions(
-            Theme theme, Post.Builder post, PostParser.Callback callback
+            Theme theme, Post.Builder post, PostParser.PostParserCallback callback
     ) {
         HtmlTagAction base = super.addSpecificActions(theme, post, callback);
         HtmlTagAction newAction = new HtmlTagAction(false);

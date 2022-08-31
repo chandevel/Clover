@@ -16,14 +16,16 @@
  */
 package com.github.adamantcheese.chan.core.net;
 
-import android.text.Spanned;
+import static com.github.adamantcheese.chan.BuildConfig.*;
+import static com.github.adamantcheese.chan.core.settings.PersistableChanState.previousDevHash;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+
 import android.text.style.URLSpan;
 import android.util.JsonReader;
 import android.util.MalformedJsonException;
 
-import androidx.core.text.HtmlCompat;
-
 import com.github.adamantcheese.chan.core.net.UpdateApiParser.UpdateApiResponse;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
@@ -33,14 +35,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.BuildConfig.APP_LABEL;
-import static com.github.adamantcheese.chan.BuildConfig.COMMIT_HASH;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_BUILD;
-import static com.github.adamantcheese.chan.BuildConfig.DEV_GITHUB_ENDPOINT;
-import static com.github.adamantcheese.chan.BuildConfig.GITHUB_ENDPOINT;
-import static com.github.adamantcheese.chan.core.settings.PersistableChanState.previousDevHash;
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 public class UpdateApiParser
         implements NetUtilsClasses.Converter<UpdateApiResponse, JsonReader> {
@@ -58,11 +52,8 @@ public class UpdateApiParser
                     new URLSpan(GITHUB_ENDPOINT + "/compare/" + previousDevHash.get() + "..." + COMMIT_HASH)
             );
         } else {
-            response.body = HtmlCompat.fromHtml(
-                    "Changelog:\r\nSee the release on Github for details!\r\n"
-                            + " Your Android API is too low to properly render the changelog from the site.",
-                    HtmlCompat.FROM_HTML_MODE_LEGACY
-            );
+            response.body =
+                    "Changelog:\nSee the release on Github for details!\nYour Android API is too low to properly render the changelog from the site.";
         }
 
         reader.beginObject();
@@ -102,10 +93,10 @@ public class UpdateApiParser
                         response.commitHash = reader.nextString().trim();
                     } else {
                         Node updateLog = Parser.builder().build().parse(reader.nextString());
-                        response.body = HtmlCompat.fromHtml(
-                                "Changelog:\r\n" + HtmlRenderer.builder().build().render(updateLog),
-                                HtmlCompat.FROM_HTML_MODE_LEGACY
-                        );
+                        response.body = HtmlNodeTreeAction.fromHtml("Changelog:\r\n" + HtmlRenderer
+                                .builder()
+                                .build()
+                                .render(updateLog), null);
                     }
                     break;
                 default:
@@ -123,6 +114,6 @@ public class UpdateApiParser
         public String versionCodeString;
         public String updateTitle = "";
         public HttpUrl apkURL;
-        public Spanned body;
+        public CharSequence body;
     }
 }

@@ -16,42 +16,29 @@
  */
 package com.github.adamantcheese.chan.core.presenter;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.*;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+
 import android.content.Context;
-import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.MalformedJsonException;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseLoadableManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.manager.ChanLoaderManager;
-import com.github.adamantcheese.chan.core.manager.WatchManager;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.model.orm.Pin;
-import com.github.adamantcheese.chan.core.model.orm.SavedReply;
-import com.github.adamantcheese.chan.core.net.NetUtils;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.ProgressResponseBody;
+import com.github.adamantcheese.chan.core.database.*;
+import com.github.adamantcheese.chan.core.manager.*;
+import com.github.adamantcheese.chan.core.model.*;
+import com.github.adamantcheese.chan.core.model.orm.*;
+import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode;
@@ -60,9 +47,7 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
 import com.github.adamantcheese.chan.core.site.http.DeleteResponse;
 import com.github.adamantcheese.chan.core.site.loader.ChanThreadLoader;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.SearchLink;
-import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
+import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.features.embedding.embedders.Embedder;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
@@ -72,64 +57,18 @@ import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadListLayout;
+import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.PostUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 import javax.net.ssl.SSLException;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_CROSS_BOARD_LINK;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_IMG_URL;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_LINK;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_TEXT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_COPY_POST_URL;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_DELETE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_EXTRA;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_COMMENT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_FILENAME;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_FLAG_CODE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_ID;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_IMAGE_HASH;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_NAME;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_SUBJECT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_FILTER_TRIPCODE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIDE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIGHLIGHT_ID;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_HIGHLIGHT_TRIPCODE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_INFO;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_OPEN_BROWSER;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_PIN;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_QUOTE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_QUOTE_TEXT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_REMOVE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_REPORT;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_SAVE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_SHARE;
-import static com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions.POST_OPTION_UNSAVE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.setClipboardContent;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.shareLink;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 
 public class ThreadPresenter
         implements NetUtilsClasses.ResponseResult<ChanThread>, PostAdapter.PostAdapterCallback,
@@ -587,11 +526,13 @@ public class ThreadPresenter
 
         boolean isSaved = databaseSavedReplyManager.isSaved(post.board, post.no);
 
-        if (loadable.isCatalogMode() && watchManager.getPinByLoadable(Loadable.forThread(post.board,
+        if (loadable.isCatalogMode()
+                && watchManager.getPinByLoadable(Loadable.forThread(post.board,
                 post.no,
                 PostHelper.getTitle(post, loadable),
                 false
-        )) == null && !(loadable.site instanceof ExternalSiteArchive)) {
+        )) == null
+                && !(loadable.site instanceof ExternalSiteArchive)) {
             menu.add(new FloatingMenuItem<>(POST_OPTION_PIN, R.string.action_pin));
         }
 
@@ -846,85 +787,79 @@ public class ThreadPresenter
     }
 
     @Override
-    public void onPostLinkableClicked(Post post, PostLinkable linkable) {
+    public void onPostLinkableClicked(Post post, PostLinkable<?> linkable) {
         if (!isBound()) return;
-        switch (linkable.type) {
-            case QUOTE:
-                Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
-                if (linked != null) {
-                    threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
-                }
-                break;
-            case LINK:
-            case EMBED_AUTO_LINK:
-            case EMBED_REPLACE_LINK:
-                threadPresenterCallback.openLink(linkable, (String) linkable.value);
-                break;
-            case THREAD:
-                ThreadLink link = (ThreadLink) linkable.value;
-
-                Board board = loadable.site.board(link.boardCode);
-                if (board != null) {
-                    Loadable thread =
-                            Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
-                    thread.markedNo = link.postId;
-
-                    threadPresenterCallback.showThread(thread);
-                }
-                break;
-            case BOARD:
-                Board b = boardManager.getBoard(loadable.site, (String) linkable.value);
-                if (b == null) {
-                    showToast(context, R.string.site_uses_dynamic_boards);
-                } else {
-                    threadPresenterCallback.showBoard(Loadable.forCatalog(b));
-                }
-                break;
-            case SEARCH:
-                SearchLink search = (SearchLink) linkable.value;
-                Board bd = boardManager.getBoard(loadable.site, search.board);
-                if (bd == null) {
-                    showToast(context, R.string.site_uses_dynamic_boards);
-                } else {
-                    threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(bd), search.search);
-                }
-                break;
-            case ARCHIVE:
-                if (linkable.value instanceof ThreadLink) {
-                    ThreadLink opPostPair = (ThreadLink) linkable.value;
-                    Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(loadable.site,
-                            opPostPair.boardCode,
-                            opPostPair.boardCode
-                            ),
-                            opPostPair.threadId,
-                            "",
-                            false
-                    );
-                    showArchives(constructed, opPostPair.postId);
-                } else if (linkable.value instanceof ResolveLink) {
-                    ResolveLink toResolve = (ResolveLink) linkable.value;
-                    showToast(context, "Calling archive API, just a moment!");
-                    toResolve.resolve(toResolve, (threadLink) -> {
-                        if (threadLink != null) {
-                            Loadable constructed = Loadable.forThread(
-                                    Board.fromSiteNameCode(toResolve.site,
-                                            threadLink.boardCode,
-                                            threadLink.boardCode
-                                    ),
-                                    threadLink.threadId,
-                                    "",
-                                    false
-                            );
-                            showArchives(constructed, threadLink.postId);
-                        } else {
-                            showToast(context, "Failed to resolve thread external post link!");
-                        }
-                    });
-                }
-                break;
-            case JAVASCRIPT:
+        if (linkable instanceof QuoteLinkable) {
+            Post linked = PostUtils.findPostById((int) linkable.value, chanLoader.getThread());
+            if (linked != null) {
+                threadPresenterCallback.showPostsPopup(post, Collections.singletonList(linked));
+            }
+        } else if (linkable instanceof ParserLinkLinkable) {
+            ParserLinkLinkable l = (ParserLinkLinkable) linkable;
+            if (l.isJavascript()) {
                 threadPresenterCallback.openLink(linkable, loadable.desktopUrl(post));
-                break;
+            } else {
+                threadPresenterCallback.openLink(linkable, (String) linkable.value);
+            }
+        } else if (linkable instanceof EmbedderLinkLinkable) {
+            threadPresenterCallback.openLink(linkable, (String) linkable.value);
+        } else if (linkable instanceof ThreadLinkable) {
+            ThreadLink link = (ThreadLink) linkable.value;
+
+            Board board = loadable.site.board(link.boardCode);
+            if (board != null) {
+                Loadable thread =
+                        Loadable.forThread(board, link.threadId, "", !(board.site instanceof ExternalSiteArchive));
+                thread.markedNo = link.postId;
+
+                threadPresenterCallback.showThread(thread);
+            }
+        } else if (linkable instanceof BoardLinkable) {
+            Board b = boardManager.getBoard(loadable.site, (String) linkable.value);
+            if (b == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                threadPresenterCallback.showBoard(Loadable.forCatalog(b));
+            }
+        } else if (linkable instanceof SearchLinkable) {
+            SearchLink search = (SearchLink) linkable.value;
+            Board bd = boardManager.getBoard(loadable.site, search.board);
+            if (bd == null) {
+                showToast(context, R.string.site_uses_dynamic_boards);
+            } else {
+                threadPresenterCallback.showBoardAndSearch(Loadable.forCatalog(bd), search.search);
+            }
+        } else if (linkable instanceof ArchiveLinkable) {
+            if (linkable.value instanceof ThreadLink) {
+                ThreadLink opPostPair = (ThreadLink) linkable.value;
+                Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(loadable.site,
+                                opPostPair.boardCode,
+                                opPostPair.boardCode
+                        ),
+                        opPostPair.threadId,
+                        "",
+                        false
+                );
+                showArchives(constructed, opPostPair.postId);
+            } else if (linkable.value instanceof ResolveLink) {
+                ResolveLink toResolve = (ResolveLink) linkable.value;
+                showToast(context, "Calling archive API, just a moment!");
+                toResolve.resolve(toResolve, (threadLink) -> {
+                    if (threadLink != null) {
+                        Loadable constructed = Loadable.forThread(Board.fromSiteNameCode(toResolve.site,
+                                        threadLink.boardCode,
+                                        threadLink.boardCode
+                                ),
+                                threadLink.threadId,
+                                "",
+                                false
+                        );
+                        showArchives(constructed, threadLink.postId);
+                    } else {
+                        showToast(context, "Failed to resolve thread external post link!");
+                    }
+                });
+            }
         }
     }
 
@@ -1131,24 +1066,22 @@ public class ThreadPresenter
 
         Set<String> added = new HashSet<>();
         List<CharSequence> keys = new ArrayList<>();
-        List<PostLinkable> linkables = post.getLinkables();
-        for (PostLinkable linkable : linkables) {
-            //skip SPOILER linkables, they aren't useful to display
-            if (linkable.type == PostLinkable.Type.SPOILER) continue;
+        List<PostLinkable<?>> linkables = Arrays.asList(post.getLinkables());
+        for (PostLinkable<?> linkable : linkables) {
+            //skip these linkables, they aren't useful to display
+            if (linkable instanceof SpoilerLinkable || linkable instanceof FilterDebugLinkable) continue;
             CharSequence key =
                     post.comment.subSequence(post.comment.getSpanStart(linkable), post.comment.getSpanEnd(linkable));
             String value = linkable.value.toString();
             //need to trim off starting spaces for certain media links if embedded
-            String trimmedUrl = ((key.charAt(0) == ' ' && key.charAt(1) == ' ')
-                    ? key.subSequence(2, key.length())
-                    : key).toString();
+            CharSequence trimmedUrl =
+                    ((key.charAt(0) == ' ' && key.charAt(1) == ' ') ? key.subSequence(2, key.length()) : key);
             boolean speciallyProcessed = false;
-            // context doesn't matter here
-            for (Embedder e : EmbeddingEngine.getInstance().getEmbedders()) {
+            for (Embedder e : EmbeddingEngine.getDefaultEmbedders()) {
                 if (e.shouldEmbed(value)) {
-                    if (added.contains(trimmedUrl)) continue;
+                    if (added.contains(trimmedUrl.toString())) continue;
                     keys.add(PostHelper.prependIcon(context, trimmedUrl, e.getIconBitmap(), (int) sp(16)));
-                    added.add(trimmedUrl);
+                    added.add(trimmedUrl.toString());
                     speciallyProcessed = true;
                     break;
                 }
@@ -1318,7 +1251,7 @@ public class ThreadPresenter
 
         void highlightPostTripcode(String tripcode);
 
-        void filterPostSubject(String subject);
+        void filterPostSubject(CharSequence subject);
 
         void filterPostName(String name);
 

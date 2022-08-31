@@ -21,15 +21,12 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.os.Build;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.TextPaint;
-import android.text.TextUtils;
+import android.text.*;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -38,18 +35,15 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
-import com.github.adamantcheese.chan.core.model.PostLinkable.Type;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
-import com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions;
-import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
-import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.RoundedBackgroundSpan;
+import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
+import com.github.adamantcheese.chan.features.html_styling.impl.*;
+import com.github.adamantcheese.chan.ui.text.*;
+import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.RemovedLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -64,7 +58,7 @@ public class PostParser {
     private FilterEngine filterEngine;
 
     private final ChanCommentAction elementAction;
-    private List<Filter> filters;
+    private GetFiltersCallback getFiltersCallback;
 
     // All of these have one matching group associated with the text they need to work
     // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
@@ -84,45 +78,45 @@ public class PostParser {
     public PostParser(ChanCommentAction elementAction) {
         this.elementAction = elementAction;
         inject(this);
+        getFiltersCallback = () -> filterEngine.getEnabledFilters();
     }
 
-    public PostParser withFilters(Filter... filters) {
-        this.filters = Arrays.asList(filters);
+    public PostParser withOverrideFilters(Filter... filters) {
+        getFiltersCallback = new GetFiltersCallback() {
+            private final List<Filter> filterList = Arrays.asList(filters);
+
+            @Override
+            public List<Filter> getFilterList() {
+                return filterList;
+            }
+        };
         return this;
     }
 
     public Post parse(
-            Post.Builder builder, @NonNull Theme theme, Callback callback
+            Post.Builder builder, @NonNull Theme theme, PostParserCallback postParserCallback
     ) {
         // needed for "Apply to own posts" to work correctly
-        builder.isSavedReply(callback.isSaved(builder.no));
+        builder.isSavedReply(postParserCallback.isSaved(builder.no));
         parseInfoSpans(theme, builder);
-        builder.comment = new SpannableString(parseComment(builder, theme, callback));
+        builder.comment = new SpannableString(parseComment(builder, theme, postParserCallback));
 
         // process any removed posts, and remove any linkables/spans attached
-        for (PostLinkable l : builder.getLinkables()) {
-            if (l.type == Type.QUOTE) {
-                if (callback.isRemoved((int) l.value)) {
-                    builder.repliesToNos.remove((int) l.value);
-                    builder.comment.setSpan(
-                            new PostLinkable(theme, new Object(), Type.OTHER) {
-                                @Override
-                                public void onClick(@NonNull View widget) {
-                                    showToast(widget.getContext(), "This post has been removed.");
-                                }
-
-                                @Override
-                                public void updateDrawState(@NonNull TextPaint textPaint) {
-                                    super.updateDrawState(textPaint);
-                                    textPaint.setStrikeThruText(true);
-                                }
-                            },
-                            builder.comment.getSpanStart(l),
-                            builder.comment.getSpanEnd(l),
-                            makeSpanOptions(DEFAULT_PRIORITY)
-                    );
-                    builder.comment.removeSpan(l);
-                }
+        for (QuoteLinkable l : builder.getQuoteLinkables()) {
+            if (postParserCallback.isRemoved(l.value)) {
+                builder.repliesToNos.remove(l.value);
+                builder.comment.setSpan(
+                        new RemovedLinkable(theme, new Object()) {
+                            @Override
+                            public void onClick(@NonNull View widget) {
+                                showToast(widget.getContext(), "This post has been removed.");
+                            }
+                        },
+                        builder.comment.getSpanStart(l),
+                        builder.comment.getSpanEnd(l),
+                        makeSpanOptions(RENDER_NORMAL)
+                );
+                builder.comment.removeSpan(l);
             }
         }
 
@@ -198,7 +192,7 @@ public class PostParser {
     }
 
     private CharSequence parseComment(
-            Post.Builder post, @NonNull Theme theme, Callback callback
+            Post.Builder post, @NonNull Theme theme, PostParserCallback postParserCallback
     ) {
         String comment = post.comment.toString();
         // modifiers for HTML
@@ -216,14 +210,17 @@ public class PostParser {
             comment = strikePattern.matcher(comment).replaceAll("<strike>$1</strike>");
         }
 
-        return new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, callback),
-                CommonStyleActions.getDefaultTextStylingAction(theme)
-        ).style(comment, post.threadUrl());
+        return new ChainStyleAction(PostThemedStyleActions.EMBED_IMAGES.with(theme, post, postParserCallback))
+                .chain(PostThemedStyleActions.FILTER_DEBUG.with(theme, post, postParserCallback))
+                .chain(new HtmlNodeTreeAction(
+                        elementAction.addSpecificActions(theme, post, postParserCallback),
+                        CommonStyleActions.getDefaultTextStylingAction(theme)
+                ))
+                .style(HtmlNodeTreeAction.prepare(comment, post.threadUrl()), null);
     }
 
     private void processPostFilter(Post.Builder post) {
-        if (filters == null) filters = filterEngine.getEnabledFilters();
-        for (Filter f : filters) {
+        for (Filter f : getFiltersCallback.getFilterList()) {
             if (filterEngine.matchesBoard(f, post.board) && filterEngine.matches(f, post)) {
                 switch (FilterAction.values()[f.action]) {
                     case COLOR:
@@ -247,7 +244,7 @@ public class PostParser {
         return "<a href=\"/" + post.board.code + "/thread/" + post.opId + "#p$1\">&gt;&gt;$1</a>";
     }
 
-    public interface Callback {
+    public interface PostParserCallback {
         /**
          * Is the post no something the user has posted, or marked as posted.
          *
@@ -271,5 +268,9 @@ public class PostParser {
          * @return {@code true} if referring to a removed post, {@code false} otherwise.
          */
         boolean isRemoved(int postNo);
+    }
+
+    public interface GetFiltersCallback {
+        List<Filter> getFilterList();
     }
 }

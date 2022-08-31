@@ -2,13 +2,8 @@ package com.github.adamantcheese.chan.features.html_styling.impl;
 
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions.FONT;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonCSSActions.INLINE_CSS;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.BLOCK_LINE_BREAK;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.BOLD;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.ITALICIZE;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NEWLINE;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.NO_OP;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.STRIKETHROUGH;
-import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.UNDERLINE;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.*;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.CODE;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -51,6 +46,7 @@ public class HtmlTagAction
         mapTagToRule("em", ITALICIZE);
         mapTagToRule("u", UNDERLINE);
         mapTagToRule("font", FONT);
+        mapTagToRule("tt", MONOSPACE);
     }
 
     public void mapTagToRule(String tag, StyleAction... rules) {
@@ -114,16 +110,32 @@ public class HtmlTagAction
     public HtmlTagAction mergeWith(HtmlTagAction other) {
         HtmlTagAction merged = new HtmlTagAction(false);
         merged.wildcardRules.putAll(wildcardRules);
-        merged.wildcardRules.putAll(other.wildcardRules);
-        for (String s : specificRules.keySet()) {
-            //noinspection ConstantConditions
-            Map<String, ChainStyleAction> newRules = new HashMap<>(specificRules.get(s));
-            merged.specificRules.put(s, newRules);
+        merged.specificRules.putAll(specificRules);
+        for (String wildcardTag : other.wildcardRules.keySet()) {
+            ChainStyleAction addingAction = other.wildcardRules.get(wildcardTag);
+            ChainStyleAction existingAction = merged.wildcardRules.get(wildcardTag);
+            if (existingAction != null) {
+                existingAction.chain(addingAction);
+            } else {
+                merged.wildcardRules.put(wildcardTag, addingAction);
+            }
         }
-        for (String s : other.specificRules.keySet()) {
-            //noinspection ConstantConditions
-            Map<String, ChainStyleAction> newRules = new HashMap<>(other.specificRules.get(s));
-            merged.specificRules.put(s, newRules);
+        for (String specificMapTag : other.specificRules.keySet()) {
+            Map<String, ChainStyleAction> addingActions = other.specificRules.get(specificMapTag);
+            Map<String, ChainStyleAction> existingActions = merged.specificRules.get(specificMapTag);
+            if (existingActions != null) {
+                for (String specificTag : addingActions.keySet()) {
+                    ChainStyleAction addingAction = addingActions.get(specificTag);
+                    ChainStyleAction existingAction = existingActions.get(specificTag);
+                    if (existingAction != null) {
+                        existingAction.chain(addingAction);
+                    } else {
+                        existingActions.put(specificTag, addingAction);
+                    }
+                }
+            } else {
+                merged.specificRules.put(specificMapTag, addingActions);
+            }
         }
         return merged;
     }

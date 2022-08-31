@@ -243,7 +243,7 @@ public abstract class ThreadController
     }
 
     @Override
-    public void openFilterForType(FilterType type, String filterText) {
+    public void openFilterForType(FilterType type, CharSequence filterText) {
         FiltersController filtersController = new FiltersController(context);
         if (doubleNavigationController != null) {
             doubleNavigationController.pushController(filtersController);
@@ -253,7 +253,7 @@ public abstract class ThreadController
 
         Filter filter = new Filter();
         filter.type = type.flag;
-        filter.pattern = '/' + FilterEngine.escapeRegex(filterText == null ? "" : filterText) + '/';
+        filter.pattern = '/' + FilterEngine.escapeRegex(filterText == null ? "" : filterText.toString()) + '/';
 
         filtersController.showFilterDialog(filter);
     }

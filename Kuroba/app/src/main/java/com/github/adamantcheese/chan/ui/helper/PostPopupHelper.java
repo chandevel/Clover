@@ -16,22 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+
 import android.content.Context;
 import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.presenter.ThreadPresenter;
 import com.github.adamantcheese.chan.ui.controller.PostRepliesController;
+import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Stack;
-
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import java.util.*;
 
 public class PostPopupHelper {
     private final Context context;
@@ -97,9 +95,9 @@ public class PostPopupHelper {
     private void updateLinkableMarkedNos(RepliesData data, boolean bind) {
         // we only mark them if there's more than one quote
         for (Post p : data.posts) {
-            List<PostLinkable> linkables = p.getQuoteLinkables();
-            for (PostLinkable linkable : linkables) {
-                linkable.setMarkedNo(bind && linkables.size() > 1 ? data.forPostNo : -1);
+            QuoteLinkable[] linkables = p.getQuoteLinkables();
+            for (QuoteLinkable linkable : linkables) {
+                linkable.setMarkedNo(bind && linkables.length > 1 ? data.forPostNo : -1);
             }
         }
     }

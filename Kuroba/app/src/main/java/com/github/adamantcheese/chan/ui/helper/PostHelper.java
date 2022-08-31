@@ -16,6 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.helper;
 
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.text.TextUtils;
@@ -32,9 +35,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.github.adamantcheese.chan.utils.StringUtils.span;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
 public class PostHelper {
     public static CharSequence prependIcon(
             @NonNull Context context, @NonNull CharSequence total, @NonNull Bitmap bitmap, float height
@@ -48,7 +48,7 @@ public class PostHelper {
     public static String getTitle(@Nullable Post post, @NonNull Loadable loadable) {
         if (post != null) {
             if (!TextUtils.isEmpty(post.subject)) {
-                return post.subject;
+                return post.subject.toString();
             } else if (!TextUtils.isEmpty(post.comment)) {
                 return post.comment.subSequence(0, Math.min(post.comment.length(), 200)) + "";
             } else {

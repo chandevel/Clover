@@ -16,23 +16,20 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -55,6 +52,8 @@ import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.controller.ImageOptionsController;
 import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
+import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
@@ -64,22 +63,11 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 
 import okhttp3.HttpUrl;
-
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
 
 /**
  * Wrapper around ThreadListLayout, so that it cleanly manages between a loading state
@@ -283,7 +271,8 @@ public class ThreadLayout
     @Override
     public void openLink(PostLinkable linkable, final String link) {
         if (ChanSettings.openLinkConfirmation.get()) {
-            getDefaultAlertBuilder(getContext()).setNegativeButton(R.string.cancel, null)
+            getDefaultAlertBuilder(getContext())
+                    .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.ok, (dialog, which) -> openLinkConfirmed(linkable, link))
                     .setTitle(R.string.open_link_confirmation)
                     .setMessage(link)
@@ -294,7 +283,7 @@ public class ThreadLayout
     }
 
     public void openLinkConfirmed(final PostLinkable linkable, final String link) {
-        if (linkable.type == PostLinkable.Type.JAVASCRIPT) {
+        if (linkable instanceof ParserLinkLinkable && ((ParserLinkLinkable) linkable).isJavascript()) {
             callback.openWebViewController(link, (String) linkable.value);
         } else {
             if (ChanSettings.openLinkBrowser.get()) {
@@ -394,7 +383,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void filterPostSubject(String subject) {
+    public void filterPostSubject(CharSequence subject) {
         callback.openFilterForType(FilterType.SUBJECT, subject);
     }
 
@@ -768,7 +757,7 @@ public class ThreadLayout
 
         Toolbar getToolbar();
 
-        void openFilterForType(FilterType type, String filterText);
+        void openFilterForType(FilterType type, CharSequence filterText);
 
         boolean threadBackPressed();
 

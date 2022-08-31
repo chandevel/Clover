@@ -21,7 +21,7 @@ import android.widget.ImageView;
 
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
@@ -102,7 +102,7 @@ public interface PostCellInterface {
 
         void onPostOptionClicked(View anchor, Post post, PostOptions id, boolean inPopup);
 
-        void onPostLinkableClicked(Post post, PostLinkable linkable);
+        void onPostLinkableClicked(Post post, PostLinkable<?> linkable);
 
         void onPostNoClicked(Post post);
 

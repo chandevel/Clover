@@ -17,30 +17,27 @@
 package com.github.adamantcheese.chan.core.model;
 
 import android.graphics.Color;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.SpannedString;
+import android.text.*;
 
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.Embeddable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
 import com.vdurmont.emoji.EmojiParser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import org.jsoup.parser.Parser;
+
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import okhttp3.Call;
+
 public class Post
-        extends Embeddable
-        implements Comparable<Post>, Cloneable {
+        implements Comparable<Post>, Cloneable, Embeddable {
     public final String boardCode;
 
     public final Board board;
@@ -51,7 +48,7 @@ public class Post
 
     public final String name;
 
-    public final String subject;
+    public final Spannable subject;
 
     /**
      * Unix timestamp, in seconds.
@@ -100,8 +97,9 @@ public class Post
      */
     public final List<Integer> repliesFrom = new CopyOnWriteArrayList<>();
 
-    // These members may only mutate on the main thread.
     public Spanned comment;
+
+    // These members may only mutate on the main thread.
     public boolean sticky;
     public boolean closed;
     public boolean archived;
@@ -111,6 +109,8 @@ public class Post
     public int uniqueIps;
     public long lastModified;
     public String title = "";
+
+    private final List<Call> embedCalls = new ArrayList<>();
 
     public int compareTo(Post p) {
         return -Long.compare(this.time, p.time);
@@ -132,7 +132,7 @@ public class Post
 
         subject = builder.subject;
         name = builder.name;
-        comment = new SpannedString(builder.comment);
+        comment = new SpannableString(builder.comment);
         tripcode = builder.tripcode;
 
         time = builder.unixTimestampSeconds;
@@ -178,21 +178,12 @@ public class Post
         return filterRemove || filterHighlightedColor != 0 || filterReplies || filterStub;
     }
 
-    public List<PostLinkable> getLinkables() {
-        List<PostLinkable> linkables = new ArrayList<>();
-        Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
-        return linkables;
+    public PostLinkable<?>[] getLinkables() {
+        return comment.getSpans(0, comment.length(), PostLinkable.class);
     }
 
-    public List<PostLinkable> getQuoteLinkables() {
-        List<PostLinkable> linkables = getLinkables();
-        List<PostLinkable> ret = new ArrayList<>();
-        for (PostLinkable l : linkables) {
-            if (l.type == PostLinkable.Type.QUOTE) {
-                ret.add(l);
-            }
-        }
-        return ret;
+    public QuoteLinkable[] getQuoteLinkables() {
+        return comment.getSpans(0, comment.length(), QuoteLinkable.class);
     }
 
     @Override
@@ -230,9 +221,7 @@ public class Post
                 && Objects.equals(repliesTo, post.repliesTo)
                 && Objects.equals(deleted, post.deleted)
                 && Objects.equals(repliesFrom, post.repliesFrom)
-                && Objects.equals(title, post.title)
-                && Objects.equals(embedComplete.get(), post.embedComplete.get()
-        );
+                && Objects.equals(title, post.title);
         //@formatter:on
     }
 
@@ -268,15 +257,21 @@ public class Post
                 closed,
                 archived,
                 lastModified,
-                title,
-                embedComplete.get()
+                title
         );
     }
 
     @Override
     @NonNull
     public String toString() {
-        return "[no = " + no + ", boardCode = " + board.code + ", siteId = " + board.siteId + ", comment = " + comment
+        return "[no = "
+                + no
+                + ", boardCode = "
+                + board.code
+                + ", siteId = "
+                + board.siteId
+                + ", comment = "
+                + comment
                 + "]";
     }
 
@@ -284,7 +279,8 @@ public class Post
     @NonNull
     @Override
     public Post clone() {
-        Post clone = new Builder().board(board)
+        Post clone = new Builder()
+                .board(board)
                 .no(no)
                 .opId(opId)
                 .op(isOP)
@@ -320,18 +316,27 @@ public class Post
         clone.repliesFrom.addAll(repliesFrom);
         clone.title = title;
         clone.deleted = deleted;
-        clone.embedComplete.set(embedComplete.get());
         return clone;
     }
 
     @Override
-    public CharSequence getEmbeddableText() {
+    public Spanned getEmbeddableText() {
         return comment;
     }
 
     @Override
     public void setEmbeddableText(Spanned text) {
         comment = text;
+    }
+
+    @Override
+    public void addEmbedCall(Call call) {
+        embedCalls.add(call);
+    }
+
+    @Override
+    public List<Call> getEmbedCalls() {
+        return embedCalls;
     }
 
     @Override
@@ -364,7 +369,7 @@ public class Post
         public boolean archived;
         public long lastModified = -1L;
 
-        private String subject = "";
+        private Spannable subject = new SpannableString("");
         private String name = "";
         public Spannable comment = new SpannableString("");
         public String tripcode = "";
@@ -456,12 +461,12 @@ public class Post
             return this;
         }
 
-        public Builder subject(String subject) {
-            this.subject = Parser.unescapeEntities(subject, false);
+        public Builder subject(CharSequence subject) {
+            this.subject = new SpannableString(Parser.unescapeEntities(subject.toString(), false));
             return this;
         }
 
-        public String getSubject() {
+        public Spannable getSubject() {
             return subject;
         }
 
@@ -581,9 +586,9 @@ public class Post
             return this;
         }
 
-        public List<PostLinkable> getLinkables() {
-            List<PostLinkable> linkables = new ArrayList<>();
-            Collections.addAll(linkables, comment.getSpans(0, comment.length(), PostLinkable.class));
+        public List<QuoteLinkable> getQuoteLinkables() {
+            List<QuoteLinkable> linkables = new ArrayList<>();
+            Collections.addAll(linkables, comment.getSpans(0, comment.length(), QuoteLinkable.class));
             return linkables;
         }
 
@@ -595,7 +600,8 @@ public class Post
         @NonNull
         @Override
         public Post.Builder clone() {
-            return new Builder().board(board)
+            return new Builder()
+                    .board(board)
                     .no(no)
                     .opId(opId)
                     .op(op)

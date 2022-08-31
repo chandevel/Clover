@@ -13,22 +13,44 @@ import androidx.core.graphics.ColorUtils;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
-import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
-import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.text.RelativeSizeSpanHashed;
+import com.github.adamantcheese.chan.ui.text.*;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
+import org.jsoup.nodes.*;
 
 /**
  * A bunch of common CSS style actions, taking into account the "style" attribute.
  * Also the "font" tag uses the same styling actions.
  */
 public class CommonCSSActions {
+    public static final StyleAction HEADER_TAG_RELATIVE_SIZE = (element, text) -> {
+        float scale;
+        switch (element.nodeName()) {
+            case "h1":
+                scale = 2.0f;
+                break;
+            case "h2":
+                scale = 1.5f;
+                break;
+            case "h3":
+                scale = 1.17f;
+                break;
+            case "h4":
+                scale = 1.0f;
+                break;
+            case "h5":
+                scale = 0.83f;
+                break;
+            case "h6":
+                scale = 0.67f;
+                break;
+            default:
+                return text == null ? "" : text;
+        }
+        return span(text, new RelativeSizeSpanHashed(scale));
+    };
+
     private static final StyleAction CSS_SIZE_ATTR = (element, text) -> {
         String size = element.attr("size");
         boolean relative = StringUtils.containsAny(size, "+", "-");
@@ -146,6 +168,9 @@ public class CommonCSSActions {
                 switch (a.getKey()) {
                     case "color":
                         text = CSS_COLOR_ATTR_FG.style(temp, text);
+                        break;
+                    case "background-color":
+                        text = CSS_COLOR_ATTR_BG.style(temp, text);
                         break;
                     case "font-weight":
                         text = BOLD.style(temp, text);

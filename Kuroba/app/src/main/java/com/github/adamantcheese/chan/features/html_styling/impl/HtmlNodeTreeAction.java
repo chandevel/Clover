@@ -1,23 +1,30 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.A_HREF;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.getDefaultTextStylingAction;
+
 import android.text.SpannableStringBuilder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
+import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.*;
+
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * This style action handles an entire HTML document tree of elements and applies the right rules to it when passed in for styling.
  * You can technically pass in any node to have it return styled text however, as it handles arbitrary node trees.
  * Nodes are processed depth-first with breadth awareness; that is, the deepest nodes are processed first, and the
- * element action is applied to the concatenated tree below that element to style the entire subtree
+ * element action is applied to the concatenated tree below that element to style the entire subtree.
+ * <p>
+ * For a drop-in replacement of Html.fromHtml, use the fromHtml defined in this class.
  */
 public class HtmlNodeTreeAction
         implements StyleAction {
@@ -33,9 +40,33 @@ public class HtmlNodeTreeAction
         this.textAction = textAction;
     }
 
-    public CharSequence style(String htmlBody, String baseUri) {
+    /**
+     * Prepare an html body fragment for parsing.
+     *
+     * @param htmlBody The html to parse.
+     * @param baseUri  The base uri for the html.
+     * @return A prepared node that can be used in style().
+     */
+    public static Node prepare(String htmlBody, String baseUri) {
+        if (htmlBody.startsWith("<![CDATA[") && htmlBody.endsWith("]]>")) {
+            htmlBody = htmlBody.substring("<![CDATA[".length(), htmlBody.length() - "]]>".length());
+        }
         // clean up wbr tags before parsing, otherwise things get difficult and complicated
-        return style(Jsoup.parse(htmlBody.replaceAll("<wbr>", ""), baseUri), null);
+        return Jsoup.parse(htmlBody.replaceAll("<wbr>", ""), baseUri == null ? "" : baseUri);
+    }
+
+    public static CharSequence fromHtml(String htmlBody, String baseUri) {
+        return fromHtml(htmlBody, baseUri, Collections.emptyMap());
+    }
+
+    public static CharSequence fromHtml(String htmlBody, String baseUri, Map<String, StyleAction> extraMappings) {
+        HtmlTagAction tagAction = new HtmlTagAction(true);
+        tagAction.mapTagToRule("a", A_HREF);
+        for (Map.Entry<String, StyleAction> entry : extraMappings.entrySet()) {
+            tagAction.mapTagToRule(entry.getKey(), entry.getValue());
+        }
+        StyleAction textAction = getDefaultTextStylingAction(ThemeHelper.getTheme());
+        return new HtmlNodeTreeAction(tagAction, textAction).style(prepare(htmlBody, baseUri), null);
     }
 
     @NonNull

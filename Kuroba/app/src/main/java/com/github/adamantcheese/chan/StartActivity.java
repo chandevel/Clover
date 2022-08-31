@@ -134,7 +134,9 @@ public class StartActivity
             return;
         }
 
-        EmbeddingEngine.initEngine(this);
+        // sets up the singleton
+        EmbeddingEngine setup = new EmbeddingEngine(this, EmbeddingEngine.getDefaultEmbedders());
+        setup.onStart();
 
         ThemeHelper.init();
         ThemeHelper.setupContext(this);

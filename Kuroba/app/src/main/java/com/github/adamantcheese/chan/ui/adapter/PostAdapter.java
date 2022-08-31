@@ -46,12 +46,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
 import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
@@ -180,12 +181,15 @@ public class PostAdapter
 
             if (!cellType.isStub) {
                 // apply embedding
-                boolean embedInProgress = EmbeddingEngine.getInstance()
-                        .embed(theme, post, () -> recycler.post(() -> notifyItemChanged(position, new Object())));
+                boolean embedInProgress = false;
+                if (ChanSettings.enableEmbedding.get()) {
+                    embedInProgress = EmbeddingEngine.getInstance()
+                            .embed(theme, post, () -> notifyItemChanged(position, new Object()));
+                }
                 // no embeds, cleanup/finalize
                 if (!embedInProgress) {
-                    for (PostLinkable linkable : post.getLinkables()) {
-                        linkable.callback = this::allowsDashedUnderlines;
+                    for (QuoteLinkable linkable : post.getQuoteLinkables()) {
+                        linkable.setCallback(this::allowsDashedUnderlines);
                     }
                     holder.itemView.findViewById(R.id.embed_spinner).setVisibility(GONE);
                 }
@@ -249,8 +253,8 @@ public class PostAdapter
                 holder.itemView.findViewById(R.id.embed_spinner).setVisibility(View.VISIBLE);
                 Post post = postView.getPost();
                 post.stopEmbedding(); // before the post is cleared out
-                for (PostLinkable linkable : post.getLinkables()) {
-                    linkable.callback = null;
+                for (QuoteLinkable linkable : post.getQuoteLinkables()) {
+                    linkable.setCallback(null);
                 }
             }
             postView.unsetPost();

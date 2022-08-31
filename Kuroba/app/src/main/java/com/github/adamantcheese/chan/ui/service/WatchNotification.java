@@ -16,11 +16,16 @@
  */
 package com.github.adamantcheese.chan.ui.service;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.Service;
+import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_LIGHT;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_PEEK;
+import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_SOUND;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
+
+import android.app.*;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -36,32 +41,17 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.ui.text.post_linkables.SpoilerLinkable;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
-
-import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.WatchNotifyMode.NOTIFY_ONLY_QUOTES;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_LIGHT;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_PEEK;
-import static com.github.adamantcheese.chan.ui.service.WatchNotification.NotificationStyle.NOTIFICATION_SOUND;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getNotificationManager;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 
 public class WatchNotification
         extends Service {
@@ -281,18 +271,16 @@ public class WatchNotification
             // Replace >>123456789 with >789 to shorten the notification
             // Also replace spoilered shit with █
             // All spans are deleted by the replaceAll call and you can't modify their ranges easily so this will have to do
-            PostLinkable[] spans = comment.getSpans(0, comment.length(), PostLinkable.class);
-            for (PostLinkable span : spans) {
-                if (span.type == PostLinkable.Type.SPOILER) {
-                    int start = comment.getSpanStart(span);
-                    int end = comment.getSpanEnd(span);
+            SpoilerLinkable[] spans = comment.getSpans(0, comment.length(), SpoilerLinkable.class);
+            for (SpoilerLinkable span : spans) {
+                int start = comment.getSpanStart(span);
+                int end = comment.getSpanEnd(span);
 
-                    char[] chars = new char[end - start];
-                    Arrays.fill(chars, '█');
-                    String s = new String(chars);
+                char[] chars = new char[end - start];
+                Arrays.fill(chars, '█');
+                String s = new String(chars);
 
-                    comment.replace(start, end, s);
-                }
+                comment.replace(start, end, s);
             }
             comment = new SpannableStringBuilder(SHORTEN_NO_PATTERN.matcher(comment).replaceAll(">$1"));
 

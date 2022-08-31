@@ -16,30 +16,26 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import android.content.Context;
-import android.text.method.LinkMovementMethod;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import androidx.core.text.HtmlCompat;
-
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.controller.Controller;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
-import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginResponse;
-import com.github.adamantcheese.chan.ui.view.CrossfadeView;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
+
+import android.content.Context;
+import android.text.method.LinkMovementMethod;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.*;
+
+import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.controller.Controller;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.http.LoginRequest;
+import com.github.adamantcheese.chan.core.site.http.LoginResponse;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
+import com.github.adamantcheese.chan.ui.view.CrossfadeView;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 public class LoginController
         extends Controller {
@@ -97,7 +93,8 @@ public class LoginController
                     }
                 });
             } else {
-                site.actions().login(inputToken.getText().toString(),
+                site.actions().login(
+                        inputToken.getText().toString(),
                         inputPin.getText().toString(),
                         new ResponseResult<LoginResponse>() {
                             @Override
@@ -128,9 +125,9 @@ public class LoginController
             errors.setVisibility(GONE);
         });
 
-        bottomDescription.setText(HtmlCompat.fromHtml(getString(R.string.setting_pass_bottom_description),
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-        ));
+        CharSequence bottomDesc =
+                HtmlNodeTreeAction.fromHtml(getString(R.string.setting_pass_bottom_description), null);
+        bottomDescription.setText(bottomDesc);
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
         LoginRequest loginDetails = site.actions().getLoginDetails();

@@ -20,52 +20,30 @@ import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.COLOR;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.WATCH;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getRes;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
-import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.text.Editable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.style.StyleSpan;
-import android.text.style.TypefaceSpan;
+import android.text.*;
 import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
-
-import androidx.core.text.HtmlCompat;
+import android.view.*;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.manager.FilterEngine;
+import com.github.adamantcheese.chan.core.manager.*;
 import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
-import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
+import com.github.adamantcheese.chan.features.html_styling.base.StyleAction;
+import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
-import com.github.adamantcheese.chan.ui.view.ColorPickerView;
-import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.ui.view.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -288,36 +266,17 @@ public class FilterLayout
     }
 
     private void onHelpClicked(View v) {
-        SpannableStringBuilder message = (SpannableStringBuilder) HtmlCompat.fromHtml(getString(R.string.filter_help),
-                HtmlCompat.FROM_HTML_MODE_LEGACY
-        );
-        TypefaceSpan[] typefaceSpans = message.getSpans(0, message.length(), TypefaceSpan.class);
-        for (TypefaceSpan span : typefaceSpans) {
-            if (span.getFamily().equals("monospace")) {
-                int start = message.getSpanStart(span);
-                int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000),
-                        start,
-                        end,
-                        makeSpanOptions(DEFAULT_PRIORITY)
-                );
-            }
-        }
+        Map<String, StyleAction> extraStyles = new HashMap<>();
+        extraStyles.put("tt", (node, text) -> span(text, new BackgroundColorSpanHashed(0x22000000)));
+        extraStyles.put("i", (node, text) -> span(text, new BackgroundColorSpanHashed(0x22000000)));
+        SpannableStringBuilder message =
+                new SpannableStringBuilder(HtmlNodeTreeAction.fromHtml(getString(R.string.filter_help),
+                        null,
+                        extraStyles
+                ));
 
-        StyleSpan[] styleSpans = message.getSpans(0, message.length(), StyleSpan.class);
-        for (StyleSpan span : styleSpans) {
-            if (span.getStyle() == Typeface.ITALIC) {
-                int start = message.getSpanStart(span);
-                int end = message.getSpanEnd(span);
-                message.setSpan(new BackgroundColorSpanHashed(0x22000000),
-                        start,
-                        end,
-                        makeSpanOptions(DEFAULT_PRIORITY)
-                );
-            }
-        }
-
-        getDefaultAlertBuilder(getContext()).setTitle(R.string.filter_help_title)
+        getDefaultAlertBuilder(getContext())
+                .setTitle(R.string.filter_help_title)
                 .setMessage(message)
                 .setNegativeButton("Open Regex101", (dialog1, which) -> openLink("https://regex101.com/"))
                 .setPositiveButton(R.string.close, null)
@@ -350,7 +309,8 @@ public class FilterLayout
         alphaBar.setProgress(Color.alpha(filter.color));
         percent.setText((int) ((alphaBar.getProgress() / (float) alphaBar.getMax()) * 100) + "%");
 
-        getDefaultAlertBuilder(getContext()).setView(colorPickerView)
+        getDefaultAlertBuilder(getContext())
+                .setView(colorPickerView)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok, (dialog1, which) -> {
                     filter.color = colorView.getColor();

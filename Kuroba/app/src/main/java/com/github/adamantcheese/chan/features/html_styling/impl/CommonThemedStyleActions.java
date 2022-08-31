@@ -1,7 +1,7 @@
 package com.github.adamantcheese.chan.features.html_styling.impl;
 
-import static com.github.adamantcheese.chan.utils.StringUtils.DEFAULT_PRIORITY;
-import static com.github.adamantcheese.chan.utils.StringUtils.RENDER_BELOW_ELSE;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_ABOVE_ELSE;
+import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static com.github.adamantcheese.chan.utils.StringUtils.spanWithPriority;
@@ -14,20 +14,18 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.ArchivesManager;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.features.html_styling.base.ThemedStyleAction;
 import com.github.adamantcheese.chan.ui.text.CodeBackgroundSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import org.jsoup.nodes.Node;
-import org.nibor.autolink.LinkExtractor;
-import org.nibor.autolink.LinkSpan;
-import org.nibor.autolink.LinkType;
+import org.nibor.autolink.*;
 
 import java.util.EnumSet;
 
@@ -52,7 +50,7 @@ public class CommonThemedStyleActions {
                 String scheme = linkText.substring(0, linkText.indexOf(':'));
                 if (!"http".equals(scheme) && !"https".equals(scheme))
                     continue; // only autolink URLs, not any random URI
-                PostLinkable pl = new PostLinkable(theme, linkText, PostLinkable.Type.LINK);
+                PostLinkable<?> pl = new ParserLinkLinkable(theme, linkText);
 
                 // double check however and set up "archive" links here in place of regular links
                 // this allows the person to pick any archive they want, regardless of if it actually is the link in question
@@ -64,20 +62,15 @@ public class CommonThemedStyleActions {
                         Loadable resolved = a.resolvable().resolveLoadable(a, HttpUrl.get(linkText));
                         if (resolved != null) {
                             Object value = new ThreadLink(resolved.boardCode, resolved.no, resolved.markedNo);
-                            pl = new PostLinkable(theme, value, PostLinkable.Type.ARCHIVE);
+                            pl = new ArchiveLinkable(theme, value);
                         }
                     }
                 } catch (Exception ignored) {}
 
-                txt.setSpan(pl,
-                        link.getBeginIndex(),
-                        link.getEndIndex(),
-                        makeSpanOptions(RENDER_BELOW_ELSE)
-                );
+                txt.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), makeSpanOptions(RENDER_NORMAL));
             }
 
-            for (PostLinkable l : txt.getSpans(0, txt.length(), PostLinkable.class)) {
-                if (l.type != PostLinkable.Type.ARCHIVE) continue;
+            for (ArchiveLinkable l : txt.getSpans(0, txt.length(), ArchiveLinkable.class)) {
                 ThreadLink archiveData = (ThreadLink) l.value;
                 txt.replace(txt.getSpanStart(l),
                         txt.getSpanEnd(l),
@@ -118,7 +111,7 @@ public class CommonThemedStyleActions {
                 @NonNull Node node, @Nullable CharSequence text, @NonNull Theme theme
         ) {
             // we want to render this last, if possible
-            return spanWithPriority(text, (byte) 1, new PostLinkable(theme, text, PostLinkable.Type.SPOILER));
+            return spanWithPriority(text, RENDER_ABOVE_ELSE, new SpoilerLinkable(theme, text));
         }
     };
 

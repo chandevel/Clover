@@ -55,7 +55,7 @@ public class ChanCommentAction
 
     @CallSuper
     public HtmlTagAction addSpecificActions(
-            Theme theme, Post.Builder post, PostParser.Callback callback
+            Theme theme, Post.Builder post, PostParser.PostParserCallback callback
     ) {
         HtmlTagAction newAction = new HtmlTagAction(false);
 
