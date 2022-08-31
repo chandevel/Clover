@@ -3,12 +3,21 @@ package com.github.adamantcheese.chan.core.repository;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.renderscript.RenderScript;
+import android.text.TextPaint;
 import android.util.TypedValue;
 
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BitmapRepository {
     public static RenderScript rs;
@@ -80,5 +89,40 @@ public class BitmapRepository {
             this.centerX = (centerX * scaleRatio) / bitmap.getWidth();
             this.centerY = (centerY * scaleRatio) / bitmap.getHeight();
         }
+    }
+
+    private static final Map<Integer, Bitmap> exceptionMap = new HashMap<>();
+
+    public static Bitmap getHttpExceptionBitmap(Context c, Exception e) {
+        if(!(e instanceof NetUtilsClasses.HttpCodeException)) return paddedError;
+        NetUtilsClasses.HttpCodeException httpException = (NetUtilsClasses.HttpCodeException) e;
+        if(exceptionMap.containsKey(httpException.code)) return exceptionMap.get(httpException.code);
+
+        String code = String.valueOf(httpException.code);
+        Bitmap res = BitmapRepository.paddedError.copy(BitmapRepository.paddedError.getConfig(), true);
+        Canvas temp = new Canvas(res);
+        RectF bounds = new RectF(0, 0, temp.getWidth(), temp.getHeight());
+
+        TextPaint errorTextPaint = new TextPaint();
+        errorTextPaint.setAntiAlias(true);
+        errorTextPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        errorTextPaint.setTextAlign(Paint.Align.CENTER);
+        errorTextPaint.setTextSize(sp(c, 24));
+        errorTextPaint.setColor(0xFFDD3333);
+
+        TextPaint errorBorderTextPaint = new TextPaint(errorTextPaint);
+        errorBorderTextPaint.setStyle(Paint.Style.STROKE);
+        errorBorderTextPaint.setStrokeWidth(sp(c, 3));
+        errorBorderTextPaint.setColor(0xFFFFFFFF);
+
+        float textHeight = errorTextPaint.descent() - errorTextPaint.ascent();
+        float textOffset = (textHeight / 2) - errorTextPaint.descent();
+
+        temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorBorderTextPaint);
+        temp.drawText(code, bounds.centerX(), bounds.centerY() + textOffset, errorTextPaint);
+
+        exceptionMap.put(httpException.code, res);
+
+        return res;
     }
 }

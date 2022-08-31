@@ -67,9 +67,7 @@ public interface ImageLoadable {
                         // for this case, never try and load again and treat it as though it loaded fully
                         setLastHttpUrl(source);
                     }
-                    res = BitmapUtils.makeHttpCodeExceptionBitmap(imageView.getContext(),
-                            (NetUtilsClasses.HttpCodeException) e
-                    );
+                    res = BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e);
                 } else {
                     Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(url), e);
                 }

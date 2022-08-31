@@ -43,6 +43,7 @@ import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
 import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
+import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +52,6 @@ import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
@@ -206,7 +206,7 @@ public class CardPostCell
             thumbView.setType(null);
             ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToBottom = UNSET;
             ((ConstraintLayout.LayoutParams) icons.getLayoutParams()).bottomToTop = R.id.replies_section;
-            icons.setBackgroundColor(getAttrColor(theme.resValue, R.attr.backcolor));
+            icons.setBackgroundColor(AndroidUtils.getThemeAttrColor(theme, R.attr.backcolor));
             cancelLoad(thumbView);
         }
 

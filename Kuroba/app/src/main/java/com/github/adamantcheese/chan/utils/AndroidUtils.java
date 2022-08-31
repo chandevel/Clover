@@ -73,6 +73,7 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
@@ -253,6 +254,10 @@ public class AndroidUtils {
         } else {
             showToast(application, R.string.open_link_failed, Toast.LENGTH_LONG);
         }
+    }
+
+    public static int getThemeAttrColor(Theme theme, int attr) {
+        return getAttrColor(new ContextThemeWrapper(application, theme.resValue), attr);
     }
 
     public static int getAttrColor(int themeId, int attr) {

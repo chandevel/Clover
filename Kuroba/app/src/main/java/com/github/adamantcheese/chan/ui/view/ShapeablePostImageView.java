@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RippleDrawable;
@@ -17,7 +16,6 @@ import androidx.annotation.Nullable;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class ShapeablePostImageView
@@ -120,8 +118,7 @@ public class ShapeablePostImageView
     public void draw(Canvas canvas) {
         super.draw(canvas);
 
-        if ((type == PostImage.Type.MOVIE || type == PostImage.Type.IFRAME) && (getDrawable() instanceof BitmapDrawable
-                && ((BitmapDrawable) getDrawable()).getBitmap() != BitmapRepository.paddedError)) {
+        if (type == PostImage.Type.MOVIE || type == PostImage.Type.IFRAME) {
             float proportion = 3.5f;
             boolean wide = getHeight() < getWidth();
             float iconOffset = (wide ? getWidth() : getHeight()) * 0.5f

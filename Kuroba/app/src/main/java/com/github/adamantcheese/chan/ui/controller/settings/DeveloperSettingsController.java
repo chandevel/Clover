@@ -16,14 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.controller.settings;
 
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.Gravity;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
-import android.widget.Switch;
-import android.widget.TextView;
+import android.widget.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.StartActivity;
@@ -44,16 +45,12 @@ import com.skydoves.balloon.BalloonPersistence;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import javax.inject.Inject;
 
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+import okhttp3.Cookie;
+import okhttp3.HttpUrl;
 
 public class DeveloperSettingsController
         extends Controller {
@@ -111,7 +108,8 @@ public class DeveloperSettingsController
         resetDbButton.setOnClickListener(v -> {
             databaseHelper.reset();
             for (Field f : ChanSettings.class.getFields()) {
-                if (Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())
+                if (Modifier.isStatic(f.getModifiers())
+                        && Modifier.isFinal(f.getModifiers())
                         && Setting.class.isAssignableFrom(f.getType())) {
                     try {
                         Setting setting = (Setting) f.get(ChanSettings.class);
@@ -122,7 +120,8 @@ public class DeveloperSettingsController
                 }
             }
             for (Field f : PersistableChanState.class.getFields()) {
-                if (Modifier.isStatic(f.getModifiers()) && Modifier.isFinal(f.getModifiers())
+                if (Modifier.isStatic(f.getModifiers())
+                        && Modifier.isFinal(f.getModifiers())
                         && Setting.class.isAssignableFrom(f.getType())) {
                     try {
                         Setting setting = (Setting) f.get(ChanSettings.class);
@@ -219,9 +218,41 @@ public class DeveloperSettingsController
         roundedIdTest.setText("Use rounded background span for IDs");
         roundedIdTest.setTextColor(getAttrColor(context, android.R.attr.textColor));
         roundedIdTest.setChecked(PersistableChanState.experimentalRoundedIDSpans.get());
-        roundedIdTest.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.experimentalRoundedIDSpans
-                .toggle());
+        roundedIdTest.setOnCheckedChangeListener((buttonView, isChecked) -> PersistableChanState.experimentalRoundedIDSpans.toggle());
         wrapper.addView(roundedIdTest);
+
+        Button testWebiew = new Button(context);
+        testWebiew.setOnClickListener(v -> {
+            HttpUrl example = HttpUrl.get("https://www.example.com");
+            Cookie testCookie = new Cookie.Builder()
+                    .domain("example.com")
+                    .name("test")
+                    .value("test2")
+                    .expiresAt(Long.MAX_VALUE)
+                    .build();
+
+            float successes = 0;
+            while (true) {
+                try {
+                    NetUtils.clearAllCookies(example);
+                    List<Cookie> returned = NetUtils.applicationClient.cookieJar().loadForRequest(example);
+                    assert returned.isEmpty();
+
+                    NetUtils.applicationClient
+                            .cookieJar()
+                            .saveFromResponse(example, Collections.singletonList(testCookie));
+                    returned = NetUtils.applicationClient.cookieJar().loadForRequest(example);
+                    assert returned.size() == 1;
+                    successes++;
+                } catch (Throwable e) {
+                    showToast(context, "Failed after " + successes);
+                    Logger.d(this, "Failed after " + successes);
+                    break;
+                }
+            }
+        });
+        testWebiew.setText("Test webview cookie synchronization");
+        wrapper.addView(testWebiew);
 
         ScrollView scrollView = new ScrollView(context);
         updatePaddings(scrollView, dp(16), dp(16), dp(16), dp(16));

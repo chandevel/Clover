@@ -74,7 +74,7 @@ public class AlbumViewController
         // View setup
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_view, null);
         recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(new AlbumAdapter(loadable));
+        recyclerView.setAdapter(new AlbumAdapter());
         recyclerView.scrollToPosition(targetIndex);
     }
 
@@ -169,12 +169,9 @@ public class AlbumViewController
 
     private class AlbumAdapter
             extends RecyclerView.Adapter<AlbumAdapter.AlbumItemCellHolder> {
-        private final Loadable loadable;
 
-        public AlbumAdapter(Loadable loadable) {
+        public AlbumAdapter() {
             setHasStableIds(true);
-
-            this.loadable = loadable;
         }
 
         @NonNull
@@ -211,7 +208,7 @@ public class AlbumViewController
 
         @Override
         public long getItemId(int position) {
-            return position;
+            return postImages.get(position).imageUrl.hashCode();
         }
 
         private class AlbumItemCellHolder
