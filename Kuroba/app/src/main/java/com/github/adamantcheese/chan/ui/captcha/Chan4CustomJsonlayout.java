@@ -9,28 +9,14 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeViewChildre
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
+import android.graphics.*;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.AttributeSet;
-import android.util.Base64;
-import android.util.JsonReader;
+import android.util.*;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.webkit.JavascriptInterface;
-import android.webkit.WebResourceResponse;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.webkit.*;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,9 +31,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
-import com.github.adamantcheese.chan.utils.WebViewClientCompat;
+import com.github.adamantcheese.chan.utils.*;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.greenrobot.eventbus.EventBus;
@@ -58,13 +42,11 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.io.TextStreamsKt;
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-import okhttp3.Response;
+import okhttp3.*;
 
-public class Chan4CustomJasonlayout
+public class Chan4CustomJsonlayout
         extends LinearLayout
-        implements AuthenticationLayoutInterface, ResponseResult<Chan4CustomJasonlayout.ParsedJsonStruct> {
+        implements AuthenticationLayoutInterface, ResponseResult<Chan4CustomJsonlayout.ParsedJsonStruct> {
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean isAutoReply;
@@ -84,15 +66,15 @@ public class Chan4CustomJasonlayout
     private Button autoSolve;
     private ImageView verify;
 
-    public Chan4CustomJasonlayout(Context context) {
+    public Chan4CustomJsonlayout(Context context) {
         super(context);
     }
 
-    public Chan4CustomJasonlayout(Context context, @Nullable AttributeSet attrs) {
+    public Chan4CustomJsonlayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public Chan4CustomJasonlayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public Chan4CustomJsonlayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
@@ -251,7 +233,8 @@ public class Chan4CustomJasonlayout
 
         if ("noop".equals(currentStruct.challenge)) {
             hideKeyboard(input);
-            CaptchaTokenHolder.getInstance()
+            CaptchaTokenHolder
+                    .getInstance()
                     .addNewToken(currentStruct.challenge,
                             input.getText().toString(),
                             TimeUnit.SECONDS.toMillis(currentStruct.ttl)
@@ -267,7 +250,8 @@ public class Chan4CustomJasonlayout
             handler.removeCallbacks(RESET_RUNNABLE);
             hideKeyboard(input);
 
-            CaptchaTokenHolder.getInstance()
+            CaptchaTokenHolder
+                    .getInstance()
                     .addNewToken(currentStruct.challenge,
                             input.getText().toString(),
                             TimeUnit.SECONDS.toMillis(currentStruct.ttl)
@@ -306,10 +290,12 @@ public class Chan4CustomJasonlayout
                 }
 
                 @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {}
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
                 @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {}
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
             });
 
             bg.setImageBitmap(currentStruct.origBg);
@@ -332,10 +318,10 @@ public class Chan4CustomJasonlayout
         if (ChanSettings.captchaInvertColors.get()) {
             //@formatter:off
             float[] invertValues =
-                    {-1,  0,  0, 0, 255,
-                      0, -1,  0, 0, 255,
-                      0,  0, -1, 0, 255,
-                      0,  0,  0, 1,   0};
+                    {-1, 0, 0, 0, 255,
+                            0, -1, 0, 0, 255,
+                            0, 0, -1, 0, 255,
+                            0, 0, 0, 1, 0};
             ColorMatrix invertMatrix = new ColorMatrix(invertValues);
             //@formatter:on
             adjustmentMatrix.postConcat(invertMatrix);
@@ -371,8 +357,9 @@ public class Chan4CustomJasonlayout
         String html = "";
         try (InputStream htmlStream = getContext().getResources().getAssets().open("html/captcha_autosolve.html")) {
             html = TextStreamsKt.readText(new InputStreamReader(htmlStream));
-        } catch (Exception ignored) {}
-        webView.addJavascriptInterface(new CaptchaAutoSolveCompleteInterface(Chan4CustomJasonlayout.this),
+        } catch (Exception ignored) {
+        }
+        webView.addJavascriptInterface(new CaptchaAutoSolveCompleteInterface(Chan4CustomJsonlayout.this),
                 "CaptchaAutocomplete"
         );
         webView.loadDataWithBaseURL(authentication.baseUrl, html, "text/html", "UTF-8", null);
@@ -401,7 +388,8 @@ public class Chan4CustomJasonlayout
             public WebResourceResponse shouldInterceptRequestCompat(
                     @NonNull WebView view, @NonNull String url
             ) {
-                // github/gitea don't serve javascript with the right MIME type, so we fix that here
+                // some sites don't serve javascript with the right MIME type so scripts can't be externally loaded,
+                // but we can intercept it and load it anyways by changing the MIME type
                 if (!url.endsWith(".js")) return super.shouldInterceptRequestCompat(view, url);
                 try {
                     Response response = NetUtils.makeCall(NetUtils.applicationClient,
@@ -427,9 +415,9 @@ public class Chan4CustomJasonlayout
     }
 
     private static class CaptchaAutoSolveCompleteInterface {
-        private final Chan4CustomJasonlayout layout;
+        private final Chan4CustomJsonlayout layout;
 
-        public CaptchaAutoSolveCompleteInterface(Chan4CustomJasonlayout layout) {
+        public CaptchaAutoSolveCompleteInterface(Chan4CustomJsonlayout layout) {
             this.layout = layout;
         }
 
