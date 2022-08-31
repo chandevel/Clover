@@ -52,13 +52,18 @@ public class BooleanSettingView
     @Override
     public void setView(View view) {
         super.setView(view);
-        if (view == null) return;
-        view.setOnClickListener(this);
+        if (view == null) {
+            switcher = null;
+            return;
+        }
 
+        view.setOnClickListener(this);
         switcher = view.findViewById(R.id.switcher);
         switcher.setOnCheckedChangeListener(null);
         switcher.setChecked(setting.get());
         switcher.setOnCheckedChangeListener(this);
+
+        super.setView(view);
     }
 
     @Override

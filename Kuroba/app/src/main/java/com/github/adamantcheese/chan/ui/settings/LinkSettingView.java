@@ -58,7 +58,10 @@ public class LinkSettingView
     public void setView(View view) {
         super.setView(view);
         if (view == null) return;
+
         view.setOnClickListener((v -> clickListener.onClick(v, this)));
+
+        super.setView(view);
     }
 
     @Subscribe(sticky = true)

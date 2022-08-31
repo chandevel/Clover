@@ -74,7 +74,10 @@ public class ListSettingView<T>
     public void setView(View view) {
         super.setView(view);
         if (view == null) return;
+
         view.setOnClickListener(this::createEditView);
+
+        super.setView(view);
     }
 
     public void createEditView(View v) {
