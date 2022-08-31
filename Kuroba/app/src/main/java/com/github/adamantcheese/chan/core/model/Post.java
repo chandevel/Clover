@@ -48,7 +48,7 @@ public class Post
 
     public final String name;
 
-    public final Spannable subject;
+    public final Spanned subject;
 
     /**
      * Unix timestamp, in seconds.
@@ -130,9 +130,9 @@ public class Post
         closed = builder.closed;
         archived = builder.archived;
 
-        subject = builder.subject;
+        subject = new SpannedString(builder.subject);
         name = builder.name;
-        comment = new SpannableString(builder.comment);
+        comment = new SpannedString(builder.comment);
         tripcode = builder.tripcode;
 
         time = builder.unixTimestampSeconds;

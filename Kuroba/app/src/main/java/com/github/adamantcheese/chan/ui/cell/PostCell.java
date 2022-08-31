@@ -538,13 +538,13 @@ public class PostCell
     private final String[] dubTexts =
             {"", "(Dubs)", "(Trips)", "(Quads)", "(Quints)", "(Sexes)", "(Septs)", "(Octs)", "(Nons)", "(Decs)"};
 
-    private SpannableString getRepeatDigits(int no) {
+    private Spannable getRepeatDigits(int no) {
         CharSequence number = new StringBuilder().append(no).reverse();
         char init = number.charAt(0);
         int count = 1;
         for (int i = 1; i < number.length(); i++) {
             if (number.charAt(i) == init) {
-                count++;
+                count += count == dubTexts.length ? 0 : 1;
                 init = number.charAt(i);
             } else {
                 break;

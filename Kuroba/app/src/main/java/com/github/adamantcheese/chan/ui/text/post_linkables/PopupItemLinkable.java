@@ -12,7 +12,11 @@ public class PopupItemLinkable
         extends PostLinkable<Object> {
     private final int inlineQuoteColor;
 
-    public PopupItemLinkable(
+    public PopupItemLinkable(@NonNull Theme theme) {
+        this(theme, new Object());
+    }
+
+    private PopupItemLinkable(
             @NonNull Theme theme, Object value
     ) {
         super(theme, value);

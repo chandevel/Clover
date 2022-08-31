@@ -1,13 +1,19 @@
 package com.github.adamantcheese.chan.utils;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 
 import android.text.*;
 import android.text.format.DateUtils;
+import android.text.style.CharacterStyle;
+import android.text.style.ClickableSpan;
 import android.util.Base64;
+import android.view.View;
 
 import androidx.annotation.*;
 
+import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -308,7 +314,7 @@ public class StringUtils {
         }
     }
 
-    public static SpannableString span(CharSequence text, Object... spans) {
+    public static Spannable span(CharSequence text, Object... spans) {
         return spanWithPriority(text, RENDER_NORMAL, spans);
     }
 
@@ -318,9 +324,15 @@ public class StringUtils {
      * @param spans    All the spans to apply to the text.
      * @return A styled string.
      */
-    public static SpannableString spanWithPriority(CharSequence text, RenderOrder priority, Object... spans) {
-        SpannableString ret = new SpannableString(text);
-        if (spans == null || spans.length == 0) return ret;
+    public static Spannable spanWithPriority(CharSequence text, RenderOrder priority, Object... spans) {
+        Spannable ret;
+        if (!(text instanceof Spannable)) {
+            ret = new SpannableString(text);
+        } else {
+            ret = (Spannable) text;
+        }
+        if (spans == null || spans.length == 0)
+            throw new IllegalArgumentException("Called spanWithPriority, but no spans!");
         for (Object span : spans) {
             if (span == null) continue;
             ret.setSpan(span, 0, text.length(), makeSpanOptions(priority));
@@ -335,5 +347,10 @@ public class StringUtils {
     public static int makeSpanOptions(RenderOrder order) {
         return (order.priority << Spanned.SPAN_PRIORITY_SHIFT) & Spanned.SPAN_PRIORITY
                 | Spanned.SPAN_INCLUSIVE_EXCLUSIVE;
+    }
+
+    public static void replaceSpan(Spannable text, CharacterStyle source, CharacterStyle replacement) {
+        text.setSpan(replacement, text.getSpanStart(source), text.getSpanEnd(source), makeSpanOptions(RENDER_NORMAL));
+        text.removeSpan(source);
     }
 }

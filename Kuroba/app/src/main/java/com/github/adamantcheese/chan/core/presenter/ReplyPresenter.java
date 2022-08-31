@@ -26,8 +26,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
-import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
-import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -314,7 +313,7 @@ public class ReplyPresenter
                 URLSpan[] spans = error.getSpans(0, error.length(), URLSpan.class);
                 for (URLSpan s : spans) {
                     String url = s.getURL();
-                    error.setSpan(new ClickableSpan() {
+                    replaceSpan(error, s, new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull View widget) {
                             openLinkInBrowser(context, url);
@@ -326,8 +325,7 @@ public class ReplyPresenter
                             ds.setUnderlineText(true);
                             ds.setFakeBoldText(true);
                         }
-                    }, error.getSpanStart(s), error.getSpanEnd(s), makeSpanOptions(RENDER_NORMAL));
-                    error.removeSpan(s);
+                    });
                 }
                 errorMessage.append(": ").append(error);
             }

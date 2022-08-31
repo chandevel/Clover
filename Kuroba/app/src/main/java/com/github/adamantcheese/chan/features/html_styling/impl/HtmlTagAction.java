@@ -98,6 +98,7 @@ public class HtmlTagAction
 
     /**
      * Merge this tag action with another tag action, so that all rules are conserved and overridden, if needed
+     * Use this if you have an archetypical tag action and want to add additional styles to it, without changing that base
      *
      * @param other The other action to merge with this one
      * @return A new tag action with the rules of both actions in it

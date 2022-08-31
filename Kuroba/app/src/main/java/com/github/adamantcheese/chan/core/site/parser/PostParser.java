@@ -21,8 +21,7 @@ import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
-import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
-import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
+import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.os.Build;
@@ -105,18 +104,7 @@ public class PostParser {
         for (QuoteLinkable l : builder.getQuoteLinkables()) {
             if (postParserCallback.isRemoved(l.value)) {
                 builder.repliesToNos.remove(l.value);
-                builder.comment.setSpan(
-                        new RemovedLinkable(theme, new Object()) {
-                            @Override
-                            public void onClick(@NonNull View widget) {
-                                showToast(widget.getContext(), "This post has been removed.");
-                            }
-                        },
-                        builder.comment.getSpanStart(l),
-                        builder.comment.getSpanEnd(l),
-                        makeSpanOptions(RENDER_NORMAL)
-                );
-                builder.comment.removeSpan(l);
+                replaceSpan(builder.comment, l, new RemovedLinkable(theme));
             }
         }
 

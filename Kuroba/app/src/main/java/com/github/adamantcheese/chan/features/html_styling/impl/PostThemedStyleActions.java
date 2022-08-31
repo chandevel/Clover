@@ -3,7 +3,6 @@ package com.github.adamantcheese.chan.features.html_styling.impl;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.STRIKETHROUGH;
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.QUOTE_COLOR;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
@@ -20,7 +19,6 @@ import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,8 +36,7 @@ import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
-import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
-import com.github.adamantcheese.chan.features.html_styling.base.PostThemedStyleAction;
+import com.github.adamantcheese.chan.features.html_styling.base.*;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -74,7 +71,7 @@ public class PostThemedStyleActions {
                 @NonNull PostParser.PostParserCallback callback
         ) {
             PostLinkable<?> linkable = generateLinkableForAnchor(node, theme, post, callback);
-            return addReply(callback, post, linkable, text);
+            return styleWithLinkable(callback, post, linkable, text);
         }
     };
 
@@ -94,14 +91,15 @@ public class PostThemedStyleActions {
             // on the last segment of the url, strip anything that isn't a number and parse it
             threadNo = Integer.parseInt(hrefSegments.get(hrefSegments.size() - 1).replaceAll("[^\\d]", ""));
         } catch (Exception ignored) {}
+
         // if there are multiple segments, get the third from the last otherwise the second from the last
         int segments = hrefSegments.size();
         String board = null;
         try {
             board = segments - 3 >= 0 ? hrefSegments.get(segments - 3) : hrefSegments.get(segments - 2);
         } catch (Exception ignored) {}
-        int postNo = -1;
 
+        int postNo = -1;
         String fragment = hrefUrl.fragment();
         fragment = fragment == null ? "~" : fragment;
         // quote fragment
@@ -115,6 +113,7 @@ public class PostThemedStyleActions {
             return new BoardLinkable(theme, board);
         } else if (post.board.code.equals(board)) {
             if (callback.isInternal(postNo)) {
+                post.repliesTo(Collections.singleton(postNo));
                 //link to post in same thread with post number (>>post); usually this is a almost fully qualified link
                 return new QuoteLinkable(theme, postNo);
             } else {
@@ -134,24 +133,18 @@ public class PostThemedStyleActions {
     }
 
     @NonNull
-    private static CharSequence addReply(
+    private static CharSequence styleWithLinkable(
             @NonNull PostParser.PostParserCallback callback,
             @NonNull Post.Builder post,
-            @NonNull PostLinkable<?> handlerLink,
+            @NonNull PostLinkable<?> linkable,
             CharSequence text
     ) {
-        if (handlerLink instanceof ThreadLinkable) {
-            text = TextUtils.concat(text, " →");
+        if (linkable instanceof StyleActionTextAdjuster) {
+            text = ((StyleActionTextAdjuster) linkable).adjust(text);
         }
 
-        if (handlerLink instanceof ArchiveLinkable && ((handlerLink.value instanceof ThreadLink
-                && ((ThreadLink) handlerLink.value).postId == -1) || handlerLink.value instanceof ResolveLink)) {
-            text = TextUtils.concat(text, " →");
-        }
-
-        if (handlerLink instanceof QuoteLinkable) {
-            int postNo = (int) handlerLink.value;
-            post.repliesTo(Collections.singleton(postNo));
+        if (linkable instanceof QuoteLinkable) {
+            int postNo = (int) linkable.value;
 
             // Append (OP) when it's a reply to OP
             if (postNo == post.opId) {
@@ -168,7 +161,7 @@ public class PostThemedStyleActions {
             }
         }
 
-        return span(text, handlerLink);
+        return span(text, linkable);
     }
 
     // replaces img tags with an attached image, and any alt-text will become a spoilered text item
@@ -241,7 +234,7 @@ public class PostThemedStyleActions {
             }
 
             // Overrides the text (possibly) parsed by child nodes.
-            return span(EXIF_INFO_STRING, new PopupItemLinkable(theme, new Object()) {
+            return span(EXIF_INFO_STRING, new PopupItemLinkable(theme) {
                 @Override
                 public void onClick(@NonNull View widget) {
                     AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
@@ -270,7 +263,7 @@ public class PostThemedStyleActions {
                     new CustomTypefaceSpan("",
                             Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf")
                     ),
-                    new PopupItemLinkable(theme, new Object()) {
+                    new PopupItemLinkable(theme) {
                         @Override
                         public void onClick(@NonNull View widget) {
                             TextView sjisView = new TextView(widget.getContext());
@@ -413,12 +406,12 @@ public class PostThemedStyleActions {
                 if (filterEngine.matchesBoard(f, post.board)) {
                     MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
                     if (result != null) {
-                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern) {
-                            @Override
-                            public void onClick(@NonNull View widget) {
-                                showToast(getAppContext(), "Matching filter: " + value, Toast.LENGTH_LONG);
-                            }
-                        }, result.start(), result.end(), makeSpanOptions(RENDER_NORMAL));
+                        builder.setSpan(
+                                new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
+                                result.start(),
+                                result.end(),
+                                makeSpanOptions(RENDER_NORMAL)
+                        );
                     }
                 }
             }
