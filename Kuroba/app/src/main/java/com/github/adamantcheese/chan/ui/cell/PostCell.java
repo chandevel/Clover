@@ -684,11 +684,6 @@ public class PostCell
             public void setImageCall(Call call) {
                 this.imageCall = call;
             }
-
-            @Override
-            public float getMaxImageSize() {
-                return getThumbnailSize(getContext());
-            }
         }
     }
 

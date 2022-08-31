@@ -16,6 +16,22 @@
  */
 package com.github.adamantcheese.chan.ui.adapter;
 
+import static android.view.View.GONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STAGGER;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB_STAGGER;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
+import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.ShapeDrawable;
@@ -43,22 +59,6 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.view.View.GONE;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_CARD_STUB_STAGGER;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_FLIP_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_POST_STUB;
-import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.TYPE_STATUS;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-
 public class PostAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     enum CellType {
@@ -83,7 +83,6 @@ public class PostAdapter
 
     private final PostAdapterCallback postAdapterCallback;
     private final PostCellInterface.PostCellCallback postCellCallback;
-    private final RecyclerView recycler;
 
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
@@ -108,7 +107,6 @@ public class PostAdapter
             ThreadStatusCell.Callback statusCellCallback,
             Theme theme
     ) {
-        this.recycler = recyclerView;
         this.postAdapterCallback = postAdapterCallback;
         this.postCellCallback = postCellCallback;
         this.statusCellCallback = statusCellCallback;

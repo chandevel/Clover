@@ -58,8 +58,6 @@ public interface PostCellInterface {
 
         void onShowPostReplies(Post post);
 
-        int getGridWidth();
-
         enum PostOptions {
             POST_OPTION_QUOTE,
             POST_OPTION_QUOTE_TEXT,

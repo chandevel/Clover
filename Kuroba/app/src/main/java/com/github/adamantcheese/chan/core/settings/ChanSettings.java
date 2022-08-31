@@ -309,10 +309,6 @@ public class ChanSettings {
     public static final BooleanSetting okHttpAllowIpv6;
     //endregion
 
-    //region OTHER
-    public static final BooleanSetting collectCrashLogs;
-    //endregion
-
     //region DEVELOPER
     public static final BooleanSetting debugFilters;
     public static final BooleanSetting crashOnWrongThread;
@@ -516,10 +512,6 @@ public class ChanSettings {
             androidTenGestureZones = new StringSetting(p, "android_ten_gesture_zones", EMPTY_JSON);
             okHttpAllowHttp2 = new BooleanSetting(p, "ok_http_allow_http_2", true);
             okHttpAllowIpv6 = new BooleanSetting(p, "ok_http_allow_ipv6", true);
-            //endregion
-
-            //region OTHER
-            collectCrashLogs = new BooleanSetting(p, "collect_crash_logs", true);
             //endregion
 
             //region DEVELOPER

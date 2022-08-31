@@ -1033,11 +1033,6 @@ public class ThreadPresenter
         threadPresenterCallback.unhideOrUnremovePost(post);
     }
 
-    @Override
-    public int getGridWidth() {
-        return threadPresenterCallback.getGridWidth();
-    }
-
     private void requestDeletePost(Post post) {
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
@@ -1091,7 +1086,7 @@ public class ThreadPresenter
         LinearLayout linkableGroup = fullView.findViewById(R.id.linkable_group);
         ListView linkableList = fullView.findViewById(R.id.post_linkable_list);
 
-        SpannableStringBuilder text = new SpannableStringBuilder();
+        StringBuilder text = new StringBuilder();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
             text.append("Subject: ").append(post.subject).append("\n");
         }
@@ -1364,8 +1359,6 @@ public class ThreadPresenter
         void viewRemovedPostsForTheThread(List<Post> threadPosts, int threadNo);
 
         void onRestoreRemovedPostsClicked(Loadable threadLoadable, List<Integer> selectedPosts);
-
-        int getGridWidth();
 
         void updateSubtitle(CharSequence summary);
     }

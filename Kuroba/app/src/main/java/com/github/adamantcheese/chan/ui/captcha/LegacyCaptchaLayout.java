@@ -171,11 +171,6 @@ public class LegacyCaptchaLayout
         captchaCall = call;
     }
 
-    @Override
-    public float getMaxImageSize() {
-        return 0;
-    }
-
     public static class CaptchaInterface {
         private final LegacyCaptchaLayout layout;
 

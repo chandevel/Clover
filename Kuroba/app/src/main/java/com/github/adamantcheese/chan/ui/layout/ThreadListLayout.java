@@ -16,32 +16,26 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.Gravity;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.ViewPropertyAnimator;
+import android.view.*;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.recyclerview.widget.*;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -53,9 +47,7 @@ import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.adapter.PostAdapter;
 import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
-import com.github.adamantcheese.chan.ui.cell.PostCell;
-import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
-import com.github.adamantcheese.chan.ui.cell.ThreadStatusCell;
+import com.github.adamantcheese.chan.ui.cell.*;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.FastScroller;
@@ -64,21 +56,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.RecyclerViewPosition;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.TimeZone;
-
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
+import java.util.*;
 
 /**
  * A layout that wraps around a {@link RecyclerView} and a {@link ReplyLayout} to manage showing and replying to posts.
@@ -100,7 +78,6 @@ public class ThreadListLayout
     private boolean replyOpen;
     private PostViewMode postViewMode;
     private int spanCount = 2;
-    private int spanWidth = 0;
     private boolean searchOpen;
 
     private final RecyclerView.OnScrollListener scrollListener = new RecyclerView.OnScrollListener() {
@@ -206,16 +183,11 @@ public class ThreadListLayout
         }
 
         postAdapter.setCompact(compactMode);
-        spanWidth = getMeasuredWidth() / spanCount;
         if (postViewMode == STAGGER) {
             ((StaggeredGridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
         } else {
             ((GridLayoutManager) recyclerView.getLayoutManager()).setSpanCount(spanCount);
         }
-    }
-
-    public int getGridWidth() {
-        return postViewMode == LIST ? 0 : spanWidth;
     }
 
     public void setPostViewMode(PostViewMode postViewMode) {

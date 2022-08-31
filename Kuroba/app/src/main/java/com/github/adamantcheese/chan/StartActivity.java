@@ -16,6 +16,18 @@
  */
 package com.github.adamantcheese.chan;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
+import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
+import static java.util.concurrent.TimeUnit.HOURS;
+
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -77,18 +89,6 @@ import java.util.Stack;
 import javax.inject.Inject;
 
 import kotlin.jvm.functions.Function1;
-
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
-import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
-import static java.util.concurrent.TimeUnit.HOURS;
 
 public class StartActivity
         extends AppCompatActivity
@@ -206,8 +206,8 @@ public class StartActivity
                 return true;
             } else {
                 getDefaultAlertBuilder(this).setMessage(getString(R.string.open_link_not_matched,
-                        BuildConfig.APP_LABEL
-                ))
+                                BuildConfig.APP_LABEL
+                        ))
                         .setPositiveButton(R.string.ok, (dialog, which) -> openLink(data.toString()))
                         .show();
             }

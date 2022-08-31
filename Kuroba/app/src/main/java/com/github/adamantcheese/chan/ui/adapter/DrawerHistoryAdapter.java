@@ -229,11 +229,6 @@ public class DrawerHistoryAdapter
         public void setImageCall(Call call) {
             thumbnailCall = call;
         }
-
-        @Override
-        public float getMaxImageSize() {
-            return thumbnail.getLayoutParams().height;
-        }
     }
 
     public interface Callback {

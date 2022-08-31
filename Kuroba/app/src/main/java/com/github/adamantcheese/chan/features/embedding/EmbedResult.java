@@ -25,7 +25,9 @@ public class EmbedResult {
     @SuppressWarnings("unused")
     private EmbedResult() {} // for gson, don't use otherwise
 
-    public EmbedResult(@NonNull String title, @Nullable String duration, @Nullable PostImage extraImage) {
+    public EmbedResult(
+            @NonNull String title, @Nullable String duration, @Nullable PostImage extraImage
+    ) {
         this.title = title;
         this.duration = duration;
         this.extraImage = extraImage;

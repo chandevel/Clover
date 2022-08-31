@@ -63,7 +63,6 @@ public class BoardSetupController
 
     private CrossfadeView crossfadeView;
     private RecyclerView savedBoardsRecycler;
-    private FloatingActionButton add;
 
     private SavedBoardsAdapter savedAdapter;
     private ItemTouchHelper itemTouchHelper;
@@ -116,7 +115,7 @@ public class BoardSetupController
         // View binding
         crossfadeView = view.findViewById(R.id.crossfade);
         savedBoardsRecycler = view.findViewById(R.id.boards_recycler);
-        add = view.findViewById(R.id.add);
+        FloatingActionButton add = view.findViewById(R.id.add);
 
         // Adapters
         savedAdapter = new SavedBoardsAdapter();
@@ -152,15 +151,10 @@ public class BoardSetupController
 
         boardAddLayout.setPresenter(presenter);
 
-        AlertDialog dialog = getDefaultAlertBuilder(context).setView(boardAddLayout)
+        getDefaultAlertBuilder(context).setView(boardAddLayout)
                 .setPositiveButton(R.string.add, (dialog1, which) -> boardAddLayout.onPositiveClicked())
                 .setNegativeButton(R.string.cancel, null)
-                .create();
-
-        Window window = dialog.getWindow();
-        assert window != null;
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        dialog.show();
+                .show();
     }
 
     @Override

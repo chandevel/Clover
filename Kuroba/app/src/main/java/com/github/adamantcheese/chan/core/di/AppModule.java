@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.core.di;
 
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
+import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
+
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.core.database.DatabaseBoardManager;
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
@@ -42,10 +46,6 @@ import org.codejargon.feather.Provides;
 import java.io.File;
 
 import javax.inject.Singleton;
-
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
-import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ReplaceBadSymbols;
-import static com.github.k1rakishou.fsaf.BadPathSymbolResolutionStrategy.ThrowAnException;
 
 public class AppModule {
     public static final String DI_TAG = "Dependency Injection";

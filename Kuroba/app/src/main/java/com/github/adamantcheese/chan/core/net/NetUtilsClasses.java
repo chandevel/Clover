@@ -308,7 +308,7 @@ public class NetUtilsClasses {
 
         @Override
         public String getMessage() {
-            return HttpStatusCodesKt.getCODE_MAP_TO_NAME().get(code) + (hadData ? " with data" : "");
+            return code + " " + HttpStatusCodesKt.getCODE_MAP_TO_NAME().get(code) + (hadData ? " with data" : "");
         }
     }
 

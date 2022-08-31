@@ -227,8 +227,11 @@ public class Chan4
                     if (spriteSetting.get()) {
                         // note: this is bad, but once this is cached it never makes a network request and is fine afterwards
                         try {
-                            Response flagAlignments = NetUtils.applicationClient.newCall(new Request.Builder().url(
-                                    "https://s.4cdn.org/image/flags/" + boardCode + "/flags.css").build()).execute();
+                            Response flagAlignments = NetUtils.applicationClient
+                                    .newCall(new Request.Builder()
+                                            .url("https://s.4cdn.org/image/flags/" + boardCode + "/flags.css")
+                                            .build())
+                                    .execute();
 
                             String alignmentsString;
                             try {

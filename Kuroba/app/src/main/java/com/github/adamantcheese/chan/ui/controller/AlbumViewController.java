@@ -269,11 +269,6 @@ public class AlbumViewController
             public void setImageCall(Call call) {
                 this.thumbnailCall = call;
             }
-
-            @Override
-            public float getMaxImageSize() {
-                return recyclerView.getMeasuredSpanWidth();
-            }
         }
     }
 }

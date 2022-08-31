@@ -69,9 +69,4 @@ public class RemovedPostLayout
     public void setImageCall(Call call) {
         thumbnailCall = call;
     }
-
-    @Override
-    public float getMaxImageSize() {
-        return postImage.getLayoutParams().width;
-    }
 }

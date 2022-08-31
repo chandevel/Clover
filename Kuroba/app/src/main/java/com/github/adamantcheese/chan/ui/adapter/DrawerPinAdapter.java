@@ -282,11 +282,6 @@ public class DrawerPinAdapter
         public void setImageCall(Call call) {
             thumbnailCall = call;
         }
-
-        @Override
-        public float getMaxImageSize() {
-            return image.getLayoutParams().height;
-        }
     }
 
     public interface Callback {

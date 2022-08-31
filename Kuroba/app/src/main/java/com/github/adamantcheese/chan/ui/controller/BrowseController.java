@@ -393,7 +393,7 @@ public class BrowseController
         AlertDialog dialog = getDefaultAlertBuilder(context).setPositiveButton(R.string.ok, null).create();
         dialog.setCanceledOnTouchOutside(true);
 
-        SpannableStringBuilder text = new SpannableStringBuilder();
+        StringBuilder text = new StringBuilder();
 
         text.append('/')
                 .append(board.code)
@@ -413,20 +413,20 @@ public class BrowseController
             text.append(" Board").append('\n');
         }
         text.append(board.spoilers ? "Allows spoilered text and images" : "").append("\n");
-        text.append("Bump limit: ").append(String.valueOf(board.bumpLimit)).append(" posts").append("\n");
-        text.append("Image limit: ").append(String.valueOf(board.imageLimit)).append(" images").append("\n");
-        text.append("Page limit: ").append(String.valueOf(board.pages)).append("\n");
+        text.append("Bump limit: ").append(board.bumpLimit).append(" posts").append("\n");
+        text.append("Image limit: ").append(board.imageLimit).append(" images").append("\n");
+        text.append("Page limit: ").append(board.pages).append("\n");
 
         text.append("New thread cooldown: ")
-                .append(String.valueOf(board.cooldownThreads))
+                .append(board.cooldownThreads)
                 .append(" seconds")
                 .append("\n");
         text.append("New reply cooldown: ")
-                .append(String.valueOf(board.cooldownReplies))
+                .append(board.cooldownReplies)
                 .append(" seconds")
                 .append("\n");
         text.append("Image reply cooldown: ")
-                .append(String.valueOf(board.cooldownImages))
+                .append(board.cooldownImages)
                 .append(" seconds")
                 .append("\n");
 

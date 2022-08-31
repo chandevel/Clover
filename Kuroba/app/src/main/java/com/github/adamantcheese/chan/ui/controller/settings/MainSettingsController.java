@@ -18,35 +18,21 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
-import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.CRASH_LOG;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
+import android.animation.*;
 import android.content.Context;
 
-import com.github.adamantcheese.chan.BuildConfig;
-import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.StartActivity;
-import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
-import com.github.adamantcheese.chan.core.database.DatabaseSiteManager;
-import com.github.adamantcheese.chan.core.database.DatabaseUtils;
-import com.github.adamantcheese.chan.core.manager.ReportManager;
+import com.github.adamantcheese.chan.*;
+import com.github.adamantcheese.chan.core.database.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.controller.FiltersController;
-import com.github.adamantcheese.chan.ui.controller.ReportProblemController;
 import com.github.adamantcheese.chan.ui.controller.SitesSetupController;
-import com.github.adamantcheese.chan.ui.controller.crashlogs.ReviewCrashLogsController;
-import com.github.adamantcheese.chan.ui.settings.BooleanSettingView;
 import com.github.adamantcheese.chan.ui.settings.LinkSettingView;
-import com.github.adamantcheese.chan.ui.settings.SettingView;
 import com.github.adamantcheese.chan.ui.settings.SettingsGroup;
 import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 
@@ -60,16 +46,12 @@ public class MainSettingsController
     private LinkSettingView watchLink;
     private LinkSettingView sitesSetting;
     private LinkSettingView filtersSetting;
-    private BooleanSettingView collectCrashLogsSettingView;
 
     @Inject
     private DatabaseSiteManager databaseSiteManager;
 
     @Inject
     private DatabaseFilterManager databaseFilterManager;
-
-    @Inject
-    private ReportManager reportManager;
 
     public MainSettingsController(Context context) {
         super(context);
@@ -94,20 +76,6 @@ public class MainSettingsController
         watchLink.setDescription(ChanSettings.watchEnabled.get() ? (ChanSettings.watchBackground.get()
                 ? R.string.setting_watch_summary_enabled_background
                 : R.string.setting_watch_summary_enabled) : R.string.setting_watch_summary_disabled);
-    }
-
-    @Override
-    public void onPreferenceChange(SettingView item) {
-        super.onPreferenceChange(item);
-
-        if (item == collectCrashLogsSettingView) {
-            if (!ChanSettings.collectCrashLogs.get()) {
-                // If disabled delete all already collected crash logs to cancel the notification
-                // (if it's shown) and to avoid showing notification afterwards.
-
-                reportManager.deleteAllCrashLogs();
-            }
-        }
     }
 
     @Override
@@ -181,19 +149,6 @@ public class MainSettingsController
         updateSettingView.forType.addType(APK_UPDATE);
         about.add(updateSettingView);
 
-        LinkSettingView reportSettingView = new LinkSettingView(this,
-                R.string.settings_report,
-                R.string.settings_report_description,
-                (v, sv) -> onReportSettingClick()
-        );
-        reportSettingView.forType.addType(CRASH_LOG);
-        about.add(reportSettingView);
-
-        about.add(collectCrashLogsSettingView = new BooleanSettingView(this,
-                ChanSettings.collectCrashLogs,
-                R.string.settings_collect_crash_logs,
-                R.string.settings_collect_crash_logs_description
-        ));
         about.add(new LinkSettingView(this,
                 "Find " + BuildConfig.APP_LABEL + " on GitHub",
                 "View the source code, give feedback, submit bug reports",
@@ -223,38 +178,12 @@ public class MainSettingsController
         groups.add(about);
     }
 
-    private void onReportSettingClick() {
-        int crashLogsCount = reportManager.countCrashLogs();
-
-        if (crashLogsCount > 0) {
-            getDefaultAlertBuilder(context).setTitle(getString(R.string.settings_report_suggest_sending_logs_title,
-                            crashLogsCount
-                    ))
-                    .setMessage(R.string.settings_report_suggest_sending_logs)
-                    .setPositiveButton(R.string.settings_report_review_button_text,
-                            (dialog, which) -> navigationController.pushController(new ReviewCrashLogsController(context))
-                    )
-                    .setNeutralButton(R.string.settings_report_review_later_button_text,
-                            (dialog, which) -> openReportProblemController()
-                    )
-                    .setNegativeButton(R.string.settings_report_delete_all_crash_logs, (dialog, which) -> {
-                        reportManager.deleteAllCrashLogs();
-                        openReportProblemController();
-                    })
-                    .create()
-                    .show();
-            return;
-        }
-
-        openReportProblemController();
-    }
-
-    private void openReportProblemController() {
-        navigationController.pushController(new ReportProblemController(context));
-    }
-
-    private final int[] PONIES =
-            {R.drawable.trotcycle_berry_right, R.drawable.trotcycle_berry_left, R.drawable.trotcycle_pinkiepie_right_n_n, R.drawable.trotcycle_pinkiepie_left_n_n};
+    private final int[] PONIES = {
+            R.drawable.trotcycle_berry_right,
+            R.drawable.trotcycle_berry_left,
+            R.drawable.trotcycle_pinkiepie_right_n_n,
+            R.drawable.trotcycle_pinkiepie_left_n_n
+    };
     private final boolean[] FACING_LEFT = {false, true, false, true};
 
     private void addPony(int i) {

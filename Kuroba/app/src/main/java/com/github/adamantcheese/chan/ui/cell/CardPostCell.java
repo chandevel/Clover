@@ -315,9 +315,4 @@ public class CardPostCell
     public void setImageCall(Call call) {
         this.thumbnailCall = call;
     }
-
-    @Override
-    public float getMaxImageSize() {
-        return callback == null ? getThumbnailSize(getContext()) : callback.getGridWidth();
-    }
 }

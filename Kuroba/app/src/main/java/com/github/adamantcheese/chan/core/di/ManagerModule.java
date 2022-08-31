@@ -18,21 +18,13 @@ package com.github.adamantcheese.chan.core.di;
 
 import com.github.adamantcheese.chan.core.database.DatabaseFilterManager;
 import com.github.adamantcheese.chan.core.database.DatabasePinManager;
-import com.github.adamantcheese.chan.core.manager.BoardManager;
-import com.github.adamantcheese.chan.core.manager.FilterEngine;
-import com.github.adamantcheese.chan.core.manager.FilterWatchManager;
-import com.github.adamantcheese.chan.core.manager.ReportManager;
-import com.github.adamantcheese.chan.core.manager.WatchManager;
+import com.github.adamantcheese.chan.core.manager.*;
 import com.github.adamantcheese.chan.core.repository.BoardRepository;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import org.codejargon.feather.Provides;
 
-import java.io.File;
-
 import javax.inject.Singleton;
-
-import static com.github.adamantcheese.chan.core.di.AppModule.getCacheDir;
 
 public class ManagerModule {
     @Provides
@@ -65,12 +57,5 @@ public class ManagerModule {
     ) {
         Logger.d(AppModule.DI_TAG, "Filter watch manager");
         return new FilterWatchManager(boardRepository, filterEngine, watchManager);
-    }
-
-    @Provides
-    @Singleton
-    public ReportManager provideReportManager() {
-        Logger.d(AppModule.DI_TAG, "Report manager");
-        return new ReportManager(new File(getCacheDir(), "crashlogs"));
     }
 }

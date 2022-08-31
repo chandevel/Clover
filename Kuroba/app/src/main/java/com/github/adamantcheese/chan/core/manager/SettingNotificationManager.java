@@ -35,8 +35,7 @@ public class SettingNotificationManager {
     @SuppressLint("ResourceAsColor")
     public enum SettingNotificationType {
         // higher priority notifications should go at the bottom of the list, as those colors will be returned first
-        APK_UPDATE(R.color.md_green_500),
-        CRASH_LOG(R.color.md_red_400);
+        APK_UPDATE(R.color.md_green_500);
 
         int color;
 

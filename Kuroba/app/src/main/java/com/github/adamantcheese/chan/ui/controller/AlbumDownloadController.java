@@ -353,11 +353,6 @@ public class AlbumDownloadController
         public void setImageCall(Call imageCall) {
             this.thumbnailCall = imageCall;
         }
-
-        @Override
-        public float getMaxImageSize() {
-            return recyclerView.getMeasuredSpanWidth();
-        }
     }
 
     private void setItemChecked(AlbumDownloadHolder cell, boolean checked, boolean animated) {

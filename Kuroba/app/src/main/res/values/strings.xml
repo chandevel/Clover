@@ -90,10 +90,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="move">Move</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="save">Save</string>
-    <string name="send">Send</string>
     <string name="submit">Submit</string>
     <string name="select_all">Select all</string>
     <string name="select_none">Select none</string>
@@ -153,7 +149,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="open_file_picker_failed">No file picker applications were found</string>
     <string name="image_pick_delegate_select_file_picker">Select a file picker to open a file…</string>
 
-    <string name="thumbnail_load_failed_network">Error</string>
     <string name="image_preview_failed">Failed to show image</string>
     <string name="image_preview_failed_oom">Failed to show image (out of memory)</string>
     <string name="image_failed_big_image">Failed to show image (deep-zoom loading failed)</string>
@@ -317,7 +312,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="reply_file_too_big">Warning: File size too big (%1$s / %2$s)</string>
     <string name="reply_webm_too_big">Warning: WebM size too big (%1$s / %2$s)</string>
     <string name="reply_file_open_failed">Failed to open file</string>
-    <string name="reply_spoiler_image">Spoiler image</string>
     <string name="reply_no_preview">No preview</string>
     <string name="reply_error">Error posting</string>
     <string name="reply_error_message">Error posting: %s</string>
@@ -680,30 +674,6 @@ Don't have a 4chan Pass?<br>
 
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
     <string name="lorem_ipsum_short">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
-    <string name="report_controller_report_an_error_problem">Report an error/crash/other problem</string>
-    <string name="report_controller_i_have_a_problem_with">I have a problem with:</string>
-    <string name="report_controller_problem_description">Problem description:</string>
-    <string name="report_controller_attach_logs">Attach logs</string>
-    <string name="report_controller_no_logs">No logs</string>
-    <string name="report_controller_send_report">Send report</string>
-    <string name="report_controller_title_cannot_be_empty_error">Title cannot be empty!</string>
-    <string name="report_controller_description_cannot_be_empty_error">If description is empty, logs cannot be empty!</string>
-    <string name="report_controller_logs_are_empty_error">\"Attach logs\" option is checked, but logs are empty!</string>
-    <string name="report_controller_report_sent">Sent report!</string>
-    <string name="report_controller_error_while_trying_to_send_report">Error while trying to send report: %1$s</string>
-
-    <string name="settings_report">Report</string>
-    <string name="settings_report_description">Report a problem/crash</string>
-    <string name="settings_collect_crash_logs">Collect crash logs</string>
-    <string name="settings_collect_crash_logs_description">By enabling this setting, the app will start collecting crash logs. They are NOT uploaded automatically. Crash logs only collect the stacktrace itself, app version and basic OS information. You can review and upload them manually (or delete) by clicking the \"Report\" setting.</string>
-    <string name="review_crashlogs_controller_title">Review crash logs</string>
-    <string name="settings_report_suggest_sending_logs_title">You have %1$d collected crash logs</string>
-    <string name="settings_report_suggest_sending_logs">Would you like to review and maybe send them to developers?</string>
-    <string name="settings_report_review_button_text">Review crash logs</string>
-    <string name="settings_report_review_later_button_text">Review later</string>
-    <string name="settings_report_delete_all_crash_logs">Delete all crash logs</string>
-    <string name="deleted_n_crashlogs">Deleted %1$d crash log(s)</string>
-    <string name="sent_n_crashlogs">Sent %1$d crash log(s)</string>
 
     <string name="media_settings_base_dir_reset">Base directory reset to default</string>
     <string name="media_settings_could_not_create_default_baseDir">Could not create default base dir: %1$s</string>

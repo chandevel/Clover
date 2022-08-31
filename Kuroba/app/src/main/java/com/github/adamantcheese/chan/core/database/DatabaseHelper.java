@@ -425,11 +425,6 @@ public class DatabaseHelper
                 p.removeSync(filterWatchIgnores.getKey());
                 p.removeSync(youtubeTitleCache.getKey());
                 p.removeSync(youtubeDurCache.getKey());
-
-                // Preference key changed, move it over
-                BooleanSetting uploadCrashLogs =
-                        getSettingForKey(p, "auto_upload_crash_logs", BooleanSetting.class, Boolean.class);
-                ChanSettings.collectCrashLogs.set(uploadCrashLogs.get());
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 44");
             }

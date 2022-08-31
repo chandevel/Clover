@@ -42,11 +42,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseUtils;
 import com.github.adamantcheese.chan.core.manager.FilterType;
-import com.github.adamantcheese.chan.core.model.ChanThread;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostHttpIcon;
-import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.PostLinkable;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.presenter.ReplyPresenter.Page;
@@ -744,11 +740,6 @@ public class ThreadLayout
     @Override
     public void onDownloadProgress(HttpUrl source, long bytesRead, long contentLength, boolean start, boolean done) {
         // todo set progress here
-    }
-
-    @Override
-    public int getGridWidth() {
-        return threadListLayout.getGridWidth();
     }
 
     @Override

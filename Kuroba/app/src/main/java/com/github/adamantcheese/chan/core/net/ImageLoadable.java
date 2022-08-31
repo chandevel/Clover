@@ -15,7 +15,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResu
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.BitmapUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -188,6 +187,4 @@ public interface ImageLoadable {
     Call getImageCall();
 
     void setImageCall(Call call);
-
-    float getMaxImageSize();
 }
