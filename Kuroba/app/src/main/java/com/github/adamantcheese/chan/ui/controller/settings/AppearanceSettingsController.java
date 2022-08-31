@@ -363,7 +363,7 @@ public class AppearanceSettingsController
     private void setupLayoutModeSetting(SettingsGroup layout) {
         List<Item<LayoutMode>> layoutModes = new ArrayList<>();
         for (LayoutMode mode : LayoutMode.values()) {
-            layoutModes.add(new Item<>(StringUtils.caseAndSpace(mode.name(), null) + " mode", mode));
+            layoutModes.add(new Item<>(StringUtils.caseAndSpace(mode.name() + " mode", null, true), mode));
         }
 
         requiresRestart.add(layout.add(new ListSettingView<>(this,

@@ -162,7 +162,7 @@ public class Theme {
         }
 
         public String prettyName() {
-            return StringUtils.caseAndSpace(name(), "_");
+            return StringUtils.caseAndSpace(name(), "_", false);
         }
     }
 

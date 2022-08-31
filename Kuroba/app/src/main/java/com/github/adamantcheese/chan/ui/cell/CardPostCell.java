@@ -17,7 +17,7 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
@@ -245,7 +245,7 @@ public class CardPostCell
         String status = getString(R.string.card_stats, post.replies, post.imagesCount);
         if (!ChanSettings.neverShowPages.get()) {
             ChanPage p = PageRepository.getPage(post);
-            if (p != null && ChanSettings.boardOrder.get() != BUMP) {
+            if (p != null && ChanSettings.boardOrder.get() != BUMP_ORDER) {
                 status += " Pg " + p.page;
             }
         }

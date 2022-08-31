@@ -76,7 +76,7 @@ public class ToolbarMenuView
             imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 
-            imageView.setVisibility(item.visible ? VISIBLE : GONE);
+            imageView.setVisibility(item.getVisible() ? VISIBLE : GONE);
 
             imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
             updatePaddings(imageView, dp(10f), dp(10f), 0, 0);

@@ -87,7 +87,7 @@ public class Dvach
             }
         });
 
-        setEndpoints(new VichanEndpoints(this, "https://2ch.hk", "https://2ch.hk") {
+        setEndpoints(new VichanEndpoints("https://2ch.hk", "https://2ch.hk") {
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
                 return root.builder().s(arg.get("path")).url();

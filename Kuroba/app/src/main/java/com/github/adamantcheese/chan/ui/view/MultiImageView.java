@@ -292,7 +292,7 @@ public class MultiImageView
             if (!request.request().url().equals(source)) return;
             BackgroundUtils.runOnMainThread(() -> {
                 if (done) {
-                    callback.hideProgress(MultiImageView.this);
+                    callback.hideProgress();
                     return;
                 }
                 if (firstUpdate) {
@@ -320,14 +320,14 @@ public class MultiImageView
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                 thumbnailRequest = null;
-                callback.hideProgress(MultiImageView.this);
+                callback.hideProgress();
                 if (center) onError(e);
             }
 
             @Override
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
                 thumbnailRequest = null;
-                callback.hideProgress(MultiImageView.this);
+                callback.hideProgress();
                 onThumbnailBitmap(bitmap);
             }
         });
@@ -604,7 +604,7 @@ public class MultiImageView
             @Override
             public void onReady() {
                 if (!hasContent || mode == Mode.BIGIMAGE) {
-                    callback.hideProgress(MultiImageView.this);
+                    callback.hideProgress();
                     onModeLoaded(Mode.BIGIMAGE, image);
                 }
             }
@@ -644,7 +644,7 @@ public class MultiImageView
         webView.loadUrl(postImage.imageUrl.toString());
         webView.setBackgroundColor(Color.TRANSPARENT);
         if (!hasContent || mode == Mode.WEBVIEW) {
-            callback.hideProgress(this);
+            callback.hideProgress();
             onModeLoaded(Mode.WEBVIEW, webView);
         }
     }
@@ -657,23 +657,23 @@ public class MultiImageView
         );
 
         showToast(getContext(), message);
-        callback.hideProgress(MultiImageView.this);
+        callback.hideProgress();
     }
 
     private void onNotFoundError() {
         showToast(getContext(), R.string.image_not_found);
-        callback.hideProgress(MultiImageView.this);
+        callback.hideProgress();
     }
 
     private void onOutOfMemoryError() {
         showToast(getContext(), R.string.image_preview_failed_oom);
-        callback.hideProgress(MultiImageView.this);
+        callback.hideProgress();
     }
 
     private void onBigImageError(boolean wasInitial) {
         if (wasInitial) {
             showToast(getContext(), R.string.image_failed_big_image);
-            callback.hideProgress(MultiImageView.this);
+            callback.hideProgress();
         }
     }
 
@@ -748,7 +748,7 @@ public class MultiImageView
 
         void onOpacityChanged(MultiImageView multiImageView, boolean hasOpacity, boolean opaque);
 
-        void hideProgress(MultiImageView multiImageView);
+        void hideProgress();
 
         Loadable getLoadable();
     }

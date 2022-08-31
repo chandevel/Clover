@@ -34,8 +34,8 @@ public class VichanEndpoints
     protected final CommonSite.SimpleHttpUrl root;
     protected final CommonSite.SimpleHttpUrl sys;
 
-    public VichanEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
-        super(commonSite);
+    public VichanEndpoints(String rootUrl, String sysUrl) {
+        super();
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
     }

@@ -36,7 +36,6 @@ import java.util.List;
 public class LoadView
         extends FrameLayout {
     private int fadeDuration = 300;
-    private Listener listener;
 
     private AnimatorSet animatorSet = new AnimatorSet();
 
@@ -59,15 +58,6 @@ public class LoadView
      */
     public void setFadeDuration(int fadeDuration) {
         this.fadeDuration = fadeDuration;
-    }
-
-    /**
-     * Set a listener that gives a call when a view gets removed
-     *
-     * @param listener the listener
-     */
-    public void setListener(Listener listener) {
-        this.listener = listener;
     }
 
     /**
@@ -113,7 +103,7 @@ public class LoadView
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        removeAndCallListener(child);
+                        removeView(child);
                     }
                 });
                 animators.add(objectAnimator);
@@ -157,7 +147,7 @@ public class LoadView
 
             for (int i = 0; i < getChildCount(); i++) {
                 View child = getChildAt(i);
-                removeAndCallListener(child);
+                removeView(child);
             }
 
             animatorSet = new AnimatorSet();
@@ -167,16 +157,5 @@ public class LoadView
         }
 
         return newView;
-    }
-
-    protected void removeAndCallListener(View child) {
-        removeView(child);
-        if (listener != null) {
-            listener.onLoadViewRemoved(child);
-        }
-    }
-
-    public interface Listener {
-        void onLoadViewRemoved(View view);
     }
 }

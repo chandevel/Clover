@@ -88,7 +88,7 @@ public class Lainchan
             }
         });
 
-        setEndpoints(new VichanEndpoints(this, "https://lainchan.org", "https://lainchan.org"));
+        setEndpoints(new VichanEndpoints("https://lainchan.org", "https://lainchan.org"));
         setActions(new VichanActions(this) {
             @Override
             public void clearCookies() {

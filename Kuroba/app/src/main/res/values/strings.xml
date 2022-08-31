@@ -131,14 +131,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_reply">Reply</string>
     <string name="open_link_not_matched">%1$s cannot open this link; it will open in your browser instead.</string>
 
-    <string name="order_bump">Bump order</string>
-    <string name="order_reply">Reply count</string>
-    <string name="order_image">Image count</string>
-    <string name="order_newest">Newest</string>
-    <string name="order_oldest">Oldest</string>
-    <string name="order_modified">Latest reply</string>
-    <string name="order_activity">Thread activity</string>
-
     <string name="search_hint">Search</string>
     <string name="search_results">Found %1$s for \"%2$s\"</string>
     <string name="search_empty">Search subjects, comments, names, and filenames</string>
@@ -667,7 +659,7 @@ Don't have a 4chan Pass?<br>
     <string name="image_saver_failed_to_save_image">Failed to save the image. Reason: %s</string>
     <string name="image_saver_no_write_permission">Cannot start saving images without the WRITE_EXTERNAL_STORAGE permission</string>
     <string name="media_settings_image_click_preload_strategy_name">Image preload strategy</string>
-    <string name="media_settings_image_click_preload_strategy_description">Inside of image pagers, preload:</string>
+    <string name="media_settings_image_click_preload_strategy_description">Inside of image pagers:</string>
     <string name="setting_image_viewer_gestures">Image Viewer gestures</string>
     <string name="setting_image_viewer_gestures_description">Adds ability to use gestures to close (swipe-up) and save (swipe-bottom) an image/gif/webm when viewing them in gallery</string>
 

@@ -43,7 +43,7 @@ public class Chan4PagesParser
     private ChanPage readPageEntry(JsonReader reader)
             throws Exception {
         int pageNo = -1;
-        List<ThreadNoTimeModPair> threadNoTimeModPairs = null;
+        List<Integer> threadNumbers = null;
 
         reader.beginObject();
         while (reader.hasNext()) {
@@ -51,47 +51,44 @@ public class Chan4PagesParser
             if (nextName.equals("page")) {
                 pageNo = reader.nextInt();
             } else if (nextName.equals("threads")) {
-                threadNoTimeModPairs = readThreadTimes(reader);
+                threadNumbers = readThreadNumbers(reader);
             } else {
                 reader.skipValue();
             }
         }
         reader.endObject();
 
-        return new ChanPage(pageNo, threadNoTimeModPairs);
+        return new ChanPage(pageNo, threadNumbers);
     }
 
-    private List<ThreadNoTimeModPair> readThreadTimes(JsonReader reader)
+    private List<Integer> readThreadNumbers(JsonReader reader)
             throws Exception {
-        List<ThreadNoTimeModPair> threadNoTimeModPairs = new ArrayList<>();
+        List<Integer> threadNumbers = new ArrayList<>();
 
         reader.beginArray();
         while (reader.hasNext()) {
-            threadNoTimeModPairs.add(readThreadTime(reader));
+            threadNumbers.add(readOneThreadNumber(reader));
         }
         reader.endArray();
 
-        return threadNoTimeModPairs;
+        return threadNumbers;
     }
 
-    private ThreadNoTimeModPair readThreadTime(JsonReader reader)
+    private int readOneThreadNumber(JsonReader reader)
             throws Exception {
         int no = -1;
-        long modified = -1;
 
         reader.beginObject();
         while (reader.hasNext()) {
             String nextName = reader.nextName();
             if (nextName.equals("no")) {
                 no = reader.nextInt();
-            } else if (nextName.equals("last_modified")) {
-                modified = reader.nextLong();
             } else {
                 reader.skipValue();
             }
         }
         reader.endObject();
 
-        return new ThreadNoTimeModPair(no, modified);
+        return no;
     }
 }

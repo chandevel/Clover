@@ -235,7 +235,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void showError(Exception error, int errResId) {
+    public void showError(int errResId) {
         String errorMsg = getString(errResId);
 
         if (visible == Visible.THREAD) {
@@ -489,7 +489,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void hideThread(Post post, int threadNo, boolean hide) {
+    public void hideThread(Post post, boolean hide) {
         // hideRepliesToThisPost is false here because we don't have posts in the catalog mode so there
         // is no point in hiding replies to a thread
         final PostHide postHide = PostHide.hidePost(post, true, hide, false);
@@ -509,7 +509,7 @@ public class ThreadLayout
     }
 
     @Override
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts) {
         final List<PostHide> hideList = new ArrayList<>();
 
         for (Post post : posts) {

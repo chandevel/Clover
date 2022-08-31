@@ -70,10 +70,6 @@ public class ListSettingView<T>
         return selected.name;
     }
 
-    public Setting<T> getSetting() {
-        return setting;
-    }
-
     @Override
     public void setView(View view) {
         super.setView(view);

@@ -61,7 +61,7 @@ public class Chan4ReplyCall
 
         if (reply.token != null && reply.token.token != null) {
             if (reply.token.challenge != null) {
-                if (Chan4.captchaType.get() != CommonDataStructs.CaptchaType.CUSTOM) {
+                if (Chan4.captchaType.get() != CommonDataStructs.CaptchaType.CHAN4_CUSTOM) {
                     formBuilder.addFormDataPart("recaptcha_challenge_field", reply.token.challenge);
                     formBuilder.addFormDataPart("recaptcha_response_field", reply.token.token);
                 } else {

@@ -55,8 +55,8 @@ public class PageRepository {
         ChanPages pages = getPages(board);
         if (pages == null) return null;
         for (ChanPage page : pages) {
-            for (ThreadNoTimeModPair threadNoTimeModPair : page.threads) {
-                if (opNo == threadNoTimeModPair.no) {
+            for (Integer threadNumber : page.threadNumbers) {
+                if (opNo == threadNumber) {
                     return page;
                 }
             }

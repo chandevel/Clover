@@ -751,8 +751,6 @@ public class WatchManager
         private boolean wereNewPosts = false;
         private boolean notified = true;
 
-        public int lastReplyCount = -1;
-
         public PinWatcher(Pin pin) {
             this.pin = pin;
 
@@ -763,10 +761,6 @@ public class WatchManager
 
         public CharSequence getSummary() {
             return chanLoader != null && chanLoader.getThread() != null ? chanLoader.getThread().summarize(true) : null;
-        }
-
-        public List<Post> getPosts() {
-            return posts;
         }
 
         public List<Post> getUnviewedPosts() {
@@ -853,10 +847,8 @@ public class WatchManager
         @Override
         public void onSuccess(ChanThread thread) {
             if (thread.getOp() != null) {
-                lastReplyCount = thread.getOp().replies;
                 pin.isSticky = thread.getOp().sticky;
             } else {
-                lastReplyCount = -1;
                 pin.isSticky = false;
             }
 

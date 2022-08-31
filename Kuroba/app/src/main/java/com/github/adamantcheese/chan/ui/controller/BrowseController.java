@@ -48,8 +48,7 @@ import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
 import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
-import com.github.adamantcheese.chan.utils.Logger;
+import com.github.adamantcheese.chan.utils.*;
 
 import org.greenrobot.eventbus.Subscribe;
 
@@ -222,7 +221,7 @@ public class BrowseController
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
         for (PostsFilter.PostsOrder postsOrder : PostsOrder.values()) {
-            String name = getString(postsOrder.displayIdRes);
+            String name = StringUtils.caseAndSpace(postsOrder.name(), "_", true);
             if (postsOrder == ChanSettings.boardOrder.get()) {
                 name = "\u2713 " + name; // Checkmark
             }

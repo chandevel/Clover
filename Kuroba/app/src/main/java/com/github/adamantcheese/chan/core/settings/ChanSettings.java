@@ -51,8 +51,7 @@ public class ChanSettings {
     public static final String EMPTY_JSON = "{}";
 
     //region Setting Enums
-    public enum WatchNotifyMode
-            implements OptionSettingItem {
+    public enum WatchNotifyMode {
         NOTIFY_ALL_POSTS("all"),
         NOTIFY_ONLY_QUOTES("quotes");
 
@@ -61,26 +60,15 @@ public class ChanSettings {
         WatchNotifyMode(String mode) {
             this.mode = mode;
         }
-
-        @Override
-        public String getKey() {
-            return mode;
-        }
     }
 
-    public enum MediaAutoLoadMode
-            implements OptionSettingItem {
+    public enum MediaAutoLoadMode {
         // ALways auto load, either wifi or mobile
         ALL,
         // Only auto load if on wifi
         WIFI,
         // Never auto load
         NONE;
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
 
         public static boolean shouldLoadForNetworkType(ChanSettings.MediaAutoLoadMode networkType) {
             if (networkType == ChanSettings.MediaAutoLoadMode.NONE) {
@@ -93,52 +81,27 @@ public class ChanSettings {
         }
     }
 
-    public enum PostViewMode
-            implements OptionSettingItem {
+    public enum PostViewMode {
         LIST,
         GRID,
         STAGGER;
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
     }
 
-    public enum LayoutMode
-            implements OptionSettingItem {
+    public enum LayoutMode {
         AUTO,
         PHONE,
         SLIDE,
         SPLIT;
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
     }
 
-    public enum ImageClickPreloadStrategy
-            implements OptionSettingItem {
-        PreloadNext("Next image"),
-        PreloadPrevious("Previous image"),
-        PreloadBoth("Next and previous images"),
-        PreloadNeither("Do not preload any images");
-
-        String name;
-
-        ImageClickPreloadStrategy(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
+    public enum ImageClickPreloadStrategy {
+        PRELOAD_NEXT_IMAGE,
+        PRELOAD_PREVIOUS_IMAGE,
+        PRELOAD_BOTH_NEXT_AND_PREVIOUS,
+        PRELOAD_NO_IMAGES;
     }
 
-    public enum ProxyMode
-            implements OptionSettingItem {
+    public enum ProxyMode {
         HTTP(Proxy.Type.HTTP),
         SOCKS(Proxy.Type.SOCKS);
 
@@ -146,11 +109,6 @@ public class ChanSettings {
 
         ProxyMode(Proxy.Type type) {
             this.type = type;
-        }
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
         }
     }
     //endregion
@@ -380,7 +338,7 @@ public class ChanSettings {
 
             // Post
             thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
-            thumbnailSize.addCallback((s, v) -> resetThumbnailCacheSize());
+            thumbnailSize.addCallback((s) -> resetThumbnailCacheSize());
             fontSize = new IntegerSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? 16 : 14);
             fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
@@ -411,7 +369,7 @@ public class ChanSettings {
             //Elsewhere
             boardViewMode =
                     new OptionsSetting<>(p, "preference_board_view_mode", PostViewMode.class, PostViewMode.LIST);
-            boardOrder = new OptionsSetting<>(p, "preference_board_order", PostsOrder.class, PostsOrder.BUMP);
+            boardOrder = new OptionsSetting<>(p, "preference_board_order", PostsOrder.class, PostsOrder.BUMP_ORDER);
             showHistory = new BooleanSetting(p, "preference_show_history", true);
             //endregion
 
@@ -488,7 +446,7 @@ public class ChanSettings {
             imageClickPreloadStrategy = new OptionsSetting<>(p,
                     "image_click_preload_strategy",
                     ImageClickPreloadStrategy.class,
-                    ImageClickPreloadStrategy.PreloadNext
+                    ImageClickPreloadStrategy.PRELOAD_NEXT_IMAGE
             );
             autoLoadThreadImages = new BooleanSetting(p, "preference_auto_load_thread", false);
             fileCacheSize = new IntegerSetting(p, "preference_file_cache_size", 512);
@@ -653,7 +611,7 @@ public class ChanSettings {
         }
 
         @Override
-        public void onValueChange(Setting<T> setting, T value) {
+        public void onValueChange(Setting<T> setting) {
             postToEventBus(new SettingChanged<>(setting));
         }
     }

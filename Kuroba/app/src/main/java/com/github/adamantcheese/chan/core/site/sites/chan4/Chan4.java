@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.core.site.sites.chan4;
 import static com.github.adamantcheese.chan.core.net.NetUtils.createCookieParsingInterceptor;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
-import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CUSTOM;
+import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CHAN4_CUSTOM;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getPreferences;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.SWF_THUMB_URL;
 
@@ -408,7 +408,7 @@ public class Chan4
                         return SiteAuthentication.fromCaptcha2(CAPTCHA_KEY, b.toString());
                     case V2NOJS:
                         return SiteAuthentication.fromCaptcha2nojs(CAPTCHA_KEY, b.toString());
-                    case CUSTOM:
+                    case CHAN4_CUSTOM:
                         HttpUrl.Builder urlBuilder = (loadableWithDraft.board.workSafe ? sysSafe : sys)
                                 .newBuilder()
                                 .addPathSegment("captcha")
@@ -532,8 +532,11 @@ public class Chan4
     public void initializeSettings() {
         super.initializeSettings();
 
-        captchaType =
-                new OptionsSetting<>(settingsProvider, "preference_captcha_type_chan4", CaptchaType.class, CUSTOM);
+        captchaType = new OptionsSetting<>(settingsProvider,
+                "preference_captcha_type_chan4",
+                CaptchaType.class,
+                CHAN4_CUSTOM
+        );
         spriteSetting = new BooleanSetting(settingsProvider, "preference_sprite_map_chan4", false);
     }
 

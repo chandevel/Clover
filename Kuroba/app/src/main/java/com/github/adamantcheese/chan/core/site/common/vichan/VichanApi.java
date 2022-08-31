@@ -64,17 +64,14 @@ public class VichanApi
             reader.beginObject(); // Page object
 
             int page = -1;
-            List<ThreadNoTimeModPair> threads = new ArrayList<>();
+            List<Integer> threads = new ArrayList<>();
             while (reader.hasNext()) {
                 switch (reader.nextName()) {
                     case "threads":
                         reader.beginArray(); // Threads array
-
                         while (reader.hasNext()) {
-                            Pair<Integer, Long> result = readPostObjectWithReturn(reader, queue);
-                            threads.add(new ThreadNoTimeModPair(result.first, result.second));
+                            threads.add(readPostObjectWithReturn(reader, queue));
                         }
-
                         reader.endArray();
                         break;
                     case "page":
@@ -104,7 +101,7 @@ public class VichanApi
     }
 
     @NonNull
-    private Pair<Integer, Long> readPostObjectWithReturn(JsonReader reader, ChanReaderProcessingQueue queue)
+    private int readPostObjectWithReturn(JsonReader reader, ChanReaderProcessingQueue queue)
             throws Exception {
         Post.Builder builder = new Post.Builder();
         builder.board(queue.loadable.board);
@@ -263,7 +260,7 @@ public class VichanApi
         if (cached != null) {
             // Id is known, use the cached post object.
             queue.addForReuse(cached);
-            return new Pair<>(builder.no, builder.lastModified); // this return is only used for pages!
+            return builder.no; // this return is only used for pages!
         }
 
         if (countryCode != null && countryDescription != null) {
@@ -278,7 +275,7 @@ public class VichanApi
         }
 
         queue.addForParse(builder);
-        return new Pair<>(builder.no, builder.lastModified); // this return is only used for pages!
+        return builder.no; // this return is only used for pages!
     }
 
     private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)

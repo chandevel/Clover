@@ -61,7 +61,7 @@ public class Kun8
             }
         });
 
-        setEndpoints(new VichanEndpoints(this, "https://8kun.top", "https://sys.8kun.top") {
+        setEndpoints(new VichanEndpoints("https://8kun.top", "https://sys.8kun.top") {
 
             //8kun changed directory structures after this date (8/25/2016), so we need to switch off that to make it work
             private final long IMAGE_CHANGE_DATE = 1472083200L;

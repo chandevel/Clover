@@ -20,7 +20,7 @@ import static android.view.View.GONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.LIST;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.ui.adapter.PostAdapter.CellType.*;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 
@@ -82,7 +82,7 @@ public class PostAdapter
     private int highlightedNo = -1;
     private String highlightedTripcode;
     public int lastSeenIndicatorPosition = Integer.MIN_VALUE;
-    private PostsFilter currentFilter = new PostsFilter(BUMP, null);
+    private PostsFilter currentFilter = new PostsFilter(BUMP_ORDER, null);
 
     private ChanSettings.PostViewMode postViewMode = LIST;
     private boolean compact = false;
@@ -308,7 +308,7 @@ public class PostAdapter
         this.loadable = thread.loadable;
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
-        currentFilter = newFilter == null ? new PostsFilter(BUMP, null) : newFilter;
+        currentFilter = newFilter == null ? new PostsFilter(BUMP_ORDER, null) : newFilter;
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom

@@ -23,7 +23,7 @@ import static android.widget.RelativeLayout.LEFT_OF;
 import static android.widget.RelativeLayout.RIGHT_OF;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.getThumbnailSize;
 import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.PostUtils.getReadableFileSize;
@@ -470,7 +470,7 @@ public class PostCell
 
             if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
                 ChanPage p = PageRepository.getPage(post);
-                if (p != null && ChanSettings.boardOrder.get() != BUMP) {
+                if (p != null && ChanSettings.boardOrder.get() != BUMP_ORDER) {
                     text.append(", page ").append(String.valueOf(p.page));
                 }
             }

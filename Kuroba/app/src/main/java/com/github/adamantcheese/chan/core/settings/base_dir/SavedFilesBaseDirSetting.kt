@@ -35,11 +35,11 @@ class SavedFilesBaseDirSetting(
     )
 
     init {
-        fileApiBaseDir.addCallback { _, _ ->
+        fileApiBaseDir.addCallback {
             postToEventBus(ChanSettings.SettingChanged(fileApiBaseDir))
         }
 
-        safBaseDir.addCallback { _, _ ->
+        safBaseDir.addCallback {
             postToEventBus(ChanSettings.SettingChanged(safBaseDir))
         }
     }

@@ -49,7 +49,7 @@ public class FilterEngine {
         WATCH;
 
         public static String actionName(FilterAction action) {
-            return StringUtils.caseAndSpace(action.name() + " post", null);
+            return StringUtils.caseAndSpace(action.name() + " post", null, true);
         }
     }
 

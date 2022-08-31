@@ -41,10 +41,10 @@ import java.util.List;
  * some callback. Add them with the NavigationItem MenuBuilder.
  */
 public class ToolbarMenuItem {
-    public Object id;
+    private final Object id;
 
-    public boolean visible = true;
-    public boolean enabled = true;
+    private boolean visible;
+    private boolean enabled;
 
     public Drawable drawable;
 
@@ -66,6 +66,8 @@ public class ToolbarMenuItem {
         this.id = id;
         this.drawable = drawable;
         this.clickCallback = clickCallback;
+        this.visible = true;
+        this.enabled = true;
     }
 
     public ToolbarMenuItem(
@@ -74,9 +76,7 @@ public class ToolbarMenuItem {
             ToolbarItemClickCallback clickCallback,
             @Nullable OverflowMenuCallback overflowMenuCallback
     ) {
-        this.id = id;
-        this.drawable = getAppContext().getDrawable(drawable);
-        this.clickCallback = clickCallback;
+        this(id, getAppContext().getDrawable(drawable), clickCallback);
         this.overflowMenuCallback = overflowMenuCallback;
     }
 
@@ -212,6 +212,14 @@ public class ToolbarMenuItem {
 
     public void setCallback(ToolbarItemClickCallback callback) {
         clickCallback = callback;
+    }
+
+    public boolean getVisible() {
+        return visible;
+    }
+
+    public boolean getEnabled() {
+        return enabled;
     }
 
     public interface ToolbarItemClickCallback {

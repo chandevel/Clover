@@ -92,7 +92,7 @@ public class ThreadPresenter
     private ChanThreadLoader chanLoader;
     private boolean searchOpen;
     private String searchQuery;
-    private PostsFilter.PostsOrder postsOrder = PostsFilter.PostsOrder.BUMP;
+    private PostsFilter.PostsOrder postsOrder = PostsFilter.PostsOrder.BUMP_ORDER;
     private final Context context;
 
     public ThreadPresenter(Context context, ThreadPresenterCallback callback) {
@@ -339,7 +339,7 @@ public class ThreadPresenter
             errorMessageResId = R.string.thread_load_failed_network;
         }
 
-        threadPresenterCallback.showError(error, errorMessageResId);
+        threadPresenterCallback.showError(errorMessageResId);
     }
 
     /*
@@ -740,7 +740,7 @@ public class ThreadPresenter
                 boolean hide = id == POST_OPTION_HIDE;
 
                 if (chanLoader.getLoadable().mode == Loadable.Mode.CATALOG) {
-                    threadPresenterCallback.hideThread(post, post.no, hide);
+                    threadPresenterCallback.hideThread(post, hide);
                 } else {
                     if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
@@ -1129,7 +1129,7 @@ public class ThreadPresenter
             }
         }
 
-        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts, threadNo);
+        threadPresenterCallback.hideOrRemovePosts(hide, wholeChain, posts);
     }
 
     public void showRemovedPostsDialog() {
@@ -1211,7 +1211,7 @@ public class ThreadPresenter
 
         void postClicked(Post post);
 
-        void showError(Exception error, int errResId);
+        void showError(int errResId);
 
         void showLoading();
 
@@ -1281,13 +1281,13 @@ public class ThreadPresenter
 
         void hideDeleting(String message);
 
-        void hideThread(Post post, int threadNo, boolean hide);
+        void hideThread(Post post, boolean hide);
 
         void showNewPostsSnackbar(final Loadable loadable, int more);
 
         void showHideOrRemoveWholeChainDialog(boolean hide, Post post, int threadNo);
 
-        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts, int threadNo);
+        void hideOrRemovePosts(boolean hide, boolean wholeChain, Set<Post> posts);
 
         void unhideOrUnremovePost(Post post);
 

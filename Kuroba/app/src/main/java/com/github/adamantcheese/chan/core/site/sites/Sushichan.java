@@ -82,7 +82,7 @@ public class Sushichan
             }
         });
 
-        setEndpoints(new VichanEndpoints(this, "https://sushigirl.us/", "https://sushigirl.us/"));
+        setEndpoints(new VichanEndpoints("https://sushigirl.us/", "https://sushigirl.us/"));
         setActions(new VichanActions(this) {
             @Override
             public void clearCookies() {

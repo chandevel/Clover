@@ -37,10 +37,6 @@ public abstract class SettingView {
         setEnabled(enabled);
     }
 
-    public View getView() {
-        return view;
-    }
-
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
         if (view != null) {

@@ -18,7 +18,7 @@ package com.github.adamantcheese.chan.core.settings.primitives;
 
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 
-public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
+public class OptionsSetting<T extends Enum<?>>
         extends Setting<T> {
     private final T[] items;
 
@@ -35,10 +35,10 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public T get() {
         if (cached == null) {
-            String itemName = (String) settingProvider.getValue(key, def.getKey());
+            String itemName = (String) settingProvider.getValue(key, def.name());
             T selectedItem = null;
             for (T item : items) {
-                if (item.getKey().equals(itemName)) {
+                if (item.name().equals(itemName)) {
                     selectedItem = item;
                 }
             }
@@ -54,7 +54,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public void set(T value) {
         if (!value.equals(get())) {
-            settingProvider.putValue(key, value.getKey());
+            settingProvider.putValue(key, value.name());
             cached = value;
             onValueChanged();
         }
@@ -63,7 +63,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public T convertStringToSettingType(String s) {
         for (T item : items) {
-            if (item.getKey().equals(s)) {
+            if (item.name().equalsIgnoreCase(s)) {
                 return item;
             }
         }
@@ -73,7 +73,7 @@ public class OptionsSetting<T extends Enum<?> & OptionSettingItem>
     @Override
     public void setSync(T value) {
         if (!value.equals(get())) {
-            settingProvider.putValueSync(key, value.getKey());
+            settingProvider.putValueSync(key, value.name());
             cached = value;
             onValueChanged();
         }

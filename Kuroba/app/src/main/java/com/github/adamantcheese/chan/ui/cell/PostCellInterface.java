@@ -89,10 +89,6 @@ public interface PostCellInterface {
             POST_OPTION_COPY_POST_TEXT,
             POST_OPTION_COPY_IMG_URL,
             POST_OPTION_COPY_POST_URL;
-
-            public static PostOptions valueOf(int i) {
-                return PostOptions.values()[i];
-            }
         }
 
         // These floating menu items have type Integer because it is expected that post option IDs are integers

@@ -138,7 +138,7 @@ public class StringUtils {
         );
     }
 
-    public static String caseAndSpace(String input, String delimiter) {
+    public static String caseAndSpace(String input, String delimiter, boolean onlyFirst) {
         String[] parts;
         if (delimiter != null) {
             parts = input.split(delimiter);
@@ -146,10 +146,14 @@ public class StringUtils {
             parts = new String[1];
             parts[0] = input;
         }
+        boolean first = true;
         StringBuilder properCaseString = new StringBuilder();
         for (String part : parts) {
             part = part.toLowerCase(Locale.ENGLISH);
-            part = part.substring(0, 1).toUpperCase(Locale.ENGLISH) + part.substring(1);
+            if(onlyFirst && first) {
+                part = part.substring(0, 1).toUpperCase(Locale.ENGLISH) + part.substring(1);
+                first = false;
+            }
             properCaseString.append(part).append(' ');
         }
         return properCaseString.deleteCharAt(properCaseString.length() - 1).toString();

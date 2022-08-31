@@ -29,22 +29,20 @@ import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.Pin;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.*;
 
 public class PostsFilter {
 
-    public enum PostsOrder
-            implements OptionSettingItem {
-        BUMP(R.string.order_bump, (lhs, rhs) -> 0),
-        REPLY(R.string.order_reply, (lhs, rhs) -> rhs.replies - lhs.replies),
-        IMAGE(R.string.order_image, (lhs, rhs) -> rhs.imagesCount - lhs.imagesCount),
-        NEWEST(R.string.order_newest, (lhs, rhs) -> (int) (rhs.time - lhs.time)),
-        OLDEST(R.string.order_oldest, (lhs, rhs) -> (int) (lhs.time - rhs.time)),
-        MODIFIED(R.string.order_modified, (lhs, rhs) -> (int) (rhs.lastModified - lhs.lastModified)),
-        ACTIVITY(R.string.order_activity, (lhs, rhs) -> {
+    public enum PostsOrder {
+        BUMP_ORDER((lhs, rhs) -> 0),
+        REPLY_COUNT((lhs, rhs) -> rhs.replies - lhs.replies),
+        IMAGE_COUNT((lhs, rhs) -> rhs.imagesCount - lhs.imagesCount),
+        NEWEST((lhs, rhs) -> (int) (rhs.time - lhs.time)),
+        OLDEST((lhs, rhs) -> (int) (lhs.time - rhs.time)),
+        LATEST_REPLY((lhs, rhs) -> (int) (rhs.lastModified - lhs.lastModified)),
+        THREAD_ACTIVITY((lhs, rhs) -> {
             long currentTimeSeconds = System.currentTimeMillis() / 1000L;
 
             //we can't divide by zero, but we can divide by the smallest thing that's closest to 0 instead
@@ -57,17 +55,9 @@ public class PostsFilter {
         });
 
         public final Comparator<Post> postComparator;
-        @StringRes
-        public final int displayIdRes;
 
-        PostsOrder(@StringRes int displayId, Comparator<Post> c) {
+        PostsOrder(Comparator<Post> c) {
             postComparator = c;
-            displayIdRes = displayId;
-        }
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
         }
     }
 

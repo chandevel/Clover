@@ -302,11 +302,8 @@ public abstract class CommonSite
 
     public static abstract class CommonEndpoints
             implements SiteEndpoints {
-        protected CommonSite site;
 
-        public CommonEndpoints(CommonSite site) {
-            this.site = site;
-        }
+        public CommonEndpoints() {}
 
         @Override
         public HttpUrl catalog(Board board) {

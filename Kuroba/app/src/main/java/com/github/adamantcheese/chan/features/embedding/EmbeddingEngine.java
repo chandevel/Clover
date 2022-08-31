@@ -97,10 +97,6 @@ public class EmbeddingEngine
         return defaults;
     }
 
-    public List<Embedder> getEmbedders() {
-        return embedders;
-    }
-
     /**
      * To add a media link parser:<br>
      * 1) Implement the Embedder class.<br>

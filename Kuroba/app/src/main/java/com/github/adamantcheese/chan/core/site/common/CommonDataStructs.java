@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.settings.primitives.OptionSettingItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,33 +26,17 @@ public class CommonDataStructs {
 
     public static class ChanPage {
         public final int page;
-        public final List<ThreadNoTimeModPair> threads;
+        public final List<Integer> threadNumbers;
 
-        public ChanPage(int page, List<ThreadNoTimeModPair> threads) {
+        public ChanPage(int page, List<Integer> threads) {
             this.page = page;
-            this.threads = threads;
+            this.threadNumbers = threads;
         }
     }
 
-    public static class ThreadNoTimeModPair {
-        public final int no;
-        public final long modified;
-
-        public ThreadNoTimeModPair(int no, long modified) {
-            this.no = no;
-            this.modified = modified;
-        }
-    }
-
-    public enum CaptchaType
-            implements OptionSettingItem {
+    public enum CaptchaType {
         V2JS,
         V2NOJS,
-        CUSTOM;
-
-        @Override
-        public String getKey() {
-            return name().toLowerCase();
-        }
+        CHAN4_CUSTOM;
     }
 }

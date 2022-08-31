@@ -168,7 +168,7 @@ public class PostParser {
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
             nameTripcodeIdCapcodeSpan.append(span(
-                    StringUtils.caseAndSpace(builder.moderatorCapcode, null),
+                    StringUtils.caseAndSpace(builder.moderatorCapcode, null, true),
                     new ForegroundColorSpanHashed(getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent)),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");

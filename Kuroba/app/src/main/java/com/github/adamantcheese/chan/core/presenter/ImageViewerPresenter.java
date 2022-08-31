@@ -266,17 +266,17 @@ public class ImageViewerPresenter
             preloadPrevious();
         } else {
             switch (strategy) {
-                case PreloadNext:
+                case PRELOAD_NEXT_IMAGE:
                     preloadNext();
                     break;
-                case PreloadPrevious:
+                case PRELOAD_PREVIOUS_IMAGE:
                     preloadPrevious();
                     break;
-                case PreloadBoth:
+                case PRELOAD_BOTH_NEXT_AND_PREVIOUS:
                     preloadNext();
                     preloadPrevious();
                     break;
-                case PreloadNeither:
+                case PRELOAD_NO_IMAGES:
                     break;
             }
         }
@@ -462,7 +462,7 @@ public class ImageViewerPresenter
     }
 
     @Override
-    public void hideProgress(MultiImageView multiImageView) {
+    public void hideProgress() {
         callback.showProgress(false);
     }
 

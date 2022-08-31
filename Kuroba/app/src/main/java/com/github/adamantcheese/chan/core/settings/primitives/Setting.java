@@ -92,17 +92,13 @@ public abstract class Setting<T> {
         callbacks.add(callback);
     }
 
-    public void removeCallback(SettingCallback<T> callback) {
-        callbacks.remove(callback);
-    }
-
     protected final void onValueChanged() {
         for (SettingCallback<T> callback : callbacks) {
-            callback.onValueChange(this, get());
+            callback.onValueChange(this);
         }
     }
 
     public interface SettingCallback<T> {
-        void onValueChange(Setting<T> setting, T value);
+        void onValueChange(Setting<T> setting);
     }
 }

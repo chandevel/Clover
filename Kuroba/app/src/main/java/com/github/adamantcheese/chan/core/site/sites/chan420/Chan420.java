@@ -79,7 +79,7 @@ public class Chan420
             }
         });
 
-        setEndpoints(new TaimabaEndpoints(this, "https://api.420chan.org", "https://boards.420chan.org"));
+        setEndpoints(new TaimabaEndpoints("https://api.420chan.org", "https://boards.420chan.org"));
         setActions(new TaimabaActions(this) {
             @Override
             public void boards(final ResponseResult<Boards> listener) {

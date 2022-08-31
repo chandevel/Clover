@@ -38,8 +38,8 @@ public class TaimabaEndpoints
     protected final CommonSite.SimpleHttpUrl sys;
     private final HttpUrl report = new HttpUrl.Builder().scheme("https").host("cdn.420chan.org").port(8443).build();
 
-    public TaimabaEndpoints(CommonSite commonSite, String rootUrl, String sysUrl) {
-        super(commonSite);
+    public TaimabaEndpoints(String rootUrl, String sysUrl) {
+        super();
         root = new CommonSite.SimpleHttpUrl(rootUrl);
         sys = new CommonSite.SimpleHttpUrl(sysUrl);
     }

@@ -16,7 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
-import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP;
+import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -143,7 +143,7 @@ public class PostRepliesController
             }
         };
         recyclerView.setAdapter(adapter);
-        adapter.setThread(new ChanThread(loadable, displayingData.posts), new PostsFilter(BUMP, null));
+        adapter.setThread(new ChanThread(loadable, displayingData.posts), new PostsFilter(BUMP_ORDER, null));
         adapter.lastSeenIndicatorPosition = Integer.MIN_VALUE; //disable last seen indicator inside of reply popups
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
         layoutManager.scrollToPositionWithOffset(data.position.index, data.position.top);

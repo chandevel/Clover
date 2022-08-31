@@ -41,6 +41,7 @@ import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.github.k1rakishou.fsaf.FileChooser;
 import com.github.k1rakishou.fsaf.FileManager;
 
@@ -274,7 +275,8 @@ public class MediaSettingsController
     private void setupImagePreloadStrategySetting(SettingsGroup preloading) {
         List<Item<ImageClickPreloadStrategy>> items = new ArrayList<>();
         for (ImageClickPreloadStrategy setting : ImageClickPreloadStrategy.values()) {
-            items.add(new Item<>(setting.getKey(), setting));
+            String itemName = StringUtils.caseAndSpace(setting.name(), "_", true);
+            items.add(new Item<>(itemName, setting));
         }
 
         preloading.add(new ListSettingView<ImageClickPreloadStrategy>(this,
@@ -384,7 +386,7 @@ public class MediaSettingsController
         boolean enabled = false;
         boolean resetVideoMode = false;
         for (int i = 0; i < modes.length; i++) {
-            if (modes[i].getKey().equals(currentImageLoadMode.getKey())) {
+            if (modes[i].name().equalsIgnoreCase(currentImageLoadMode.name())) {
                 enabled = true;
                 if (resetVideoMode) {
                     ChanSettings.videoAutoLoadNetwork.set(modes[i]);
@@ -393,7 +395,7 @@ public class MediaSettingsController
                 }
             }
             videoAutoLoadView.items.get(i).enabled = enabled;
-            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().getKey().equals(modes[i].getKey())) {
+            if (!enabled && ChanSettings.videoAutoLoadNetwork.get().name().equalsIgnoreCase(modes[i].name())) {
                 resetVideoMode = true;
             }
         }
