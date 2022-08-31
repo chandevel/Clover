@@ -17,42 +17,6 @@ public class CenteringImageSpan
         super(context, bitmap);
     }
 
-    public CenteringImageSpan(@NonNull Context context, @NonNull Bitmap bitmap, int verticalAlignment) {
-        super(context, bitmap, verticalAlignment);
-    }
-
-    public CenteringImageSpan(@NonNull Drawable drawable) {
-        super(drawable);
-    }
-
-    public CenteringImageSpan(@NonNull Drawable drawable, int verticalAlignment) {
-        super(drawable, verticalAlignment);
-    }
-
-    public CenteringImageSpan(@NonNull Drawable drawable, @NonNull String source) {
-        super(drawable, source);
-    }
-
-    public CenteringImageSpan(@NonNull Drawable drawable, @NonNull String source, int verticalAlignment) {
-        super(drawable, source, verticalAlignment);
-    }
-
-    public CenteringImageSpan(@NonNull Context context, @NonNull Uri uri) {
-        super(context, uri);
-    }
-
-    public CenteringImageSpan(@NonNull Context context, @NonNull Uri uri, int verticalAlignment) {
-        super(context, uri, verticalAlignment);
-    }
-
-    public CenteringImageSpan(@NonNull Context context, int resourceId) {
-        super(context, resourceId);
-    }
-
-    public CenteringImageSpan(@NonNull Context context, int resourceId, int verticalAlignment) {
-        super(context, resourceId, verticalAlignment);
-    }
-
     @Override
     public void draw(
             @NonNull Canvas canvas,

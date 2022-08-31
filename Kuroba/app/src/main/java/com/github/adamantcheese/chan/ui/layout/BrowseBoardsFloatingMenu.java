@@ -348,12 +348,10 @@ public class BrowseBoardsFloatingMenu
                 SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
                 siteViewHolder.image.setImageDrawable(null);
                 siteViewHolder.text.setText("");
-                siteViewHolder.site = null;
                 siteViewHolder.itemView.setOnClickListener(null);
             } else if (holder instanceof BoardViewHolder) {
                 BoardViewHolder boardViewHolder = ((BoardViewHolder) holder);
                 boardViewHolder.text.setText("");
-                boardViewHolder.board = null;
                 boardViewHolder.itemView.setOnClickListener(null);
             }
         }
@@ -413,8 +411,6 @@ public class BrowseBoardsFloatingMenu
         ImageView image;
         TextView text;
 
-        Site site;
-
         public SiteViewHolder(View itemView) {
             super(itemView);
             image = itemView.findViewById(R.id.image);
@@ -423,7 +419,6 @@ public class BrowseBoardsFloatingMenu
         }
 
         public void bind(Site site) {
-            this.site = site;
             itemView.setOnClickListener(v -> itemClicked(site, null));
             site.icon().get(image::setImageDrawable);
             text.setText(site.name());
@@ -434,8 +429,6 @@ public class BrowseBoardsFloatingMenu
             extends ViewHolder {
         TextView text;
 
-        Board board;
-
         public BoardViewHolder(View itemView) {
             super(itemView);
             text = (TextView) itemView;
@@ -443,7 +436,6 @@ public class BrowseBoardsFloatingMenu
         }
 
         public void bind(Board board) {
-            this.board = board;
             itemView.setOnClickListener(v -> itemClicked(null, board));
             text.setText(board.getFormattedName());
         }

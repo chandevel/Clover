@@ -127,7 +127,7 @@ public class Chan4CustomJsonlayout
     public void reset() {
         if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
             hideKeyboard(input);
-            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+            callback.onAuthenticationComplete(CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -239,7 +239,7 @@ public class Chan4CustomJsonlayout
                             input.getText().toString(),
                             TimeUnit.SECONDS.toMillis(currentStruct.ttl)
                     );
-            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+            callback.onAuthenticationComplete(CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -265,7 +265,7 @@ public class Chan4CustomJsonlayout
                 token = new CaptchaTokenHolder.CaptchaToken("", input.getText().toString(), 0);
             }
 
-            callback.onAuthenticationComplete(this, token, isAutoReply);
+            callback.onAuthenticationComplete(token, isAutoReply);
         });
 
         if (currentStruct.origBg != null) {

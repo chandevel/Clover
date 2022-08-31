@@ -20,7 +20,7 @@ import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 
 public interface AuthenticationLayoutCallback {
     void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout, CaptchaToken token, boolean autoReply
+            CaptchaToken token, boolean autoReply
     );
 
     void onAuthenticationFailed(Throwable error);

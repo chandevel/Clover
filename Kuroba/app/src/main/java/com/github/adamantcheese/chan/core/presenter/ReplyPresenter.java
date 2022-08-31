@@ -59,7 +59,6 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.features.html_styling.impl.HtmlNodeTreeAction;
 import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutCallback;
-import com.github.adamantcheese.chan.ui.captcha.AuthenticationLayoutInterface;
 import com.github.adamantcheese.chan.ui.captcha.CaptchaTokenHolder.CaptchaToken;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -364,7 +363,7 @@ public class ReplyPresenter
 
     @Override
     public void onAuthenticationComplete(
-            AuthenticationLayoutInterface authenticationLayout, CaptchaToken token, boolean autoReply
+            CaptchaToken token, boolean autoReply
     ) {
         if (draft == null) {
             switchPage(Page.INPUT);

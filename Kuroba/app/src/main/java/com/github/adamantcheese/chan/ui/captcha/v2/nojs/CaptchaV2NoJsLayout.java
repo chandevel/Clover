@@ -110,7 +110,7 @@ public class CaptchaV2NoJsLayout
     @Override
     public void reset() {
         if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
-            callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+            callback.onAuthenticationComplete(CaptchaTokenHolder.getInstance().getToken(), true);
             return;
         }
 
@@ -163,7 +163,7 @@ public class CaptchaV2NoJsLayout
             }
 
             captchaVerifyButton.setEnabled(true);
-            callback.onAuthenticationComplete(this, token, isAutoReply);
+            callback.onAuthenticationComplete(token, isAutoReply);
         });
     }
 

@@ -129,7 +129,7 @@ public class CaptchaV2JsLayout
             loadUrl("javascript:grecaptcha.reset()");
         } else {
             if (CaptchaTokenHolder.getInstance().hasToken() && isAutoReply) {
-                callback.onAuthenticationComplete(this, CaptchaTokenHolder.getInstance().getToken(), true);
+                callback.onAuthenticationComplete(CaptchaTokenHolder.getInstance().getToken(), true);
                 return;
             }
 
@@ -191,7 +191,7 @@ public class CaptchaV2JsLayout
                 token = new CaptchaTokenHolder.CaptchaToken(null, response, 0);
             }
 
-            callback.onAuthenticationComplete(this, token, isAutoReply);
+            callback.onAuthenticationComplete(token, isAutoReply);
         }
     }
 

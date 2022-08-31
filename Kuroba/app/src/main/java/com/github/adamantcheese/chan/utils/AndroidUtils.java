@@ -109,27 +109,6 @@ public class AndroidUtils {
         return getAppContext().getSharedPreferences(CHAN_STATE_PREFS_NAME, MODE_PRIVATE);
     }
 
-    public static boolean isEmulator() {
-        //@formatter:off
-        return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.HARDWARE.contains("goldfish")
-                || Build.HARDWARE.contains("ranchu")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || Build.PRODUCT.contains("sdk_google")
-                || Build.PRODUCT.contains("google_sdk")
-                || Build.PRODUCT.contains("sdk")
-                || Build.PRODUCT.contains("sdk_x86")
-                || Build.PRODUCT.contains("vbox86p")
-                || Build.PRODUCT.contains("emulator")
-                || Build.PRODUCT.contains("simulator");
-        //@formatter:on
-    }
-
     /**
      * Tries to open an app that can open the specified URL.<br>
      * If this app will open the link then show a chooser to the user without this app.<br>
@@ -258,13 +237,6 @@ public class AndroidUtils {
         return getRes().getColor(colorId);
     }
 
-    public static float getAttrFloat(int themeId, int floatId) {
-        TypedValue typedValue = new TypedValue();
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(application, themeId);
-        wrapper.getTheme().resolveAttribute(floatId, typedValue, true);
-        return typedValue.getFloat();
-    }
-
     public static int getContrastColor(int color) {
         double y = (299 * Color.red(color) + 587 * Color.green(color) + 114 * Color.blue(color)) / 1000f;
         return y >= 128.0 ? Color.BLACK : Color.WHITE;
@@ -303,11 +275,6 @@ public class AndroidUtils {
 
     public static float sp(Context context, float sp) {
         return sp * context.getResources().getDisplayMetrics().scaledDensity;
-    }
-
-    public static void requestKeyboardFocus(Dialog dialog, final View view) {
-        view.requestFocus();
-        dialog.setOnShowListener(dialog1 -> requestKeyboardFocus(view));
     }
 
     public static void requestKeyboardFocus(final View view) {

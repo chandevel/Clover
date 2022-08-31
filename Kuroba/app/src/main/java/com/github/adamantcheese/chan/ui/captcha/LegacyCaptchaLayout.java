@@ -133,7 +133,7 @@ public class LegacyCaptchaLayout
 
     private void submitCaptcha() {
         hideKeyboard(this);
-        callback.onAuthenticationComplete(this,
+        callback.onAuthenticationComplete(
                 new CaptchaTokenHolder.CaptchaToken(challenge, input.getText().toString(), 0),
                 true
         );
