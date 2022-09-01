@@ -481,6 +481,9 @@ public class MultiImageView
     private void setVideo() {
         if (!hasContent || mode == Mode.VIDEO) {
             StyledPlayerView exoVideoView = new StyledPlayerView(getContext());
+            exoVideoView.setShowPreviousButton(false);
+            exoVideoView.setShowNextButton(false);
+            exoVideoView.setShowShuffleButton(false);
             exoPlayer = new ExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
 
