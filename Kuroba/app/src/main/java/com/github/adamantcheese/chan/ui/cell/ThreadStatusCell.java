@@ -31,7 +31,6 @@ import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -54,36 +53,7 @@ public class ThreadStatusCell
         super.onFinishInflate();
 
         if (isInEditMode()) {
-            setCallback(new Callback() {
-                @Override
-                public long getTimeUntilLoadMore() {
-                    return SECONDS.toMillis(20);
-                }
-
-                @Override
-                public boolean isWatching() {
-                    return true;
-                }
-
-                @Override
-                public ChanThread getChanThread() {
-                    List<Post> testPosts = new ArrayList<>();
-                    testPosts.add(new Post.Builder()
-                            .board(Board.getDummyBoard())
-                            .no(1)
-                            .opId(1)
-                            .replies(1)
-                            .images(1)
-                            .uniqueIps(1)
-                            .setUnixTimestampSeconds(System.currentTimeMillis())
-                            .comment("")
-                            .build());
-                    return new ChanThread(Loadable.dummyLoadable(), testPosts);
-                }
-
-                @Override
-                public void onListStatusClicked() {}
-            });
+            setCallback(new EditModeCallback());
             update();
         }
 
@@ -163,5 +133,37 @@ public class ThreadStatusCell
         ChanThread getChanThread();
 
         void onListStatusClicked();
+    }
+
+    public class EditModeCallback
+            implements Callback {
+        @Override
+        public long getTimeUntilLoadMore() {
+            return SECONDS.toMillis(20);
+        }
+
+        @Override
+        public boolean isWatching() {
+            return true;
+        }
+
+        @Override
+        public ChanThread getChanThread() {
+            List<Post> testPosts = new ArrayList<>();
+            testPosts.add(new Post.Builder()
+                    .board(Board.getDummyBoard())
+                    .no(1)
+                    .opId(1)
+                    .replies(1)
+                    .images(1)
+                    .uniqueIps(1)
+                    .setUnixTimestampSeconds(System.currentTimeMillis())
+                    .comment("")
+                    .build());
+            return new ChanThread(Loadable.dummyLoadable(), testPosts);
+        }
+
+        @Override
+        public void onListStatusClicked() {}
     }
 }

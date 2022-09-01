@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_BACKGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.BACKGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.FOREGROUND;
 import static com.github.adamantcheese.chan.core.manager.WatchManager.IntervalType.NONE;
@@ -359,35 +360,21 @@ public class WatchManager
         updatePin(pin);
     }
 
-    // Called when the app changes foreground state
     @Subscribe
-    public void onEvent(Chan.ForegroundChangedMessage message) {
+    public void onEvent(Chan.ActivityForegroundStatus status) {
         updateState();
-        if (!message.inForeground) {
+        if (status == IN_BACKGROUND) {
             updatePinsInDatabase();
         }
     }
 
-    // Called when either the background watch or watch enable settings are changed
     @Subscribe
     public void onEvent(ChanSettings.SettingChanged<?> settingChanged) {
-        if (settingChanged.setting == ChanSettings.watchBackground) {
-            onBackgroundWatchingChanged(ChanSettings.watchBackground.get());
-        } else if (settingChanged.setting == ChanSettings.watchEnabled) {
-            onWatchEnabledChanged(ChanSettings.watchEnabled.get());
+        if (settingChanged.setting == ChanSettings.watchBackground
+                || settingChanged.setting == ChanSettings.watchEnabled) {
+            updateState();
+            postToEventBus(new PinMessages.PinsChangedMessage());
         }
-    }
-
-    // Called when the user changes the watch enabled preference
-    private void onWatchEnabledChanged(boolean watchEnabled) {
-        updateState(watchEnabled, ChanSettings.watchBackground.get());
-        postToEventBus(new PinMessages.PinsChangedMessage());
-    }
-
-    // Called when the user changes the watch background enabled preference
-    private void onBackgroundWatchingChanged(boolean backgroundEnabled) {
-        updateState(isTimerEnabled(), backgroundEnabled);
-        postToEventBus(new PinMessages.PinsChangedMessage());
     }
 
     // Called when the broadcast scheduled by the alarm manager was received
@@ -477,13 +464,9 @@ public class WatchManager
         return !getWatchingPins().isEmpty();
     }
 
-    private void updateState() {
-        updateState(isTimerEnabled(), ChanSettings.watchBackground.get());
-    }
-
     // Update the interval type according to the current settings,
     // create and destroy PinWatchers where needed and update the notification
-    private void updateState(boolean watchEnabled, boolean backgroundEnabled) {
+    private void updateState() {
         BackgroundUtils.ensureMainThread();
 
         // updateState() (which is now called updateStateInternal) was called way too often. It was
@@ -494,28 +477,17 @@ public class WatchManager
         // introduced. It updateState() is called too often, it will skip all updates and will wait
         // for at least STATE_UPDATE_DEBOUNCE_TIME_MS without any updates before calling
         // updateStateInternal().
-        stateUpdateDebouncer.post(() -> updateStateInternal(watchEnabled, backgroundEnabled),
-                STATE_UPDATE_DEBOUNCE_TIME_MS
-        );
+        stateUpdateDebouncer.post(this::updateStateInternal, STATE_UPDATE_DEBOUNCE_TIME_MS);
     }
 
-    private void updateStateInternal(boolean watchEnabled, boolean backgroundEnabled) {
+    private void updateStateInternal() {
         BackgroundUtils.ensureMainThread();
 
-        Logger.vd(this,
-                "updateState watchEnabled="
-                        + watchEnabled
-                        + " backgroundEnabled="
-                        + backgroundEnabled
-                        + " foreground="
-                        + isInForeground()
-        );
-
-        updateIntervals(watchEnabled, backgroundEnabled);
+        updateIntervals();
 
         // Update notification state
         // Do not start the service when all pins are stopped or archived/404ed
-        if (updatePinWatchers() && watchEnabled && backgroundEnabled) {
+        if (updatePinWatchers() && isTimerEnabled() && ChanSettings.watchBackground.get()) {
             // To make sure that we won't blow up when starting a service while the app is in
             // background we have to use this method which will call context.startForegroundService()
             // that allows an app to start a service (which must then call StartForeground in it's
@@ -573,77 +545,65 @@ public class WatchManager
         return hasActiveUnreadPins;
     }
 
-    private void updateIntervals(boolean watchEnabled, boolean backgroundEnabled) {
-        //determine expected interval type for current settings
-        IntervalType newInterval;
-        if (!watchEnabled) {
-            newInterval = NONE;
-        } else {
+    private void updateIntervals() {
+        IntervalType newInterval = NONE;
+        if (ChanSettings.watchEnabled.get()) {
             if (isInForeground()) {
                 newInterval = FOREGROUND;
             } else {
-                if (backgroundEnabled) {
+                if (ChanSettings.watchBackground.get()) {
                     newInterval = BACKGROUND;
-                } else {
-                    newInterval = NONE;
                 }
             }
         }
 
-        if (!hasActivePins()) {
-            Logger.d(this, "No active pins found, unregistering for wake");
+        if (hasActivePins()) {
+            if (currentInterval == newInterval) return;
+            endIntervalActions();
 
-            switch (currentInterval) {
-                case FOREGROUND:
-                    // Stop receiving handler messages
-                    handler.removeMessages(MESSAGE_UPDATE);
-                    break;
-                case BACKGROUND:
-                    // Stop receiving scheduled broadcasts
-                    WakeManager.getInstance().unregisterWakeable(this);
-                    break;
-                case NONE:
-                    // Stop everything
-                    handler.removeMessages(MESSAGE_UPDATE);
-                    WakeManager.getInstance().unregisterWakeable(this);
-                    break;
-            }
+            Logger.d(this, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
+            currentInterval = newInterval;
+
+            beginIntervalActions();
         } else {
-            // Changing interval type, like when watching is disabled or the app goes to the background
-            if (currentInterval != newInterval) {
-                switch (currentInterval) {
-                    case FOREGROUND:
-                        //Foreground -> background/none means stop receiving foreground updates
-                        handler.removeMessages(MESSAGE_UPDATE);
-                        break;
-                    case BACKGROUND:
-                        //Background -> foreground/none means stop receiving background updates
-                        WakeManager.getInstance().unregisterWakeable(this);
-                        break;
-                    case NONE:
-                        //Nothing -> foreground/background means do nothing
-                        break;
-                }
+            Logger.d(this, "No active pins found, unregistering for wake");
+            endIntervalActions();
+        }
+    }
 
-                Logger.d(this, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
-                currentInterval = newInterval;
+    private void endIntervalActions() {
+        switch (currentInterval) {
+            case FOREGROUND:
+                // Stop receiving handler messages
+                handler.removeMessages(MESSAGE_UPDATE);
+                break;
+            case BACKGROUND:
+                // Stop receiving scheduled broadcasts
+                WakeManager.getInstance().unregisterWakeable(this);
+                break;
+            case NONE:
+                // Stop everything
+                handler.removeMessages(MESSAGE_UPDATE);
+                WakeManager.getInstance().unregisterWakeable(this);
+                break;
+        }
+    }
 
-                switch (newInterval) {
-                    case FOREGROUND:
-                        //Background/none -> foreground means start receiving foreground updates
-                        handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
-                        break;
-                    case BACKGROUND:
-                        //Foreground/none -> background means start receiving background updates
-                        WakeManager.getInstance().registerWakeable(this);
-                        break;
-                    case NONE:
-                        //Foreground/background -> none means stop receiving every update
-                        handler.removeMessages(MESSAGE_UPDATE);
-                        WakeManager.getInstance().unregisterWakeable(this);
-                        break;
-                }
-            }
+    private void beginIntervalActions() {
+        switch (currentInterval) {
+            case FOREGROUND:
+                //Background/none -> foreground means start receiving foreground updates
+                handler.sendMessageDelayed(handler.obtainMessage(MESSAGE_UPDATE), FOREGROUND_INTERVAL);
+                break;
+            case BACKGROUND:
+                //Foreground/none -> background means start receiving background updates
+                WakeManager.getInstance().registerWakeable(this);
+                break;
+            case NONE:
+                //Foreground/background -> none means stop receiving every update
+                handler.removeMessages(MESSAGE_UPDATE);
+                WakeManager.getInstance().unregisterWakeable(this);
+                break;
         }
     }
 
@@ -684,7 +644,8 @@ public class WatchManager
         }
 
         if (fromBackground && !waitingForPinWatchersForBackgroundUpdate.isEmpty()) {
-            Logger.d(this,
+            Logger.d(
+                    this,
                     waitingForPinWatchersForBackgroundUpdate.size()
                             + " pin watchers beginning updates, started at "
                             + StringUtils.getCurrentTimeDefaultLocale()
@@ -795,7 +756,8 @@ public class WatchManager
 
         private void destroy() {
             if (chanLoader != null) {
-                Logger.d(this,
+                Logger.d(
+                        this,
                         "PinWatcher: destroyed for pin with id " + pin.id + " and loadable" + pin.loadable.toString()
                 );
                 ChanLoaderManager.release(chanLoader, this);

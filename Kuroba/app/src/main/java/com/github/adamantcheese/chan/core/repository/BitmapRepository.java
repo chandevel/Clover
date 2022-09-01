@@ -5,9 +5,11 @@ import static com.github.adamantcheese.chan.utils.BitmapUtils.decode;
 
 import android.content.Context;
 import android.graphics.*;
-import android.renderscript.RenderScript;
+import android.os.Build;
 import android.text.TextPaint;
 import android.util.TypedValue;
+
+import androidx.renderscript.RenderScript;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
@@ -69,6 +71,15 @@ public class BitmapRepository {
         // images are 160x160 by default, so this is the center on that original image, before scaling
         partyHat = new ResourceBitmap(c, R.drawable.partyhat, 50, 125);
         xmasHat = new ResourceBitmap(c, R.drawable.xmashat, 50, 125);
+    }
+
+    public static void cleanup() {
+        if (rs != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                RenderScript.releaseAllContexts();
+            }
+            rs.destroy();
+        }
     }
 
     public static class ResourceBitmap {

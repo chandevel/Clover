@@ -19,7 +19,6 @@ package com.github.adamantcheese.chan.core.saver;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
@@ -55,7 +54,7 @@ public class ImageSaveTask {
 
     private final PostImage postImage;
     private AbstractFile destination;
-    private final boolean share;
+    public final boolean share;
     private String subFolder;
     private boolean success = false;
     private final SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
@@ -86,10 +85,6 @@ public class ImageSaveTask {
 
     public AbstractFile getDestination() {
         return destination;
-    }
-
-    public boolean isShareTask() {
-        return share;
     }
 
     public Single<ImageSaver.BundledDownloadResult> run() {
@@ -166,20 +161,16 @@ public class ImageSaveTask {
     private void onDestination() {
         success = true;
         if (share) {
-            try {
-                Uri file = FileProvider.getUriForFile(getAppContext(),
-                        BuildConfig.FILE_PROVIDER,
-                        new File(destination.getFullPath())
-                );
+            Uri file = FileProvider.getUriForFile(getAppContext(),
+                    BuildConfig.FILE_PROVIDER,
+                    new File(destination.getFullPath())
+            );
 
-                Intent intent = new Intent(Intent.ACTION_SEND);
-                intent.setType(getAppContext().getContentResolver().getType(file));
-                intent.putExtra(Intent.EXTRA_STREAM, file);
-                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                openIntent(intent);
-            } catch (Exception e) {
-                showToast(getAppContext(), "Failed to share file.");
-            }
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType(getAppContext().getContentResolver().getType(file));
+            intent.putExtra(Intent.EXTRA_STREAM, file);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            openIntent(intent);
             return;
         }
 

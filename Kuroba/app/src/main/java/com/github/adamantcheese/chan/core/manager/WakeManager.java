@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_FOREGROUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -104,13 +105,13 @@ public class WakeManager {
 
     // Called when the app changes foreground state
     @Subscribe
-    public void onEvent(Chan.ForegroundChangedMessage message) {
-        if (message.inForeground) onBroadcastReceived(true);
+    public void onEvent(Chan.ActivityForegroundStatus status) {
+        if (status == IN_FOREGROUND) onBroadcastReceived(true);
     }
 
     public void registerWakeable(Wakeable wakeable) {
         boolean needsStart = wakeableSet.isEmpty();
-        Logger.d(this, "Registered " + wakeable.getClass().toString());
+        Logger.d(this, "Registered " + wakeable.getClass());
         wakeableSet.add(wakeable);
         if (!alarmRunning && needsStart) {
             startAlarm();
@@ -118,7 +119,7 @@ public class WakeManager {
     }
 
     public void unregisterWakeable(Wakeable wakeable) {
-        Logger.d(this, "Unregistered " + wakeable.getClass().toString());
+        Logger.d(this, "Unregistered " + wakeable.getClass());
         wakeableSet.remove(wakeable);
         if (alarmRunning && wakeableSet.isEmpty()) {
             stopAlarm();

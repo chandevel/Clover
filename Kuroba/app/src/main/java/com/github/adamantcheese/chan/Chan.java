@@ -16,6 +16,8 @@
  */
 package com.github.adamantcheese.chan;
 
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_BACKGROUND;
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_FOREGROUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
 import static java.lang.Thread.currentThread;
 
@@ -49,7 +51,7 @@ import io.reactivex.plugins.RxJavaPlugins;
 public class Chan
         extends Application
         implements DefaultActivityLifecycleCallbacks {
-    private int activityForegroundCounter = 0;
+    private boolean isInForeground;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Inject
@@ -69,32 +71,14 @@ public class Chan
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        // remove this if you need to debug some sort of event bus issue
-        try {
-            EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
-        } catch (EventBusException e) {
-            if (e.getMessage() != null && !e.getMessage().contains("already exists")) {
-                throw e;
-            } else if (e.getMessage() == null) {
-                throw e;
-            }
-        }
-    }
-
-    private void postEventBusOneSecondMessage() {
-        EventBus.getDefault().post("TICK");
-        handler.postDelayed(this::postEventBusOneSecondMessage, 1000);
-    }
-
-    @Override
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
 
+        EventBus.builder().logNoSubscriberMessages(false).installDefaultEventBus();
         AndroidUtils.init(this);
         BitmapRepository.initialize(this);
+        SettingNotificationManager.postNotification(null);
 
         WatchNotification.setupChannel();
         SavingNotification.setupChannel();
@@ -148,7 +132,7 @@ public class Chan
 
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             //if there's any uncaught crash stuff, just dump them to the log and exit immediately
-            String errorText = exceptionToString(false, e);
+            String errorText = exceptionToString(e);
 
             Logger.e("UNCAUGHT", errorText);
             Logger.e("UNCAUGHT", "------------------------------");
@@ -171,70 +155,54 @@ public class Chan
 
             System.exit(999);
         });
-
-        SettingNotificationManager.postNotification(null);
     }
 
-    private String exceptionToString(boolean isCalledFromRxJavaHandler, Throwable e) {
+    private String exceptionToString(Throwable e) {
         try (StringWriter sw = new StringWriter()) {
             try (PrintWriter pw = new PrintWriter(sw)) {
                 e.printStackTrace(pw);
                 String stackTrace = sw.toString();
 
-                if (isCalledFromRxJavaHandler) {
-                    return "Called from RxJava onError handler.\n" + stackTrace;
-                }
-
-                return "Called from unhandled exception handler.\n" + stackTrace;
+                return "Unhandled exception:\n" + stackTrace;
             }
         } catch (IOException ex) {
-            throw new RuntimeException("Error while trying to convert exception to string!", ex);
+            return "Failed to generate stack trace: " + e.getMessage();
         }
     }
 
-    public boolean getApplicationInForeground() {
-        return activityForegroundCounter > 0;
-    }
-
-    @Override
-    public void onActivityStarted(@NonNull Activity activity) {
-        boolean lastForeground = getApplicationInForeground();
-
-        activityForegroundCounter++;
-
-        if (getApplicationInForeground() != lastForeground) {
-            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
-            postEventBusOneSecondMessage();
-        }
+    public boolean getActivityInForeground() {
+        return isInForeground;
     }
 
     @Override
-    public void onActivityStopped(@NonNull Activity activity) {
-        boolean lastForeground = getApplicationInForeground();
+    public void onActivityResumed(@NonNull Activity activity) {
+        isInForeground = true;
+        postToEventBus(IN_FOREGROUND);
+        postEventBusOneSecondMessage();
+    }
 
-        activityForegroundCounter--;
-        if (activityForegroundCounter < 0) {
-            Logger.wtf("ChanApplication", "activityForegroundCounter below 0");
-        }
-
-        if (getApplicationInForeground() != lastForeground) {
-            postToEventBus(new ForegroundChangedMessage(getApplicationInForeground()));
-            handler.removeCallbacks(this::postEventBusOneSecondMessage);
-        }
+    @Override
+    public void onActivityPaused(@NonNull Activity activity) {
+        isInForeground = false;
+        postToEventBus(IN_BACKGROUND);
+        handler.removeCallbacks(this::postEventBusOneSecondMessage);
     }
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
+        BitmapRepository.cleanup();
         BackgroundUtils.cleanup();
         CancellableToast.cleanup();
         handler.removeCallbacks(this::postEventBusOneSecondMessage);
     }
 
-    public static class ForegroundChangedMessage {
-        public boolean inForeground;
+    public enum ActivityForegroundStatus {
+        IN_FOREGROUND,
+        IN_BACKGROUND;
+    }
 
-        public ForegroundChangedMessage(boolean inForeground) {
-            this.inForeground = inForeground;
-        }
+    private void postEventBusOneSecondMessage() {
+        EventBus.getDefault().post("TICK");
+        handler.postDelayed(this::postEventBusOneSecondMessage, 1000);
     }
 }

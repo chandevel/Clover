@@ -48,7 +48,7 @@ public class BackgroundUtils {
     public static final ScheduledExecutorService backgroundScheduledService = Executors.newScheduledThreadPool(1);
 
     public static boolean isInForeground() {
-        return ((Chan) getAppContext()).getApplicationInForeground();
+        return ((Chan) getAppContext()).getActivityInForeground();
     }
 
     /**

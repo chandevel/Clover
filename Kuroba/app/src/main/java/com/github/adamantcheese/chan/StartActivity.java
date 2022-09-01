@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_BACKGROUND;
 import static com.github.adamantcheese.chan.Chan.inject;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.AUTO;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
@@ -560,8 +561,8 @@ public class StartActivity
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEvent(Chan.ForegroundChangedMessage message) {
-        if (!message.inForeground) {
+    public void onEvent(Chan.ActivityForegroundStatus status) {
+        if (status == IN_BACKGROUND) {
             DatabaseUtils.runTaskAsync(databaseLoadableManager.purgeOld());
             File requestedFiles = new File(getCacheDir(), "requested");
             File[] files = requestedFiles.listFiles();

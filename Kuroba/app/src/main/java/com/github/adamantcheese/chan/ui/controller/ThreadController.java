@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.Chan.ActivityForegroundStatus.IN_FOREGROUND;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -128,8 +129,8 @@ public abstract class ThreadController
     }
 
     @Subscribe
-    public void onEvent(Chan.ForegroundChangedMessage message) {
-        threadLayout.getPresenter().onForegroundChanged(message.inForeground);
+    public void onEvent(Chan.ActivityForegroundStatus status) {
+        threadLayout.getPresenter().onForegroundChanged(status == IN_FOREGROUND);
     }
 
     @Subscribe

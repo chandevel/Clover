@@ -320,7 +320,7 @@ public class ImageSaver {
 
         // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
         // Also don't show the toast if the task was a share, or if this is an album save task
-        if (result == Success && !task.isShareTask()) {
+        if (result == Success && !task.share) {
             if (totalTasks.get() == 0) {
                 showToast(getAppContext(), getText(task, wasAlbumSave), Toast.LENGTH_LONG);
             }
@@ -467,7 +467,7 @@ public class ImageSaver {
 
         //shared files don't need deduplicating, nor do album saves as we don't want to save duplicates for album saves
         int i = 1;
-        while (!task.isShareTask() && !albumSave && fileManager.exists(saveFile)) {
+        while (!task.share && !albumSave && fileManager.exists(saveFile)) {
             String resultFileName = name + "_(" + i + ")." + postImage.extension;
 
             fileName = filterName(resultFileName);

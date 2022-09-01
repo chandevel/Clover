@@ -11,12 +11,12 @@ import android.content.Context;
 import android.graphics.*;
 import android.graphics.Bitmap.CompressFormat;
 import android.media.MediaMetadataRetriever;
-import android.renderscript.*;
 import android.util.Base64;
 
 import androidx.annotation.*;
 import androidx.core.util.Pair;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.renderscript.*;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.presenter.ImageReencodingPresenter;

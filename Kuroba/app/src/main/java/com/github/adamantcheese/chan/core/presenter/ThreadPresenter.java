@@ -744,7 +744,7 @@ public class ThreadPresenter
                 } else {
                     if (post.repliesFrom.isEmpty()) {
                         // no replies to this post so no point in showing the dialog
-                        hideOrRemovePosts(hide, false, post, chanLoader.getThread().getOp().no);
+                        hideOrRemovePosts(hide, false, post);
                     } else {
                         // show a dialog to the user with options to hide/remove the whole chain of posts
                         threadPresenterCallback.showHideOrRemoveWholeChainDialog(hide,
@@ -1115,7 +1115,7 @@ public class ThreadPresenter
         }
     }
 
-    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post, int threadNo) {
+    public void hideOrRemovePosts(boolean hide, boolean wholeChain, Post post) {
         Set<Post> posts = new HashSet<>();
 
         if (isBound()) {

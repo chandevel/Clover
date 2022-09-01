@@ -717,10 +717,10 @@ public class ThreadLayout
         AlertDialog alertDialog = getDefaultAlertBuilder(getContext())
                 .setMessage(message)
                 .setPositiveButton(positiveButtonText,
-                        (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post, threadNo)
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, true, post)
                 )
                 .setNegativeButton(negativeButtonText,
-                        (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post, threadNo)
+                        (dialog, which) -> presenter.hideOrRemovePosts(hide, false, post)
                 )
                 .create();
 
