@@ -346,13 +346,10 @@ public class BrowseBoardsFloatingMenu
         public void onViewRecycled(@NonNull ViewHolder holder) {
             if (holder instanceof SiteViewHolder) {
                 SiteViewHolder siteViewHolder = ((SiteViewHolder) holder);
-                siteViewHolder.image.setImageDrawable(null);
-                siteViewHolder.text.setText("");
-                siteViewHolder.itemView.setOnClickListener(null);
+                siteViewHolder.unbind();
             } else if (holder instanceof BoardViewHolder) {
                 BoardViewHolder boardViewHolder = ((BoardViewHolder) holder);
-                boardViewHolder.text.setText("");
-                boardViewHolder.itemView.setOnClickListener(null);
+                boardViewHolder.unbind();
             }
         }
     }
@@ -415,13 +412,18 @@ public class BrowseBoardsFloatingMenu
             super(itemView);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
-            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Site site) {
             itemView.setOnClickListener(v -> itemClicked(site, null));
             site.icon().get(image::setImageDrawable);
             text.setText(site.name());
+        }
+
+        public void unbind() {
+            image.setImageDrawable(null);
+            text.setText("");
+            itemView.setOnClickListener(null);
         }
     }
 
@@ -432,12 +434,16 @@ public class BrowseBoardsFloatingMenu
         public BoardViewHolder(View itemView) {
             super(itemView);
             text = (TextView) itemView;
-            text.setTypeface(ThemeHelper.getTheme().mainFont);
         }
 
         public void bind(Board board) {
             itemView.setOnClickListener(v -> itemClicked(null, board));
             text.setText(board.getFormattedName());
+        }
+
+        public void unbind() {
+            text.setText("");
+            itemView.setOnClickListener(null);
         }
     }
 

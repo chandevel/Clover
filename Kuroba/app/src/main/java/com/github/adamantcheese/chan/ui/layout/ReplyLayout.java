@@ -256,7 +256,6 @@ public class ReplyLayout
                                     .from(parent.getContext())
                                     .inflate(R.layout.toolbar_menu_item, parent, false));
                     textView.setText(getItem(position));
-                    textView.setTypeface(ThemeHelper.getTheme().mainFont);
                     return textView;
                 }
             });

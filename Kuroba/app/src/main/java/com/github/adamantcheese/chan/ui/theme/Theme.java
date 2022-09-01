@@ -17,12 +17,12 @@
 package com.github.adamantcheese.chan.ui.theme;
 
 import android.content.Context;
-import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -63,16 +63,9 @@ public class Theme {
     private final MaterialColorStyle defaultAccent;
     //endregion
 
-    public Typeface mainFont = ROBOTO_MEDIUM;
-    public Typeface altFont = ROBOTO_CONDENSED;
-    public boolean altFontIsMain = false;
-
     // Span colors, kept here for performance reasons
     public int subjectColor;
     public int nameColor;
-
-    private static final Typeface ROBOTO_MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
-    private static final Typeface ROBOTO_CONDENSED = Typeface.create("sans-serif-condensed", Typeface.NORMAL);
 
     public Theme(String displayName, int resValue, MaterialColorStyle primaryColor, MaterialColorStyle accentColor) {
         this.name = displayName;
@@ -85,19 +78,6 @@ public class Theme {
         // Span color setup
         subjectColor = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
         nameColor = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
-    }
-
-    public Theme(
-            String displayName,
-            int resValue,
-            MaterialColorStyle primaryColor,
-            MaterialColorStyle accentColor,
-            Typeface mainFont,
-            Typeface altFont
-    ) {
-        this(displayName, resValue, primaryColor, accentColor);
-        this.mainFont = mainFont;
-        this.altFont = altFont;
     }
 
     public void reset() {

@@ -158,7 +158,6 @@ public class ChanSettings {
     //Post
     public static final IntegerSetting thumbnailSize;
     public static final IntegerSetting fontSize;
-    public static final BooleanSetting fontAlternate;
     public static final BooleanSetting shiftPostFormat;
     public static final BooleanSetting accessibleInfo;
     public static final BooleanSetting postFullDate;
@@ -338,9 +337,7 @@ public class ChanSettings {
 
             // Post
             thumbnailSize = new IntegerSetting(p, "preference_thumbnail", 100);
-            thumbnailSize.addCallback((s) -> resetThumbnailCacheSize());
             fontSize = new IntegerSetting(p, "preference_font", getRes().getBoolean(R.bool.is_tablet) ? 16 : 14);
-            fontAlternate = new BooleanSetting(p, "preference_font_alternate", false);
             shiftPostFormat = new BooleanSetting(p, "shift_post_format", true);
             accessibleInfo = new BooleanSetting(p, "preference_enable_accessible_info", false);
             postFullDate = new BooleanSetting(p, "preference_post_full_date", false);
@@ -488,18 +485,8 @@ public class ChanSettings {
                 : ChanSettings.albumGridSpanCountLandscape).get();
     }
 
-    private static int thumbnailSizeCached = -1;
-
     public static int getThumbnailSize(Context c) {
-        if (thumbnailSizeCached == -1) {
-            thumbnailSizeCached =
-                    getDimen(c, R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
-        }
-        return thumbnailSizeCached;
-    }
-
-    private static void resetThumbnailCacheSize() {
-        thumbnailSizeCached = -1;
+        return getDimen(c, R.dimen.cell_post_thumbnail_size) * ChanSettings.thumbnailSize.get() / 100;
     }
 
     public static boolean shouldUseFullSizeImage(PostImage postImage) {

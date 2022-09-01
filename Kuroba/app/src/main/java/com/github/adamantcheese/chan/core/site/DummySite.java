@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage
 import com.github.adamantcheese.chan.core.site.http.*;
 import com.github.adamantcheese.chan.core.site.parser.*;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
+import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 
 import java.util.*;
 
@@ -55,9 +56,7 @@ public class DummySite
 
     @Override
     public SiteIcon icon() {
-        return SiteIcon.fromDrawable(new BitmapDrawable(getAppContext().getResources(),
-                BitmapFactory.decodeResource(getAppContext().getResources(), R.drawable.trash_icon)
-        ));
+        return SiteIcon.fromFavicon(BuildConfigUtils.TEST_POST_ICON_URL);
     }
 
     @Override

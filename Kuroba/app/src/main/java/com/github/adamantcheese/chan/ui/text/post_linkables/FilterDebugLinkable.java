@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.ui.text.post_linkables;
 
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 import android.text.TextPaint;
@@ -32,6 +31,6 @@ public class FilterDebugLinkable
 
     @Override
     public void onClick(@NonNull View widget) {
-        showToast(getAppContext(), "Matching filter: " + value, Toast.LENGTH_LONG);
+        showToast(widget.getContext(), "Matching filter: " + value, Toast.LENGTH_LONG);
     }
 }

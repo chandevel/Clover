@@ -156,7 +156,7 @@ public class FilterEngine {
         if (matches(filter, ID, post.posterId, false)) return true;
         if (matches(filter, SUBJECT, post.getSubject(), false)) return true;
         for (PostImage image : post.images) {
-            if (matches(filter, IMAGE, image.fileHash, false)) {
+            if (matches(filter, IMAGE_HASH, image.fileHash, false)) {
                 //for filtering image hashes, we don't want to apply the post-level filter unless the user set it as such
                 //this takes care of it at an image level, either flagging it to be hidden, which applies a
                 //custom spoiler image, or removes the image from the post entirely since this is a Post.Builder instance

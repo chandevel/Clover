@@ -243,15 +243,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
 10) Filename<br>
 ]]>
     </string>
-    <string name="filter_tripcode">Tripcode</string>
-    <string name="filter_name">Name</string>
-    <string name="filter_comment">Comment</string>
-    <string name="filter_id">ID</string>
-    <string name="filter_subject">Subject</string>
-    <string name="filter_filename">Filename</string>
-    <string name="filter_flag_code">Flag code</string>
-    <string name="filter_image_hash">Image hash</string>
-
     <string name="drawer_history">Historical threads</string>
 
     <string name="archive_title">%s archive</string>
@@ -411,8 +402,6 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="setting_move_sort_to_toolbar_description">Move board sort option from submenu to toolbar</string>
 
     <!-- Appearance post group -->
-    <string name="setting_font_alt">Use alternative font</string>
-    <string name="setting_font_alt_description">Use the theme\'s alt font for posts</string>
     <string name="setting_post_full_date">Show the full date on posts</string>
     <string name="setting_post_file_info">Show file info on posts</string>
     <string name="setting_post_filename">Show filename on posts</string>

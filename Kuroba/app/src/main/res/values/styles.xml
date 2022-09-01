@@ -359,24 +359,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <item name="post_quote_color">@color/md_grey_200</item>
         <item name="android:textColorLink">@color/md_grey_200</item>
     </style>
-
-    <style name="Chan.Theme.Holo" parent="Chan.Theme.Dark">
-        <item name="backcolor">#654c4f</item>
-        <item name="backcolor_secondary">#4a3335</item>
-
-        <item name="android:textColor">#fffde8</item>
-        <item name="android:textColorPrimary">#fffde8</item>
-        <item name="android:textColorSecondary">#b7aba1</item>
-
-        <item name="highlight_color">#30000000</item>
-        <item name="divider_color">#30000000</item>
-
-        <item name="post_subject_color">#666ec0</item>
-        <item name="post_details_color">@color/white</item>
-        <item name="post_spoiler_color">#452c2f</item>
-        <item name="post_quote_color">#d06448</item>
-        <item name="android:textColorLink">#d06448</item>
-    </style>
     <!-- endregion -->
 
     <!-- region In-App Custom Styleable Elements -->

@@ -197,7 +197,6 @@ public class DrawerController
         drawer = view.findViewById(R.id.drawer);
 
         settings = view.findViewById(R.id.settings);
-        ((TextView) settings.findViewById(R.id.settings_text)).setTypeface(ThemeHelper.getTheme().mainFont);
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 

@@ -1164,27 +1164,27 @@ public class ThreadPresenter
     private List<FloatingMenuItem<PostOptions>> populateFilterMenuOptions(Post post) {
         List<FloatingMenuItem<PostOptions>> filterMenu = new ArrayList<>();
         if (post.isOP && !TextUtils.isEmpty(post.subject)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, R.string.filter_subject));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_SUBJECT, FilterType.SUBJECT.toString()));
         }
         if (!TextUtils.isEmpty(post.comment)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, R.string.filter_comment));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_COMMENT, FilterType.COMMENT.toString()));
         }
         if (!TextUtils.isEmpty(post.name) && !TextUtils.equals(post.name, "Anonymous")) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, R.string.filter_name));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_NAME, FilterType.NAME.toString()));
         }
         if (!TextUtils.isEmpty(post.id)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, R.string.filter_id));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_ID, FilterType.ID.toString()));
         }
         if (!TextUtils.isEmpty(post.tripcode)) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, R.string.filter_tripcode));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_TRIPCODE, FilterType.TRIPCODE.toString()));
         }
         if (loadable.board.countryFlags || !loadable.board.boardFlags.isEmpty()) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FLAG_CODE, R.string.filter_flag_code));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FLAG_CODE, FilterType.FLAG_CODE.toString()));
         }
         if (!post.images.isEmpty()) {
-            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, R.string.filter_filename));
+            filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_FILENAME, FilterType.FILENAME.toString()));
             if (loadable.site.siteFeature(Site.SiteFeature.IMAGE_FILE_HASH)) {
-                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, R.string.filter_image_hash));
+                filterMenu.add(new FloatingMenuItem<>(POST_OPTION_FILTER_IMAGE_HASH, FilterType.IMAGE_HASH.toString()));
             }
         }
         return filterMenu;

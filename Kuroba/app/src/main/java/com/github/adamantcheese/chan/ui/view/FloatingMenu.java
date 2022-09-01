@@ -207,7 +207,6 @@ public class FloatingMenu<T> {
 
             TextView textView = (TextView) convertView;
             textView.setText(item.getText());
-            textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
             return textView;
         }

@@ -204,7 +204,7 @@ public class ToolbarMenuItem {
         return id;
     }
 
-    void performClick(View view) {
+    void performClick(@SuppressWarnings("unused") View view) {
         if (clickCallback != null) {
             clickCallback.onClick(this);
         }

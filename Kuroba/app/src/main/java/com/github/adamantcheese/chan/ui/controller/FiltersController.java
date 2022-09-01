@@ -335,7 +335,7 @@ public class FiltersController
             StringBuilder subText = new StringBuilder();
             int types = FilterType.forFlags(filter.type).size();
             if (types == 1) {
-                subText.append(FilterType.filterTypeName(FilterType.forFlags(filter.type).get(0)));
+                subText.append(FilterType.forFlags(filter.type).get(0).toString());
             } else {
                 subText.append(getQuantityString(R.plurals.type, types));
             }

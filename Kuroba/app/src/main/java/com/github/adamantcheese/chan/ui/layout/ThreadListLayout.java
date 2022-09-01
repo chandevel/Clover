@@ -131,9 +131,6 @@ public class ThreadListLayout
 
         // View setup
         reply.setCallback(this);
-        if (!isInEditMode()) {
-            searchStatus.setTypeface(ThemeHelper.getTheme().mainFont);
-        }
     }
 
     public void setCallbacks(

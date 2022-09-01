@@ -17,14 +17,14 @@
 package com.github.adamantcheese.chan.ui.theme;
 
 import static com.github.adamantcheese.chan.ui.theme.Theme.MaterialColorStyle.*;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -64,11 +64,6 @@ public class ThemeHelper {
     public static Theme themeNight = defaultNightTheme;
     public static boolean isNightTheme = false;
 
-    private static final Typeface TALLEYRAND =
-            Typeface.createFromAsset(getAppContext().getAssets(), "font/Talleyrand.ttf");
-    private static final Typeface OPTI_CUBA_LIBRE_TWO =
-            Typeface.createFromAsset(getAppContext().getAssets(), "font/OPTICubaLibreTwo.otf");
-
     public static void init() {
         if (initialized) return;
         initialized = true;
@@ -87,9 +82,6 @@ public class ThemeHelper {
         themes.add(new Theme("Neon", R.style.Chan_Theme_Neon, DARK, LIGHT_BLUE));
         themes.add(new Theme("Solarized Dark", R.style.Chan_Theme_SolarizedDark, ORANGE, ORANGE));
         themes.add(new Theme("Colorblind", R.style.Chan_Theme_Colorblind, DARK, GREY));
-        Theme holo = new Theme("Holo", R.style.Chan_Theme_Holo, BROWN, RED, TALLEYRAND, OPTI_CUBA_LIBRE_TWO);
-        holo.altFontIsMain = true;
-        themes.add(holo);
 
         String[] split = ChanSettings.themeDay.get().split(",");
         boolean ok = false;

@@ -356,14 +356,6 @@ public class PostCell
             comment.setEllipsize(TextUtils.TruncateAt.END);
         }
 
-        if (!theme.altFontIsMain && ChanSettings.fontAlternate.get()) {
-            comment.setTypeface(theme.altFont);
-        }
-
-        if (theme.altFontIsMain) {
-            comment.setTypeface(ChanSettings.fontAlternate.get() ? Typeface.DEFAULT : theme.altFont);
-        }
-
         if (ChanSettings.shiftPostFormat.get()) {
             comment.setVisibility(isEmpty(post.comment) ? GONE : VISIBLE);
         } else {

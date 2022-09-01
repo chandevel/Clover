@@ -53,9 +53,7 @@ public class ThreadStatusCell
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        if (!isInEditMode()) {
-            setTypeface(ThemeHelper.getTheme().mainFont);
-        } else {
+        if (isInEditMode()) {
             setCallback(new Callback() {
                 @Override
                 public long getTimeUntilLoadMore() {

@@ -16,9 +16,7 @@
  */
 package com.github.adamantcheese.chan.core.manager;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-
-import com.github.adamantcheese.chan.R;
+import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +33,7 @@ public enum FilterType {
     SUBJECT(0x10),
     FILENAME(0x20),
     FLAG_CODE(0x40),
-    IMAGE(0x80);
+    IMAGE_HASH(0x80);
 
     public final int flag;
 
@@ -53,25 +51,8 @@ public enum FilterType {
         return enabledTypes;
     }
 
-    public static String filterTypeName(FilterType type) {
-        switch (type) {
-            case TRIPCODE:
-                return getString(R.string.filter_tripcode);
-            case NAME:
-                return getString(R.string.filter_name);
-            case COMMENT:
-                return getString(R.string.filter_comment);
-            case ID:
-                return getString(R.string.filter_id);
-            case SUBJECT:
-                return getString(R.string.filter_subject);
-            case FILENAME:
-                return getString(R.string.filter_filename);
-            case FLAG_CODE:
-                return getString(R.string.filter_flag_code);
-            case IMAGE:
-                return getString(R.string.filter_image_hash);
-        }
-        return null;
+    @Override
+    public String toString() {
+        return StringUtils.caseAndSpace(this.name(), "_", true);
     }
 }

@@ -644,7 +644,6 @@ public class ThemeSettingsController
                     ? convertView
                     : LayoutInflater.from(parent.getContext()).inflate(R.layout.toolbar_menu_item, parent, false));
             textView.setText(getItem(position));
-            textView.setTypeface(ThemeHelper.getTheme().mainFont);
 
             MaterialColorStyle color = colors.get(position).getId();
 

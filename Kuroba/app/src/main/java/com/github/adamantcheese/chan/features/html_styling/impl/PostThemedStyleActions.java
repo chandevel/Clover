@@ -5,7 +5,6 @@ import static com.github.adamantcheese.chan.features.html_styling.impl.CommonSty
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.QUOTE_COLOR;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
@@ -120,8 +119,7 @@ public class PostThemedStyleActions {
                 //link to post not in same thread with post number (>>post or >>>/board/post)
                 //in the case of an archive, set the type to be an archive link
                 ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
-                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
-                        theme,
+                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(theme,
                         href.contains("post")
                                 ? new ResolveLink((ExternalSiteArchive) post.board.site, board, threadNo)
                                 : threadLink
@@ -258,28 +256,25 @@ public class PostThemedStyleActions {
                 @NonNull Post.Builder post,
                 @NonNull PostParser.PostParserCallback callback
         ) {
-            return span(
-                    "[SJIS art available. Click here to view.]",
-                    new CustomTypefaceSpan("",
-                            Typeface.createFromAsset(getAppContext().getAssets(), "font/submona.ttf")
-                    ),
-                    new PopupItemLinkable(theme) {
-                        @Override
-                        public void onClick(@NonNull View widget) {
-                            TextView sjisView = new TextView(widget.getContext());
-                            sjisView.setMovementMethod(new ScrollingMovementMethod());
-                            sjisView.setHorizontallyScrolling(true);
-                            updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
-                            sjisView.setText(text);
-                            AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
-                                    .setView(sjisView)
-                                    .setPositiveButton(R.string.close, null)
-                                    .create();
-                            dialog.setCanceledOnTouchOutside(true);
-                            dialog.show();
-                        }
-                    }
-            );
+            if (text == null) return "";
+            return span("[SJIS art available. Click here to view.]", new PopupItemLinkable(theme) {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    TextView sjisView = new TextView(widget.getContext());
+                    sjisView.setMovementMethod(new ScrollingMovementMethod());
+                    sjisView.setHorizontallyScrolling(true);
+                    updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
+                    sjisView.setText(span(text.toString(), new CustomTypefaceSpan("",
+                            Typeface.createFromAsset(widget.getContext().getAssets(), "font/submona.ttf")
+                    )));
+                    AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
+                            .setView(sjisView)
+                            .setPositiveButton(R.string.close, null)
+                            .create();
+                    dialog.setCanceledOnTouchOutside(true);
+                    dialog.show();
+                }
+            });
         }
     };
 
@@ -406,8 +401,7 @@ public class PostThemedStyleActions {
                 if (filterEngine.matchesBoard(f, post.board)) {
                     MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
                     if (result != null) {
-                        builder.setSpan(
-                                new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
+                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
                                 result.start(),
                                 result.end(),
                                 makeSpanOptions(RENDER_NORMAL)

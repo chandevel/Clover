@@ -225,10 +225,8 @@ public class DrawerPinAdapter
             super(itemView);
             image = itemView.findViewById(R.id.thumb);
             title = itemView.findViewById(R.id.title);
-            title.setTypeface(ThemeHelper.getTheme().mainFont);
             threadInfo = itemView.findViewById(R.id.thread_info);
             watchCountText = itemView.findViewById(R.id.watch_count);
-            watchCountText.setTypeface(ThemeHelper.getTheme().mainFont);
             watchCountText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
 
             image.setOnClickListener(v -> {

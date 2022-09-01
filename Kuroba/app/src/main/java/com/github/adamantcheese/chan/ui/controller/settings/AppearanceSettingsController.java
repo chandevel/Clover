@@ -210,12 +210,6 @@ public class AppearanceSettingsController
                     }
             )));
 
-            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
-                    ChanSettings.fontAlternate,
-                    R.string.setting_font_alt,
-                    R.string.setting_font_alt_description
-            )));
-
             requiresRestart.add(post.add(new BooleanSettingView(this,
                     ChanSettings.shiftPostFormat,
                     R.string.setting_shift_post,

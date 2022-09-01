@@ -315,7 +315,7 @@ public class ReplyPresenter
                     replaceSpan(error, s, new ClickableSpan() {
                         @Override
                         public void onClick(@NonNull View widget) {
-                            openLinkInBrowser(context, url);
+                            openLinkInBrowser(widget.getContext(), url);
                         }
 
                         @Override

@@ -179,7 +179,7 @@ public class FilterLayout
 
         List<SelectLayout.SelectItem<FilterType>> items = new ArrayList<>();
         for (FilterType filterType : FilterType.values()) {
-            String name = FilterType.filterTypeName(filterType);
+            String name = filterType.toString();
             boolean checked = filter.hasFilter(filterType);
 
             items.add(new SelectLayout.SelectItem<>(filterType, filterType.flag, name, null, name, checked));

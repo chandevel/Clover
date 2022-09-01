@@ -54,7 +54,6 @@ import com.github.adamantcheese.chan.ui.helper.PostPopupHelper;
 import com.github.adamantcheese.chan.ui.helper.RemovedPostsHelper;
 import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
 import com.github.adamantcheese.chan.ui.view.HidingFloatingActionButton;
 import com.github.adamantcheese.chan.ui.view.LoadView;
@@ -150,7 +149,6 @@ public class ThreadLayout
         threadListLayout.setCallbacks(presenter, presenter, presenter, presenter, this);
         postPopupHelper = new PostPopupHelper(getContext(), presenter, this);
         removedPostsHelper = new RemovedPostsHelper(getContext(), presenter, this);
-        errorText.setTypeface(ThemeHelper.getTheme().mainFont);
         errorRetryButton.setOnClickListener(v -> {
             if (!archiveButton) {
                 presenter.requestData();
@@ -428,7 +426,7 @@ public class ThreadLayout
     public void filterPostImageHash(Post post) {
         if (post.images.isEmpty()) return;
         if (post.images.size() == 1) {
-            callback.openFilterForType(FilterType.IMAGE, post.image().fileHash);
+            callback.openFilterForType(FilterType.IMAGE_HASH, post.image().fileHash);
         } else {
             ListView hashList = new ListView(getContext());
             AlertDialog dialog = getDefaultAlertBuilder(getContext())
@@ -442,7 +440,7 @@ public class ThreadLayout
             }
             hashList.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, hashes));
             hashList.setOnItemClickListener((parent, view, position, id) -> {
-                callback.openFilterForType(FilterType.IMAGE, hashes.get(position));
+                callback.openFilterForType(FilterType.IMAGE_HASH, hashes.get(position));
                 dialog.dismiss();
             });
 

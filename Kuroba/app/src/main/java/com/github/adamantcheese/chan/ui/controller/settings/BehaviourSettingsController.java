@@ -400,12 +400,12 @@ public class BehaviourSettingsController
                 .show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.Q)
     private void addEditGestureZone(
             AttachSide attachSide, ExclusionZone skipZone, SettingView settingView, DialogInterface dialog
     ) {
         AdjustAndroid10GestureZonesController adjustGestureZonesController =
                 new AdjustAndroid10GestureZonesController(context, attachSide, skipZone) {
-                    @RequiresApi(api = Build.VERSION_CODES.Q)
                     @Override
                     public void onDestroy() {
                         super.onDestroy();
