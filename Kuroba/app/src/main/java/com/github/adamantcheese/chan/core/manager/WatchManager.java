@@ -561,12 +561,12 @@ public class WatchManager
             if (currentInterval == newInterval) return;
             endIntervalActions();
 
-            Logger.d(this, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
+            Logger.vd(this, "Setting interval type from " + currentInterval.name() + " to " + newInterval.name());
             currentInterval = newInterval;
 
             beginIntervalActions();
         } else {
-            Logger.d(this, "No active pins found, unregistering for wake");
+            Logger.vd(this, "No active pins found, unregistering for wake");
             endIntervalActions();
         }
     }

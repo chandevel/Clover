@@ -118,8 +118,8 @@ public class DrawerController
                 @NonNull RecyclerView.ViewHolder viewHolder,
                 @NonNull RecyclerView.ViewHolder target
         ) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+            int from = viewHolder.getBindingAdapterPosition();
+            int to = target.getBindingAdapterPosition();
 
             synchronized (watchManager.getAllPins()) {
                 Pin item = watchManager.getAllPins().remove(from);
@@ -134,7 +134,7 @@ public class DrawerController
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             if (pinMode) {
                 synchronized (watchManager.getAllPins()) {
-                    onPinRemoved(watchManager.getAllPins().get(viewHolder.getAdapterPosition()));
+                    onPinRemoved(watchManager.getAllPins().get(viewHolder.getBindingAdapterPosition()));
                 }
             } else {
                 try {

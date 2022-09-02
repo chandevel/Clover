@@ -89,8 +89,8 @@ public class FiltersController
         public boolean onMove(
                 @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
         ) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+            int from = viewHolder.getBindingAdapterPosition();
+            int to = target.getBindingAdapterPosition();
 
             if (from == RecyclerView.NO_POSITION
                     || to == RecyclerView.NO_POSITION
@@ -106,7 +106,7 @@ public class FiltersController
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             if (direction == ItemTouchHelper.LEFT || direction == ItemTouchHelper.RIGHT) {
-                int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getBindingAdapterPosition();
                 deleteFilter(adapter.displayList.get(position));
             }
         }
@@ -424,7 +424,7 @@ public class FiltersController
             });
 
             itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
+                int position = getBindingAdapterPosition();
                 if (!locked && position >= 0 && position < adapter.getItemCount() && v == itemView) {
                     showFilterDialog(adapter.displayList.get(position));
                 }

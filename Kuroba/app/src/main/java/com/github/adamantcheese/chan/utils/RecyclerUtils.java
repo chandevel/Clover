@@ -151,4 +151,24 @@ public class RecyclerUtils {
          */
         public abstract boolean showDividerTop();
     }
+
+    public static class DPSpacingItemDecoration
+            extends RecyclerView.ItemDecoration {
+        private final float spacing;
+
+        public DPSpacingItemDecoration(Context context, float spacing) {
+            this.spacing = dp(context, spacing);
+        }
+
+        @Override
+        public void getItemOffsets(
+                @NonNull Rect outRect,
+                @NonNull View view,
+                @NonNull RecyclerView parent,
+                @NonNull RecyclerView.State state
+        ) {
+            super.getItemOffsets(outRect, view, parent, state);
+            outRect.bottom = (int) spacing;
+        }
+    }
 }

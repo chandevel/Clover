@@ -193,7 +193,7 @@ public class DrawerHistoryAdapter
         }
 
         public History getHistory() {
-            int position = getAdapterPosition();
+            int position = getBindingAdapterPosition();
             if (position >= 0 && position < getItemCount()) {
                 return historyList.get(position);
             }

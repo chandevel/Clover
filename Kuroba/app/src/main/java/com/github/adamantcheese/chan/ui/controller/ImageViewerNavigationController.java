@@ -39,7 +39,7 @@ public class ImageViewerNavigationController
         super.onCreate();
 
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_navigation_image_viewer, null);
-        container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
+        container = view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
         nav.setSwipeEnabled(false);

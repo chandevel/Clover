@@ -340,7 +340,7 @@ public class PostThemedStyleActions {
                 if (matcher.matches()) {
                     boolean noThumbnail = StringUtils.endsWithAny(linkable.value, NO_THUMB_LINK_SUFFIXES);
 
-                    HttpUrl imageUrl = HttpUrl.get((String) linkable.value);
+                    HttpUrl imageUrl = HttpUrl.get(linkable.value);
                     // ignore saucenao links, not actual images
                     if (imageUrl.host().equals("saucenao.com")) {
                         continue;
@@ -348,9 +348,7 @@ public class PostThemedStyleActions {
 
                     PostImage inlinedImage = new PostImage.Builder().serverFilename(matcher.group(1))
                             //spoiler thumb for some linked items, the image itself for the rest; probably not a great idea
-                            .thumbnailUrl(noThumbnail
-                                    ? INTERNAL_SPOILER_THUMB_URL
-                                    : HttpUrl.get((String) linkable.value))
+                            .thumbnailUrl(noThumbnail ? INTERNAL_SPOILER_THUMB_URL : HttpUrl.get(linkable.value))
                             .spoilerThumbnailUrl(INTERNAL_SPOILER_THUMB_URL)
                             .imageUrl(imageUrl)
                             .filename(matcher.group(1))

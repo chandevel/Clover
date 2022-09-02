@@ -67,12 +67,12 @@ public class DrawerPinAdapter
     private final Callback callback;
     private Pin highlighted;
 
-    private static final ColorMatrixColorFilter greyFilter;
+    private static final ColorMatrixColorFilter GRAYSCALE;
 
     static {
         ColorMatrix grey = new ColorMatrix();
         grey.setSaturation(0);
-        greyFilter = new ColorMatrixColorFilter(grey);
+        GRAYSCALE = new ColorMatrixColorFilter(grey);
     }
 
     public DrawerPinAdapter(@NonNull Callback callback) {
@@ -111,7 +111,7 @@ public class DrawerPinAdapter
         holder.title.setText(applySearchSpans(ThemeHelper.getTheme(), pin.loadable.title, searchQuery));
 
         holder.loadUrl(pin.loadable.thumbnailUrl, holder.image);
-        holder.image.setColorFilter(pin.watching ? null : greyFilter);
+        holder.image.setColorFilter(pin.watching ? null : GRAYSCALE);
 
         WatchManager.PinWatcher pinWatcher = watchManager.getPinWatcher(pin);
         if (pinWatcher != null) {
@@ -230,7 +230,7 @@ public class DrawerPinAdapter
             watchCountText.setPaintFlags(Paint.ANTI_ALIAS_FLAG);
 
             image.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 synchronized (watchManager.getAllPins()) {
                     if (pos >= 0 && pos < watchManager.getAllPins().size()) {
                         watchManager.toggleWatch(watchManager.getAllPins().get(pos));
@@ -239,7 +239,7 @@ public class DrawerPinAdapter
             });
 
             itemView.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 synchronized (watchManager.getAllPins()) {
                     if (pos >= 0 && pos < watchManager.getAllPins().size()) {
                         callback.onPinClicked(watchManager.getAllPins().get(pos));
@@ -248,7 +248,7 @@ public class DrawerPinAdapter
             });
 
             watchCountText.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 synchronized (watchManager.getAllPins()) {
                     if (pos >= 0 && pos < watchManager.getAllPins().size()) {
                         watchManager.toggleWatch(watchManager.getAllPins().get(pos));

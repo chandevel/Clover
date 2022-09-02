@@ -68,8 +68,8 @@ public class SitesSetupController
             new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
                 @Override
                 public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
-                    int from = viewHolder.getAdapterPosition();
-                    int to = target.getAdapterPosition();
+                    int from = viewHolder.getBindingAdapterPosition();
+                    int to = target.getBindingAdapterPosition();
 
                     presenter.move(from, to);
 

@@ -211,7 +211,7 @@ public class SelectLayout<T>
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (buttonView == checkBox) {
-                SelectItem<T> board = adapter.displayList.get(getAdapterPosition());
+                SelectItem<T> board = adapter.displayList.get(getBindingAdapterPosition());
                 board.checked = isChecked;
                 updateAllSelected();
             }

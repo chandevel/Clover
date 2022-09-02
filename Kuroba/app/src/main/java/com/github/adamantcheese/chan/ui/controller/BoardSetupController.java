@@ -70,8 +70,8 @@ public class BoardSetupController
         public boolean onMove(
                 @NonNull RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target
         ) {
-            int from = viewHolder.getAdapterPosition();
-            int to = target.getAdapterPosition();
+            int from = viewHolder.getBindingAdapterPosition();
+            int to = target.getBindingAdapterPosition();
 
             if (from == RecyclerView.NO_POSITION || to == RecyclerView.NO_POSITION) {
                 return false;
@@ -84,7 +84,7 @@ public class BoardSetupController
 
         @Override
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            int position = viewHolder.getAdapterPosition();
+            int position = viewHolder.getBindingAdapterPosition();
 
             presenter.removeBoard(position);
         }

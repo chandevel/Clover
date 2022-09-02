@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     tools:background="?backcolor"
-    tools:layout_height="300dp">
+    tools:layout_height="215dp">
 
     <View
         android:id="@+id/filter_match_color"

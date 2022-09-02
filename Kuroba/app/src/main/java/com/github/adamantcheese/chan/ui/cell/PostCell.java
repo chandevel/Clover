@@ -64,6 +64,7 @@ import com.github.adamantcheese.chan.ui.text.AbsoluteSizeSpanHashed;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.*;
+import com.github.adamantcheese.chan.utils.RecyclerUtils.DPSpacingItemDecoration;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
 import java.util.ArrayList;
@@ -653,26 +654,6 @@ public class PostCell
             public void setImageCall(Call call) {
                 this.imageCall = call;
             }
-        }
-    }
-
-    public static class DPSpacingItemDecoration
-            extends RecyclerView.ItemDecoration {
-        private final float spacing;
-
-        public DPSpacingItemDecoration(Context context, float spacing) {
-            this.spacing = dp(context, spacing);
-        }
-
-        @Override
-        public void getItemOffsets(
-                @NonNull Rect outRect,
-                @NonNull View view,
-                @NonNull RecyclerView parent,
-                @NonNull RecyclerView.State state
-        ) {
-            super.getItemOffsets(outRect, view, parent, state);
-            outRect.bottom = (int) spacing;
         }
     }
 

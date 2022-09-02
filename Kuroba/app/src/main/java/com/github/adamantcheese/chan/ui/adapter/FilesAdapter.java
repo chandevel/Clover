@@ -119,7 +119,7 @@ public class FilesAdapter
             super(itemView);
             image = itemView.findViewById(R.id.image);
             text = itemView.findViewById(R.id.text);
-            itemView.setOnClickListener(v -> onItemClicked(getItem(getAdapterPosition())));
+            itemView.setOnClickListener(v -> onItemClicked(getItem(getBindingAdapterPosition())));
         }
     }
 

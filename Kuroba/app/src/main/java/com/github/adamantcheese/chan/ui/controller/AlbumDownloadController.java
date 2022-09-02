@@ -331,7 +331,7 @@ public class AlbumDownloadController
             checkbox = itemView.findViewById(R.id.checkbox);
             thumbnailView = itemView.findViewById(R.id.thumbnail_view);
             thumbnailView.setOnClickListener(v -> {
-                AlbumDownloadItem item = items.get(getAdapterPosition());
+                AlbumDownloadItem item = items.get(getBindingAdapterPosition());
                 item.checked = !item.checked;
                 updateAllChecked();
                 updateTitle();
