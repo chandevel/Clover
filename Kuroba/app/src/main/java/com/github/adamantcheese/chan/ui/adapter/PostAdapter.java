@@ -36,7 +36,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.ChanThread;
 import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbeddingEngine;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface;
@@ -77,7 +76,7 @@ public class PostAdapter
     private final ThreadStatusCell.Callback statusCellCallback;
     private final List<Post> displayList = new ArrayList<>();
 
-    private Loadable loadable = null;
+    private boolean isInThread = false;
     private String highlightedId;
     private int highlightedNo = -1;
     private String highlightedTripcode;
@@ -159,10 +158,6 @@ public class PostAdapter
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (loadable == null) {
-            throw new IllegalStateException("Loadable cannot be null");
-        }
-
         CellType cellType = CellType.values()[getItemViewType(position)];
         if (cellType != TYPE_STATUS) {
             PostViewHolder postViewHolder = (PostViewHolder) holder;
@@ -196,8 +191,7 @@ public class PostAdapter
     }
 
     private void doSetPost(PostViewHolder holder, @NonNull Post post, boolean clearEmbed) {
-        ((PostCellInterface) holder.itemView).setPost(loadable,
-                post,
+        ((PostCellInterface) holder.itemView).setPost(post,
                 postCellCallback,
                 isInPopup(),
                 shouldHighlight(post),
@@ -304,8 +298,7 @@ public class PostAdapter
 
     public void setThread(ChanThread thread, PostsFilter newFilter) {
         BackgroundUtils.ensureMainThread();
-
-        this.loadable = thread.loadable;
+        isInThread = thread.loadable.isThreadMode();
 
         List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
         currentFilter = newFilter == null ? new PostsFilter(BUMP_ORDER, null) : newFilter;
@@ -313,7 +306,7 @@ public class PostAdapter
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom
         for (int i = 0; i < newList.size() - 1; i++) {
-            if (newList.get(i).no == loadable.lastViewed) {
+            if (newList.get(i).no == thread.loadable.lastViewed) {
                 lastSeenIndicatorPosition = i;
                 break;
             }
@@ -389,10 +382,7 @@ public class PostAdapter
         // the loadable can be null while this adapter is used between cleanup and the removal
         // of the recyclerview from the view hierarchy, although it's rare.
         // also don't show the status view if there's a search query going
-        return postAdapterCallback != null
-                && TextUtils.isEmpty(currentFilter.query)
-                && loadable != null
-                && loadable.isThreadMode();
+        return postAdapterCallback != null && TextUtils.isEmpty(currentFilter.query) && isInThread;
     }
 
     public static class PostViewHolder

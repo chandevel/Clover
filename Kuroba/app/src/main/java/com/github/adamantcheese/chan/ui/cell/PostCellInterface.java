@@ -30,13 +30,7 @@ import java.util.List;
 
 public interface PostCellInterface {
     void setPost(
-            Loadable loadable,
-            Post post,
-            PostCellCallback callback,
-            boolean inPopup,
-            boolean highlighted,
-            boolean compact,
-            Theme theme
+            Post post, PostCellCallback callback, boolean inPopup, boolean highlighted, boolean compact, Theme theme
     );
 
     void unsetPost();

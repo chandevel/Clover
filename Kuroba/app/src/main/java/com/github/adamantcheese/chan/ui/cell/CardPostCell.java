@@ -38,7 +38,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
@@ -153,7 +152,6 @@ public class CardPostCell
     }
 
     public void setPost(
-            Loadable loadable,
             final Post post,
             PostCellCallback callback,
             boolean inPopup,
@@ -163,23 +161,6 @@ public class CardPostCell
     ) {
         this.callback = callback;
         setCompact(compact);
-        bindPost(theme, post, highlighted);
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public ImageView getThumbnailView(PostImage postImage) {
-        return thumbView;
-    }
-
-    @Override
-    public boolean hasOverlappingRendering() {
-        return false;
-    }
-
-    private void bindPost(Theme theme, Post post, boolean highlighted) {
         this.post = post;
 
         if (highlighted || post.isSavedReply) {
@@ -251,6 +232,19 @@ public class CardPostCell
         }
 
         replies.setText(status);
+    }
+
+    public Post getPost() {
+        return post;
+    }
+
+    public ImageView getThumbnailView(PostImage postImage) {
+        return thumbView;
+    }
+
+    @Override
+    public boolean hasOverlappingRendering() {
+        return false;
     }
 
     @Override

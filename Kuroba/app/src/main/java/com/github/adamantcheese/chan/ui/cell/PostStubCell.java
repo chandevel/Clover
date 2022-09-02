@@ -28,7 +28,6 @@ import android.widget.*;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -99,7 +98,6 @@ public class PostStubCell
     }
 
     public void setPost(
-            Loadable loadable,
             final Post post,
             PostCellCallback callback,
             boolean inPopup,

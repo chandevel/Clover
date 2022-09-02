@@ -44,7 +44,6 @@ import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
@@ -300,7 +299,7 @@ public class ImageViewerController
                 + "_";
 
         String tempTitle = (presenter.getLoadable().no == 0
-                ? PostHelper.getTitle(postForImage, callback.getLoadable())
+                ? PostHelper.getTitle(postForImage, presenter.getLoadable())
                 : presenter.getLoadable().title);
 
         String sanitizedFileName = StringUtils.dirNameRemoveBadCharacters(tempTitle);
@@ -670,8 +669,6 @@ public class ImageViewerController
         void scrollToImage(PostImage postImage);
 
         Post getPostForPostImage(PostImage postImage);
-
-        Loadable getLoadable();
     }
 
     public interface GoPostCallback {

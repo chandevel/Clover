@@ -122,11 +122,6 @@ public class ThemeSettingsController
                         public Post getPostForPostImage(PostImage postImage) {
                             return null;
                         }
-
-                        @Override
-                        public Loadable getLoadable() {
-                            return dummyLoadable;
-                        }
                     }
             );
         }

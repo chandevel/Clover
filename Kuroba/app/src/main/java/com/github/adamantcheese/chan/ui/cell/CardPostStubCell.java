@@ -17,7 +17,6 @@ import androidx.cardview.widget.CardView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.PostImage;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.cell.PostCellInterface.PostCellCallback.PostOptions;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -51,18 +50,9 @@ public class CardPostStubCell
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-
         title = findViewById(R.id.title);
         options = findViewById(R.id.options);
-
         setCompact(false);
-
-        options.setOnClickListener(v -> {
-            List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
-            List<FloatingMenuItem<PostOptions>> extraItems = new ArrayList<>();
-            Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
-            showOptions(v, items, extraItems, extraOption);
-        });
     }
 
     private void showOptions(
@@ -87,13 +77,7 @@ public class CardPostStubCell
 
     @Override
     public void setPost(
-            Loadable loadable,
-            Post post,
-            PostCellCallback callback,
-            boolean inPopup,
-            boolean highlighted,
-            boolean compact,
-            Theme theme
+            Post post, PostCellCallback callback, boolean inPopup, boolean highlighted, boolean compact, Theme theme
     ) {
         this.post = post;
         this.callback = callback;
@@ -106,11 +90,22 @@ public class CardPostStubCell
         }
 
         setCompact(compact);
+
+        options.setOnClickListener(v -> {
+            List<FloatingMenuItem<PostOptions>> items = new ArrayList<>();
+            List<FloatingMenuItem<PostOptions>> extraItems = new ArrayList<>();
+            Object extraOption = callback.onPopulatePostOptions(post, items, extraItems);
+            showOptions(v, items, extraItems, extraOption);
+        });
     }
 
     @Override
     public void unsetPost() {
         post = null;
+        callback = null;
+        title.setText(null);
+        setCompact(false);
+        options.setOnClickListener(null);
     }
 
     @Override

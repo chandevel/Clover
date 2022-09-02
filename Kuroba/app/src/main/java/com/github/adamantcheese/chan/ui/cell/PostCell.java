@@ -34,7 +34,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.text.*;
 import android.text.format.DateUtils;
 import android.text.style.StyleSpan;
@@ -51,7 +52,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.*;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
@@ -89,7 +89,6 @@ public class PostCell
     private float detailsSizePx;
     private boolean threadMode;
 
-    private Loadable loadable;
     private Post post;
     private PostCellCallback callback;
     private boolean inPopup;
@@ -211,7 +210,6 @@ public class PostCell
     }
 
     public void setPost(
-            Loadable loadable,
             final Post post,
             PostCellCallback callback,
             boolean inPopup,
@@ -219,7 +217,6 @@ public class PostCell
             boolean compact,
             Theme theme
     ) {
-        this.loadable = loadable;
         this.callback = callback;
         this.inPopup = inPopup;
         this.highlighted = highlighted;
@@ -376,7 +373,7 @@ public class PostCell
 
                 @Override
                 public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-                    if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+                    if (post.board.site.siteFeature(Site.SiteFeature.POSTING)) {
                         quoteMenuItem = menu.add(Menu.NONE, R.id.post_selection_action_quote, 0, R.string.post_quote);
                     }
                     webSearchItem = menu.add(Menu.NONE, R.id.post_selection_action_search, 1, R.string.post_web_search);
@@ -426,7 +423,7 @@ public class PostCell
             // And this sets clickable to appropriate values again.
             comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
 
-            if (loadable.site.siteFeature(Site.SiteFeature.POSTING)) {
+            if (post.board.site.siteFeature(Site.SiteFeature.POSTING)) {
                 if (ChanSettings.shortTapPostCellQuote.get()) {
                     headerWrapper.setOnClickListener(v -> callback.onPostNoClicked(post));
                 } else {
@@ -461,7 +458,7 @@ public class PostCell
                 text.append(", ").append(getQuantityString(R.plurals.image, post.imagesCount));
             }
 
-            if (!ChanSettings.neverShowPages.get() && loadable.isCatalogMode()) {
+            if (!ChanSettings.neverShowPages.get() && callback.getLoadable().isCatalogMode()) {
                 ChanPage p = PageRepository.getPage(post);
                 if (p != null && ChanSettings.boardOrder.get() != BUMP_ORDER) {
                     text.append(", page ").append(String.valueOf(p.page));
