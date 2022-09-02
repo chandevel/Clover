@@ -36,7 +36,7 @@ public interface ImageLoadable {
      *                  You can use the wrapper method below instead of putting null here.
      */
     default void loadUrl(
-            @Nullable HttpUrl url, @Nullable ImageView imageView, @Nullable ResponseResult<Void> callback
+            @Nullable HttpUrl url, @NonNull ImageView imageView, @Nullable ResponseResult<Void> callback
     ) {
         if (url == null || imageView == null) return;
 
@@ -50,7 +50,7 @@ public interface ImageLoadable {
         }
 
         // completed load check
-        if (getLastHttpUrl() != null && url.equals(getLastHttpUrl())) return;
+        if (getLoadedUrl() != null && url.equals(getLoadedUrl())) return;
 
         // request the image
         Call imageCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
@@ -58,20 +58,18 @@ public interface ImageLoadable {
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
                 if (doStandardActions(source)) return;
                 // for a chained load, this means that the last successful load will remain
-                if (getLastHttpUrl() != null) return;
-                setLastHttpUrl(null); // fail, nullify the last url
-                Bitmap res = BitmapRepository.paddedError;
+                if (getLoadedUrl() != null) return;
+                setLoadedUrl(null); // fail, nullify the last url
                 // if this has an error code associated with it, draw it up all fancy-like
                 if (e instanceof NetUtilsClasses.HttpCodeException) {
                     if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
                         // for this case, never try and load again and treat it as though it loaded fully
-                        setLastHttpUrl(source);
+                        setLoadedUrl(source);
                     }
-                    res = BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e);
                 } else {
                     Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(url), e);
                 }
-                imageView.setImageBitmap(res);
+                imageView.setImageBitmap(BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e));
                 if (callback != null) {
                     callback.onFailure(e);
                 }
@@ -82,7 +80,7 @@ public interface ImageLoadable {
                 if (doStandardActions(source)) return;
                 // success, save the last url as good
                 // for a chained load, this means that the last successful load will remain
-                setLastHttpUrl(url);
+                setLoadedUrl(url);
                 if (callback != null) {
                     callback.onSuccess(null);
                 }
@@ -147,8 +145,10 @@ public interface ImageLoadable {
         if (ChanSettings.shouldUseFullSizeImage(postImage) && NetUtils.isCached(secondUrl)) {
             loadUrl = secondUrl;
         }
-        loadUrl(loadUrl, imageView, (NoFailResponseResult<Void>) result -> {
-            if (ChanSettings.shouldUseFullSizeImage(postImage)) {
+
+        HttpUrl firstLoadUrl = loadUrl;
+        loadUrl(firstLoadUrl, imageView, (NoFailResponseResult<Void>) result -> {
+            if (ChanSettings.shouldUseFullSizeImage(postImage) && !firstLoadUrl.equals(secondUrl)) {
                 loadUrl(secondUrl, imageView);
             }
         });
@@ -163,25 +163,16 @@ public interface ImageLoadable {
         imageView.animate().cancel();
         imageView.setImageBitmap(null);
         imageView.setAlpha(0f);
-        setLastHttpUrl(null);
+        setLoadedUrl(null);
         if (getImageCall() != null) {
             getImageCall().cancel();
             setImageCall(null);
         }
     }
 
-    /*
+    HttpUrl getLoadedUrl();
 
-    Because this is an interface and not a class, in order to enforce the data requirements of this interface to
-    provide proper, consistent image loading, it needs to have access to local fields in the implementer class. These
-    include a last-good URL and a place for an ongoing OkHttp call. If a view is re-bound without being recycled, the
-    last URL field ensures that an image isn't set into a loading state first and will keep the existing image in-place.
-    This prevents flickering of images when used with swapAdapter during a bind operation (see PostCell).
-
-    */
-    HttpUrl getLastHttpUrl();
-
-    void setLastHttpUrl(HttpUrl url);
+    void setLoadedUrl(HttpUrl url);
 
     Call getImageCall();
 

@@ -324,7 +324,7 @@ public class AlbumDownloadController
         private final ImageView checkbox;
         private final ShapeablePostImageView thumbnailView;
         private Call thumbnailCall;
-        private HttpUrl lastHttpUrl;
+        private HttpUrl loadedUrl;
 
         public AlbumDownloadHolder(View itemView) {
             super(itemView);
@@ -341,13 +341,13 @@ public class AlbumDownloadController
         }
 
         @Override
-        public HttpUrl getLastHttpUrl() {
-            return lastHttpUrl;
+        public HttpUrl getLoadedUrl() {
+            return loadedUrl;
         }
 
         @Override
-        public void setLastHttpUrl(HttpUrl url) {
-            lastHttpUrl = url;
+        public void setLoadedUrl(HttpUrl url) {
+            loadedUrl = url;
         }
 
         public Call getImageCall() {

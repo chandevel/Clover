@@ -36,12 +36,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         app:layout_constraintWidth_max="600dp"
         app:layout_constraintWidth_min="320dp">
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/removed_posts_posts_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            tools:layout_height="340dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:layout_height="300dp"
             tools:listitem="@layout/layout_removed_post" />
 
         <LinearLayout

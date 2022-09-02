@@ -70,7 +70,7 @@ public class CardPostCell
 
     private OneShotPreDrawListener maxLinesUpdater;
     private Call thumbnailCall;
-    private HttpUrl lastHttpUrl;
+    private HttpUrl loadedUrl;
 
     public CardPostCell(Context context) {
         super(context);
@@ -286,13 +286,13 @@ public class CardPostCell
     }
 
     @Override
-    public HttpUrl getLastHttpUrl() {
-        return lastHttpUrl;
+    public HttpUrl getLoadedUrl() {
+        return loadedUrl;
     }
 
     @Override
-    public void setLastHttpUrl(HttpUrl url) {
-        lastHttpUrl = url;
+    public void setLoadedUrl(HttpUrl url) {
+        loadedUrl = url;
     }
 
     @Override

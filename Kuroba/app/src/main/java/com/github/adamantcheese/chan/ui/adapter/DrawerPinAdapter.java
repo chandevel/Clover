@@ -219,7 +219,7 @@ public class DrawerPinAdapter
         private final TextView threadInfo;
         private final TextView watchCountText;
         private Call thumbnailCall;
-        private HttpUrl lastHttpUrl;
+        private HttpUrl loadedUrl;
 
         private PinViewHolder(View itemView) {
             super(itemView);
@@ -258,13 +258,13 @@ public class DrawerPinAdapter
         }
 
         @Override
-        public HttpUrl getLastHttpUrl() {
-            return lastHttpUrl;
+        public HttpUrl getLoadedUrl() {
+            return loadedUrl;
         }
 
         @Override
-        public void setLastHttpUrl(HttpUrl url) {
-            lastHttpUrl = url;
+        public void setLoadedUrl(HttpUrl url) {
+            loadedUrl = url;
         }
 
         @Override

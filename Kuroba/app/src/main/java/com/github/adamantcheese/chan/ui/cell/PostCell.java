@@ -278,6 +278,7 @@ public class PostCell
         }
 
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
+            thumbnailViews.setAdapter(null);
             thumbnailViews.setVisibility(GONE);
         } else {
             thumbnailViews.swapAdapter(new PostImagesAdapter(), false);
@@ -625,7 +626,7 @@ public class PostCell
                 implements ImageLoadable {
             private final ShapeablePostImageView thumbnailView;
             private Call imageCall;
-            private HttpUrl lastHttpUrl;
+            private HttpUrl loadedUrl;
 
             public PostImageViewHolder(@NonNull ShapeablePostImageView itemView) {
                 super(itemView);
@@ -633,13 +634,13 @@ public class PostCell
             }
 
             @Override
-            public HttpUrl getLastHttpUrl() {
-                return lastHttpUrl;
+            public HttpUrl getLoadedUrl() {
+                return loadedUrl;
             }
 
             @Override
-            public void setLastHttpUrl(HttpUrl url) {
-                lastHttpUrl = url;
+            public void setLoadedUrl(HttpUrl url) {
+                loadedUrl = url;
             }
 
             @Override

@@ -48,7 +48,7 @@ public class LegacyCaptchaLayout
 
     private WebView internalWebView;
     private Call captchaCall;
-    private HttpUrl lastHttpUrl;
+    private HttpUrl loadedUrl;
 
     private SiteAuthentication authentication;
     private AuthenticationLayoutCallback callback;
@@ -145,13 +145,13 @@ public class LegacyCaptchaLayout
     }
 
     @Override
-    public HttpUrl getLastHttpUrl() {
-        return lastHttpUrl;
+    public HttpUrl getLoadedUrl() {
+        return loadedUrl;
     }
 
     @Override
-    public void setLastHttpUrl(HttpUrl url) {
-        lastHttpUrl = url;
+    public void setLoadedUrl(HttpUrl url) {
+        loadedUrl = url;
     }
 
     @Override

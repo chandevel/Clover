@@ -168,7 +168,7 @@ public class DrawerHistoryAdapter
         private final TextView text;
         private final TextView subtext;
         private Call thumbnailCall;
-        private HttpUrl lastHttpUrl;
+        private HttpUrl loadedUrl;
 
         public HistoryCell(View itemView) {
             super(itemView);
@@ -201,13 +201,13 @@ public class DrawerHistoryAdapter
         }
 
         @Override
-        public HttpUrl getLastHttpUrl() {
-            return lastHttpUrl;
+        public HttpUrl getLoadedUrl() {
+            return loadedUrl;
         }
 
         @Override
-        public void setLastHttpUrl(HttpUrl url) {
-            lastHttpUrl = url;
+        public void setLoadedUrl(HttpUrl url) {
+            loadedUrl = url;
         }
 
         @Override

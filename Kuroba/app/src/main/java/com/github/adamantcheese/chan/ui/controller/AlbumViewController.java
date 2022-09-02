@@ -218,7 +218,7 @@ public class AlbumViewController
             private PostImage postImage;
             private final ShapeablePostImageView thumbnailView;
             private Call thumbnailCall;
-            private HttpUrl lastHttpUrl;
+            private HttpUrl loadedUrl;
 
             public AlbumItemCellHolder(View view) {
                 super(view);
@@ -249,13 +249,13 @@ public class AlbumViewController
             }
 
             @Override
-            public HttpUrl getLastHttpUrl() {
-                return lastHttpUrl;
+            public HttpUrl getLoadedUrl() {
+                return loadedUrl;
             }
 
             @Override
-            public void setLastHttpUrl(HttpUrl url) {
-                lastHttpUrl = url;
+            public void setLoadedUrl(HttpUrl url) {
+                loadedUrl = url;
             }
 
             @Override
