@@ -180,6 +180,7 @@ public class ChanSettings {
     public static final BooleanSetting removeImageSpoilers;
     public static final BooleanSetting revealimageSpoilers;
     public static final BooleanSetting parsePostImageLinks;
+    public static final IntegerSetting parsedPostImageLimit;
     public static final BooleanSetting useOpaqueBackgrounds;
     public static final BooleanSetting opacityMenuItem;
 
@@ -360,6 +361,13 @@ public class ChanSettings {
             removeImageSpoilers = new BooleanSetting(p, "preference_reveal_image_spoilers", false);
             revealimageSpoilers = new BooleanSetting(p, "preference_auto_unspoil_images", true);
             parsePostImageLinks = new BooleanSetting(p, "parse_post_image_links", true);
+            parsedPostImageLimit = new IntegerSetting(p, "parse_post_image_limit", 5) {
+                @Override
+                public Integer get() {
+                    return ChanSettings.parsePostImageLinks.get() ? super.get() : Integer.MAX_VALUE;
+                }
+            };
+            parsePostImageLinks.addCallback(new EventBusCallback<>(parsePostImageLinks));
             useOpaqueBackgrounds = new BooleanSetting(p, "image_transparency_on", false);
             opacityMenuItem = new BooleanSetting(p, "opacity_menu_item", false);
 

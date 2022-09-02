@@ -189,9 +189,7 @@ public class PostThemedStyleActions {
                         .filename(Files.getNameWithoutExtension(src.toString()))
                         .extension(Files.getFileExtension(src.toString()))
                         .build();
-                if (post.images.size() < 5 && !post.images.contains(i)) {
-                    post.images(Collections.singletonList(i));
-                }
+                post.images(Collections.singletonList(i));
                 return ret;
             } catch (Exception e) {
                 return text == null ? "" : text;

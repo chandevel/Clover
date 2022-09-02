@@ -28,6 +28,7 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode;
 import com.github.adamantcheese.chan.ui.settings.*;
 import com.github.adamantcheese.chan.ui.settings.ListSettingView.Item;
 import com.github.adamantcheese.chan.ui.settings.limitcallbacks.IntegerLimitCallback;
+import com.github.adamantcheese.chan.ui.settings.limitcallbacks.LimitCallback;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.StringUtils;
@@ -37,6 +38,9 @@ import java.util.List;
 
 public class AppearanceSettingsController
         extends SettingsController {
+    private BooleanSettingView imageLinkLoadView;
+    private PrimitiveSettingView<Integer> imageLimitView;
+
     public AppearanceSettingsController(Context context) {
         super(context);
     }
@@ -46,6 +50,15 @@ public class AppearanceSettingsController
         super.onCreate();
 
         navigation.setTitle(R.string.settings_screen_appearance);
+    }
+
+    @Override
+    public void onPreferenceChange(SettingView item) {
+        super.onPreferenceChange(item);
+
+        if (item == imageLinkLoadView) {
+            imageLimitView.setEnabled(ChanSettings.parsePostImageLinks.get());
+        }
     }
 
     @Override
@@ -332,11 +345,36 @@ public class AppearanceSettingsController
                     R.string.settings_reveal_image_spoilers_description
             ));
 
-            requiresUiRefresh.add(images.add(new BooleanSettingView(this,
+            imageLinkLoadView = new BooleanSettingView(this,
                     ChanSettings.parsePostImageLinks,
                     R.string.setting_enable_image_link_loading,
                     R.string.setting_enable_image_link_loading_description
-            )));
+            );
+            requiresUiRefresh.add(images.add(imageLinkLoadView));
+
+            imageLimitView = new PrimitiveSettingView<>(this,
+                    ChanSettings.parsedPostImageLimit,
+                    "Image link loading limit",
+                    "Image link loading limit",
+                    " images",
+                    new LimitCallback<Integer>() {
+                        @Override
+                        public boolean isInLimit(Integer entry) {
+                            return entry >= getMinimumLimit() && entry <= getMaximumLimit();
+                        }
+
+                        @Override
+                        public Integer getMinimumLimit() {
+                            return 1;
+                        }
+
+                        @Override
+                        public Integer getMaximumLimit() {
+                            return Integer.MAX_VALUE;
+                        }
+                    }
+            );
+            requiresUiRefresh.add(images.add(imageLimitView));
 
             images.add(new BooleanSettingView(this,
                     ChanSettings.useOpaqueBackgrounds,

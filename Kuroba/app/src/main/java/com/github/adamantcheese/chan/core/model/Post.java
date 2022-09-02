@@ -343,7 +343,7 @@ public class Post
     public void addImageObjects(List<PostImage> images) {
         for (PostImage p : images) {
             if (this.images.contains(p)) continue;
-            if (images.size() >= 5) return;
+            if (this.images.size() >= ChanSettings.parsedPostImageLimit.get()) return;
             this.images.add(p);
         }
     }
@@ -506,8 +506,11 @@ public class Post
          * @return This builder
          */
         public Builder images(List<PostImage> images) {
-            this.images.addAll(images);
-
+            for (PostImage p : images) {
+                if (this.images.contains(p)) continue;
+                if (this.images.size() >= ChanSettings.parsedPostImageLimit.get()) return this;
+                this.images.add(p);
+            }
             return this;
         }
 
