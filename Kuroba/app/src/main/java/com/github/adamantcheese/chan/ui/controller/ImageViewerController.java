@@ -283,9 +283,7 @@ public class ImageViewerController
         // the right info
 
         String siteName = presenter.getLoadable().site.name();
-        ImageViewerCallback callback =
-                goPostCallback != null ? goPostCallback.goToPost(postImage) : imageViewerCallback;
-        Post postForImage = callback.getPostForPostImage(postImage);
+        Post postForImage = imageViewerCallback.getPostForPostImage(postImage);
 
         int postNoString = presenter.getLoadable().no == 0
                 ? (postForImage == null ? 0 : postForImage.no)

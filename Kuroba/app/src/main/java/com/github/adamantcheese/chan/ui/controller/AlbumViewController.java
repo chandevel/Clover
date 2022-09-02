@@ -60,9 +60,11 @@ public class AlbumViewController
     private int targetIndex = -1;
 
     private Loadable loadable;
+    private final ProxyImageViewerCallback callback;
 
-    public AlbumViewController(Context context) {
+    public AlbumViewController(Context context, ProxyImageViewerCallback callback) {
         super(context);
+        this.callback = callback;
     }
 
     @Override
@@ -147,12 +149,7 @@ public class AlbumViewController
 
     @Override
     public Post getPostForPostImage(PostImage postImage) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Loadable getLoadable() {
-        return loadable;
+        return callback.getPostForPostImage(postImage);
     }
 
     @Override
@@ -268,5 +265,9 @@ public class AlbumViewController
                 this.thumbnailCall = call;
             }
         }
+    }
+
+    public interface ProxyImageViewerCallback {
+        Post getPostForPostImage(PostImage postImage);
     }
 }

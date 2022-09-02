@@ -163,8 +163,7 @@ public abstract class ThreadController
 
     @Override
     public void openReportController(final Post post) {
-        navigationController.pushController(new WebViewController(
-                context,
+        navigationController.pushController(new WebViewController(context,
                 getString(R.string.report_screen, PostHelper.getTitle(post, getLoadable())),
                 post.board.site.endpoints().report(post)
         ));
@@ -210,7 +209,8 @@ public abstract class ThreadController
     @Override
     public void showAlbum(List<PostImage> images, int index) {
         if (threadLayout.getPresenter().getChanThread() != null) {
-            AlbumViewController albumViewController = new AlbumViewController(context);
+            AlbumViewController albumViewController =
+                    new AlbumViewController(context, ThreadController.this::getPostForPostImage);
             albumViewController.setImages(getLoadable(), images, index, navigation.title);
 
             if (doubleNavigationController != null) {
