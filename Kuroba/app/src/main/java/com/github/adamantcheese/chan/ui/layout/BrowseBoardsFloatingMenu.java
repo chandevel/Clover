@@ -355,7 +355,8 @@ public class BrowseBoardsFloatingMenu
 
     private class InputViewHolder
             extends ViewHolder
-            implements TextWatcher, OnFocusChangeListener, OnClickListener, OnKeyListener {
+            implements TextWatcher, OnFocusChangeListener, OnClickListener, OnKeyListener,
+                       TextView.OnEditorActionListener {
         private final EditText input;
 
         public InputViewHolder(View itemView) {
@@ -366,6 +367,7 @@ public class BrowseBoardsFloatingMenu
             input.setOnFocusChangeListener(this);
             input.setOnClickListener(this);
             input.setOnKeyListener(this);
+            input.setOnEditorActionListener(this);
         }
 
         @Override
@@ -397,8 +399,27 @@ public class BrowseBoardsFloatingMenu
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
                 dismiss(true);
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_ENTER) {
+                return doEnterBoardJump();
             }
-            return true;
+            return false;
+        }
+
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            return doEnterBoardJump();
+        }
+
+        private boolean doEnterBoardJump() {
+            for (int i = 0; i < items.getCount(); i++) {
+                Item item = items.getAtPosition(i);
+                if (item.type == BOARD) {
+                    itemClicked(null, item.board);
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

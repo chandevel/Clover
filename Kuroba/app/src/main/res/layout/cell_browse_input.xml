@@ -23,5 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:hint="@string/thread_boards_search_hint"
     android:inputType="text"
     android:maxLines="1"
+    android:imeOptions="actionDone"
     android:paddingHorizontal="16dp"
     android:textSize="14sp" />
