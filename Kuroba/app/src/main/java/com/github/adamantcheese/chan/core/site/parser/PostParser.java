@@ -37,6 +37,8 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
 import com.github.adamantcheese.chan.features.html_styling.impl.*;
@@ -82,10 +84,10 @@ public class PostParser {
 
     public PostParser withOverrideFilters(Filter... filters) {
         getFiltersCallback = new GetFiltersCallback() {
-            private final List<Filter> filterList = Arrays.asList(filters);
+            private final Filters filterList = new Filters(Arrays.asList(filters));
 
             @Override
-            public List<Filter> getFilterList() {
+            public Filters getFilterList() {
                 return filterList;
             }
         };
@@ -269,6 +271,6 @@ public class PostParser {
     }
 
     public interface GetFiltersCallback {
-        List<Filter> getFilterList();
+        Filters getFilterList();
     }
 }

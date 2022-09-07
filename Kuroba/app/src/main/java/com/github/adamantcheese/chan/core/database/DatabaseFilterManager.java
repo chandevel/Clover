@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.core.database;
 
 import com.github.adamantcheese.chan.core.model.orm.Filter;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +38,7 @@ public class DatabaseFilterManager {
         };
     }
 
-    public Callable<List<Filter>> updateFilters(final List<Filter> filters) {
+    public Callable<Filters> updateFilters(final Filters filters) {
         return () -> {
             for (Filter filter : filters) {
                 helper.getFilterDao().update(filter);
@@ -59,9 +61,9 @@ public class DatabaseFilterManager {
         };
     }
 
-    public Callable<List<Filter>> getFilters() {
+    public Callable<Filters> getFilters() {
         return () -> {
-            List<Filter> filters = helper.getFilterDao().queryForAll();
+            Filters filters = new Filters(helper.getFilterDao().queryForAll());
             Collections.sort(filters, (lhs, rhs) -> lhs.order - rhs.order);
             updateFilters(filters);
             return filters;
@@ -72,7 +74,7 @@ public class DatabaseFilterManager {
         return () -> (int) helper.getFilterDao().countOf();
     }
 
-    public Callable<Void> deleteFilters(List<Filter> filtersToDelete) {
+    public Callable<Void> deleteFilters(Filters filtersToDelete) {
         return () -> {
             helper.getFilterDao().delete(filtersToDelete);
             return null;

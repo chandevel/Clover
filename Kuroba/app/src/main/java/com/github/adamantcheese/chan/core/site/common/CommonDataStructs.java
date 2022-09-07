@@ -1,6 +1,7 @@
 package com.github.adamantcheese.chan.core.site.common;
 
 import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Filter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,27 @@ public class CommonDataStructs {
 
         public Boards() {
             super();
+        }
+    }
+
+    public static class Filters
+            extends ArrayList<Filter> {
+        public Filters(int size) {
+            super(size);
+        }
+
+        public Filters(List<Filter> boards) {
+            super(boards);
+        }
+
+        public Filters() {
+            super();
+        }
+
+        public void setAllEnableState(boolean enable) {
+            for (Filter f : this) {
+                f.enabled = enable;
+            }
         }
     }
 

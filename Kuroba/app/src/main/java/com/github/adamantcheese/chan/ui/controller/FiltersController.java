@@ -34,6 +34,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -48,6 +49,7 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
@@ -55,7 +57,8 @@ import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.skydoves.balloon.*;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -170,25 +173,33 @@ public class FiltersController
         setEnableButtonState();
         enable.setOnClickListener(v -> {
             if (!locked) {
-                FloatingActionButton enableButton = (FloatingActionButton) v;
                 locked = true;
-                //if every filter is disabled, enable all of them and set the drawable to be an x
-                //if every filter is enabled, disable all of them and set the drawable to be a checkmark
-                //if some filters are enabled, disable them and set the drawable to be a checkmark
-                List<Filter> enabledFilters = filterEngine.getEnabledFilters();
-                List<Filter> allFilters = filterEngine.getAllFilters();
+                //if every filter is disabled, enable all of them
+                //if every filter is enabled, disable all of them
+                //if some filters are enabled, disable those
+                Filters enabledFilters = filterEngine.getEnabledFilters();
+                Filters allFilters = filterEngine.getAllFilters();
                 if (enabledFilters.isEmpty()) {
-                    setFilters(allFilters, true);
-                    enableButton.setImageResource(R.drawable.ic_fluent_star_prohibited_24_filled);
+                    allFilters.setAllEnableState(true);
+                    onFiltersUpdated(allFilters);
                 } else if (enabledFilters.size() == allFilters.size()) {
-                    setFilters(allFilters, false);
-                    enableButton.setImageResource(R.drawable.ic_fluent_star_emphasis_24_filled);
+                    allFilters.setAllEnableState(false);
+                    onFiltersUpdated(allFilters);
                 } else {
-                    setFilters(enabledFilters, false);
-                    enableButton.setImageResource(R.drawable.ic_fluent_star_emphasis_24_filled);
+                    enabledFilters.setAllEnableState(false);
+                    onFiltersUpdated(enabledFilters);
                 }
             }
         });
+    }
+
+    private void onFiltersUpdated(@Nullable Filters filters) {
+        if (filters != null) {
+            DatabaseUtils.runTask(databaseFilterManager.updateFilters(filters));
+        }
+        postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
+        adapter.reload();
+        setEnableButtonState();
     }
 
     @Override
@@ -222,21 +233,6 @@ public class FiltersController
         addHint.showAlignTop(add);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        databaseFilterManager.updateFilters(adapter.sourceList);
-    }
-
-    private void setFilters(List<Filter> filters, boolean enabled) {
-        for (Filter filter : filters) {
-            filter.enabled = enabled;
-            filterEngine.createOrUpdateFilter(filter);
-        }
-        postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
-        adapter.reload();
-    }
-
     public void showFilterDialog(final Filter filter) {
         final View filterLayout = LayoutInflater.from(context).inflate(R.layout.layout_filter, null);
         final FilterLayout layout = filterLayout.findViewById(R.id.filter_layout);
@@ -244,9 +240,7 @@ public class FiltersController
         final AlertDialog alertDialog =
                 getDefaultAlertBuilder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
                     filterEngine.createOrUpdateFilter(layout.getFilter());
-                    setEnableButtonState();
-                    postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
-                    adapter.reload();
+                    onFiltersUpdated(null);
                 }).show();
 
         layout.setCallback(enabled -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled));
@@ -256,17 +250,14 @@ public class FiltersController
     private void deleteFilter(Filter filter) {
         Filter clone = filter.clone();
         filterEngine.deleteFilter(filter);
-        setEnableButtonState();
-        postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
-        adapter.reload();
+        onFiltersUpdated(null);
 
         AndroidUtils.buildCommonSnackbar(view,
                 getString(R.string.filter_removed_undo, clone.pattern),
                 R.string.undo,
                 v -> {
                     filterEngine.createOrUpdateFilter(clone);
-                    setEnableButtonState();
-                    adapter.reload();
+                    onFiltersUpdated(null);
                 }
         );
     }
@@ -309,14 +300,13 @@ public class FiltersController
 
     private class FilterAdapter
             extends RecyclerView.Adapter<FilterHolder> {
-        private final List<Filter> sourceList = new ArrayList<>();
-        private final List<Filter> displayList = new ArrayList<>();
+        private final Filters sourceList = new Filters();
+        private final Filters displayList = new Filters();
         private String searchQuery;
 
         public FilterAdapter() {
             setHasStableIds(true);
             reload();
-            filter();
         }
 
         @NonNull
@@ -377,7 +367,6 @@ public class FiltersController
         public void reload() {
             sourceList.clear();
             sourceList.addAll(filterEngine.getAllFilters());
-            Collections.sort(sourceList, (o1, o2) -> o1.order - o2.order);
             filter();
         }
 
@@ -432,11 +421,7 @@ public class FiltersController
                 if (!locked && position >= 0 && position < adapter.getItemCount()) {
                     Filter f = adapter.displayList.get(position);
                     f.enabled = !f.enabled;
-
-                    filterEngine.createOrUpdateFilter(f);
-                    setEnableButtonState();
-                    postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
-                    adapter.reload();
+                    onFiltersUpdated(new Filters(Collections.singletonList(f)));
                 }
             });
 

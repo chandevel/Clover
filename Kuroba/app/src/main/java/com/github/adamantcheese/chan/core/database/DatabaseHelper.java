@@ -28,6 +28,8 @@ import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.dao.Dao;
@@ -603,7 +605,7 @@ public class DatabaseHelper
         if (toDelete == null) return;
 
         //filters
-        List<Filter> filtersToDelete = new ArrayList<>();
+        Filters filtersToDelete = new Filters();
 
         for (Filter filter : getFilterDao().queryForAll()) {
             if (filter.allBoards || TextUtils.isEmpty(filter.boards)) {

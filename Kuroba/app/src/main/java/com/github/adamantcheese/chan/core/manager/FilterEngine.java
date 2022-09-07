@@ -33,8 +33,9 @@ import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import com.github.adamantcheese.chan.ui.helper.BoardHelper;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -73,29 +74,28 @@ public class FilterEngine {
         }
     }
 
-    public List<Filter> getEnabledFilters() {
-        List<Filter> filters = DatabaseUtils.runTask(databaseFilterManager.getFilters());
-        List<Filter> enabled = new ArrayList<>();
-        for (Filter filter : filters) {
-            if (filter.enabled) {
-                enabled.add(filter.clone());
+    public Filters getEnabledFilters() {
+        Filters filters = getAllFilters();
+        for (Iterator<Filter> iterator = filters.iterator(); iterator.hasNext(); ) {
+            Filter filter = iterator.next();
+            if (!filter.enabled) {
+                iterator.remove();
             }
         }
-        Collections.sort(enabled, (o1, o2) -> o1.order - o2.order);
-        return enabled;
+        return filters;
     }
 
-    public List<Filter> getAllFilters() {
+    public Filters getAllFilters() {
         try {
             return DatabaseUtils.runTask(databaseFilterManager.getFilters());
         } catch (Exception e) {
             Logger.wtf(this, "Couldn't get all filters for some reason.");
-            return Collections.emptyList();
+            return new Filters();
         }
     }
 
-    public List<Filter> getEnabledWatchFilters() {
-        List<Filter> watchFilters = new ArrayList<>();
+    public Filters getEnabledWatchFilters() {
+        Filters watchFilters = new Filters();
         for (Filter f : getEnabledFilters()) {
             if (f.action == WATCH.ordinal()) {
                 watchFilters.add(f);

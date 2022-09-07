@@ -11,6 +11,8 @@ import com.github.adamantcheese.chan.core.database.*;
 import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -157,7 +159,7 @@ public class SiteRepository {
 
     private void removeFilters(Site site)
             throws Exception {
-        List<Filter> filtersToDelete = new ArrayList<>();
+        Filters filtersToDelete = new Filters();
         DatabaseFilterManager databaseFilterManager = instance(DatabaseFilterManager.class);
 
         for (Filter filter : databaseFilterManager.getFilters().call()) {
