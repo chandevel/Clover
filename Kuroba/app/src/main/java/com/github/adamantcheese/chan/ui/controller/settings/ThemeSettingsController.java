@@ -167,23 +167,6 @@ public class ThemeSettingsController
         }
     };
 
-    private final PostParser.PostParserCallback parserCallback = new PostParser.PostParserCallback() {
-        @Override
-        public boolean isSaved(int postNo) {
-            return false;
-        }
-
-        @Override
-        public boolean isInternal(int postNo) {
-            return true;
-        }
-
-        @Override
-        public boolean isRemoved(int postNo) {
-            return false;
-        }
-    };
-
     private CoordinatorLayout wrapper;
     private ViewPager2 pager;
     private FloatingActionButton done;
@@ -408,7 +391,12 @@ public class ThemeSettingsController
             ));
             List<Post> posts = new ArrayList<>();
             for (Post.Builder builder : generatePosts()) {
-                posts.add(postParser.parse(builder, holder.theme, parserCallback));
+                posts.add(postParser.parse(builder, holder.theme, new PostParser.PostParserCallback() {
+                    @Override
+                    public boolean isRemoved(int postNo) {
+                        return postNo == 666;
+                    }
+                }));
             }
             posts.get(0).repliesFrom.add(posts.get(2).no); // add reply to first post pointing to last post
             posts.get(3).deleted = true; // mark as deleted
