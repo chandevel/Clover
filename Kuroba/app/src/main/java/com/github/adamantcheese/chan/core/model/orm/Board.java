@@ -273,6 +273,28 @@ public class Board
         archive = o.archive;
     }
 
+    public String boardUniqueId() {
+        String code = this.code.replace(":", "").replace(",", "");
+        return siteId + ":" + code;
+    }
+
+    public boolean matchesUniqueId(String uniqueId) {
+        if (!uniqueId.contains(":")) {
+            return siteId == 0 && code.equals(uniqueId);
+        } else {
+            String[] splitted = uniqueId.split(":");
+            if (splitted.length != 2) {
+                return false;
+            }
+
+            try {
+                return Integer.parseInt(splitted[0]) == siteId && splitted[1].equals(code);
+            } catch (NumberFormatException ignored) {
+                return false;
+            }
+        }
+    }
+
     /**
      * Clones this board.
      *

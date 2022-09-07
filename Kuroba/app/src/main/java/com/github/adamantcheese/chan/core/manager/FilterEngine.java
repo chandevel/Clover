@@ -110,7 +110,7 @@ public class FilterEngine {
             return true;
         } else {
             for (String uniqueId : filter.boards.split(",")) {
-                if (BoardHelper.matchesUniqueId(board, uniqueId)) {
+                if (board.matchesUniqueId(uniqueId)) {
                     return true;
                 }
             }
@@ -133,7 +133,7 @@ public class FilterEngine {
         } else {
             List<String> boardsString = new ArrayList<>(appliedBoards.size());
             for (int i = 0; i < appliedBoards.size(); i++) {
-                boardsString.add(BoardHelper.boardUniqueId(appliedBoards.get(i)));
+                boardsString.add(appliedBoards.get(i).boardUniqueId());
             }
             filter.boards = TextUtils.join(",", boardsString);
         }
