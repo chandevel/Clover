@@ -3,8 +3,7 @@ package com.github.adamantcheese.chan.core.site.common;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class CommonDataStructs {
     public static class Boards
@@ -24,8 +23,8 @@ public class CommonDataStructs {
 
     public static class Filters
             extends ArrayList<Filter> {
-        public Filters(int size) {
-            super(size);
+        public Filters(Filter... filters) {
+            this(Arrays.asList(filters));
         }
 
         public Filters(List<Filter> boards) {

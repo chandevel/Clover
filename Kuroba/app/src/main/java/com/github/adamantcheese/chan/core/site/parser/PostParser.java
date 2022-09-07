@@ -84,7 +84,7 @@ public class PostParser {
 
     public PostParser withOverrideFilters(Filter... filters) {
         getFiltersCallback = new GetFiltersCallback() {
-            private final Filters filterList = new Filters(Arrays.asList(filters));
+            private final Filters filterList = new Filters(filters);
 
             @Override
             public Filters getFilterList() {

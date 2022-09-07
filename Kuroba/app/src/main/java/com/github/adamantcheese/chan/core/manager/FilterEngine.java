@@ -33,11 +33,12 @@ import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
 
 import java.util.*;
 import java.util.regex.*;
@@ -66,11 +67,16 @@ public class FilterEngine {
         DatabaseUtils.runTask(databaseFilterManager.deleteFilter(filter));
     }
 
-    public void createOrUpdateFilter(Filter filter) {
-        if (filter.id == 0) {
-            DatabaseUtils.runTask(databaseFilterManager.createFilter(filter));
-        } else {
-            DatabaseUtils.runTask(databaseFilterManager.updateFilter(filter));
+    public CreateOrUpdateStatus createOrUpdateFilter(Filter filter) {
+        return DatabaseUtils.runTask(databaseFilterManager.createOrUpdateFilter(filter));
+    }
+
+    public Filters getAllFilters() {
+        try {
+            return DatabaseUtils.runTask(databaseFilterManager.getFilters());
+        } catch (Exception e) {
+            Logger.wtf(this, "Couldn't get all filters for some reason.");
+            return new Filters();
         }
     }
 
@@ -85,20 +91,12 @@ public class FilterEngine {
         return filters;
     }
 
-    public Filters getAllFilters() {
-        try {
-            return DatabaseUtils.runTask(databaseFilterManager.getFilters());
-        } catch (Exception e) {
-            Logger.wtf(this, "Couldn't get all filters for some reason.");
-            return new Filters();
-        }
-    }
-
     public Filters getEnabledWatchFilters() {
-        Filters watchFilters = new Filters();
-        for (Filter f : getEnabledFilters()) {
-            if (f.action == WATCH.ordinal()) {
-                watchFilters.add(f);
+        Filters watchFilters = getEnabledFilters();
+        for (Iterator<Filter> iterator = watchFilters.iterator(); iterator.hasNext(); ) {
+            Filter f = iterator.next();
+            if (f.action != WATCH.ordinal()) {
+                iterator.remove();
             }
         }
         return watchFilters;

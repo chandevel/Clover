@@ -55,6 +55,7 @@ import com.github.adamantcheese.chan.ui.layout.FilterLayout;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
 import com.skydoves.balloon.*;
 
 import java.util.Collections;
@@ -239,8 +240,8 @@ public class FiltersController
 
         final AlertDialog alertDialog =
                 getDefaultAlertBuilder(context).setView(filterLayout).setPositiveButton("Save", (dialog, which) -> {
-                    filterEngine.createOrUpdateFilter(layout.getFilter());
-                    onFiltersUpdated(null);
+                    CreateOrUpdateStatus status = filterEngine.createOrUpdateFilter(layout.getFilter());
+                    onFiltersUpdated(status.isUpdated() ? new Filters(layout.getFilter()) : null);
                 }).show();
 
         layout.setCallback(enabled -> alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(enabled));
@@ -257,7 +258,7 @@ public class FiltersController
                 R.string.undo,
                 v -> {
                     filterEngine.createOrUpdateFilter(clone);
-                    onFiltersUpdated(null);
+                    onFiltersUpdated(null); // always created, clone's ID is always 0
                 }
         );
     }
@@ -421,7 +422,7 @@ public class FiltersController
                 if (!locked && position >= 0 && position < adapter.getItemCount()) {
                     Filter f = adapter.displayList.get(position);
                     f.enabled = !f.enabled;
-                    onFiltersUpdated(new Filters(Collections.singletonList(f)));
+                    onFiltersUpdated(new Filters(f));
                 }
             });
 

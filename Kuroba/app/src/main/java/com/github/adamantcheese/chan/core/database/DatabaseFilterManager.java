@@ -19,6 +19,8 @@ package com.github.adamantcheese.chan.core.database;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.dao.Dao.CreateOrUpdateStatus;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,13 +31,6 @@ public class DatabaseFilterManager {
 
     public DatabaseFilterManager(DatabaseHelper helper) {
         this.helper = helper;
-    }
-
-    public Callable<Filter> createFilter(final Filter filter) {
-        return () -> {
-            helper.getFilterDao().create(filter);
-            return filter;
-        };
     }
 
     public Callable<Filters> updateFilters(final Filters filters) {
@@ -54,20 +49,12 @@ public class DatabaseFilterManager {
         };
     }
 
-    public Callable<Filter> updateFilter(final Filter filter) {
-        return () -> {
-            helper.getFilterDao().update(filter);
-            return filter;
-        };
+    public Callable<CreateOrUpdateStatus> createOrUpdateFilter(final Filter filter) {
+        return () -> helper.getFilterDao().createOrUpdate(filter);
     }
 
     public Callable<Filters> getFilters() {
-        return () -> {
-            Filters filters = new Filters(helper.getFilterDao().queryForAll());
-            Collections.sort(filters, (lhs, rhs) -> lhs.order - rhs.order);
-            updateFilters(filters);
-            return filters;
-        };
+        return () -> new Filters(helper.getFilterDao().queryForAll());
     }
 
     public Callable<Integer> getCount() {
