@@ -27,11 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:padding="8dp"
-        android:paddingBottom="72dp"
+        android:layout_marginBottom="88dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/cell_filter" />
+        tools:listitem="@layout/cell_filter"
+        tools:itemCount="50"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add"
@@ -48,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_fluent_dismiss_24_filled"
+        android:src="@drawable/ic_fluent_star_prohibited_24_filled"
         app:tint="@color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

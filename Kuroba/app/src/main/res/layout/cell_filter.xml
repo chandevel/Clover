@@ -58,14 +58,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </LinearLayout>
 
         <ImageView
-            android:id="@+id/reorder"
+            android:id="@+id/enable"
             android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:padding="4dp"
+            android:layout_margin="4dp"
+            android:src="@drawable/ic_fluent_star_off_24_filled"
+            app:tint="?android:textColorSecondary" />
+
+        <ImageView
+            android:id="@+id/reorder"
+            android:layout_width="32dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:padding="4dp"
+            android:layout_margin="4dp"
             android:src="@drawable/ic_fluent_re_order_24_filled"
-            app:tint="?android:textColorSecondary"
-            tools:ignore="ContentDescription" />
+            app:tint="?android:textColorSecondary" />
 
     </LinearLayout>
 

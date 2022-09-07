@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:layout_height="wrap_content"
-    tools:background="?backcolor">
+    tools:background="?backcolor"
+    tools:layout_height="wrap_content">
 
     <com.github.adamantcheese.chan.ui.layout.FilterLayout
         android:id="@+id/filter_layout"
@@ -35,12 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:textColor="?attr/backcolor">
-
-            <CheckBox
-                android:id="@+id/enabled"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/filter_enabled" />
 
             <Space
                 android:layout_width="0dp"
@@ -61,8 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="8dp"
+            android:padding="4dp"
             android:text="@string/filter_filter"
             android:textColor="?android:textColorSecondary"
             android:textSize="16sp" />
@@ -76,21 +69,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
                 android:drawablePadding="8dp"
-                android:paddingLeft="4dp"
-                android:paddingVertical="4dp"
-                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
-                tools:drawableTint="?themeDrawableColor"
+                android:padding="4dp"
+                app:drawableRightCompat="@drawable/ic_fluent_caret_down_16_filled"
+                app:drawableTint="?themeDrawableColor"
                 tools:text="Types (1)" />
 
             <TextView
                 android:id="@+id/boards"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
+                android:layout_height="match_parent"
                 android:drawablePadding="8dp"
-                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
-                tools:drawableTint="?themeDrawableColor"
+                android:padding="4dp"
+                app:drawableRightCompat="@drawable/ic_fluent_caret_down_16_filled"
+                app:drawableTint="?themeDrawableColor"
                 tools:text="Boards (All)" />
 
         </LinearLayout>
@@ -98,9 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:drawablePadding="8dp"
-            android:paddingLeft="4dp"
-            android:paddingTop="8dp"
+            android:padding="4dp"
             android:text="@string/filter_action"
             android:textColor="?android:textColorSecondary"
             android:textSize="16sp" />
@@ -114,29 +105,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 android:id="@+id/action"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
                 android:drawablePadding="8dp"
-                android:paddingHorizontal="4dp"
-                android:paddingTop="4dp"
-                tools:drawableRight="@drawable/ic_fluent_caret_down_16_filled"
-                tools:drawableTint="?themeDrawableColor"
+                android:padding="4dp"
+                app:drawableRightCompat="@drawable/ic_fluent_caret_down_16_filled"
+                app:drawableTint="?themeDrawableColor"
                 tools:text="Hide post" />
 
-            <LinearLayout
-                android:id="@+id/color_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <View
-                    android:id="@+id/color_preview"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginRight="8dp"
-                    android:layout_marginBottom="4dp" />
-
-            </LinearLayout>
+            <ImageView
+                android:id="@+id/color_preview"
+                android:layout_width="50dp"
+                android:layout_height="match_parent"
+                tools:src="@color/red" />
 
         </LinearLayout>
 
@@ -161,8 +141,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="8dp"
+            android:padding="4dp"
             android:text="@string/filter_pattern"
             android:textSize="16sp" />
 
@@ -177,8 +156,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="8dp"
+            android:padding="4dp"
             android:text="@string/filter_match_test"
             android:textSize="16sp" />
 
@@ -186,8 +164,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/pattern_preview_status"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="4dp"
-            android:paddingTop="8dp"
+            android:padding="4dp"
             tools:text="Does not match" />
 
         <EditText

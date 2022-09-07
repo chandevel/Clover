@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:paddingLeft="8dp"
             android:paddingTop="8dp"
             android:paddingRight="8dp"
-            android:paddingBottom="88dp"
+            android:layout_marginBottom="88dp"
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical"
             android:visibility="gone"

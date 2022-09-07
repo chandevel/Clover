@@ -191,7 +191,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="setup_board_removed">Removed \"%s\"</string>
     <string name="setup_board_added">%s added</string>
     <string name="filter_summary_all_boards">All boards</string>
-    <string name="filter_enabled">Enabled</string>
     <string name="filter_filter">Filter</string>
     <string name="filter_action">Action</string>
     <string name="filter_pattern">Pattern</string>

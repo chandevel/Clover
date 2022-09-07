@@ -55,10 +55,8 @@ public class FilterLayout
     private TextView pattern;
     private TextView patternPreview;
     private TextView patternPreviewStatus;
-    private CheckBox enabled;
     private TextView actionText;
-    private LinearLayout colorContainer;
-    private View colorPreview;
+    private ImageView colorPreview;
     private CheckBox applyToReplies;
     private CheckBox onlyOnOP;
     private CheckBox applyToSaved;
@@ -125,21 +123,13 @@ public class FilterLayout
             }
         });
         patternPreviewStatus = findViewById(R.id.pattern_preview_status);
-        enabled = findViewById(R.id.enabled);
         ImageView help = findViewById(R.id.help);
-        colorContainer = findViewById(R.id.color_container);
         colorPreview = findViewById(R.id.color_preview);
         applyToReplies = findViewById(R.id.apply_to_replies_checkbox);
         onlyOnOP = findViewById(R.id.only_on_op_checkbox);
         applyToSaved = findViewById(R.id.apply_to_saved_checkbox);
 
-        Drawable dropdownDrawable = getRes().getDrawable(R.drawable.ic_fluent_caret_down_16_filled);
-        dropdownDrawable.setTint(getAttrColor(getContext(), android.R.attr.textColorSecondary));
-        typeText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
-        boardsSelector.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
-        actionText.setCompoundDrawablesWithIntrinsicBounds(null, null, dropdownDrawable, null);
-
-        colorContainer.setOnClickListener(this::onColorClicked);
+        colorPreview.setOnClickListener(this::onColorClicked);
         help.setOnClickListener(this::onHelpClicked);
         typeText.setOnClickListener(this::onTypesClicked);
         boardsSelector.setOnClickListener(this::onBoardsClicked);
@@ -164,7 +154,6 @@ public class FilterLayout
     }
 
     public Filter getFilter() {
-        filter.enabled = enabled.isChecked();
         filter.applyToReplies = applyToReplies.isChecked();
         filter.onlyOnOP = onlyOnOP.isChecked();
         filter.applyToSaved = applyToSaved.isChecked();
@@ -341,7 +330,6 @@ public class FilterLayout
     }
 
     private void updateCheckboxes() {
-        enabled.setChecked(filter.enabled);
         applyToReplies.setChecked(filter.applyToReplies);
         onlyOnOP.setChecked(filter.onlyOnOP);
         applyToSaved.setChecked(filter.applyToSaved);
@@ -356,7 +344,7 @@ public class FilterLayout
     private void updateFilterAction() {
         FilterAction action = FilterAction.values()[filter.action];
         actionText.setText(FilterAction.actionName(action));
-        colorContainer.setVisibility(action == COLOR ? VISIBLE : GONE);
+        colorPreview.setVisibility(action == COLOR ? VISIBLE : GONE);
         if (filter.color == 0) {
             filter.color = 0xffff0000;
         }

@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -73,6 +74,7 @@ public class FiltersController
     FilterEngine filterEngine;
 
     private RecyclerView recyclerView;
+    private int defaultRecyclerBottomMargin;
     private FloatingActionButton add;
     private FloatingActionButton enable;
     private FilterAdapter adapter;
@@ -150,6 +152,7 @@ public class FiltersController
         recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(RecyclerUtils.getBottomDividerDecoration(context));
+        defaultRecyclerBottomMargin = ((CoordinatorLayout.LayoutParams) recyclerView.getLayoutParams()).bottomMargin;
 
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
@@ -176,15 +179,14 @@ public class FiltersController
                 List<Filter> allFilters = filterEngine.getAllFilters();
                 if (enabledFilters.isEmpty()) {
                     setFilters(allFilters, true);
-                    enableButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
+                    enableButton.setImageResource(R.drawable.ic_fluent_star_prohibited_24_filled);
                 } else if (enabledFilters.size() == allFilters.size()) {
                     setFilters(allFilters, false);
-                    enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+                    enableButton.setImageResource(R.drawable.ic_fluent_star_emphasis_24_filled);
                 } else {
                     setFilters(enabledFilters, false);
-                    enableButton.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+                    enableButton.setImageResource(R.drawable.ic_fluent_star_emphasis_24_filled);
                 }
-                postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
             }
         });
     }
@@ -231,6 +233,7 @@ public class FiltersController
             filter.enabled = enabled;
             filterEngine.createOrUpdateFilter(filter);
         }
+        postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
         adapter.reload();
     }
 
@@ -270,9 +273,9 @@ public class FiltersController
 
     private void setEnableButtonState() {
         if (filterEngine.getEnabledFilters().isEmpty()) {
-            enable.setImageResource(R.drawable.ic_fluent_checkmark_24_filled);
+            enable.setImageResource(R.drawable.ic_fluent_star_emphasis_24_filled);
         } else {
-            enable.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
+            enable.setImageResource(R.drawable.ic_fluent_star_prohibited_24_filled);
         }
     }
 
@@ -284,12 +287,15 @@ public class FiltersController
             adapter.filter();
             add.setVisibility(VISIBLE);
             enable.setVisibility(VISIBLE);
+            ((CoordinatorLayout.LayoutParams) recyclerView.getLayoutParams()).bottomMargin =
+                    defaultRecyclerBottomMargin;
             itemTouchHelper.attachToRecyclerView(recyclerView);
             attached = true;
         } else {
             //search on, turn off buttons and touch listener
             add.setVisibility(GONE);
             enable.setVisibility(GONE);
+            ((CoordinatorLayout.LayoutParams) recyclerView.getLayoutParams()).bottomMargin = 0;
             itemTouchHelper.attachToRecyclerView(null);
             attached = false;
         }
@@ -303,7 +309,7 @@ public class FiltersController
 
     private class FilterAdapter
             extends RecyclerView.Adapter<FilterHolder> {
-        private List<Filter> sourceList = new ArrayList<>();
+        private final List<Filter> sourceList = new ArrayList<>();
         private final List<Filter> displayList = new ArrayList<>();
         private String searchQuery;
 
@@ -331,6 +337,9 @@ public class FiltersController
             holder.subtext.setTextColor(getAttrColor(context,
                     filter.enabled ? android.R.attr.textColorSecondary : android.R.attr.textColorHint
             ));
+            holder.enable.setImageResource(filter.enabled
+                    ? R.drawable.ic_fluent_star_off_24_filled
+                    : R.drawable.ic_fluent_star_24_filled);
 
             StringBuilder subText = new StringBuilder();
             int types = FilterType.forFlags(filter.type).size();
@@ -367,7 +376,7 @@ public class FiltersController
 
         public void reload() {
             sourceList.clear();
-            sourceList.addAll(DatabaseUtils.runTask(databaseFilterManager.getFilters()));
+            sourceList.addAll(filterEngine.getAllFilters());
             Collections.sort(sourceList, (o1, o2) -> o1.order - o2.order);
             filter();
         }
@@ -407,6 +416,7 @@ public class FiltersController
             extends RecyclerView.ViewHolder {
         private final TextView text;
         private final TextView subtext;
+        private final ImageView enable;
 
         @SuppressLint("ClickableViewAccessibility")
         public FilterHolder(View itemView) {
@@ -414,7 +424,21 @@ public class FiltersController
 
             text = itemView.findViewById(R.id.text);
             subtext = itemView.findViewById(R.id.subtext);
+            enable = itemView.findViewById(R.id.enable);
             ImageView reorder = itemView.findViewById(R.id.reorder);
+
+            enable.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (!locked && position >= 0 && position < adapter.getItemCount()) {
+                    Filter f = adapter.displayList.get(position);
+                    f.enabled = !f.enabled;
+
+                    filterEngine.createOrUpdateFilter(f);
+                    setEnableButtonState();
+                    postToEventBus(new RefreshUIMessage(FILTERS_CHANGED));
+                    adapter.reload();
+                }
+            });
 
             reorder.setOnTouchListener((v, event) -> {
                 if (!locked && event.getActionMasked() == MotionEvent.ACTION_DOWN && attached) {
@@ -425,7 +449,7 @@ public class FiltersController
 
             itemView.setOnClickListener(v -> {
                 int position = getBindingAdapterPosition();
-                if (!locked && position >= 0 && position < adapter.getItemCount() && v == itemView) {
+                if (!locked && position >= 0 && position < adapter.getItemCount()) {
                     showFilterDialog(adapter.displayList.get(position));
                 }
             });
