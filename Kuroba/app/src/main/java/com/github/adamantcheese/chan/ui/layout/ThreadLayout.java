@@ -347,8 +347,8 @@ public class ThreadLayout
     }
 
     @Override
-    public void showAlbum(List<PostImage> images, int index) {
-        callback.showAlbum(images, index);
+    public void showAlbum(List<PostImage> images, PostImage target) {
+        callback.showAlbum(images, target);
     }
 
     @Override
@@ -746,7 +746,7 @@ public class ThreadLayout
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
 
-        void showAlbum(List<PostImage> images, int index);
+        void showAlbum(List<PostImage> images, PostImage target);
 
         void onShowPosts(Loadable loadable);
 

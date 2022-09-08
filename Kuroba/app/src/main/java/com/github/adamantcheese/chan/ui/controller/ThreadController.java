@@ -207,11 +207,11 @@ public abstract class ThreadController
     }
 
     @Override
-    public void showAlbum(List<PostImage> images, int index) {
+    public void showAlbum(List<PostImage> images, PostImage target) {
         if (threadLayout.getPresenter().getChanThread() != null) {
             AlbumViewController albumViewController =
                     new AlbumViewController(context, ThreadController.this::getPostForPostImage);
-            albumViewController.setImages(getLoadable(), images, index, navigation.title);
+            albumViewController.setImages(getLoadable(), images, target, navigation.title);
 
             if (doubleNavigationController != null) {
                 doubleNavigationController.pushController(albumViewController);

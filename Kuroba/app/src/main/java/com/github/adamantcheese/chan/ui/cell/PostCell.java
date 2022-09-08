@@ -365,8 +365,9 @@ public class PostCell
 
         if (threadMode) {
             comment.setTextIsSelectable(true);
-            comment.setFocusable(true);
-            comment.setFocusableInTouchMode(true);
+            comment.setMovementMethod(new PostViewMovementMethod(post, callback));
+            comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
+
             comment.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                 private MenuItem quoteMenuItem;
                 private MenuItem webSearchItem;
@@ -418,12 +419,6 @@ public class PostCell
                 }
             });
 
-            // Sets focusable to auto, clickable and longclickable to true.
-            comment.setMovementMethod(new PostViewMovementMethod(post, callback));
-
-            // And this sets clickable to appropriate values again.
-            comment.setOnTouchListener((v, event) -> doubleTapComment.onTouchEvent(event));
-
             if (post.board.site.siteFeature(Site.SiteFeature.POSTING)) {
                 if (ChanSettings.shortTapPostCellQuote.get()) {
                     headerWrapper.setOnClickListener(v -> callback.onPostNoClicked(post));
@@ -435,14 +430,11 @@ public class PostCell
                 }
             }
         } else {
-            comment.setOnTouchListener(null);
-            comment.setClickable(false);
-
-            // Sets focusable to auto, clickable and longclickable to false.
+            comment.setTextIsSelectable(false);
             comment.setMovementMethod(null);
+            comment.setOnTouchListener(null);
 
             headerWrapper.setBackgroundResource(0);
-            headerWrapper.setLongClickable(false);
         }
 
         int textSizeSp = isInEditMode() ? 15 : ChanSettings.fontSize.get();
@@ -558,6 +550,7 @@ public class PostCell
         icons.clear();
         headerWrapper.setOnLongClickListener(null);
         headerWrapper.setLongClickable(false);
+        comment.setTextIsSelectable(false);
         comment.setOnTouchListener(null);
         comment.setMovementMethod(null);
         post = null;

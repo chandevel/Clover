@@ -14,15 +14,20 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<com.github.adamantcheese.chan.ui.view.ShapeablePostImageView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_centerVertical="true"
-    android:layout_margin="1dp"
-    android:adjustViewBounds="true"
-    android:minHeight="@dimen/cell_post_thumbnail_size"
-    app:shapeAppearanceOverlay="@style/roundedImageViewCorners"
-    tools:layout_height="@dimen/cell_post_thumbnail_size"
-    tools:layout_width="@dimen/cell_post_thumbnail_size" />
+    android:layout_margin="1dp">
+
+    <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
+        android:id="@+id/image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_centerVertical="true"
+        android:adjustViewBounds="true"
+        app:layout_constraintHeight_max="@dimen/stagger_cell_thumbnail_max_size"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />
+</androidx.constraintlayout.widget.ConstraintLayout>

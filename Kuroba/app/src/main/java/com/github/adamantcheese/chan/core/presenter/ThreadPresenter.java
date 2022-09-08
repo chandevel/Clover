@@ -218,23 +218,20 @@ public class ThreadPresenter
     public synchronized void showAlbum() {
         List<Post> posts = threadPresenterCallback.getDisplayingPosts();
         RecyclerViewPosition pos = threadPresenterCallback.getCurrentPosition();
-        int displayPosition = pos.index;
+
+        if (posts.isEmpty()) return;
 
         List<PostImage> images = new ArrayList<>();
-        int index = 0;
-        for (int i = 0; i < posts.size(); i++) {
-            if (i == displayPosition) {
-                index = images.size();
-            }
-            Post item = posts.get(i);
-            for (PostImage image : item.images) {
+        PostImage target = posts.get(pos.index).image();
+        for (Post post : posts) {
+            for (PostImage image : post.images) {
                 if (image.type != PostImage.Type.IFRAME) {
                     images.add(image);
                 }
             }
         }
 
-        threadPresenterCallback.showAlbum(images, index);
+        threadPresenterCallback.showAlbum(images, target);
     }
 
     @Override
@@ -1241,7 +1238,7 @@ public class ThreadPresenter
 
         void showImages(List<PostImage> images, int index, Loadable loadable, ImageView thumbnail);
 
-        void showAlbum(List<PostImage> images, int index);
+        void showAlbum(List<PostImage> images, PostImage target);
 
         void scrollTo(int displayPosition, boolean smooth);
 

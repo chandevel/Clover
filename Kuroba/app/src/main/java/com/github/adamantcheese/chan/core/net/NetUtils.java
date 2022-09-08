@@ -117,6 +117,10 @@ public class NetUtils {
                 }
             };
 
+    public static void clearImageCache() {
+        imageCache.evictAll();
+    }
+
     public static Call makeHttpCall(HttpCall<?> httpCall) {
         return makeHttpCall(httpCall, Collections.emptyList(), null, true);
     }

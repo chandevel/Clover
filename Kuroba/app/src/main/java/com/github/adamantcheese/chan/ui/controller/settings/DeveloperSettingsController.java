@@ -254,6 +254,11 @@ public class DeveloperSettingsController
         testWebiew.setText("Test webview cookie synchronization");
         wrapper.addView(testWebiew);
 
+        Button clearBitmapCache = new Button(context);
+        clearBitmapCache.setOnClickListener(v -> NetUtils.clearImageCache());
+        clearBitmapCache.setText("Clear bitmap cache");
+        wrapper.addView(clearBitmapCache);
+
         ScrollView scrollView = new ScrollView(context);
         updatePaddings(scrollView, dp(16), dp(16), dp(16), dp(16));
         scrollView.addView(wrapper);

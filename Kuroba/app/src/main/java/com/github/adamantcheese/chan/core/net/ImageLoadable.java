@@ -1,7 +1,5 @@
 package com.github.adamantcheese.chan.core.net;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Bitmap;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
@@ -38,11 +36,15 @@ public interface ImageLoadable {
     default void loadUrl(
             @Nullable HttpUrl url, @NonNull ImageView imageView, @Nullable ResponseResult<Void> callback
     ) {
-        if (url == null || imageView == null) return;
+        if (url == null) {
+            cancelLoad(imageView);
+            return;
+        }
 
+        Call currentCall = getImageCall();
         // in progress check, in case of a re-bind without recycling
-        if (getImageCall() != null) {
-            if (getImageCall().request().url().equals(url)) {
+        if (currentCall != null) {
+            if (currentCall.request().url().equals(url)) {
                 return;
             } else {
                 cancelLoad(imageView); // cancel before set again
@@ -50,16 +52,17 @@ public interface ImageLoadable {
         }
 
         // completed load check
-        if (getLoadedUrl() != null && url.equals(getLoadedUrl())) return;
+        if (url.equals(getLoadedUrl())) return;
 
         // request the image
         Call imageCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
             @Override
             public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                if (doStandardActions(source)) return;
+                setImageCall(null);
                 // for a chained load, this means that the last successful load will remain
                 if (getLoadedUrl() != null) return;
                 setLoadedUrl(null); // fail, nullify the last url
+
                 // if this has an error code associated with it, draw it up all fancy-like
                 if (e instanceof NetUtilsClasses.HttpCodeException) {
                     if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
@@ -67,9 +70,10 @@ public interface ImageLoadable {
                         setLoadedUrl(source);
                     }
                 } else {
-                    Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(url), e);
+                    Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(source), e);
                 }
                 imageView.setImageBitmap(BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e));
+
                 if (callback != null) {
                     callback.onFailure(e);
                 }
@@ -77,13 +81,10 @@ public interface ImageLoadable {
 
             @Override
             public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                if (doStandardActions(source)) return;
                 // success, save the last url as good
                 // for a chained load, this means that the last successful load will remain
-                setLoadedUrl(url);
-                if (callback != null) {
-                    callback.onSuccess(null);
-                }
+                setImageCall(null);
+                setLoadedUrl(source);
 
                 // if not from cache, fade the view in; if set, fade out first
                 if (!fromCache) {
@@ -92,32 +93,22 @@ public interface ImageLoadable {
                                 .animate()
                                 .setInterpolator(new AccelerateInterpolator(2f))
                                 .alpha(0f)
-                                .setListener(new AnimatorListenerAdapter() {
-                                    @Override
-                                    public void onAnimationEnd(Animator animation) {
-                                        imageView.setImageBitmap(bitmap);
-                                        imageView.animate().setInterpolator(new DecelerateInterpolator(2f)).alpha(1f);
-                                    }
+                                .withEndAction(() -> {
+                                    imageView.setImageBitmap(bitmap);
+                                    imageView.animate().alpha(1f).setInterpolator(new DecelerateInterpolator(2f));
                                 });
                     } else {
                         imageView.setImageBitmap(bitmap);
-                        imageView.animate().setInterpolator(new DecelerateInterpolator(2f)).alpha(1f);
+                        imageView.animate().alpha(1f).setInterpolator(new DecelerateInterpolator(2f));
                     }
                 } else {
                     imageView.setImageBitmap(bitmap);
                     imageView.setAlpha(1f);
                 }
-            }
 
-            /**
-             *
-             * @param source source URL to check against requested URL
-             * @return true if the source does NOT match the requested URL
-             */
-            private boolean doStandardActions(HttpUrl source) {
-                if (!source.equals(url)) return true; // sanity check, don't load incorrect images into the view
-                setImageCall(null); // set afterwards, otherwise image loading might mess up
-                return false;
+                if (callback != null) {
+                    callback.onSuccess(null);
+                }
             }
         });
         setImageCall(imageCall);
@@ -164,10 +155,11 @@ public interface ImageLoadable {
         imageView.setImageBitmap(null);
         imageView.setAlpha(0f);
         setLoadedUrl(null);
-        if (getImageCall() != null) {
-            getImageCall().cancel();
-            setImageCall(null);
+        Call currentCall = getImageCall();
+        if (currentCall != null) {
+            currentCall.cancel();
         }
+        setImageCall(null);
     }
 
     HttpUrl getLoadedUrl();

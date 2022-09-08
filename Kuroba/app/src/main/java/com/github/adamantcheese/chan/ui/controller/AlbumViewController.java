@@ -54,10 +54,10 @@ public class AlbumViewController
         DOWNLOAD_ALBUM
     }
 
-    private AlbumLayout recyclerView;
+    private AlbumLayout albumlayout;
 
     private List<PostImage> postImages;
-    private int targetIndex = -1;
+    private PostImage targetStartingImage;
 
     private Loadable loadable;
     private final ProxyImageViewerCallback callback;
@@ -73,12 +73,13 @@ public class AlbumViewController
 
         // View setup
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_album_view, null);
-        recyclerView = view.findViewById(R.id.recycler_view);
-        recyclerView.setAdapter(new AlbumAdapter());
-        recyclerView.scrollToPosition(targetIndex);
+        albumlayout = view.findViewById(R.id.recycler_view);
+        albumlayout.setAdapter(new AlbumAdapter());
+        albumlayout.scrollToPositionWithOffset(postImages.indexOf(targetStartingImage), 0);
+        targetStartingImage = null;
     }
 
-    public void setImages(Loadable loadable, List<PostImage> postImages, int index, String title) {
+    public void setImages(Loadable loadable, List<PostImage> postImages, PostImage start, String title) {
         this.loadable = loadable;
         this.postImages = postImages;
 
@@ -92,10 +93,10 @@ public class AlbumViewController
 
         navigation.title = title;
         navigation.subtitle = getQuantityString(R.plurals.image, postImages.size());
-        targetIndex = index;
+        targetStartingImage = start;
     }
 
-    private void downloadAlbumClicked(ToolbarMenuItem item) {
+    private void downloadAlbumClicked(@SuppressWarnings("unused") ToolbarMenuItem item) {
         AlbumDownloadController albumDownloadController = new AlbumDownloadController(context);
         albumDownloadController.setPostImages(loadable, postImages);
         navigationController.pushController(albumDownloadController);
@@ -103,7 +104,7 @@ public class AlbumViewController
 
     @Override
     public ImageView getPreviewImageTransitionView(PostImage postImage) {
-        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(postImages.indexOf(postImage));
+        RecyclerView.ViewHolder holder = albumlayout.findViewHolderForAdapterPosition(postImages.indexOf(postImage));
         if (holder instanceof AlbumAdapter.AlbumItemCellHolder) {
             AlbumAdapter.AlbumItemCellHolder cellHolder = (AlbumAdapter.AlbumItemCellHolder) holder;
             return cellHolder.thumbnailView;
@@ -113,8 +114,7 @@ public class AlbumViewController
 
     @Override
     public void scrollToImage(PostImage postImage) {
-        int index = postImages.indexOf(postImage);
-        recyclerView.smoothScrollToPosition(index);
+        albumlayout.smoothScrollToPosition(postImages.indexOf(postImage));
     }
 
     @Override
@@ -184,10 +184,6 @@ public class AlbumViewController
         @Override
         public void onBindViewHolder(@NonNull AlbumItemCellHolder holder, int position) {
             holder.postImage = postImages.get(position);
-            // if not stagger force 1:1 ratio
-            if (!ChanSettings.useStaggeredAlbumGrid.get()) {
-                holder.thumbnailView.getLayoutParams().height = recyclerView.getMeasuredSpanWidth();
-            }
             holder.thumbnailView.setType(holder.postImage);
             holder.loadPostImage(holder.postImage, holder.thumbnailView);
         }
@@ -219,9 +215,9 @@ public class AlbumViewController
 
             public AlbumItemCellHolder(View view) {
                 super(view);
-                this.thumbnailView = (ShapeablePostImageView) view;
+                this.thumbnailView = view.findViewById(R.id.image);
 
-                itemView.setOnLongClickListener(v -> {
+                thumbnailView.setOnLongClickListener(v -> {
                     if (postImage == null || !ChanSettings.enableLongPressURLCopy.get()) {
                         return false;
                     }

@@ -26,7 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_centerVertical="true"
-        app:layout_constraintDimensionRatio="1:1"
+        android:adjustViewBounds="true"
+        app:layout_constraintHeight_max="@dimen/stagger_cell_thumbnail_max_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />

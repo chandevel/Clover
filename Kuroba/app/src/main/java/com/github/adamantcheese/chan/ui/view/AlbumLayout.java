@@ -36,7 +36,6 @@ public class AlbumLayout
     private final GridLayoutManager gridLayoutManager;
     private final StaggeredGridLayoutManager staggeredGridLayoutManager;
     private final float xmlSpanWidth;
-    private int measuredSpanWidth;
 
     public AlbumLayout(Context context) {
         this(context, null);
@@ -49,9 +48,9 @@ public class AlbumLayout
     public AlbumLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        gridLayoutManager = new GridLayoutManager(context, 3);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        setLayoutManager(useGridLayout() ? gridLayoutManager : staggeredGridLayoutManager);
+        setLayoutManager(shouldUseGridLayout() ? gridLayoutManager : staggeredGridLayoutManager);
         setHasFixedSize(true);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.AlbumLayout);
@@ -62,46 +61,36 @@ public class AlbumLayout
         }
     }
 
-    public int getMeasuredSpanWidth() {
-        return measuredSpanWidth;
-    }
-
-    public int getSpanCount() {
-        if (useGridLayout()) {
-            return gridLayoutManager.getSpanCount();
+    public void scrollToPositionWithOffset(int position, int offset) {
+        if (shouldUseGridLayout()) {
+            gridLayoutManager.scrollToPositionWithOffset(position, offset);
         } else {
-            return staggeredGridLayoutManager.getSpanCount();
+            staggeredGridLayoutManager.scrollToPositionWithOffset(position, offset);
         }
     }
 
     protected void setSpanCount(int count) {
-        if (useGridLayout()) {
+        if (shouldUseGridLayout()) {
             gridLayoutManager.setSpanCount(count);
         } else {
             staggeredGridLayoutManager.setSpanCount(count);
         }
     }
 
-    private boolean useGridLayout() {
+    private boolean shouldUseGridLayout() {
         return isInEditMode() || !ChanSettings.useStaggeredAlbumGrid.get();
     }
 
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
-        int gridCountSetting = !isInEditMode() ? ChanSettings.getAlbumColumnCount() : 3;
+        int gridCountSetting = isInEditMode() ? 3 : ChanSettings.getAlbumColumnCount();
         if (gridCountSetting > 0) {
             // Manual
-            if (getSpanCount() != gridCountSetting) {
-                setSpanCount(gridCountSetting);
-            }
+            setSpanCount(gridCountSetting);
         } else {
-            int newCount = Math.max(1, Math.round(getMeasuredWidth() / xmlSpanWidth));
             // Auto
-            if (getSpanCount() != newCount) {
-                setSpanCount(newCount);
-            }
+            setSpanCount((int) Math.max(1f, getMeasuredWidth() / xmlSpanWidth));
         }
-        measuredSpanWidth = getMeasuredWidth() / getSpanCount();
     }
 }

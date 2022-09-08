@@ -280,21 +280,14 @@ public class AlbumDownloadController
         public AlbumDownloadHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             return new AlbumDownloadHolder(LayoutInflater
                     .from(parent.getContext())
-                    .inflate(R.layout.cell_album_download, parent, false));
+                    .inflate(ChanSettings.useStaggeredAlbumGrid.get()
+                            ? R.layout.cell_album_download_stagger
+                            : R.layout.cell_album_download, parent, false));
         }
 
         @Override
         public void onBindViewHolder(@NonNull AlbumDownloadHolder holder, int position) {
             AlbumDownloadItem item = items.get(position);
-            // if stagger, adjust view bounds; otherwise force 1:1 ratio
-            if (ChanSettings.useStaggeredAlbumGrid.get()) {
-                holder.thumbnailView.setAdjustViewBounds(true);
-                holder.thumbnailView.getLayoutParams().height = MATCH_PARENT;
-            } else {
-                holder.thumbnailView.setAdjustViewBounds(false);
-                holder.thumbnailView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                holder.thumbnailView.getLayoutParams().height = recyclerView.getMeasuredSpanWidth();
-            }
             holder.thumbnailView.setType(item.postImage);
             holder.loadPostImage(item.postImage, holder.thumbnailView);
             setItemChecked(holder, item.checked, false);
