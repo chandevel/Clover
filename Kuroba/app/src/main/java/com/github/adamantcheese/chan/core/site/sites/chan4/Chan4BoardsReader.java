@@ -25,11 +25,11 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import java.io.IOException;
 
-public class Chan4BoardsRequest
+public class Chan4BoardsReader
         implements NetUtilsClasses.Converter<Boards, JsonReader> {
     private final Site site;
 
-    public Chan4BoardsRequest(Site site) {
+    public Chan4BoardsReader(Site site) {
         this.site = site;
     }
 

@@ -65,7 +65,6 @@ import com.github.adamantcheese.chan.ui.adapter.DrawerHistoryAdapter;
 import com.github.adamantcheese.chan.ui.adapter.DrawerPinAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.skydoves.balloon.ArrowOrientation;

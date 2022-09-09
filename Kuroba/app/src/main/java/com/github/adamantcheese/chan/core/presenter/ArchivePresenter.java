@@ -51,7 +51,7 @@ public class ArchivePresenter
     private void loadArchive() {
         inRequest = true;
         callback.showError(false);
-        board.site.actions().archive(board, this);
+        board.site.api().archive(board, this);
     }
 
     public void onSearchEntered(String query) {

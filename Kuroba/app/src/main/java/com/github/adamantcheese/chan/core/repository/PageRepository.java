@@ -24,7 +24,8 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPage;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 
 import java.util.*;
@@ -89,7 +90,7 @@ public class PageRepository {
     private static synchronized void requestBoard(final Board b) {
         if (b != null && !requestedBoards.contains(b)) {
             requestedBoards.add(b);
-            b.site.actions().pages(b, (NetUtilsClasses.NoFailResponseResult<ChanPages>) result -> addPages(b, result));
+            b.site.api().pages(b, (NetUtilsClasses.NoFailResponseResult<ChanPages>) result -> addPages(b, result));
         }
     }
 

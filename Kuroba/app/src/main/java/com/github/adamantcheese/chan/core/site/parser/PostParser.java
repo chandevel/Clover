@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
@@ -26,7 +25,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.os.Build;
 import android.text.*;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -37,7 +35,6 @@ import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.ChanCommentAction;
 import com.github.adamantcheese.chan.features.html_styling.base.ChainStyleAction;
@@ -48,8 +45,6 @@ import com.github.adamantcheese.chan.ui.text.post_linkables.RemovedLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.inject.Inject;
@@ -247,7 +242,7 @@ public class PostParser {
          */
         default boolean isSaved(int postNo) {
             return false;
-        };
+        }
 
         /**
          * Is the post no from this thread.
@@ -257,7 +252,7 @@ public class PostParser {
          */
         default boolean isInternal(int postNo) {
             return false;
-        };
+        }
 
         /**
          * Is the post no something the user has removed.
@@ -267,7 +262,7 @@ public class PostParser {
          */
         default boolean isRemoved(int postNo) {
             return false;
-        };
+        }
     }
 
     public interface GetFiltersCallback {

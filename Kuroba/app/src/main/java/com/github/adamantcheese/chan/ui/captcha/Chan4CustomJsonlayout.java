@@ -119,7 +119,7 @@ public class Chan4CustomJsonlayout
             Loadable loadable, AuthenticationLayoutCallback callback, boolean autoReply
     ) {
         this.callback = callback;
-        authentication = loadable.site.actions().postAuthenticate(loadable);
+        authentication = loadable.site.api().postAuthenticate(loadable);
         isAutoReply = autoReply;
     }
 

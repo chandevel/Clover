@@ -987,7 +987,7 @@ public class ThreadPresenter
 
         SavedReply reply = databaseSavedReplyManager.getSavedReply(post.board, post.no);
         if (reply != null) {
-            post.board.site.actions().delete(new DeleteRequest(post, reply, onlyImageDelete),
+            post.board.site.api().delete(new DeleteRequest(post, reply, onlyImageDelete),
                     new NetUtilsClasses.ResponseResult<DeleteResponse>() {
                         @Override
                         public void onSuccess(DeleteResponse deleteResponse) {

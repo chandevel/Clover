@@ -110,7 +110,7 @@ public class LegacyCaptchaLayout
     @Override
     public void initialize(Loadable loadable, AuthenticationLayoutCallback callback, boolean ignored) {
         this.callback = callback;
-        authentication = loadable.site.actions().postAuthenticate(loadable);
+        authentication = loadable.site.api().postAuthenticate(loadable);
     }
 
     @Override
@@ -133,8 +133,7 @@ public class LegacyCaptchaLayout
 
     private void submitCaptcha() {
         hideKeyboard(this);
-        callback.onAuthenticationComplete(
-                new CaptchaTokenHolder.CaptchaToken(challenge, input.getText().toString(), 0),
+        callback.onAuthenticationComplete(new CaptchaTokenHolder.CaptchaToken(challenge, input.getText().toString(), 0),
                 true
         );
     }

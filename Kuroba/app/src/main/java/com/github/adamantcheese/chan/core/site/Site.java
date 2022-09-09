@@ -22,8 +22,7 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.http.DeleteRequest;
-import com.github.adamantcheese.chan.core.site.http.LoginRequest;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public interface Site {
         /**
          * This site supports posting. (Or rather, we've implemented support for it.)
          *
-         * @see SiteActions#post(Loadable, SiteActions.PostListener)
+         * @see SiteApi#post(Loadable, SiteApi.PostListener)
          * @see SiteEndpoints#reply(Loadable)
          */
         POSTING,
@@ -40,7 +39,7 @@ public interface Site {
         /**
          * This site supports deleting posts.
          *
-         * @see SiteActions#delete(DeleteRequest, ResponseResult)
+         * @see SiteApi#delete(DeleteRequest, ResponseResult)
          * @see SiteEndpoints#delete(Post)
          */
         POST_DELETE,
@@ -55,7 +54,7 @@ public interface Site {
         /**
          * This site supports some sort of authentication (like 4pass).
          *
-         * @see SiteActions#login(LoginRequest, ResponseResult)
+         * @see SiteApi#login(String, String, ResponseResult)
          * @see SiteEndpoints#login()
          */
         LOGIN,
@@ -112,7 +111,7 @@ public interface Site {
 
         /**
          * Can the boards be listed, in other words, can
-         * {@link SiteActions#boards(ResponseResult)} be used, and is
+         * {@link SiteApi#boards(ResponseResult)} be used, and is
          * {@link #board(String)} available.
          */
         public boolean canList;
@@ -158,9 +157,9 @@ public interface Site {
 
     SiteEndpoints endpoints();
 
-    ChanReader chanReader();
+    SiteContentReader chanReader();
 
-    SiteActions actions();
+    SiteApi api();
 
     /**
      * Return the board for this site with the given {@code code}.

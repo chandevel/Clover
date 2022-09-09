@@ -34,8 +34,8 @@ import com.github.adamantcheese.chan.core.site.*;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.*;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
+import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -58,8 +58,8 @@ public abstract class CommonSite
     private CommonConfig config;
     private CommonSiteUrlHandler resolvable;
     private CommonEndpoints endpoints;
-    private CommonActions actions;
-    private CommonApi api;
+    private CommonApi actions;
+    private CommonSiteContentReader contentReader;
 
     public PostParser postParser;
 
@@ -100,7 +100,7 @@ public abstract class CommonSite
             throw new NullPointerException("setActions not called");
         }
 
-        if (api == null) {
+        if (contentReader == null) {
             throw new NullPointerException("setApi not called");
         }
 
@@ -151,12 +151,12 @@ public abstract class CommonSite
         this.endpoints = endpoints;
     }
 
-    public final void setActions(CommonActions actions) {
+    public final void setActions(CommonApi actions) {
         this.actions = actions;
     }
 
-    public final void setApi(CommonApi api) {
-        this.api = api;
+    public final void setContentReader(CommonSiteContentReader contentReader) {
+        this.contentReader = contentReader;
     }
 
     public final void setParser(PostParser parser) {
@@ -203,13 +203,13 @@ public abstract class CommonSite
     }
 
     @Override
-    public SiteActions actions() {
+    public SiteApi api() {
         return actions;
     }
 
     @Override
-    public ChanReader chanReader() {
-        return api;
+    public SiteContentReader chanReader() {
+        return contentReader;
     }
 
     public abstract static class CommonConfig {
@@ -387,11 +387,11 @@ public abstract class CommonSite
         }
     }
 
-    public static abstract class CommonActions
-            implements SiteActions {
+    public static abstract class CommonApi
+            implements SiteApi {
         protected CommonSite site;
 
-        public CommonActions(CommonSite site) {
+        public CommonApi(CommonSite site) {
             this.site = site;
         }
 
@@ -506,11 +506,11 @@ public abstract class CommonSite
         }
     }
 
-    public static abstract class CommonApi
-            implements ChanReader {
+    public static abstract class CommonSiteContentReader
+            implements SiteContentReader {
         protected CommonSite site;
 
-        public CommonApi(CommonSite site) {
+        public CommonSiteContentReader(CommonSite site) {
             this.site = site;
         }
 

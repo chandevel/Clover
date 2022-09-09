@@ -25,7 +25,7 @@ public class SiteAuthentication {
         CAPTCHA1,
         CAPTCHA2,
         CAPTCHA2_NOJS,
-        CUSTOM_JSON,
+        CHAN4_CUSTOM,
         GENERIC_WEBVIEW
     }
 
@@ -54,8 +54,8 @@ public class SiteAuthentication {
         return a;
     }
 
-    public static SiteAuthentication fromCustomJson(String baseUrl) {
-        SiteAuthentication a = new SiteAuthentication(CUSTOM_JSON);
+    public static SiteAuthentication fromChan4Custom(String baseUrl) {
+        SiteAuthentication a = new SiteAuthentication(CHAN4_CUSTOM);
         a.baseUrl = baseUrl;
         return a;
     }

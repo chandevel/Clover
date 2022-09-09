@@ -64,7 +64,7 @@ public class GenericWebViewAuthenticationLayout
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);
 
-        authentication = loadable.site.actions().postAuthenticate(loadable);
+        authentication = loadable.site.api().postAuthenticate(loadable);
 
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);

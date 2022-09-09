@@ -72,7 +72,7 @@ public abstract class SiteBase
         initializeSettings();
 
         if (boardsType().canList) {
-            actions().boards((NoFailResponseResult<Boards>) result -> boardManager.updateAvailableBoardsForSite(SiteBase.this,
+            api().boards((NoFailResponseResult<Boards>) result -> boardManager.updateAvailableBoardsForSite(SiteBase.this,
                     result
             ));
         }

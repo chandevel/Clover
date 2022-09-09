@@ -163,7 +163,8 @@ public abstract class ThreadController
 
     @Override
     public void openReportController(final Post post) {
-        navigationController.pushController(new WebViewController(context,
+        navigationController.pushController(new WebViewController(
+                context,
                 getString(R.string.report_screen, PostHelper.getTitle(post, getLoadable())),
                 post.board.site.endpoints().report(post)
         ));

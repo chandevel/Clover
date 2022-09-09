@@ -2,8 +2,6 @@ package com.github.adamantcheese.chan.ui.text;
 
 import android.content.Context;
 import android.graphics.*;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.text.style.ImageSpan;
 
 import androidx.annotation.NonNull;

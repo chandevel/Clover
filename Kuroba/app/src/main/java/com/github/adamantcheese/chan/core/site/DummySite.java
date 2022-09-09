@@ -1,16 +1,12 @@
 package com.github.adamantcheese.chan.core.site;
 
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.InternalSiteArchive;
 import com.github.adamantcheese.chan.core.model.Post;
 import com.github.adamantcheese.chan.core.model.orm.Board;
@@ -192,8 +188,8 @@ public class DummySite
     }
 
     @Override
-    public ChanReader chanReader() {
-        return new ChanReader() {
+    public SiteContentReader chanReader() {
+        return new SiteContentReader() {
             private final PostParser postParser = new PostParser(new ChanCommentAction());
 
             @Override
@@ -213,8 +209,8 @@ public class DummySite
     }
 
     @Override
-    public SiteActions actions() {
-        return new SiteActions() {
+    public SiteApi api() {
+        return new SiteApi() {
             @Override
             public void boards(ResponseResult<Boards> boardsListener) {}
 

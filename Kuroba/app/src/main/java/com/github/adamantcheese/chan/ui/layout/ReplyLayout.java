@@ -53,7 +53,6 @@ import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsFallbackLay
 import com.github.adamantcheese.chan.ui.captcha.v2.nojs.CaptchaV2NoJsLayout;
 import com.github.adamantcheese.chan.ui.helper.ImagePickDelegate;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.*;
 import com.google.common.base.Functions;
@@ -459,7 +458,7 @@ public class ReplyLayout
                     }
 
                     break;
-                case CUSTOM_JSON:
+                case CHAN4_CUSTOM:
                     // specific to 4chan, may abstract in the future
                     authenticationLayout = (Chan4CustomJsonlayout) LayoutInflater
                             .from(getContext())

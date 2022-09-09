@@ -23,7 +23,6 @@ import static java.lang.Thread.currentThread;
 
 import android.app.Activity;
 import android.app.Application;
-import android.content.Context;
 import android.os.*;
 
 import androidx.annotation.NonNull;
@@ -39,7 +38,6 @@ import com.github.adamantcheese.chan.utils.*;
 
 import org.codejargon.feather.Feather;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.EventBusException;
 
 import java.io.*;
 

@@ -83,13 +83,13 @@ public class Sushichan
         });
 
         setEndpoints(new VichanEndpoints("https://sushigirl.us/", "https://sushigirl.us/"));
-        setActions(new VichanActions(this) {
+        setActions(new VichanApi(this) {
             @Override
             public void clearCookies() {
                 NetUtils.clearAllCookies(ROOT);
             }
         });
-        setApi(new VichanApi(this));
+        setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

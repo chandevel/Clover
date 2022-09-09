@@ -74,7 +74,7 @@ public class CaptchaV2NoJsFallbackLayout
         CookieManager cookieManager = CookieManager.getInstance();
         cookieManager.setAcceptThirdPartyCookies(this, true);
 
-        SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
+        SiteAuthentication authentication = loadable.site.api().postAuthenticate(loadable);
 
         this.siteKey = authentication.siteKey;
         this.baseUrl = authentication.baseUrl;

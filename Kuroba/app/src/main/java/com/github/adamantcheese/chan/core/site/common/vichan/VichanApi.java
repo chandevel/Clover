@@ -1,25 +1,46 @@
+/*
+ * Kuroba - *chan browser https://github.com/Adamantcheese/Kuroba/
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package com.github.adamantcheese.chan.core.site.common.vichan;
 
-import static com.github.adamantcheese.chan.core.site.SiteEndpoints.makeArgument;
+import static android.text.TextUtils.isEmpty;
 
-import android.util.JsonReader;
-
-import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
-
-import com.github.adamantcheese.chan.core.model.*;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
-import com.github.adamantcheese.chan.core.repository.PageRepository;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints;
-import com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
+import com.github.adamantcheese.chan.core.model.orm.Board;
+import com.github.adamantcheese.chan.core.model.orm.Loadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
+import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
+import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
+import com.github.adamantcheese.chan.core.site.http.*;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.utils.Logger;
+
+import org.jsoup.Jsoup;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import okhttp3.HttpUrl;
+import okhttp3.Response;
 
 public class VichanApi
         extends CommonSite.CommonApi {
@@ -28,331 +49,151 @@ public class VichanApi
     }
 
     @Override
-    public void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
-            throws Exception {
-        reader.beginObject();
-        // Page object
-        while (reader.hasNext()) {
-            String key = reader.nextName();
-            if (key.equals("posts")) {
-                reader.beginArray();
-                // Thread array
-                while (reader.hasNext()) {
-                    // Thread object
-                    readPostObject(reader, queue);
-                }
-                reader.endArray();
-            } else {
-                reader.skipValue();
-            }
+    public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
+        Reply reply = loadable.draft;
+        call.parameter("board", loadable.boardCode);
+
+        if (loadable.isThreadMode()) {
+            call.parameter("thread", String.valueOf(loadable.no));
         }
-        reader.endObject();
+
+        // Added with VichanAntispam.
+        // call.parameter("post", "Post");
+
+        call.parameter("password", reply.password);
+        call.parameter("name", reply.name);
+        call.parameter("email", reply.options);
+
+        if (!isEmpty(reply.subject)) {
+            call.parameter("subject", reply.subject);
+        }
+
+        call.parameter("body", reply.comment);
+
+        if (reply.file != null) {
+            call.fileParameter("file", reply.fileName, reply.file);
+        }
+
+        if (reply.spoilerImage) {
+            call.parameter("spoiler", "on");
+        }
     }
 
     @Override
-    public void loadCatalog(JsonReader reader, ChanReaderProcessingQueue queue)
-            throws Exception {
-        PageRepository.addPages(queue.loadable.board, readCatalogWithPages(reader, queue));
-    }
+    public void prepare(
+            MultipartHttpCall<ReplyResponse> call, Loadable loadable, NetUtilsClasses.ResponseResult<Void> callback
+    ) {
+        VichanAntispam antispam = new VichanAntispam(HttpUrl.get(loadable.desktopUrl()));
+        antispam.addDefaultIgnoreFields();
+        antispam.get(new ResponseResult<Map<String, String>>() {
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
 
-    public ChanPages readCatalogWithPages(JsonReader reader, ChanReaderProcessingQueue queue)
-            throws Exception {
-        ChanPages pages = new ChanPages();
-        reader.beginArray(); // Array of pages
-
-        while (reader.hasNext()) {
-            reader.beginObject(); // Page object
-
-            int page = -1;
-            List<Integer> threads = new ArrayList<>();
-            while (reader.hasNext()) {
-                switch (reader.nextName()) {
-                    case "threads":
-                        reader.beginArray(); // Threads array
-                        while (reader.hasNext()) {
-                            threads.add(readPostObjectWithReturn(reader, queue));
-                        }
-                        reader.endArray();
-                        break;
-                    case "page":
-                        page = reader.nextInt() + 1;
-                        break;
-                    default:
-                        reader.skipValue();
-                        break;
+            @Override
+            public void onSuccess(Map<String, String> result) {
+                for (Map.Entry<String, String> e : result.entrySet()) {
+                    call.parameter(e.getKey(), e.getValue());
                 }
+                callback.onSuccess(null);
             }
-
-            if (page != -1) {
-                pages.add(new ChanPage(page, threads));
-            }
-
-            reader.endObject();
-        }
-
-        reader.endArray();
-        return pages;
+        });
     }
 
     @Override
-    public void readPostObject(JsonReader reader, ChanReaderProcessingQueue queue)
-            throws Exception {
-        readPostObjectWithReturn(reader, queue); // ignore return for non-page requests (ie threads)
+    public ReplyResponse handlePost(Loadable loadable, Response response) {
+        ReplyResponse replyResponse = new ReplyResponse(loadable);
+        String responseString = "";
+        try {
+            responseString = response.body().string();
+        } catch (Exception ignored) {}
+        Matcher auth = Pattern.compile("\"captcha\": ?true").matcher(responseString);
+        Matcher err = errorPattern().matcher(responseString);
+        if (auth.find()) {
+            replyResponse.requireAuthentication = true;
+            replyResponse.errorMessage = responseString;
+        } else if (err.find()) {
+            replyResponse.errorMessage = Jsoup.parse(err.group(1)).body().text();
+        } else {
+            HttpUrl url = response.request().url();
+            StringBuilder urlPath = new StringBuilder();
+            //noinspection KotlinInternalInJava
+            HttpUrl.Companion.toPathString$okhttp(url.pathSegments(), urlPath);
+            Matcher m = Pattern.compile("/\\w+/\\w+/(\\d+).html").matcher(urlPath);
+            try {
+                if (m.find()) {
+                    replyResponse.threadNo = Integer.parseInt(m.group(1));
+                    String fragment = url.encodedFragment();
+                    if (fragment != null) {
+                        replyResponse.postNo = Integer.parseInt(fragment);
+                    } else {
+                        replyResponse.postNo = replyResponse.threadNo;
+                    }
+                    replyResponse.posted = true;
+                }
+            } catch (NumberFormatException ignored) {
+                replyResponse.errorMessage = "Error posting: could not find posted thread.";
+            }
+        }
+        return replyResponse;
     }
 
-    @NonNull
-    private int readPostObjectWithReturn(JsonReader reader, ChanReaderProcessingQueue queue)
-            throws Exception {
-        Post.Builder builder = new Post.Builder();
-        builder.board(queue.loadable.board);
+    @Override
+    public void setupDelete(DeleteRequest deleteRequest, MultipartHttpCall<DeleteResponse> call) {
+        call.parameter("board", deleteRequest.post.board.code);
+        call.parameter("delete", "Delete");
+        call.parameter("delete_" + deleteRequest.post.no, "on");
+        call.parameter("password", deleteRequest.savedReply.password);
 
-        SiteEndpoints endpoints = queue.loadable.site.endpoints();
+        if (deleteRequest.imageOnly) {
+            call.parameter("file", "on");
+        }
+    }
 
-        // File
-        String fileId = null;
-        String fileExt = null;
-        int fileWidth = 0;
-        int fileHeight = 0;
-        long fileSize = 0;
-        boolean fileSpoiler = false;
-        String fileName = null;
-        String fileHash = null;
+    @Override
+    public DeleteResponse handleDelete(Response httpResponse)
+            throws IOException {
+        DeleteResponse response = new DeleteResponse();
+        Matcher err = errorPattern().matcher(httpResponse.body().string());
+        if (err.find()) {
+            response.errorMessage = Jsoup.parse(err.group(1)).body().text();
+        } else {
+            response.deleted = true;
+        }
+        return response;
+    }
 
-        List<PostImage> files = new ArrayList<>();
+    public Pattern errorPattern() {
+        return Pattern.compile("<h1[^>]*>Error</h1>.*<h2[^>]*>(.*?)</h2>");
+    }
 
-        // Country flag
-        String countryCode = null;
-        String countryDescription = null;
+    @Override
+    public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
+        return SiteAuthentication.fromNone();
+    }
 
-        reader.beginObject();
-        while (reader.hasNext()) {
-            String key = reader.nextName();
-
-            switch (key) {
-                case "no":
-                    builder.no(reader.nextInt());
-                    break;
-                case "sub":
-                    builder.subject(reader.nextString());
-                    break;
-                case "name":
-                    builder.name(reader.nextString());
-                    break;
-                case "com":
-                    builder.comment(reader.nextString());
-                    break;
-                case "tim":
-                    fileId = reader.nextString();
-                    break;
-                case "time":
-                    builder.setUnixTimestampSeconds(reader.nextLong());
-                    break;
-                case "ext":
-                    fileExt = reader.nextString().replace(".", "");
-                    break;
-                case "w":
-                    fileWidth = reader.nextInt();
-                    break;
-                case "h":
-                    fileHeight = reader.nextInt();
-                    break;
-                case "fsize":
-                    fileSize = reader.nextLong();
-                    break;
-                case "filename":
-                    fileName = reader.nextString();
-                    break;
-                case "trip":
-                    builder.tripcode(reader.nextString());
-                    break;
-                case "country":
-                    countryCode = reader.nextString();
-                    break;
-                case "country_name":
-                    countryDescription = reader.nextString();
-                    break;
-                case "spoiler":
-                    fileSpoiler = reader.nextInt() == 1;
-                    break;
-                case "resto":
-                    int opId = reader.nextInt();
-                    builder.op(opId == 0);
-                    builder.opId(opId);
-                    break;
-                case "sticky":
-                    builder.sticky(reader.nextInt() == 1);
-                    break;
-                case "closed":
-                    builder.closed(reader.nextInt() == 1);
-                    break;
-                case "archived":
-                    builder.archived(reader.nextInt() == 1);
-                    break;
-                case "replies":
-                    builder.replies(reader.nextInt());
-                    break;
-                case "images":
-                    builder.images(reader.nextInt());
-                    break;
-                case "unique_ips":
-                    builder.uniqueIps(reader.nextInt());
-                    break;
-                case "last_modified":
-                    builder.lastModified(reader.nextLong());
-                    break;
-                case "id":
-                    builder.posterId(reader.nextString());
-                    break;
-                case "capcode":
-                    builder.moderatorCapcode(reader.nextString());
-                    break;
-                case "extra_files":
-                    reader.beginArray();
-
-                    while (reader.hasNext()) {
-                        PostImage postImage = readPostImage(reader, builder, endpoints);
-                        if (postImage != null) {
-                            files.add(postImage);
-                        }
+    @Override
+    public void pages(Board board, ResponseResult<ChanPages> pagesListener) {
+        // Vichan keeps the pages and the catalog as one JSON unit, so parse those here
+        NetUtils.makeJsonRequest(
+                site.endpoints().catalog(board),
+                new ResponseResult<ChanPages>() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Logger.e(site, "Failed to get pages for board " + board.code, e);
+                        pagesListener.onSuccess(new ChanPages());
                     }
 
-                    reader.endArray();
-                    break;
-                case "md5":
-                    fileHash = reader.nextString();
-                    break;
-                default:
-                    // Unknown/ignored key
-                    reader.skipValue();
-                    break;
-            }
-        }
-        reader.endObject();
-
-        // The file from between the other values.
-        if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            PostImage image = new PostImage.Builder()
-                    .serverFilename(fileId)
-                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
-                    .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
-                    .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(fileName)
-                    .extension(fileExt)
-                    .imageWidth(fileWidth)
-                    .imageHeight(fileHeight)
-                    .spoiler(fileSpoiler)
-                    .size(fileSize)
-                    .fileHash(fileHash, true)
-                    .build();
-            // Insert it at the beginning.
-            files.add(0, image);
-        }
-
-        builder.images(files);
-
-        if (builder.op) {
-            // Update OP fields later on the main thread
-            queue.setOp(builder.clone());
-        }
-
-        Post cached = queue.getCachedPost(builder.no);
-        if (cached != null) {
-            // Id is known, use the cached post object.
-            queue.addForReuse(cached);
-            return builder.no; // this return is only used for pages!
-        }
-
-        if (countryCode != null && countryDescription != null) {
-            Pair<HttpUrl, PassthroughBitmapResult> resultPair =
-                    endpoints.icon(IconType.COUNTRY_FLAG, makeArgument("country_code", countryCode));
-            builder.addHttpIcon(new PostHttpIcon(IconType.COUNTRY_FLAG,
-                    resultPair.first,
-                    resultPair.second,
-                    countryCode,
-                    countryDescription
-            ));
-        }
-
-        queue.addForParse(builder);
-        return builder.no; // this return is only used for pages!
-    }
-
-    private PostImage readPostImage(JsonReader reader, Post.Builder builder, SiteEndpoints endpoints)
-            throws IOException {
-        try {
-            reader.beginObject();
-        } catch (Exception e) {
-            //workaround for weird 8chan error where extra_files has a random empty array in it
-            reader.beginArray();
-            reader.endArray();
-            try {
-                reader.beginObject();
-            } catch (Exception e1) {
-                return null;
-            }
-        }
-
-        String fileId = null;
-        long fileSize = 0;
-
-        String fileExt = null;
-        int fileWidth = 0;
-        int fileHeight = 0;
-        boolean fileSpoiler = false;
-        String fileName = null;
-        String fileHash = null;
-
-        while (reader.hasNext()) {
-            switch (reader.nextName()) {
-                case "tim":
-                    fileId = reader.nextString();
-                    break;
-                case "fsize":
-                    fileSize = reader.nextLong();
-                    break;
-                case "w":
-                    fileWidth = reader.nextInt();
-                    break;
-                case "h":
-                    fileHeight = reader.nextInt();
-                    break;
-                case "spoiler":
-                    fileSpoiler = reader.nextInt() == 1;
-                    break;
-                case "ext":
-                    fileExt = reader.nextString().replace(".", "");
-                    break;
-                case "filename":
-                    fileName = reader.nextString();
-                    break;
-                case "md5":
-                    fileHash = reader.nextString();
-                    break;
-                default:
-                    reader.skipValue();
-                    break;
-            }
-        }
-
-        reader.endObject();
-
-        if (fileId != null && fileName != null && fileExt != null) {
-            Map<String, String> args = makeArgument("tim", fileId, "ext", fileExt);
-            return new PostImage.Builder()
-                    .serverFilename(fileId)
-                    .thumbnailUrl(endpoints.thumbnailUrl(builder, false, args))
-                    .spoilerThumbnailUrl(endpoints.thumbnailUrl(builder, true, args))
-                    .imageUrl(endpoints.imageUrl(builder, args))
-                    .filename(fileName)
-                    .extension(fileExt)
-                    .imageWidth(fileWidth)
-                    .imageHeight(fileHeight)
-                    .spoiler(fileSpoiler)
-                    .size(fileSize)
-                    .fileHash(fileHash, true)
-                    .build();
-        }
-        return null;
+                    @Override
+                    public void onSuccess(ChanPages result) {
+                        pagesListener.onSuccess(result);
+                    }
+                },
+                response -> ((VichanSiteContentReader) site.chanReader()).readCatalogWithPages(response,
+                        new ChanReaderProcessingQueue(new ArrayList<>(), Loadable.forCatalog(board))
+                ),
+                NetUtilsClasses.NO_CACHE
+        );
     }
 }

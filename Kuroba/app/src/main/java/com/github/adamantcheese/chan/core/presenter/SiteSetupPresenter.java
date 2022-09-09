@@ -40,7 +40,7 @@ public class SiteSetupPresenter {
     public void show() {
         callback.setBoardCount(DatabaseUtils.runTask(databaseBoardManager.getSiteSavedBoards(site)).size());
         if (hasLogin) {
-            callback.setIsLoggedIn(site.actions().isLoggedIn());
+            callback.setIsLoggedIn(site.api().isLoggedIn());
         }
     }
 

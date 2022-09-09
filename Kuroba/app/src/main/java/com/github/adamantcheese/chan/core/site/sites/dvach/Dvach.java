@@ -15,7 +15,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
-import com.github.adamantcheese.chan.core.site.common.vichan.VichanActions;
+import com.github.adamantcheese.chan.core.site.common.vichan.VichanApi;
 import com.github.adamantcheese.chan.core.site.common.vichan.VichanEndpoints;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 import com.github.adamantcheese.chan.utils.Logger;
@@ -115,7 +115,7 @@ public class Dvach
             }
         });
 
-        setActions(new VichanActions(this) {
+        setActions(new VichanApi(this) {
 
             @Override
             public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
@@ -195,7 +195,7 @@ public class Dvach
                     public void onSuccess(Boards result) {
                         listener.onSuccess(result);
                     }
-                }, new DvachBoardsParser(Dvach.this), NetUtilsClasses.ONE_DAY_CACHE);
+                }, new DvachBoardsReader(Dvach.this), NetUtilsClasses.ONE_DAY_CACHE);
             }
 
             @Override
@@ -204,7 +204,7 @@ public class Dvach
             }
         });
 
-        setApi(new DvachApi(this));
+        setContentReader(new DvachSiteContentReader(this));
         setParser(new DvachPostParser(new DvachCommentAction()));
     }
 }

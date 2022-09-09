@@ -70,8 +70,8 @@ public class LoginController
 
         button.setOnClickListener((v) -> {
             authBefore();
-            if (site.actions().isLoggedIn()) {
-                site.actions().logout(new ResponseResult<LoginResponse>() {
+            if (site.api().isLoggedIn()) {
+                site.api().logout(new ResponseResult<LoginResponse>() {
                     @Override
                     public void onFailure(Exception e) {
                         authFail(getString(R.string.setting_pass_error_logout));
@@ -93,7 +93,7 @@ public class LoginController
                     }
                 });
             } else {
-                site.actions().login(
+                site.api().login(
                         inputToken.getText().toString(),
                         inputPin.getText().toString(),
                         new ResponseResult<LoginResponse>() {
@@ -130,11 +130,11 @@ public class LoginController
         bottomDescription.setText(bottomDesc);
         bottomDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
-        LoginRequest loginDetails = site.actions().getLoginDetails();
+        LoginRequest loginDetails = site.api().getLoginDetails();
         inputToken.setText(loginDetails.user);
         inputPin.setText(loginDetails.pass);
 
-        boolean loggedIn = site.actions().isLoggedIn();
+        boolean loggedIn = site.api().isLoggedIn();
         if (loggedIn) {
             button.setText(R.string.setting_pass_logout);
         }

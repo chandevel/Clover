@@ -89,13 +89,13 @@ public class Lainchan
         });
 
         setEndpoints(new VichanEndpoints("https://lainchan.org", "https://lainchan.org"));
-        setActions(new VichanActions(this) {
+        setActions(new VichanApi(this) {
             @Override
             public void clearCookies() {
                 NetUtils.clearAllCookies(ROOT);
             }
         });
-        setApi(new VichanApi(this));
+        setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

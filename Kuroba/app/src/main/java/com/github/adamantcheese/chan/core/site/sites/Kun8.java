@@ -119,7 +119,7 @@ public class Kun8
             }
         });
 
-        setActions(new VichanActions(this) {
+        setActions(new VichanApi(this) {
             @Override
             public void setupPost(Loadable loadable, MultipartHttpCall<ReplyResponse> call) {
                 super.setupPost(loadable, call);
@@ -159,7 +159,7 @@ public class Kun8
             }
         });
 
-        setApi(new VichanApi(this));
+        setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
     }
 }

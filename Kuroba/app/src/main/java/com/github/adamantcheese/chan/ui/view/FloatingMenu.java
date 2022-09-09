@@ -26,7 +26,6 @@ import androidx.annotation.NonNull;
 import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 
 import java.util.List;
 

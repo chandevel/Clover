@@ -43,7 +43,7 @@ public class FoolFuukaArchive
     }
 
     private class FoolFuukaReader
-            extends ExternalArchiveChanReader {
+            extends ExternalArchiveSiteContentReader {
 
         private final PostParser parser = new PostParser(new FoolFuukaCommentAction()) {
             @Override
@@ -381,7 +381,7 @@ public class FoolFuukaArchive
     }
 
     @Override
-    public ExternalArchiveChanReader chanReader() {
+    public ExternalArchiveSiteContentReader chanReader() {
         if (reader == null) {
             reader = new FoolFuukaReader();
         }

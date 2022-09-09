@@ -21,7 +21,7 @@ import android.util.JsonReader;
 /**
  * Specifies methods to load threads or catalogs, as well as read posts from JSON.
  */
-public interface ChanReader {
+public interface SiteContentReader {
     PostParser getParser();
 
     void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)

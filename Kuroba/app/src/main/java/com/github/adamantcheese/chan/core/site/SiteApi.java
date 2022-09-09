@@ -27,7 +27,7 @@ import com.github.adamantcheese.chan.core.site.http.*;
 
 import okhttp3.Call;
 
-public interface SiteActions {
+public interface SiteApi {
     void boards(NetUtilsClasses.ResponseResult<Boards> boardsListener);
 
     void pages(Board board, NetUtilsClasses.ResponseResult<ChanPages> pagesListener);

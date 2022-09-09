@@ -38,7 +38,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
-import com.github.adamantcheese.chan.ui.theme.*;
+import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
+import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -11,7 +11,6 @@ import com.github.adamantcheese.chan.core.database.*;
 import com.github.adamantcheese.chan.core.model.orm.*;
 import com.github.adamantcheese.chan.core.settings.primitives.JsonSettings;
 import com.github.adamantcheese.chan.core.site.Site;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.common.collect.BiMap;

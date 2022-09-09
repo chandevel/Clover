@@ -20,9 +20,6 @@ import static com.github.adamantcheese.chan.Chan.instance;
 
 import android.text.TextUtils;
 
-import androidx.annotation.StringRes;
-
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.manager.WatchManager;
 import com.github.adamantcheese.chan.core.model.*;

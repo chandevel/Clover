@@ -18,8 +18,8 @@ import java.util.*;
 
 import okhttp3.HttpUrl;
 
-public class FutabaChanReader
-        implements ChanReader {
+public class FutabaSiteContentReader
+        implements SiteContentReader {
     private final PostParser postParser = new PostParser(new ChanCommentAction());
 
     @Override

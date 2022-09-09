@@ -17,11 +17,11 @@
 package com.github.adamantcheese.chan.core.site.http;
 
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
-import com.github.adamantcheese.chan.core.site.SiteActions;
+import com.github.adamantcheese.chan.core.site.SiteApi;
 
 /**
  * Generic response for
- * {@link com.github.adamantcheese.chan.core.site.SiteActions#post(Loadable, SiteActions.PostListener)} that the
+ * {@link SiteApi#post(Loadable, SiteApi.PostListener)} that the
  * reply presenter uses.
  */
 public class ReplyResponse {

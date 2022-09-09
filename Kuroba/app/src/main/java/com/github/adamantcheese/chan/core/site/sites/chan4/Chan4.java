@@ -38,9 +38,9 @@ import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
 import com.github.adamantcheese.chan.core.site.*;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.*;
-import com.github.adamantcheese.chan.core.site.common.FutabaChanReader;
+import com.github.adamantcheese.chan.core.site.common.FutabaSiteContentReader;
 import com.github.adamantcheese.chan.core.site.http.*;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
+import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
@@ -56,7 +56,7 @@ import okhttp3.*;
 
 public class Chan4
         extends SiteBase {
-    private ChanReader reader;
+    private SiteContentReader reader;
 
     public static final SiteUrlHandler URL_HANDLER = new SiteUrlHandler() {
         @SuppressWarnings("ConstantConditions")
@@ -316,12 +316,12 @@ public class Chan4
         }
     };
 
-    private final SiteActions actions = new SiteActions() {
+    private final SiteApi api = new SiteApi() {
         @Override
         public void boards(final ResponseResult<Boards> listener) {
             NetUtils.makeJsonRequest(endpoints.boards(),
                     listener,
-                    new Chan4BoardsRequest(Chan4.this),
+                    new Chan4BoardsReader(Chan4.this),
                     NetUtilsClasses.ONE_DAY_CACHE
             );
         }
@@ -339,7 +339,7 @@ public class Chan4
                 public void onSuccess(ChanPages result) {
                     listener.onSuccess(result);
                 }
-            }, new Chan4PagesParser(), NetUtilsClasses.NO_CACHE);
+            }, new Chan4PagesReader(), NetUtilsClasses.NO_CACHE);
         }
 
         @Override
@@ -416,7 +416,7 @@ public class Chan4
                         if (loadableWithDraft.isThreadMode()) {
                             urlBuilder.addQueryParameter("thread_id", String.valueOf(loadableWithDraft.no));
                         }
-                        return SiteAuthentication.fromCustomJson(urlBuilder.build().toString());
+                        return SiteAuthentication.fromChan4Custom(urlBuilder.build().toString());
                     default:
                         throw new IllegalArgumentException();
                 }
@@ -609,15 +609,15 @@ public class Chan4
     }
 
     @Override
-    public ChanReader chanReader() {
+    public SiteContentReader chanReader() {
         if (reader == null) {
-            reader = new FutabaChanReader();
+            reader = new FutabaSiteContentReader();
         }
         return reader;
     }
 
     @Override
-    public SiteActions actions() {
-        return actions;
+    public SiteApi api() {
+        return api;
     }
 }

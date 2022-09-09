@@ -52,7 +52,7 @@ import com.github.adamantcheese.chan.core.model.orm.SavedReply;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.repository.LastReplyRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.core.site.SiteActions;
+import com.github.adamantcheese.chan.core.site.SiteApi;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
 import com.github.adamantcheese.chan.core.site.http.Reply;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
 import okhttp3.Call;
 
 public class ReplyPresenter
-        implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteActions.PostListener {
+        implements AuthenticationLayoutCallback, ImagePickDelegate.ImagePickCallback, SiteApi.PostListener {
 
     public enum Page {
         INPUT,
@@ -229,7 +229,7 @@ public class ReplyPresenter
     }
 
     private void submitOrAuthenticate(boolean authenticateOnly) {
-        if (loadable.site.actions().postRequiresAuthentication(loadable)) {
+        if (loadable.site.api().postRequiresAuthentication(loadable)) {
             switchPage(Page.AUTHENTICATION, true, !authenticateOnly);
         } else {
             makeSubmitCall();
@@ -516,7 +516,7 @@ public class ReplyPresenter
     }
 
     private void makeSubmitCall() {
-        replyCall = loadable.site.actions().post(loadable, this);
+        replyCall = loadable.site.api().post(loadable, this);
         switchPage(Page.LOADING);
     }
 
@@ -541,7 +541,7 @@ public class ReplyPresenter
                     break;
                 case AUTHENTICATION:
                     callback.setPage(Page.AUTHENTICATION);
-                    SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
+                    SiteAuthentication authentication = loadable.site.api().postAuthenticate(loadable);
 
                     // cleanup resources tied to the new captcha layout/presenter
                     callback.destroyCurrentAuthentication();

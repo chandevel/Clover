@@ -10,8 +10,8 @@ import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.*;
-import com.github.adamantcheese.chan.core.site.parser.ChanReader;
 import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
+import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ResolveLink;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
@@ -88,7 +88,7 @@ public abstract class ExternalSiteArchive
     public abstract ArchiveEndpoints endpoints();
 
     @Override
-    public abstract ExternalArchiveChanReader chanReader();
+    public abstract ExternalArchiveSiteContentReader chanReader();
 
     @Override
     public Board board(String code) {
@@ -190,8 +190,8 @@ public abstract class ExternalSiteArchive
         public abstract ThreadLink resolveToThreadLink(ResolveLink sourceLink, JsonReader reader);
     }
 
-    public abstract static class ExternalArchiveChanReader
-            implements ChanReader {
+    public abstract static class ExternalArchiveSiteContentReader
+            implements SiteContentReader {
         @Override
         public abstract void loadThread(JsonReader reader, ChanReaderProcessingQueue queue)
                 throws Exception;

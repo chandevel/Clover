@@ -10,7 +10,8 @@ import com.github.adamantcheese.chan.features.html_styling.base.StyleActionTextA
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 public class ThreadLinkable
-        extends PostLinkable<ThreadLink> implements StyleActionTextAdjuster {
+        extends PostLinkable<ThreadLink>
+        implements StyleActionTextAdjuster {
     public ThreadLinkable(
             @NonNull Theme theme, ThreadLink value
     ) {

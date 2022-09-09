@@ -41,7 +41,7 @@ public class AyaseArchive
      */
 
     private static class AyaseReader
-            extends ExternalArchiveChanReader {
+            extends ExternalArchiveSiteContentReader {
 
         private final PostParser parser = new PostParser(new AyaseCommentAction()) {
             @Override
@@ -303,7 +303,7 @@ public class AyaseArchive
     }
 
     @Override
-    public ExternalArchiveChanReader chanReader() {
+    public ExternalArchiveSiteContentReader chanReader() {
         if (reader == null) {
             reader = new AyaseReader();
         }

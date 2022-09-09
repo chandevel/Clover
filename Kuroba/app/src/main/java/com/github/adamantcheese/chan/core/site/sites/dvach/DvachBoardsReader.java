@@ -25,11 +25,11 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 
 import java.io.IOException;
 
-public class DvachBoardsParser
+public class DvachBoardsReader
         implements NetUtilsClasses.Converter<Boards, JsonReader> {
     private final Site site;
 
-    DvachBoardsParser(Site site) {
+    DvachBoardsReader(Site site) {
         this.site = site;
     }
 

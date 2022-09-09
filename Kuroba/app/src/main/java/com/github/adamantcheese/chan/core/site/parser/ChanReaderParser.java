@@ -59,14 +59,14 @@ public class ChanReaderParser
 
     private final Loadable loadable;
     private final List<Post> cached;
-    private final ChanReader reader;
+    private final SiteContentReader reader;
 
     /**
      * @param loadable    The loadable associated with this parser
      * @param cachedPosts A list of cached posts; may be an empty list for no cached post processing
      * @param reader      A reader to process posts for a request; if null, the reader associated with the loadable's site will be used
      */
-    public ChanReaderParser(Loadable loadable, @NonNull List<Post> cachedPosts, @Nullable ChanReader reader) {
+    public ChanReaderParser(Loadable loadable, @NonNull List<Post> cachedPosts, @Nullable SiteContentReader reader) {
         inject(this);
 
         // Copy the cached list. The cached array may changed/cleared by other threads.

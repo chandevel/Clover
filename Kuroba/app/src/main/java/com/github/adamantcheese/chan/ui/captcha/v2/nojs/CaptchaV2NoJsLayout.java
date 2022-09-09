@@ -98,7 +98,7 @@ public class CaptchaV2NoJsLayout
         this.callback = callback;
         this.isAutoReply = autoReply;
 
-        SiteAuthentication authentication = loadable.site.actions().postAuthenticate(loadable);
+        SiteAuthentication authentication = loadable.site.api().postAuthenticate(loadable);
         if (authentication.type != CAPTCHA2_NOJS) {
             callback.onFallbackToV1CaptchaView(isAutoReply);
             return;

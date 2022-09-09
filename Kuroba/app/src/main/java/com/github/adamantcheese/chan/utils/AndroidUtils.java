@@ -37,7 +37,6 @@ import android.media.AudioManager;
 import android.net.*;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.TypedValue;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;

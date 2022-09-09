@@ -72,8 +72,7 @@ public class SavingNotification
         if (intent != null && intent.getExtras() != null) {
             Bundle extras = intent.getExtras();
             if (extras.getBoolean(CANCEL_KEY)) {
-                startForeground(
-                        NOTIFICATION_ID,
+                startForeground(NOTIFICATION_ID,
                         new NotificationCompat.Builder(this, NOTIFICATION_ID_STR)
                                 .setSmallIcon(R.drawable.ic_stat_notify)
                                 .setOngoing(true)

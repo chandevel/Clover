@@ -1,19 +1,14 @@
 package com.github.adamantcheese.chan.utils;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 
 import android.text.*;
 import android.text.format.DateUtils;
 import android.text.style.CharacterStyle;
-import android.text.style.ClickableSpan;
 import android.util.Base64;
-import android.view.View;
 
 import androidx.annotation.*;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -150,7 +145,7 @@ public class StringUtils {
         StringBuilder properCaseString = new StringBuilder();
         for (String part : parts) {
             part = part.toLowerCase(Locale.ENGLISH);
-            if(onlyFirst && first) {
+            if (onlyFirst && first) {
                 part = part.substring(0, 1).toUpperCase(Locale.ENGLISH) + part.substring(1);
                 first = false;
             }

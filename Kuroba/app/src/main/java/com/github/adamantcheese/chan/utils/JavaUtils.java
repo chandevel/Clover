@@ -7,9 +7,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-import kotlin.random.Random;
-import okio.ByteString;
-
 public class JavaUtils {
     public static boolean arrayPrefixedWith(byte[] array, byte[] prefix) {
         if (prefix.length > array.length) return false;

@@ -13,9 +13,9 @@ import com.github.adamantcheese.chan.core.site.parser.ChanReaderProcessingQueue;
 import java.io.IOException;
 import java.util.*;
 
-public class DvachApi
-        extends CommonSite.CommonApi {
-    DvachApi(CommonSite commonSite) {
+public class DvachSiteContentReader
+        extends CommonSite.CommonSiteContentReader {
+    DvachSiteContentReader(CommonSite commonSite) {
         super(commonSite);
     }
 

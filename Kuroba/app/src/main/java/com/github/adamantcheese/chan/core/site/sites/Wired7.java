@@ -95,14 +95,14 @@ public class Wired7
         });
 
         setEndpoints(new VichanEndpoints("https://wired-7.org", "https://wired-7.org"));
-        setActions(new Wired7Actions(this));
-        setApi(new VichanApi(this));
+        setActions(new Wired7Api(this));
+        setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
     }
 
-    private static class Wired7Actions
-            extends VichanActions {
-        Wired7Actions(CommonSite commonSite) {
+    private static class Wired7Api
+            extends VichanApi {
+        Wired7Api(CommonSite commonSite) {
             super(commonSite);
         }
 
