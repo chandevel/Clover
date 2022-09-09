@@ -44,7 +44,7 @@ public class Kun8
 
     public Kun8() {
         setName("8kun");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://8kun.top/static/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://media.128ducks.com/static/favicon.ico")));
     }
 
     @Override
