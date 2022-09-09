@@ -28,7 +28,6 @@ import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.core.settings.primitives.*;
 import com.github.adamantcheese.chan.core.settings.provider.SettingProvider;
 import com.github.adamantcheese.chan.core.settings.provider.SharedPreferencesSettingProvider;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
@@ -55,7 +54,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 56;
+    private static final int DATABASE_VERSION = 57;
 
     public DatabaseHelper() {
         super(getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
@@ -208,7 +207,7 @@ public class DatabaseHelper
                         + "DROP TABLE board_backup;\n"
                         + "COMMIT;");
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 30");
+                Logger.e(this, "Error upgrading to version 30", e);
             }
         }
 
@@ -216,7 +215,7 @@ public class DatabaseHelper
             try {
                 getLoadableDao().executeRawNoArgs("UPDATE loadable SET mode = 1 WHERE mode = 2");
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 31");
+                Logger.e(this, "Error upgrading to version 31", e);
             }
         }
 
@@ -224,7 +223,7 @@ public class DatabaseHelper
             try {
                 getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN \"order\" INTEGER");
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 32");
+                Logger.e(this, "Error upgrading to version 32", e);
             }
         }
 
@@ -234,7 +233,7 @@ public class DatabaseHelper
             try {
                 getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN onlyOnOP INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 34");
+                Logger.e(this, "Error upgrading to version 34", e);
             }
         }
 
@@ -242,7 +241,7 @@ public class DatabaseHelper
             try {
                 getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN applyToSaved INTEGER default 0");
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 35");
+                Logger.e(this, "Error upgrading to version 35", e);
             }
         }
 
@@ -276,7 +275,7 @@ public class DatabaseHelper
                 deleteSiteByRegistryID(7);
                 Logger.d(this, "Removed Chan55 successfully");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 38");
+                Logger.e(this, "Error upgrading to version 38", e);
             }
         }
 
@@ -286,7 +285,7 @@ public class DatabaseHelper
                 deleteSiteByRegistryID(1);
                 Logger.d(this, "Removed 8Chan successfully");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 39");
+                Logger.e(this, "Error upgrading to version 39", e);
             }
         }
 
@@ -344,7 +343,7 @@ public class DatabaseHelper
                 } catch (Exception ignored) {
                 }
             } catch (SQLException e) {
-                Logger.e(this, "Error upgrading to version 40");
+                Logger.e(this, "Error upgrading to version 40", e);
             }
         }
 
@@ -366,7 +365,7 @@ public class DatabaseHelper
                     }
                 }
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 42");
+                Logger.e(this, "Error upgrading to version 42", e);
             }
         }
 
@@ -376,7 +375,7 @@ public class DatabaseHelper
                 deleteSiteByRegistryID(3);
                 Logger.d(this, "Removed Arisuchan successfully");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 43");
+                Logger.e(this, "Error upgrading to version 43", e);
             }
         }
 
@@ -413,7 +412,7 @@ public class DatabaseHelper
                 p.removeSync(youtubeTitleCache.getKey());
                 p.removeSync(youtubeDurCache.getKey());
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 44");
+                Logger.e(this, "Error upgrading to version 44", e);
             }
         }
 
@@ -425,7 +424,7 @@ public class DatabaseHelper
                 String currentTime = format.format(GregorianCalendar.getInstance().getTime());
                 getLoadableDao().executeRawNoArgs("UPDATE loadable SET lastLoadDate='" + currentTime + "'");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 45");
+                Logger.e(this, "Error upgrading to version 45", e);
             }
         }
 
@@ -437,7 +436,7 @@ public class DatabaseHelper
                 getPinDao().executeRawNoArgs("INSERT INTO pin SELECT * FROM pin_old"); // copy table
                 getPinDao().executeRawNoArgs("DROP TABLE pin_old"); // delete old table
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 46");
+                Logger.e(this, "Error upgrading to version 46", e);
             }
         }
 
@@ -460,7 +459,7 @@ public class DatabaseHelper
                     }
                 }
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 47");
+                Logger.e(this, "Error upgrading to version 47", e);
             }
         }
 
@@ -478,7 +477,7 @@ public class DatabaseHelper
                         + "DROP TABLE pin_backup;\n"
                         + "COMMIT;");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 48");
+                Logger.e(this, "Error upgrading to version 48", e);
             }
         }
 
@@ -486,7 +485,7 @@ public class DatabaseHelper
             try {
                 database.execSQL("DROP TABLE history");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 49");
+                Logger.e(this, "Error upgrading to version 49", e);
             }
         }
 
@@ -496,7 +495,7 @@ public class DatabaseHelper
                 deleteBuilder.where().eq("title", "");
                 deleteBuilder.delete();
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 50");
+                Logger.e(this, "Error upgrading to version 50", e);
             }
         }
 
@@ -512,7 +511,7 @@ public class DatabaseHelper
                         + "DROP TABLE pin_backup;\n"
                         + "COMMIT;");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 48");
+                Logger.e(this, "Error upgrading to version 51", e);
             }
         }
 
@@ -520,7 +519,7 @@ public class DatabaseHelper
             try {
                 database.execSQL("DROP TABLE saved_thread");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 52");
+                Logger.e(this, "Error upgrading to version 52", e);
             }
         }
 
@@ -529,7 +528,7 @@ public class DatabaseHelper
                 // add forced anon field to board
                 getBoardDao().executeRawNoArgs("ALTER TABLE board ADD COLUMN forcedAnon INTEGER default 0");
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 53");
+                Logger.e(this, "Error upgrading to version 53", e);
             }
         }
 
@@ -565,7 +564,17 @@ public class DatabaseHelper
                     }
                 }
             } catch (Exception e) {
-                Logger.e(this, "Error upgrading to version 42");
+                Logger.e(this, "Error upgrading to version 56", e);
+            }
+        }
+
+        if (oldVersion < 57) {
+            try {
+                Logger.d(this, "Removing 420Chan");
+                deleteSiteByRegistryID(9);
+                Logger.d(this, "Removed 420Chan successfully");
+            } catch (Exception e) {
+                Logger.e(this, "Error upgrading to version 57", e);
             }
         }
     }
@@ -783,8 +792,8 @@ public class DatabaseHelper
             T returnSetting = c.newInstance(p, key, defArg);
             c.setAccessible(false);
             return returnSetting;
-        } catch (Exception failedSomething) {
-            Logger.e(TAG, "Reflection failed", failedSomething);
+        } catch (Exception e) {
+            Logger.e(TAG, "Reflection failed", e);
             return null;
         }
     }

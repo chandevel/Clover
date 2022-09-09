@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.core.site;
 
 import com.github.adamantcheese.chan.core.site.sites.*;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
-import com.github.adamantcheese.chan.core.site.sites.chan420.Chan420;
 import com.github.adamantcheese.chan.core.site.sites.dvach.Dvach;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -43,7 +42,7 @@ public class SiteRegistry {
         URL_HANDLERS.add(Wired7.URL_HANDLER);
         //chan55 was here but was removed
         URL_HANDLERS.add(Kun8.URL_HANDLER);
-        URL_HANDLERS.add(Chan420.URL_HANDLER);
+        //chan420 was here but was removed
     }
 
     static {
@@ -60,6 +59,6 @@ public class SiteRegistry {
         SITE_CLASSES.put(6, Wired7.class);
         //chan55 was here but was removed; don't use ID 7
         SITE_CLASSES.put(8, Kun8.class);
-        SITE_CLASSES.put(9, Chan420.class);
+        //chan420 was here but was removed; don't use ID 9
     }
 }
