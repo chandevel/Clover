@@ -387,7 +387,8 @@ public class ThemeSettingsController
                     false,
                     0,
                     false,
-                    false
+                    false,
+                    ""
             ));
             List<Post> posts = new ArrayList<>();
             for (Post.Builder builder : generatePosts()) {

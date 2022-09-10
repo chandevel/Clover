@@ -54,7 +54,7 @@ public class DatabaseHelper
     private static final String TAG = "DatabaseHelper";
 
     private static final String DATABASE_NAME = "ChanDB";
-    private static final int DATABASE_VERSION = 57;
+    private static final int DATABASE_VERSION = 58;
 
     public DatabaseHelper() {
         super(getAppContext(), DATABASE_NAME, null, DATABASE_VERSION);
@@ -575,6 +575,14 @@ public class DatabaseHelper
                 Logger.d(this, "Removed 420Chan successfully");
             } catch (Exception e) {
                 Logger.e(this, "Error upgrading to version 57", e);
+            }
+        }
+
+        if (oldVersion < 58) {
+            try {
+                getFilterDao().executeRawNoArgs("ALTER TABLE filter ADD COLUMN label STRING default ''");
+            } catch (SQLException e) {
+                Logger.e(this, "Error upgrading to version 58", e);
             }
         }
     }

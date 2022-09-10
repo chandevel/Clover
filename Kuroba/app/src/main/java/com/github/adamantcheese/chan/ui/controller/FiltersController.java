@@ -21,13 +21,12 @@ import static android.view.View.VISIBLE;
 import static com.github.adamantcheese.chan.ui.helper.RefreshUIMessage.Reason.FILTERS_CHANGED;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.postToEventBus;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
+import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.ImageView;
@@ -52,6 +51,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.ui.helper.RefreshUIMessage;
 import com.github.adamantcheese.chan.ui.layout.FilterLayout;
+import com.github.adamantcheese.chan.ui.text.BackgroundColorSpanHashed;
+import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.github.adamantcheese.chan.utils.RecyclerUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -321,7 +322,7 @@ public class FiltersController
         @Override
         public void onBindViewHolder(FilterHolder holder, int position) {
             Filter filter = displayList.get(position);
-            holder.text.setText(filter.pattern);
+            holder.text.setText(filter.label.isEmpty() ? filter.pattern : filter.label + " - " + filter.pattern);
             holder.text.setTextColor(getAttrColor(context,
                     filter.enabled ? android.R.attr.textColorPrimary : android.R.attr.textColorHint
             ));
@@ -332,7 +333,7 @@ public class FiltersController
                     ? R.drawable.ic_fluent_star_off_24_filled
                     : R.drawable.ic_fluent_star_24_filled);
 
-            StringBuilder subText = new StringBuilder();
+            SpannableStringBuilder subText = new SpannableStringBuilder();
             int types = FilterType.forFlags(filter.type).size();
             if (types == 1) {
                 subText.append(FilterType.forFlags(filter.type).get(0).toString());
@@ -350,9 +351,13 @@ public class FiltersController
                 subText.append(getQuantityString(R.plurals.board, size));
             }
 
-            subText.append(" \u2013 ").append(FilterAction.actionName(FilterAction.values()[filter.action]));
+            String actionName = FilterAction.actionName(FilterAction.values()[filter.action]);
+            subText.append(" \u2013 ").append(filter.action == FilterAction.COLOR.ordinal() ? span(actionName,
+                    new BackgroundColorSpanHashed(filter.color),
+                    new ForegroundColorSpanHashed(getContrastColor(filter.color))
+            ) : actionName);
 
-            holder.subtext.setText(subText.toString());
+            holder.subtext.setText(subText);
         }
 
         @Override

@@ -63,6 +63,9 @@ public class Filter
     @DatabaseField(canBeNull = false)
     public boolean applyToSaved;
 
+    @DatabaseField(canBeNull = false)
+    public String label = "";
+
     public boolean hasFilter(FilterType filterType) {
         return (type & filterType.flag) != 0;
     }
@@ -81,7 +84,8 @@ public class Filter
             boolean applyToReplies,
             int order,
             boolean onlyOnOP,
-            boolean applyToSaved
+            boolean applyToSaved,
+            String label
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -94,6 +98,7 @@ public class Filter
         this.order = order;
         this.onlyOnOP = onlyOnOP;
         this.applyToSaved = applyToSaved;
+        this.label = label;
     }
 
     @SuppressWarnings("MethodDoesntCallSuperMethod")
@@ -110,7 +115,8 @@ public class Filter
                 applyToReplies,
                 order,
                 onlyOnOP,
-                applyToSaved
+                applyToSaved,
+                label
         );
     }
 }

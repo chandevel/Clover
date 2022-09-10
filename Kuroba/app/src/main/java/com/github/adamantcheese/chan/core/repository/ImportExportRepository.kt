@@ -238,7 +238,8 @@ constructor(
                     exportedFilter.applyToReplies,
                     exportedFilter.order,
                     exportedFilter.onlyOnOP,
-                    exportedFilter.applyToSaved
+                    exportedFilter.applyToSaved,
+                    exportedFilter.label
             ))
         }
 
@@ -314,6 +315,12 @@ constructor(
         if (version < 6) {
             for (board in appSettings.exportedBoards) {
                 board.boardFlags = HashMap()
+            }
+        }
+
+        if(version < 7) {
+            for(filter in appSettings.exportedFilters) {
+                filter.label = ""
             }
         }
         return appSettings
@@ -429,7 +436,8 @@ constructor(
                     it.applyToReplies,
                     it.order,
                     it.onlyOnOP,
-                    it.applyToSaved
+                    it.applyToSaved,
+                    it.label
             )
         }
 
@@ -543,6 +551,6 @@ constructor(
 
         // Don't forget to change this when changing any of the Export models.
         // Also, don't forget to handle the change in the onUpgrade or onDowngrade methods
-        const val CURRENT_EXPORT_SETTINGS_VERSION = 6
+        const val CURRENT_EXPORT_SETTINGS_VERSION = 7
     }
 }

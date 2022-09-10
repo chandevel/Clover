@@ -51,11 +51,12 @@ import javax.inject.Inject;
 
 public class FilterLayout
         extends LinearLayout {
+    private EditText label;
     private TextView typeText;
     private TextView boardsSelector;
     private TextView pattern;
     private TextView patternPreview;
-    private TextView patternPreviewStatus;
+    private ImageView patternPreviewStatus;
     private TextView actionText;
     private ImageView colorPreview;
     private CheckBox applyToReplies;
@@ -88,6 +89,21 @@ public class FilterLayout
         super.onFinishInflate();
         inject(this);
 
+        label = findViewById(R.id.filter_label);
+        label.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filter.label = s.toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         typeText = findViewById(R.id.type);
         boardsSelector = findViewById(R.id.boards);
         actionText = findViewById(R.id.action);
@@ -140,6 +156,7 @@ public class FilterLayout
     public void setFilter(Filter filter) {
         this.filter = filter;
 
+        label.setText(filter.label);
         pattern.setText(filter.pattern);
 
         updateFilterValidity();
@@ -383,7 +400,9 @@ public class FilterLayout
     private void updatePatternPreview() {
         String text = patternPreview.getText().toString();
         boolean matches = filterEngine.matches(filter, FilterType.forFlags(filter.type).get(0), text, true);
-        patternPreviewStatus.setText(matches ? R.string.filter_matches : R.string.filter_no_matches);
+        patternPreviewStatus.setImageResource(matches
+                ? R.drawable.ic_fluent_checkmark_24_filled
+                : R.drawable.ic_fluent_dismiss_24_filled);
     }
 
     public interface FilterLayoutCallback {

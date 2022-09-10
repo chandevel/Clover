@@ -201,8 +201,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="filter_invalid_pattern">Invalid pattern</string>
 
     <string name="filter_preview">Test your filter</string>
-    <string name="filter_no_matches">Does not match</string>
-    <string name="filter_matches">Matches</string>
     <string name="filter_help_title">Filter help</string>
     <string name="filter_help">
 <![CDATA[
@@ -715,4 +713,5 @@ Don't have a 4chan Pass?<br>
     <string name="test_popup">Test alert dialog popup</string>
     <string name="opacity">Opacity</string>
     <string name="image_info">Image info</string>
+    <string name="label">Label</string>
 </resources>

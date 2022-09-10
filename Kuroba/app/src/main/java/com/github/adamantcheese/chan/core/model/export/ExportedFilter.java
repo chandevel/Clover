@@ -46,6 +46,8 @@ public class ExportedFilter {
     private final boolean onlyOnOP;
     @SerializedName("apply_to_saved")
     private final boolean applyToSaved;
+    @SerializedName("label")
+    private String label;
 
     public ExportedFilter(
             boolean enabled,
@@ -58,7 +60,8 @@ public class ExportedFilter {
             boolean applyToReplies,
             int order,
             boolean onlyOnOp,
-            boolean applyToSaved
+            boolean applyToSaved,
+            String label
     ) {
         this.enabled = enabled;
         this.type = type;
@@ -71,6 +74,7 @@ public class ExportedFilter {
         this.order = order;
         this.onlyOnOP = onlyOnOp;
         this.applyToSaved = applyToSaved;
+        this.label = label;
     }
 
     public boolean isEnabled() {
@@ -125,5 +129,13 @@ public class ExportedFilter {
 
     public boolean getApplyToSaved() {
         return applyToSaved;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }
