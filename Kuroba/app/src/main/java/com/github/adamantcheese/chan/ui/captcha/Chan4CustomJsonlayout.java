@@ -1,7 +1,6 @@
 package com.github.adamantcheese.chan.ui.captcha;
 
 import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVERTER;
-import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.ONE_DAY_CACHE;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getThemeAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
@@ -10,6 +9,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.removeViewChildre
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.*;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.*;
@@ -20,6 +20,7 @@ import android.widget.*;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.webkit.WebViewAssetLoader;
 
 import com.github.adamantcheese.chan.BuildConfig;
 import com.github.adamantcheese.chan.R;
@@ -42,7 +43,8 @@ import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
 import kotlin.io.TextStreamsKt;
-import okhttp3.*;
+import okhttp3.Call;
+import okhttp3.HttpUrl;
 
 public class Chan4CustomJsonlayout
         extends LinearLayout
@@ -362,6 +364,10 @@ public class Chan4CustomJsonlayout
         webView.addJavascriptInterface(new CaptchaAutoSolveCompleteInterface(Chan4CustomJsonlayout.this),
                 "CaptchaAutocomplete"
         );
+        WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
+                .setDomain("application.internal")
+                .addPathHandler("/js/", new WebViewAssetLoader.AssetsPathHandler(getContext()))
+                .build();
         webView.loadDataWithBaseURL(authentication.baseUrl, html, "text/html", "UTF-8", null);
         webView.setWebViewClient(new WebViewClientCompat() {
             @Override
@@ -388,23 +394,7 @@ public class Chan4CustomJsonlayout
             public WebResourceResponse shouldInterceptRequestCompat(
                     @NonNull WebView view, @NonNull String url
             ) {
-                // some sites don't serve javascript with the right MIME type so scripts can't be externally loaded,
-                // but we can intercept it and load it anyways by changing the MIME type
-                if (!url.endsWith(".js")) return super.shouldInterceptRequestCompat(view, url);
-                try {
-                    Response response = NetUtils.makeCall(NetUtils.applicationClient,
-                            HttpUrl.get(url),
-                            input -> null,
-                            new NetUtilsClasses.NullResponseResult<Object>() {},
-                            null,
-                            ONE_DAY_CACHE,
-                            0,
-                            false
-                    ).first.execute();
-                    return new WebResourceResponse("application/javascript", "UTF-8", response.body().byteStream());
-                } catch (Exception e) {
-                    return super.shouldInterceptRequestCompat(view, url);
-                }
+                return loader.shouldInterceptRequest(Uri.parse(url));
             }
         });
         // the view itself has to be added to the view in order for onpageloaded to be called
