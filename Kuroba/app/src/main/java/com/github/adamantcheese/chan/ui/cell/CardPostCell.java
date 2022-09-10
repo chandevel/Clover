@@ -51,9 +51,6 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-
 public class CardPostCell
         extends CardView
         implements PostCellInterface, ImageLoadable {
@@ -69,8 +66,7 @@ public class CardPostCell
     private PostIcons icons;
 
     private OneShotPreDrawListener maxLinesUpdater;
-    private Call thumbnailCall;
-    private HttpUrl loadedUrl;
+    private ImageLoadableData data;
 
     public CardPostCell(Context context) {
         super(context);
@@ -110,6 +106,7 @@ public class CardPostCell
                     .setUnixTimestampSeconds(System.currentTimeMillis())
                     .comment("")
                     .build(), false);
+            thumbView.setImageResource(R.drawable.ic_stat_notify);
         }
 
         setOnClickListener((view) -> callback.onPostClicked(post));
@@ -286,22 +283,12 @@ public class CardPostCell
     }
 
     @Override
-    public HttpUrl getLoadedUrl() {
-        return loadedUrl;
+    public ImageLoadableData getImageLoadableData() {
+        return data;
     }
 
     @Override
-    public void setLoadedUrl(HttpUrl url) {
-        loadedUrl = url;
-    }
-
-    @Override
-    public Call getImageCall() {
-        return thumbnailCall;
-    }
-
-    @Override
-    public void setImageCall(Call call) {
-        this.thumbnailCall = call;
+    public void setImageLoadableData(ImageLoadableData data) {
+        this.data = data;
     }
 }

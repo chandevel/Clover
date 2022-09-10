@@ -220,8 +220,8 @@ public class NetUtils {
     public static Call makeBitmapRequest(
             final HttpUrl url, @NonNull final BitmapResult result, final int timeoutMs
     ) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, 0, 0, timeoutMs, null, true, true);
-        return ret == null ? null : ret.first;
+        Triple<Call, Callback, Runnable> ret = makeBitmapRequest(url, result, 0, 0, timeoutMs, null, true, true);
+        return ret == null ? null : ret.getFirst();
     }
 
     /**
@@ -240,8 +240,9 @@ public class NetUtils {
             final int height,
             @Nullable ProgressResponseBody.ProgressListener progressListener
     ) {
-        Pair<Call, Callback> ret = makeBitmapRequest(url, result, width, height, -1, progressListener, true, true);
-        return ret == null ? null : ret.first;
+        Triple<Call, Callback, Runnable> ret =
+                makeBitmapRequest(url, result, width, height, -1, progressListener, true, true);
+        return ret == null ? null : ret.getFirst();
     }
 
     /**
@@ -256,7 +257,7 @@ public class NetUtils {
      * @param mainThread Should this result be run on the main thread or not (most wrappers do)
      * @return An enqueued bitmap call.
      */
-    public static Pair<Call, Callback> makeBitmapRequest(
+    public static Triple<Call, Callback, Runnable> makeBitmapRequest(
             final HttpUrl url,
             final BitmapResult result,
             final int width,
@@ -266,10 +267,13 @@ public class NetUtils {
             boolean enqueue,
             boolean mainThread
     ) {
+        BitmapRunnable runnable = new BitmapRunnable(url, null, null, result);
         if (url == null || result == null) return null;
         Bitmap cachedBitmap = imageCache.get(new Triple<>(url, width, height));
         if (cachedBitmap != null) {
-            performBitmapSuccess(url, cachedBitmap, result, true, mainThread);
+            runnable.setBitmap(cachedBitmap);
+            runnable.setFromCache(true);
+            runOrEnqueueOnMainThread(runnable, mainThread);
             return null;
         }
         OkHttpClient client = applicationClient.getHttpRedirectClient();
@@ -292,8 +296,9 @@ public class NetUtils {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 if (!isCancelledException(e)) {
-                    Logger.e("NetUtils", "Error loading bitmap from " + url.toString());
-                    performBitmapFailure(url, e, result, mainThread);
+                    Logger.e("NetUtils", "Error loading bitmap from " + url);
+                    runnable.setException(e);
+                    runOrEnqueueOnMainThread(runnable, mainThread);
                 }
             }
 
@@ -301,12 +306,14 @@ public class NetUtils {
             public void onResponse(@NotNull Call call, @NotNull Response response) {
                 try (ResponseBody body = response.body()) {
                     if (body == null) {
-                        performBitmapFailure(url, new NullPointerException("No response data"), result, mainThread);
+                        runnable.setException(new NullPointerException("No response data"));
+                        runOrEnqueueOnMainThread(runnable, mainThread);
                         return;
                     }
 
                     if (!response.isSuccessful()) {
-                        performBitmapFailure(url, new HttpCodeException(response), result, mainThread);
+                        runnable.setException(new HttpCodeException(response));
+                        runOrEnqueueOnMainThread(runnable, mainThread);
                         return;
                     }
 
@@ -314,85 +321,117 @@ public class NetUtils {
                         File tempFile = new File(getCacheDir(), UUID.randomUUID().toString());
                         if (!tempFile.createNewFile()) {
                             tempFile.delete();
-                            performBitmapFailure(url,
-                                    new IOException("Failed to create temp file for decode."),
-                                    result,
-                                    mainThread
-                            );
+                            runnable.setException(new IOException("Failed to create temp file for decode."));
+                            runOrEnqueueOnMainThread(runnable, mainThread);
                         }
                         FilesKt.writeBytes(tempFile, body.bytes());
                         Bitmap b = BitmapUtils.decodeFilePreviewImage(tempFile, 0, 0, mainThread ? null : bitmap -> {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
-                            checkBitmap(url, width, height, bitmap, result, false);
+                            checkBitmap(runnable, url, width, height, bitmap, false);
                         }, false);
                         if (b != null) {
                             //noinspection ResultOfMethodCallIgnored
                             tempFile.delete();
-                            checkBitmap(url, width, height, b, result, true);
+                            checkBitmap(runnable, url, width, height, b, true);
                         }
                     } else {
                         ExceptionCatchingInputStream wrappedStream =
                                 new ExceptionCatchingInputStream(body.byteStream());
                         Bitmap b = BitmapUtils.decode(wrappedStream, width, height);
                         if (wrappedStream.getException() != null) {
-                            performBitmapFailure(url, wrappedStream.getException(), result, mainThread);
+                            runnable.setException(wrappedStream.getException());
+                            runOrEnqueueOnMainThread(runnable, mainThread);
                             return;
                         }
-                        checkBitmap(url, width, height, b, result, mainThread);
+                        checkBitmap(runnable, url, width, height, b, mainThread);
                     }
                 } catch (Exception e) {
-                    performBitmapFailure(url, e, result, mainThread);
+                    runnable.setException(e);
+                    runOrEnqueueOnMainThread(runnable, mainThread);
                 } catch (OutOfMemoryError e) {
                     getRuntime().gc();
-                    performBitmapFailure(url, new IOException(e), result, mainThread);
+                    runnable.setException(new IOException(e));
+                    runOrEnqueueOnMainThread(runnable, mainThread);
                 }
             }
         };
         if (enqueue) {
             call.enqueue(callback);
         }
-        return new Pair<>(call, callback);
+        return new Triple<>(call, callback, runnable);
     }
 
     private static void checkBitmap(
+            BitmapRunnable runnable,
             HttpUrl url,
             int requestWidth,
             int requestedHeight,
             Bitmap result,
-            BitmapResult bitmapResult,
             boolean mainThread
     ) {
         if (result == null) {
-            performBitmapFailure(url, new NullPointerException("Bitmap returned is null"), bitmapResult, mainThread);
-            return;
+            runnable.setException(new NullPointerException("Bitmap returned is null"));
+            runOrEnqueueOnMainThread(runnable, mainThread);
         }
         imageCache.put(new Triple<>(url, requestWidth, requestedHeight), result);
-        performBitmapSuccess(url, result, bitmapResult, false, mainThread);
+        runnable.setBitmap(result);
+        runOrEnqueueOnMainThread(runnable, mainThread);
     }
 
-    private static void performBitmapSuccess(
-            @NonNull final HttpUrl url,
-            @NonNull Bitmap bitmap,
-            BitmapResult result,
-            boolean fromCache,
-            boolean mainThread
-    ) {
+    private static void runOrEnqueueOnMainThread(BitmapRunnable runnable, boolean mainThread) {
         if (mainThread) {
-            BackgroundUtils.runOnMainThread(() -> result.onBitmapSuccess(url, bitmap, fromCache));
+            BackgroundUtils.runOnMainThread(runnable);
         } else {
-            result.onBitmapSuccess(url, bitmap, fromCache);
+            runnable.run();
         }
     }
 
-    private static void performBitmapFailure(
-            @NonNull final HttpUrl url, Exception e, BitmapResult result, boolean mainThread
-    ) {
-        if (isCancelledException(e)) return;
-        if (mainThread) {
-            BackgroundUtils.runOnMainThread(() -> result.onBitmapFailure(url, e));
-        } else {
-            result.onBitmapFailure(url, e);
+    private static class BitmapRunnable
+            implements Runnable {
+        private final HttpUrl url;
+        private Exception exception;
+        private Bitmap bitmap;
+        private final BitmapResult result;
+        private boolean fromCache = false;
+
+        public BitmapRunnable(
+                final HttpUrl url, Exception exception, Bitmap bitmap, BitmapResult result
+        ) {
+            this.url = url;
+            this.exception = exception;
+            this.bitmap = bitmap;
+            this.result = result;
+        }
+
+        public Exception getException() {
+            return exception;
+        }
+
+        public void setException(Exception e) {
+            this.exception = e;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+
+        public void setBitmap(Bitmap bitmap) {
+            this.bitmap = bitmap;
+        }
+
+        public void setFromCache(boolean fromCache) {
+            this.fromCache = fromCache;
+        }
+
+        @Override
+        public void run() {
+            if (bitmap != null) {
+                result.onBitmapSuccess(url, bitmap, fromCache);
+            } else if (exception != null) {
+                if (isCancelledException(exception)) return;
+                result.onBitmapFailure(url, exception);
+            }
         }
     }
 

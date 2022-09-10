@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import kotlin.Triple;
 import kotlin.random.Random;
 import okhttp3.*;
 
@@ -96,10 +97,11 @@ public class QuickLatexEmbedder
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         BackgroundUtils.runOnBackgroundThread(() -> {
-                            Pair<Call, Callback> ret = generateMathSpanCalls(commentCopy, imageUrl, math.first);
-                            if (ret == null || ret.first == null || ret.second == null) return;
+                            Triple<Call, Callback, Runnable> ret =
+                                    generateMathSpanCalls(commentCopy, imageUrl, math.first);
+                            if (ret == null || ret.getFirst() == null || ret.getSecond() == null) return;
                             try {
-                                ret.second.onResponse(ret.first, ret.first.execute());
+                                ret.getSecond().onResponse(ret.getFirst(), ret.getFirst().execute());
                             } catch (Exception ignored) {
                             }
                         });
@@ -125,10 +127,11 @@ public class QuickLatexEmbedder
                                         String err = matcher.group(2);
                                         if (err == null) {
                                             mathCache.put(math.first, url);
-                                            Pair<Call, Callback> ret =
+                                            Triple<Call, Callback, Runnable> ret =
                                                     generateMathSpanCalls(commentCopy, url, math.first);
-                                            if (ret == null || ret.first == null || ret.second == null) return;
-                                            ret.second.onResponse(ret.first, ret.first.execute());
+                                            if (ret == null || ret.getFirst() == null || ret.getSecond() == null)
+                                                return;
+                                            ret.getSecond().onResponse(ret.getFirst(), ret.getFirst().execute());
                                         }
                                     }
                                 } catch (Exception ignored) {
@@ -161,7 +164,7 @@ public class QuickLatexEmbedder
                 .build();
     }
 
-    private Pair<Call, Callback> generateMathSpanCalls(
+    private Triple<Call, Callback, Runnable> generateMathSpanCalls(
             SpannableStringBuilder comment, @NonNull HttpUrl imageUrl, String rawMath
     ) {
         // execute immediately, so that the invalidate function is called when all embeds are done

@@ -53,8 +53,6 @@ import javax.inject.Inject;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import okhttp3.Call;
-import okhttp3.HttpUrl;
 
 public class AlbumDownloadController
         extends Controller {
@@ -315,8 +313,7 @@ public class AlbumDownloadController
             implements ImageLoadable {
         private final ImageView checkbox;
         private final ShapeablePostImageView thumbnailView;
-        private Call thumbnailCall;
-        private HttpUrl loadedUrl;
+        private ImageLoadableData data;
 
         public AlbumDownloadHolder(View itemView) {
             super(itemView);
@@ -333,21 +330,13 @@ public class AlbumDownloadController
         }
 
         @Override
-        public HttpUrl getLoadedUrl() {
-            return loadedUrl;
+        public ImageLoadableData getImageLoadableData() {
+            return data;
         }
 
         @Override
-        public void setLoadedUrl(HttpUrl url) {
-            loadedUrl = url;
-        }
-
-        public Call getImageCall() {
-            return thumbnailCall;
-        }
-
-        public void setImageCall(Call imageCall) {
-            this.thumbnailCall = imageCall;
+        public void setImageLoadableData(ImageLoadableData data) {
+            this.data = data;
         }
     }
 

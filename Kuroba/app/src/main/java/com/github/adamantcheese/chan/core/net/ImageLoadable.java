@@ -13,11 +13,10 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.NoFailResponseResu
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.utils.Logger;
-import com.github.adamantcheese.chan.utils.StringUtils;
+import com.github.adamantcheese.chan.utils.*;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
+import kotlin.Triple;
+import okhttp3.*;
 
 /**
  * A simple image loader that loads an image into an image view
@@ -41,7 +40,12 @@ public interface ImageLoadable {
             return;
         }
 
-        Call currentCall = getImageCall();
+        if (getImageLoadableData() == null) {
+            setImageLoadableData(new ImageLoadableData());
+        }
+        ImageLoadableData data = getImageLoadableData();
+
+        Call currentCall = data.getImageCall();
         // in progress check, in case of a re-bind without recycling
         if (currentCall != null) {
             if (currentCall.request().url().equals(url)) {
@@ -52,66 +56,73 @@ public interface ImageLoadable {
         }
 
         // completed load check
-        if (url.equals(getLoadedUrl())) return;
+        if (url.equals(data.getLoadedUrl())) return;
 
         // request the image
-        Call imageCall = NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
-            @Override
-            public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                setImageCall(null);
-                // for a chained load, this means that the last successful load will remain
-                if (getLoadedUrl() != null) return;
-                setLoadedUrl(null); // fail, nullify the last url
+        Triple<Call, Callback, Runnable> networkInfo =
+                NetUtils.makeBitmapRequest(url, new NetUtilsClasses.BitmapResult() {
+                    @Override
+                    public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+                        data.setImageCall(null);
+                        data.setRunnable(null);
+                        // for a chained load, this means that the last successful load will remain
+                        if (data.getLoadedUrl() != null) return;
+                        data.setLoadedUrl(null); // fail, nullify the last url
 
-                // if this has an error code associated with it, draw it up all fancy-like
-                if (e instanceof NetUtilsClasses.HttpCodeException) {
-                    if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
-                        // for this case, never try and load again and treat it as though it loaded fully
-                        setLoadedUrl(source);
+                        // if this has an error code associated with it, draw it up all fancy-like
+                        if (e instanceof NetUtilsClasses.HttpCodeException) {
+                            if (((NetUtilsClasses.HttpCodeException) e).isServerErrorNotFound()) {
+                                // for this case, never try and load again and treat it as though it loaded fully
+                                data.setLoadedUrl(source);
+                            }
+                        } else {
+                            Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(source), e);
+                        }
+                        imageView.setImageBitmap(BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e));
+
+                        if (callback != null) {
+                            callback.onFailure(e);
+                        }
                     }
-                } else {
-                    Logger.d(this, "Failed to load image for " + StringUtils.maskImageUrl(source), e);
-                }
-                imageView.setImageBitmap(BitmapRepository.getHttpExceptionBitmap(imageView.getContext(), e));
 
-                if (callback != null) {
-                    callback.onFailure(e);
-                }
-            }
+                    @Override
+                    public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
+                        // success, save the last url as good
+                        // for a chained load, this means that the last successful load will remain
+                        data.setImageCall(null);
+                        data.setRunnable(null);
+                        data.setLoadedUrl(source);
 
-            @Override
-            public void onBitmapSuccess(@NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache) {
-                // success, save the last url as good
-                // for a chained load, this means that the last successful load will remain
-                setImageCall(null);
-                setLoadedUrl(source);
+                        // if not from cache, fade the view in; if set, fade out first
+                        if (!fromCache) {
+                            if (imageView.getDrawable() != null) {
+                                imageView
+                                        .animate()
+                                        .setInterpolator(new AccelerateInterpolator(2f))
+                                        .alpha(0f)
+                                        .withEndAction(() -> {
+                                            imageView.setImageBitmap(bitmap);
+                                            imageView
+                                                    .animate()
+                                                    .alpha(1f)
+                                                    .setInterpolator(new DecelerateInterpolator(2f));
+                                        });
+                            } else {
+                                imageView.setImageBitmap(bitmap);
+                                imageView.animate().alpha(1f).setInterpolator(new DecelerateInterpolator(2f));
+                            }
+                        } else {
+                            imageView.setImageBitmap(bitmap);
+                            imageView.setAlpha(1f);
+                        }
 
-                // if not from cache, fade the view in; if set, fade out first
-                if (!fromCache) {
-                    if (imageView.getDrawable() != null) {
-                        imageView
-                                .animate()
-                                .setInterpolator(new AccelerateInterpolator(2f))
-                                .alpha(0f)
-                                .withEndAction(() -> {
-                                    imageView.setImageBitmap(bitmap);
-                                    imageView.animate().alpha(1f).setInterpolator(new DecelerateInterpolator(2f));
-                                });
-                    } else {
-                        imageView.setImageBitmap(bitmap);
-                        imageView.animate().alpha(1f).setInterpolator(new DecelerateInterpolator(2f));
+                        if (callback != null) {
+                            callback.onSuccess(null);
+                        }
                     }
-                } else {
-                    imageView.setImageBitmap(bitmap);
-                    imageView.setAlpha(1f);
-                }
-
-                if (callback != null) {
-                    callback.onSuccess(null);
-                }
-            }
-        });
-        setImageCall(imageCall);
+                }, 0, 0, -1, null, true, true);
+        data.setImageCall(networkInfo == null ? null : networkInfo.getFirst());
+        data.setRunnable(networkInfo == null ? null : networkInfo.getThird());
     }
 
     /**
@@ -154,19 +165,57 @@ public interface ImageLoadable {
         imageView.animate().cancel();
         imageView.setImageBitmap(null);
         imageView.setAlpha(0f);
-        setLoadedUrl(null);
-        Call currentCall = getImageCall();
-        if (currentCall != null) {
-            currentCall.cancel();
+        if (getImageLoadableData() == null) {
+            setImageLoadableData(new ImageLoadableData());
         }
-        setImageCall(null);
+        getImageLoadableData().cancel();
     }
 
-    HttpUrl getLoadedUrl();
+    ImageLoadableData getImageLoadableData();
 
-    void setLoadedUrl(HttpUrl url);
+    void setImageLoadableData(ImageLoadableData data);
 
-    Call getImageCall();
+    class ImageLoadableData {
+        private HttpUrl loadedUrl = null;
+        private Call call = null;
+        private Runnable runnable = null;
 
-    void setImageCall(Call call);
+        public ImageLoadableData() {
+        }
+
+        public void cancel() {
+            setLoadedUrl(null);
+            Call currentCall = getImageCall();
+            if (currentCall != null) {
+                currentCall.cancel();
+            }
+            setImageCall(null);
+            BackgroundUtils.cancel(runnable);
+            setRunnable(null);
+        }
+
+        public HttpUrl getLoadedUrl() {
+            return loadedUrl;
+        }
+
+        public void setLoadedUrl(HttpUrl loadedUrl) {
+            this.loadedUrl = loadedUrl;
+        }
+
+        public Call getImageCall() {
+            return call;
+        }
+
+        public void setImageCall(Call call) {
+            this.call = call;
+        }
+
+        public Runnable getRunnable() {
+            return runnable;
+        }
+
+        public void setRunnable(Runnable runnable) {
+            this.runnable = runnable;
+        }
+    }
 }

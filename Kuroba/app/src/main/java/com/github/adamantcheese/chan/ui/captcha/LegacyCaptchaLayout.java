@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import kotlin.io.TextStreamsKt;
-import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 public class LegacyCaptchaLayout
@@ -47,8 +46,7 @@ public class LegacyCaptchaLayout
     private EditText input;
 
     private WebView internalWebView;
-    private Call captchaCall;
-    private HttpUrl loadedUrl;
+    private ImageLoadableData data;
 
     private SiteAuthentication authentication;
     private AuthenticationLayoutCallback callback;
@@ -144,23 +142,13 @@ public class LegacyCaptchaLayout
     }
 
     @Override
-    public HttpUrl getLoadedUrl() {
-        return loadedUrl;
+    public ImageLoadableData getImageLoadableData() {
+        return data;
     }
 
     @Override
-    public void setLoadedUrl(HttpUrl url) {
-        loadedUrl = url;
-    }
-
-    @Override
-    public Call getImageCall() {
-        return captchaCall;
-    }
-
-    @Override
-    public void setImageCall(Call call) {
-        captchaCall = call;
+    public void setImageLoadableData(ImageLoadableData data) {
+        this.data = data;
     }
 
     public static class CaptchaInterface {

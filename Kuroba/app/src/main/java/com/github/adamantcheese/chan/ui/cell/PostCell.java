@@ -70,7 +70,6 @@ import com.google.android.material.shape.ShapeAppearanceModel;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
 import okhttp3.HttpUrl;
 
 public class PostCell
@@ -569,6 +568,7 @@ public class PostCell
             ShapeablePostImageView thumbnailView = new ShapeablePostImageView(c);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
             thumbnailView.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(dp(c, 2)).build());
+            thumbnailView.setImageResource(R.drawable.ic_fluent_image_off_24_filled);
             return new PostImageViewHolder(thumbnailView);
         }
 
@@ -618,8 +618,7 @@ public class PostCell
                 extends RecyclerView.ViewHolder
                 implements ImageLoadable {
             private final ShapeablePostImageView thumbnailView;
-            private Call imageCall;
-            private HttpUrl loadedUrl;
+            private ImageLoadableData data;
 
             public PostImageViewHolder(@NonNull ShapeablePostImageView itemView) {
                 super(itemView);
@@ -627,23 +626,13 @@ public class PostCell
             }
 
             @Override
-            public HttpUrl getLoadedUrl() {
-                return loadedUrl;
+            public ImageLoadableData getImageLoadableData() {
+                return data;
             }
 
             @Override
-            public void setLoadedUrl(HttpUrl url) {
-                loadedUrl = url;
-            }
-
-            @Override
-            public Call getImageCall() {
-                return imageCall;
-            }
-
-            @Override
-            public void setImageCall(Call call) {
-                this.imageCall = call;
+            public void setImageLoadableData(ImageLoadableData data) {
+                this.data = data;
             }
         }
     }

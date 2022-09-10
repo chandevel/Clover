@@ -53,9 +53,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 
 import javax.inject.Inject;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-
 public class DrawerPinAdapter
         extends RecyclerView.Adapter<DrawerPinAdapter.PinViewHolder>
         implements SearchLayout.SearchLayoutCallback {
@@ -218,8 +215,7 @@ public class DrawerPinAdapter
         private final TextView title;
         private final TextView threadInfo;
         private final TextView watchCountText;
-        private Call thumbnailCall;
-        private HttpUrl loadedUrl;
+        private ImageLoadableData data;
 
         private PinViewHolder(View itemView) {
             super(itemView);
@@ -258,23 +254,13 @@ public class DrawerPinAdapter
         }
 
         @Override
-        public HttpUrl getLoadedUrl() {
-            return loadedUrl;
+        public ImageLoadableData getImageLoadableData() {
+            return data;
         }
 
         @Override
-        public void setLoadedUrl(HttpUrl url) {
-            loadedUrl = url;
-        }
-
-        @Override
-        public Call getImageCall() {
-            return thumbnailCall;
-        }
-
-        @Override
-        public void setImageCall(Call call) {
-            thumbnailCall = call;
+        public void setImageLoadableData(ImageLoadableData data) {
+            this.data = data;
         }
     }
 

@@ -43,9 +43,6 @@ import com.skydoves.balloon.ArrowPositionRules;
 
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-
 public class AlbumViewController
         extends Controller
         implements ImageViewerController.ImageViewerCallback, ImageViewerController.GoPostCallback,
@@ -210,8 +207,7 @@ public class AlbumViewController
                 implements ImageLoadable {
             private PostImage postImage;
             private final ShapeablePostImageView thumbnailView;
-            private Call thumbnailCall;
-            private HttpUrl loadedUrl;
+            private ImageLoadableData data;
 
             public AlbumItemCellHolder(View view) {
                 super(view);
@@ -242,23 +238,13 @@ public class AlbumViewController
             }
 
             @Override
-            public HttpUrl getLoadedUrl() {
-                return loadedUrl;
+            public ImageLoadableData getImageLoadableData() {
+                return data;
             }
 
             @Override
-            public void setLoadedUrl(HttpUrl url) {
-                loadedUrl = url;
-            }
-
-            @Override
-            public Call getImageCall() {
-                return thumbnailCall;
-            }
-
-            @Override
-            public void setImageCall(Call call) {
-                this.thumbnailCall = call;
+            public void setImageLoadableData(ImageLoadableData data) {
+                this.data = data;
             }
         }
     }

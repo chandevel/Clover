@@ -32,9 +32,6 @@ import com.github.adamantcheese.chan.utils.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
-
 public class DrawerHistoryAdapter
         extends RecyclerView.Adapter<DrawerHistoryAdapter.HistoryCell>
         implements SearchLayout.SearchLayoutCallback {
@@ -167,8 +164,7 @@ public class DrawerHistoryAdapter
         private final ImageView thumbnail;
         private final TextView text;
         private final TextView subtext;
-        private Call thumbnailCall;
-        private HttpUrl loadedUrl;
+        private ImageLoadableData data;
 
         public HistoryCell(View itemView) {
             super(itemView);
@@ -201,23 +197,13 @@ public class DrawerHistoryAdapter
         }
 
         @Override
-        public HttpUrl getLoadedUrl() {
-            return loadedUrl;
+        public ImageLoadableData getImageLoadableData() {
+            return data;
         }
 
         @Override
-        public void setLoadedUrl(HttpUrl url) {
-            loadedUrl = url;
-        }
-
-        @Override
-        public Call getImageCall() {
-            return thumbnailCall;
-        }
-
-        @Override
-        public void setImageCall(Call call) {
-            thumbnailCall = call;
+        public void setImageLoadableData(ImageLoadableData data) {
+            this.data = data;
         }
     }
 

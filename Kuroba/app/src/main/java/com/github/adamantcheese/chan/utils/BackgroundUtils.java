@@ -63,6 +63,10 @@ public class BackgroundUtils {
         mainHandler.postDelayed(runnable, delay);
     }
 
+    public static void cancel(Runnable runnable) {
+        mainHandler.removeCallbacks(runnable);
+    }
+
     public static void cleanup() {
         mainHandler.removeCallbacksAndMessages(null);
     }
