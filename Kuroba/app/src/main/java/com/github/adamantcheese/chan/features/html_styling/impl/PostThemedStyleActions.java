@@ -82,7 +82,13 @@ public class PostThemedStyleActions {
             @NonNull PostParser.PostParserCallback callback
     ) {
         String href = anchor.attr("href");
-        HttpUrl hrefUrl = HttpUrl.get(anchor.absUrl("href"));
+        HttpUrl hrefUrl = null;
+        try {
+            hrefUrl = HttpUrl.get(anchor.absUrl("href"));
+        } catch (Exception ignored) {}
+        if (hrefUrl == null) {
+            return new ParserLinkLinkable(theme, href);
+        }
         List<String> hrefSegments = hrefUrl.pathSegments();
 
         int threadNo = -1; // no known thread number
@@ -126,7 +132,7 @@ public class PostThemedStyleActions {
                 ) : new ThreadLinkable(theme, threadLink);
             }
         } else {
-            return new ParserLinkLinkable(theme, href);
+            return new ParserLinkLinkable(theme, hrefUrl.toString());
         }
     }
 

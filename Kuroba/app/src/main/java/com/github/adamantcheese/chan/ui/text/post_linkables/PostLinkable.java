@@ -37,7 +37,7 @@ public abstract class PostLinkable<T>
         extends ClickableSpan {
 
     protected final int quoteColor;
-    public final T value; // the value associated with the text, see enum above
+    public final T value; // the value associated with the text; see implementations
 
     public PostLinkable(@NonNull Theme theme, T value) {
         quoteColor = AndroidUtils.getThemeAttrColor(theme, R.attr.post_quote_color);
