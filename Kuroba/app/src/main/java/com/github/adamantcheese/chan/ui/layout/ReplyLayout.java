@@ -504,6 +504,8 @@ public class ReplyLayout
             case AUTHENTICATION:
                 setWrappingMode(true);
                 setView(captchaContainer);
+                callback.setDrawerEnabled(false);
+                callback.setSlideEnabled(false);
                 captchaContainer.requestFocus(View.FOCUS_DOWN);
                 break;
         }
@@ -520,6 +522,8 @@ public class ReplyLayout
         }
 
         authenticationLayout.destroy();
+        callback.setDrawerEnabled(true);
+        callback.setSlideEnabled(true);
 
         captchaContainer.removeView((View) authenticationLayout);
         authenticationLayout = null;
@@ -1143,5 +1147,9 @@ public class ReplyLayout
         void updatePadding();
 
         boolean isViewingCatalog();
+
+        void setDrawerEnabled(boolean enabled);
+
+        void setSlideEnabled(boolean enabled);
     }
 }

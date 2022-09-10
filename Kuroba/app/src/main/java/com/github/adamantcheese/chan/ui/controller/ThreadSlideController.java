@@ -358,6 +358,10 @@ public class ThreadSlideController
         toolbar.setNavigationItem(true, true, navigation, null);
     }
 
+    public void setSlideable(boolean slideable) {
+        slidingPaneLayout.setSlideable(slideable);
+    }
+
     public interface SlideChangeListener {
         void onSlideChanged();
     }

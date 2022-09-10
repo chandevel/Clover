@@ -28,6 +28,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
 
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import com.github.adamantcheese.chan.Chan;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.controller.Controller;
@@ -273,5 +275,35 @@ public abstract class ThreadController
             return doubleNavigationController.isViewingCatalog();
         }
         return false;
+    }
+
+    public DrawerController getDrawerController() {
+        if (navigationController.parentController instanceof DrawerController) {
+            return (DrawerController) navigationController.parentController;
+        } else if (doubleNavigationController != null) {
+            Controller doubleNav = (Controller) doubleNavigationController;
+            if (doubleNav.parentController instanceof DrawerController) {
+                return (DrawerController) doubleNav.parentController;
+            }
+        }
+        return null;
+    }
+
+    public DrawerLayout getDrawerRoot() {
+        DrawerController drawerController = getDrawerController();
+        if (drawerController == null) return null;
+        return drawerController.view.findViewById(R.id.drawer_layout);
+    }
+
+    public void setDrawerEnabled(boolean enabled) {
+        DrawerLayout drawer = getDrawerRoot();
+        if (drawer == null) return;
+        drawer.setDrawerLockMode(enabled ? DrawerLayout.LOCK_MODE_UNDEFINED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    public void setSlideEnabled(boolean enabled) {
+        if(doubleNavigationController instanceof ThreadSlideController) {
+            ((ThreadSlideController) doubleNavigationController).setSlideable(enabled);
+        }
     }
 }

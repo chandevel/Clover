@@ -735,6 +735,16 @@ public class ThreadLayout
         callback.updateSubtitle(summary);
     }
 
+    @Override
+    public void setDrawerEnabled(boolean enabled) {
+        callback.setDrawerEnabled(enabled);
+    }
+
+    @Override
+    public void setSlideEnabled(boolean enabled) {
+        callback.setSlideEnabled(enabled);
+    }
+
     public interface ThreadLayoutCallback {
         void showThread(Loadable threadLoadable);
 
@@ -763,5 +773,9 @@ public class ThreadLayout
         boolean isViewingCatalog();
 
         default void updateSubtitle(CharSequence summary) {}
+
+        void setDrawerEnabled(boolean enabled);
+
+        void setSlideEnabled(boolean enabled);
     }
 }

@@ -786,6 +786,16 @@ public class ThreadListLayout
         return replyOpen;
     }
 
+    @Override
+    public void setDrawerEnabled(boolean enabled) {
+        threadListLayoutCallback.setDrawerEnabled(enabled);
+    }
+
+    @Override
+    public void setSlideEnabled(boolean enabled) {
+        threadListLayoutCallback.setSlideEnabled(enabled);
+    }
+
     public interface ThreadListLayoutPresenterCallback {
         void showThread(Loadable loadable);
 
@@ -808,5 +818,9 @@ public class ThreadListLayout
         boolean threadBackPressed();
 
         boolean isViewingCatalog();
+
+        void setDrawerEnabled(boolean enabled);
+
+        void setSlideEnabled(boolean enabled);
     }
 }

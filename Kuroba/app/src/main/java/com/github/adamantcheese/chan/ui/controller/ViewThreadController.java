@@ -351,15 +351,7 @@ public class ViewThreadController
                 .build();
 
         // Drawer hint
-        View drawer = null;
-        if (navigationController.parentController instanceof DrawerController) {
-            drawer = navigationController.parentController.view.findViewById(R.id.drawer);
-        } else if (doubleNavigationController != null) {
-            Controller doubleNav = (Controller) doubleNavigationController;
-            if (doubleNav.parentController instanceof DrawerController) {
-                drawer = doubleNav.parentController.view.findViewById(R.id.drawer);
-            }
-        }
+        View drawer = getDrawerRoot().findViewById(R.id.drawer);
         if (drawer == null) return;
         Balloon drawerHint = AndroidUtils
                 .getBaseToolTip(context)
@@ -395,15 +387,9 @@ public class ViewThreadController
 
     private void updateDrawerHighlighting(Loadable loadable) {
         Pin pin = loadable == null ? null : watchManager.findPinByLoadableId(loadable.id);
-
-        if (navigationController.parentController instanceof DrawerController) {
-            ((DrawerController) navigationController.parentController).setPinHighlighted(pin);
-        } else if (doubleNavigationController != null) {
-            Controller doubleNav = (Controller) doubleNavigationController;
-            if (doubleNav.parentController instanceof DrawerController) {
-                ((DrawerController) doubleNav.parentController).setPinHighlighted(pin);
-            }
-        }
+        DrawerController drawerController = getDrawerController();
+        if (drawerController == null) return;
+        drawerController.setPinHighlighted(pin);
     }
 
     private void updateLeftPaneHighlighting(Loadable loadable) {
