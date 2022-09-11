@@ -39,11 +39,13 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
+import com.github.adamantcheese.chan.ui.adapter.PostsFilter;
 import com.github.adamantcheese.chan.ui.layout.ArchivesLayout;
 import com.github.adamantcheese.chan.ui.layout.ThreadLayout;
 import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.ui.view.FloatingMenu;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
+import com.github.adamantcheese.chan.ui.view.FloatingMenuItem;
+import com.github.adamantcheese.chan.utils.*;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.skydoves.balloon.*;
 
@@ -90,6 +92,7 @@ public class ViewThreadController
         super.onCreate();
 
         threadLayout.setPostViewMode(ChanSettings.PostViewMode.LIST);
+        threadLayout.getPresenter().setOrder(ChanSettings.threadOrder.get());
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
 
         navigation.hasDrawer = true;
@@ -132,6 +135,7 @@ public class ViewThreadController
                         () -> threadLayout.getPresenter().showRemovedPostsDialog()
                 )
                 .withSubItem(R.string.view_my_posts, this::showYourPosts)
+                .withSubItem(R.string.action_sort, () -> handleSorting(null))
                 .withSubItem(R.string.action_open_browser, () -> handleShareAndOpenInBrowser(false))
                 .withSubItem(R.string.action_share, () -> handleShareAndOpenInBrowser(true))
                 .withSubItem(R.string.action_scroll_to_top, () -> threadLayout.scrollTo(0, false))
@@ -463,5 +467,40 @@ public class ViewThreadController
 
     @Override
     public void onMenuHidden() {
+    }
+
+    private void handleSorting(ToolbarMenuItem item) {
+        final ThreadPresenter presenter = threadLayout.getPresenter();
+        List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
+        for (PostsFilter.PostsOrder postsOrder : PostsFilter.PostsOrder.values()) {
+            if(!postsOrder.forMode.contains(Loadable.Mode.THREAD)) continue;
+            String name = StringUtils.caseAndSpace(postsOrder.name(), "_", true);
+            if (postsOrder == ChanSettings.threadOrder.get()) {
+                name = "\u2713 " + name; // Checkmark
+            }
+
+            items.add(new FloatingMenuItem<>(postsOrder, name));
+        }
+        ToolbarMenuItem overflow = navigation.findOverflow();
+        View anchor = (item != null ? item : overflow).getView();
+        FloatingMenu<PostsFilter.PostsOrder> menu;
+        if (anchor != null) {
+            menu = new FloatingMenu<>(context, anchor, items);
+        } else {
+            Logger.wtf(this, "Couldn't find anchor for sorting button action??");
+            menu = new FloatingMenu<>(context, view, items);
+        }
+
+        menu.setCallback(new FloatingMenu.ClickCallback<PostsFilter.PostsOrder>() {
+            @Override
+            public void onFloatingMenuItemClicked(
+                    FloatingMenu<PostsFilter.PostsOrder> menu, FloatingMenuItem<PostsFilter.PostsOrder> item
+            ) {
+                PostsFilter.PostsOrder postsOrder = item.getId();
+                ChanSettings.threadOrder.set(postsOrder);
+                presenter.setOrder(postsOrder);
+            }
+        });
+        menu.show();
     }
 }

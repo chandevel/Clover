@@ -222,6 +222,7 @@ public class BrowseController
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
         for (PostsFilter.PostsOrder postsOrder : PostsOrder.values()) {
+            if(!postsOrder.forMode.contains(Loadable.Mode.CATALOG)) continue;
             String name = StringUtils.caseAndSpace(postsOrder.name(), "_", true);
             if (postsOrder == ChanSettings.boardOrder.get()) {
                 name = "\u2713 " + name; // Checkmark

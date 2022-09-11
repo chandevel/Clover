@@ -17,6 +17,8 @@
 package com.github.adamantcheese.chan.ui.adapter;
 
 import static com.github.adamantcheese.chan.Chan.instance;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.CATALOG;
+import static com.github.adamantcheese.chan.core.model.orm.Loadable.Mode.THREAD;
 
 import android.text.TextUtils;
 
@@ -33,12 +35,14 @@ import java.util.*;
 public class PostsFilter {
 
     public enum PostsOrder {
-        BUMP_ORDER((lhs, rhs) -> 0),
-        REPLY_COUNT((lhs, rhs) -> rhs.replies - lhs.replies),
-        IMAGE_COUNT((lhs, rhs) -> rhs.imagesCount - lhs.imagesCount),
-        NEWEST((lhs, rhs) -> (int) (rhs.time - lhs.time)),
-        OLDEST((lhs, rhs) -> (int) (lhs.time - rhs.time)),
-        LATEST_REPLY((lhs, rhs) -> (int) (rhs.lastModified - lhs.lastModified)),
+        BUMP_ORDER((lhs, rhs) -> 0, new Integer[]{CATALOG, THREAD}),
+        THREAD_REPLY_COUNT((lhs, rhs) -> rhs.replies - lhs.replies, new Integer[]{CATALOG}),
+        POST_REPLY_COUNT((lhs, rhs) -> rhs.repliesFrom.size() - lhs.repliesFrom.size(), new Integer[]{THREAD}),
+        THREAD_IMAGE_COUNT((lhs, rhs) -> rhs.imagesCount - lhs.imagesCount, new Integer[]{CATALOG}),
+        POST_IMAGE_COUNT((lhs, rhs) -> rhs.images.size() - lhs.images.size(), new Integer[]{THREAD}),
+        NEWEST((lhs, rhs) -> (int) (rhs.time - lhs.time), new Integer[]{CATALOG, THREAD}),
+        OLDEST((lhs, rhs) -> (int) (lhs.time - rhs.time), new Integer[]{CATALOG, THREAD}),
+        LATEST_REPLY((lhs, rhs) -> (int) (rhs.lastModified - lhs.lastModified), new Integer[]{CATALOG}),
         THREAD_ACTIVITY((lhs, rhs) -> {
             long currentTimeSeconds = System.currentTimeMillis() / 1000L;
 
@@ -49,12 +53,14 @@ public class PostsFilter {
                     (long) ((currentTimeSeconds - rhs.time) / (rhs.replies != 0 ? rhs.replies : Float.MIN_NORMAL));
 
             return Long.compare(score1, score2);
-        });
+        }, new Integer[]{CATALOG});
 
         public final Comparator<Post> postComparator;
+        public final List<Integer> forMode;
 
-        PostsOrder(Comparator<Post> c) {
+        PostsOrder(Comparator<Post> c, Integer[] mode) {
             postComparator = c;
+            forMode = Arrays.asList(mode);
         }
     }
 
