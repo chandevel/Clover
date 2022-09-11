@@ -300,8 +300,8 @@ public class PostAdapter
         BackgroundUtils.ensureMainThread();
         isInThread = thread.loadable.isThreadMode();
 
-        List<Post> newList = newFilter == null ? thread.getPosts() : newFilter.apply(thread);
         currentFilter = newFilter == null ? new PostsFilter(BUMP_ORDER, null) : newFilter;
+        List<Post> newList = currentFilter.apply(thread);
 
         lastSeenIndicatorPosition = Integer.MIN_VALUE;
         // Do not process the last post, the indicator does not have to appear at the bottom

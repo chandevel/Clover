@@ -25,9 +25,9 @@ public abstract class ThemedStyleAction
 
             @NonNull
             @Override
-            public CharSequence style(@NonNull Node node, @Nullable CharSequence text) {
+            public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
                 this.data.put(THEME_DATA, theme);
-                return super.style(node, text);
+                return super.style(node, styledInnerText);
             }
         };
     }

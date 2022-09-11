@@ -236,7 +236,7 @@ public class AyaseArchive
         @NonNull
         @Override
         public CharSequence style(
-                @NonNull Node node, @Nullable CharSequence text
+                @NonNull Node node, @Nullable CharSequence styledInnerText
         ) {
             throw new NotImplementedError(); // this likely can be fully removed and not overridden
             /*// for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not

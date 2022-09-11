@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAprilFoolsDay;
 
 import android.content.Context;
 import android.view.View;
@@ -109,7 +110,7 @@ public class ViewThreadController
 
         if (!ChanSettings.enableReplyFab.get()) {
             menuOverflowBuilder.withSubItem(OverflowMenuId.REPLY,
-                    R.string.action_reply,
+                    isAprilFoolsDay() ? R.string.action_reply_fools : R.string.action_reply,
                     () -> threadLayout.openReply(true)
             );
         }

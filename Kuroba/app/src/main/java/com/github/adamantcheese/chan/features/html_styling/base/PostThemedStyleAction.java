@@ -29,11 +29,11 @@ public abstract class PostThemedStyleAction
 
             @NonNull
             @Override
-            public CharSequence style(@NonNull Node node, @Nullable CharSequence text) {
+            public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
                 this.data.put(THEME_DATA, theme);
                 this.data.put(POST_DATA, post);
                 this.data.put(POST_CALLBACK_DATA, callback);
-                return super.style(node, text);
+                return super.style(node, styledInnerText);
             }
         };
     }

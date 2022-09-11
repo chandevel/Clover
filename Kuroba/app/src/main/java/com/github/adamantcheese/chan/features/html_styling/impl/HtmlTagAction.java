@@ -75,7 +75,7 @@ public class HtmlTagAction
     @NonNull
     @Override
     public CharSequence style(
-            @NonNull Node element, @Nullable CharSequence text
+            @NonNull Node element, @Nullable CharSequence styledInnerText
     ) {
         Map<String, ChainStyleAction> specificsForTag = specificRules.get(element.nodeName());
         ChainStyleAction specificForTagClass = null;
@@ -88,9 +88,9 @@ public class HtmlTagAction
         ChainStyleAction wildcardForTag = wildcardRules.get(element.nodeName());
         ChainStyleAction actionToTake = specificForTagClass != null ? specificForTagClass : wildcardForTag;
 
-        CharSequence result = text;
+        CharSequence result = styledInnerText;
         if (actionToTake != null) {
-            result = actionToTake.style(element, text);
+            result = actionToTake.style(element, styledInnerText);
         }
         // CSS styling is always applied
         return INLINE_CSS.style(element, result);

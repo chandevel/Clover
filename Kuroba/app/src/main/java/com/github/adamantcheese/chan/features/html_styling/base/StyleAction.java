@@ -10,10 +10,10 @@ import org.jsoup.nodes.Node;
  */
 public interface StyleAction {
     /**
-     * @param node The node that is currently being worked on.
-     * @param text The text to be styled, with all child nodes processed.
+     * @param node            The node that is currently being worked on.
+     * @param styledInnerText The styled inner text of the node currently being worked on; all children have been processed
      * @return stylized text for this node; can be adding styling to the passed in child inner text or replacing it
      */
     @NonNull
-    CharSequence style(@NonNull Node node, @Nullable CharSequence text);
+    CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText);
 }

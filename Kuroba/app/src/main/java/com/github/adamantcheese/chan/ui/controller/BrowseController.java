@@ -20,6 +20,7 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewM
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.PostViewMode.STAGGER;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.isAprilFoolsDay;
 
 import android.content.Context;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -135,7 +136,7 @@ public class BrowseController
 
         if (!ChanSettings.enableReplyFab.get()) {
             overflowBuilder.withSubItem(OverflowMenuId.REPLY,
-                    R.string.action_reply,
+                    isAprilFoolsDay() ? R.string.action_reply_fools : R.string.action_reply,
                     () -> threadLayout.openReply(true)
             );
         }

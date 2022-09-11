@@ -129,6 +129,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <string name="action_scroll_to_new">New</string>
     <string name="action_sort">Sort</string>
     <string name="action_reply">Reply</string>
+    <string name="action_reply_fools">+(You) this post</string>
     <string name="open_link_not_matched">%1$s cannot open this link; it will open in your browser instead.</string>
 
     <string name="search_hint">Search</string>

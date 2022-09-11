@@ -71,7 +71,7 @@ public class HtmlNodeTreeAction
 
     @NonNull
     @Override
-    public CharSequence style(@NonNull Node node, @Nullable CharSequence text) {
+    public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
         try {
             if (node instanceof Element) {
                 return processElementNode((Element) node);

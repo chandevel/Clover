@@ -44,13 +44,13 @@ public class ChainStyleAction
     @NonNull
     @Override
     public CharSequence style(
-            @NonNull Node node, @Nullable CharSequence text
+            @NonNull Node node, @Nullable CharSequence styledInnerText
     ) {
         try {
-            return next.style(node, text);
+            return next.style(node, styledInnerText);
         } catch (Exception e) {
             Logger.v(this, "Failed style action", e);
         }
-        return NO_OP.style(node, text);
+        return NO_OP.style(node, styledInnerText);
     }
 }
