@@ -43,7 +43,7 @@ import java.util.regex.Matcher;
 import okhttp3.*;
 
 public class EmbeddingEngine
-        implements LifecycleObserver {
+        implements DefaultLifecycleObserver {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final List<Embedder> embedders = new NoDeleteArrayList<>();
 
@@ -365,8 +365,8 @@ public class EmbeddingEngine
     private static final Type LRU_TYPE = new TypeToken<Map<String, EmbedResult>>() {}.getType();
     private static final File CACHE_FILE = new File(getCacheDir(), "video_title_cache.json");
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onStart() {
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
         try (FileReader reader = new FileReader(CACHE_FILE)) {
             //restore parsed media title stuff
             Map<String, EmbedResult> titles = AppModule.gson.fromJson(reader, LRU_TYPE);
@@ -380,8 +380,8 @@ public class EmbeddingEngine
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onStop() {
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
         //store parsed media title stuff, extra prevention of unneeded API calls
         try (FileWriter writer = new FileWriter(CACHE_FILE)) {
             AppModule.gson.toJson(videoTitleDurCache.snapshot(), LRU_TYPE, writer);

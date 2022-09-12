@@ -25,11 +25,13 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
 import com.github.adamantcheese.chan.BuildConfig;
+import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
@@ -37,6 +39,8 @@ import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
@@ -213,6 +217,12 @@ public class ImageSaveTask {
                             + canWrite,
                     e
             );
+            EventBus
+                    .getDefault()
+                    .post(new StartActivity.ActivityToastMessage(
+                            "You probably should use the SAF api; change it in your media settings.",
+                            Toast.LENGTH_LONG
+                    ));
         }
 
         return false;

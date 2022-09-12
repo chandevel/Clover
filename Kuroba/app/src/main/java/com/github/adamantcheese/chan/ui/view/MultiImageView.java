@@ -71,7 +71,7 @@ import pl.droidsonroids.gif.GifImageView;
 
 public class MultiImageView
         extends FrameLayout
-        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallback, LifecycleObserver,
+        implements MultiImageViewGestureDetector.MultiImageViewGestureDetectorCallback, DefaultLifecycleObserver,
                    ProgressResponseBody.ProgressListener {
 
     public enum Mode {
@@ -123,8 +123,8 @@ public class MultiImageView
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    public void onPause() {
+    @Override
+    public void onPause(@NonNull LifecycleOwner owner) {
         if (exoPlayer != null) {
             exoPlayer.pause();
         }

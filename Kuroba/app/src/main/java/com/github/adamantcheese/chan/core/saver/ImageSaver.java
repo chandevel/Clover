@@ -22,7 +22,6 @@ import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSa
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.NoWriteExternalStoragePermission;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.Ok;
 import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.UnknownError;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
@@ -268,8 +267,7 @@ public class ImageSaver {
             AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
 
             if (innerDirectory == null) {
-                Logger.e(
-                        this,
+                Logger.e(this,
                         "getSaveLocation() failed to create subdirectory ("
                                 + subFolder
                                 + ") for a base dir: "
@@ -298,7 +296,7 @@ public class ImageSaver {
         Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImage().imageUrl));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
-        showToast(getAppContext(), errorMessage, Toast.LENGTH_LONG);
+        EventBus.getDefault().post(new StartActivity.ActivityToastMessage(errorMessage, Toast.LENGTH_LONG));
     }
 
     private void imageSaveTaskFinished(ImageSaveTask task, BundledDownloadResult result) {
@@ -322,10 +320,16 @@ public class ImageSaver {
         // Also don't show the toast if the task was a share, or if this is an album save task
         if (result == Success && !task.share) {
             if (totalTasks.get() == 0) {
-                showToast(getAppContext(), getText(task, wasAlbumSave), Toast.LENGTH_LONG);
+                EventBus
+                        .getDefault()
+                        .post(new StartActivity.ActivityToastMessage(getText(task, wasAlbumSave), Toast.LENGTH_LONG));
             }
         } else if (result == Canceled && totalTasks.get() == 0) {
-            showToast(getAppContext(), R.string.image_saver_canceled_by_user, Toast.LENGTH_LONG);
+            EventBus
+                    .getDefault()
+                    .post(new StartActivity.ActivityToastMessage(getString(R.string.image_saver_canceled_by_user),
+                            Toast.LENGTH_LONG
+                    ));
         }
     }
 

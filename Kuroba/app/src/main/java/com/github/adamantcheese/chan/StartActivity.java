@@ -23,6 +23,7 @@ import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMod
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SLIDE;
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.SPLIT;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isAndroid10;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
@@ -40,8 +41,8 @@ import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.NavigationController;
@@ -76,7 +77,7 @@ import kotlin.jvm.functions.Function1;
 
 public class StartActivity
         extends AppCompatActivity
-        implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks {
+        implements NfcAdapter.CreateNdefMessageCallback, FSAFActivityCallbacks, DefaultLifecycleObserver {
     private static final String STATE_KEY = "chan_state";
 
     private final Stack<Controller> stack = new Stack<>();
@@ -111,6 +112,7 @@ public class StartActivity
     protected void onCreate(Bundle savedInstanceState) {
         currentNightModeBits = this.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         super.onCreate(savedInstanceState);
+        getLifecycle().addObserver(this);
 
         inject(this);
 
@@ -120,7 +122,7 @@ public class StartActivity
 
         // sets up the singleton
         EmbeddingEngine setup = new EmbeddingEngine(this, EmbeddingEngine.getDefaultEmbedders());
-        setup.onStart();
+        getLifecycle().addObserver(setup);
 
         ThemeHelper.init();
         ThemeHelper.setupContext(this);
@@ -575,20 +577,33 @@ public class StartActivity
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ActivityToastMessage toastMessage) {
+        showToast(this, toastMessage.message, toastMessage.toastLength);
+    }
+
     @Override
     public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    public void onStart() {
-        super.onStart();
+    @Override
+    public void onStart(@NonNull LifecycleOwner owner) {
         EventBus.getDefault().register(this);
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onStop() {
-        super.onStop();
+    @Override
+    public void onStop(@NonNull LifecycleOwner owner) {
         EventBus.getDefault().unregister(this);
+    }
+
+    public static class ActivityToastMessage {
+        public String message;
+        public int toastLength;
+
+        public ActivityToastMessage(String message, int toastLength) {
+            this.message = message;
+            this.toastLength = toastLength;
+        }
     }
 }
