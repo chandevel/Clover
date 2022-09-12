@@ -215,10 +215,10 @@ public class BoardSetupController
             // Fill the height for the title if there is no description, otherwise make room
             // for it.
             ViewGroup.LayoutParams p = holder.text.getLayoutParams();
-            p.height = (int) (!savedBoard.description.isEmpty() ? dp(28) : dp(56));
+            p.height = (int) (!savedBoard.description.isEmpty() ? dp(context, 28) : dp(context, 56));
             holder.text.setLayoutParams(p);
             holder.text.setGravity(Gravity.CENTER_VERTICAL);
-            updatePaddings(holder.text, dp(8), dp(8), dp(8), !savedBoard.description.isEmpty() ? 0 : dp(8));
+            updatePaddings(holder.text, dp(context, 8), dp(context, 8), dp(context, 8), !savedBoard.description.isEmpty() ? 0 : dp(context, 8));
         }
 
         @Override

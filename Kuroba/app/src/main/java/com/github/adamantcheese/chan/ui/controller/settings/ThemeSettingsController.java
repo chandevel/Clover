@@ -20,6 +20,7 @@ import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction.COLOR;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 import static com.github.adamantcheese.chan.ui.theme.ThemeHelper.createTheme;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
@@ -207,7 +208,7 @@ public class ThemeSettingsController
         pager.setOffscreenPageLimit(1);
         // display on the sides
         pager.setPageTransformer((page, position) -> {
-            float offset = position * -(2 * dp(6) + dp(6));
+            float offset = position * -(2 * dp(context, 6) + dp(context, 6));
             if (pager.getOrientation() == ORIENTATION_HORIZONTAL) {
                 if (ViewCompat.getLayoutDirection(pager) == ViewCompat.LAYOUT_DIRECTION_RTL) {
                     page.setTranslationX(-offset);
@@ -309,7 +310,7 @@ public class ThemeSettingsController
                 updateAdapter(currentTheme);
             }
         });
-        menu.setPopupHeight((int) dp(300));
+        menu.setPopupHeight((int) dp(context, 300));
         menu.show();
     }
 
@@ -443,7 +444,6 @@ public class ThemeSettingsController
             adapter.setThread(thread, new PostsFilter(BUMP_ORDER, null));
             adapter.highlightPostNo(posts.get(2).no); // highlight third post
             holder.recyclerView.setAdapter(adapter);
-            holder.accentText.setOnClickListener((v) -> showAccentColorPicker());
 
             final View.OnClickListener colorClick = v -> {
                 List<FloatingMenuItem<MaterialColorStyle>> items = new ArrayList<>();
@@ -468,7 +468,7 @@ public class ThemeSettingsController
                         holder.toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
                     }
                 });
-                menu.setPopupHeight((int) dp(300));
+                menu.setPopupHeight((int) dp(context, 300));
                 menu.show();
             };
             holder.toolbar.setCallback(new Toolbar.ToolbarCallback() {
@@ -492,21 +492,28 @@ public class ThemeSettingsController
             final NavigationItem item = new NavigationItem();
             item.title = holder.theme.name;
             item.hasBack = false;
-            item.buildMenu().withOverflow().withSubItem(R.string.test_snackbar, () -> {
-                Snackbar test = AndroidUtils.buildCommonSnackbar(view,
-                        holder.itemView.getContext().getString(R.string.test_snackbar)
-                );
-                test.setAction(R.string.cancel, v -> test.dismiss());
-                test.show();
-            }).withSubItem(R.string.test_popup, () -> {
-                AlertDialog test = getDefaultAlertBuilder(holder.itemView.getContext())
-                        .setMessage(R.string.test_popup)
-                        .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
-                        .create();
-                test.setCanceledOnTouchOutside(true);
-                test.show();
-            }).build().build();
-            holder.toolbar.setNavigationItem(false, true, item, holder.theme);
+            item
+                    .buildMenu()
+                    .withItem(R.drawable.ic_fluent_highlight_20_filled, (v) -> showAccentColorPicker())
+                    .withOverflow()
+                    .withSubItem(R.string.test_snackbar, () -> {
+                        Snackbar test = AndroidUtils.buildCommonSnackbar(view,
+                                holder.itemView.getContext().getString(R.string.test_snackbar)
+                        );
+                        test.setAction(R.string.cancel, v -> test.dismiss());
+                        test.show();
+                    })
+                    .withSubItem(R.string.test_popup, () -> {
+                        AlertDialog test = getDefaultAlertBuilder(holder.itemView.getContext())
+                                .setMessage(R.string.test_popup)
+                                .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                                .create();
+                        test.setCanceledOnTouchOutside(true);
+                        test.show();
+                    })
+                    .build()
+                    .build();
+            holder.toolbar.setNavigationItem(NONE, item);
             holder.toolbar.setOnClickListener(colorClick);
         }
 
@@ -598,16 +605,13 @@ public class ThemeSettingsController
                 extends RecyclerView.ViewHolder {
             private final Theme theme;
             private final RecyclerView recyclerView;
-            private final TextView accentText;
             private final Toolbar toolbar;
 
             public ThemePreviewHolder(Theme theme, @NonNull View itemView) {
                 super(itemView);
                 this.theme = theme;
                 recyclerView = itemView.findViewById(R.id.posts_recycler);
-                accentText = itemView.findViewById(R.id.text_accent);
                 toolbar = itemView.findViewById(R.id.theme_toolbar);
-                toolbar.setMenuDrawable(R.drawable.ic_fluent_paint_brush_20_filled);
             }
         }
     }

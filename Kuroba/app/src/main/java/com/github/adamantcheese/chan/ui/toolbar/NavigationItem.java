@@ -18,7 +18,10 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
+import android.content.Context;
 import android.view.View;
+
+import androidx.core.content.res.ResourcesCompat;
 
 import com.github.adamantcheese.chan.R;
 
@@ -104,16 +107,24 @@ public class NavigationItem {
         }
 
         public MenuOverflowBuilder withOverflow() {
-            return new MenuOverflowBuilder(this, new ToolbarMenuItem(
-                    ToolbarMenu.OVERFLOW_ID,
+            return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
                     R.drawable.ic_fluent_more_vertical_24_filled,
                     ToolbarMenuItem::showSubmenu
             ));
         }
 
+        public MenuOverflowBuilder withOverflow(Context context) {
+            return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
+                    ResourcesCompat.getDrawable(context.getResources(),
+                            R.drawable.ic_fluent_more_vertical_24_filled,
+                            context.getTheme()
+                    ),
+                    ToolbarMenuItem::showSubmenu
+            ));
+        }
+
         public MenuOverflowBuilder withOverflow(ToolbarMenuItem.OverflowMenuCallback threedotMenuCallback) {
-            return new MenuOverflowBuilder(this, new ToolbarMenuItem(
-                    ToolbarMenu.OVERFLOW_ID,
+            return new MenuOverflowBuilder(this, new ToolbarMenuItem(ToolbarMenu.OVERFLOW_ID,
                     R.drawable.ic_fluent_more_vertical_24_filled,
                     ToolbarMenuItem::showSubmenu,
                     threedotMenuCallback

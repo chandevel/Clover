@@ -229,25 +229,29 @@ public class PostIcons
 
         PostIconsHttpIcon(PostHttpIcon icon) {
             this.icon = icon;
-            request = NetUtils.makeBitmapRequest(icon.url,
-                    icon.bitmapResult.setPassthrough(new NetUtilsClasses.BitmapResult() {
-                        @Override
-                        public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
-                            request = null;
-                            bitmap = BitmapRepository.error;
-                            requestLayout();
-                        }
+            NetUtilsClasses.BitmapResult resultPassthrough = new NetUtilsClasses.BitmapResult() {
+                @Override
+                public void onBitmapFailure(@NonNull HttpUrl source, Exception e) {
+                    request = null;
+                    bitmap = BitmapRepository.error;
+                    requestLayout();
+                }
 
-                        @Override
-                        public void onBitmapSuccess(
-                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
-                        ) {
-                            request = null;
-                            PostIconsHttpIcon.this.bitmap = bitmap;
-                            requestLayout();
-                        }
-                    })
-            );
+                @Override
+                public void onBitmapSuccess(
+                        @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                ) {
+                    request = null;
+                    PostIconsHttpIcon.this.bitmap = bitmap;
+                    requestLayout();
+                }
+            };
+            NetUtilsClasses.BitmapResult withPassthrough = icon.bitmapResult.setPassthrough(resultPassthrough);
+            if (icon.url == null) {
+                withPassthrough.onBitmapSuccess(null, null, true);
+            } else {
+                request = NetUtils.makeBitmapRequest(icon.url, withPassthrough);
+            }
         }
     }
 }

@@ -16,6 +16,10 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.POP;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.PUSH;
+
 import android.content.Context;
 import android.widget.FrameLayout;
 
@@ -47,7 +51,7 @@ public abstract class ToolbarNavigationController
         super.transition(from, to, pushing, controllerTransition);
 
         if (to != null) {
-            toolbar.setNavigationItem(controllerTransition != null, pushing, to.navigation, null);
+            toolbar.setNavigationItem(controllerTransition == null ? NONE : (pushing ? PUSH : POP), to.navigation);
             updateToolbarCollapse(to, controllerTransition != null);
         }
     }

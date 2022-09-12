@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.theme;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.StringUtils.getShortString;
 
+import android.content.Context;
 import android.graphics.*;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -30,20 +31,20 @@ public class ArrowMenuDrawable
     // The angle in degrees that the arrow head is inclined at.
     private static final float ARROW_HEAD_ANGLE = (float) Math.toRadians(45);
     // The thickness of the bars
-    private final float mBarThickness = dp(2f);
+    private final float mBarThickness;
     // The length of top and bottom bars when they merge into an arrow
-    private final float mTopBottomArrowSize = dp(11.31f);
+    private final float mTopBottomArrowSize;
     // The length of middle bar
-    private final float mBarSize = dp(18f);
+    private final float mBarSize;
     // The length of the middle bar when arrow is shaped
-    private final float mMiddleArrowSize = dp(16f);
+    private final float mMiddleArrowSize;
     // The space between bars when they are parallel
-    private final float mBarGap = dp(3f);
+    private final float mBarGap;
     // Use Path instead of canvas operations so that if color has transparency, overlapping sections
     // wont look different
     private final Path mPath = new Path();
     // The reported intrinsic size of the drawable.
-    private final float mSize = dp(24f);
+    private final float mSize;
     // Whether we should mirror animation when animation is reversed.
     private boolean mVerticalMirror = false;
     // The interpolated version of the original progress
@@ -54,7 +55,14 @@ public class ArrowMenuDrawable
     private final Paint badgePaint = new Paint();
     private final Rect badgeTextBounds = new Rect();
 
-    public ArrowMenuDrawable() {
+    public ArrowMenuDrawable(Context context) {
+        mBarThickness = dp(context, 2f);
+        mTopBottomArrowSize = dp(context, 11.31f);
+        mBarSize = dp(context, 18f);
+        mMiddleArrowSize = dp(context, 16f);
+        mBarGap = dp(context, 3f);
+        mSize = dp(context, 24f);
+
         mPaint.setColor(Color.WHITE);
         mPaint.setAntiAlias(true);
         mPaint.setStyle(Paint.Style.STROKE);

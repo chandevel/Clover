@@ -600,7 +600,7 @@ public class ThreadListLayout
     }
 
     private void setRecyclerViewPadding() {
-        float defaultPadding = postViewMode == LIST ? 0 : dp(1);
+        float defaultPadding = postViewMode == LIST ? 0 : dp(getContext(), 1);
         float recyclerTop = defaultPadding + toolbarHeight();
         float recyclerBottom = defaultPadding;
         //reply view padding calculations (before measure)
@@ -646,7 +646,7 @@ public class ThreadListLayout
                 // hide the refresh
                 (int) (recyclerTop - swipeRefresh.getProgressCircleDiameter()),
                 // 40 pixels away from the top of all the stuff that could add to the padding
-                (int) (recyclerTop + dp(40))
+                (int) (recyclerTop + dp(getContext(), 40))
         );
 
         //reply view padding calculations (after measure)
@@ -748,7 +748,7 @@ public class ThreadListLayout
             float bitmapXCenter = bitmapWrapper.bitmap.getScaledWidth(c) * bitmapWrapper.centerX;
             float bitmapYCenter = bitmapWrapper.bitmap.getScaledHeight(c) * bitmapWrapper.centerY;
             // if in list mode, move it over slightly to align with the thumbnail
-            float thumbnailAdjustment = (postViewMode == LIST ? dp(ChanSettings.fontSize.get() - 7) : 0);
+            float thumbnailAdjustment = (postViewMode == LIST ? dp(parent.getContext(), ChanSettings.fontSize.get() - 7) : 0);
 
             for (int i = 0, j = parent.getChildCount(); i < j; i++) {
                 View child = parent.getChildAt(i);

@@ -16,8 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.FADE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.TransitionAnimationStyle.POP;
 
 public class ToolbarPresenter {
     public enum AnimationStyle {
@@ -41,15 +42,15 @@ public class ToolbarPresenter {
         this.callback = callback;
     }
 
-    void set(NavigationItem newItem, Theme theme, AnimationStyle animation) {
+    void set(NavigationItem newItem, AnimationStyle animation) {
         cancelTransitionIfNeeded();
         if (closeSearchIfNeeded()) {
-            animation = AnimationStyle.FADE;
+            animation = FADE;
         }
 
         item = newItem;
 
-        callback.showForNavigationItem(item, theme, animation);
+        callback.showForNavigationItem(item, animation);
     }
 
     void update(NavigationItem updatedItem) {
@@ -59,12 +60,12 @@ public class ToolbarPresenter {
     void startTransition(NavigationItem newItem) {
         cancelTransitionIfNeeded();
         if (closeSearchIfNeeded()) {
-            callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
+            callback.showForNavigationItem(item, NONE);
         }
 
         transition = newItem;
 
-        callback.containerStartTransition(transition, TransitionAnimationStyle.POP);
+        callback.containerStartTransition(transition, POP);
     }
 
     void stopTransition(boolean didComplete) {
@@ -76,7 +77,7 @@ public class ToolbarPresenter {
 
         if (didComplete) {
             item = transition;
-            callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
+            callback.showForNavigationItem(item, NONE);
         }
         transition = null;
     }
@@ -95,7 +96,7 @@ public class ToolbarPresenter {
         cancelTransitionIfNeeded();
 
         item.search = true;
-        callback.showForNavigationItem(item, ThemeHelper.getTheme(), AnimationStyle.NONE);
+        callback.showForNavigationItem(item, NONE);
 
         callback.onSearchVisibilityChanged(item, true);
     }
@@ -105,7 +106,7 @@ public class ToolbarPresenter {
 
         item.search = false;
         item.searchText = null;
-        set(item, null, AnimationStyle.FADE);
+        set(item, FADE);
 
         callback.onSearchVisibilityChanged(item, false);
 
@@ -141,7 +142,7 @@ public class ToolbarPresenter {
     }
 
     interface Callback {
-        void showForNavigationItem(NavigationItem item, Theme theme, AnimationStyle animation);
+        void showForNavigationItem(NavigationItem item, AnimationStyle animation);
 
         void containerStartTransition(NavigationItem item, TransitionAnimationStyle animation);
 

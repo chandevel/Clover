@@ -18,6 +18,7 @@ package com.github.adamantcheese.chan.ui.toolbar;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
@@ -25,6 +26,8 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.*;
 import android.view.animation.DecelerateInterpolator;
@@ -35,7 +38,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,19 +90,21 @@ public class Toolbar
         super(context, attrs, defStyle);
 
         setOrientation(HORIZONTAL);
-        if (isInEditMode()) return;
 
         presenter = new ToolbarPresenter(this);
 
         //initView
-        FrameLayout leftButtonContainer = new FrameLayout(getContext());
+        FrameLayout leftButtonContainer = new FrameLayout(context);
         addView(leftButtonContainer, WRAP_CONTENT, MATCH_PARENT);
 
-        arrowMenuView = new ImageView(getContext());
-        arrowMenuView.setOnClickListener(v -> callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f));
+        arrowMenuView = new ImageView(context);
+        arrowMenuView.setOnClickListener(v -> {
+            if (callback == null) return;
+            callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
+        });
         arrowMenuView.setFocusable(true);
         arrowMenuView.setScaleType(ImageView.ScaleType.CENTER);
-        arrowMenuDrawable = new ArrowMenuDrawable();
+        arrowMenuDrawable = new ArrowMenuDrawable(context);
         arrowMenuView.setImageDrawable(arrowMenuDrawable);
         arrowMenuView.setBackgroundResource(R.drawable.ripple_item_background);
 
@@ -109,21 +113,35 @@ public class Toolbar
                 new FrameLayout.LayoutParams(toolbarSize, MATCH_PARENT, Gravity.CENTER_VERTICAL);
         leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
 
-        navigationItemContainer = new ToolbarContainer(getContext());
+        navigationItemContainer = new ToolbarContainer(context);
         addView(navigationItemContainer, new LayoutParams(0, MATCH_PARENT, 1f));
 
         navigationItemContainer.setCallback(this);
         navigationItemContainer.setArrowMenu(arrowMenuDrawable);
 
         if (getElevation() == 0f) {
-            setElevation(dp(4f));
+            setElevation(dp(context, 4f));
         }
 
         setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
-    }
 
-    public void setMenuDrawable(int resID) {
-        arrowMenuView.setImageResource(resID);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar);
+        try {
+            Drawable xmlDrawable = a.getDrawable(R.styleable.Toolbar_menuDrawable);
+            if (xmlDrawable != null) {
+                arrowMenuView.setImageDrawable(xmlDrawable);
+            }
+        } finally {
+            a.recycle();
+        }
+
+        if (isInEditMode()) {
+            NavigationItem editItem = new NavigationItem();
+            editItem.hasBack = true;
+            editItem.title = "Test";
+            editItem.buildMenu().withOverflow(context).build().build();
+            setNavigationItem(NONE, editItem);
+        }
     }
 
     @Override
@@ -215,18 +233,9 @@ public class Toolbar
     }
 
     public void setNavigationItem(
-            final boolean animate, final boolean pushing, final NavigationItem item, Theme theme
+            final ToolbarPresenter.AnimationStyle style, final NavigationItem item
     ) {
-        ToolbarPresenter.AnimationStyle animationStyle;
-        if (!animate) {
-            animationStyle = ToolbarPresenter.AnimationStyle.NONE;
-        } else if (pushing) {
-            animationStyle = ToolbarPresenter.AnimationStyle.PUSH;
-        } else {
-            animationStyle = ToolbarPresenter.AnimationStyle.POP;
-        }
-
-        presenter.set(item, theme, animationStyle);
+        presenter.set(item, style);
     }
 
     public void beginTransition(NavigationItem newItem) {
@@ -254,8 +263,8 @@ public class Toolbar
     }
 
     @Override
-    public void showForNavigationItem(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
-        navigationItemContainer.set(item, theme, animation);
+    public void showForNavigationItem(NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
+        navigationItemContainer.set(item, animation);
     }
 
     @Override
@@ -280,11 +289,13 @@ public class Toolbar
 
     @Override
     public void onNavItemSet(NavigationItem item) {
+        if (callback == null) return;
         callback.onNavItemSet(item);
     }
 
     @Override
     public void onSearchVisibilityChanged(NavigationItem item, boolean visible) {
+        if (callback == null) return;
         callback.onSearchVisibilityChanged(item, visible);
 
         if (!visible) {
@@ -294,6 +305,7 @@ public class Toolbar
 
     @Override
     public void onSearchInput(NavigationItem item, String input) {
+        if (callback == null) return;
         callback.onSearchEntered(item, input);
     }
 

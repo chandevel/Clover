@@ -14,36 +14,41 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginHorizontal="12dp"
-    android:background="?attr/backcolor"
-    android:orientation="vertical">
+    android:background="?attr/backcolor">
 
-    <com.github.adamantcheese.chan.ui.toolbar.Toolbar
-        android:id="@+id/theme_toolbar"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height" />
+        android:layout_height="match_parent"
+        android:layout_marginBottom="88dp"
+        android:background="?attr/backcolor"
+        android:orientation="vertical">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/posts_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:itemCount="2"
-        tools:listitem="@layout/cell_post" />
+        <com.github.adamantcheese.chan.ui.toolbar.Toolbar
+            android:id="@+id/theme_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            app:menuDrawable="@drawable/ic_fluent_color_background_20_filled" />
 
-    <TextView
-        android:id="@+id/text_accent"
-        android:layout_width="match_parent"
-        android:layout_height="88dp"
-        android:background="@drawable/ripple_item_background"
-        android:gravity="center"
-        android:padding="8dp"
-        android:text="@string/setting_theme_accent"
-        android:textColor="?android:textColorSecondary" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/posts_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/cell_post" />
 
-</LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:background="?attr/divider_color" />
+
+    </LinearLayout>
+</FrameLayout>

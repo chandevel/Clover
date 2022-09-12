@@ -184,7 +184,7 @@ public class CaptchaV2NoJsLayout
 
             captchaImagesGrid.setAdapter(adapter);
             int columnsCount = captchaV2NoJsInfo.captchaType.columnCount;
-            float imageSize = Math.min(getWidth(), getHeight() - dp(104));
+            float imageSize = Math.min(getWidth(), getHeight() - dp(getContext(), 104));
             //40 + 64dp from layout xml; width for left-right full span, height minus for top-bottom full span inc buttons and titlebar
             ViewGroup.LayoutParams layoutParams = captchaImagesGrid.getLayoutParams();
             layoutParams.height = (int) imageSize;

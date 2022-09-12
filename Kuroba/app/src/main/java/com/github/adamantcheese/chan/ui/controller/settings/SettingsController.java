@@ -279,7 +279,7 @@ public abstract class SettingsController
 
             float itemMargin = 0;
             if (isTablet()) {
-                itemMargin = dp(16);
+                itemMargin = dp(context, 16);
             }
 
             updatePaddings(holder.itemView, itemMargin, itemMargin, -1, -1);

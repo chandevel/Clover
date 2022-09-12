@@ -61,12 +61,12 @@ public class LogsController
         navigation.buildMenu().withItem(R.drawable.ic_fluent_clipboard_code_24_filled, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
-        updatePaddings(container, dp(8), dp(8), dp(8), dp(8));
+        updatePaddings(container, dp(context, 8), dp(context, 8), dp(context, 8), dp(context, 8));
         container.setBackgroundColor(Color.BLACK);
         logTextView = new TextView(context);
         logTextView.setTypeface(Typeface.MONOSPACE);
         logTextView.setTextColor(Color.WHITE);
-        logTextView.setLineSpacing(dp(1), 1);
+        logTextView.setLineSpacing(dp(context, 1), 1);
         container.addView(logTextView, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
         view = container;

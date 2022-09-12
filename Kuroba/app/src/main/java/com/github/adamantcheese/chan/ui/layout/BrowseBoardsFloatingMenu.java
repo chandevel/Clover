@@ -112,12 +112,12 @@ public class BrowseBoardsFloatingMenu
 
         // View setup
         recyclerView.setBackgroundColor(getAttrColor(getContext(), R.attr.backcolor));
-        recyclerView.setElevation(dp(4));
+        recyclerView.setElevation(dp(getContext(), 4));
 
         // View attaching
-        float recyclerWidth = Math.max(anchor.getWidth(), dp(4 * 56));
+        float recyclerWidth = Math.max(anchor.getWidth(), dp(getContext(), 4 * 56));
         LayoutParams params = new LayoutParams((int) recyclerWidth, WRAP_CONTENT);
-        params.setMargins((int) dp(5), (int) dp(5), (int) dp(5), (int) dp(5));
+        params.setMargins((int) dp(getContext(), 5), (int) dp(getContext(), 5), (int) dp(getContext(), 5), (int) dp(getContext(), 5));
         addView(recyclerView, params);
 
         adapter = new BrowseBoardsAdapter();
@@ -218,8 +218,8 @@ public class BrowseBoardsFloatingMenu
         int[] recyclerViewPos = new int[2];
         anchor.getLocationInWindow(anchorPos);
         recyclerView.getLocationInWindow(recyclerViewPos);
-        anchorPos[0] += dp(5);
-        anchorPos[1] += dp(5);
+        anchorPos[0] += dp(getContext(), 5);
+        anchorPos[1] += dp(getContext(), 5);
         recyclerViewPos[0] += -recyclerView.getTranslationX() - getTranslationX();
         recyclerViewPos[1] += -recyclerView.getTranslationY() - getTranslationY();
 
@@ -273,7 +273,7 @@ public class BrowseBoardsFloatingMenu
 
     private void animateIn() {
         setAlpha(0f);
-        setTranslationY(-dp(25));
+        setTranslationY(-dp(getContext(), 25));
         Interpolator slowdown = new DecelerateInterpolator(2f);
         post(() -> animate().alpha(1f).translationY(0f).setInterpolator(slowdown).start());
     }

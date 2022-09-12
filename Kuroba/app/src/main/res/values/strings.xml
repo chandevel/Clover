@@ -506,7 +506,6 @@ The accent color controls the scrollbar pressed color, mod capcode color, last s
 If you're on Android 10+, the sun/moon toggle selects the theme used for the day or night theme if dark mode is enabled.
 Setting the themes to the same will function as if dark mode is effectively off. Note that the application will restart when the theme changes."
     </string>
-    <string name="setting_theme_accent">Tap to change the accent color.</string>
     <string name="settings_open_logs">View logs</string>
 
     <!-- Theme settings -->

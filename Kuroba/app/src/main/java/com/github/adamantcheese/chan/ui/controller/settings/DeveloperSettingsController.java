@@ -100,7 +100,7 @@ public class DeveloperSettingsController
         //DATABASE SUMMARY
         TextView summaryText = new TextView(context);
         summaryText.setText("Database summary:\n" + DatabaseUtils.getDatabaseSummary());
-        updatePaddings(summaryText, 0, 0, dp(5), 0);
+        updatePaddings(summaryText, 0, 0, dp(context, 5), 0);
         wrapper.addView(summaryText);
 
         //APP RESET
@@ -211,7 +211,7 @@ public class DeveloperSettingsController
         experimentalSection.setText("Experimental Settings");
         experimentalSection.setTextSize(16);
         experimentalSection.setGravity(Gravity.CENTER_HORIZONTAL);
-        updatePaddings(experimentalSection, 0, 0, dp(5), 0);
+        updatePaddings(experimentalSection, 0, 0, dp(context, 5), 0);
         wrapper.addView(experimentalSection);
 
         Switch roundedIdTest = new Switch(context);
@@ -260,7 +260,7 @@ public class DeveloperSettingsController
         wrapper.addView(clearBitmapCache);
 
         ScrollView scrollView = new ScrollView(context);
-        updatePaddings(scrollView, dp(16), dp(16), dp(16), dp(16));
+        updatePaddings(scrollView, dp(context, 16), dp(context, 16), dp(context, 16), dp(context, 16));
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));

@@ -608,6 +608,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <declare-styleable name="LoadingBar">
         <attr name="color" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="Toolbar">
+        <attr name="menuDrawable" format="reference" />
+    </declare-styleable>
     <!-- endregion -->
 
     <style name="AlertDialogTheme" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">

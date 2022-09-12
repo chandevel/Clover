@@ -145,9 +145,9 @@ public class StringUtils {
         StringBuilder properCaseString = new StringBuilder();
         for (String part : parts) {
             part = part.toLowerCase(Locale.ENGLISH);
-            if (onlyFirst && first) {
+            if (first) {
                 part = part.substring(0, 1).toUpperCase(Locale.ENGLISH) + part.substring(1);
-                first = false;
+                first = !onlyFirst;
             }
             properCaseString.append(part).append(' ');
         }

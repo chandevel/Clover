@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.ui.controller;
 
 import static com.github.adamantcheese.chan.core.settings.ChanSettings.LayoutMode.PHONE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.PUSH;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.clearAnySelectionsAndKeyboards;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
@@ -33,8 +34,7 @@ import com.github.adamantcheese.chan.controller.Controller;
 import com.github.adamantcheese.chan.controller.ControllerTransition;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.layout.ThreadSlidingPaneLayout;
-import com.github.adamantcheese.chan.ui.toolbar.NavigationItem;
-import com.github.adamantcheese.chan.ui.toolbar.Toolbar;
+import com.github.adamantcheese.chan.ui.toolbar.*;
 import com.github.adamantcheese.chan.utils.Logger;
 
 import java.lang.reflect.Field;
@@ -86,7 +86,7 @@ public class ThreadSlideController
             slidingPaneLayout.setSliderFadeColor(Color.TRANSPARENT);
         } else {
             //regular slide stuff, with view dimming
-            slidingPaneLayout.setParallaxDistance((int) dp(100));
+            slidingPaneLayout.setParallaxDistance((int) dp(context, 100));
             slidingPaneLayout.setShadowResourceLeft(R.drawable.panel_shadow);
             int fadeColor = (getAttrColor(context, R.attr.backcolor) & 0xffffff) + 0xCC000000;
             slidingPaneLayout.setSliderFadeColor(fadeColor);
@@ -355,7 +355,7 @@ public class ThreadSlideController
         navigation.swipeable = false;
         navigation.handlesToolbarInset = true;
         navigation.hasDrawer = true;
-        toolbar.setNavigationItem(true, true, navigation, null);
+        toolbar.setNavigationItem(PUSH, navigation);
     }
 
     public void setSlideable(boolean slideable) {

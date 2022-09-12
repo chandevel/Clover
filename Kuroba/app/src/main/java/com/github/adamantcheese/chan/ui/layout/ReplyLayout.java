@@ -267,7 +267,7 @@ public class ReplyLayout
                     flag.setText(item.getId());
                 }
             });
-            menu.setPopupHeight((int) dp(450));
+            menu.setPopupHeight((int) dp(getContext(), 450));
             menu.show();
         });
         options.addTextChangedListener(this);
@@ -712,7 +712,7 @@ public class ReplyLayout
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
         comment.setMaxLines(expanded ? 500 : 6);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, (int) dp(expanded ? 300 : 200)));
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, (int) dp(getContext(), expanded ? 300 : 200)));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
 
         setDividerVisibility(expanded);
@@ -819,7 +819,7 @@ public class ReplyLayout
     @Override
     public void openPreview(boolean show, File previewFile) {
         if (show) {
-            BitmapUtils.decodeFilePreviewImage(previewFile, dp(400), dp(300), bitmap -> {
+            BitmapUtils.decodeFilePreviewImage(previewFile, dp(getContext(), 400), dp(getContext(), 300), bitmap -> {
                 if (bitmap != null) {
                     preview.setImageBitmap(bitmap);
                     previewHolder.setVisibility(VISIBLE);

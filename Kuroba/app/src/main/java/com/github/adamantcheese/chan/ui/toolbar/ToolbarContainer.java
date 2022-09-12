@@ -19,6 +19,10 @@ package com.github.adamantcheese.chan.ui.toolbar;
 import static android.text.TextUtils.isEmpty;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.FADE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.POP;
+import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.PUSH;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrDrawable;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.removeFromParentView;
@@ -39,7 +43,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
 import com.github.adamantcheese.chan.ui.theme.ArrowMenuDrawable;
-import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -101,10 +104,10 @@ public class ToolbarContainer
         this.arrowMenu = arrowMenu;
     }
 
-    public void set(NavigationItem item, Theme theme, ToolbarPresenter.AnimationStyle animation) {
+    public void set(NavigationItem item, ToolbarPresenter.AnimationStyle animation) {
         endAnimations();
 
-        ItemView itemView = new ItemView(item, theme);
+        ItemView itemView = new ItemView(item);
 
         previousView = currentView;
         currentView = itemView;
@@ -117,7 +120,7 @@ public class ToolbarContainer
 
         // Can't run the animation if there is no previous view
         // Otherwise just show it without an animation.
-        if (animation != ToolbarPresenter.AnimationStyle.NONE && previousView != null) {
+        if (animation != NONE && previousView != null) {
             setAnimation(itemView, previousView, animation);
         } else {
             if (previousView != null) {
@@ -160,7 +163,7 @@ public class ToolbarContainer
 
         endAnimations();
 
-        ItemView itemView = new ItemView(item, null);
+        ItemView itemView = new ItemView(item);
 
         transitionView = itemView;
         transitionAnimationStyle = style;
@@ -222,9 +225,9 @@ public class ToolbarContainer
     }
 
     private void setAnimation(ItemView view, ItemView previousView, ToolbarPresenter.AnimationStyle animationStyle) {
-        if (animationStyle == ToolbarPresenter.AnimationStyle.PUSH
-                || animationStyle == ToolbarPresenter.AnimationStyle.POP) {
-            final boolean pushing = animationStyle == ToolbarPresenter.AnimationStyle.PUSH;
+        if (animationStyle == PUSH
+                || animationStyle == POP) {
+            final boolean pushing = animationStyle == PUSH;
 
             // Previous animation
             ValueAnimator previousAnimation = getShortAnimator();
@@ -266,7 +269,7 @@ public class ToolbarContainer
             animatorSet.put(view.view, animation);
 
             post(animation::start);
-        } else if (animationStyle == ToolbarPresenter.AnimationStyle.FADE) {
+        } else if (animationStyle == FADE) {
             // Previous animation
             ValueAnimator previousAnimation = ObjectAnimator.ofFloat(previousView.view, View.ALPHA, 1f, 0f);
             previousAnimation.setInterpolator(new LinearInterpolator());
@@ -319,13 +322,13 @@ public class ToolbarContainer
     }
 
     private void setPreviousAnimationProgress(View view, boolean pushing, float progress) {
-        final float offset = dp(16);
+        final float offset = dp(getContext(), 16);
         view.setTranslationY((pushing ? -offset : offset) * progress);
         view.setAlpha(1f - progress);
     }
 
     private void setAnimationProgress(View view, boolean pushing, float progress) {
-        final float offset = dp(16);
+        final float offset = dp(getContext(), 16);
         view.setTranslationY((pushing ? offset : -offset) * (1f - progress));
         view.setAlpha(progress);
     }
@@ -342,7 +345,7 @@ public class ToolbarContainer
     private void transitionProgressAnimation(float progress, ToolbarPresenter.TransitionAnimationStyle style) {
         progress = Math.max(0f, Math.min(1f, progress));
 
-        final float offset = dp(16);
+        final float offset = dp(getContext(), 16);
 
         boolean pushing = style == ToolbarPresenter.TransitionAnimationStyle.PUSH;
 
@@ -363,22 +366,20 @@ public class ToolbarContainer
         return animator;
     }
 
-    private void removeItem(@NonNull ItemView item) {
+    private void removeItem(ItemView item) {
         if (item == null) return;
         item.detach();
         removeView(item.view);
     }
 
     private class ItemView {
-        final Theme theme;
         final View view;
         final NavigationItem item;
 
         @Nullable
         private ToolbarMenuView menuView;
 
-        public ItemView(NavigationItem item, Theme theme) {
-            this.theme = theme;
+        public ItemView(NavigationItem item) {
             this.item = item;
             this.view = createNavigationView();
         }
@@ -440,7 +441,7 @@ public class ToolbarContainer
                 subtitleView.setText(item.subtitle);
                 subtitleView.setVisibility(VISIBLE);
                 ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = R.id.parent;
-                updatePaddings(titleView, -1, -1, dp(5f), -1);
+                updatePaddings(titleView, -1, -1, dp(getContext(), 5f), -1);
             } else {
                 subtitleView.setVisibility(GONE);
                 ((ConstraintLayout.LayoutParams) subtitleView.getLayoutParams()).bottomToBottom = 0;
@@ -450,7 +451,7 @@ public class ToolbarContainer
             // Possible view shown at the right side.
             removeFromParentView(item.rightView);
             if (item.rightView != null) {
-                item.rightView.setPadding(0, 0, (int) dp(16), 0);
+                item.rightView.setPadding(0, 0, (int) dp(getContext(), 16), 0);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT);
                 menu.addView(item.rightView, lp);
             }
@@ -477,7 +478,7 @@ public class ToolbarContainer
             }
 
             searchLayout.setCatalogSearchColors();
-            updatePaddings(searchLayout, dp(16), -1, -1, -1);
+            updatePaddings(searchLayout, dp(getContext(), 16), -1, -1, -1);
 
             return searchLayout;
         }

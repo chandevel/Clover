@@ -49,7 +49,7 @@ public class ToolbarMenuView
 
         setOrientation(HORIZONTAL);
         setGravity(Gravity.CENTER_VERTICAL);
-        updatePaddings(this, dp(6f), dp(3f), 0, 0);
+        updatePaddings(this, dp(context, 6f), dp(context, 3f), 0, 0);
     }
 
     public void attach(ToolbarMenu menu) {
@@ -79,7 +79,7 @@ public class ToolbarMenuView
             imageView.setVisibility(item.getVisible() ? VISIBLE : GONE);
 
             imageView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT));
-            updatePaddings(imageView, dp(10f), dp(10f), 0, 0);
+            updatePaddings(imageView, dp(getContext(), 10f), dp(getContext(), 10f), 0, 0);
 
             imageView.setImageDrawable(item.drawable);
             imageView.setBackgroundResource(R.drawable.ripple_item_background);

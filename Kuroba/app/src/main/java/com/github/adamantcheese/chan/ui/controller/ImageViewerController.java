@@ -531,7 +531,7 @@ public class ImageViewerController
                     .play(ObjectAnimator.ofFloat(previewImage,
                             View.Y,
                             previewImage.getTop(),
-                            previewImage.getTop() + dp(20)
+                            previewImage.getTop() + dp(context, 20)
                     ))
                     .with(ObjectAnimator.ofFloat(previewImage, View.ALPHA, 1f, 0f))
                     .with(backgroundAlpha);

@@ -199,7 +199,7 @@ public class ImageOptionsController
             int weight = isCurrentlyVisible ? 0 : 1;
             preview.setLayoutParams(new LinearLayout.LayoutParams(dimX, dimY, weight));
             ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) container.getLayoutParams();
-            params.width = isCurrentlyVisible ? WRAP_CONTENT : (int) dp(300);
+            params.width = isCurrentlyVisible ? WRAP_CONTENT : (int) dp(context, 300);
             params.height = WRAP_CONTENT;
             container.setLayoutParams(params);
         });
