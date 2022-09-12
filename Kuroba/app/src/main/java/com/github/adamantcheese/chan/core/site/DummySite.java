@@ -32,7 +32,10 @@ import okhttp3.HttpUrl;
 public class DummySite
         implements Site {
 
-    private final HttpUrl DUMMY_ROOT = HttpUrl.get("https://www.example.com");
+    // so that some views properly render in the IDE
+    private HttpUrl getDummyRoot() {
+        return HttpUrl.get("https://www.example.com");
+    }
 
     @Override
     public void initialize(int id, JsonSettings userSettings) {}
@@ -65,13 +68,13 @@ public class DummySite
         return new SiteUrlHandler() {
             @Override
             public boolean respondsTo(@NonNull HttpUrl url) {
-                return DUMMY_ROOT.host().equals(url.host());
+                return getDummyRoot().host().equals(url.host());
             }
 
             @Override
             public String desktopUrl(Loadable loadable, int postNo) {
                 if (loadable.isThreadMode()) {
-                    String url = DUMMY_ROOT
+                    String url = getDummyRoot()
                             .newBuilder()
                             .addPathSegment(loadable.boardCode)
                             .addPathSegment("thread")
@@ -83,7 +86,7 @@ public class DummySite
                     }
                     return url;
                 } else {
-                    return DUMMY_ROOT.newBuilder().addPathSegment(loadable.boardCode).build().toString();
+                    return getDummyRoot().newBuilder().addPathSegment(loadable.boardCode).build().toString();
                 }
             }
 
@@ -114,12 +117,12 @@ public class DummySite
         return new SiteEndpoints() {
             @Override
             public HttpUrl catalog(Board board) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("catalog.json").build();
+                return getDummyRoot().newBuilder().addPathSegment(board.code).addPathSegment("catalog.json").build();
             }
 
             @Override
             public HttpUrl thread(Loadable loadable) {
-                return DUMMY_ROOT
+                return getDummyRoot()
                         .newBuilder()
                         .addPathSegment(loadable.board.code)
                         .addPathSegment("thread")
@@ -129,49 +132,49 @@ public class DummySite
 
             @Override
             public HttpUrl imageUrl(Post.Builder post, Map<String, String> arg) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
+                return getDummyRoot().newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
             }
 
             @Override
             public HttpUrl thumbnailUrl(Post.Builder post, boolean spoiler, Map<String, String> arg) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
+                return getDummyRoot().newBuilder().addPathSegment(post.board.code).addPathSegment("test.png").build();
             }
 
             @Override
             public Pair<HttpUrl, PassthroughBitmapResult> icon(IconType icon, Map<String, String> arg) {
-                return new Pair<>(DUMMY_ROOT.newBuilder().addPathSegment("test.png").build(),
+                return new Pair<>(getDummyRoot().newBuilder().addPathSegment("test.png").build(),
                         new PassthroughBitmapResult()
                 );
             }
 
             @Override
             public HttpUrl boards() {
-                return DUMMY_ROOT.newBuilder().addPathSegment("boards.json").build();
+                return getDummyRoot().newBuilder().addPathSegment("boards.json").build();
             }
 
             @Override
             public HttpUrl pages(Board board) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("threads.json").build();
+                return getDummyRoot().newBuilder().addPathSegment(board.code).addPathSegment("threads.json").build();
             }
 
             @Override
             public HttpUrl archive(Board board) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(board.code).addPathSegment("archive").build();
+                return getDummyRoot().newBuilder().addPathSegment(board.code).addPathSegment("archive").build();
             }
 
             @Override
             public HttpUrl reply(Loadable thread) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(thread.boardCode).addPathSegment("post").build();
+                return getDummyRoot().newBuilder().addPathSegment(thread.boardCode).addPathSegment("post").build();
             }
 
             @Override
             public HttpUrl delete(Post post) {
-                return DUMMY_ROOT.newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
+                return getDummyRoot().newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
             }
 
             @Override
             public HttpUrl report(Post post) {
-                return DUMMY_ROOT
+                return getDummyRoot()
                         .newBuilder()
                         .addPathSegment(post.board.code)
                         .addPathSegment("imgboard.php")
@@ -182,7 +185,7 @@ public class DummySite
 
             @Override
             public HttpUrl login() {
-                return DUMMY_ROOT.newBuilder().addPathSegment("auth").build();
+                return getDummyRoot().newBuilder().addPathSegment("auth").build();
             }
         };
     }
@@ -220,7 +223,7 @@ public class DummySite
             @Override
             public Call post(
                     Loadable loadableWithDraft, PostListener postListener
-            ) {return new NetUtilsClasses.NullCall(DUMMY_ROOT);}
+            ) {return new NetUtilsClasses.NullCall(getDummyRoot());}
 
             @Override
             public boolean postRequiresAuthentication(Loadable loadableWithDraft) {return false;}
