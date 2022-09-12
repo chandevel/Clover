@@ -227,14 +227,20 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.4.0'
-    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.browser:browser:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
     implementation 'androidx.exifinterface:exifinterface:1.3.3'
+    // forces an update to slidingpane layout in 1.2.0, which isn't wanted due to behavior changes
+    //noinspection GradleDependency
     implementation 'androidx.preference:preference-ktx:1.1.1'
+    // forces some unwanted behavior changes in 1.2.0
+    //noinspection GradleDependency
     implementation 'androidx.slidingpanelayout:slidingpanelayout:1.1.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    // TODO see if this causes any breaking changes by updating
     implementation 'com.google.android.material:material:1.4.0'
     // good reference for all the icons https://bennymeg.github.io/ngx-fluent-ui/
     implementation 'com.microsoft.design:fluent-system-icons:1.1.179@aar'
