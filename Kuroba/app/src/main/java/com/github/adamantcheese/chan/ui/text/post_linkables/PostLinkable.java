@@ -54,11 +54,11 @@ public abstract class PostLinkable<T>
         if (this == o) return true;
         if (!(o instanceof PostLinkable)) return false;
         PostLinkable<?> that = (PostLinkable<?>) o;
-        return Objects.equals(value, that.value);
+        return Objects.equals(value.toString(), that.value.toString());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value);
+        return Objects.hash(value.toString());
     }
 }

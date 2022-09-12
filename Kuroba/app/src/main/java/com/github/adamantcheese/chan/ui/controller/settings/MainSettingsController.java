@@ -18,7 +18,6 @@ package com.github.adamantcheese.chan.ui.controller.settings;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.core.manager.SettingNotificationManager.SettingNotificationType.APK_UPDATE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLinkInBrowser;
@@ -141,7 +140,6 @@ public class MainSettingsController
                 new LinkSettingView(this, BuildConfigUtils.VERSION, "Tap to check for updates", (v, sv) -> {
                     ((StartActivity) context).getUpdateManager().manualUpdateCheck();
                     if (PersistableChanState.noFunAllowed.get()) return;
-                    showToast(context, "Shoutouts to  nnuudev and BlueClover!");
                     for (int i = 0; i < 10; i++) {
                         addPony(i);
                     }
