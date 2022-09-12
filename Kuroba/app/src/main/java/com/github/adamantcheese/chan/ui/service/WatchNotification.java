@@ -241,9 +241,11 @@ public class WatchNotification
         String message;
         Set<Post> postsForExpandedLines;
         if (notifyQuotesOnly) {
+            if (listQuoting.isEmpty()) return null;
             message = getQuantityString(R.plurals.watch_new_quotes, listQuoting.size());
             postsForExpandedLines = listQuoting;
         } else {
+            if (unviewedPosts.isEmpty()) return null;
             postsForExpandedLines = unviewedPosts;
             if (listQuoting.size() > 0) {
                 message = getQuantityString(R.plurals.new_posts, unviewedPosts.size())
@@ -336,7 +338,11 @@ public class WatchNotification
                         | Intent.FLAG_ACTIVITY_NEW_TASK
                         | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 .putExtra("pin_id", target != null ? target.id : -1);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
         builder.setContentIntent(pendingIntent);
 
         //setup lights, sound, and peek
@@ -361,8 +367,11 @@ public class WatchNotification
             //setup the pause watch button
             Intent pauseWatching = new Intent(this, WatchNotification.class);
             pauseWatching.putExtra(PAUSE_PINS_KEY, true);
-            PendingIntent pauseWatchIntent =
-                    PendingIntent.getService(this, 0, pauseWatching, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pauseWatchIntent = PendingIntent.getService(this,
+                    0,
+                    pauseWatching,
+                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
             builder.addAction(R.drawable.ic_fluent_pause_24_filled,
                     getString(R.string.watch_pause_pins),
                     pauseWatchIntent

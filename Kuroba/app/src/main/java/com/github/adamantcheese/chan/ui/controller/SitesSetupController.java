@@ -123,6 +123,19 @@ public class SitesSetupController
         presenter.destroy();
     }
 
+    @Override
+    public void onShow() {
+        super.onShow();
+        AndroidUtils
+                .getBaseToolTip(context)
+                .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                .setArrowOrientation(ArrowOrientation.BOTTOM)
+                .setTextResource(R.string.setup_sites_add_hint)
+                .setPreferenceName("AddSite")
+                .build()
+                .showAlignTop(addButton);
+    }
+
     private void showAddDialog() {
         final RecyclerView dialogView = new RecyclerView(context);
         dialogView.setLayoutManager(new LinearLayoutManager(context));
@@ -147,16 +160,6 @@ public class SitesSetupController
         sitesAdapter.notifyDataSetChanged();
 
         crossfadeView.toggle(!sites.isEmpty(), true);
-        if (!sites.isEmpty()) {
-            AndroidUtils
-                    .getBaseToolTip(context)
-                    .setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                    .setArrowOrientation(ArrowOrientation.BOTTOM)
-                    .setTextResource(R.string.setup_sites_add_hint)
-                    .setPreferenceName("AddSite")
-                    .build()
-                    .showAlignTop(addButton);
-        }
     }
 
     private class SitesAdapter

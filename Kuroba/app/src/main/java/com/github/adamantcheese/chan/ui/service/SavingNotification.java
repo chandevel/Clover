@@ -103,7 +103,7 @@ public class SavingNotification
     private Notification getNotification(int done, int failed, int total) {
         Intent intent = new Intent(this, SavingNotification.class);
         intent.putExtra(CANCEL_KEY, true);
-        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NOTIFICATION_ID_STR);
         builder

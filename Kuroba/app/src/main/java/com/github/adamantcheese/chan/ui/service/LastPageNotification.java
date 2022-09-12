@@ -94,8 +94,11 @@ public class LastPageNotification
                         | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED)
                 .putExtra("pin_id", pinId);
 
-        PendingIntent pendingIntent =
-                PendingIntent.getActivity(getAppContext(), pin.loadable.no, intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getAppContext(),
+                pin.loadable.no,
+                intent,
+                PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE
+        );
         String time = SimpleDateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(new Date());
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getAppContext(), NOTIFICATION_ID_STR);
