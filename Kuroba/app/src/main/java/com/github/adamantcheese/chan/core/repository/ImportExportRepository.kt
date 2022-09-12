@@ -318,8 +318,8 @@ constructor(
             }
         }
 
-        if(version < 7) {
-            for(filter in appSettings.exportedFilters) {
+        if (version < 7) {
+            for (filter in appSettings.exportedFilters) {
                 filter.label = ""
             }
         }

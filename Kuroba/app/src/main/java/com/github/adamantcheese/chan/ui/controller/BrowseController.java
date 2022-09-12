@@ -135,13 +135,15 @@ public class BrowseController
         NavigationItem.MenuOverflowBuilder overflowBuilder = menuBuilder.withOverflow();
 
         if (!ChanSettings.enableReplyFab.get()) {
-            overflowBuilder.withSubItem(OverflowMenuId.REPLY,
+            overflowBuilder.withSubItem(
+                    OverflowMenuId.REPLY,
                     isAprilFoolsDay() ? R.string.action_reply_fools : R.string.action_reply,
                     () -> threadLayout.openReply(true)
             );
         }
 
-        overflowBuilder.withSubItem(OverflowMenuId.VIEW_MODE,
+        overflowBuilder.withSubItem(
+                OverflowMenuId.VIEW_MODE,
                 ChanSettings.boardViewMode.get() == PostViewMode.LIST
                         ? R.string.action_switch_catalog
                         : R.string.action_switch_board,
@@ -222,7 +224,7 @@ public class BrowseController
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
         for (PostsFilter.PostsOrder postsOrder : PostsOrder.values()) {
-            if(!postsOrder.forMode.contains(Loadable.Mode.CATALOG)) continue;
+            if (!postsOrder.forMode.contains(Loadable.Mode.CATALOG)) continue;
             String name = StringUtils.caseAndSpace(postsOrder.name(), "_", true);
             if (postsOrder == ChanSettings.boardOrder.get()) {
                 name = "\u2713 " + name; // Checkmark

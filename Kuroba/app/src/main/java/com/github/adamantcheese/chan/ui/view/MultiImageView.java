@@ -37,7 +37,8 @@ import android.webkit.*;
 import android.widget.*;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.*;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.github.adamantcheese.chan.R;

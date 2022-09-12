@@ -473,7 +473,7 @@ public class ViewThreadController
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
         for (PostsFilter.PostsOrder postsOrder : PostsFilter.PostsOrder.values()) {
-            if(!postsOrder.forMode.contains(Loadable.Mode.THREAD)) continue;
+            if (!postsOrder.forMode.contains(Loadable.Mode.THREAD)) continue;
             String name = StringUtils.caseAndSpace(postsOrder.name(), "_", true);
             if (postsOrder == ChanSettings.threadOrder.get()) {
                 name = "\u2713 " + name; // Checkmark

@@ -302,7 +302,7 @@ public abstract class ThreadController
     }
 
     public void setSlideEnabled(boolean enabled) {
-        if(doubleNavigationController instanceof ThreadSlideController) {
+        if (doubleNavigationController instanceof ThreadSlideController) {
             ((ThreadSlideController) doubleNavigationController).setSlideable(enabled);
         }
     }

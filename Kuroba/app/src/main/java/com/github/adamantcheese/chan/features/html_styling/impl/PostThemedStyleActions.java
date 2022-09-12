@@ -268,11 +268,9 @@ public class PostThemedStyleActions {
                     sjisView.setMovementMethod(new ScrollingMovementMethod());
                     sjisView.setHorizontallyScrolling(true);
                     updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
-                    sjisView.setText(span(text.toString(),
-                            new CustomTypefaceSpan("",
-                                    Typeface.createFromAsset(widget.getContext().getAssets(), "font/submona.ttf")
-                            )
-                    ));
+                    sjisView.setText(span(text.toString(), new CustomTypefaceSpan("",
+                            Typeface.createFromAsset(widget.getContext().getAssets(), "font/submona.ttf")
+                    )));
                     AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
                             .setView(sjisView)
                             .setPositiveButton(R.string.close, null)
