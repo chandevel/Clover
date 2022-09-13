@@ -378,7 +378,7 @@ public class Chan4CustomJsonlayout
                 //@formatter:off
                 webView.loadUrl("javascript:"
                         + "document.getElementById(\"t-fg\").style.backgroundImage=" + fgHex +";"
-                        + "document.getElementById(\"t-bg\").style.backgroundImage=" + bgHex + ";"
+                        + (currentStruct.origBg != null ? "document.getElementById(\"t-bg\").style.backgroundImage=" + bgHex + ";" : "")
                         + "solve(false).then(result => {"
                         // The sleep(1000) is required because the loop inside of the solver itself delays by a second
                         + "sleep(1000).then(result2 => {"
