@@ -488,6 +488,7 @@ public class MultiImageView
             exoPlayer = new ExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
 
+            MediaSource videoSource = MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()));
             try {
                 if (ChanSettings.enableSoundposts.get()) {
                     Matcher m = SOUND_URL_PATTERN.matcher(postImage.filename);
@@ -502,15 +503,13 @@ public class MultiImageView
                     if (postImage.type == PostImage.Type.STATIC) {
                         exoPlayer.setMediaSource(soundSource);
                     } else {
-                        exoPlayer.setMediaSource(new MergingMediaSource(soundSource,
-                                MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString()))
-                        ));
+                        exoPlayer.setMediaSource(new MergingMediaSource(videoSource, soundSource));
                     }
                 } else {
                     throw new Exception("Fallback to no soundpost");
                 }
             } catch (Exception e) {
-                exoPlayer.setMediaSource(MEDIA_FACTORY.createMediaSource(MediaItem.fromUri(postImage.imageUrl.toString())));
+                exoPlayer.setMediaSource(videoSource);
             }
             exoPlayer.prepare();
 
@@ -528,7 +527,6 @@ public class MultiImageView
             exoVideoView.setControllerHideOnTouch(false);
             exoVideoView.setShowBuffering(StyledPlayerView.SHOW_BUFFERING_WHEN_PLAYING);
             exoVideoView.setUseArtwork(true);
-            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
             NetUtils.makeBitmapRequest(postImage.type == PostImage.Type.STATIC
                             ? postImage.imageUrl
                             : postImage.thumbnailUrl,
@@ -536,7 +534,9 @@ public class MultiImageView
                         @Override
                         public void onBitmapFailure(
                                 @NonNull HttpUrl source, Exception e
-                        ) {} // use the default drawable
+                        ) {
+                            exoVideoView.setDefaultArtwork(getContext().getDrawable(R.drawable.ic_fluent_speaker_2_24_filled));
+                        }
 
                         @Override
                         public void onBitmapSuccess(
