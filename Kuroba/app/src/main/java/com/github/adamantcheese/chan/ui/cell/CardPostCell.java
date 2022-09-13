@@ -32,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -64,6 +65,7 @@ public class CardPostCell
     private View filterMatchColor;
     private PostIcons icons;
 
+    private OneShotPreDrawListener ellipsizer;
     private ImageLoadableData data;
 
     public CardPostCell(Context context) {
@@ -121,6 +123,10 @@ public class CardPostCell
                 callback.onPostClicked(post);
                 return true;
             });
+        }
+
+        if (isInEditMode()) {
+            comment.setMaxLines(5);
         }
     }
 
@@ -212,6 +218,18 @@ public class CardPostCell
             comment.setMaxLines(ChanSettings.getBoardColumnCount() == 1 ? 20 : 10);
         }
 
+        ellipsizer = OneShotPreDrawListener.add(comment, () -> {
+            if (!isInEditMode() && ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.GRID) {
+                int newMaxLines =
+                        (int) Math.floor((comment.getHeight() - comment.getPaddingTop() - comment.getPaddingBottom())
+                                / (float) comment.getLineHeight());
+                if (newMaxLines > 0) {
+                    comment.setMaxLines(newMaxLines);
+                    post(this::requestLayout);
+                }
+            }
+        });
+
         String status = getString(R.string.card_stats, post.replies, post.imagesCount);
         if (!ChanSettings.neverShowPages.get()) {
             ChanPage p = PageRepository.getPage(post);
@@ -221,23 +239,6 @@ public class CardPostCell
         }
 
         replies.setText(status);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (!isInEditMode() && ChanSettings.boardViewMode.get() == ChanSettings.PostViewMode.GRID) {
-            int newMaxLines =
-                    (int) Math.floor((comment.getHeight() - comment.getPaddingTop() - comment.getPaddingBottom())
-                            / (float) comment.getLineHeight());
-            if (newMaxLines > 0) {
-                comment.setMaxLines(newMaxLines);
-                post(this::requestLayout);
-            }
-        }
-        if (isInEditMode()) {
-            comment.setMaxLines(5);
-        }
     }
 
     public Post getPost() {
@@ -262,6 +263,10 @@ public class CardPostCell
         thumbView.setOnLongClickListener(null);
         comment.setText(null);
         comment.setMaxLines(Integer.MAX_VALUE);
+        if (ellipsizer != null) {
+            ellipsizer.removeListener();
+            ellipsizer = null;
+        }
         post = null;
     }
 
