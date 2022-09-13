@@ -25,7 +25,7 @@
             android:id="@+id/color_match"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@color/md_grey_200" />
+            tools:src="@color/md_grey_200" />
 
         <ImageView
             android:id="@+id/bg"

@@ -141,6 +141,7 @@ public class Chan4CustomJsonlayout
 
         bg.setImageBitmap(null);
         fg.setImageBitmap(null);
+        colorMatch.setImageResource(R.color.transparent);
         slider.setVisibility(GONE);
         slider.setProgress(1);
         input.setText(null);
@@ -271,12 +272,9 @@ public class Chan4CustomJsonlayout
             callback.onAuthenticationComplete(token, isAutoReply);
         });
 
-        if (currentStruct.origBg != null) {
-            final float scale = bg.getHeight() / (float) currentStruct.origBg.getHeight();
-            final float containerWidth = colorMatch.getWidth();
-            final float centering = currentStruct.origFg == null
-                    ? (containerWidth - currentStruct.origBg.getWidth() * scale) / 2f
-                    : (containerWidth - currentStruct.origFg.getWidth() * scale) / 2f;
+        if (currentStruct.origFg != null) {
+            final float scale = fg.getHeight() / (float) currentStruct.origFg.getHeight();
+            final float centering = (colorMatch.getWidth() - currentStruct.origFg.getWidth() * scale) / 2f;
 
             Matrix centerScaleMatrix = new Matrix();
             centerScaleMatrix.postScale(scale, scale);
@@ -306,6 +304,8 @@ public class Chan4CustomJsonlayout
 
             fg.setImageBitmap(currentStruct.origFg);
             fg.setImageMatrix(centerScaleMatrix);
+
+            colorMatch.setImageResource(R.color.md_grey_200);
         } else {
             topText.setText("Enter the text below.");
             slider.setVisibility(GONE);
