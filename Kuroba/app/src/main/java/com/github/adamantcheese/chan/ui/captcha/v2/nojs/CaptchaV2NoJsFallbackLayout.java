@@ -142,6 +142,11 @@ public class CaptchaV2NoJsFallbackLayout
         loadUrl("https://www.google.com/recaptcha/api/fallback?k=" + siteKey, headers);
     }
 
+    @Override
+    public void destroy() {
+        ((WebView) this).destroy();
+    }
+
     private void onCaptchaEntered(String response) {
         if (TextUtils.isEmpty(response)) {
             reset();

@@ -204,6 +204,11 @@ public class CaptchaV2JsLayout
         super.onDraw(canvas);
     }
 
+    @Override
+    public void destroy() {
+        ((WebView) this).destroy();
+    }
+
     public static class CaptchaInterface {
         private final CaptchaV2JsLayout layout;
 

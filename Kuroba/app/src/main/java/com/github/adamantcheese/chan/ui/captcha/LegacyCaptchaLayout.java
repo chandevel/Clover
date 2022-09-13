@@ -129,6 +129,11 @@ public class LegacyCaptchaLayout
         input.requestFocus();
     }
 
+    @Override
+    public void destroy() {
+        internalWebView.destroy();
+    }
+
     private void submitCaptcha() {
         hideKeyboard(this);
         callback.onAuthenticationComplete(new CaptchaTokenHolder.CaptchaToken(challenge, input.getText().toString(), 0),

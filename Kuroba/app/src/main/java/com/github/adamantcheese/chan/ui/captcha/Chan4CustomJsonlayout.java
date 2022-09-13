@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.*;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.webkit.*;
 import android.widget.*;
@@ -441,6 +442,12 @@ public class Chan4CustomJsonlayout
             captchaCall = null;
         }
         handler.removeCallbacks(RESET_RUNNABLE);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof WebView) {
+                ((WebView) child).destroy();
+            }
+        }
     }
 
     protected static class ParsedJsonStruct {
