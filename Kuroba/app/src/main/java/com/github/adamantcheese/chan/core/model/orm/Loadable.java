@@ -114,6 +114,8 @@ public class Loadable
         }
     }
 
+    private Loadable(@SuppressWarnings("unused") boolean forDummyLoadable) {}
+
     public static Loadable importLoadable(
             int siteId,
             int mode,
@@ -143,7 +145,7 @@ public class Loadable
 
     public static Loadable dummyLoadable() {
         if (dummyLoadable != null) return dummyLoadable;
-        dummyLoadable = new Loadable();
+        dummyLoadable = new Loadable(true);
         dummyLoadable.site = new DummySite();
         dummyLoadable.board = Board.getDummyBoard();
         return dummyLoadable;

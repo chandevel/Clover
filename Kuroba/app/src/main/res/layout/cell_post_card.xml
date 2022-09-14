@@ -81,6 +81,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 app:layout_constraintBottom_toTopOf="@id/replies_section"
                 app:layout_constraintTop_toBottomOf="@id/title"
                 app:layout_constraintVertical_bias="0"
+                tools:maxLines="10"
                 tools:text="@string/lorem_ipsum" />
 
             <!-- Placed here so that if there's no image, it'll draw over the comment -->

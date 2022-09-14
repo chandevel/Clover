@@ -73,7 +73,7 @@ public class ArchiveController
         super.onCreate();
 
         // Inflate
-        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_archive, null);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_local_archive, null);
 
         // Navigation
         navigation.title = getString(R.string.archive_title, board.getFormattedName());

@@ -17,12 +17,14 @@
 package com.github.adamantcheese.chan.ui.cell;
 
 import static androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.UNSET;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 import static com.github.adamantcheese.chan.ui.adapter.PostsFilter.PostsOrder.BUMP_ORDER;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 import static com.github.adamantcheese.chan.utils.StringUtils.applySearchSpans;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.View;
@@ -30,15 +32,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.OneShotPreDrawListener;
 
 import com.github.adamantcheese.chan.R;
-import com.github.adamantcheese.chan.core.model.Post;
-import com.github.adamantcheese.chan.core.model.PostImage;
+import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -50,6 +53,8 @@ import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.HttpUrl;
 
 public class CardPostCell
         extends CardView
@@ -105,7 +110,15 @@ public class CardPostCell
                     .opId(1)
                     .setUnixTimestampSeconds(System.currentTimeMillis())
                     .comment("")
-                    .build(), false);
+                    .addHttpIcon(new PostHttpIcon(OTHER, null, new NetUtilsClasses.PassthroughBitmapResult() {
+                        @Override
+                        public void onBitmapSuccess(
+                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                        ) {
+                            super.onBitmapSuccess(source, BitmapRepository.youtubeIcon, fromCache);
+                        }
+                    }, "", ""))
+                    .build(), true);
             thumbView.setImageResource(R.drawable.ic_stat_notify);
         }
 
@@ -123,10 +136,6 @@ public class CardPostCell
                 callback.onPostClicked(post);
                 return true;
             });
-        }
-
-        if (isInEditMode()) {
-            comment.setMaxLines(5);
         }
     }
 

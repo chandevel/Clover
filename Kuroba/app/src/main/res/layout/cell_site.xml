@@ -22,66 +22,73 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     android:background="?android:attr/selectableItemBackground"
     android:orientation="horizontal">
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:padding="12dp"
-        android:scaleType="fitCenter"
-        android:src="@drawable/exo_controls_fullscreen_enter"
-        tools:tint="?attr/themeDrawableColor" />
-
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:background="?backcolor">
 
-        <TextView
-            android:id="@+id/text"
-            android:layout_width="wrap_content"
-            android:layout_height="28dp"
-            android:ellipsize="end"
-            android:paddingHorizontal="8dp"
-            android:paddingTop="8dp"
-            android:textSize="14sp"
-            tools:text="4chan" />
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:padding="12dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/exo_controls_fullscreen_enter"
+            tools:tint="?attr/themeDrawableColor" />
 
-        <TextView
-            android:id="@+id/description"
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:ellipsize="end"
+                android:paddingHorizontal="8dp"
+                android:paddingTop="8dp"
+                android:textSize="14sp"
+                tools:text="4chan" />
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:ellipsize="end"
+                android:paddingHorizontal="8dp"
+                android:paddingBottom="8dp"
+                android:textColor="?android:textColorSecondary"
+                android:textSize="12sp"
+                tools:text="Description of this site" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/remove_site"
             android:layout_width="wrap_content"
-            android:layout_height="28dp"
-            android:ellipsize="end"
-            android:paddingHorizontal="8dp"
-            android:paddingBottom="8dp"
-            android:textColor="?android:textColorSecondary"
-            android:textSize="12sp"
-            tools:text="Description of this site" />
+            android:layout_height="56dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/ripple_item_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_fluent_delete_24_filled"
+            app:tint="?attr/themeDrawableColor" />
+
+        <ImageView
+            android:id="@+id/reorder"
+            android:layout_width="wrap_content"
+            android:layout_height="56dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/ripple_item_background"
+            android:padding="12dp"
+            android:scaleType="center"
+            android:src="@drawable/ic_fluent_re_order_24_filled"
+            app:tint="?attr/themeDrawableColor" />
 
     </LinearLayout>
-
-    <ImageView
-        android:id="@+id/remove_site"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/ripple_item_background"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="12dp"
-        android:scaleType="center"
-        android:src="@drawable/ic_fluent_delete_24_filled"
-        app:tint="?attr/themeDrawableColor" />
-
-    <ImageView
-        android:id="@+id/reorder"
-        android:layout_width="wrap_content"
-        android:layout_height="56dp"
-        android:layout_gravity="center_vertical"
-        android:background="@drawable/ripple_item_background"
-        android:padding="12dp"
-        android:scaleType="center"
-        android:src="@drawable/ic_fluent_re_order_24_filled"
-        app:tint="?attr/themeDrawableColor" />
 
 </LinearLayout>

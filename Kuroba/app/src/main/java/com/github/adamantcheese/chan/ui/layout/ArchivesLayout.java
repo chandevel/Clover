@@ -39,7 +39,7 @@ public class ArchivesLayout
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1);
+        adapter = new ArrayAdapter<>(getContext(), R.layout.simple_list_item);
         ((ListView) findViewById(R.id.archives_list)).setAdapter(adapter);
         ((ListView) findViewById(R.id.archives_list)).setOnItemClickListener((parent, view, position, id) -> {
             callback.openArchive((ExternalSiteArchive) parent.getItemAtPosition(position), op, postNo);

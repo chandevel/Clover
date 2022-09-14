@@ -86,15 +86,23 @@ public class ChanThread {
         boolean hasImages = op.imagesCount >= 0 || getImagesCount() > 0;
         boolean hasUniqueIps = op.uniqueIps >= 0;
         String separator = " / ";
-        Object styleSpan = new StyleSpan(extraStyling ? Typeface.BOLD_ITALIC : Typeface.ITALIC);
-        int themeTextColor = getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor);
-        Object[] extraSpans = {new ForegroundColorSpanHashed(themeTextColor), new UnderlineSpan()};
+        Object[] styleSpans = {new StyleSpan(Typeface.ITALIC)};
+        if (extraStyling) {
+            int themeTextColor = getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor);
+            styleSpans = new Object[]{
+                    new StyleSpan(Typeface.BOLD_ITALIC),
+                    new ForegroundColorSpanHashed(themeTextColor),
+                    new UnderlineSpan()
+            };
+        }
 
         if (hasReplies) {
             boolean hasBumpLimit = loadable.board.bumpLimit > 0;
             CharSequence replies = (op.replies >= 0 ? op.replies : posts.size() - 1) + "R";
             if (hasBumpLimit && op.replies >= loadable.board.bumpLimit) {
-                replies = span(replies, styleSpan, extraStyling ? extraSpans : null);
+                for (Object span : styleSpans) {
+                    replies = span(replies, span);
+                }
             }
             builder.append(replies);
         }
@@ -103,7 +111,9 @@ public class ChanThread {
             boolean hasImageLimit = loadable.board.imageLimit > 0;
             CharSequence images = (op.imagesCount >= 0 ? op.imagesCount : getImagesCount()) + "I";
             if (hasImageLimit && op.imagesCount >= loadable.board.imageLimit) {
-                images = span(images, styleSpan, extraStyling ? extraSpans : null);
+                for (Object span : styleSpans) {
+                    images = span(images, span);
+                }
             }
             builder.append(hasReplies ? separator : "").append(images);
         }
@@ -117,7 +127,9 @@ public class ChanThread {
         if (p != null && !(loadable.site instanceof ExternalSiteArchive)) {
             CharSequence page = String.valueOf(p.page);
             if (p.page >= loadable.board.pages) {
-                page = span(page, styleSpan, extraStyling ? extraSpans : null);
+                for (Object span : styleSpans) {
+                    page = span(page, span);
+                }
             }
             builder
                     .append(hasReplies || hasImages || hasUniqueIps ? separator : "")

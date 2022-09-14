@@ -428,17 +428,22 @@ public class ThreadLayout
         if (post.images.size() == 1) {
             callback.openFilterForType(FilterType.IMAGE_HASH, post.image().fileHash);
         } else {
+            List<String> hashes = new ArrayList<>();
+            for (PostImage image : post.images) {
+                if (!image.isInlined && image.fileHash != null) hashes.add(image.fileHash);
+            }
+            if (hashes.size() == 1) {
+                callback.openFilterForType(FilterType.IMAGE_HASH, hashes.get(0));
+                return;
+            }
+
             ListView hashList = new ListView(getContext());
             AlertDialog dialog = getDefaultAlertBuilder(getContext())
                     .setTitle("Select an image to filter.")
                     .setView(hashList)
                     .create();
             dialog.setCanceledOnTouchOutside(true);
-            List<String> hashes = new ArrayList<>();
-            for (PostImage image : post.images) {
-                if (!image.isInlined && image.fileHash != null) hashes.add(image.fileHash);
-            }
-            hashList.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, hashes));
+            hashList.setAdapter(new ArrayAdapter<>(getContext(), R.layout.simple_list_item, hashes));
             hashList.setOnItemClickListener((parent, view, position, id) -> {
                 callback.openFilterForType(FilterType.IMAGE_HASH, hashes.get(position));
                 dialog.dismiss();

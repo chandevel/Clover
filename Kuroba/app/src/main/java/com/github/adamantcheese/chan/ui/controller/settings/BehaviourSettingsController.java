@@ -327,7 +327,7 @@ public class BehaviourSettingsController
         if (!isAndroid10()) return;
         // adapter setup
         ArrayAdapter<TripleString<Integer, AttachSide>> arrayAdapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_list_item_1);
+                new ArrayAdapter<>(context, R.layout.simple_list_item);
         int screenOrientation = getScreenOrientation();
         // only show what's needed for the orientation
         if (screenOrientation == Configuration.ORIENTATION_PORTRAIT) {
