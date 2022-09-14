@@ -23,6 +23,8 @@ import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
+import org.jsoup.nodes.TextNode;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -261,9 +263,9 @@ public class FoolFuukaArchive
             newAction.mapTagToRule(
                     "span",
                     "greentext",
-                    (node, text) -> node.childNodeSize() > 0
-                            ? NO_OP.style(node, text)
-                            : INLINE_QUOTE_COLOR.with(theme).style(node, text)
+                    (node, text) -> node.childNodeSize() == 1 && node.childNode(0) instanceof TextNode
+                            ? INLINE_QUOTE_COLOR.with(theme).style(node, text)
+                            : NO_OP.style(node, text)
             );
             return base.mergeWith(newAction);
         }
