@@ -48,24 +48,24 @@ public class Theme {
      */
     public final int resValue;
 
-    //region Theme Context styleables
     /**
      * This is the main color for the theme, use primaryColorStyleId from it to retrieve R.attr.colorPrimary
      */
     public MaterialColorStyle primaryColor;
     /**
-     * This is the color for any accented items (FABs, etc.); use accentStyleId from it to retrieve R.attr.colorAccent
+     * This is the color for any accented items (FABs, etc.); use the actual color from accentColorInt instead
      */
     public MaterialColorStyle accentColor;
 
     // Defaults for the above colors
     private final MaterialColorStyle defaultPrimary;
     private final MaterialColorStyle defaultAccent;
-    //endregion
 
-    // Span colors, kept here for performance reasons
-    public int subjectColor;
-    public int nameColor;
+    public int colorPrimaryColorInt;
+    public int colorPrimaryDarkColorInt;
+    public int accentColorInt;
+    public int subjectColorInt;
+    public int nameColorInt;
 
     public Theme(String displayName, int resValue, MaterialColorStyle primaryColor, MaterialColorStyle accentColor) {
         this.name = displayName;
@@ -75,9 +75,11 @@ public class Theme {
         this.accentColor = accentColor;
         defaultAccent = accentColor;
 
-        // Span color setup
-        subjectColor = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
-        nameColor = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
+        colorPrimaryColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorPrimary);
+        colorPrimaryDarkColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorPrimaryDark);
+        accentColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorAccent);
+        subjectColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
+        nameColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
     }
 
     public void reset() {

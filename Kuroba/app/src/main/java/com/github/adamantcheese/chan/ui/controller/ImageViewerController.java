@@ -586,9 +586,7 @@ public class ImageViewerController
                 0
         ));
 
-        int currentThemePrimaryColor =
-                getAttrColor(ThemeHelper.getTheme().primaryColor.primaryColorStyleId, R.attr.colorPrimary);
-        toolbar.setBackgroundColor(ColorUtils.blendARGB(currentThemePrimaryColor, Color.BLACK, alpha));
+        toolbar.setBackgroundColor(ColorUtils.blendARGB(ThemeHelper.getTheme().colorPrimaryColorInt, Color.BLACK, alpha));
         if (alpha == 0f) {
             getWindow(context).setStatusBarColor(statusBarColorPrevious);
         } else {

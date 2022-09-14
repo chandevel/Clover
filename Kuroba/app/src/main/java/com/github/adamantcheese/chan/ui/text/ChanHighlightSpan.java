@@ -1,13 +1,11 @@
 package com.github.adamantcheese.chan.ui.text;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 
 import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 import android.text.style.UpdateAppearance;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 
 import java.util.Objects;
@@ -20,8 +18,7 @@ public class ChanHighlightSpan
     private final boolean changeForeground;
 
     public ChanHighlightSpan(Theme theme, byte alpha, boolean changeForeground) {
-        backgroundColor =
-                ((alpha << 24) | 0x00FFFFFF) & getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
+        backgroundColor = ((alpha << 24) | 0x00FFFFFF) & theme.accentColorInt;
         foregroundColor = getContrastColor(backgroundColor);
         this.changeForeground = changeForeground;
     }

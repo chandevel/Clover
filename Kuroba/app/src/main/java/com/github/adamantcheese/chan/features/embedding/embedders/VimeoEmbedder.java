@@ -1,6 +1,5 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
@@ -8,7 +7,6 @@ import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUti
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -44,9 +42,7 @@ public class VimeoEmbedder
     @Override
     public HttpUrl generateRequestURL(Matcher matcher) {
         return HttpUrl.get("https://vimeo.com/api/oembed.json?color="
-                + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
-                R.attr.colorAccent
-        ))
+                + getRGBColorIntString(ThemeHelper.getTheme().accentColorInt)
                 + "&url="
                 + matcher.group(0));
     }
@@ -73,10 +69,9 @@ public class VimeoEmbedder
                         Pattern p = Pattern.compile("src=\"(.*)\"");
                         Matcher m = p.matcher(html);
                         if (m.find()) {
-                            sourceUrl = HttpUrl.get(m.group(1) + "&color=%23" + getRGBColorIntString(getAttrColor(
-                                    ThemeHelper.getTheme().accentColor.accentStyleId,
-                                    R.attr.colorAccent
-                            )));
+                            sourceUrl = HttpUrl.get(m.group(1)
+                                    + "&color=%23"
+                                    + getRGBColorIntString(ThemeHelper.getTheme().accentColorInt));
                         }
                         break;
                     case "duration":
@@ -91,7 +86,8 @@ public class VimeoEmbedder
 
             if (title == null) throw new EmbedNoTitleException();
 
-            return new EmbedResult(title,
+            return new EmbedResult(
+                    title,
                     duration,
                     new PostImage.Builder()
                             .serverFilename(title)

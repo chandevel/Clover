@@ -131,14 +131,14 @@ public class PostParser {
         if (!TextUtils.isEmpty(builder.getName()) && (!builder.getName().equals(defaultName)
                 || ChanSettings.showAnonymousName.get())) {
             nameTripcodeIdCapcodeSpan
-                    .append(span(builder.getName(), new ForegroundColorSpanHashed(theme.nameColor)))
+                    .append(span(builder.getName(), new ForegroundColorSpanHashed(theme.nameColorInt)))
                     .append("  ");
         }
 
         if (!TextUtils.isEmpty(builder.tripcode)) {
             nameTripcodeIdCapcodeSpan.append(span(
                     builder.tripcode,
-                    new ForegroundColorSpanHashed(theme.nameColor),
+                    new ForegroundColorSpanHashed(theme.nameColorInt),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
         }
@@ -166,14 +166,14 @@ public class PostParser {
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
             nameTripcodeIdCapcodeSpan.append(span(
                     StringUtils.caseAndSpace(builder.moderatorCapcode, null, true),
-                    new ForegroundColorSpanHashed(getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent)),
+                    new ForegroundColorSpanHashed(theme.accentColorInt),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
         }
 
         if (!TextUtils.isEmpty(builder.getSubject())) {
             // Do not set another color when the post is in stub mode, it sets text_color_secondary
-            Object foregroundSpan = builder.filterStub ? null : new ForegroundColorSpanHashed(theme.subjectColor);
+            Object foregroundSpan = builder.filterStub ? null : new ForegroundColorSpanHashed(theme.subjectColorInt);
             builder.spans(span(builder.getSubject(), foregroundSpan), nameTripcodeIdCapcodeSpan);
         } else {
             builder.spans(null, nameTripcodeIdCapcodeSpan);

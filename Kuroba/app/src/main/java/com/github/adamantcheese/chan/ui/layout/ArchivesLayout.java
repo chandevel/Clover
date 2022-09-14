@@ -1,7 +1,5 @@
 package com.github.adamantcheese.chan.ui.layout;
 
-import static com.github.adamantcheese.chan.Chan.inject;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.*;
@@ -32,7 +30,6 @@ public class ArchivesLayout
 
     public ArchivesLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        inject(this);
         op = Loadable.dummyLoadable();
     }
 

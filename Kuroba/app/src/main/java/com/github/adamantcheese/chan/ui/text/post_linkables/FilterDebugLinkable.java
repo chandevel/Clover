@@ -9,9 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.AndroidUtils;
 
 public class FilterDebugLinkable
         extends PostLinkable<String> {
@@ -20,7 +18,7 @@ public class FilterDebugLinkable
 
     public FilterDebugLinkable(@NonNull Theme theme, String value) {
         super(theme, value);
-        accentColor = AndroidUtils.getAttrColor(theme.accentColor.accentStyleId, R.attr.colorAccent);
+        accentColor = theme.accentColorInt;
     }
 
     @Override
