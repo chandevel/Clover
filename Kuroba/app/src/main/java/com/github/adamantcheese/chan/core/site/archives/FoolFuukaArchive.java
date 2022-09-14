@@ -253,7 +253,6 @@ public class FoolFuukaArchive
         ) {
             HtmlTagAction base = super.addSpecificActions(theme, post, callback);
             HtmlTagAction newAction = new HtmlTagAction(false);
-            newAction.mapTagToRule("span", "greentext", INLINE_QUOTE_COLOR.with(theme));
             // for some reason, stuff is wrapped in a "greentext" span if it starts with a > regardless of it is greentext or not
             // the default post parser has already handled any inner tags by the time that it has gotten to this case, since
             // deepest nodes are processed first
@@ -262,9 +261,9 @@ public class FoolFuukaArchive
             newAction.mapTagToRule(
                     "span",
                     "greentext",
-                    (node, text) -> node.childNodeSize() > 1
+                    (node, text) -> node.childNodeSize() > 0
                             ? NO_OP.style(node, text)
-                            : FoolFuukaCommentAction.super.style(node, text)
+                            : INLINE_QUOTE_COLOR.with(theme).style(node, text)
             );
             return base.mergeWith(newAction);
         }

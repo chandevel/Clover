@@ -90,6 +90,10 @@ public class PostThemedStyleActions {
             return new ParserLinkLinkable(theme, href);
         }
         List<String> hrefSegments = hrefUrl.pathSegments();
+        for (int i = hrefSegments.size() - 1; i >= 0; i--) {
+            String segment = hrefSegments.get(i);
+            if (segment.isEmpty()) hrefSegments.remove(segment);
+        }
 
         int threadNo = -1; // no known thread number
         try {
@@ -125,7 +129,8 @@ public class PostThemedStyleActions {
                 //link to post not in same thread with post number (>>post or >>>/board/post)
                 //in the case of an archive, set the type to be an archive link
                 ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
-                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(theme,
+                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
+                        theme,
                         href.contains("post")
                                 ? new ResolveLink((ExternalSiteArchive) post.board.site, board, threadNo)
                                 : threadLink
@@ -268,9 +273,13 @@ public class PostThemedStyleActions {
                     sjisView.setMovementMethod(new ScrollingMovementMethod());
                     sjisView.setHorizontallyScrolling(true);
                     updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
-                    sjisView.setText(span(text.toString(), new CustomTypefaceSpan("",
-                            Typeface.createFromAsset(widget.getContext().getAssets(), "font/submona.ttf")
-                    )));
+                    //@formatter:off
+                    sjisView.setText(span(text.toString(),
+                            new CustomTypefaceSpan("",
+                                    Typeface.createFromAsset(widget.getContext().getAssets(), "font/submona.ttf")
+                            )
+                    ));
+                    //@formatter:on
                     AlertDialog dialog = getDefaultAlertBuilder(widget.getContext())
                             .setView(sjisView)
                             .setPositiveButton(R.string.close, null)
@@ -403,7 +412,8 @@ public class PostThemedStyleActions {
                 if (filterEngine.matchesBoard(f, post.board)) {
                     MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
                     if (result != null) {
-                        builder.setSpan(new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
+                        builder.setSpan(
+                                new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),
                                 result.start(),
                                 result.end(),
                                 makeSpanOptions(RENDER_NORMAL)
