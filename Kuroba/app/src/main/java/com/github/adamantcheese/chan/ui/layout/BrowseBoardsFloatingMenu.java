@@ -96,9 +96,6 @@ public class BrowseBoardsFloatingMenu
         super(context, attrs, defStyle);
 
         inject(this);
-
-        setFocusableInTouchMode(true);
-        setFocusable(true);
     }
 
     public void show(ViewGroup baseView, View anchor, ClickCallback clickCallback, Board selectedBoard) {
@@ -128,6 +125,7 @@ public class BrowseBoardsFloatingMenu
 
         rootView.addView(this, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
+        setFocusable(true);
         requestFocus();
 
         watchAnchor();

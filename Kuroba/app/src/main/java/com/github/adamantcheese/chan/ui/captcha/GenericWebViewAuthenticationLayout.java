@@ -53,7 +53,6 @@ public class GenericWebViewAuthenticationLayout
     public GenericWebViewAuthenticationLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         getSettings().setUserAgentString(NetUtils.USER_AGENT);
-        setFocusableInTouchMode(true);
     }
 
     @SuppressLint("SetJavaScriptEnabled")

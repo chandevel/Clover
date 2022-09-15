@@ -116,11 +116,9 @@ public class ToolbarMenuItem {
         if (view != null) {
             if (!enabled) {
                 view.setClickable(false);
-                view.setFocusable(false);
                 view.getDrawable().setTint(Color.GRAY);
             } else {
                 view.setClickable(true);
-                view.setFocusable(true);
                 view.getDrawable().setTint(Color.WHITE);
             }
         }

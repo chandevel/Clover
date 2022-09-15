@@ -73,7 +73,6 @@ public class ToolbarMenuView
             ImageView imageView = new ImageView(getContext());
 
             imageView.setOnClickListener(item::performClick);
-            imageView.setFocusable(true);
             imageView.setScaleType(ImageView.ScaleType.CENTER);
 
             imageView.setVisibility(item.getVisible() ? VISIBLE : GONE);

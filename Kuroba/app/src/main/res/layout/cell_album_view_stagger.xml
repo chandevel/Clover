@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         android:id="@+id/image"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        app:strokeColor="@color/transparent"
         android:layout_centerVertical="true"
         android:adjustViewBounds="true"
         app:layout_constraintHeight_max="@dimen/stagger_cell_thumbnail_max_size"

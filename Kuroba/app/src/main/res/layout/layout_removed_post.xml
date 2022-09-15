@@ -3,12 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?android:attr/selectableItemBackground"
     android:orientation="horizontal"
     android:padding="4dp">
 
     <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
         android:id="@+id/post_image"
+        app:strokeColor="@color/transparent"
         android:layout_width="@dimen/cell_post_thumbnail_size"
         android:layout_height="@dimen/cell_post_thumbnail_size"
         android:layout_gravity="center"

@@ -65,7 +65,6 @@ import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.view.*;
 import com.github.adamantcheese.chan.utils.RecyclerUtils.DPSpacingItemDecoration;
-import com.google.android.material.shape.ShapeAppearanceModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -565,9 +564,10 @@ public class PostCell
         @Override
         public PostImagesAdapter.PostImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             Context c = parent.getContext();
-            ShapeablePostImageView thumbnailView = new ShapeablePostImageView(c);
+            ShapeablePostImageView thumbnailView = (ShapeablePostImageView) LayoutInflater
+                    .from(parent.getContext())
+                    .inflate(R.layout.subcell_post_cell_image, parent, false);
             thumbnailView.setLayoutParams(new ViewGroup.MarginLayoutParams(getThumbnailSize(c), getThumbnailSize(c)));
-            thumbnailView.setShapeAppearanceModel(ShapeAppearanceModel.builder().setAllCornerSizes(dp(c, 2)).build());
             return new PostImageViewHolder(thumbnailView);
         }
 

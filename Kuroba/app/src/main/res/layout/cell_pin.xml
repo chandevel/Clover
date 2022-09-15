@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="4dp"
             android:padding="4dp"
+            app:strokeColor="@color/transparent"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/roundedImageViewRound"
             tools:src="@drawable/sticky_icon" />

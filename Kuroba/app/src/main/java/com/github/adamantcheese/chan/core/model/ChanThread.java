@@ -25,6 +25,8 @@ import android.text.SpannableStringBuilder;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
 
+import androidx.annotation.NonNull;
+
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
@@ -41,9 +43,10 @@ public class ChanThread {
     // still not fully thread-safe because Loadable and the Post classes are not thread-safe but
     // there is no easy way to fix them right now) and to avoid copying the whole list of posts
     // every time it is needed somewhere.
+    @NonNull
     private List<Post> posts;
 
-    public ChanThread(Loadable loadable, List<Post> posts) {
+    public ChanThread(@NonNull Loadable loadable, @NonNull List<Post> posts) {
         this.loadable = loadable;
         this.posts = Collections.unmodifiableList(new ArrayList<>(posts));
     }
@@ -64,11 +67,12 @@ public class ChanThread {
         return !posts.isEmpty() && getOp().archived;
     }
 
+    @NonNull
     public synchronized List<Post> getPosts() {
         return posts;
     }
 
-    public synchronized void setNewPosts(List<Post> newPosts) {
+    public synchronized void setNewPosts(@NonNull List<Post> newPosts) {
         this.posts = Collections.unmodifiableList(new ArrayList<>(newPosts));
     }
 
