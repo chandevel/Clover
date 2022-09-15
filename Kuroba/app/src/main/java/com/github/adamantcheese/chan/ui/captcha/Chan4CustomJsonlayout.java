@@ -93,7 +93,7 @@ public class Chan4CustomJsonlayout
         input = findViewById(R.id.captcha_input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
-                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                    && event.getAction() == KeyEvent.ACTION_DOWN || actionId == EditorInfo.IME_ACTION_DONE) {
                 verify.callOnClick();
                 return true;
             }

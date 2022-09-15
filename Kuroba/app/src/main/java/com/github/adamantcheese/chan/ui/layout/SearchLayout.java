@@ -83,10 +83,13 @@ public class SearchLayout
         });
         searchView.setOnEditorActionListener((v, actionId, event) -> {
             if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
-                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                    && event.getAction() == KeyEvent.ACTION_DOWN || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboard(searchView);
-                if (callback != null) {
-                    callback.onSearchEntered(getText());
+                String text = getText();
+                if (text.isEmpty()) {
+                    callback.onClearPressedWhenEmpty();
+                } else {
+                    callback.onSearchEntered(text);
                 }
                 return true;
             }

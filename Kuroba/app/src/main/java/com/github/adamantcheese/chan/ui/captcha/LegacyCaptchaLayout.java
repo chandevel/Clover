@@ -75,7 +75,7 @@ public class LegacyCaptchaLayout
         input = findViewById(R.id.input);
         input.setOnEditorActionListener((v, actionId, event) -> {
             if ((event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER)
-                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                    && event.getAction() == KeyEvent.ACTION_DOWN || actionId == EditorInfo.IME_ACTION_DONE) {
                 hideKeyboard(input);
                 submitCaptcha();
                 return true;
