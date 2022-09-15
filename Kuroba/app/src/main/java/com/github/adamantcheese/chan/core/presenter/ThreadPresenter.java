@@ -553,10 +553,12 @@ public class ThreadPresenter
 
         if (loadable.isThreadMode()) {
             if (!TextUtils.isEmpty(post.id)) {
+                menu.add(new FloatingMenuItem<>(POST_OPTION_SHOW_ID, R.string.post_show_id));
                 menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_ID, R.string.post_highlight_id));
             }
 
             if (!TextUtils.isEmpty(post.tripcode)) {
+                menu.add(new FloatingMenuItem<>(POST_OPTION_SHOW_TRIPCODE, R.string.post_show_tripcode));
                 menu.add(new FloatingMenuItem<>(POST_OPTION_HIGHLIGHT_TRIPCODE, R.string.post_highlight_tripcode));
             }
         }
@@ -642,9 +644,25 @@ public class ThreadPresenter
                 }
                 threadPresenterCallback.openReportView(post);
                 break;
+            case POST_OPTION_SHOW_ID:
+                if (getChanThread() == null) break;
+                List<Post> idPosts = new ArrayList<>();
+                for (Post p : getChanThread().getPosts()) {
+                    if (post.id.equals(p.id)) idPosts.add(p);
+                }
+                threadPresenterCallback.showPostsPopup(post, idPosts);
+                //noinspection fallthrough
             case POST_OPTION_HIGHLIGHT_ID:
                 threadPresenterCallback.highlightPostId(post.id);
                 break;
+            case POST_OPTION_SHOW_TRIPCODE:
+                if (getChanThread() == null) break;
+                List<Post> tripPosts = new ArrayList<>();
+                for (Post p : getChanThread().getPosts()) {
+                    if (post.tripcode.equals(p.tripcode)) tripPosts.add(p);
+                }
+                threadPresenterCallback.showPostsPopup(post, tripPosts);
+                //noinspection fallthrough
             case POST_OPTION_HIGHLIGHT_TRIPCODE:
                 threadPresenterCallback.highlightPostTripcode(post.tripcode);
                 break;
@@ -900,12 +918,11 @@ public class ThreadPresenter
         //@formatter:off
         return ChanSettings.autoRefreshThread.get()
             && BackgroundUtils.isInForeground()
-            && isBound()
             && loadable.isThreadMode()
             && !(loadable.site instanceof ExternalSiteArchive)
-            && chanLoader.getThread() != null
-            && !chanLoader.getThread().isClosed()
-            && !chanLoader.getThread().isArchived();
+            && getChanThread() != null
+            && !getChanThread().isClosed()
+            && !getChanThread().isArchived();
         //@formatter:on
     }
 

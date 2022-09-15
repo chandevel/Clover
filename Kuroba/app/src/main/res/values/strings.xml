@@ -253,7 +253,9 @@ Enabled filters have priority from top to bottom in your list. Filter precedence
     <string name="drawer_pins_non_cleared_try_all">No bookmarks cleared. Hold to remove all.</string>
 
     <string name="post_highlight_id">Highlight ID</string>
+    <string name="post_show_id">Show posts by ID</string>
     <string name="post_highlight_tripcode">Highlight tripcode</string>
+    <string name="post_show_tripcode">Show posts by tripcode</string>
     <string name="post_quote">Quote</string>
     <string name="post_quote_text">Quote text</string>
     <string name="post_info">Post info</string>
