@@ -30,6 +30,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.isTablet;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openLink;
 import static java.util.concurrent.TimeUnit.HOURS;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -39,6 +40,7 @@ import android.os.Bundle;
 import android.view.*;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Pair;
 import androidx.lifecycle.DefaultLifecycleObserver;
@@ -441,8 +443,6 @@ public class StartActivity
     }
 
     public void popController(Controller controller) {
-        //we permit removal of things not on the top of the stack, but everything gets shifted down so the top of the stack
-        //remains the same
         stack.remove(controller);
     }
 
@@ -582,6 +582,11 @@ public class StartActivity
         showToast(this, toastMessage.message, toastMessage.toastLength);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ActivityAlertDialogMessage dialogMessage) {
+        dialogMessage.show(this);
+    }
+
     @Override
     public void fsafStartActivityForResult(@NotNull Intent intent, int requestCode) {
         startActivityForResult(intent, requestCode);
@@ -604,6 +609,23 @@ public class StartActivity
         public ActivityToastMessage(String message, int toastLength) {
             this.message = message;
             this.toastLength = toastLength;
+        }
+    }
+
+    public static class ActivityAlertDialogMessage {
+        private final String toShow;
+
+        public ActivityAlertDialogMessage(String message) {
+            toShow = message;
+        }
+
+        public void show(Context context) {
+            AlertDialog test = getDefaultAlertBuilder(context)
+                    .setMessage(toShow)
+                    .setPositiveButton(R.string.ok, (dialog, which) -> dialog.dismiss())
+                    .create();
+            test.setCanceledOnTouchOutside(true);
+            test.show();
         }
     }
 }

@@ -25,7 +25,6 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
@@ -217,12 +216,13 @@ public class ImageSaveTask {
                             + canWrite,
                     e
             );
-            EventBus
-                    .getDefault()
-                    .post(new StartActivity.ActivityToastMessage(
-                            "You probably should use the SAF api; change it in your media settings.",
-                            Toast.LENGTH_LONG
-                    ));
+            //@formatter:off
+            EventBus.getDefault()
+                    .post(new StartActivity.ActivityAlertDialogMessage(
+                            "Couldn't save your file; you're probably on a newer Android version and the older file "
+                            + "API no longer allows for direct access to the save location. You can fix this by"
+                            + " changing your save location in media settings and use the SAF API instead."));
+            //@formatter:on
         }
 
         return false;
