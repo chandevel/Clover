@@ -39,7 +39,8 @@ public class StyledToolbarNavigationController
         super.onCreate();
 
         view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_navigation_toolbar, null);
-        container = (NavigationControllerContainerLayout) view.findViewById(R.id.container);
+        view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));
+        container = view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
         nav.setSwipeEnabled(ChanSettings.controllerSwipeable.get());

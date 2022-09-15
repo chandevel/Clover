@@ -19,25 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minWidth="10000dp"
-    android:minHeight="10000dp"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
     tools:background="?backcolor">
 
-    <LinearLayout
+    <com.github.adamantcheese.chan.ui.layout.SearchLayout
+        android:id="@+id/search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <com.github.adamantcheese.chan.ui.layout.SearchLayout
-            android:id="@+id/search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingVertical="8dp" />
-
-    </LinearLayout>
+        android:paddingVertical="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/suggestions"

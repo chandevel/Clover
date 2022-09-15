@@ -19,9 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:background="?backcolor"
-    tools:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:background="?backcolor">
 
     <com.github.adamantcheese.chan.ui.layout.FilterLayout
         android:id="@+id/filter_layout"

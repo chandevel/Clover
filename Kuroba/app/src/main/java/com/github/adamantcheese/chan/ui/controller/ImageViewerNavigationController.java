@@ -38,13 +38,14 @@ public class ImageViewerNavigationController
     public void onCreate() {
         super.onCreate();
 
-        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_navigation_image_viewer, null);
+        view = (ViewGroup) LayoutInflater.from(context).inflate(R.layout.controller_navigation_toolbar, null);
         container = view.findViewById(R.id.container);
         NavigationControllerContainerLayout nav = (NavigationControllerContainerLayout) container;
         nav.setNavigationController(this);
         nav.setSwipeEnabled(false);
         toolbar = view.findViewById(R.id.toolbar);
         toolbar.setCallback(this);
+        toolbar.setBackgroundColor(0x87000000);
     }
 
     public void showImages(
