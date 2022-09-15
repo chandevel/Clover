@@ -122,6 +122,11 @@ public abstract class ToolbarNavigationController
     }
 
     @Override
+    public void onClearPressedWhenEmpty() {
+        toolbar.closeSearch();
+    }
+
+    @Override
     public void onNavItemSet(NavigationItem item) {
         for (Controller controller : childControllers) {
             if (controller.navigation == item && controller instanceof ToolbarSearchCallback) {

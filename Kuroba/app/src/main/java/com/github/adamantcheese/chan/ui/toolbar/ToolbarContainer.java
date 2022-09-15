@@ -31,6 +31,7 @@ import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import android.animation.*;
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
@@ -225,8 +226,7 @@ public class ToolbarContainer
     }
 
     private void setAnimation(ItemView view, ItemView previousView, ToolbarPresenter.AnimationStyle animationStyle) {
-        if (animationStyle == PUSH
-                || animationStyle == POP) {
+        if (animationStyle == PUSH || animationStyle == POP) {
             final boolean pushing = animationStyle == PUSH;
 
             // Previous animation
@@ -470,22 +470,28 @@ public class ToolbarContainer
 
         @NonNull
         private View createSearchLayout() {
-            SearchLayout searchLayout = new SearchLayout(getContext());
-            searchLayout.setCallback(entered -> callback.searchInput(entered));
+            SearchLayout searchLayout =
+                    (SearchLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_search, null, false);
+            searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+                @Override
+                public void onSearchEntered(String entered) {
+                    callback.searchInput(entered);
+                }
 
-            if (item.searchText != null) {
-                searchLayout.setText(item.searchText);
-            }
-
-            searchLayout.setCatalogSearchColors();
-            updatePaddings(searchLayout, dp(getContext(), 16), -1, -1, -1);
-
+                @Override
+                public void onClearPressedWhenEmpty() {
+                    callback.onClearPressedWhenEmpty();
+                }
+            });
+            searchLayout.setText(item.searchText);
             return searchLayout;
         }
     }
 
     public interface Callback {
         void searchInput(String input);
+
+        void onClearPressedWhenEmpty();
 
         void onNavItemSet(NavigationItem item);
     }

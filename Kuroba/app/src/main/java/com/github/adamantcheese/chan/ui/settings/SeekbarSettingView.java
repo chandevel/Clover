@@ -16,17 +16,14 @@
  */
 package com.github.adamantcheese.chan.ui.settings;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 
 import android.content.DialogInterface;
-import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -84,21 +81,14 @@ public class SeekbarSettingView
     }
 
     public void createEditView(View v) {
-        LinearLayout container = new LinearLayout(v.getContext());
-        updatePaddings(container, dp(24), dp(24), dp(24), 0);
+        View container = LayoutInflater.from(v.getContext()).inflate(R.layout.seekbar_setting_view, null, false);
+        SeekBar rangeSlider = container.findViewById(R.id.range_slider);
+        TextView max = container.findViewById(R.id.max);
 
-        DialogInterface.OnClickListener clickListener;
-
-        final SeekBar rangeSlider = new SeekBar(v.getContext());
         rangeSlider.setKeyProgressIncrement(1);
         rangeSlider.setProgress(convertRangeToProgress(setting.get(), rangeSlider.getMax()));
-        rangeSlider.setLayoutParams(new LinearLayout.LayoutParams(0, MATCH_PARENT, 1f));
-        container.addView(rangeSlider);
 
-        final TextView max = new TextView(v.getContext());
         max.setText(String.valueOf(setting.get()));
-        max.setGravity(Gravity.CENTER_VERTICAL);
-        container.addView(max, WRAP_CONTENT, MATCH_PARENT);
 
         rangeSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -113,7 +103,7 @@ public class SeekbarSettingView
             public void onStopTrackingTouch(SeekBar seekBar) {}
         });
 
-        clickListener = (d, which) -> {
+        DialogInterface.OnClickListener clickListener = (d, which) -> {
             setting.set(convertProgressToRange(rangeSlider.getProgress(), rangeSlider.getMax()));
             settingsController.onPreferenceChange(SeekbarSettingView.this);
         };

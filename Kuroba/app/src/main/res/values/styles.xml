@@ -612,6 +612,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <declare-styleable name="Toolbar">
         <attr name="menuDrawable" format="reference" />
     </declare-styleable>
+
+    <declare-styleable name="SearchLayout">
+        <attr name="alwaysShowClear" format="boolean" />
+        <attr name="catalogColors" format="boolean" />
+    </declare-styleable>
     <!-- endregion -->
 
     <style name="AlertDialogTheme" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">

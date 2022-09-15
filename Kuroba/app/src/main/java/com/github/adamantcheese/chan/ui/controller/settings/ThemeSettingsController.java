@@ -488,6 +488,10 @@ public class ThemeSettingsController
                 @Override
                 public void onNavItemSet(NavigationItem item) {
                 }
+
+                @Override
+                public void onClearPressedWhenEmpty() {
+                }
             });
             final NavigationItem item = new NavigationItem();
             item.title = holder.theme.name;

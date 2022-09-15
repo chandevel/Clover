@@ -65,6 +65,7 @@ import com.github.adamantcheese.chan.ui.adapter.DrawerHistoryAdapter;
 import com.github.adamantcheese.chan.ui.adapter.DrawerPinAdapter;
 import com.github.adamantcheese.chan.ui.controller.settings.MainSettingsController;
 import com.github.adamantcheese.chan.ui.layout.SearchLayout;
+import com.github.adamantcheese.chan.ui.layout.SearchLayout.SearchLayoutCallback;
 import com.github.adamantcheese.chan.ui.view.CrossfadeView;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 import com.skydoves.balloon.ArrowOrientation;
@@ -199,11 +200,15 @@ public class DrawerController
         onEvent((SettingNotification) null);
         settings.setOnClickListener(v -> openController(new MainSettingsController(context)));
 
+        buttonSearchSwitch = view.findViewById(R.id.header);
+        buttonSearchSwitch.toggle(true, false); // initialization step, required
+
+        SearchLayout searchLayout = buttonSearchSwitch.findViewById(R.id.searchview);
+
         ImageView pinHistoryToggle = view.findViewById(R.id.history_pin_mode_toggle);
         pinHistoryToggle.setOnClickListener(v -> {
             togglePinHistoryMode(pinHistoryToggle);
-            ((SearchLayout) buttonSearchSwitch.findViewById(R.id.searchview)).setText("");
-            ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
+            searchLayout.setText("");
             buttonSearchSwitch.toggle(true, true);
             inViewMode = true;
         });
@@ -224,35 +229,33 @@ public class DrawerController
             return true;
         });
 
-        buttonSearchSwitch = view.findViewById(R.id.header);
-        buttonSearchSwitch.toggle(true, false); // initialization step, required
-
         LinearLayout buttonsHeader = buttonSearchSwitch.findViewById(R.id.buttons);
         buttonsHeader.findViewById(R.id.search).setOnClickListener(v -> {
             inViewMode = !inViewMode;
             buttonSearchSwitch.toggle(inViewMode, true);
             if (!inViewMode) {
-                buttonSearchSwitch.findViewById(R.id.searchview).requestFocus();
+                searchLayout.requestFocus();
             }
         });
         ImageView clearButton = buttonsHeader.findViewById(R.id.clear);
         clearButton.setOnClickListener(v -> onHeaderClicked(CLEAR));
         clearButton.setOnLongClickListener(v -> onHeaderClicked(CLEAR_ALL));
 
-        SearchLayout searchLayout = buttonSearchSwitch.findViewById(R.id.searchview);
-        searchLayout.setAlwaysShowClear();
-        searchLayout.setThemedSearchColors();
-        searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
+        searchLayout.setCallback(new SearchLayoutCallback() {
             @Override
             public void onSearchEntered(String entered) {
-                ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onSearchEntered(entered);
+                getAdapterAsSearchCallback().onSearchEntered(entered);
             }
 
             @Override
             public void onClearPressedWhenEmpty() {
-                ((SearchLayout.SearchLayoutCallback) recyclerView.getAdapter()).onClearPressedWhenEmpty();
+                getAdapterAsSearchCallback().onClearPressedWhenEmpty();
                 buttonSearchSwitch.toggle(!inViewMode, true);
                 inViewMode = !inViewMode;
+            }
+
+            private SearchLayoutCallback getAdapterAsSearchCallback() {
+                return (SearchLayoutCallback) recyclerView.getAdapter();
             }
         });
 

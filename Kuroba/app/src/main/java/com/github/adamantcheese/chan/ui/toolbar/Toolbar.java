@@ -16,12 +16,9 @@
  */
 package com.github.adamantcheese.chan.ui.toolbar;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.github.adamantcheese.chan.ui.toolbar.ToolbarPresenter.AnimationStyle.NONE;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getDimen;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 
 import android.annotation.SuppressLint;
@@ -32,7 +29,8 @@ import android.util.AttributeSet;
 import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
-import android.widget.*;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -66,12 +64,13 @@ public class Toolbar
         }
     };
 
-    private ToolbarPresenter presenter;
+    private final ToolbarPresenter presenter = new ToolbarPresenter(this);
 
-    private ImageView arrowMenuView;
+    private final ImageView arrowMenuView;
     private ArrowMenuDrawable arrowMenuDrawable;
+    private final Drawable overrideMenuDrawable;
 
-    private ToolbarContainer navigationItemContainer;
+    private final ToolbarContainer navigationItemContainer;
 
     private ToolbarCallback callback;
     private int lastScrollDeltaOffset;
@@ -89,57 +88,53 @@ public class Toolbar
     public Toolbar(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        setOrientation(HORIZONTAL);
-
-        presenter = new ToolbarPresenter(this);
-
-        //initView
-        FrameLayout leftButtonContainer = new FrameLayout(context);
-        addView(leftButtonContainer, WRAP_CONTENT, MATCH_PARENT);
-
-        arrowMenuView = new ImageView(context);
-        arrowMenuView.setOnClickListener(v -> {
-            if (callback == null) return;
-            callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
-        });
-        arrowMenuView.setFocusable(true);
-        arrowMenuView.setScaleType(ImageView.ScaleType.CENTER);
-        arrowMenuDrawable = new ArrowMenuDrawable(context);
-        arrowMenuView.setImageDrawable(arrowMenuDrawable);
-        arrowMenuView.setBackgroundResource(R.drawable.ripple_item_background);
-
-        int toolbarSize = getDimen(context, R.dimen.toolbar_height);
-        FrameLayout.LayoutParams leftButtonContainerLp =
-                new FrameLayout.LayoutParams(toolbarSize, MATCH_PARENT, Gravity.CENTER_VERTICAL);
-        leftButtonContainer.addView(arrowMenuView, leftButtonContainerLp);
-
-        navigationItemContainer = new ToolbarContainer(context);
-        addView(navigationItemContainer, new LayoutParams(0, MATCH_PARENT, 1f));
-
-        navigationItemContainer.setCallback(this);
-        navigationItemContainer.setArrowMenu(arrowMenuDrawable);
-
-        if (getElevation() == 0f) {
-            setElevation(dp(context, 4f));
-        }
-
-        setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
-
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.Toolbar);
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.Toolbar);
         try {
-            Drawable xmlDrawable = a.getDrawable(R.styleable.Toolbar_menuDrawable);
-            if (xmlDrawable != null) {
-                arrowMenuView.setImageDrawable(xmlDrawable);
-            }
+            overrideMenuDrawable = a.getDrawable(R.styleable.Toolbar_menuDrawable);
         } finally {
             a.recycle();
         }
 
+        LayoutInflater.from(context).inflate(R.layout.layout_toolbar, this, true);
+
+        arrowMenuView = findViewById(R.id.arrow_menu_view);
+        navigationItemContainer = findViewById(R.id.toolbar_container);
+
+        setBackgroundColor(getAttrColor(context, R.attr.colorPrimary));
+        setElevation(dp(context, 4));
+    }
+
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
+
+        arrowMenuView.setOnClickListener(v -> {
+            if (callback == null) return;
+            callback.onMenuOrBackClicked(arrowMenuDrawable.getProgress() == 1f);
+        });
+
+        arrowMenuDrawable = new ArrowMenuDrawable(getContext());
+        arrowMenuView.setImageDrawable(arrowMenuDrawable);
+
+        navigationItemContainer.setCallback(this);
+        navigationItemContainer.setArrowMenu(arrowMenuDrawable);
+
+        if (overrideMenuDrawable != null) {
+            arrowMenuView.setImageDrawable(overrideMenuDrawable);
+        }
+
         if (isInEditMode()) {
             NavigationItem editItem = new NavigationItem();
-            editItem.hasBack = true;
-            editItem.title = "Test";
-            editItem.buildMenu().withOverflow(context).build().build();
+            editItem.hasBack = false;
+            editItem.title = "/test/";
+            editItem.subtitle = "Test Board";
+            editItem
+                    .buildMenu()
+                    .withItem(getContext().getDrawable(R.drawable.ic_fluent_search_24_filled), null)
+                    .withItem(getContext().getDrawable(R.drawable.animated_refresh_icon), null)
+                    .withOverflow(getContext())
+                    .build()
+                    .build();
             setNavigationItem(NONE, editItem);
         }
     }
@@ -288,6 +283,12 @@ public class Toolbar
     }
 
     @Override
+    public void onClearPressedWhenEmpty() {
+        if (callback == null) return;
+        callback.onClearPressedWhenEmpty();
+    }
+
+    @Override
     public void onNavItemSet(NavigationItem item) {
         if (callback == null) return;
         callback.onNavItemSet(item);
@@ -320,6 +321,8 @@ public class Toolbar
         void onSearchVisibilityChanged(NavigationItem item, boolean visible);
 
         void onSearchEntered(NavigationItem item, String entered);
+
+        void onClearPressedWhenEmpty();
 
         void onNavItemSet(NavigationItem item);
     }

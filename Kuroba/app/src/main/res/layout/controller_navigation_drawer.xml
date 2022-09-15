@@ -160,6 +160,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
             <com.github.adamantcheese.chan.ui.layout.SearchLayout
                 android:id="@+id/searchview"
+                app:alwaysShowClear="true"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="18dp"

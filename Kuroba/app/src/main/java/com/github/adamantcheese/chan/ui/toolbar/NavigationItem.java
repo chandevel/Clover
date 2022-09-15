@@ -19,6 +19,7 @@ package com.github.adamantcheese.chan.ui.toolbar;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.View;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -95,6 +96,11 @@ public class NavigationItem {
 
         public MenuBuilder withItem(int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
             return withItem(-1, drawable, clicked);
+        }
+
+        public MenuBuilder withItem(Drawable drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {
+            menu.addItem(new ToolbarMenuItem(-1, drawable, clicked));
+            return this;
         }
 
         public MenuBuilder withItem(Enum<?> item, int drawable, ToolbarMenuItem.ToolbarItemClickCallback clicked) {

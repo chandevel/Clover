@@ -16,20 +16,15 @@
  */
 package com.github.adamantcheese.chan.ui.layout;
 
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.requestKeyboardFocus;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.text.*;
 import android.util.AttributeSet;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.KeyEvent;
+import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 
@@ -37,11 +32,12 @@ import com.github.adamantcheese.chan.R;
 
 public class SearchLayout
         extends LinearLayout {
-    private final EditText searchView;
-    private final ImageView clearButton;
+    private EditText searchView;
+    private ImageView clearButton;
 
-    private boolean alwaysShowClear;
-    private SearchLayoutCallback callback;
+    private final boolean alwaysShowClear;
+    private final boolean useCatalogColors;
+    private SearchLayoutCallback callback = entered -> {};
 
     public SearchLayout(Context context) {
         this(context, null);
@@ -53,24 +49,29 @@ public class SearchLayout
 
     public SearchLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        searchView = new EditText(getContext());
-        searchView.setImeOptions(EditorInfo.IME_FLAG_NO_FULLSCREEN | EditorInfo.IME_ACTION_DONE);
-        searchView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
-        searchView.setHint(context.getString(R.string.search_hint));
-        searchView.setHintTextColor(getAttrColor(getContext(), android.R.attr.textColorHint));
-        searchView.setTextColor(getAttrColor(getContext(), android.R.attr.textColorPrimary));
-        searchView.setMaxLines(1);
-        searchView.setInputType(InputType.TYPE_CLASS_TEXT);
-        searchView.setBackgroundResource(0);
-        searchView.setPadding(0, 0, 0, 0);
-        clearButton = new ImageView(getContext());
+
+        LayoutInflater.from(context).inflate(R.layout.layout_search, this, true);
+        setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.SearchLayout);
+        try {
+            alwaysShowClear = a.getBoolean(R.styleable.SearchLayout_alwaysShowClear, false);
+            useCatalogColors = a.getBoolean(R.styleable.SearchLayout_catalogColors, false);
+        } finally {
+            a.recycle();
+        }
+    }
+
+    @Override
+    public void onFinishInflate() {
+        super.onFinishInflate();
+        searchView = findViewById(R.id.search_view);
+        clearButton = findViewById(R.id.clear_button);
         searchView.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                clearButton.setAlpha(s.length() == 0 && !alwaysShowClear ? 0.0f : 1.0f);
-                if (callback != null) {
-                    callback.onSearchEntered(s.toString());
-                }
+                clearButton.setVisibility(s.length() == 0 && !alwaysShowClear ? GONE : VISIBLE);
+                callback.onSearchEntered(s.toString());
             }
 
             @Override
@@ -105,30 +106,27 @@ public class SearchLayout
                 }, 100);
             }
         });
-        LinearLayout.LayoutParams searchViewParams = new LinearLayout.LayoutParams(0, (int) dp(getContext(), 36), 1);
-        searchViewParams.gravity = Gravity.CENTER_VERTICAL;
-        addView(searchView, searchViewParams);
-        searchView.setFocusable(true);
         searchView.requestFocus();
-
-        clearButton.setAlpha(isInEditMode() ? 1.0f : 0.0f);
-        clearButton.setImageResource(R.drawable.ic_fluent_dismiss_24_filled);
-        clearButton.getDrawable().setTint(getAttrColor(getContext(), android.R.attr.textColorPrimary));
-        clearButton.setScaleType(ImageView.ScaleType.CENTER);
         clearButton.setOnClickListener(v -> {
             if (TextUtils.isEmpty(searchView.getText())) {
-                if (callback != null) {
-                    callback.onClearPressedWhenEmpty();
-                }
+                callback.onClearPressedWhenEmpty();
             } else {
                 searchView.setText("");
             }
             requestKeyboardFocus(searchView);
         });
-        addView(clearButton, (int) dp(getContext(), 48), MATCH_PARENT);
+
+        clearButton.setVisibility(alwaysShowClear ? VISIBLE : GONE);
+
+        if (useCatalogColors) {
+            searchView.setTextColor(Color.WHITE);
+            searchView.setHintTextColor(0x88ffffff);
+            clearButton.setImageTintList(null);
+        }
     }
 
     public void setCallback(SearchLayoutCallback callback) {
+        if (callback == null) callback = entered -> {};
         this.callback = callback;
     }
 
@@ -138,23 +136,6 @@ public class SearchLayout
 
     public String getText() {
         return searchView.getText().toString();
-    }
-
-    public void setCatalogSearchColors() {
-        searchView.setTextColor(Color.WHITE);
-        searchView.setHintTextColor(0x88ffffff);
-        clearButton.getDrawable().setTintList(null);
-    }
-
-    public void setThemedSearchColors() {
-        clearButton
-                .getDrawable()
-                .setTintList(ColorStateList.valueOf(getAttrColor(getContext(), R.attr.themeDrawableColor)));
-    }
-
-    public void setAlwaysShowClear() {
-        alwaysShowClear = true;
-        clearButton.setAlpha(1.0f);
     }
 
     public interface SearchLayoutCallback {
