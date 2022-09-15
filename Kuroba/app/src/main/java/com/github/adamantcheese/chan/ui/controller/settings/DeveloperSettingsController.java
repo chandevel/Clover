@@ -260,7 +260,7 @@ public class DeveloperSettingsController
         wrapper.addView(clearBitmapCache);
 
         ScrollView scrollView = new ScrollView(context);
-        updatePaddings(scrollView, dp(context, 16), dp(context, 16), dp(context, 16), dp(context, 16));
+        updatePaddings(scrollView, dp(context, 16));
         scrollView.addView(wrapper);
         view = scrollView;
         view.setBackgroundColor(getAttrColor(context, R.attr.backcolor));

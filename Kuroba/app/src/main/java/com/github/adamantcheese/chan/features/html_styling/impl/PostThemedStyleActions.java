@@ -272,7 +272,7 @@ public class PostThemedStyleActions {
                     TextView sjisView = new TextView(widget.getContext());
                     sjisView.setMovementMethod(new ScrollingMovementMethod());
                     sjisView.setHorizontallyScrolling(true);
-                    updatePaddings(sjisView, dp(16), dp(16), dp(16), dp(16));
+                    updatePaddings(sjisView, dp(16));
                     //@formatter:off
                     sjisView.setText(span(text.toString(),
                             new CustomTypefaceSpan("",

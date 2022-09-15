@@ -61,7 +61,7 @@ public class LogsController
         navigation.buildMenu().withItem(R.drawable.ic_fluent_clipboard_code_24_filled, this::copyLogsClicked).build();
 
         ScrollView container = new ScrollView(context);
-        updatePaddings(container, dp(context, 8), dp(context, 8), dp(context, 8), dp(context, 8));
+        updatePaddings(container, dp(context, 8));
         container.setBackgroundColor(Color.BLACK);
         logTextView = new TextView(context);
         logTextView.setTypeface(Typeface.MONOSPACE);

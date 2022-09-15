@@ -183,7 +183,7 @@ public class ArchiveController
             view.setLayoutParams(new ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
             view.setMinimumHeight((int) dp(context, 48));
             view.setGravity(CENTER_VERTICAL);
-            updatePaddings(view, dp(context, 8), dp(context, 8), dp(context, 8), dp(context, 8));
+            updatePaddings(view, dp(context, 8));
             view.setTextSize(14);
             view.setOnClickListener(v -> onItemClicked(item));
         }

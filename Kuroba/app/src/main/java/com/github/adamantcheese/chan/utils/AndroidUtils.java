@@ -305,6 +305,10 @@ public class AndroidUtils {
         } catch (Exception ignored) {}
     }
 
+    public static void updatePaddings(View view, float all) {
+        updatePaddings(view, all, all, all, all);
+    }
+
     /**
      * Specify -1 to leave that padding the same as before.
      */

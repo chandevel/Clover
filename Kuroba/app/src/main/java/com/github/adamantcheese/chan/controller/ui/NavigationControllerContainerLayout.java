@@ -49,7 +49,7 @@ public class NavigationControllerContainerLayout
      * when a controller is being swiped. (The lower it is the easier it is to start moving the controller which may
      * make it harder to click other views)
      */
-    private final float minimalMovedPixels = dp(10);
+    private final float minimalMovedPixels;
     private final int maxFlingPixels;
 
     private boolean swipeEnabled = true;
@@ -101,6 +101,7 @@ public class NavigationControllerContainerLayout
         ViewConfiguration viewConfiguration = ViewConfiguration.get(getContext());
         slopPixels = viewConfiguration.getScaledTouchSlop();
         maxFlingPixels = viewConfiguration.getScaledMaximumFlingVelocity();
+        minimalMovedPixels = dp(context, 10);
         scroller = new Scroller(getContext());
         shadowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     }
@@ -265,7 +266,7 @@ public class NavigationControllerContainerLayout
 
         // We should check that changed is true, otherwise there will be way too may events, we don't
         // want that many.
-        if (isAndroid10() && changed) {
+        if (!isInEditMode() && isAndroid10() && changed) {
             // This shouldn't be called very often (like once per configuration change or even
             // less often) so it's okay to allocate lists. Just to not use this method in onDraw
             provideAndroid10GesturesExclusionZones();

@@ -124,7 +124,7 @@ public class CardPostStubCell
         float p = compact ? dp(getContext(), 3) : dp(getContext(), 8);
 
         // Same as the layout.
-        updatePaddings(title, p, p, p, p);
-        updatePaddings(options, p / 2, p / 2, p / 2, p / 2);
+        updatePaddings(title, p);
+        updatePaddings(options, p / 2);
     }
 }
