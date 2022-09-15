@@ -2,10 +2,18 @@
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1/dist/tf.js"></script>
-    <script src="https://application.internal/js/4chan-captcha-solver.user.js" defer></script>
+    <script src="https://application.internal/js/app-4chan-captcha-solver.user.js" defer></script>
     <script>
 		function sleep(ms) {
 			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+    </script>
+    <script>
+		function reset() {
+		    document.getElementById("t-resp").value="";
+		    document.getElementById("t-slider").value=51;
+			document.getElementById("t-fg").style.backgroundImage="none";
+			document.getElementById("t-bg").style.backgroundImage="none";
 		}
     </script>
 </head>
@@ -35,7 +43,8 @@
                             height: 100%;
                             position: absolute;
                             background-repeat: no-repeat;
-                            background-position: 0px top;"
+                            background-position: 0px top;
+                            background-image: none;"
                     ></div>
                     <div
                             id="t-fg"
@@ -44,7 +53,8 @@
                             height: 100%;
                             position: absolute;
                             background-repeat: no-repeat;
-                            background-position: left top;"
+                            background-position: left top;
+                            background-image: none;"
                     ></div>
                 </div>
                 <input id="t-slider" autocomplete="off" type="range"

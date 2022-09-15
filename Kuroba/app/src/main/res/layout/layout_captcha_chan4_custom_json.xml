@@ -103,5 +103,10 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <WebView
+        android:id="@+id/captcha_autosolve"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
 
 </com.github.adamantcheese.chan.ui.captcha.Chan4CustomJsonlayout>

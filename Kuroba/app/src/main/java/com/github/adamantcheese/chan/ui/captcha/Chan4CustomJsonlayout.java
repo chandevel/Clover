@@ -4,7 +4,6 @@ import static com.github.adamantcheese.chan.core.net.NetUtilsClasses.JSON_CONVER
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getThemeAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.hideKeyboard;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.removeViewChildrenWithClass;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -32,6 +31,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.MainThreadResponse
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.ResponseResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteAuthentication;
+import com.github.adamantcheese.chan.core.site.sites.chan4.Chan4;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.*;
 import com.google.android.material.textfield.TextInputEditText;
@@ -39,11 +39,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.concurrent.TimeUnit;
 
-import kotlin.io.TextStreamsKt;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 
@@ -59,6 +56,7 @@ public class Chan4CustomJsonlayout
     private Call captchaCall;
     private ParsedJsonStruct currentStruct;
     private boolean internalRefresh;
+    private boolean webviewReady;
 
     private TextView topText;
     private ImageView colorMatch;
@@ -68,6 +66,7 @@ public class Chan4CustomJsonlayout
     private TextInputEditText input;
     private Button autoSolve;
     private ImageView verify;
+    private WebView captchaAutosolve;
 
     public Chan4CustomJsonlayout(Context context) {
         super(context);
@@ -81,6 +80,7 @@ public class Chan4CustomJsonlayout
         super(context, attrs, defStyleAttr);
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -103,6 +103,56 @@ public class Chan4CustomJsonlayout
         autoSolve.setText("Solve");
         autoSolve.setOnClickListener(v -> tryAutoSolve());
         verify = findViewById(R.id.verify);
+        verify.setOnClickListener(v -> {
+            handler.removeCallbacks(RESET_RUNNABLE);
+            hideKeyboard(input);
+
+            CaptchaTokenHolder
+                    .getInstance()
+                    .addNewToken(currentStruct.challenge,
+                            input.getText().toString(),
+                            TimeUnit.SECONDS.toMillis(currentStruct.ttl)
+                    );
+
+            CaptchaTokenHolder.CaptchaToken token;
+
+            if (isAutoReply && CaptchaTokenHolder.getInstance().hasToken()) {
+                token = CaptchaTokenHolder.getInstance().getToken();
+            } else {
+                token = new CaptchaTokenHolder.CaptchaToken("", input.getText().toString(), 0);
+            }
+
+            callback.onAuthenticationComplete(token, isAutoReply);
+        });
+
+        captchaAutosolve = findViewById(R.id.captcha_autosolve);
+        captchaAutosolve.getSettings().setJavaScriptEnabled(true);
+        captchaAutosolve.getSettings().setDomStorageEnabled(true);
+        captchaAutosolve.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
+        captchaAutosolve.addJavascriptInterface(new CaptchaAutoSolveCompleteInterface(Chan4CustomJsonlayout.this),
+                "CaptchaAutocomplete"
+        );
+        // for debugging, render it on-screen, otherwise render it off-screen
+        captchaAutosolve.setTranslationY(BuildConfig.DEBUG ? 0 : 1000000);
+        WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
+                .setDomain("application.internal")
+                .addPathHandler("/js/", new WebViewAssetLoader.AssetsPathHandler(getContext()))
+                .build();
+        captchaAutosolve.setWebViewClient(new WebViewClientCompat() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                webviewReady = true;
+            }
+
+            @Nullable
+            @Override
+            public WebResourceResponse shouldInterceptRequestCompat(
+                    @NonNull WebView view, @NonNull String url
+            ) {
+                return loader.shouldInterceptRequest(Uri.parse(url));
+            }
+        });
+        captchaAutosolve.loadUrl("file:///android_asset/html/captcha_autosolve.html");
     }
 
     @Override
@@ -145,9 +195,10 @@ public class Chan4CustomJsonlayout
         slider.setVisibility(GONE);
         slider.setProgress(1);
         input.setText(null);
+        verify.setEnabled(false);
         autoSolve.setText("Solve");
-        autoSolve.setOnClickListener(v -> tryAutoSolve());
-        removeViewChildrenWithClass(this, WebView.class);
+        autoSolve.setEnabled(true);
+        captchaAutosolve.loadUrl("javascript:reset();");
 
         captchaCall = NetUtils.makeRequest(NetUtils.applicationClient.getCloudflareClient(getContext()),
                 HttpUrl.get(authentication.baseUrl),
@@ -223,7 +274,7 @@ public class Chan4CustomJsonlayout
     private final Runnable RESET_RUNNABLE = () -> {
         internalRefresh = true;
         currentStruct = null;
-        verify.setOnClickListener(null);
+        verify.setEnabled(false);
         slider.setOnSeekBarChangeListener(null);
         slider.setVisibility(VISIBLE);
         bg.setTranslationX(0);
@@ -249,28 +300,7 @@ public class Chan4CustomJsonlayout
 
         // auto refresh captcha at the cooldown, or the ttl, whatever is longer
         handler.postDelayed(RESET_RUNNABLE, TimeUnit.SECONDS.toMillis(Math.max(currentStruct.ttl, currentStruct.cd)));
-
-        verify.setOnClickListener(v -> {
-            handler.removeCallbacks(RESET_RUNNABLE);
-            hideKeyboard(input);
-
-            CaptchaTokenHolder
-                    .getInstance()
-                    .addNewToken(currentStruct.challenge,
-                            input.getText().toString(),
-                            TimeUnit.SECONDS.toMillis(currentStruct.ttl)
-                    );
-
-            CaptchaTokenHolder.CaptchaToken token;
-
-            if (isAutoReply && CaptchaTokenHolder.getInstance().hasToken()) {
-                token = CaptchaTokenHolder.getInstance().getToken();
-            } else {
-                token = new CaptchaTokenHolder.CaptchaToken("", input.getText().toString(), 0);
-            }
-
-            callback.onAuthenticationComplete(token, isAutoReply);
-        });
+        verify.setEnabled(true);
 
         if (currentStruct.origFg != null) {
             final float scale = fg.getHeight() / (float) currentStruct.origFg.getHeight();
@@ -313,6 +343,10 @@ public class Chan4CustomJsonlayout
         }
 
         doColorFiltering();
+
+        if (Chan4.captchaAutosolve.get()) {
+            tryAutoSolve();
+        }
     }
 
     private void doColorFiltering() {
@@ -347,62 +381,30 @@ public class Chan4CustomJsonlayout
         fg.setColorFilter(adjustmentFilter);
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
     public void tryAutoSolve() {
         if (currentStruct == null) return;
-        removeViewChildrenWithClass(this, WebView.class);
         autoSolve.setText("Solving...");
-        autoSolve.setOnClickListener(null);
-        WebView webView = new WebView(getContext());
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK);
-        String html = "";
-        try (InputStream htmlStream = getContext().getResources().getAssets().open("html/captcha_autosolve.html")) {
-            html = TextStreamsKt.readText(new InputStreamReader(htmlStream));
-        } catch (Exception ignored) {
+        autoSolve.setEnabled(false);
+        if (!webviewReady) {
+            post(this::tryAutoSolve);
+            return;
         }
-        webView.addJavascriptInterface(new CaptchaAutoSolveCompleteInterface(Chan4CustomJsonlayout.this),
-                "CaptchaAutocomplete"
-        );
-        WebViewAssetLoader loader = new WebViewAssetLoader.Builder()
-                .setDomain("application.internal")
-                .addPathHandler("/js/", new WebViewAssetLoader.AssetsPathHandler(getContext()))
-                .build();
-        webView.loadDataWithBaseURL(authentication.baseUrl, html, "text/html", "UTF-8", null);
-        webView.setWebViewClient(new WebViewClientCompat() {
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                String bgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origBg) + "')\"";
-                String fgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origFg) + "')\"";
-                //@formatter:off
-                webView.loadUrl("javascript:"
-                        + "document.getElementById(\"t-fg\").style.backgroundImage=" + fgHex +";"
-                        + (currentStruct.origBg != null ? "document.getElementById(\"t-bg\").style.backgroundImage=" + bgHex + ";" : "")
-                        + "solve(false).then(result => {"
-                        // The sleep(1000) is required because the loop inside of the solver itself delays by a second
-                        + "sleep(1000).then(result2 => {"
+
+        String bgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origBg) + "')\"";
+        String fgHex = "\"url('data:image/png;base64, " + BitmapUtils.asBase64(currentStruct.origFg) + "')\"";
+        //@formatter:off
+        captchaAutosolve.loadUrl("javascript:"
+                + "document.getElementById(\"t-fg\").style.backgroundImage=" + fgHex +";"
+                + (currentStruct.origBg != null ? "document.getElementById(\"t-bg\").style.backgroundImage=" + bgHex + ";" : "")
+                + "solve(false).then(result => {"
+                // The sleep(1000) is required because the loop inside of the solver itself delays by a second
+                    + "sleep(1000).then(result2 => {"
                         + "var resultString = document.getElementById(\"t-resp\").value;"
                         + "var resultSlide = document.getElementById(\"t-slider\").value;"
                         + "CaptchaAutocomplete.onAutosolveComplete(resultString, resultSlide);"
-                        + "})"
-                        + "});");
-                //@formatter:on
-            }
-
-            @Nullable
-            @Override
-            public WebResourceResponse shouldInterceptRequestCompat(
-                    @NonNull WebView view, @NonNull String url
-            ) {
-                return loader.shouldInterceptRequest(Uri.parse(url));
-            }
-        });
-        // the view itself has to be added to the view in order for onpageloaded to be called
-        // for debugging, render it on-screen, otherwise render it off-screen
-        webView.setTranslationX(BuildConfig.DEBUG ? 0 : 1000000);
-        webView.setTranslationY(BuildConfig.DEBUG ? 0 : 1000000);
-        addView(webView);
+                    + "})"
+                + "});");
+        //@formatter:on
     }
 
     private static class CaptchaAutoSolveCompleteInterface {
@@ -419,10 +421,7 @@ public class Chan4CustomJsonlayout
                 int sliderValue = Integer.parseInt(solvedProgress) / 2;
                 layout.slider.setProgress(Math.max(sliderValue, 1));
                 layout.autoSolve.setText("Solve");
-                layout.autoSolve.setOnClickListener(v -> layout.tryAutoSolve());
-                if (!BuildConfig.DEBUG) {
-                    removeViewChildrenWithClass(layout, WebView.class);
-                }
+                layout.autoSolve.setEnabled(true);
             });
         }
     }

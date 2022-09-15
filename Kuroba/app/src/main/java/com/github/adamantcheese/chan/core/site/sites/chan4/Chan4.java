@@ -518,6 +518,7 @@ public class Chan4
     private final StringSetting passPass;
 
     public static OptionsSetting<CaptchaType> captchaType;
+    public static BooleanSetting captchaAutosolve;
     private BooleanSetting spriteSetting;
 
     public Chan4() {
@@ -537,6 +538,7 @@ public class Chan4
                 CaptchaType.class,
                 CHAN4_CUSTOM
         );
+        captchaAutosolve = new BooleanSetting(settingsProvider, "preference_captcha_autosolve", true);
         spriteSetting = new BooleanSetting(settingsProvider, "preference_sprite_map_chan4", false);
     }
 
@@ -548,9 +550,15 @@ public class Chan4
                 captchaType,
                 Arrays.asList("Javascript", "Noscript", "4chan Custom")
         );
+        SiteSetting<?> captchaAutosolveSetting = new SiteSetting<>("Automatically trigger captcha autosolver",
+                BOOLEAN,
+                captchaAutosolve,
+                Collections.emptyList()
+        );
         SiteSetting<?> spriteMapSetting =
                 new SiteSetting<>("Use sprite maps for board flags", BOOLEAN, spriteSetting, Collections.emptyList());
         settings.add(captchaSetting);
+        settings.add(captchaAutosolveSetting);
         settings.add(spriteMapSetting);
         return settings;
     }
