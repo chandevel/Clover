@@ -19,7 +19,7 @@ package com.github.adamantcheese.chan.ui.controller;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.UnknownError;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.*;
 
 import android.animation.*;
@@ -31,7 +31,6 @@ import android.os.Looper;
 import android.view.*;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,6 +49,7 @@ import com.github.adamantcheese.chan.core.presenter.ImageViewerPresenter;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.core.saver.ImageSaver.DefaultImageSaveResultEvent;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.adapter.ImageViewerAdapter;
 import com.github.adamantcheese.chan.ui.helper.PostHelper;
@@ -60,11 +60,14 @@ import com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog;
 import com.github.adamantcheese.chan.utils.*;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 import okhttp3.HttpUrl;
 
 public class ImageViewerController
@@ -97,6 +100,8 @@ public class ImageViewerController
 
     private boolean isInImmersiveMode = false;
     private final Handler handler = new Handler(Looper.getMainLooper());
+
+    private final CompositeDisposable compositeDisposable = new CompositeDisposable();
 
     public ImageViewerController(Context context, Toolbar toolbar) {
         super(context);
@@ -235,7 +240,7 @@ public class ImageViewerController
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        compositeDisposable.dispose();
         showSystemUI();
         handler.removeCallbacksAndMessages(null);
         getWindow(context).clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -261,15 +266,13 @@ public class ImageViewerController
                 task.setSubFolder(subFolderName);
             }
 
-            imageSaver.startDownloadTask(context, task, message -> {
-                String errorMessage = String.format(Locale.ENGLISH,
-                        "%s, error message = %s",
-                        "Couldn't start download task",
-                        message
-                );
+            Disposable disposable = imageSaver
+                    .startBundledTask(context, Collections.singletonList(task))
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .onErrorReturnItem(UnknownError)
+                    .subscribe((result) -> new DefaultImageSaveResultEvent().onResultEvent(context, result));
 
-                showToast(context, errorMessage, Toast.LENGTH_LONG);
-            });
+            compositeDisposable.add(disposable);
         }
     }
 
@@ -586,7 +589,10 @@ public class ImageViewerController
                 0
         ));
 
-        toolbar.setBackgroundColor(ColorUtils.blendARGB(ThemeHelper.getTheme().colorPrimaryColorInt, Color.BLACK, alpha));
+        toolbar.setBackgroundColor(ColorUtils.blendARGB(ThemeHelper.getTheme().colorPrimaryColorInt,
+                Color.BLACK,
+                alpha
+        ));
         if (alpha == 0f) {
             getWindow(context).setStatusBarColor(statusBarColorPrevious);
         } else {

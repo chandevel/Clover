@@ -16,12 +16,13 @@
  */
 package com.github.adamantcheese.chan.core.saver;
 
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Canceled;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.BaseDirectoryDoesNotExist;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.NoWriteExternalStoragePermission;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.Ok;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledImageSaveResult.UnknownError;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.BaseDirectoryDoesNotExist;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.NoWriteExternalStoragePermission;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.Saved;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.UnknownError;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Canceled;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Success;
+import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getString;
 import static com.github.adamantcheese.chan.utils.StringUtils.maskImageUrl;
@@ -138,7 +139,7 @@ public class ImageSaver {
                         .doOnError((error) -> imageSaveTaskFailed(t, error))
                         .doOnSuccess((success) -> imageSaveTaskFinished(t, success))
                         .doOnError((error) -> Logger.e(ImageSaver.this, "Unhandled exception", error))
-                        .onErrorReturnItem(BundledDownloadResult.Failure), false, CONCURRENT_REQUESTS_COUNT)
+                        .onErrorReturnItem(TaskResult.Failure), false, CONCURRENT_REQUESTS_COUNT)
                 .subscribe((result) -> {
                     // Do nothing
                 }, (error) -> {
@@ -153,50 +154,7 @@ public class ImageSaver {
                 });
     }
 
-    public void startDownloadTask(Context context, final ImageSaveTask task, DownloadTaskCallbacks callbacks) {
-        if (hasPermission(context)) {
-            startDownloadTaskInternal(task, callbacks);
-            return;
-        }
-
-        requestPermission(context, granted -> {
-            if (!granted) {
-                callbacks.onError(getString(R.string.image_saver_no_write_permission));
-                return;
-            }
-
-            startDownloadTaskInternal(task, callbacks);
-        });
-    }
-
-    private void startDownloadTaskInternal(ImageSaveTask task, DownloadTaskCallbacks callbacks) {
-        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            // If current base dir is File API backed and it's not set, attempt to create it
-            // manually
-            if (ChanSettings.saveLocation.isFileDirActive()) {
-                File baseDirFile = new File(ChanSettings.saveLocation.getFileApiBaseDir().get());
-                if (!baseDirFile.exists() && !baseDirFile.mkdirs()) {
-                    callbacks.onError(getString(R.string.files_base_dir_does_not_exist));
-                    return;
-                }
-            }
-        }
-
-        AbstractFile saveLocation = getSaveLocation(task);
-        if (saveLocation == null) {
-            callbacks.onError(getString(R.string.image_saver_could_not_figure_out_save_location));
-            return;
-        }
-
-        PostImage postImage = task.getPostImage();
-        task.setDestination(deduplicateFile(postImage, task, saveLocation, false));
-
-        // At this point we already have disk permissions
-        startTask(task);
-        updateNotification();
-    }
-
-    public Single<BundledImageSaveResult> startBundledTask(Context context, final List<ImageSaveTask> tasks) {
+    public Single<ImageSaveResult> startBundledTask(Context context, final List<ImageSaveTask> tasks) {
         return Single.defer(() -> {
             if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
                 // If current base dir is File API backed and it's not set, attempt to create it
@@ -214,7 +172,7 @@ public class ImageSaver {
                     return Single.just(NoWriteExternalStoragePermission);
                 }
 
-                return startBundledTaskInternal(tasks).map((result) -> result ? Ok : UnknownError);
+                return startBundledTaskInternal(tasks).map((result) -> result ? Saved : UnknownError);
             });
         });
     }
@@ -299,7 +257,7 @@ public class ImageSaver {
         EventBus.getDefault().post(new StartActivity.ActivityToastMessage(errorMessage, Toast.LENGTH_LONG));
     }
 
-    private void imageSaveTaskFinished(ImageSaveTask task, BundledDownloadResult result) {
+    private void imageSaveTaskFinished(ImageSaveTask task, TaskResult result) {
         BackgroundUtils.ensureMainThread();
         doneTasks.incrementAndGet();
 
@@ -312,9 +270,9 @@ public class ImageSaver {
 
         if (checkBatchCompleted()) {
             onBatchCompleted();
+        } else {
+            updateNotification();
         }
-
-        updateNotification();
 
         // Do not show the toast when image download has failed; we will show it in imageSaveTaskFailed
         // Also don't show the toast if the task was a share, or if this is an album save task
@@ -360,6 +318,7 @@ public class ImageSaver {
                 .fromCallable(() -> {
                     BackgroundUtils.ensureBackgroundThread();
                     boolean allSuccess = true;
+                    boolean wasAlbumSave = tasks.size() > 1;
 
                     for (ImageSaveTask task : tasks) {
                         PostImage postImage = task.getPostImage();
@@ -370,7 +329,7 @@ public class ImageSaver {
                             continue;
                         }
 
-                        task.setDestination(deduplicateFile(postImage, task, saveLocation, true));
+                        task.setDestination(deduplicateFile(postImage, task, saveLocation, wasAlbumSave));
                         startTask(task);
                     }
 
@@ -494,20 +453,35 @@ public class ImageSaver {
                 .requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, callback);
     }
 
-    public enum BundledDownloadResult {
+    public enum TaskResult {
         Success,
         Failure,
         Canceled
     }
 
-    public enum BundledImageSaveResult {
-        Ok,
+    public enum ImageSaveResult {
+        Saved,
         BaseDirectoryDoesNotExist,
         NoWriteExternalStoragePermission,
         UnknownError
     }
 
-    public interface DownloadTaskCallbacks {
-        void onError(String message);
+    public static class DefaultImageSaveResultEvent {
+        public void onResultEvent(Context context, ImageSaver.ImageSaveResult result) {
+            switch (result) {
+                case BaseDirectoryDoesNotExist:
+                    showToast(context, R.string.files_base_dir_does_not_exist);
+                    break;
+                case NoWriteExternalStoragePermission:
+                    showToast(context, R.string.could_not_start_saving_no_permissions);
+                    break;
+                case UnknownError:
+                    showToast(context, R.string.album_download_could_not_save_one_or_more_images);
+                    break;
+                case Saved:
+                    // Do nothing, we got the permissions and started downloading an image
+                    break;
+            }
+        }
     }
 }

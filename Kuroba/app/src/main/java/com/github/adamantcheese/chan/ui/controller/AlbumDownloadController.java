@@ -16,6 +16,7 @@
  */
 package com.github.adamantcheese.chan.ui.controller;
 
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.ImageSaveResult.UnknownError;
 import static com.github.adamantcheese.chan.ui.widget.CancellableToast.showToast;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getQuantityString;
@@ -37,11 +38,13 @@ import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.net.ImageLoadable;
 import com.github.adamantcheese.chan.core.saver.ImageSaveTask;
 import com.github.adamantcheese.chan.core.saver.ImageSaver;
+import com.github.adamantcheese.chan.core.saver.ImageSaver.DefaultImageSaveResultEvent;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.toolbar.ToolbarMenuItem;
 import com.github.adamantcheese.chan.ui.view.AlbumLayout;
 import com.github.adamantcheese.chan.ui.view.ShapeablePostImageView;
-import com.github.adamantcheese.chan.utils.*;
+import com.github.adamantcheese.chan.utils.RecyclerUtils;
+import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
@@ -145,32 +148,11 @@ public class AlbumDownloadController
         Disposable disposable = imageSaver
                 .startBundledTask(context, tasks)
                 .observeOn(AndroidSchedulers.mainThread())
-                .onErrorReturnItem(ImageSaver.BundledImageSaveResult.UnknownError)
-                .subscribe(this::onResultEvent);
+                .onErrorReturnItem(UnknownError)
+                .subscribe((result) -> new DefaultImageSaveResultEvent().onResultEvent(context, result));
 
         compositeDisposable.add(disposable);
         navigationController.popController();
-    }
-
-    private void onResultEvent(ImageSaver.BundledImageSaveResult result) {
-        BackgroundUtils.ensureMainThread();
-
-        if (result == ImageSaver.BundledImageSaveResult.Ok) {
-            // Do nothing, we got the permissions and started downloading an album
-            return;
-        }
-
-        switch (result) {
-            case BaseDirectoryDoesNotExist:
-                showToast(context, R.string.files_base_dir_does_not_exist);
-                break;
-            case NoWriteExternalStoragePermission:
-                showToast(context, R.string.could_not_start_saving_no_permissions);
-                break;
-            case UnknownError:
-                showToast(context, R.string.album_download_could_not_save_one_or_more_images);
-                break;
-        }
     }
 
     private void onCheckAllClicked(ToolbarMenuItem menuItem) {

@@ -17,8 +17,8 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Failure;
-import static com.github.adamantcheese.chan.core.saver.ImageSaver.BundledDownloadResult.Success;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Failure;
+import static com.github.adamantcheese.chan.core.saver.ImageSaver.TaskResult.Success;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.openIntent;
 
@@ -60,7 +60,7 @@ public class ImageSaveTask {
     public final boolean share;
     private String subFolder;
     private boolean success = false;
-    private final SingleSubject<ImageSaver.BundledDownloadResult> imageSaveTaskAsyncResult;
+    private final SingleSubject<ImageSaver.TaskResult> imageSaveTaskAsyncResult;
 
     public ImageSaveTask(PostImage postImage, boolean share) {
         inject(this);
@@ -90,7 +90,7 @@ public class ImageSaveTask {
         return destination;
     }
 
-    public Single<ImageSaver.BundledDownloadResult> run() {
+    public Single<ImageSaver.TaskResult> run() {
         BackgroundUtils.ensureBackgroundThread();
         Logger.d(this, "ImageSaveTask.run() destination = " + destination.getFullPath());
 
