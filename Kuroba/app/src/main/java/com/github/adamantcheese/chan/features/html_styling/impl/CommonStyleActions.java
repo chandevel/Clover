@@ -46,7 +46,7 @@ public class CommonStyleActions {
     };
 
     private static final Pattern HEX_COLOR_PATTERN =
-            Pattern.compile("#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})?");
+            Pattern.compile("(?<![\\w/])#([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})([a-fA-F0-9]{2})?");
     public static final StyleAction HEX_COLOR = (element, text) -> {
         SpannableStringBuilder newBuilder = new SpannableStringBuilder(text);
         Matcher colorMatcher = HEX_COLOR_PATTERN.matcher(newBuilder);
