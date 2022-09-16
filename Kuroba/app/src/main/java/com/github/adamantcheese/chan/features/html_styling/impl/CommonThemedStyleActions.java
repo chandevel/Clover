@@ -17,6 +17,7 @@ import com.github.adamantcheese.chan.core.manager.ArchivesManager;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.ThreadLink;
+import com.github.adamantcheese.chan.features.html_styling.base.StyleActionTextAdjuster;
 import com.github.adamantcheese.chan.features.html_styling.base.ThemedStyleAction;
 import com.github.adamantcheese.chan.ui.text.CodeBackgroundSpan;
 import com.github.adamantcheese.chan.ui.text.ForegroundColorSpanHashed;
@@ -68,14 +69,11 @@ public class CommonThemedStyleActions {
                 } catch (Exception ignored) {}
 
                 txt.setSpan(pl, link.getBeginIndex(), link.getEndIndex(), makeSpanOptions(RENDER_NORMAL));
-            }
 
-            for (ArchiveLinkable l : txt.getSpans(0, txt.length(), ArchiveLinkable.class)) {
-                ThreadLink archiveData = (ThreadLink) l.value;
-                txt.replace(txt.getSpanStart(l),
-                        txt.getSpanEnd(l),
-                        ">>" + (archiveData.postId == -1 ? archiveData.threadId : archiveData.postId) + " →"
-                );
+                if (pl instanceof StyleActionTextAdjuster) {
+                    StyleActionTextAdjuster adjuster = (StyleActionTextAdjuster) pl;
+                    txt.replace(txt.getSpanStart(adjuster), txt.getSpanEnd(adjuster), adjuster.adjust(linkText));
+                }
             }
 
             return txt;

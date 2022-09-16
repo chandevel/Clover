@@ -12,6 +12,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.AndroidUtils;
 
+import java.util.Objects;
+
 public class SpoilerLinkable
         extends PostLinkable<CharSequence> {
 
@@ -39,5 +41,18 @@ public class SpoilerLinkable
     public void updateDrawState(@NonNull TextPaint textPaint) {
         textPaint.bgColor = spoilerColor;
         textPaint.setColor(spoilerVisible ? getContrastColor(spoilerColor) : spoilerColor);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof PostLinkable)) return false;
+        PostLinkable<?> that = (PostLinkable<?>) o;
+        return value.toString().equals(that.value.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value.toString());
     }
 }

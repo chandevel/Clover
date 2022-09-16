@@ -70,6 +70,17 @@ public class PostThemedStyleActions {
                 @NonNull PostParser.PostParserCallback callback
         ) {
             PostLinkable<?> linkable = generateLinkableForAnchor(node, theme, post, callback);
+            // it is possible that the LINK action has already generated things that we will generate again
+            // that is, a node like <a href="https://www.example.com">https://www.example.com</a> is being processed here
+            // but the inner text has already been autolinked and we don't want to make another link on top of it
+            // we check existing spans against the one we generated to see if we'd style the same thing; if so, abort
+            if (text instanceof Spanned) {
+                Spanned txt = (Spanned) text;
+                PostLinkable<?>[] linkables = txt.getSpans(0, text.length(), linkable.getClass());
+                for (PostLinkable<?> pl : linkables) {
+                    if (pl.value.equals(linkable.value)) return text;
+                }
+            }
             return styleWithLinkable(callback, post, linkable, text);
         }
     };
@@ -113,13 +124,18 @@ public class PostThemedStyleActions {
         fragment = fragment == null ? "~" : fragment;
         // quote fragment
         try {
-            postNo = Integer.parseInt(fragment.substring(fragment.charAt(0) == 'p' ? 1 : 0));
+            //@formatter:off
+            postNo = Integer.parseInt(
+                    fragment.substring(fragment.charAt(0) == 'p' || fragment.charAt(0) == 'q' ? 1 : 0));
+            //@formatter:on
         } catch (Exception ignored) {}
 
         if (board != null && fragment.charAt(0) == 's') {
             return new SearchLinkable(theme, new SearchLink(board, fragment.substring(2)));
         } else if (board != null && threadNo == -1 && postNo == -1) {
             return new BoardLinkable(theme, board);
+        } else if (board != null && !board.equals(post.board.code) && threadNo != -1 && postNo != -1) {
+            return new ThreadLinkable(theme, new ThreadLink(board, threadNo, postNo));
         } else if (post.board.code.equals(board)) {
             if (callback.isInternal(postNo)) {
                 post.repliesTo(Collections.singleton(postNo));

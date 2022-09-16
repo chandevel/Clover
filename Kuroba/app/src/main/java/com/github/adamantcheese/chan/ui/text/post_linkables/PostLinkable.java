@@ -39,7 +39,7 @@ public abstract class PostLinkable<T>
     protected final int quoteColor;
     public final T value; // the value associated with the text; see implementations
 
-    public PostLinkable(@NonNull Theme theme, T value) {
+    public PostLinkable(@NonNull Theme theme, @NonNull T value) {
         quoteColor = AndroidUtils.getThemeAttrColor(theme, R.attr.post_quote_color);
         this.value = value;
     }
@@ -54,11 +54,11 @@ public abstract class PostLinkable<T>
         if (this == o) return true;
         if (!(o instanceof PostLinkable)) return false;
         PostLinkable<?> that = (PostLinkable<?>) o;
-        return Objects.equals(value.toString(), that.value.toString());
+        return value.equals(that.value);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(value.toString());
+        return Objects.hash(value);
     }
 }
