@@ -372,10 +372,10 @@ public class NetUtils {
     ) {
         if (result == null) {
             runnable.setException(new NullPointerException("Bitmap returned is null"));
-            runOrEnqueueOnMainThread(runnable, mainThread);
+        } else {
+            imageCache.put(new Triple<>(url, requestWidth, requestedHeight), result);
+            runnable.setBitmap(result);
         }
-        imageCache.put(new Triple<>(url, requestWidth, requestedHeight), result);
-        runnable.setBitmap(result);
         runOrEnqueueOnMainThread(runnable, mainThread);
     }
 
@@ -426,11 +426,11 @@ public class NetUtils {
 
         @Override
         public void run() {
-            if (bitmap != null) {
-                result.onBitmapSuccess(url, bitmap, fromCache);
-            } else if (exception != null) {
+            if (exception != null) {
                 if (isCancelledException(exception)) return;
                 result.onBitmapFailure(url, exception);
+            } else if (bitmap != null) {
+                result.onBitmapSuccess(url, bitmap, fromCache);
             }
         }
     }
