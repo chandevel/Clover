@@ -485,6 +485,7 @@ public class MultiImageView
             exoVideoView.setShowPreviousButton(false);
             exoVideoView.setShowNextButton(false);
             exoVideoView.setShowShuffleButton(false);
+            exoVideoView.setUseController(!ChanSettings.neverShowWebmControls.get());
             exoPlayer = new ExoPlayer.Builder(getContext()).build();
             exoVideoView.setPlayer(exoPlayer);
 
