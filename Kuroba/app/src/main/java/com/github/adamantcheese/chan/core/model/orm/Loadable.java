@@ -181,11 +181,20 @@ public class Loadable
         return instance(DatabaseLoadableManager.class).get(loadable);
     }
 
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    @Override
+    public boolean equals(Object object) {
+        return equalsInternal(object, true);
+    }
+
+    public boolean equalsNoId(Object object) {
+        return equalsInternal(object, false);
+    }
+
     /**
      * Compares the mode, site, board and no.
      */
-    @Override
-    public boolean equals(Object object) {
+    public boolean equalsInternal(Object object, boolean checkId) {
         if (!(object instanceof Loadable)) return false;
 
         Loadable other = (Loadable) object;
@@ -201,7 +210,7 @@ public class Loadable
                 case CATALOG:
                     return boardCode.equals(other.boardCode);
                 case THREAD:
-                    return boardCode.equals(other.boardCode) && no == other.no && id == other.id;
+                    return boardCode.equals(other.boardCode) && no == other.no && (!checkId || id == other.id);
                 default:
                     throw new IllegalArgumentException();
             }

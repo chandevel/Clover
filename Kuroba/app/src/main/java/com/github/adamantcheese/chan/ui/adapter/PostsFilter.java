@@ -117,7 +117,7 @@ public class PostsFilter {
             while (i.hasNext()) {
                 Post item = i.next();
                 for (Pin pin : pins) {
-                    if (pin.loadable.equals(Loadable.forThread(thread.loadable.board, item.no, "", false))) {
+                    if (pin.loadable.equalsNoId(Loadable.forThread(thread.loadable.board, item.no, "", false))) {
                         i.remove();
                     }
                 }
