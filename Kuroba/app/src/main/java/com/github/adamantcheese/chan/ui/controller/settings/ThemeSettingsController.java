@@ -224,10 +224,8 @@ public class ThemeSettingsController
             @Override
             public void onPageSelected(int position) {
                 Theme currentTheme = getViewedTheme();
-                done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
-                        R.attr.colorAccent
-                )));
-                wrapper.setBackgroundColor(AndroidUtils.getThemeAttrColor(currentTheme, R.attr.backcolor));
+                done.setBackgroundTintList(ColorStateList.valueOf(currentTheme.accentColorInt));
+                wrapper.setBackgroundColor(currentTheme.backColorInt);
             }
         });
 
@@ -279,9 +277,7 @@ public class ThemeSettingsController
 
         updateAdapter(ThemeHelper.getTheme());
         //update button color manually, in case onPageSelected isn't called
-        done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(ThemeHelper.getTheme().accentColor.accentStyleId,
-                R.attr.colorAccent
-        )));
+        done.setBackgroundTintList(ColorStateList.valueOf(ThemeHelper.getTheme().accentColorInt));
         wrapper.setBackgroundColor(getAttrColor(ThemeHelper.getTheme().resValue, R.attr.backcolor));
     }
 
@@ -291,7 +287,7 @@ public class ThemeSettingsController
         for (MaterialColorStyle color : MaterialColorStyle.values()) {
             FloatingMenuItem<MaterialColorStyle> floatingMenuItem = new FloatingMenuItem<>(color, color.prettyName());
             items.add(floatingMenuItem);
-            if (color == getViewedTheme().accentColor) {
+            if (color == getViewedTheme().getAccentColor()) {
                 selected = floatingMenuItem;
             }
         }
@@ -303,10 +299,8 @@ public class ThemeSettingsController
                     FloatingMenu<MaterialColorStyle> menu, FloatingMenuItem<MaterialColorStyle> item
             ) {
                 Theme currentTheme = getViewedTheme();
-                currentTheme.accentColor = item.getId();
-                done.setBackgroundTintList(ColorStateList.valueOf(getAttrColor(currentTheme.accentColor.accentStyleId,
-                        R.attr.colorAccent
-                )));
+                currentTheme.setAccentColor(item.getId());
+                done.setBackgroundTintList(ColorStateList.valueOf(ThemeHelper.getTheme().accentColorInt));
                 updateAdapter(currentTheme);
             }
         });
@@ -332,8 +326,8 @@ public class ThemeSettingsController
         for (i = 0; i < ThemeHelper.themes.size(); i++) {
             Theme theme = ThemeHelper.themes.get(i);
             if (theme.name.equals(currentTheme.name)) {
-                theme.primaryColor = currentTheme.primaryColor;
-                theme.accentColor = currentTheme.accentColor;
+                theme.setPrimaryColor(currentTheme.getPrimaryColor());
+                theme.setAccentColor(currentTheme.getAccentColor());
                 break;
             }
         }
@@ -452,7 +446,7 @@ public class ThemeSettingsController
                     FloatingMenuItem<MaterialColorStyle> floatingMenuItem =
                             new FloatingMenuItem<>(color, color.prettyName());
                     items.add(floatingMenuItem);
-                    if (color == holder.theme.primaryColor) {
+                    if (color == holder.theme.getPrimaryColor()) {
                         selected = floatingMenuItem;
                     }
                 }
@@ -463,9 +457,8 @@ public class ThemeSettingsController
                     public void onFloatingMenuItemClicked(
                             FloatingMenu<MaterialColorStyle> menu, FloatingMenuItem<MaterialColorStyle> item
                     ) {
-                        MaterialColorStyle color = item.getId();
-                        holder.theme.primaryColor = color;
-                        holder.toolbar.setBackgroundColor(getAttrColor(color.primaryColorStyleId, R.attr.colorPrimary));
+                        holder.theme.setPrimaryColor(item.getId());
+                        holder.toolbar.setBackgroundColor(holder.theme.colorPrimaryColorInt);
                     }
                 });
                 menu.setPopupHeight((int) dp(context, 300));

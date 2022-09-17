@@ -1,13 +1,11 @@
 package com.github.adamantcheese.chan.features.embedding.embedders;
 
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
@@ -55,20 +53,18 @@ public class BandcampEmbedder
         return input -> {
             String duration = null;
             PostImage extra = null;
-            int curThemeResValue = ThemeHelper.getTheme().resValue;
             try {
                 String extractedPlayer = input.select("meta[property=twitter:player]").get(0).attr("content");
                 extractedPlayer = extractedPlayer
                         .replace("v=2/", "")
                         .replace("notracklist=true/", "")
                         .replace("twittercard=true/", "")
-                        .replaceAll("linkcol=.{6}",
-                                "linkcol=" + getRGBColorIntString(getAttrColor(curThemeResValue,
-                                        android.R.attr.textColorPrimary
-                                )) + "/"
+                        .replaceAll(
+                                "linkcol=.{6}",
+                                "linkcol=" + getRGBColorIntString(ThemeHelper.getTheme().textColorPrimaryColorInt) + "/"
                         )
                         + "bgcol="
-                        + getRGBColorIntString(getAttrColor(curThemeResValue, R.attr.backcolor))
+                        + getRGBColorIntString(ThemeHelper.getTheme().backColorInt)
                         + "/minimal=true/transparent=true/";
                 HttpUrl embeddedPlayer = HttpUrl.get(extractedPlayer);
 

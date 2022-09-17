@@ -92,10 +92,9 @@ public class ChanThread {
         String separator = " / ";
         Object[] styleSpans = {new StyleSpan(Typeface.ITALIC)};
         if (extraStyling) {
-            int themeTextColor = getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor);
             styleSpans = new Object[]{
                     new StyleSpan(Typeface.BOLD_ITALIC),
-                    new ForegroundColorSpanHashed(themeTextColor),
+                    new ForegroundColorSpanHashed(ThemeHelper.getTheme().textColorInt),
                     new UnderlineSpan()
             };
         }

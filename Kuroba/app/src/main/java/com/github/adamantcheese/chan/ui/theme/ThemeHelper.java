@@ -88,9 +88,9 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    themeDay = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
-                    themeDay.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
-                    themeDay.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    themeDay = new Theme(theme.name, theme.resValue, theme.getPrimaryColor(), theme.getAccentColor());
+                    themeDay.setPrimaryColor(Theme.MaterialColorStyle.valueOf(split[1]));
+                    themeDay.setAccentColor(Theme.MaterialColorStyle.valueOf(split[2]));
                     ok = true;
                 } catch (Exception ignored) {
                     // theme name matches, but something else is wrong with the setting
@@ -109,9 +109,9 @@ public class ThemeHelper {
         for (Theme theme : themes) {
             if (theme.name.equals(split[0])) {
                 try {
-                    themeNight = new Theme(theme.name, theme.resValue, theme.primaryColor, theme.accentColor);
-                    themeNight.primaryColor = Theme.MaterialColorStyle.valueOf(split[1]);
-                    themeNight.accentColor = Theme.MaterialColorStyle.valueOf(split[2]);
+                    themeNight = new Theme(theme.name, theme.resValue, theme.getPrimaryColor(), theme.getAccentColor());
+                    themeNight.setPrimaryColor(Theme.MaterialColorStyle.valueOf(split[1]));
+                    themeNight.setAccentColor(Theme.MaterialColorStyle.valueOf(split[2]));
                     ok = true;
                 } catch (Exception ignored) {
                     // theme name matches, but something else is wrong with the setting
@@ -168,8 +168,8 @@ public class ThemeHelper {
         //create the proper Android theme instance from the local theme, and the selected colors
         Resources.Theme userTheme = context.getResources().newTheme();
         userTheme.applyStyle(theme.resValue, true); // main styling theme first
-        userTheme.applyStyle(theme.primaryColor.primaryColorStyleId, true); // toolbar color, status bar color
-        userTheme.applyStyle(theme.accentColor.accentStyleId, true); // FAB, ui element color
+        userTheme.applyStyle(theme.getPrimaryColor().primaryColorStyleId, true); // toolbar color, status bar color
+        userTheme.applyStyle(theme.getAccentColor().accentStyleId, true); // FAB, ui element color
         // add in your custom stuff here, the first argument must be something that resolves with R.style.<element>, with force always to true
         return userTheme;
     }

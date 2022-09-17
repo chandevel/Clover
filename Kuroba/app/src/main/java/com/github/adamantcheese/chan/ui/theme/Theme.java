@@ -51,11 +51,11 @@ public class Theme {
     /**
      * This is the main color for the theme, use primaryColorStyleId from it to retrieve R.attr.colorPrimary
      */
-    public MaterialColorStyle primaryColor;
+    private MaterialColorStyle primaryColor;
     /**
      * This is the color for any accented items (FABs, etc.); use the actual color from accentColorInt instead
      */
-    public MaterialColorStyle accentColor;
+    private MaterialColorStyle accentColor;
 
     // Defaults for the above colors
     private final MaterialColorStyle defaultPrimary;
@@ -66,6 +66,9 @@ public class Theme {
     public int accentColorInt;
     public int subjectColorInt;
     public int nameColorInt;
+    public int backColorInt;
+    public int textColorInt;
+    public int textColorPrimaryColorInt;
 
     public Theme(String displayName, int resValue, MaterialColorStyle primaryColor, MaterialColorStyle accentColor) {
         this.name = displayName;
@@ -74,17 +77,42 @@ public class Theme {
         defaultPrimary = primaryColor;
         this.accentColor = accentColor;
         defaultAccent = accentColor;
-
-        colorPrimaryColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorPrimary);
-        colorPrimaryDarkColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorPrimaryDark);
-        accentColorInt = AndroidUtils.getAttrColor(resValue, R.attr.colorAccent);
-        subjectColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
-        nameColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
+        buildAttributes();
     }
 
     public void reset() {
         primaryColor = defaultPrimary;
         accentColor = defaultAccent;
+        buildAttributes();
+    }
+
+    public MaterialColorStyle getPrimaryColor() {
+        return primaryColor;
+    }
+
+    public void setPrimaryColor(MaterialColorStyle primaryColor) {
+        this.primaryColor = primaryColor;
+        buildAttributes();
+    }
+
+    public MaterialColorStyle getAccentColor() {
+        return accentColor;
+    }
+
+    public void setAccentColor(MaterialColorStyle accentColor) {
+        this.accentColor = accentColor;
+        buildAttributes();
+    }
+
+    public void buildAttributes() {
+        colorPrimaryColorInt = AndroidUtils.getAttrColor(primaryColor.primaryColorStyleId, R.attr.colorPrimary);
+        colorPrimaryDarkColorInt = AndroidUtils.getAttrColor(primaryColor.primaryColorStyleId, R.attr.colorPrimaryDark);
+        accentColorInt = AndroidUtils.getAttrColor(accentColor.accentStyleId, R.attr.colorAccent);
+        subjectColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
+        nameColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
+        backColorInt = AndroidUtils.getAttrColor(resValue, R.attr.backcolor);
+        textColorInt = AndroidUtils.getAttrColor(resValue, android.R.attr.textColor);
+        textColorPrimaryColorInt = AndroidUtils.getAttrColor(resValue, android.R.attr.textColorPrimary);
     }
 
     @NonNull

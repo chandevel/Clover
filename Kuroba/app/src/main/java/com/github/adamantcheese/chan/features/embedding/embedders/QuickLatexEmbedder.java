@@ -151,7 +151,7 @@ public class QuickLatexEmbedder
         String postBody =
                 "formula=" + formula +
                 "&fsize=" + (int) (sp(ChanSettings.fontSize.get()) * 1.2) + "px" +
-                "&fcolor=" + getRGBColorIntString(getAttrColor(ThemeHelper.getTheme().resValue, android.R.attr.textColor)) +
+                "&fcolor=" + getRGBColorIntString(ThemeHelper.getTheme().textColorInt) +
                 "&mode=0" +
                 "&out=1" +
                 "&preamble=\\usepackage{amsmath}\r\n\\usepackage{amsfonts}\r\n\\usepackage{amssymb}" +
