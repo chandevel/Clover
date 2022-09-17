@@ -117,9 +117,6 @@ public class FutabaSiteContentReader
                 case "no":
                     builder.no(reader.nextInt());
                     break;
-                /*case "now":
-                    post.date = reader.nextString();
-                    break;*/
                 case "sub":
                     builder.subject(reader.nextString());
                     break;

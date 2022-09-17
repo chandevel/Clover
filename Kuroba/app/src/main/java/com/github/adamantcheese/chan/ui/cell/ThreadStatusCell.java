@@ -135,7 +135,7 @@ public class ThreadStatusCell
         void onListStatusClicked();
     }
 
-    public class EditModeCallback
+    public static class EditModeCallback
             implements Callback {
         @Override
         public long getTimeUntilLoadMore() {

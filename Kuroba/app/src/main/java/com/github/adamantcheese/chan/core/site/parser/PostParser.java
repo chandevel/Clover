@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
-import static com.github.adamantcheese.chan.utils.AndroidUtils.getAttrColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
@@ -28,7 +27,6 @@ import android.text.*;
 
 import androidx.annotation.NonNull;
 
-import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.manager.FilterEngine.FilterAction;
 import com.github.adamantcheese.chan.core.model.Post;
@@ -60,7 +58,7 @@ public class PostParser {
     // This negative lookbehind and negative lookahead are just so it doesn't match too much stuff, experimentally determined
     // not preceded by /, ", l, &, : (optional space too to avoid CSS with spaces) and not followed by ;
     // otherwise match @num and #num
-    private final Pattern extraQuotePattern = Pattern.compile("(?<!(?:: ?))(?<![/\\\"l&])[@#](\\d+)(?!;)");
+    private final Pattern extraQuotePattern = Pattern.compile("(?<!: ?)(?<![/\\\"l&])[@#](\\d+)(?!;)");
     private final Pattern extraSpoilerPattern = Pattern.compile("\\[spoiler\\](.*?)\\[/spoiler\\]");
     private final Pattern discordSpoilerPatten = Pattern.compile("\\|\\|(.*?)\\|\\|");
     private final Pattern boldPattern = Pattern.compile("\\*\\*(.+)\\*\\*");

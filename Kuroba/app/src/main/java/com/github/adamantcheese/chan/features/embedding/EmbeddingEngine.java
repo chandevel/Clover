@@ -166,11 +166,7 @@ public class EmbeddingEngine
 
                 private void checkInvalidate() {
                     if (callCount != processed.incrementAndGet()) return; // still completing calls
-                    if (!embeddable.hasCompletedEmbedding()) {
-                        // partial complete, just send out what we have
-                        onEmbeddingComplete(embeddable, embedCopy, generatedImages, invalidateFunction);
-                        return;
-                    }
+                    // even if partial, just run the complete
                     onEmbeddingComplete(embeddable, embedCopy, generatedImages, invalidateFunction);
                 }
             });

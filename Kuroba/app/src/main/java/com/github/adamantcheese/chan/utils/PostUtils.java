@@ -85,7 +85,7 @@ public class PostUtils {
     ) {
         StringBuilder text = new StringBuilder(existingText == null ? "" : existingText);
         text.append("Filename: ").append(image.filename).append(".").append(image.extension);
-        if ("webm".equals(image.extension.toLowerCase())) {
+        if ("webm".equalsIgnoreCase(image.extension)) {
             // check webms for extra titles, async
             // this is a super simple example of what the embedding engine does, basically
             String checking = "\nChecking for metadata titles…";
@@ -134,11 +134,7 @@ public class PostUtils {
         if (image.isInlined) {
             text.append("\nLinked file");
         } else {
-            text
-                    .append("\nDimensions: ")
-                    .append(Integer.toString(image.imageWidth))
-                    .append("x")
-                    .append(Integer.toString(image.imageHeight));
+            text.append("\nDimensions: ").append(image.imageWidth).append("x").append(image.imageHeight);
         }
 
         if (image.size > 0) {

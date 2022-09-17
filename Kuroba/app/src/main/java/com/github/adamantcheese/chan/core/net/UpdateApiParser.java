@@ -66,13 +66,15 @@ public class UpdateApiParser
                     if (versionMatcher.matches()) {
                         try {
                             //@formatter:off
+                            //noinspection PointlessArithmeticExpression,ConstantConditions
                             response.versionCode =
                                     10000 * Integer.parseInt(versionMatcher.group(1)) +
-                                            100   * Integer.parseInt(versionMatcher.group(2)) +
-                                            1     * Integer.parseInt(versionMatcher.group(3));
+                                    100   * Integer.parseInt(versionMatcher.group(2)) +
+                                    1     * Integer.parseInt(versionMatcher.group(3));
                             response.apkURL =
-                                    HttpUrl.get((DEV_BUILD ? DEV_GITHUB_ENDPOINT : GITHUB_ENDPOINT) + "/releases/download/" +
-                                            response.versionCodeString + "/" + APP_LABEL + (DEV_BUILD ? "-" + versionMatcher.group(4) : "") + ".apk");
+                                    HttpUrl.get((DEV_BUILD ? DEV_GITHUB_ENDPOINT : GITHUB_ENDPOINT) +
+                                    "/releases/download/" + response.versionCodeString + "/" + APP_LABEL +
+                                    (DEV_BUILD ? "-" + versionMatcher.group(4) : "") + ".apk");
                             //@formatter:on
                             break;
                         } catch (Exception e) {

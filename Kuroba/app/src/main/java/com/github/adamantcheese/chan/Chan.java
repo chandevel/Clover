@@ -196,7 +196,7 @@ public class Chan
 
     public enum ActivityForegroundStatus {
         IN_FOREGROUND,
-        IN_BACKGROUND;
+        IN_BACKGROUND
     }
 
     private void postEventBusOneSecondMessage() {

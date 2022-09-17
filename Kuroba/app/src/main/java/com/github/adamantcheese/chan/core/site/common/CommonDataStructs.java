@@ -58,6 +58,6 @@ public class CommonDataStructs {
     public enum CaptchaType {
         V2JS,
         V2NOJS,
-        CHAN4_CUSTOM;
+        CHAN4_CUSTOM
     }
 }

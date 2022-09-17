@@ -27,19 +27,18 @@ import java.util.List;
 
 public class ExportedAppSettings {
     @SerializedName("app_settings_version")
-    private int version;
+    private final int version;
     @SerializedName("exported_sites")
-    private List<ExportedSite> exportedSites;
+    private final List<ExportedSite> exportedSites;
     //there aren't any exported pins here because the pins are stored inside each exported site
     //there also aren't any exported loadables because they are inside the exported pins
     @SerializedName("exported_boards")
-    private List<ExportedBoard> exportedBoards;
+    private final List<ExportedBoard> exportedBoards;
     @SerializedName("exported_filters")
-    private List<ExportedFilter> exportedFilters;
+    private final List<ExportedFilter> exportedFilters;
     @SerializedName("exported_post_hides")
-    private List<ExportedPostHide> exportedPostHides;
+    private final List<ExportedPostHide> exportedPostHides;
     @SerializedName("exported_settings")
-    @Nullable
     private final String settings;
 
     public ExportedAppSettings(
@@ -86,16 +85,7 @@ public class ExportedAppSettings {
         return version;
     }
 
-    public void setVersion(int version) {
-        this.version = version;
-    }
-
-    @Nullable
     public String getSettings() {
         return settings;
-    }
-
-    public void setExportedPostHides(List<ExportedPostHide> exportedPostHides) {
-        this.exportedPostHides = exportedPostHides;
     }
 }

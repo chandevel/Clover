@@ -1063,7 +1063,7 @@ public class ThreadPresenter
                 }
             } catch (Exception ignored) {
             }
-            text.append("Post count: ").append(Integer.toString(count)).append("\n");
+            text.append("Post count: ").append(count).append("\n");
         }
 
         if (post.httpIcons != null && !post.httpIcons.isEmpty()) {

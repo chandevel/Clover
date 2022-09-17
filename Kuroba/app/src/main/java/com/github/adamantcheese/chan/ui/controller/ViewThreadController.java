@@ -469,7 +469,7 @@ public class ViewThreadController
     public void onMenuHidden() {
     }
 
-    private void handleSorting(ToolbarMenuItem item) {
+    private void handleSorting(@SuppressWarnings("SameParameterValue") ToolbarMenuItem item) {
         final ThreadPresenter presenter = threadLayout.getPresenter();
         List<FloatingMenuItem<PostsFilter.PostsOrder>> items = new ArrayList<>();
         for (PostsFilter.PostsOrder postsOrder : PostsFilter.PostsOrder.values()) {

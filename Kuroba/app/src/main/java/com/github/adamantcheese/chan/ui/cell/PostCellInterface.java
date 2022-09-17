@@ -84,7 +84,7 @@ public interface PostCellInterface {
             POST_OPTION_COPY_CROSS_BOARD_LINK,
             POST_OPTION_COPY_POST_TEXT,
             POST_OPTION_COPY_IMG_URL,
-            POST_OPTION_COPY_POST_URL;
+            POST_OPTION_COPY_POST_URL
         }
 
         // These floating menu items have type Integer because it is expected that post option IDs are integers

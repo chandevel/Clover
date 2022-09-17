@@ -84,21 +84,21 @@ public class ChanSettings {
     public enum PostViewMode {
         LIST,
         GRID,
-        STAGGER;
+        STAGGER
     }
 
     public enum LayoutMode {
         AUTO,
         PHONE,
         SLIDE,
-        SPLIT;
+        SPLIT
     }
 
     public enum ImageClickPreloadStrategy {
         PRELOAD_NEXT_IMAGE,
         PRELOAD_PREVIOUS_IMAGE,
         PRELOAD_BOTH_NEXT_AND_PREVIOUS,
-        PRELOAD_NO_IMAGES;
+        PRELOAD_NO_IMAGES
     }
 
     public enum ProxyMode {

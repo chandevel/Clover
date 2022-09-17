@@ -40,7 +40,6 @@ import android.text.TextUtils;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
-import android.webkit.WebView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -54,7 +53,6 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.settings.PersistableChanState;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.material.snackbar.Snackbar;
 import com.skydoves.balloon.Balloon;
 
@@ -521,22 +519,5 @@ public class AndroidUtils {
             return false;
         }
         return application.getPackageManager().hasSystemFeature(PackageManager.FEATURE_WEBVIEW);
-    }
-
-    public static boolean removeViewChildrenWithClass(ViewGroup root, Class<? extends View> c) {
-        boolean removedSomething = false;
-        for (int i = root.getChildCount() - 1; i >= 0; i--) {
-            View child = root.getChildAt(i);
-            if (c.isInstance(child)) {
-                removedSomething = true;
-                root.removeView(child);
-                if (child instanceof StyledPlayerView) {
-                    ((StyledPlayerView) child).getPlayer().release();
-                } else if (child instanceof WebView) {
-                    ((WebView) child).destroy();
-                }
-            }
-        }
-        return removedSomething;
     }
 }

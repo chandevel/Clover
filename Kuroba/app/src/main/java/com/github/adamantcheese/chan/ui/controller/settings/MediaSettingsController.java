@@ -263,7 +263,7 @@ public class MediaSettingsController
                     return (prefetchOn ? "Prefetch enabled! Cache size automatically doubled.\n" : "") + (setting.get()
                             == null
                             ? "Unknown!"
-                            : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))).toString() + "MB");
+                            : ((Integer) (setting.get() * (prefetchOn ? 2 : 1))) + "MB");
                 }
             });
             requiresRestart.add(fileCacheSetting);

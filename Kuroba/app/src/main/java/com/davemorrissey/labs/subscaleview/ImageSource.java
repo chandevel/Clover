@@ -263,15 +263,15 @@ public final class ImageSource {
         }
     }
 
-    public final Uri getUri() {
+    public Uri getUri() {
         return uri;
     }
 
-    public final Bitmap getBitmap() {
+    public Bitmap getBitmap() {
         return bitmap;
     }
 
-    public final @Nullable InputStream getBufferStream() {
+    public @Nullable InputStream getBufferStream() {
         if (buffer != null) {
             return buffer.peek().inputStream();
         } else {
@@ -279,29 +279,29 @@ public final class ImageSource {
         }
     }
 
-    public final void clearBuffer() {
+    public void clearBuffer() {
         if (buffer != null) {
             buffer.close();
         }
     }
 
-    public final boolean getTile() {
+    public boolean getTile() {
         return tile;
     }
 
-    public final int getSWidth() {
+    public int getSWidth() {
         return sWidth;
     }
 
-    public final int getSHeight() {
+    public int getSHeight() {
         return sHeight;
     }
 
-    public final Rect getSRegion() {
+    public Rect getSRegion() {
         return sRegion;
     }
 
-    public final boolean isCached() {
+    public boolean isCached() {
         return cached;
     }
 }

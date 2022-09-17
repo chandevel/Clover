@@ -254,15 +254,23 @@ constructor(
     }
 
     private fun onUpgrade(version: Int, appSettings: ExportedAppSettings): ExportedAppSettings {
+        var appSettingUpgradeCopy = appSettings
         if (version < 2) {
             //clear the post hides for version 1, threadNo field was added
-            appSettings.exportedPostHides = ArrayList()
+            appSettingUpgradeCopy = ExportedAppSettings(
+                    appSettingUpgradeCopy.version,
+                    appSettingUpgradeCopy.exportedSites,
+                    appSettingUpgradeCopy.exportedBoards,
+                    appSettingUpgradeCopy.exportedFilters,
+                    ArrayList(),
+                    appSettingUpgradeCopy.settings
+            )
         }
 
         if (version < 3) {
             //clear the site model usersettings to be an empty JSON map for version 2,
             // as they won't parse correctly otherwise
-            for (site in appSettings.exportedSites) {
+            for (site in appSettingUpgradeCopy.exportedSites) {
                 site.userSettings = EMPTY_JSON
             }
         }
@@ -276,7 +284,7 @@ constructor(
             var chan8: ExportedSite? = null
             var chan55: ExportedSite? = null
 
-            for (site in appSettings.exportedSites) {
+            for (site in appSettingUpgradeCopy.exportedSites) {
                 val matcher = oldConfigPattern.matcher(site.configuration.toString())
                 if (matcher.matches()) {
                     val classID = matcher.group(1)?.let { Integer.parseInt(it) }
@@ -291,17 +299,17 @@ constructor(
             }
 
             if (chan55 != null) {
-                deleteExportedSite(chan55, appSettings)
+                deleteExportedSite(chan55, appSettingUpgradeCopy)
             }
 
             if (chan8 != null) {
-                deleteExportedSite(chan8, appSettings)
+                deleteExportedSite(chan8, appSettingUpgradeCopy)
             }
         }
 
         if (version < 5) {
             // siteconfig class removed, move stuff over
-            for (site in appSettings.exportedSites) {
+            for (site in appSettingUpgradeCopy.exportedSites) {
                 val matcher = oldConfigPattern.matcher(site.configuration.toString())
                 if (matcher.matches()) {
                     val classID = matcher.group(1)?.let { Integer.parseInt(it) }
@@ -313,17 +321,17 @@ constructor(
         }
 
         if (version < 6) {
-            for (board in appSettings.exportedBoards) {
+            for (board in appSettingUpgradeCopy.exportedBoards) {
                 board.boardFlags = HashMap()
             }
         }
 
         if (version < 7) {
-            for (filter in appSettings.exportedFilters) {
+            for (filter in appSettingUpgradeCopy.exportedFilters) {
                 filter.label = ""
             }
         }
-        return appSettings
+        return appSettingUpgradeCopy
     }
 
     @Throws(java.sql.SQLException::class, IOException::class)

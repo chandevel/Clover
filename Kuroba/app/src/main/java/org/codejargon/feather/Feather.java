@@ -124,7 +124,7 @@ public class Feather {
                     try {
                         return constructor.newInstance(params(paramProviders));
                     } catch (Exception e) {
-                        throw new FeatherException(String.format("Can't instantiate %s", key.toString()), e);
+                        throw new FeatherException(String.format("Can't instantiate %s", key), e);
                     }
                 }
             }));
@@ -136,8 +136,7 @@ public class Feather {
         final Key key = Key.of(m.getReturnType(), qualifier(m.getAnnotations()));
         if (providers.containsKey(key)) {
             throw new FeatherException(String.format(
-                    "%s has multiple providers, module %s",
-                    key.toString(),
+                    "%s has multiple providers, module %s", key,
                     module.getClass()
             ));
         }
@@ -156,7 +155,7 @@ public class Feather {
                 try {
                     return m.invoke(module, params(paramProviders));
                 } catch (Exception e) {
-                    throw new FeatherException(String.format("Can't instantiate %s with provider", key.toString()), e);
+                    throw new FeatherException(String.format("Can't instantiate %s with provider", key), e);
                 }
             }
         }));

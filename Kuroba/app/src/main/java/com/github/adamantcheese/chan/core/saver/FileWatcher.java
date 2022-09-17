@@ -17,7 +17,6 @@
 package com.github.adamantcheese.chan.core.saver;
 
 import android.os.Environment;
-import android.os.FileObserver;
 
 import java.io.File;
 import java.util.*;
@@ -30,8 +29,6 @@ public class FileWatcher {
     private File startingPath;
 
     private File currentPath;
-
-    private FileObserver fileObserver;
 
     public FileWatcher(FileWatcherCallback callback, File startingPath) {
         this.callback = callback;
@@ -61,17 +58,6 @@ public class FileWatcher {
         if (!StorageHelper.canNavigate(to)) {
             throw new IllegalArgumentException("Cannot navigate to " + to.getAbsolutePath());
         }
-
-        if (fileObserver != null) {
-            fileObserver.stopWatching();
-            fileObserver = null;
-        }
-
-        // TODO: fileobserver is broken
-        //  int mask = FileObserver.CREATE | FileObserver.DELETE;
-        //  fileObserver = new AFileObserver(to.getAbsolutePath(), mask);
-        //  fileObserver = new AFileObserver("/sdcard/");
-        //  fileObserver.startWatching();
 
         currentPath = to;
 

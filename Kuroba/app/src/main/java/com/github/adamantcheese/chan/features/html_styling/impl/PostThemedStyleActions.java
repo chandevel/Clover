@@ -344,7 +344,7 @@ public class PostThemedStyleActions {
 
     // matches stuff like file.jpg or file?format=jpg&name=orig
     private static final Pattern IMAGE_URL_PATTERN = Pattern.compile(
-            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac|wav)(?:.*)",
+            "https?://.*/(.+?)(?:\\.|\\?.+=)(jpg|png|jpeg|gif|webm|mp4|pdf|bmp|webp|mp3|swf|m4a|ogg|flac|wav).*",
             Pattern.CASE_INSENSITIVE
     );
     private static final String[] NO_THUMB_LINK_SUFFIXES =
