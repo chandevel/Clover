@@ -73,10 +73,11 @@ public class Theme {
     public Theme(String displayName, int resValue, MaterialColorStyle primaryColor, MaterialColorStyle accentColor) {
         this.name = displayName;
         this.resValue = resValue;
-        setPrimaryColor(primaryColor);
+        this.primaryColor = primaryColor;
         defaultPrimary = primaryColor;
-        setAccentColor(accentColor);
+        this.accentColor = accentColor;
         defaultAccent = accentColor;
+        buildAttributes();
 
         subjectColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_subject_color);
         nameColorInt = AndroidUtils.getAttrColor(resValue, R.attr.post_name_color);
