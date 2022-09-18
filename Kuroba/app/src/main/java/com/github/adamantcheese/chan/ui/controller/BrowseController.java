@@ -265,7 +265,7 @@ public class BrowseController
 
         if (presenter.getLoadable() != null
                 && !presenter.getLoadable().boardCode.equalsIgnoreCase(loadable.boardCode)) {
-            clearNextSearch = true;
+            clearNextSearch = !TextUtils.isEmpty(searchQuery);
         }
 
         presenter.bindLoadable(loadable);
@@ -368,7 +368,12 @@ public class BrowseController
             }
             if (!TextUtils.isEmpty(searchQuery)) {
                 navigation.searchText = searchQuery;
-                getToolbar().openSearch();
+                if(getToolbar().isSearchOpen()) {
+                    getToolbar().searchInput(searchQuery);
+                    getToolbar().updateViewForItem(navigation);
+                } else {
+                    getToolbar().openSearch();
+                }
                 searchQuery = null;
             }
         }

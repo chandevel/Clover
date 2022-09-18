@@ -149,7 +149,7 @@ public class ToolbarContainer
         }
 
         if (viewForItem != null) {
-            viewForItem.updateNavigationView();
+            viewForItem.createOrUpdateToolbarContainerView(true);
         }
     }
 
@@ -381,7 +381,7 @@ public class ToolbarContainer
 
         public ItemView(NavigationItem item) {
             this.item = item;
-            this.view = createNavigationView();
+            this.view = createOrUpdateToolbarContainerView(false);
         }
 
         public void attach() {
@@ -396,16 +396,15 @@ public class ToolbarContainer
             }
         }
 
-        private void updateNavigationView() {
-            if (!item.search) {
+        private View createOrUpdateToolbarContainerView(boolean update) {
+            if (update) {
                 detach();
-                createOrUpdateNavLayout(true);
+                View updated = item.search ? createOrUpdateSearchLayout(true) : createOrUpdateNavLayout(true);
                 attach();
+                return updated;
+            } else {
+                return item.search ? createOrUpdateSearchLayout(false) : createOrUpdateNavLayout(false);
             }
-        }
-
-        private View createNavigationView() {
-            return item.search ? createSearchLayout() : createOrUpdateNavLayout(false);
         }
 
         @NonNull
@@ -469,9 +468,15 @@ public class ToolbarContainer
         }
 
         @NonNull
-        private View createSearchLayout() {
-            SearchLayout searchLayout =
-                    (SearchLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_search, null, false);
+        private View createOrUpdateSearchLayout(boolean update) {
+            if (update && view == null) throw new IllegalStateException("Attempting to update null view!");
+            SearchLayout searchLayout;
+            if (update) {
+                searchLayout = (SearchLayout) view;
+            } else {
+                searchLayout =
+                        (SearchLayout) LayoutInflater.from(getContext()).inflate(R.layout.toolbar_search, null, false);
+            }
             searchLayout.setCallback(new SearchLayout.SearchLayoutCallback() {
                 @Override
                 public void onSearchEntered(String entered) {

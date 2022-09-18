@@ -91,7 +91,7 @@ public class ToolbarPresenter {
     }
 
     void openSearch() {
-        if (item == null || item.search) return;
+        if (isSearchOpen()) return;
 
         cancelTransitionIfNeeded();
 
@@ -102,7 +102,7 @@ public class ToolbarPresenter {
     }
 
     boolean closeSearch() {
-        if (item == null || !item.search) return false;
+        if (!isSearchOpen()) return false;
 
         item.search = false;
         item.searchText = null;
@@ -111,6 +111,10 @@ public class ToolbarPresenter {
         callback.onSearchVisibilityChanged(item, false);
 
         return true;
+    }
+
+    boolean isSearchOpen() {
+        return item != null && item.search;
     }
 
     private void cancelTransitionIfNeeded() {
@@ -125,7 +129,7 @@ public class ToolbarPresenter {
      */
     public boolean closeSearchIfNeeded() {
         // Cancel search, but don't unmark it as a search item so that onback will automatically pull up the search window
-        if (item != null && item.search) {
+        if (isSearchOpen()) {
             callback.onSearchVisibilityChanged(item, false);
             return true;
         }
@@ -133,7 +137,7 @@ public class ToolbarPresenter {
     }
 
     void searchInput(String input) {
-        if (!item.search) {
+        if (!isSearchOpen()) {
             return;
         }
 

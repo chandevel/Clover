@@ -223,6 +223,10 @@ public class Toolbar
         return presenter.closeSearch();
     }
 
+    public boolean isSearchOpen() {
+        return presenter.isSearchOpen();
+    }
+
     public boolean isTransitioning() {
         return navigationItemContainer.isTransitioning();
     }
