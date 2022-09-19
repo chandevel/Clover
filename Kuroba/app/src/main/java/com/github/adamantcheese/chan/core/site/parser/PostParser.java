@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.features.html_styling.impl.CommonStyleActions.HEX_COLOR;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.getContrastColor;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.StringUtils.replaceSpan;
@@ -201,7 +202,7 @@ public class PostParser {
                 .chain(PostThemedStyleActions.FILTER_DEBUG.with(theme, post, postParserCallback))
                 .chain(new HtmlNodeTreeAction(
                         elementAction.addSpecificActions(theme, post, postParserCallback),
-                        CommonStyleActions.getDefaultTextStylingAction(theme)
+                        new ChainStyleAction(HEX_COLOR).chain(CommonStyleActions.getDefaultTextStylingAction(theme))
                 ))
                 .style(HtmlNodeTreeAction.prepare(comment, post.threadUrl()), null);
     }

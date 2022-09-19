@@ -71,6 +71,6 @@ public class CommonStyleActions {
     public static StyleAction getDefaultTextStylingAction(Theme theme) {
         // emoji must be first because it returns a string
         // emoji going second would otherwise remove all applied spans, which isn't what is wanted
-        return new ChainStyleAction(CommonThemedStyleActions.LINK.with(theme)).chain(HEX_COLOR).chain(EMOJI);
+        return new ChainStyleAction(CommonThemedStyleActions.LINK.with(theme)).chain(EMOJI);
     }
 }
