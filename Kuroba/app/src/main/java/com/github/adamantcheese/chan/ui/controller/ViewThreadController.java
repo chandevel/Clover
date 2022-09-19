@@ -386,8 +386,10 @@ public class ViewThreadController
     public void onShowPosts(Loadable loadable) {
         super.onShowPosts(loadable);
         setPinIconState(false);
-        navigation.title = loadable.title;
-        ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+        if (!navigation.search) {
+            navigation.title = loadable.title;
+            ((ToolbarNavigationController) navigationController).toolbar.updateTitle(navigation);
+        }
     }
 
     private void updateDrawerHighlighting(Loadable loadable) {
