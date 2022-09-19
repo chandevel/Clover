@@ -29,17 +29,7 @@ public class ResolveLink {
     ) {
         NetUtils.makeJsonRequest(
                 site.endpoints().resolvePost(boardCode, postId),
-                new MainThreadResponseResult<>(new ResponseResult<ThreadLink>() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        callback.onSuccess(null);
-                    }
-
-                    @Override
-                    public void onSuccess(ThreadLink result) {
-                        callback.onSuccess(result);
-                    }
-                }),
+                new MainThreadResponseResult<>(callback),
                 input -> sourceLink.site.resolvable().resolveToThreadLink(sourceLink, input),
                 NetUtilsClasses.NO_CACHE,
                 null,

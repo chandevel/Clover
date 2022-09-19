@@ -130,30 +130,21 @@ public class PostThemedStyleActions {
             //@formatter:on
         } catch (Exception ignored) {}
 
-        if (board != null && fragment.charAt(0) == 's') {
-            return new SearchLinkable(theme, new SearchLink(board, fragment.substring(2)));
-        } else if (board != null && threadNo == -1 && postNo == -1) {
-            return new BoardLinkable(theme, board);
-        } else if (board != null && !board.equals(post.board.code) && threadNo != -1 && postNo != -1) {
-            return new ThreadLinkable(theme, new ThreadLink(board, threadNo, postNo));
-        } else if (post.board.code.equals(board)) {
-            if (callback.isInternal(postNo)) {
-                post.repliesTo(Collections.singleton(postNo));
-                //link to post in same thread with post number (>>post); usually this is a almost fully qualified link
-                return new QuoteLinkable(theme, postNo);
-            } else {
-                //link to post not in same thread with post number (>>post or >>>/board/post)
-                //in the case of an archive, set the type to be an archive link
-                ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
-                return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
-                        theme,
-                        href.contains("post")
-                                ? new ResolveLink((ExternalSiteArchive) post.board.site, board, threadNo)
-                                : threadLink
-                ) : new ThreadLinkable(theme, threadLink);
-            }
+        if (board == null) return new ParserLinkLinkable(theme, hrefUrl.toString());
+        if (fragment.charAt(0) == 's') return new SearchLinkable(theme, new SearchLink(board, fragment.substring(2)));
+        if (threadNo == -1) return new BoardLinkable(theme, board);
+        if (postNo == -1) return new ThreadLinkable(theme, new ThreadLink(board, threadNo, threadNo));
+        if (post.board.code.equals(board) && callback.isInternal(postNo)) {
+            post.repliesTo(Collections.singleton(postNo));
+            return new QuoteLinkable(theme, postNo);
         } else {
-            return new ParserLinkLinkable(theme, hrefUrl.toString());
+            ThreadLink threadLink = new ThreadLink(board, threadNo, postNo);
+            return post.board.site instanceof ExternalSiteArchive ? new ArchiveLinkable(
+                    theme,
+                    href.contains("post")
+                            ? new ResolveLink((ExternalSiteArchive) post.board.site, board, postNo)
+                            : threadLink
+            ) : new ThreadLinkable(theme, threadLink);
         }
     }
 
