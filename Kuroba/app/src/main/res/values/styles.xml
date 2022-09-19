@@ -617,6 +617,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <attr name="alwaysShowClear" format="boolean" />
         <attr name="catalogColors" format="boolean" />
     </declare-styleable>
+
+    <declare-styleable name="MulticolorBarView">
+        <attr name="vertical" format="boolean" />
+    </declare-styleable>
     <!-- endregion -->
 
     <style name="AlertDialogTheme" parent="@style/ThemeOverlay.AppCompat.Dialog.Alert">

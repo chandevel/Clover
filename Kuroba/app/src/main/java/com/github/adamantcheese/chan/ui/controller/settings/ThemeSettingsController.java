@@ -384,6 +384,18 @@ public class ThemeSettingsController
                     false,
                     false,
                     ""
+            ), new Filter(true,
+                    FilterType.SUBJECT.flag | FilterType.COMMENT.flag,
+                    "spacer",
+                    true,
+                    "",
+                    COLOR.ordinal(),
+                    getAttrColor(holder.itemView.getContext(), R.attr.post_quote_color) & 0x7FFFFFFF,
+                    false,
+                    1,
+                    false,
+                    false,
+                    ""
             ));
             List<Post> posts = new ArrayList<>();
             for (Post.Builder builder : generatePosts()) {

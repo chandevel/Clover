@@ -25,15 +25,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <RelativeLayout
         android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/thumbnail_views"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:itemCount="1"
             tools:listitem="@layout/cell_album_download" />
@@ -43,8 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignWithParentIfMissing="true"
-            android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
             android:layout_toLeftOf="@+id/thumbnail_views"
             android:background="@drawable/ripple_item_background">
 
@@ -122,8 +122,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             android:id="@+id/options"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
             android:layout_alignWithParentIfMissing="true"
+            android:layout_alignParentTop="true"
             android:layout_toLeftOf="@id/thumbnail_views"
             android:background="@drawable/ripple_item_background"
             android:padding="6dp"
@@ -132,12 +132,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     </RelativeLayout>
 
-    <View
+    <com.github.adamantcheese.chan.ui.view.MulticolorBarView
         android:id="@+id/filter_match_color"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:background="@color/md_green_800"
-        tools:visibility="visible" />
+        app:vertical="true" />
 
 </com.github.adamantcheese.chan.ui.cell.PostCell>

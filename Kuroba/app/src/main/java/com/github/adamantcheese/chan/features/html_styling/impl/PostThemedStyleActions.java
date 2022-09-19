@@ -33,6 +33,8 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
+import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
@@ -396,7 +398,7 @@ public class PostThemedStyleActions {
         }
     };
 
-    public static PostThemedStyleAction FILTER_DEBUG = new PostThemedStyleAction() {
+    public static FilterPostThemedStyleAction FILTER_DEBUG = new FilterPostThemedStyleAction() {
         @Inject
         private FilterEngine filterEngine;
 
@@ -410,12 +412,13 @@ public class PostThemedStyleActions {
                 @NonNull Node node,
                 @Nullable CharSequence text,
                 @NonNull Theme theme,
+                @NonNull Filters filters,
                 @NonNull Post.Builder post,
                 @NonNull PostParser.PostParserCallback callback
         ) {
             if (!ChanSettings.debugFilters.get()) return text == null ? "" : text;
             SpannableString builder = new SpannableString(text);
-            for (Filter f : filterEngine.getEnabledFilters()) {
+            for (Filter f : filters) {
                 if (filterEngine.matchesBoard(f, post.board)) {
                     MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
                     if (result != null) {

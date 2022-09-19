@@ -27,6 +27,8 @@ import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.Embeddable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.PostLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.QuoteLinkable;
+import com.google.common.collect.ObjectArrays;
+import com.google.common.primitives.Ints;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.jsoup.parser.Parser;
@@ -69,7 +71,7 @@ public class Post
 
     public final boolean isSavedReply;
 
-    public final int filterHighlightedColor;
+    public final int[] filterHighlightedColors;
 
     public final boolean filterStub;
 
@@ -150,7 +152,7 @@ public class Post
         opId = builder.opId;
         capcode = builder.moderatorCapcode;
 
-        filterHighlightedColor = builder.filterHighlightedColor;
+        filterHighlightedColors = builder.filterHighlightedColors;
         filterStub = builder.filterStub;
         filterRemove = builder.filterRemove;
         filterWatch = builder.filterWatch;
@@ -175,7 +177,7 @@ public class Post
     }
 
     public boolean hasFilterParameters() {
-        return filterRemove || filterHighlightedColor != 0 || filterReplies || filterStub;
+        return filterRemove || filterHighlightedColors.length > 0 || filterReplies || filterStub;
     }
 
     public PostLinkable<?>[] getLinkables() {
@@ -197,7 +199,7 @@ public class Post
                 && time == post.time
                 && opId == post.opId
                 && isSavedReply == post.isSavedReply
-                && filterHighlightedColor == post.filterHighlightedColor
+                && Arrays.equals(filterHighlightedColors, post.filterHighlightedColors)
                 && filterStub == post.filterStub
                 && filterRemove == post.filterRemove
                 && filterWatch == post.filterWatch
@@ -243,7 +245,7 @@ public class Post
                 capcode,
                 httpIcons,
                 isSavedReply,
-                filterHighlightedColor,
+                Arrays.hashCode(filterHighlightedColors),
                 filterStub,
                 filterRemove,
                 filterWatch,
@@ -301,7 +303,7 @@ public class Post
                 .moderatorCapcode(capcode)
                 .setHttpIcons(httpIcons)
                 .filter(
-                        filterHighlightedColor,
+                        filterHighlightedColors,
                         filterStub,
                         filterRemove,
                         filterWatch,
@@ -384,7 +386,7 @@ public class Post
 
         public int idColor;
 
-        public int filterHighlightedColor;
+        public int[] filterHighlightedColors = {};
         public boolean filterStub;
         public boolean filterRemove;
         public boolean filterWatch;
@@ -549,7 +551,7 @@ public class Post
         }
 
         public Builder filter(
-                int highlightedColor,
+                int[] highlightedColors,
                 boolean stub,
                 boolean remove,
                 boolean watch,
@@ -557,8 +559,7 @@ public class Post
                 boolean onlyOnOp,
                 boolean filterSaved
         ) {
-            // for any filter effect, OR it with any previous filters; the highlighted color will be the last one in the list
-            filterHighlightedColor = highlightedColor;
+            filterHighlightedColors = Ints.concat(filterHighlightedColors, highlightedColors);
             filterStub = filterStub | stub;
             filterRemove = filterRemove | remove;
             filterWatch = filterWatch | watch;
@@ -625,7 +626,7 @@ public class Post
                     .moderatorCapcode(moderatorCapcode)
                     .setHttpIcons(httpIcons)
                     .filter(
-                            filterHighlightedColor,
+                            filterHighlightedColors,
                             filterStub,
                             filterRemove,
                             filterWatch,

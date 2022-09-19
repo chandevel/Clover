@@ -79,7 +79,7 @@ public class PostCell
     private PostIcons icons;
     private TextView comment;
     private TextView replies;
-    private View filterMatchColor;
+    private MulticolorBarView filterMatchColor;
 
     private RelativeLayout headerWrapper;
     private ConstraintLayout bodyWrapper;
@@ -268,12 +268,7 @@ public class PostCell
             setBackgroundResource(R.drawable.ripple_item_background);
         }
 
-        if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(VISIBLE);
-            filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
-        } else {
-            filterMatchColor.setVisibility(GONE);
-        }
+        filterMatchColor.setColors(post.filterHighlightedColors);
 
         if (post.images.isEmpty() || ChanSettings.textOnly.get()) {
             thumbnailViews.setAdapter(null);

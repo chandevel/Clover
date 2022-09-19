@@ -10,8 +10,20 @@ import android.view.animation.*;
 
 public class AnimationUtils {
 
-    public static final int[] RAINBOW_COLORS =
-            {RED, 0xFF7F00, YELLOW, 0x7FFF00, GREEN, 0x00FF7F, CYAN, 0x007FFF, BLUE, 0x7F00FF, MAGENTA, 0xFF007F};
+    public static final int[] RAINBOW_COLORS = {
+            RED,
+            0xFFFF7F00,
+            YELLOW,
+            0xFF7FFF00,
+            GREEN,
+            0xFF00FF7F,
+            CYAN,
+            0xFF007FFF,
+            BLUE,
+            0xFF7F00FF,
+            MAGENTA,
+            0xFFFF007F
+    };
 
     public static void animateStatusBar(Window window, boolean in, final int originalColor, int duration) {
         ValueAnimator statusBar = ValueAnimator.ofFloat(in ? 0f : 0.5f, in ? 0.5f : 0f);

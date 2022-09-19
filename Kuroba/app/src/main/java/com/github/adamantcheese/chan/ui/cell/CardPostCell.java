@@ -67,7 +67,7 @@ public class CardPostCell
     private TextView comment;
     private TextView replies;
     private ImageView options;
-    private View filterMatchColor;
+    private MulticolorBarView filterMatchColor;
     private PostIcons icons;
 
     private OneShotPreDrawListener ellipsizer;
@@ -207,12 +207,7 @@ public class CardPostCell
             });
         }
 
-        if (post.filterHighlightedColor != 0) {
-            filterMatchColor.setVisibility(VISIBLE);
-            filterMatchColor.setBackgroundColor(post.filterHighlightedColor);
-        } else {
-            filterMatchColor.setVisibility(GONE);
-        }
+        filterMatchColor.setColors(post.filterHighlightedColors);
 
         icons.set(post, false);
 

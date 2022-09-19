@@ -63,7 +63,7 @@ public class DatabaseHideManager {
                     if (hiddenPost.hide) {
                         // hide post
                         Post newPost = rebuildPostWithCustomFilter(post,
-                                0,
+                                new int[]{0},
                                 true,
                                 false,
                                 false,
@@ -200,7 +200,7 @@ public class DatabaseHideManager {
             // do not overwrite filter parameters from another filter
             if (!childPost.hasFilterParameters()) {
                 Post newPost = rebuildPostWithCustomFilter(childPost,
-                        parentPost.filterHighlightedColor,
+                        parentPost.filterHighlightedColors,
                         parentPost.filterStub,
                         parentPost.filterRemove,
                         parentPost.filterWatch,
@@ -219,7 +219,7 @@ public class DatabaseHideManager {
      */
     private Post rebuildPostWithCustomFilter(
             Post childPost,
-            int filterHighlightedColor,
+            int[] filterHighlightedColors,
             boolean filterStub,
             boolean filterRemove,
             boolean filterWatch,
@@ -247,7 +247,7 @@ public class DatabaseHideManager {
                 .images(childPost.images)
                 .moderatorCapcode(childPost.capcode)
                 .setHttpIcons(childPost.httpIcons)
-                .filter(filterHighlightedColor,
+                .filter(filterHighlightedColors,
                         filterStub,
                         filterRemove,
                         filterWatch,

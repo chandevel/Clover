@@ -47,21 +47,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
                 <com.github.adamantcheese.chan.ui.view.ShapeablePostImageView
                     android:id="@+id/thumbnail"
-                    app:strokeColor="@color/transparent"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layout_constraintDimensionRatio="16:13"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:shapeAppearanceOverlay="@style/roundedImageViewCorners" />
+                    app:shapeAppearanceOverlay="@style/roundedImageViewCorners"
+                    app:strokeColor="@color/transparent" />
 
-                <View
+                <com.github.adamantcheese.chan.ui.view.MulticolorBarView
                     android:id="@+id/filter_match_color"
                     android:layout_width="match_parent"
                     android:layout_height="5dp"
-                    android:visibility="gone"
                     app:layout_constraintBottom_toBottomOf="@id/thumbnail"
-                    tools:background="@color/red"
-                    tools:visibility="visible" />
+                    app:vertical="false" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -23,13 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     tools:background="?backcolor"
     tools:layout_height="250dp">
 
-    <View
+    <com.github.adamantcheese.chan.ui.view.MulticolorBarView
         android:id="@+id/filter_match_color"
         android:layout_width="5dp"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        tools:background="@color/md_green_800"
-        tools:visibility="visible" />
+        app:vertical="true" />
 
     <RelativeLayout
         android:layout_width="match_parent"

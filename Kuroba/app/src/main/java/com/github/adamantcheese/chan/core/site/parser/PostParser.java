@@ -135,8 +135,7 @@ public class PostParser {
         }
 
         if (!TextUtils.isEmpty(builder.tripcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(
-                    builder.tripcode,
+            nameTripcodeIdCapcodeSpan.append(span(builder.tripcode,
                     new ForegroundColorSpanHashed(theme.nameColorInt),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
@@ -154,8 +153,7 @@ public class PostParser {
             } else {
                 idBackgroundSpan = new BackgroundColorSpanHashed(builder.idColor);
             }
-            nameTripcodeIdCapcodeSpan.append(span(
-                    "  " + builder.posterId + "  ",
+            nameTripcodeIdCapcodeSpan.append(span("  " + builder.posterId + "  ",
                     new ForegroundColorSpanHashed(getContrastColor(builder.idColor)),
                     idBackgroundSpan,
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
@@ -163,8 +161,7 @@ public class PostParser {
         }
 
         if (!TextUtils.isEmpty(builder.moderatorCapcode)) {
-            nameTripcodeIdCapcodeSpan.append(span(
-                    StringUtils.caseAndSpace(builder.moderatorCapcode, null, true),
+            nameTripcodeIdCapcodeSpan.append(span(StringUtils.caseAndSpace(builder.moderatorCapcode, null, true),
                     new ForegroundColorSpanHashed(theme.accentColorInt),
                     new AbsoluteSizeSpanHashed((int) detailsSizePx)
             )).append("  ");
@@ -199,9 +196,12 @@ public class PostParser {
         }
 
         return new ChainStyleAction(PostThemedStyleActions.EMBED_IMAGES.with(theme, post, postParserCallback))
-                .chain(PostThemedStyleActions.FILTER_DEBUG.with(theme, post, postParserCallback))
-                .chain(new HtmlNodeTreeAction(
-                        elementAction.addSpecificActions(theme, post, postParserCallback),
+                .chain(PostThemedStyleActions.FILTER_DEBUG.with(theme,
+                        getFiltersCallback.getFilterList(),
+                        post,
+                        postParserCallback
+                ))
+                .chain(new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, postParserCallback),
                         new ChainStyleAction(HEX_COLOR).chain(CommonStyleActions.getDefaultTextStylingAction(theme))
                 ))
                 .style(HtmlNodeTreeAction.prepare(comment, post.threadUrl()), null);
@@ -212,16 +212,23 @@ public class PostParser {
             if (filterEngine.matchesBoard(f, post.board) && filterEngine.matches(f, post)) {
                 switch (FilterAction.values()[f.action]) {
                     case COLOR:
-                        post.filter(f.color, false, false, false, f.applyToReplies, f.onlyOnOP, f.applyToSaved);
+                        post.filter(new int[]{f.color},
+                                false,
+                                false,
+                                false,
+                                f.applyToReplies,
+                                f.onlyOnOP,
+                                f.applyToSaved
+                        );
                         break;
                     case HIDE:
-                        post.filter(0, true, false, false, f.applyToReplies, f.onlyOnOP, false);
+                        post.filter(new int[]{0}, true, false, false, f.applyToReplies, f.onlyOnOP, false);
                         break;
                     case REMOVE:
-                        post.filter(0, false, true, false, f.applyToReplies, f.onlyOnOP, false);
+                        post.filter(new int[]{0}, false, true, false, f.applyToReplies, f.onlyOnOP, false);
                         break;
                     case WATCH:
-                        post.filter(0, false, false, true, false, true, false);
+                        post.filter(new int[]{0}, false, false, true, false, true, false);
                         break;
                 }
             }
