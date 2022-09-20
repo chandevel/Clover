@@ -192,31 +192,19 @@ public class FoolFuukaArchive
                                     imageBuilder.fileHash(reader.nextString(), true);
                                     break;
                                 case "remote_media_link":
-                                    if (reader.peek() == JsonToken.NULL) {
-                                        reader.nextNull();
-                                    } else {
-                                        String value = reader.nextString();
-                                        try {
-                                            imageBuilder.imageUrl(HttpUrl.get(value));
-                                        } catch (Exception e) {
-                                            // some weird archives use this one
-                                            try {
-                                                imageBuilder.imageUrl(new HttpUrl.Builder()
-                                                        .scheme("https")
-                                                        .host(domain)
-                                                        .addPathSegment(value)
-                                                        .build());
-                                            } catch (Exception ignored) {}
-                                        }
-                                    }
-                                    break;
                                 case "media_link":
                                     if (reader.peek() == JsonToken.NULL) {
                                         reader.nextNull();
                                         if (imageBuilder.hasImageUrl()) break;
                                         imageBuilder.imageUrl(ARCHIVE_MISSING_THUMB_URL);
                                     } else {
-                                        imageBuilder.imageUrl(HttpUrl.get(reader.nextString()));
+                                        String imageUrl = reader.nextString();
+                                        imageUrl = StringUtil.resolve("https://" + domain, imageUrl);
+                                        try {
+                                            imageBuilder.imageUrl(HttpUrl.get(imageUrl));
+                                        } catch (Exception e) {
+                                            imageBuilder.imageUrl(ARCHIVE_MISSING_THUMB_URL);
+                                        }
                                     }
                                     break;
                                 case "media_orig":
@@ -228,8 +216,7 @@ public class FoolFuukaArchive
                                         imageBuilder.thumbnailUrl(ARCHIVE_MISSING_THUMB_URL);
                                     } else {
                                         String thumbUrl = reader.nextString();
-                                        thumbUrl = StringUtil.resolve("https://"
-                                                + ((ExternalSiteArchive) queue.loadable.site).domain, thumbUrl);
+                                        thumbUrl = StringUtil.resolve("https://" + domain, thumbUrl);
                                         try {
                                             imageBuilder.thumbnailUrl(HttpUrl.get(thumbUrl));
                                         } catch (Exception e) {
