@@ -23,6 +23,7 @@ import com.github.adamantcheese.chan.features.html_styling.impl.HtmlTagAction;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
 
+import org.jsoup.internal.StringUtil;
 import org.jsoup.nodes.TextNode;
 
 import java.util.Collections;
@@ -226,7 +227,14 @@ public class FoolFuukaArchive
                                         reader.nextNull();
                                         imageBuilder.thumbnailUrl(ARCHIVE_MISSING_THUMB_URL);
                                     } else {
-                                        imageBuilder.thumbnailUrl(HttpUrl.get(reader.nextString()));
+                                        String thumbUrl = reader.nextString();
+                                        thumbUrl = StringUtil.resolve("https://"
+                                                + ((ExternalSiteArchive) queue.loadable.site).domain, thumbUrl);
+                                        try {
+                                            imageBuilder.thumbnailUrl(HttpUrl.get(thumbUrl));
+                                        } catch (Exception e) {
+                                            imageBuilder.thumbnailUrl(ARCHIVE_MISSING_THUMB_URL);
+                                        }
                                     }
                                     break;
                                 default:

@@ -33,7 +33,6 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
-import com.github.adamantcheese.chan.core.site.common.CommonDataStructs;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
@@ -132,7 +131,8 @@ public class PostThemedStyleActions {
             //@formatter:on
         } catch (Exception ignored) {}
 
-        if (board == null) return new ParserLinkLinkable(theme, hrefUrl.toString());
+        if (board == null || !post.board.site.resolvable().respondsTo(hrefUrl))
+            return new ParserLinkLinkable(theme, hrefUrl.toString());
         if (fragment.charAt(0) == 's') return new SearchLinkable(theme, new SearchLink(board, fragment.substring(2)));
         if (threadNo == -1) return new BoardLinkable(theme, board);
         if (postNo == -1) return new ThreadLinkable(theme, new ThreadLink(board, threadNo, threadNo));
