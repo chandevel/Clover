@@ -37,33 +37,36 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
 
         WebSettings.getDefaultUserAgent(context)
 
-        val response = chain.proceed(originalRequest)
+        var response: Response? = null
+        for (i in 1..5) {
+            response = chain.proceed(originalRequest)
 
-        // Check if Cloudflare anti-bot is on
-        if (response.code !in ERROR_CODES || response.header("Server") !in SERVER_CHECK) {
-            return response
-        }
+            // Check if Cloudflare anti-bot is on
+            if (response.code !in ERROR_CODES || response.header("Server") !in SERVER_CHECK) {
+                return response
+            }
 
-        try {
-            response.close()
-            val oldCookie = NetUtils.applicationClient.cookieJar.loadForRequest(originalRequest.url)
-                    .firstOrNull { it.name == CF_CLEARANCE_NAME }
-            NetUtils.clearSpecificCookies(originalRequest.url, COOKIE_NAMES)
-            resolveWithWebView(originalRequest, oldCookie)
-
-            return chain.proceed(originalRequest)
+            try {
+                response.close()
+                NetUtils.loadWebviewCookies(originalRequest.url)
+                val oldCookie = NetUtils.applicationClient.cookieJar.loadForRequest(originalRequest.url)
+                        .firstOrNull { it.name == CF_CLEARANCE_NAME }
+                NetUtils.clearSpecificCookies(originalRequest.url, COOKIE_NAMES)
+                resolveWithWebView(originalRequest, oldCookie, i == 5)
+            }
+            // Because OkHttp's enqueue only handles IOExceptions, wrap the exception so that
+            // we don't crash the entire app
+            catch (e: CloudflareBypassException) {
+                throw IOException("Could not do cloudflare bypass!")
+            } catch (e: Exception) {
+                throw IOException(e)
+            }
         }
-        // Because OkHttp's enqueue only handles IOExceptions, wrap the exception so that
-        // we don't crash the entire app
-        catch (e: CloudflareBypassException) {
-            throw IOException("Could not do cloudflare bypass!")
-        } catch (e: Exception) {
-            throw IOException(e)
-        }
+        return response ?: chain.proceed(originalRequest)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun resolveWithWebView(request: Request, oldCookie: Cookie?) {
+    private fun resolveWithWebView(request: Request, oldCookie: Cookie?, finalResolve: Boolean) {
         // We need to lock this thread until the WebView finds the challenge solution url, because
         // OkHttp doesn't support asynchronous interceptors.
         val latch = CountDownLatch(1)
@@ -87,6 +90,7 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
             webview.webViewClient = object : WebViewClientCompat() {
                 override fun onPageFinished(view: WebView, url: String) {
                     fun isCloudFlareBypassed(origRequestUrl: String): Boolean {
+                        NetUtils.loadWebviewCookies(origRequestUrl.toHttpUrl())
                         return NetUtils.applicationClient.cookieJar.loadForRequest(origRequestUrl.toHttpUrl())
                                 .firstOrNull { it.name == CF_CLEARANCE_NAME }
                                 .let { it != null && it != oldCookie }
@@ -147,7 +151,9 @@ class CloudflareInterceptor(private val context: Context) : Interceptor {
                         ?: 0), Toast.LENGTH_LONG)
             }
 
-            throw CloudflareBypassException()
+            if (finalResolve) {
+                throw CloudflareBypassException()
+            }
         }
     }
 

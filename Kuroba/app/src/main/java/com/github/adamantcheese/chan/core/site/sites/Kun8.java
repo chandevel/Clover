@@ -11,13 +11,15 @@ import com.github.adamantcheese.chan.core.site.common.MultipartHttpCall;
 import com.github.adamantcheese.chan.core.site.common.vichan.*;
 import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
-import java.util.Map;
+import java.util.*;
 
+import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 
 public class Kun8
         extends CommonSite {
     private static final HttpUrl ROOT = HttpUrl.get("https://8kun.top/");
+    private static final HttpUrl SYS = HttpUrl.get("https://sys.8kun.top");
 
     public static final CommonSiteUrlHandler URL_HANDLER = new CommonSiteUrlHandler() {
         @Override
@@ -61,7 +63,7 @@ public class Kun8
             }
         });
 
-        setEndpoints(new VichanEndpoints("https://8kun.top", "https://sys.8kun.top") {
+        setEndpoints(new VichanEndpoints(ROOT.toString(), SYS.toString()) {
 
             //8kun changed directory structures after this date (8/25/2016), so we need to switch off that to make it work
             private final long IMAGE_CHANGE_DATE = 1472083200L;
@@ -145,21 +147,30 @@ public class Kun8
 
             @Override
             public SiteAuthentication postAuthenticate(Loadable loadableWithDraft) {
-                return SiteAuthentication.fromUrl(
-                        "https://sys.8kun.top/dnsbls_bypass.php",
+                return SiteAuthentication.fromUrl(SYS.newBuilder().addPathSegment("dnsbls_bypass.php").build().toString(),
                         "You failed the CAPTCHA",
                         "You may now go back and make your post"
                 );
             }
 
             @Override
+            public List<Cookie> getCookies() {
+                List<Cookie> ret = new ArrayList<>();
+                ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(ROOT));
+                ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(SYS));
+                return ret;
+            }
+
+            @Override
             public void clearCookies() {
                 NetUtils.clearAllCookies(ROOT);
-                NetUtils.clearAllCookies(HttpUrl.get("https://sys.8kun.top"));
+                NetUtils.clearAllCookies(SYS);
             }
         });
 
         setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
+        NetUtils.loadWebviewCookies(ROOT);
+        NetUtils.loadWebviewCookies(SYS);
     }
 }

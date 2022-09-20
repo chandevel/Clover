@@ -23,8 +23,7 @@ import com.github.adamantcheese.chan.utils.BuildConfigUtils;
 
 import java.util.*;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
+import okhttp3.*;
 
 /**
  * A dummy site, generally used internally and should not show up as user selectable in the site setup area.
@@ -169,7 +168,11 @@ public class DummySite
 
             @Override
             public HttpUrl delete(Post post) {
-                return getDummyRoot().newBuilder().addPathSegment(post.board.code).addPathSegment("imgboard.php").build();
+                return getDummyRoot()
+                        .newBuilder()
+                        .addPathSegment(post.board.code)
+                        .addPathSegment("imgboard.php")
+                        .build();
             }
 
             @Override
@@ -250,6 +253,9 @@ public class DummySite
 
             @Override
             public LoginRequest getLoginDetails() {return new LoginRequest(DummySite.this, "", "", true);}
+
+            @Override
+            public List<Cookie> getCookies() {return Collections.emptyList();}
 
             @Override
             public void clearCookies() {}

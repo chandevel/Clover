@@ -30,11 +30,12 @@ import com.github.adamantcheese.chan.core.site.http.ReplyResponse;
 
 import org.jsoup.Jsoup;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.HttpUrl;
-import okhttp3.Response;
+import okhttp3.*;
 
 public class Wired7
         extends CommonSite {
@@ -65,7 +66,7 @@ public class Wired7
 
     public Wired7() {
         setName("Wired-7");
-        setIcon(SiteIcon.fromFavicon(HttpUrl.get("https://wired-7.org/favicon.ico")));
+        setIcon(SiteIcon.fromFavicon(ROOT.newBuilder().addPathSegment("favicon.ico").build()));
     }
 
     @Override
@@ -94,10 +95,11 @@ public class Wired7
             }
         });
 
-        setEndpoints(new VichanEndpoints("https://wired-7.org", "https://wired-7.org"));
+        setEndpoints(new VichanEndpoints(ROOT.toString(), ROOT.toString()));
         setActions(new Wired7Api(this));
         setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
+        NetUtils.loadWebviewCookies(ROOT);
     }
 
     private static class Wired7Api
@@ -173,6 +175,11 @@ public class Wired7
                 }
             }
             return replyResponse;
+        }
+
+        @Override
+        public List<Cookie> getCookies() {
+            return new ArrayList<>(NetUtils.applicationClient.cookieJar().loadForRequest(ROOT));
         }
 
         @Override

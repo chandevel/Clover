@@ -38,8 +38,7 @@ import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.SiteContentReader;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -499,6 +498,11 @@ public abstract class CommonSite
         @Override
         public LoginRequest getLoginDetails() {
             return null;
+        }
+
+        @Override
+        public List<Cookie> getCookies() {
+            return Collections.emptyList();
         }
 
         @Override

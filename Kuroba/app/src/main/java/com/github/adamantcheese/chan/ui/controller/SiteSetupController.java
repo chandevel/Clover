@@ -43,6 +43,7 @@ public class SiteSetupController
     private final Site site;
     private LinkSettingView boardsLink;
     private LinkSettingView loginLink;
+    private LinkSettingView cookiesLink;
 
     public SiteSetupController(Context context, Site site) {
         super(context);
@@ -109,8 +110,7 @@ public class SiteSetupController
                     break;
                 case STRING:
                     // Turn the SiteSetting for a string setting into a proper setting with a name and input
-                    generated = new PrimitiveSettingView<>(
-                            this,
+                    generated = new PrimitiveSettingView<>(this,
                             (StringSetting) setting.setting,
                             setting.name,
                             setting.name,
@@ -156,11 +156,19 @@ public class SiteSetupController
         });
         general.add(boardsLink);
 
-        general.add(new LinkSettingView(this, "Clear cookies for this site", "", ((v, sv) -> {
-            site.api().clearCookies();
-            setIsLoggedIn(site.api().isLoggedIn()); // may have changed
-            CancellableToast.showToast(context, "Cleared site cookies!");
-        })));
+        cookiesLink = new LinkSettingView(
+                this,
+                "Clear cookies for this site",
+                site.api().getCookies().size() + " cookies",
+                ((v, sv) -> {
+                    site.api().clearCookies();
+                    setIsLoggedIn(site.api().isLoggedIn()); // may have changed
+                    cookiesLink.setDescription(site.api().getCookies().size() + " cookies");
+                    notifyItemChanged(cookiesLink);
+                    CancellableToast.showToast(context, "Cleared site cookies!");
+                })
+        );
+        general.add(cookiesLink);
 
         groups.add(general);
     }

@@ -25,7 +25,10 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Boards;
 import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.ChanPages;
 import com.github.adamantcheese.chan.core.site.http.*;
 
+import java.util.List;
+
 import okhttp3.Call;
+import okhttp3.Cookie;
 
 public interface SiteApi {
     void boards(NetUtilsClasses.ResponseResult<Boards> boardsListener);
@@ -63,6 +66,8 @@ public interface SiteApi {
     boolean isLoggedIn();
 
     LoginRequest getLoginDetails();
+
+    List<Cookie> getCookies();
 
     void clearCookies();
 }

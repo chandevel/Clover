@@ -231,8 +231,8 @@ public class DeveloperSettingsController
                     .expiresAt(Long.MAX_VALUE)
                     .build();
 
-            float successes = 0;
-            while (true) {
+            int successes = 0;
+            while (successes < 100) {
                 try {
                     NetUtils.clearAllCookies(example);
                     List<Cookie> returned = NetUtils.applicationClient.cookieJar().loadForRequest(example);
@@ -245,11 +245,10 @@ public class DeveloperSettingsController
                     assert returned.size() == 1;
                     successes++;
                 } catch (Throwable e) {
-                    showToast(context, "Failed after " + successes);
-                    Logger.d(this, "Failed after " + successes);
                     break;
                 }
             }
+            Logger.d(this, "Finished with successes: " + successes);
         });
         testWebiew.setText("Test webview cookie synchronization");
         wrapper.addView(testWebiew);

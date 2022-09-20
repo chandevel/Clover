@@ -96,6 +96,10 @@ public class NetUtils {
         ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).clearCookiesForUrl(url, cookieNames);
     }
 
+    public static void loadWebviewCookies(HttpUrl url) {
+        ((WebviewSyncCookieManager) NetUtils.applicationClient.cookieJar()).loadWebviewCookiesIntoJar(url);
+    }
+
     public static Cookie changeCookieDomain(Cookie c, String newDomain) {
         Cookie.Builder builder = c.newBuilder();
         if (c.hostOnly()) {

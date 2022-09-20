@@ -17,6 +17,7 @@
 package com.github.adamantcheese.chan.core.site.sites.chan4;
 
 import static com.github.adamantcheese.chan.core.net.NetUtils.createCookieParsingInterceptor;
+import static com.github.adamantcheese.chan.core.net.NetUtils.loadWebviewCookies;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.BOOLEAN;
 import static com.github.adamantcheese.chan.core.site.SiteSetting.Type.OPTIONS;
 import static com.github.adamantcheese.chan.core.site.common.CommonDataStructs.CaptchaType.CHAN4_CUSTOM;
@@ -505,6 +506,16 @@ public class Chan4
         }
 
         @Override
+        public List<Cookie> getCookies() {
+            List<Cookie> ret = new ArrayList<>();
+            ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(sys));
+            ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(sysSafe));
+            ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(b));
+            ret.addAll(NetUtils.applicationClient.cookieJar().loadForRequest(bSafe));
+            return ret;
+        }
+
+        @Override
         public void clearCookies() {
             NetUtils.clearAllCookies(sys);
             NetUtils.clearAllCookies(sysSafe);
@@ -527,6 +538,10 @@ public class Chan4
         passUser = new StringSetting(p, "preference_pass_token", "");
         passPass = new StringSetting(p, "preference_pass_pin", "");
         icon().get(icon -> {});
+        loadWebviewCookies(sys);
+        loadWebviewCookies(sysSafe);
+        loadWebviewCookies(b);
+        loadWebviewCookies(bSafe);
     }
 
     @Override

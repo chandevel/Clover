@@ -23,6 +23,10 @@ import com.github.adamantcheese.chan.core.site.SiteIcon;
 import com.github.adamantcheese.chan.core.site.common.CommonSite;
 import com.github.adamantcheese.chan.core.site.common.vichan.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import okhttp3.Cookie;
 import okhttp3.HttpUrl;
 
 public class Lainchan
@@ -91,11 +95,17 @@ public class Lainchan
         setEndpoints(new VichanEndpoints("https://lainchan.org", "https://lainchan.org"));
         setActions(new VichanApi(this) {
             @Override
+            public List<Cookie> getCookies() {
+                return new ArrayList<>(NetUtils.applicationClient.cookieJar().loadForRequest(ROOT));
+            }
+
+            @Override
             public void clearCookies() {
                 NetUtils.clearAllCookies(ROOT);
             }
         });
         setContentReader(new VichanSiteContentReader(this));
         setParser(new VichanPostParser(new VichanCommentAction()));
+        NetUtils.loadWebviewCookies(ROOT);
     }
 }

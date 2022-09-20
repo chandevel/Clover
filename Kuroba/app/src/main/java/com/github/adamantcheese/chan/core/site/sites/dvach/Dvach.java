@@ -22,8 +22,7 @@ import com.github.adamantcheese.chan.utils.Logger;
 
 import java.util.*;
 
-import okhttp3.Call;
-import okhttp3.HttpUrl;
+import okhttp3.*;
 
 public class Dvach
         extends CommonSite {
@@ -199,6 +198,11 @@ public class Dvach
             }
 
             @Override
+            public List<Cookie> getCookies() {
+                return new ArrayList<>(NetUtils.applicationClient.cookieJar().loadForRequest(ROOT));
+            }
+
+            @Override
             public void clearCookies() {
                 NetUtils.clearAllCookies(ROOT);
             }
@@ -206,5 +210,6 @@ public class Dvach
 
         setContentReader(new DvachSiteContentReader(this));
         setParser(new DvachPostParser(new DvachCommentAction()));
+        NetUtils.loadWebviewCookies(ROOT);
     }
 }
