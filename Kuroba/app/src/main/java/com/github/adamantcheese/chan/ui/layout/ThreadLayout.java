@@ -403,10 +403,8 @@ public class ThreadLayout
     @Override
     public void filterPostFlagCode(Post post) {
         StringBuilder flagCodes = new StringBuilder();
-        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
-            for (PostHttpIcon icon : post.httpIcons) {
-                flagCodes.append(icon.code).append("|");
-            }
+        for (PostHttpIcon icon : post.httpIcons) {
+            flagCodes.append(icon.code).append("|");
         }
         callback.openFilterForType(FilterType.FLAG_CODE, flagCodes.toString().replaceAll("\\|$", ""));
     }

@@ -34,8 +34,11 @@ public class BitmapRepository {
     public static Bitmap closedIcon;
     public static Bitmap trashIcon;
     public static Bitmap archivedIcon;
+    public static Bitmap newIpIcon;
+
     public static Bitmap error;
     public static Bitmap paddedError;
+
     public static Bitmap empty;
     public static Bitmap transparentCheckerboard;
 
@@ -61,6 +64,7 @@ public class BitmapRepository {
         closedIcon = decode(c, R.drawable.closed_icon);
         trashIcon = decode(c, R.drawable.trash_icon);
         archivedIcon = decode(c, R.drawable.archived_icon);
+        newIpIcon = decode(c, R.drawable.new_ip_icon);
 
         error = decode(c, R.drawable.error_icon);
         paddedError = Bitmap.createBitmap(error.getWidth() * 2, error.getHeight() * 2, Bitmap.Config.ARGB_8888);

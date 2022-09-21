@@ -174,6 +174,7 @@ public class ChanSettings {
     public static final BooleanSetting parseExtraQuotes;
     public static final BooleanSetting parseExtraSpoilers;
     public static final BooleanSetting mildMarkdown;
+    public static final BooleanSetting markNewIps;
 
     // Images
     public static final BooleanSetting hideImages;
@@ -356,6 +357,7 @@ public class ChanSettings {
             parseExtraQuotes = new BooleanSetting(p, "parse_extra_quotes", false);
             parseExtraSpoilers = new BooleanSetting(p, "parse_extra_spoilers", false);
             mildMarkdown = new BooleanSetting(p, "parse_markdown_subset", false);
+            markNewIps = new BooleanSetting(p, "mark_new_ips", false);
 
             // Images
             hideImages = new BooleanSetting(p, "preference_hide_images", false);

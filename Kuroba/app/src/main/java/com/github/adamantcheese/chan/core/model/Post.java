@@ -110,6 +110,7 @@ public class Post
     public int imagesCount;
     public int uniqueIps;
     public long lastModified;
+    public int ipNumInThread = -1;
     public String title = "";
 
     private final List<Call> embedCalls = new ArrayList<>();
@@ -142,11 +143,7 @@ public class Post
             images.addAll(builder.images);
         }
 
-        if (builder.httpIcons != null) {
-            httpIcons = Collections.unmodifiableList(builder.httpIcons);
-        } else {
-            httpIcons = null;
-        }
+        httpIcons = builder.httpIcons;
 
         id = builder.posterId;
         opId = builder.opId;
@@ -379,7 +376,7 @@ public class Post
         public long unixTimestampSeconds = -1L;
         public List<PostImage> images = new CopyOnWriteArrayList<>();
 
-        public List<PostHttpIcon> httpIcons;
+        public List<PostHttpIcon> httpIcons = new ArrayList<>();
 
         public String posterId = "";
         public String moderatorCapcode = "";
@@ -537,11 +534,7 @@ public class Post
         }
 
         public Builder addHttpIcon(PostHttpIcon httpIcon) {
-            if (httpIcons == null) {
-                httpIcons = new ArrayList<>();
-            }
             httpIcons.add(httpIcon);
-
             return this;
         }
 

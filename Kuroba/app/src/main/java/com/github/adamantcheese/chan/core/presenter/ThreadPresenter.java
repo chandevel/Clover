@@ -1066,10 +1066,8 @@ public class ThreadPresenter
             text.append("Post count: ").append(count).append("\n");
         }
 
-        if (post.httpIcons != null && !post.httpIcons.isEmpty()) {
-            for (PostHttpIcon icon : post.httpIcons) {
-                text.append("Icon ").append(icon.code).append(" description: ").append(icon.description).append("\n");
-            }
+        for (PostHttpIcon icon : post.httpIcons) {
+            text.append("Icon ").append(icon.code).append(" description: ").append(icon.description).append("\n");
         }
 
         text.append("Posted: ").append(PostHelper.getLocalDate(post));

@@ -320,6 +320,12 @@ public class AppearanceSettingsController
                     "Adds additional comment parsing for Markdown bold, italics, strikethrough, and code elements"
             )));
 
+            requiresUiRefresh.add(post.add(new BooleanSettingView(this,
+                    ChanSettings.markNewIps,
+                    "Mark new IPs in threads",
+                    "Visually indicates when a new IP has posted in a thread"
+            )));
+
             groups.add(post);
         }
 

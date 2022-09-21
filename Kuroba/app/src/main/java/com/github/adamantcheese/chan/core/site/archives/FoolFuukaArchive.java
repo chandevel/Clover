@@ -112,7 +112,7 @@ public class FoolFuukaArchive
                         break;
                     case "op":
                         builder.op(reader.nextInt() == 1);
-                        queue.setOp(builder);
+                        queue.setOp(builder.clone());
                         break;
                     case "timestamp":
                         builder.setUnixTimestampSeconds(reader.nextLong());

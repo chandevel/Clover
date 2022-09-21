@@ -17,7 +17,9 @@
 package com.github.adamantcheese.chan.core.site.parser;
 
 import static com.github.adamantcheese.chan.Chan.inject;
+import static com.github.adamantcheese.chan.core.site.SiteEndpoints.IconType.OTHER;
 
+import android.graphics.Bitmap;
 import android.util.JsonReader;
 
 import androidx.annotation.NonNull;
@@ -27,9 +29,13 @@ import com.github.adamantcheese.chan.core.database.DatabaseHideManager;
 import com.github.adamantcheese.chan.core.database.DatabaseSavedReplyManager;
 import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.core.model.Post;
+import com.github.adamantcheese.chan.core.model.PostHttpIcon;
 import com.github.adamantcheese.chan.core.model.orm.Loadable;
 import com.github.adamantcheese.chan.core.model.orm.PostHide;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
+import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.loader.ChanLoaderResponse;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
@@ -39,6 +45,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import javax.inject.Inject;
+
+import okhttp3.HttpUrl;
 
 /**
  * Process a typical imageboard json response.<br>
@@ -155,6 +163,7 @@ public class ChanReaderParser
 
         List<Post> cachedPosts = new ArrayList<>();
         List<Post> newPosts = new ArrayList<>();
+        List<Post> deletedPosts = new ArrayList<>();
         if (cached.size() > 0) {
             // Add all posts that were parsed before
             cachedPosts.addAll(cached);
@@ -173,6 +182,9 @@ public class ChanReaderParser
             if (loadable.isThreadMode()) {
                 for (Post cachedPost : cachedPosts) {
                     cachedPost.deleted = !serverPostsByNo.containsKey(cachedPost.no);
+                    if (cachedPost.deleted) {
+                        deletedPosts.add(cachedPost);
+                    }
                 }
             }
 
@@ -189,6 +201,33 @@ public class ChanReaderParser
         List<Post> allPosts = new ArrayList<>(cachedPosts.size() + newPosts.size());
         allPosts.addAll(cachedPosts);
         allPosts.addAll(newPosts);
+
+        if (ChanSettings.markNewIps.get()) {
+            int oldUniqueIps = allPosts.get(0).uniqueIps;
+            int newUniqueIps = op.uniqueIps;
+            int oldPostCount = cachedPosts.size();
+            int newPostCount = allPosts.size();
+            int deletedPostCount = deletedPosts.size();
+
+            if (newUniqueIps - oldUniqueIps == newPostCount - oldPostCount + deletedPostCount) {
+                int ipNo = oldUniqueIps;
+                for (Post post : newPosts) {
+                    post.ipNumInThread = ++ipNo; // new IP, this is the number in the thread
+                    post.httpIcons.add(new PostHttpIcon(OTHER, null, new PassthroughBitmapResult() {
+                        @Override
+                        public void onBitmapSuccess(
+                                @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache
+                        ) {
+                            super.onBitmapSuccess(source, BitmapRepository.newIpIcon, fromCache);
+                        }
+                    }, "IP #", "" + post.ipNumInThread));
+                }
+            } else if (newUniqueIps - oldUniqueIps == -deletedPostCount) {
+                for (Post post : newPosts) {
+                    post.ipNumInThread = -1; // old IP
+                }
+            }
+        }
 
         // add in removed posts from new posts
         for (Post post : newPosts) {

@@ -168,18 +168,16 @@ public class FilterEngine {
 
         //figure out if the post has a flag code, if so check the filter
         String flagCode = "";
-        if (post.httpIcons != null) {
-            for (PostHttpIcon icon : post.httpIcons) {
-                if (icon.type == COUNTRY_FLAG) {
-                    flagCode = icon.code;
-                    break;
-                }
-                if (icon.type == BOARD_FLAG) {
-                    flagCode = icon.code;
-                    break;
-                }
+        for (PostHttpIcon icon : post.httpIcons) {
+            if (icon.type == COUNTRY_FLAG) {
+                flagCode = icon.code;
+                break;
             }
-        }
+            if (icon.type == BOARD_FLAG) {
+                flagCode = icon.code;
+                break;
+            }
+            }
         if (!flagCode.isEmpty() && matches(filter, FLAG_CODE, flagCode, false)) {
             return true;
         }

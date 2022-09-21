@@ -83,7 +83,7 @@ public class PostIcons
     }
 
     private void setHttpIcons(List<PostHttpIcon> newIcons, boolean displayText) {
-        boolean hasNewIcons = !(newIcons == null || newIcons.isEmpty());
+        boolean hasNewIcons = !newIcons.isEmpty();
         setForFlag(displayText ? HTTP_ICONS_FLAG_TEXT : HTTP_ICONS_FLAG_NO_TEXT, hasNewIcons);
         if (!hasNewIcons) {
             clearHttpRequests();

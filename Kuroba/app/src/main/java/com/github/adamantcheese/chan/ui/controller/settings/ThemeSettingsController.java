@@ -49,7 +49,7 @@ import com.github.adamantcheese.chan.core.manager.FilterType;
 import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.model.orm.*;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
@@ -555,7 +555,7 @@ public class ThemeSettingsController
                     .posterId("TeStId2+")
                     .addHttpIcon(new PostHttpIcon(SiteEndpoints.IconType.BOARD_FLAG,
                             TEST_POST_ICON_URL,
-                            new NetUtilsClasses.PassthroughBitmapResult(),
+                            new PassthroughBitmapResult(),
                             "test",
                             "Test icon"
                     ))

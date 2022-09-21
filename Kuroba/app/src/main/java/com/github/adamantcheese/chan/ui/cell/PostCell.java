@@ -52,7 +52,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.github.adamantcheese.chan.R;
 import com.github.adamantcheese.chan.core.model.*;
 import com.github.adamantcheese.chan.core.model.orm.Board;
-import com.github.adamantcheese.chan.core.net.*;
+import com.github.adamantcheese.chan.core.net.ImageLoadable;
+import com.github.adamantcheese.chan.core.net.NetUtils;
+import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.repository.PageRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
@@ -152,7 +154,7 @@ public class PostCell
                     .opId(1)
                     .setUnixTimestampSeconds(System.currentTimeMillis())
                     .comment("")
-                    .addHttpIcon(new PostHttpIcon(OTHER, null, new NetUtilsClasses.PassthroughBitmapResult() {
+                    .addHttpIcon(new PostHttpIcon(OTHER, null, new PassthroughBitmapResult() {
                         @Override
                         public void onBitmapSuccess(
                                 @NonNull HttpUrl source, @NonNull Bitmap bitmap, boolean fromCache

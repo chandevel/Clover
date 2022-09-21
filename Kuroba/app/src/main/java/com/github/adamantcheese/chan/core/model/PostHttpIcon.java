@@ -16,7 +16,6 @@
  */
 package com.github.adamantcheese.chan.core.model;
 
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.PassthroughBitmapResult;
 import com.github.adamantcheese.chan.core.site.SiteEndpoints;
 
@@ -30,11 +29,7 @@ public class PostHttpIcon {
     public final String description;
 
     public PostHttpIcon(
-            SiteEndpoints.IconType type,
-            HttpUrl url,
-            NetUtilsClasses.PassthroughBitmapResult result,
-            String code,
-            String description
+            SiteEndpoints.IconType type, HttpUrl url, PassthroughBitmapResult result, String code, String description
     ) {
         this.type = type;
         this.url = url;
