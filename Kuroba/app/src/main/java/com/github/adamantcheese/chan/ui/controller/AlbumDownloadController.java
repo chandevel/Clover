@@ -130,7 +130,7 @@ public class AlbumDownloadController
                 if (item.checked) {
                     ImageSaveTask imageTask = new ImageSaveTask(item.postImage, false);
                     if (subFolder != null) {
-                        imageTask.setSubFolder(subFolder);
+                        imageTask.setSubFolderLocation(subFolder);
                     }
                     tasks.add(imageTask);
                 }

@@ -33,7 +33,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import androidx.annotation.*;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.github.adamantcheese.chan.R;
@@ -46,8 +47,8 @@ import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.adamantcheese.chan.utils.*;
 import com.github.k1rakishou.fsaf.FileManager;
-import com.github.k1rakishou.fsaf.file.*;
-import com.github.k1rakishou.fsaf.util.FSAFUtils;
+import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.FileSegment;
 import com.google.common.io.Files;
 
 import org.greenrobot.eventbus.*;
@@ -125,7 +126,7 @@ public class ImageSaver {
                         .observeOn(workerScheduler)
                         .flatMap((task) -> {
                             synchronized (activeDownloads) {
-                                boolean isStillActive = activeDownloads.contains(task.getPostImage().imageUrl);
+                                boolean isStillActive = activeDownloads.contains(task.postImage.imageUrl);
 
                                 // If the download is not present in activeDownloads that means that
                                 // it wat canceled, so exit immediately
@@ -188,71 +189,19 @@ public class ImageSaver {
                 .subscribeOn(AndroidSchedulers.mainThread());
     }
 
-    @Nullable
-    private AbstractFile getSaveLocation(ImageSaveTask task) {
-        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
-        if (baseSaveDir == null) {
-            Logger.e(this, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
-            return null;
-        }
-
-        AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
-
-        if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
-            Logger.e(this, "getSaveLocation() Couldn't create base image save directory");
-            return null;
-        }
-
-        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
-            Logger.e(this, "getSaveLocation() Base save local directory does not exist");
-            return null;
-        }
-
-        String subFolder = task.getSubFolder();
-        if (subFolder != null) {
-            List<String> segments = FSAFUtils.splitIntoSegments(subFolder);
-            if (segments.isEmpty()) {
-                return baseSaveDir;
-            }
-
-            List<DirectorySegment> directorySegments = new ArrayList<>(segments.size());
-
-            // All segments should be directory segments since we are creating sub-directories so it
-            // should be safe to get rid of cloneUnsafe() and use regular clone()
-            for (String dirSegment : segments) {
-                directorySegments.add(new DirectorySegment(dirSegment));
-            }
-
-            AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
-
-            if (innerDirectory == null) {
-                Logger.e(this,
-                        "getSaveLocation() failed to create subdirectory ("
-                                + subFolder
-                                + ") for a base dir: "
-                                + baseSaveDir.getFullPath()
-                );
-            }
-
-            return innerDirectory;
-        }
-
-        return baseSaveDir;
-    }
-
     private void imageSaveTaskFailed(ImageSaveTask task, Throwable error) {
         BackgroundUtils.ensureMainThread();
         failedTasks.incrementAndGet();
 
         synchronized (activeDownloads) {
-            activeDownloads.remove(task.getPostImage().imageUrl);
+            activeDownloads.remove(task.postImage.imageUrl);
         }
 
         if (checkBatchCompleted()) {
             onBatchCompleted();
         }
 
-        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.getPostImage().imageUrl));
+        Logger.e(this, "imageSaveTaskFailed imageUrl = " + maskImageUrl(task.postImage.imageUrl));
 
         String errorMessage = getString(R.string.image_saver_failed_to_save_image, error.getMessage());
         EventBus.getDefault().post(new StartActivity.ActivityToastMessage(errorMessage, Toast.LENGTH_LONG));
@@ -263,10 +212,10 @@ public class ImageSaver {
         doneTasks.incrementAndGet();
 
         synchronized (activeDownloads) {
-            activeDownloads.remove(task.getPostImage().imageUrl);
+            activeDownloads.remove(task.postImage.imageUrl);
         }
 
-        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.getPostImage().imageUrl));
+        Logger.d(this, "imageSaveTaskFinished imageUrl = " + maskImageUrl(task.postImage.imageUrl));
         boolean wasAlbumSave = totalTasks.get() > 1;
 
         if (checkBatchCompleted()) {
@@ -326,15 +275,13 @@ public class ImageSaver {
                     boolean isAlbumSave = tasks.size() > 1;
 
                     for (ImageSaveTask task : tasks) {
-                        PostImage postImage = task.getPostImage();
-
-                        AbstractFile saveLocation = getSaveLocation(task);
+                        AbstractFile saveLocation = task.getSaveLocation();
                         if (saveLocation == null) {
                             allSuccess = false;
                             continue;
                         }
 
-                        task.setDestination(deduplicateFile(postImage, task, saveLocation, isAlbumSave));
+                        task.setFinalSaveLocation(deduplicateFile(task.postImage, task, saveLocation, isAlbumSave));
                         startTask(task);
                     }
 
@@ -347,7 +294,7 @@ public class ImageSaver {
 
     private void startTask(ImageSaveTask task) {
         synchronized (activeDownloads) {
-            activeDownloads.add(task.getPostImage().imageUrl);
+            activeDownloads.add(task.postImage.imageUrl);
         }
 
         totalTasks.incrementAndGet();
@@ -378,12 +325,12 @@ public class ImageSaver {
         String text;
         if (wasAlbumSave) {
             String location;
-            AbstractFile locationFile = getSaveLocation(task);
+            AbstractFile saveLocation = task.getSaveLocation();
 
-            if (locationFile == null) {
+            if (saveLocation == null) {
                 location = getString(R.string.image_saver_unknown_location);
             } else {
-                location = locationFile.getFullPath();
+                location = saveLocation.getFullPath();
             }
 
             try {
@@ -392,7 +339,7 @@ public class ImageSaver {
                 text = getString(R.string.image_saver_album_download_success, location);
             }
         } else {
-            text = getString(R.string.image_saver_saved_as_message, fileManager.getName(task.getDestination()));
+            text = getString(R.string.image_saver_saved_as_message, task.getSavedName());
         }
 
         return text;

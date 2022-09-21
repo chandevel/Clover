@@ -34,15 +34,20 @@ import com.github.adamantcheese.chan.StartActivity;
 import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.ui.settings.SavedFilesBaseDirectory;
 import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.github.k1rakishou.fsaf.FileManager;
 import com.github.k1rakishou.fsaf.file.AbstractFile;
+import com.github.k1rakishou.fsaf.file.DirectorySegment;
+import com.github.k1rakishou.fsaf.util.FSAFUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -55,8 +60,8 @@ public class ImageSaveTask {
     @Inject
     FileManager fileManager;
 
-    private final PostImage postImage;
-    private AbstractFile destination;
+    public final PostImage postImage;
+    private AbstractFile finalSaveLocation;
     public final boolean share;
     private String subFolder;
     private boolean success = false;
@@ -70,35 +75,93 @@ public class ImageSaveTask {
         this.imageSaveTaskAsyncResult = SingleSubject.create();
     }
 
-    public void setSubFolder(String boardName) {
-        this.subFolder = boardName;
+    /**
+     * Set the subfolder(s) that this task should save to.
+     *
+     * @param subFolder A string representing the subfolder to save to, with included file separators.
+     */
+    public void setSubFolderLocation(String subFolder) {
+        this.subFolder = subFolder;
     }
 
-    public String getSubFolder() {
-        return subFolder;
+    /**
+     * Set the actual destination of the save task.
+     *
+     * @param destination A file object representing the location that this task will save to.
+     */
+    public void setFinalSaveLocation(AbstractFile destination) {
+        this.finalSaveLocation = destination;
     }
 
-    public PostImage getPostImage() {
-        return postImage;
+    public String getSavedName() {
+        return fileManager.getName(finalSaveLocation);
     }
 
-    public void setDestination(AbstractFile destination) {
-        this.destination = destination;
-    }
+    /**
+     * Sets up the folders specified by setSubFolderLocation.
+     *
+     * @return A file object representing the target folder.
+     */
+    @Nullable
+    public AbstractFile getSaveLocation() {
+        AbstractFile baseSaveDir = fileManager.newBaseDirectoryFile(SavedFilesBaseDirectory.class);
+        if (baseSaveDir == null) {
+            Logger.e(this, "getSaveLocation() fileManager.newSaveLocationFile() returned null");
+            return null;
+        }
 
-    public AbstractFile getDestination() {
-        return destination;
+        AbstractFile createdBaseSaveDir = fileManager.create(baseSaveDir);
+
+        if (!fileManager.exists(baseSaveDir) || createdBaseSaveDir == null) {
+            Logger.e(this, "getSaveLocation() Couldn't create base image save directory");
+            return null;
+        }
+
+        if (!fileManager.baseDirectoryExists(SavedFilesBaseDirectory.class)) {
+            Logger.e(this, "getSaveLocation() Base save local directory does not exist");
+            return null;
+        }
+
+        if (subFolder != null) {
+            List<String> segments = FSAFUtils.splitIntoSegments(subFolder);
+            if (segments.isEmpty()) {
+                return baseSaveDir;
+            }
+
+            List<DirectorySegment> directorySegments = new ArrayList<>(segments.size());
+
+            // All segments should be directory segments since we are creating sub-directories so it
+            // should be safe to get rid of cloneUnsafe() and use regular clone()
+            for (String dirSegment : segments) {
+                directorySegments.add(new DirectorySegment(dirSegment));
+            }
+
+            AbstractFile innerDirectory = fileManager.create(baseSaveDir, directorySegments);
+
+            if (innerDirectory == null) {
+                Logger.e(this,
+                        "getSaveLocation() failed to create subdirectory ("
+                                + subFolder
+                                + ") for a base dir: "
+                                + baseSaveDir.getFullPath()
+                );
+            }
+
+            return innerDirectory;
+        }
+
+        return baseSaveDir;
     }
 
     public Single<ImageSaver.TaskResult> run() {
         BackgroundUtils.ensureBackgroundThread();
-        Logger.d(this, "ImageSaveTask.run() destination = " + destination.getFullPath());
+        Logger.d(this, "ImageSaveTask.run() destination = " + finalSaveLocation.getFullPath());
 
         @Nullable
         Action onDisposeFunc = null;
 
         try {
-            if (fileManager.exists(destination)) {
+            if (fileManager.exists(finalSaveLocation)) {
                 BackgroundUtils.runOnMainThread(() -> {
                     onDestination();
                     onEnd();
@@ -123,8 +186,8 @@ public class ImageSaveTask {
                                 if (copyToDestination(response)) {
                                     onDestination();
                                 } else {
-                                    if (fileManager.exists(destination)) {
-                                        if (!fileManager.delete(destination)) {
+                                    if (fileManager.exists(finalSaveLocation)) {
+                                        if (!fileManager.delete(finalSaveLocation)) {
                                             Logger.e(this, "Could not delete destination file after error");
                                         }
                                     }
@@ -166,7 +229,7 @@ public class ImageSaveTask {
         if (share) {
             Uri file = FileProvider.getUriForFile(getAppContext(),
                     BuildConfig.FILE_PROVIDER,
-                    new File(destination.getFullPath())
+                    new File(finalSaveLocation.getFullPath())
             );
 
             Intent intent = new Intent(Intent.ACTION_SEND);
@@ -178,7 +241,7 @@ public class ImageSaveTask {
         }
 
         try {
-            String[] paths = {destination.getFullPath()};
+            String[] paths = {finalSaveLocation.getFullPath()};
             MediaScannerConnection.scanFile(getAppContext(), paths, null, null);
         } catch (Exception ignored) {}
     }
@@ -186,11 +249,12 @@ public class ImageSaveTask {
     private boolean copyToDestination(File source) {
         try {
             if (share) {
-                destination = fileManager.fromRawFile(source);
+                finalSaveLocation = fileManager.fromRawFile(source);
             } else {
-                AbstractFile createdDestinationFile = fileManager.create(destination);
+                AbstractFile createdDestinationFile = fileManager.create(finalSaveLocation);
                 if (createdDestinationFile == null) {
-                    throw new IOException("Could not create destination file, path = " + destination.getFullPath());
+                    throw new IOException("Could not create destination file, path = "
+                            + finalSaveLocation.getFullPath());
                 }
 
                 if (fileManager.isDirectory(createdDestinationFile)) {
@@ -203,12 +267,12 @@ public class ImageSaveTask {
             }
             return true;
         } catch (Throwable e) {
-            boolean exists = fileManager.exists(destination);
-            boolean canWrite = fileManager.canWrite(destination);
+            boolean exists = fileManager.exists(finalSaveLocation);
+            boolean canWrite = fileManager.canWrite(finalSaveLocation);
 
             Logger.e(this,
                     "Error writing to file: ("
-                            + destination.getFullPath()
+                            + finalSaveLocation.getFullPath()
                             + "), "
                             + "exists = "
                             + exists

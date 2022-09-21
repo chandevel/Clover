@@ -263,7 +263,7 @@ public class ImageViewerController
                     subFolderName = siteNameSafe + File.separator + presenter.getLoadable().boardCode;
                 }
 
-                task.setSubFolder(subFolderName);
+                task.setSubFolderLocation(subFolderName);
             }
 
             Disposable disposable = imageSaver
