@@ -85,7 +85,7 @@ public class YoutubeEmbedder
                     while (input.hasNext()) {
                         switch (input.nextName()) {
                             case "title":
-                                title = URLDecoder.decode(input.nextString(), "utf-8");
+                                title = URLDecoder.decode(input.nextString(), "UTF-8");
                                 break;
                             case "lengthSeconds":
                                 duration = prettyPrintDateUtilsElapsedTime(input.nextInt());

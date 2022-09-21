@@ -149,7 +149,7 @@ public class AlbumDownloadController
                 .startBundledTask(context, tasks)
                 .observeOn(AndroidSchedulers.mainThread())
                 .onErrorReturnItem(UnknownError)
-                .subscribe((result) -> new DefaultImageSaveResultEvent().onResultEvent(context, result));
+                .subscribe((result) -> DefaultImageSaveResultEvent.onResultEvent(context, result));
 
         compositeDisposable.add(disposable);
         navigationController.popController();

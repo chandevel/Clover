@@ -53,6 +53,7 @@ import com.google.common.io.Files;
 import org.greenrobot.eventbus.*;
 
 import java.io.File;
+import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -305,7 +306,11 @@ public class ImageSaver {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(SavingNotification.SavingCancelRequestMessage message) {
-        cancelAll();
+        synchronized (activeDownloads) {
+            activeDownloads.clear();
+        }
+
+        onBatchCompleted();
     }
 
     /**
@@ -318,7 +323,7 @@ public class ImageSaver {
                 .fromCallable(() -> {
                     BackgroundUtils.ensureBackgroundThread();
                     boolean allSuccess = true;
-                    boolean wasAlbumSave = tasks.size() > 1;
+                    boolean isAlbumSave = tasks.size() > 1;
 
                     for (ImageSaveTask task : tasks) {
                         PostImage postImage = task.getPostImage();
@@ -329,7 +334,7 @@ public class ImageSaver {
                             continue;
                         }
 
-                        task.setDestination(deduplicateFile(postImage, task, saveLocation, wasAlbumSave));
+                        task.setDestination(deduplicateFile(postImage, task, saveLocation, isAlbumSave));
                         startTask(task);
                     }
 
@@ -347,14 +352,6 @@ public class ImageSaver {
 
         totalTasks.incrementAndGet();
         imageSaverQueue.onNext(task);
-    }
-
-    private void cancelAll() {
-        synchronized (activeDownloads) {
-            activeDownloads.clear();
-        }
-
-        onBatchCompleted();
     }
 
     private void updateNotification() {
@@ -389,7 +386,11 @@ public class ImageSaver {
                 location = locationFile.getFullPath();
             }
 
-            text = getString(R.string.image_saver_album_download_success, location);
+            try {
+                text = getString(R.string.image_saver_album_download_success, URLDecoder.decode(location, "UTF-8"));
+            } catch (Exception e) {
+                text = getString(R.string.image_saver_album_download_success, location);
+            }
         } else {
             text = getString(R.string.image_saver_saved_as_message, fileManager.getName(task.getDestination()));
         }
@@ -467,7 +468,7 @@ public class ImageSaver {
     }
 
     public static class DefaultImageSaveResultEvent {
-        public void onResultEvent(Context context, ImageSaver.ImageSaveResult result) {
+        public static void onResultEvent(Context context, ImageSaver.ImageSaveResult result) {
             switch (result) {
                 case BaseDirectoryDoesNotExist:
                     showToast(context, R.string.files_base_dir_does_not_exist);

@@ -270,7 +270,7 @@ public class ImageViewerController
                     .startBundledTask(context, Collections.singletonList(task))
                     .observeOn(AndroidSchedulers.mainThread())
                     .onErrorReturnItem(UnknownError)
-                    .subscribe((result) -> new DefaultImageSaveResultEvent().onResultEvent(context, result));
+                    .subscribe((result) -> DefaultImageSaveResultEvent.onResultEvent(context, result));
 
             compositeDisposable.add(disposable);
         }

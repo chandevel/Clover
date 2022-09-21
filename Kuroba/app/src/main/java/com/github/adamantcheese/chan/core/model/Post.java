@@ -110,7 +110,6 @@ public class Post
     public int imagesCount;
     public int uniqueIps;
     public long lastModified;
-    public int ipNumInThread = -1;
     public String title = "";
 
     private final List<Call> embedCalls = new ArrayList<>();

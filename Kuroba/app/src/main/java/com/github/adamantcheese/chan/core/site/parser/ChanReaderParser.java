@@ -212,7 +212,7 @@ public class ChanReaderParser
             if (newUniqueIps - oldUniqueIps == newPostCount - oldPostCount + deletedPostCount) {
                 int ipNo = oldUniqueIps;
                 for (Post post : newPosts) {
-                    post.ipNumInThread = ++ipNo; // new IP, this is the number in the thread
+                    int ipNumInThread = ++ipNo; // new IP, this is the number in the thread
                     post.httpIcons.add(new PostHttpIcon(OTHER, null, new PassthroughBitmapResult() {
                         @Override
                         public void onBitmapSuccess(
@@ -220,11 +220,7 @@ public class ChanReaderParser
                         ) {
                             super.onBitmapSuccess(source, BitmapRepository.newIpIcon, fromCache);
                         }
-                    }, "IP #", "" + post.ipNumInThread));
-                }
-            } else if (newUniqueIps - oldUniqueIps == -deletedPostCount) {
-                for (Post post : newPosts) {
-                    post.ipNumInThread = -1; // old IP
+                    }, "IP #", "" + ipNumInThread));
                 }
             }
         }
