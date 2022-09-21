@@ -57,26 +57,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/captcha_input_container"
+        <EditText
+            android:id="@+id/captcha_input"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:gravity="center"
+            android:hint="@string/reply_captcha_text"
+            android:imeOptions="actionDone"
+            android:inputType="text|textCapCharacters"
+            android:maxLines="1"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/autosolve"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/captcha_input"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:hint="@string/reply_captcha_text"
-                android:imeOptions="actionDone"
-                android:inputType="text"
-                android:maxLines="1" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/autosolve"
@@ -85,7 +78,7 @@
             android:background="@drawable/ripple_item_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/verify"
-            app:layout_constraintStart_toEndOf="@id/captcha_input_container"
+            app:layout_constraintStart_toEndOf="@id/captcha_input"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Solve" />
 

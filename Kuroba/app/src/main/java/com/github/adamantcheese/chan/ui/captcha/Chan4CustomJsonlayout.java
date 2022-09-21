@@ -63,7 +63,7 @@ public class Chan4CustomJsonlayout
     private ImageView bg;
     private ImageView fg;
     private SeekBar slider;
-    private TextInputEditText input;
+    private EditText input;
     private Button autoSolve;
     private ImageView verify;
     private WebView captchaAutosolve;
@@ -444,6 +444,7 @@ public class Chan4CustomJsonlayout
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof WebView) {
+                removeView(child);
                 ((WebView) child).destroy();
             }
         }
