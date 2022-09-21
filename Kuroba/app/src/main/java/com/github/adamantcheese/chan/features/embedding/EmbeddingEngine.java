@@ -82,15 +82,20 @@ public class EmbeddingEngine
     public static List<Embedder> getDefaultEmbedders() {
         List<Embedder> defaults = new ArrayList<>();
 
-        // Media embedders
+        // Video embedders
         defaults.add(new YoutubeEmbedder());
         defaults.add(new StreamableEmbedder());
+        defaults.add(new VimeoEmbedder());
+
+        // Audio embedders
         defaults.add(new VocarooEmbedder());
         defaults.add(new ClypEmbedder());
         defaults.add(new SoundcloudEmbedder());
         defaults.add(new BandcampEmbedder());
-        defaults.add(new VimeoEmbedder());
+
+        // Image embedders
         defaults.add(new PixivEmbedder());
+        defaults.add(new DlsiteEmbedder());
 
         // Special embedders
         defaults.add(new QuickLatexEmbedder());
@@ -295,12 +300,23 @@ public class EmbeddingEngine
             EmbedResult result,
             String URL
     ) {
-        return new Pair<>(new NullCall(HttpUrl.get(URL)), new IgnoreFailureCallback() {
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) {
-                performStandardEmbedding(theme, commentCopy, generatedImages, result, URL, embedder.getIconBitmap());
-            }
-        });
+        // in case of embed replacement where the replaced text isn't in the form of a link,
+        // a dummy URL needs to be used otherwise okhttp3 will crash because it looks for a valid link
+        String dummyURL = "https://example.com";
+        return new Pair<>(new NullCall(HttpUrl.get(URL.startsWith("http") ? URL : dummyURL)),
+                new IgnoreFailureCallback() {
+                    @Override
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
+                        performStandardEmbedding(theme,
+                                commentCopy,
+                                generatedImages,
+                                result,
+                                URL,
+                                embedder.getIconBitmap()
+                        );
+                    }
+                }
+        );
     }
 
     /**
