@@ -419,8 +419,10 @@ public class PostThemedStyleActions {
             if (!ChanSettings.debugFilters.get()) return text == null ? "" : text;
             SpannableString builder = new SpannableString(text);
             for (Filter f : filters) {
+                if (f.onlyOnOP && !post.op) continue;
+                if (f.applyToSaved && !post.isSavedReply) continue;
                 if (filterEngine.matchesBoard(f, post.board)) {
-                    MatchResult result = filterEngine.getMatch(f, FilterType.COMMENT, text, false);
+                    MatchResult result = filterEngine.getMatchResult(f, FilterType.COMMENT, text, false);
                     if (result != null) {
                         builder.setSpan(
                                 new FilterDebugLinkable(ThemeHelper.getTheme(), f.pattern),

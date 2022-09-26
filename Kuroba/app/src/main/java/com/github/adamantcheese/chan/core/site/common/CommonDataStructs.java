@@ -27,8 +27,8 @@ public class CommonDataStructs {
             this(Arrays.asList(filters));
         }
 
-        public Filters(List<Filter> boards) {
-            super(boards);
+        public Filters(List<Filter> filters) {
+            super(filters);
         }
 
         public Filters() {

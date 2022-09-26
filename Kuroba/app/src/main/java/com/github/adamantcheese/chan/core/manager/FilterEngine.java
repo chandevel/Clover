@@ -195,11 +195,11 @@ public class FilterEngine {
     }
 
     public boolean matches(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
-        return getMatch(filter, type, text, forceCompile) != null;
+        return getMatchResult(filter, type, text, forceCompile) != null;
     }
 
     @AnyThread
-    public MatchResult getMatch(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
+    public MatchResult getMatchResult(Filter filter, FilterType type, CharSequence text, boolean forceCompile) {
         if ((filter.type & type.flag) == 0) return null;
         if (text == null) return null;
 
