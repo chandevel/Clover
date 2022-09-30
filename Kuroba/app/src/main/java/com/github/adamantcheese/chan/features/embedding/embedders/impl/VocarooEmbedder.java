@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import static com.github.adamantcheese.chan.features.embedding.EmbeddingEngine.performStandardEmbedding;
 
@@ -15,6 +15,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses.IgnoreFailureCallb
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.VoidEmbedder;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

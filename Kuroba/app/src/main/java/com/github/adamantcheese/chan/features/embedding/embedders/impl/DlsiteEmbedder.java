@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import android.graphics.Bitmap;
 import android.util.JsonReader;
@@ -8,6 +8,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.JsonEmbedder;
 import com.github.adamantcheese.chan.utils.StringUtils;
 import com.google.common.io.Files;
 

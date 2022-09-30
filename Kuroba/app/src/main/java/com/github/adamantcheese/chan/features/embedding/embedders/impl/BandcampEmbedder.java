@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.getRGBColorIntString;
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrint8601Time;
@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.HtmlEmbedder;
 import com.github.adamantcheese.chan.ui.theme.ThemeHelper;
 import com.github.adamantcheese.chan.utils.StringUtils;
 

@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import static com.github.adamantcheese.chan.utils.StringUtils.prettyPrintDateUtilsElapsedTime;
 
@@ -9,6 +9,7 @@ import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.Embedder;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import java.io.StringReader;

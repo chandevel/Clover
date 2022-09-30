@@ -1,4 +1,4 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.impl;
 
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 
@@ -10,6 +10,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.features.embedding.EmbedNoTitleException;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.Embedder;
 import com.github.adamantcheese.chan.utils.StringUtils;
 
 import org.jsoup.Jsoup;

@@ -201,6 +201,7 @@ public class PostParser {
                         post,
                         postParserCallback
                 ))
+                .chain(PostThemedStyleActions.MAGNET_LINKS.with(theme, post, postParserCallback))
                 .chain(new HtmlNodeTreeAction(elementAction.addSpecificActions(theme, post, postParserCallback),
                         new ChainStyleAction(HEX_COLOR).chain(CommonStyleActions.getDefaultTextStylingAction(theme))
                 ))

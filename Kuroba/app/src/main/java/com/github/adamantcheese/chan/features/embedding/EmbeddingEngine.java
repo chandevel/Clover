@@ -24,11 +24,13 @@ import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses.*;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
-import com.github.adamantcheese.chan.features.embedding.embedders.*;
+import com.github.adamantcheese.chan.features.embedding.embedders.base.Embedder;
+import com.github.adamantcheese.chan.features.embedding.embedders.impl.*;
 import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.EmbedderLinkLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
+import com.github.adamantcheese.chan.utils.BackgroundUtils;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
 import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.reflect.TypeToken;
@@ -125,6 +127,15 @@ public class EmbeddingEngine
             @NonNull final InvalidateFunction invalidateFunction
     ) {
         if (embeddable.hasCompletedEmbedding()) return false;
+        BackgroundUtils.runOnBackgroundThread(() -> embedInternal(theme, embeddable, invalidateFunction));
+        return true;
+    }
+
+    private <T extends Embeddable> void embedInternal(
+            @NonNull final Theme theme,
+            @NonNull final T embeddable,
+            @NonNull final InvalidateFunction invalidateFunction
+    ) {
         embeddable.setComplete(); // prevent duplicate calls
         embeddable.stopEmbedding();
 
@@ -143,7 +154,7 @@ public class EmbeddingEngine
 
         if (generatedCallPairs.isEmpty()) {
             onEmbeddingComplete(embeddable, embedCopy, generatedImages, invalidateFunction);
-            return false; // technically this view will be embedded, but not with any network calls so we return false
+            return; // this view will be embedded, but not with any network calls so we exit early
         }
 
         // Set up and enqueue all the generated calls
@@ -177,7 +188,6 @@ public class EmbeddingEngine
             });
             embeddable.addEmbedCall(c.first);
         }
-        return true;
     }
 
     private <T extends Embeddable> void onEmbeddingComplete(

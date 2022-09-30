@@ -5,12 +5,15 @@ import static com.github.adamantcheese.chan.features.html_styling.impl.CommonSty
 import static com.github.adamantcheese.chan.features.html_styling.impl.CommonThemedStyleActions.QUOTE_COLOR;
 import static com.github.adamantcheese.chan.ui.widget.DefaultAlertDialog.getDefaultAlertBuilder;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.dp;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.getAppContext;
+import static com.github.adamantcheese.chan.utils.AndroidUtils.sp;
 import static com.github.adamantcheese.chan.utils.AndroidUtils.updatePaddings;
 import static com.github.adamantcheese.chan.utils.BuildConfigUtils.INTERNAL_SPOILER_THUMB_URL;
 import static com.github.adamantcheese.chan.utils.StringUtils.RenderOrder.RENDER_NORMAL;
 import static com.github.adamantcheese.chan.utils.StringUtils.makeSpanOptions;
 import static com.github.adamantcheese.chan.utils.StringUtils.span;
 
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
@@ -30,6 +33,7 @@ import com.github.adamantcheese.chan.core.model.PostImage;
 import com.github.adamantcheese.chan.core.model.orm.Filter;
 import com.github.adamantcheese.chan.core.net.NetUtils;
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
+import com.github.adamantcheese.chan.core.repository.BitmapRepository;
 import com.github.adamantcheese.chan.core.settings.ChanSettings;
 import com.github.adamantcheese.chan.core.site.Site;
 import com.github.adamantcheese.chan.core.site.archives.ExternalSiteArchive;
@@ -37,6 +41,7 @@ import com.github.adamantcheese.chan.core.site.common.CommonDataStructs.Filters;
 import com.github.adamantcheese.chan.core.site.parser.PostParser;
 import com.github.adamantcheese.chan.core.site.parser.comment_action.linkdata.*;
 import com.github.adamantcheese.chan.features.html_styling.base.*;
+import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.CustomTypefaceSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.*;
 import com.github.adamantcheese.chan.ui.theme.Theme;
@@ -48,6 +53,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 
+import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.*;
@@ -434,6 +440,59 @@ public class PostThemedStyleActions {
                 }
             }
             return builder;
+        }
+    };
+
+    private static final Pattern MAGNET_URL_PATTERN = Pattern.compile("magnet:\\?(?:\\w*=[^&\\v]*&?)+");
+    private static final Pattern MAGNET_URL_NAME_PATTERN = Pattern.compile("dn=([^&\\v]*)");
+    public static PostThemedStyleAction MAGNET_LINKS = new PostThemedStyleAction() {
+        @NonNull
+        @Override
+        protected CharSequence style(
+                @NonNull Node node,
+                @Nullable CharSequence text,
+                @NonNull Theme theme,
+                @NonNull Post.Builder post,
+                @NonNull PostParser.PostParserCallback callback
+        ) {
+            SpannableStringBuilder replaced = new SpannableStringBuilder(text);
+            Matcher magnetMatcher = MAGNET_URL_PATTERN.matcher(text == null ? "" : text);
+            int index = 0;
+            while (true) {
+                if (!magnetMatcher.find()) break;
+                String foundText = magnetMatcher.group(0);
+                //noinspection ConstantConditions
+                Matcher displayNameMatcher = MAGNET_URL_NAME_PATTERN.matcher(foundText);
+                String displayName = "Magnet Link";
+                if (displayNameMatcher.find()) {
+                    try {
+                        displayName = URLDecoder.decode(displayNameMatcher.group(1), "UTF-8");
+                    } catch (Exception ignored) {}
+                }
+
+                // search from the last known replacement location
+                index = TextUtils.indexOf(replaced, foundText, index);
+                if (index < 0) break;
+
+                // Generate a fresh replacement string (in case of repeats)
+                SpannableStringBuilder replacement = new SpannableStringBuilder();
+                Bitmap icon = BitmapRepository.magnetIcon;
+                CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
+                float height = sp(ChanSettings.fontSize.get());
+                int width = (int) (height / (icon.getHeight() / (float) icon.getWidth()));
+                siteIcon.getDrawable().setBounds(0, 0, width, (int) height);
+
+                replacement.append(span(" ", siteIcon)).append(" ").append(displayName);
+
+                // Set the linkable to be the entire length, including the icon
+                ParserLinkLinkable pl = new ParserLinkLinkable(theme, foundText);
+
+                // replace the proper section of the comment with the link
+                replaced.replace(index, index + foundText.length(), span(replacement, pl));
+
+                index = index + replacement.length();
+            }
+            return replaced;
         }
     };
 }

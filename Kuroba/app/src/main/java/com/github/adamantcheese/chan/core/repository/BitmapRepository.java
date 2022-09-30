@@ -29,6 +29,7 @@ public class BitmapRepository {
     public static Bitmap vimeoIcon;
     public static Bitmap pixivIcon;
     public static Bitmap dlsiteIcon;
+    public static Bitmap magnetIcon;
 
     public static Bitmap stickyIcon;
     public static Bitmap closedIcon;
@@ -59,6 +60,7 @@ public class BitmapRepository {
         vimeoIcon = decode(c, R.drawable.vimeo_icon);
         pixivIcon = decode(c, R.drawable.pixiv_icon);
         dlsiteIcon = decode(c, R.drawable.dlsite_icon);
+        magnetIcon = decode(c, R.drawable.magnet_icon);
 
         stickyIcon = decode(c, R.drawable.sticky_icon);
         closedIcon = decode(c, R.drawable.closed_icon);

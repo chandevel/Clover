@@ -1,23 +1,22 @@
-package com.github.adamantcheese.chan.features.embedding.embedders;
+package com.github.adamantcheese.chan.features.embedding.embedders.base;
+
+import android.util.JsonReader;
 
 import com.github.adamantcheese.chan.core.net.NetUtilsClasses;
-import com.github.adamantcheese.chan.core.net.NetUtilsClasses.Converter;
 import com.github.adamantcheese.chan.features.embedding.EmbedResult;
-
-import org.jsoup.nodes.Document;
 
 import okhttp3.Response;
 
-public abstract class HtmlEmbedder
+public abstract class JsonEmbedder
         implements Embedder {
 
     @Override
     public EmbedResult convert(Response response)
             throws Exception {
         return new NetUtilsClasses.ChainConverter<>(getInternalConverter())
-                .chain(NetUtilsClasses.HTML_CONVERTER)
+                .chain(NetUtilsClasses.JSON_CONVERTER)
                 .convert(response);
     }
 
-    public abstract Converter<EmbedResult, Document> getInternalConverter();
+    public abstract NetUtilsClasses.Converter<EmbedResult, JsonReader> getInternalConverter();
 }
