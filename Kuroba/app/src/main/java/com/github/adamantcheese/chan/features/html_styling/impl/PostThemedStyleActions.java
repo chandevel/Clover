@@ -99,6 +99,7 @@ public class PostThemedStyleActions {
             @NonNull Post.Builder post,
             @NonNull PostParser.PostParserCallback callback
     ) {
+        // get a URL for the href to parse through
         String href = anchor.attr("href");
         HttpUrl hrefUrl = null;
         try {
@@ -107,12 +108,15 @@ public class PostThemedStyleActions {
         if (hrefUrl == null) {
             return new ParserLinkLinkable(theme, href);
         }
+        // remove empty segments on the path
         List<String> hrefSegments = hrefUrl.pathSegments();
         for (int i = hrefSegments.size() - 1; i >= 0; i--) {
             String segment = hrefSegments.get(i);
             if (segment.isEmpty()) hrefSegments.remove(segment);
         }
 
+        // convert the segments into a board, thread, and post number
+        // TODO make the site itself have a method to parse the segments, because this is not correct for all sites
         int threadNo = -1; // no known thread number
         try {
             // on the last segment of the url, strip anything that isn't a number and parse it
@@ -123,7 +127,9 @@ public class PostThemedStyleActions {
         int segments = hrefSegments.size();
         String board = null;
         try {
-            board = segments - 3 >= 0 ? hrefSegments.get(segments - 3) : hrefSegments.get(segments - 2);
+            board = segments - 3 >= 0
+                    ? hrefSegments.get(segments - 3)
+                    : (segments == 1 ? hrefSegments.get(0) : hrefSegments.get(segments - 2));
         } catch (Exception ignored) {}
 
         int postNo = -1;
