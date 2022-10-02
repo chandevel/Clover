@@ -37,13 +37,13 @@ public class ChainStyleAction
         next = finalAction;
     }
 
-    public ChainStyleAction chain(StyleAction intermediate) {
+    public final ChainStyleAction chain(StyleAction intermediate) {
         return new ChainStyleAction((node, text) -> style(node, intermediate.style(node, text)));
     }
 
     @NonNull
     @Override
-    public CharSequence style(
+    public final CharSequence style(
             @NonNull Node node, @Nullable CharSequence styledInnerText
     ) {
         try {

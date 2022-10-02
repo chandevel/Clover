@@ -30,9 +30,8 @@ import com.github.adamantcheese.chan.ui.text.CenteringImageSpan;
 import com.github.adamantcheese.chan.ui.text.post_linkables.EmbedderLinkLinkable;
 import com.github.adamantcheese.chan.ui.text.post_linkables.ParserLinkLinkable;
 import com.github.adamantcheese.chan.ui.theme.Theme;
-import com.github.adamantcheese.chan.utils.BackgroundUtils;
+import com.github.adamantcheese.chan.utils.*;
 import com.github.adamantcheese.chan.utils.JavaUtils.NoDeleteArrayList;
-import com.github.adamantcheese.chan.utils.Logger;
 import com.google.gson.reflect.TypeToken;
 
 import org.jetbrains.annotations.NotNull;
@@ -343,14 +342,8 @@ public class EmbeddingEngine
             @NonNull String URL,
             final Bitmap icon
     ) {
-        int index = 0;
-        while (true) { // this will always break eventually
-            synchronized (commentCopy) {
-                // search from the last known replacement location
-                index = TextUtils.indexOf(commentCopy, URL, index);
-                if (index < 0) break;
-
-                // Generate a fresh replacement string (in case of repeats)
+        synchronized (commentCopy) {
+            StringUtils.replaceAll(commentCopy, (source) -> URL, (source) -> {
                 SpannableStringBuilder replacement = new SpannableStringBuilder();
                 CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
                 float height = sp(ChanSettings.fontSize.get());
@@ -363,19 +356,13 @@ public class EmbeddingEngine
                         .append(parseResult.title)
                         .append(TextUtils.isEmpty(parseResult.duration) ? "" : " " + parseResult.duration);
 
-                // Set the linkable to be the entire length, including the icon
                 EmbedderLinkLinkable pl = new EmbedderLinkLinkable(theme, URL);
-
-                // replace the proper section of the comment with the link
-                commentCopy.replace(index, index + URL.length(), span(replacement, pl));
-
-                // if linking is enabled, add in any processed inlines
-                if (ChanSettings.parsePostImageLinks.get() && parseResult.extraImage != null) {
-                    generatedImages.add(parseResult.extraImage);
-                }
-                // update the index to the next location
-                index = index + replacement.length();
-            }
+                return span(replacement, pl);
+            }, true);
+        }
+        // if linking is enabled, add in any processed inlines
+        if (ChanSettings.parsePostImageLinks.get() && parseResult.extraImage != null) {
+            generatedImages.add(parseResult.extraImage);
         }
     }
     //endregion

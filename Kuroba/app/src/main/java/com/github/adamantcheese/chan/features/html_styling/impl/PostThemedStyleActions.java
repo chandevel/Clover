@@ -455,26 +455,18 @@ public class PostThemedStyleActions {
                 @NonNull Post.Builder post,
                 @NonNull PostParser.PostParserCallback callback
         ) {
-            SpannableStringBuilder replaced = new SpannableStringBuilder(text);
             Matcher magnetMatcher = MAGNET_URL_PATTERN.matcher(text == null ? "" : text);
-            int index = 0;
-            while (true) {
-                if (!magnetMatcher.find()) break;
-                String foundText = magnetMatcher.group(0);
-                //noinspection ConstantConditions
-                Matcher displayNameMatcher = MAGNET_URL_NAME_PATTERN.matcher(foundText);
+            return StringUtils.replaceAll(text == null ? "" : text, source -> {
+                if (!magnetMatcher.find()) return null;
+                return magnetMatcher.group(0);
+            }, source -> {
+                Matcher displayNameMatcher = MAGNET_URL_NAME_PATTERN.matcher(source);
                 String displayName = "Magnet Link";
                 if (displayNameMatcher.find()) {
                     try {
                         displayName = URLDecoder.decode(displayNameMatcher.group(1), "UTF-8");
                     } catch (Exception ignored) {}
                 }
-
-                // search from the last known replacement location
-                index = TextUtils.indexOf(replaced, foundText, index);
-                if (index < 0) break;
-
-                // Generate a fresh replacement string (in case of repeats)
                 SpannableStringBuilder replacement = new SpannableStringBuilder();
                 Bitmap icon = BitmapRepository.magnetIcon;
                 CenteringImageSpan siteIcon = new CenteringImageSpan(getAppContext(), icon);
@@ -485,14 +477,9 @@ public class PostThemedStyleActions {
                 replacement.append(span(" ", siteIcon)).append(" ").append(displayName);
 
                 // Set the linkable to be the entire length, including the icon
-                ParserLinkLinkable pl = new ParserLinkLinkable(theme, foundText);
-
-                // replace the proper section of the comment with the link
-                replaced.replace(index, index + foundText.length(), span(replacement, pl));
-
-                index = index + replacement.length();
-            }
-            return replaced;
+                ParserLinkLinkable pl = new ParserLinkLinkable(theme, source.toString());
+                return span(replacement, pl);
+            }, false);
         }
     };
 }

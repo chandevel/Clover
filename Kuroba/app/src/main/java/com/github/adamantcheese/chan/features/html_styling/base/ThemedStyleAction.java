@@ -13,8 +13,8 @@ public abstract class ThemedStyleAction
         extends AdditionalDataStyleAction {
     private static final String THEME_DATA = "theme";
 
-    public AdditionalDataStyleAction with(Theme theme) {
-        return new AdditionalDataStyleAction() {
+    public final AdditionalDataStyleAction with(Theme theme) {
+        AdditionalDataStyleAction newAction = new AdditionalDataStyleAction() {
             @NonNull
             @Override
             protected CharSequence style(
@@ -22,14 +22,9 @@ public abstract class ThemedStyleAction
             ) {
                 return ThemedStyleAction.this.style(node, text, data);
             }
-
-            @NonNull
-            @Override
-            public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
-                this.data.put(THEME_DATA, theme);
-                return super.style(node, styledInnerText);
-            }
         };
+        newAction.data.put(THEME_DATA, theme);
+        return newAction;
     }
 
     @NonNull
@@ -37,7 +32,9 @@ public abstract class ThemedStyleAction
 
     @NonNull
     @Override
-    protected CharSequence style(@NonNull Node node, @Nullable CharSequence text, @NonNull Map<String, Object> data) {
+    protected final CharSequence style(
+            @NonNull Node node, @Nullable CharSequence text, @NonNull Map<String, Object> data
+    ) {
         Theme theme = (Theme) data.get(THEME_DATA);
         if (theme == null) {
             throw new IllegalStateException("Cannot style with missing info! Call with() beforehand!");

@@ -23,7 +23,7 @@ public abstract class AdditionalDataStyleAction
 
     @NonNull
     @Override
-    public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
+    public final CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
         return style(node, styledInnerText, data);
     }
 }

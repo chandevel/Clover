@@ -13,7 +13,6 @@ import com.github.adamantcheese.chan.core.manager.FilterEngine;
 import com.github.adamantcheese.chan.ui.text.SearchHighlightSpan;
 import com.github.adamantcheese.chan.ui.theme.Theme;
 import com.google.common.io.Files;
-import com.vdurmont.emoji.EmojiParser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -341,5 +340,54 @@ public class StringUtils {
     public static void replaceSpan(Spannable text, CharacterStyle source, CharacterStyle replacement) {
         text.setSpan(replacement, text.getSpanStart(source), text.getSpanEnd(source), makeSpanOptions(RENDER_NORMAL));
         text.removeSpan(source);
+    }
+
+    public static CharSequence replaceAll(
+            CharSequence source,
+            TargetGenerator targetGenerator,
+            ReplacementGenerator replacementGenerator,
+            boolean inPlace
+    ) {
+        SpannableStringBuilder replaced;
+        if (inPlace) {
+            if (source instanceof SpannableStringBuilder) {
+                replaced = (SpannableStringBuilder) source;
+            } else {
+                throw new IllegalArgumentException(
+                        "If you want to replace all in-place, provide a SpannableStringBuilder as the source.");
+            }
+        } else {
+            replaced = new SpannableStringBuilder(source);
+        }
+        int index = 0;
+        while (true) {
+            // generate an item to be replaced
+            CharSequence target = targetGenerator.generateTarget(source);
+            if (TextUtils.isEmpty(target)) break;
+
+            // search from the last known replacement location
+            index = TextUtils.indexOf(replaced, target, index);
+            if (index < 0) break;
+
+            // replace the proper section with the replacement
+            CharSequence replacement = replacementGenerator.generateReplacement(target);
+            replaced.replace(index, index + target.length(), replacement);
+
+            // index forward past the replacement
+            index = index + replacement.length();
+        }
+        return replaced;
+    }
+
+    public static CharSequence replaceAll(CharSequence source, CharSequence needle, CharSequence replacement) {
+        return replaceAll(source, (source1) -> needle, (source2) -> replacement, false);
+    }
+
+    public interface TargetGenerator {
+        CharSequence generateTarget(CharSequence source);
+    }
+
+    public interface ReplacementGenerator {
+        CharSequence generateReplacement(CharSequence source);
     }
 }

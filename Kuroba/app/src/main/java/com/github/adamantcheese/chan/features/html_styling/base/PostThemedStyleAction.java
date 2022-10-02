@@ -17,8 +17,10 @@ public abstract class PostThemedStyleAction
     private static final String POST_DATA = "post";
     private static final String POST_CALLBACK_DATA = "post_callback";
 
-    public AdditionalDataStyleAction with(Theme theme, Post.Builder post, PostParser.PostParserCallback callback) {
-        return new AdditionalDataStyleAction() {
+    public final AdditionalDataStyleAction with(
+            Theme theme, Post.Builder post, PostParser.PostParserCallback callback
+    ) {
+        AdditionalDataStyleAction newAction = new AdditionalDataStyleAction() {
             @NonNull
             @Override
             protected CharSequence style(
@@ -26,16 +28,11 @@ public abstract class PostThemedStyleAction
             ) {
                 return PostThemedStyleAction.this.style(node, text, data);
             }
-
-            @NonNull
-            @Override
-            public CharSequence style(@NonNull Node node, @Nullable CharSequence styledInnerText) {
-                this.data.put(THEME_DATA, theme);
-                this.data.put(POST_DATA, post);
-                this.data.put(POST_CALLBACK_DATA, callback);
-                return super.style(node, styledInnerText);
-            }
         };
+        newAction.data.put(THEME_DATA, theme);
+        newAction.data.put(POST_DATA, post);
+        newAction.data.put(POST_CALLBACK_DATA, callback);
+        return newAction;
     }
 
     @NonNull
@@ -49,7 +46,7 @@ public abstract class PostThemedStyleAction
 
     @NonNull
     @Override
-    protected CharSequence style(
+    protected final CharSequence style(
             @NonNull Node node, @Nullable CharSequence text, @NonNull Map<String, Object> data
     ) {
         Theme theme = (Theme) data.get(THEME_DATA);
