@@ -123,16 +123,6 @@ public class StringUtils {
         return false;
     }
 
-    public static String parseEmojiToAscii(String input) {
-        return EmojiParser.parseFromUnicode(
-                input,
-                e -> ":"
-                        + e.getEmoji().getAliases().get(0)
-                        + (e.hasFitzpatrick() ? "|" + e.getFitzpatrickType() : "")
-                        + ": "
-        );
-    }
-
     public static String caseAndSpace(String input, String delimiter, boolean onlyFirst) {
         String[] parts;
         if (delimiter != null) {

@@ -581,8 +581,8 @@ public class ReplyLayout
         draft.spoilerImage = (boolean) spoiler.getTag();
 
         if (ChanSettings.enableEmoji.get()) {
-            draft.name = StringUtils.parseEmojiToAscii(draft.name);
-            draft.comment = StringUtils.parseEmojiToAscii(draft.comment);
+            draft.name = EmojiParser.parseToAliases(draft.name);
+            draft.comment = EmojiParser.parseToAliases(draft.comment);
         }
     }
 
@@ -711,7 +711,10 @@ public class ReplyLayout
     public void setExpanded(boolean expanded) {
         setWrappingMode(expanded);
         comment.setMaxLines(expanded ? 500 : 6);
-        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(MATCH_PARENT, (int) dp(getContext(), expanded ? 300 : 200)));
+        previewHolder.setLayoutParams(new LinearLayout.LayoutParams(
+                MATCH_PARENT,
+                (int) dp(getContext(), expanded ? 300 : 200)
+        ));
         more.setRotation(ChanSettings.moveInputToBottom.get() ? (expanded ? 0f : 180f) : (expanded ? 180f : 0f));
 
         setDividerVisibility(expanded);
